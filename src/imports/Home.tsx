@@ -158,7 +158,7 @@ function NavBarMenu6() {
     <div className="h-[36px] relative rounded-[4px] shrink-0 w-full" data-name="Nav Bar/Menu">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[4px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic opacity-50 overflow-hidden relative shrink-0 text-[12px] text-ellipsis text-white tracking-[0.12px]">Starred</p>
+          <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic opacity-50 overflow-hidden relative shrink-0 text-[12px] text-ellipsis text-white tracking-[0.12px]">Playbooks</p>
         </div>
       </div>
     </div>
@@ -171,6 +171,30 @@ function NavBarMenu7({ onClick }: { onClick?: () => void }) {
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
           <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis text-white tracking-[0.13px] whitespace-nowrap">Dashboard Playbook</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NavBarMenu18({ onClick }: { onClick?: () => void }) {
+  return (
+    <div className="h-[36px] relative rounded-[4px] shrink-0 w-full cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors" data-name="Nav Bar/Menu" onClick={onClick}>
+      <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
+        <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
+          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis text-white tracking-[0.13px] whitespace-nowrap">Dashboard Workspace</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NavBarMenu19({ onClick }: { onClick?: () => void }) {
+  return (
+    <div className="h-[36px] relative rounded-[4px] shrink-0 w-full cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors" data-name="Nav Bar/Menu" onClick={onClick}>
+      <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
+        <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
+          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis text-white tracking-[0.13px] whitespace-nowrap">Dashboard Test</p>
         </div>
       </div>
     </div>
@@ -201,11 +225,13 @@ function NavBarMenu9() {
   );
 }
 
-function Tabs1({ onNavigateToDashboard }: { onNavigateToDashboard?: () => void }) {
+function Tabs1({ onNavigateToDashboard, onNavigateToWorkspace, onNavigateToTest }: { onNavigateToDashboard?: () => void; onNavigateToWorkspace?: () => void; onNavigateToTest?: () => void }) {
   return (
     <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]" data-name="Tabs">
       <NavBarMenu6 />
       <NavBarMenu7 onClick={onNavigateToDashboard} />
+      <NavBarMenu18 onClick={onNavigateToWorkspace} />
+      <NavBarMenu19 onClick={onNavigateToTest} />
       <NavBarMenu8 />
       <NavBarMenu9 />
     </div>
@@ -249,13 +275,7 @@ function NavBarMenu12() {
 }
 
 function Tabs2() {
-  return (
-    <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[3]" data-name="Tabs">
-      <NavBarMenu10 />
-      <NavBarMenu11 />
-      <NavBarMenu12 />
-    </div>
-  );
+  return null;
 }
 
 function NavBarMenu13() {
@@ -337,10 +357,12 @@ function NavBarMenu17({ isOpen, onMouseEnter, onMouseLeave }: { isOpen?: boolean
   );
 }
 
-function BarNavBarTier({ onNavigateToExplore, onNavigateToLibrary, onNavigateToDashboard, onOpenSearch, isUserInfoOpen, onUserMouseEnter, onUserMouseLeave }: { 
-  onNavigateToExplore?: () => void; 
+function BarNavBarTier({ onNavigateToExplore, onNavigateToLibrary, onNavigateToDashboard, onNavigateToWorkspace, onNavigateToTest, onOpenSearch, isUserInfoOpen, onUserMouseEnter, onUserMouseLeave }: {
+  onNavigateToExplore?: () => void;
   onNavigateToLibrary?: () => void;
   onNavigateToDashboard?: () => void;
+  onNavigateToWorkspace?: () => void;
+  onNavigateToTest?: () => void;
   onOpenSearch?: () => void;
   isUserInfoOpen?: boolean;
   onUserMouseEnter?: () => void;
@@ -351,11 +373,11 @@ function BarNavBarTier({ onNavigateToExplore, onNavigateToLibrary, onNavigateToD
       <Logo />
       <Btn />
       <Tabs onNavigateToExplore={onNavigateToExplore} onNavigateToLibrary={onNavigateToLibrary} onOpenSearch={onOpenSearch} />
-      <Tabs1 onNavigateToDashboard={onNavigateToDashboard} />
+      <Tabs1 onNavigateToDashboard={onNavigateToDashboard} onNavigateToWorkspace={onNavigateToWorkspace} onNavigateToTest={onNavigateToTest} />
       <Tabs2 />
       <Tabs3 />
-      <NavBarMenu17 
-        isOpen={isUserInfoOpen} 
+      <NavBarMenu17
+        isOpen={isUserInfoOpen}
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
       />
@@ -1155,18 +1177,28 @@ export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page:
     onNavigate?.("dashboard");
   };
 
+  const handleNavigateToWorkspace = () => {
+    onNavigate?.("workspace");
+  };
+
+  const handleNavigateToTest = () => {
+    onNavigate?.("test");
+  };
+
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
 
   return (
     <div className="bg-sidebar flex h-screen overflow-hidden relative w-full" data-name="Home">
-      <BarNavBarTier 
-        onNavigateToExplore={handleNavigateToExplore} 
+      <BarNavBarTier
+        onNavigateToExplore={handleNavigateToExplore}
         onNavigateToLibrary={handleNavigateToLibrary}
         onNavigateToDashboard={handleNavigateToDashboard}
-        onOpenSearch={onOpenSearch} 
-        isUserInfoOpen={isUserInfoOpen} 
-        onUserMouseEnter={() => setIsUserInfoOpen(true)} 
-        onUserMouseLeave={() => setIsUserInfoOpen(false)} 
+        onNavigateToWorkspace={handleNavigateToWorkspace}
+        onNavigateToTest={handleNavigateToTest}
+        onOpenSearch={onOpenSearch}
+        isUserInfoOpen={isUserInfoOpen}
+        onUserMouseEnter={() => setIsUserInfoOpen(true)}
+        onUserMouseLeave={() => setIsUserInfoOpen(false)}
       />
       <Body />
       

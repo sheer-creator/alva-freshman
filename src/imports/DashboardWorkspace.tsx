@@ -2,7 +2,10 @@ import svgPaths from "./svg-nheoeek59y";
 import imgImage from "figma:asset/b6ec6224880e49a1fd078b50b5b248ac0bdaff74.png";
 import ReactECharts from 'echarts-for-react';
 import { ddr4Data, ddr5Data } from './dramPriceData';
-import { DRAMPriceTrendWidget } from './DRAMPriceTrendWidget';
+import { MarkdownWidget } from './MarkdownWidget';
+import { NVDATechAnalysisWidget } from './NVDATechAnalysisWidget';
+import { NVDAGoogleTrendWidget } from './NVDAGoogleTrendWidget';
+import { NVDAPriceVsSPYWidget } from './NVDAPriceVsSPYWidget';
 import img from "figma:asset/ba369a5f36e32294357bf2bdcf96a687f1a7a87c.png";
 import img1 from "figma:asset/11f742b6bf227629e0bd445a4655f9faedb0d5cf.png";
 import img2 from "figma:asset/245a7d0f66b2a4c07c6f65541bd8759f79b07f71.png";
@@ -198,30 +201,26 @@ function NavBarMenu6() {
   );
 }
 
-function NavBarMenu7() {
+function NavBarMenu7(props: {
+  onDashboardClick?: () => void;
+}) {
   return (
-    <div className="h-[36px] relative rounded-[4px] shrink-0 w-full" data-name="Nav Bar/Menu">
+    <div className="h-[36px] relative rounded-[4px] shrink-0 w-full cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors" data-name="Nav Bar/Menu" onClick={props.onDashboardClick}>
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[#49a3a6] text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap">Dashboard Playbook</p>
+          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis text-white tracking-[0.13px] whitespace-nowrap">Dashboard Playbook</p>
         </div>
       </div>
     </div>
   );
 }
 
-function NavBarMenu18(props: {
-  onWorkspaceClick?: () => void;
-}) {
+function NavBarMenu18() {
   return (
-    <div
-      className="h-[36px] relative rounded-[4px] shrink-0 w-full cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors"
-      data-name="Nav Bar/Menu"
-      onClick={props.onWorkspaceClick}
-    >
+    <div className="h-[36px] relative rounded-[4px] shrink-0 w-full" data-name="Nav Bar/Menu">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis text-white tracking-[0.13px] whitespace-nowrap">Dashboard Workspace</p>
+          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[#49a3a6] text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap">Dashboard Workspace</p>
         </div>
       </div>
     </div>
@@ -232,11 +231,7 @@ function NavBarMenu19(props: {
   onTestClick?: () => void;
 }) {
   return (
-    <div
-      className="h-[36px] relative rounded-[4px] shrink-0 w-full cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors"
-      data-name="Nav Bar/Menu"
-      onClick={props.onTestClick}
-    >
+    <div className="h-[36px] relative rounded-[4px] shrink-0 w-full cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors" data-name="Nav Bar/Menu" onClick={props.onTestClick}>
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
           <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis text-white tracking-[0.13px] whitespace-nowrap">Dashboard Test</p>
@@ -271,14 +266,14 @@ function NavBarMenu9() {
 }
 
 function Tabs1(props: {
-  onWorkspaceClick?: () => void;
+  onDashboardClick?: () => void;
   onTestClick?: () => void;
 }) {
   return (
     <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]" data-name="Tabs">
       <NavBarMenu6 />
-      <NavBarMenu7 />
-      <NavBarMenu18 onWorkspaceClick={props.onWorkspaceClick} />
+      <NavBarMenu7 onDashboardClick={props.onDashboardClick} />
+      <NavBarMenu18 />
       <NavBarMenu19 onTestClick={props.onTestClick} />
       <NavBarMenu8 />
       <NavBarMenu9 />
@@ -406,7 +401,7 @@ function BarNavBarTier({
   onLibraryClick,
   onSearchClick,
   onAboutClick,
-  onWorkspaceClick,
+  onDashboardClick,
   onTestClick
 }: {
   onHomeClick?: () => void;
@@ -414,7 +409,7 @@ function BarNavBarTier({
   onLibraryClick?: () => void;
   onSearchClick?: () => void;
   onAboutClick?: () => void;
-  onWorkspaceClick?: () => void;
+  onDashboardClick?: () => void;
   onTestClick?: () => void;
 }) {
   return (
@@ -428,7 +423,7 @@ function BarNavBarTier({
         onSearchClick={onSearchClick}
         onAboutClick={onAboutClick}
       />
-      <Tabs1 onWorkspaceClick={onWorkspaceClick} onTestClick={onTestClick} />
+      <Tabs1 onDashboardClick={onDashboardClick} onTestClick={onTestClick} />
       <Tabs2 />
       <Tabs3 />
       <NavBarMenu17 />
@@ -2619,7 +2614,12 @@ function XY1() {
 }
 
 function AiStorageWatchlistPerf() {
-  return <DRAMPriceTrendWidget />;
+  return (
+    <div className="content-stretch flex flex-[1_0_0] flex-col gap-[16px] h-[370px] items-center min-h-px min-w-px relative rounded-[4px]" data-name="DRAM Price Trend">
+      <WidgetTitle2 />
+      <XY1 />
+    </div>
+  );
 }
 
 function ArrowRightLHeatmap() {
@@ -4077,16 +4077,16 @@ function XY2() {
     },
     legend: { show: false },
     grid: {
-      left: 36,
-      right: 0,
-      top: 30,
-      bottom: 20,
+      left: 48,
+      right: 16,
+      top: 52,
+      bottom: 28,
       containLabel: false
     },
     xAxis: {
       type: 'category' as const,
       data: ['Forward P/E', 'Forward P/S', 'Forward EV/EBITDA'],
-      axisLine: { show: false },
+      axisLine: { lineStyle: { color: 'rgba(0, 0, 0, 0.05)' } },
       axisTick: { show: false },
       axisLabel: {
         color: 'rgba(0, 0, 0, 0.7)',
@@ -4102,7 +4102,7 @@ function XY2() {
         fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
         fontSize: 10,
         align: 'left' as const,
-        padding: [0, 0, 8, -24]
+        padding: [0, 0, 8, -36]
       },
       nameLocation: 'end' as const,
       min: 0,
@@ -4115,7 +4115,6 @@ function XY2() {
         color: 'rgba(0, 0, 0, 0.7)',
         fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
         fontSize: 10,
-        padding: [0, 8, 0, 0],
         formatter: '{value}x'
       }
     },
@@ -4128,18 +4127,7 @@ function XY2() {
         barMaxWidth: 16,
         barCategoryGap: '56%',
         barGap: '50%',
-        label: barLabelStyle,
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          data: [{ yAxis: 0 }],
-          lineStyle: {
-            color: 'rgba(0,0,0,0.12)',
-            type: [3, 2] as any,
-            width: 1
-          },
-          label: { show: false }
-        }
+        label: barLabelStyle
       },
       {
         name: 'SNDK',
@@ -4173,20 +4161,19 @@ function XY2() {
       style={{
         backgroundColor: '#ffffff',
         backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-        backgroundSize: '3px 3px',
-        padding: '16px'
+        backgroundSize: '3px 3px'
       }}
     >
-      <ValuationLegend />
-      <div style={{ width: '100%', height: 'calc(100% - 20px)', position: 'relative' }}>
-        <ReactECharts
-          option={option}
-          style={{ height: '100%', width: '100%' }}
-          opts={{ renderer: 'canvas' }}
-        />
-      </div>
-      <div className="absolute bottom-[16px] left-[16px] font-['Delight:Regular',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
-        Alva
+      <div className="overflow-clip rounded-[inherit] size-full relative">
+        <div className="content-stretch flex flex-col items-start pt-[16px] px-[16px] relative size-full">
+          <ValuationLegend />
+          <ReactECharts
+            option={option}
+            style={{ height: '100%', width: '100%', flex: 1, minHeight: 0 }}
+            opts={{ renderer: 'canvas' }}
+          />
+        </div>
+        <ChartWatermark3 />
       </div>
     </div>
   );
@@ -8396,206 +8383,21 @@ function Group21() {
   );
 }
 
-/* ==========================================
-   NVDA Google Trend Widget
-   ========================================== */
-function NvdaTrendWidgetTitle() {
-  return (
-    <div className="content-stretch flex gap-[12px] h-[22px] items-center relative shrink-0 w-full" data-name="Widget/Title">
-      <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-        <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NVDA Stock — Google Search Trend</p>
-        <ArrowRightL2 />
-      </div>
-      <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
-        <ClockL2 />
-        <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Past 12 months</p>
-      </div>
-    </div>
-  );
-}
-
-function NvdaTrendLegend() {
-  return (
-    <div className="content-stretch flex gap-[8px] h-[16px] items-center justify-end overflow-clip relative shrink-0 w-full z-[5]" data-name="图例">
-      <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-        <div className="bg-[#3D8BD1] rounded-[100px] shrink-0 size-[8px]" />
-        <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
-          <p className="leading-[16px]">Search Interest</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function NvdaTrendChart() {
-  const trendData: [string, number][] = [
-    ['2025-02-09',32],['2025-02-16',30],['2025-02-23',35],['2025-03-02',28],['2025-03-09',33],
-    ['2025-03-16',45],['2025-03-23',38],['2025-03-30',40],['2025-04-06',36],['2025-04-13',42],
-    ['2025-04-20',38],['2025-04-27',35],['2025-05-04',30],['2025-05-11',33],['2025-05-18',28],
-    ['2025-05-25',25],['2025-06-01',38],['2025-06-08',42],['2025-06-15',35],['2025-06-22',58],
-    ['2025-06-29',40],['2025-07-06',36],['2025-07-13',42],['2025-07-20',38],['2025-07-27',40],
-    ['2025-08-03',48],['2025-08-10',55],['2025-08-17',50],['2025-08-24',45],['2025-08-31',42],
-    ['2025-09-07',52],['2025-09-14',58],['2025-09-21',78],['2025-09-28',62],['2025-10-05',55],
-    ['2025-10-12',58],['2025-10-19',52],['2025-10-26',55],['2025-11-02',62],['2025-11-09',60],
-    ['2025-11-16',65],['2025-11-23',55],['2025-11-30',62],['2025-12-07',70],['2025-12-14',88],
-    ['2025-12-21',68],['2025-12-28',72],['2026-01-04',95],['2026-01-11',82],['2026-01-18',100],
-    ['2026-01-25',92],['2026-02-01',85],['2026-02-08',78],
-  ];
-  const option = {
-    tooltip: {
-      trigger: 'axis' as const,
-      backgroundColor: 'rgba(255,255,255,0.96)',
-      borderColor: 'rgba(0,0,0,0.08)',
-      borderWidth: 1,
-      padding: [12, 12, 12, 12],
-      extraCssText: 'border-radius:6px;box-shadow:none;',
-      textStyle: {
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
-        fontSize: 12,
-        fontWeight: 400
-      },
-      axisPointer: {
-        type: 'line' as const,
-        lineStyle: { color: 'rgba(0,0,0,0.12)', type: 'solid' as const, width: 1 }
-      },
-      formatter: function(params: { color: string; seriesName: string; data: [string, number] }[]) {
-        if (!params.length) return '';
-        const d = new Date(params[0].data[0]);
-        const title = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        let html = `<div style="font-family:'Delight',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:400;color:rgba(0,0,0,0.7);margin-bottom:6px">${title}</div>`;
-        params.forEach((p) => {
-          const dot = `<span style="display:inline-block;margin-right:4px;border-radius:50%;width:8px;height:8px;background-color:${p.color};vertical-align:middle"></span>`;
-          html += `<div style="font-family:'Delight',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:400;color:rgba(0,0,0,0.9);line-height:20px">${dot}${p.seriesName}: ${p.data[1]}</div>`;
-        });
-        return html;
-      }
-    },
-    legend: { show: false },
-    grid: {
-      left: 36,
-      right: 0,
-      top: 30,
-      bottom: 20,
-      containLabel: false
-    },
-    xAxis: {
-      type: 'time' as const,
-      boundaryGap: false,
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: { show: false },
-      axisLabel: {
-        color: 'rgba(0, 0, 0, 0.7)',
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
-        fontSize: 10,
-        formatter: function(value: number) {
-          const d = new Date(value);
-          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          const yr = String(d.getFullYear()).slice(2);
-          return months[d.getMonth()] + ' ' + yr;
-        }
-      },
-      min: '2025-02-09',
-      max: '2026-02-08',
-    },
-    yAxis: {
-      type: 'value' as const,
-      min: 0,
-      max: 100,
-      interval: 25,
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: { show: false },
-      axisLabel: {
-        color: 'rgba(0, 0, 0, 0.7)',
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
-        fontSize: 10,
-        padding: [0, 8, 0, 0]
-      }
-    },
-    series: [
-      {
-        name: 'Search Interest',
-        type: 'line' as const,
-        data: trendData,
-        symbol: 'none',
-        smooth: 0.1,
-        lineStyle: { width: 1, color: '#3D8BD1' },
-        itemStyle: { color: '#3D8BD1' },
-        areaStyle: {
-          color: {
-            type: 'linear' as const,
-            x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(61, 139, 209, 0.15)' },
-              { offset: 1, color: 'rgba(61, 139, 209, 0.0)' }
-            ]
-          }
-        },
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          data: [{ yAxis: 0 }],
-          lineStyle: {
-            color: 'rgba(0,0,0,0.3)',
-            type: [3, 2] as any,
-            width: 1
-          },
-          label: { show: false }
-        },
-        emphasis: {
-          itemStyle: {
-            borderColor: '#ffffff',
-            borderWidth: 1,
-            color: '#3D8BD1',
-          }
-        }
-      }
-    ]
-  };
-
-  return (
-    <div className="flex-[1_0_0] min-h-px min-w-px relative rounded-[6px] w-full" data-name="X+Y"
-      style={{
-        backgroundColor: '#ffffff',
-        backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-        backgroundSize: '3px 3px',
-        padding: '16px'
-      }}
-    >
-      <NvdaTrendLegend />
-      <div style={{ width: '100%', height: 'calc(100% - 20px)', position: 'relative' }}>
-        <ReactECharts
-          option={option}
-          style={{ height: '100%', width: '100%' }}
-          opts={{ renderer: 'canvas' }}
-        />
-      </div>
-      <div className="absolute bottom-[16px] left-[16px] font-['Delight:Regular',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
-        Alva
-      </div>
-    </div>
-  );
-}
-
-function NvdaGoogleTrendWidget() {
-  return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col gap-[16px] h-[370px] items-center min-h-px min-w-px relative rounded-[4px]" data-name="NVDA Google Trend">
-      <NvdaTrendWidgetTitle />
-      <NvdaTrendChart />
-    </div>
-  );
-}
-
 function PlaybookTabGroupDashboard() {
   return (
     <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full" data-name="Playbook/Tab Group/Dashboard">
-      <Group1 />
-      <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full" data-name="Group">
-        <NvdaGoogleTrendWidget />
+      <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
+        <div className="flex-[1_0_0] min-w-0">
+          <MarkdownWidget />
+        </div>
+        <div className="flex-[1_0_0] min-w-0">
+          <NVDATechAnalysisWidget />
+        </div>
       </div>
-      <WidgetTable />
-      <Posts />
+      <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
+        <NVDAGoogleTrendWidget />
+        <NVDAPriceVsSPYWidget />
+      </div>
     </div>
   );
 }
@@ -8673,49 +8475,21 @@ function DisplayZone() {
   );
 }
 
-export default function Dashboard({
-  onNavigateToHome,
-  onNavigateToExplore,
-  onNavigateToLibrary,
-  onSearchClick,
-  onAboutClick,
-  onNavigate,
-  isUserInfoOpen,
-  onUserInfoToggle,
-  onUserInfoClose
+export function DashboardWorkspace({
+  onNavigate
 }: {
-  onNavigateToHome?: () => void;
-  onNavigateToExplore?: () => void;
-  onNavigateToLibrary?: () => void;
-  onSearchClick?: () => void;
-  onAboutClick?: () => void;
-  onNavigate?: (page: any) => void;
-  isUserInfoOpen?: boolean;
-  onUserInfoToggle?: () => void;
-  onUserInfoClose?: () => void;
+  onNavigate: (page: any) => void;
 }) {
-  const handleWorkspaceClick = () => {
-    if (onNavigate) {
-      onNavigate("workspace");
-    }
-  };
-
-  const handleTestClick = () => {
-    if (onNavigate) {
-      onNavigate("test");
-    }
-  };
-
   return (
-    <div className="bg-[#2a2a38] flex h-screen overflow-hidden relative w-full" data-name="Dashboard">
+    <div className="bg-[#2a2a38] flex h-screen overflow-hidden relative w-full" data-name="DashboardWorkspace">
       <BarNavBarTier
-        onHomeClick={onNavigateToHome}
-        onExploreClick={onNavigateToExplore}
-        onLibraryClick={onNavigateToLibrary}
-        onSearchClick={onSearchClick}
-        onAboutClick={onAboutClick}
-        onWorkspaceClick={handleWorkspaceClick}
-        onTestClick={handleTestClick}
+        onHomeClick={() => onNavigate("home")}
+        onExploreClick={() => onNavigate("explore")}
+        onLibraryClick={() => onNavigate("library")}
+        onSearchClick={() => {}}
+        onAboutClick={() => {}}
+        onDashboardClick={() => onNavigate("dashboard")}
+        onTestClick={() => onNavigate("test")}
       />
       <DisplayZone />
     </div>

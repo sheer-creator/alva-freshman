@@ -37,6 +37,7 @@ export default function DashboardWrapper({ onNavigate, onOpenSearch }: Dashboard
       onNavigateToLibrary={handleNavigateToLibrary}
       onSearchClick={handleSearchClick}
       onAboutClick={handleAboutClick}
+      onNavigate={onNavigate}
       isUserInfoOpen={isUserInfoOpen}
       onUserInfoToggle={() => setIsUserInfoOpen(!isUserInfoOpen)}
       onUserInfoClose={() => setIsUserInfoOpen(false)}

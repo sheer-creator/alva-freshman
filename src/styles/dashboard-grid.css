@@ -1,0 +1,94 @@
+/* Dashboard Grid Layout Styles */
+
+.react-grid-layout {
+  position: relative;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top, width, height;
+  border: 1px solid transparent;
+  border-radius: 0px;
+}
+
+.react-grid-item:hover {
+  border-color: #49A3A6;
+}
+
+.react-grid-item.resizing {
+  transition: none;
+  z-index: 100;
+  border-color: #49A3A6;
+}
+
+.react-grid-item.react-draggable-dragging {
+  border-color: #49A3A6;
+}
+
+.react-grid-item.static {
+  background: transparent;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  z-index: 1000;
+  background: none !important;
+}
+
+/* 隐藏所有resize handles的视觉效果，但保持功能 */
+.react-grid-item > .react-resizable-handle::before,
+.react-grid-item > .react-resizable-handle::after {
+  display: none !important;
+}
+
+/* 四个角的resize handles - 完全透明但保持交互区域 */
+.react-grid-item > .react-resizable-handle-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle-nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle-ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+  width: 20px;
+  height: 20px;
+}
+
+.widget-item {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 防止widget内的交互元素阻止拖拽 */
+.widget-item button,
+.widget-item a,
+.widget-item input,
+.widget-item select,
+.widget-item textarea {
+  pointer-events: auto;
+  cursor: pointer;
+}

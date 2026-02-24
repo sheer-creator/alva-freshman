@@ -152,36 +152,45 @@ interface WidgetTitleProps {
 export function WidgetTitle({ title, timestamp = 'Live', href }: WidgetTitleProps) {
   const ArrowIcon = () => (
     <svg className="block size-[14px] shrink-0" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-      <path d="M3.5 7h7m0 0L7 3.5M10.5 7L7 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <g id="arrow-right-l">
+        <path d="M4.74411 11.6823L9.44637 6.98002L4.74411 2.27776C4.60743 2.14108 4.60743 1.91947 4.74411 1.78279C4.8808 1.6461 5.10241 1.6461 5.23909 1.78279L10.1888 6.73253C10.3255 6.86922 10.3255 7.09082 10.1888 7.22751L5.23909 12.1773C5.10241 12.3139 4.8808 12.3139 4.74411 12.1773C4.60743 12.0406 4.60743 11.819 4.74411 11.6823Z" fill="var(--fill-0, black)" fillOpacity="0.9" id="Vector" />
+      </g>
     </svg>
   );
 
   const ClockIcon = () => (
     <svg className="block size-[12px] shrink-0" fill="none" preserveAspectRatio="none" viewBox="0 0 12 12">
-      <path d="M6 3v3l2 1m4-4a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z" stroke="currentColor" strokeOpacity="0.5" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <g clipPath="url(#clip0_widget_title)" id="clock-l">
+        <path d="M6 0.6C8.98234 0.6 11.4 3.01766 11.4 6C11.4 8.98234 8.98234 11.4 6 11.4C3.01766 11.4 0.6 8.98234 0.6 6C0.6 3.01766 3.01766 0.6 6 0.6ZM6 1.2C3.34903 1.2 1.2 3.34903 1.2 6C1.2 8.65097 3.34903 10.8 6 10.8C8.65097 10.8 10.8 8.65097 10.8 6C10.8 3.34903 8.65097 1.2 6 1.2ZM6 3.50859C6.16569 3.50859 6.3 3.64291 6.3 3.80859V5.87578L7.71211 7.28789C7.82927 7.40505 7.82927 7.59495 7.71211 7.71211C7.59495 7.82927 7.40505 7.82927 7.28789 7.71211L5.78789 6.21211C5.73163 6.15585 5.7 6.07957 5.7 6V3.80859C5.7 3.64291 5.83431 3.50859 6 3.50859Z" fill="var(--fill-0, black)" fillOpacity="0.5" id="Union" />
+      </g>
+      <defs>
+        <clipPath id="clip0_widget_title">
+          <rect fill="white" height="12" width="12" />
+        </clipPath>
+      </defs>
     </svg>
   );
 
   return (
-    <div className="flex gap-3 h-[22px] items-center w-full">
-      <div className="flex flex-1 gap-0.5 items-center min-w-0">
+    <div className="flex gap-[12px] h-[22px] items-center w-full">
+      <div className="flex flex-1 gap-[2px] items-center min-w-0">
         {href ? (
-          <a 
+          <a
             href={href}
-            className="font-[Delight,sans-serif] text-[14px] text-foreground hover:text-primary transition-colors cursor-pointer"
+            className="font-['Delight:Regular',sans-serif] text-[14px] text-[rgba(0,0,0,0.9)] leading-[22px] tracking-[0.14px] hover:text-primary transition-colors cursor-pointer"
           >
             {title}
           </a>
         ) : (
-          <span className="font-[Delight,sans-serif] text-[14px] text-foreground">
+          <span className="font-['Delight:Regular',sans-serif] text-[14px] text-[rgba(0,0,0,0.9)] leading-[22px] tracking-[0.14px]">
             {title}
           </span>
         )}
         <ArrowIcon />
       </div>
-      <div className="flex gap-1 items-center">
+      <div className="flex gap-[4px] items-center">
         <ClockIcon />
-        <span className="font-[Delight,sans-serif] text-[12px] text-muted-foreground">
+        <span className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
           {timestamp}
         </span>
       </div>
@@ -202,22 +211,22 @@ interface WidgetContainerProps {
   className?: string;
 }
 
-export function WidgetContainer({ 
-  title, 
-  timestamp, 
-  href, 
-  height = 370, 
-  children, 
-  className = '' 
+export function WidgetContainer({
+  title,
+  timestamp,
+  href,
+  height = 370,
+  children,
+  className = ''
 }: WidgetContainerProps) {
   return (
-    <div 
+    <div
       className={`flex flex-col gap-4 items-center rounded ${className}`}
       style={{ height: typeof height === 'number' ? `${height}px` : height }}
     >
       <WidgetTitle title={title} timestamp={timestamp} href={href} />
-      <div className="bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.02)] flex-1 w-full relative rounded-[6px]">
-        <div className="overflow-clip rounded-[inherit] size-full">
+      <div className="bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.02)] flex-1 w-full relative rounded-[6px] overflow-hidden">
+        <div className="rounded-[inherit] size-full">
           {children}
         </div>
       </div>
