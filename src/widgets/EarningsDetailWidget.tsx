@@ -253,15 +253,6 @@ function UpcomingContent({ data }: { data: EarningsDetailData }) {
         </div>
       )}
 
-      <div className="mt-[8px] pt-[16px] border-t border-[rgba(0,0,0,0.05)] flex justify-center">
-        <a
-          href="#"
-          className="font-['Delight:Regular',sans-serif] text-[13px] text-[#2196F3] hover:underline flex items-center gap-[4px]"
-        >
-          View Analyst Forecasts
-          <span>→</span>
-        </a>
-      </div>
     </div>
   );
 }

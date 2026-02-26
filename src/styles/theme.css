@@ -1,6 +1,37 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* ── Alva Design Tokens ── */
+  /* Text */
+  --text-n10: rgb(0, 0, 0);
+  --text-n9:  rgba(0, 0, 0, 0.9);
+  --text-n7:  rgba(0, 0, 0, 0.7);
+  --text-n5:  rgba(0, 0, 0, 0.5);
+  --text-n3:  rgba(0, 0, 0, 0.3);
+  --text-n2:  rgba(0, 0, 0, 0.2);
+  /* Semantic */
+  --main-m1:    #49A3A6;
+  --main-m1-10: rgba(73, 163, 166, 0.1);
+  --main-m2:    #2196F3;
+  --main-m3:    #2a9b7d;
+  --main-m3-10: rgba(42, 155, 125, 0.1);
+  --main-m4:    #e05357;
+  --main-m4-10: rgba(224, 83, 87, 0.1);
+  --main-m5:    #E6A91A;
+  --main-m6:    #ff9800;
+  --main-m7:    rgba(0, 0, 0, 0.5);
+  /* Background */
+  --b0-page:             #ffffff;
+  --b0-container:        #ffffff;
+  --b0-sidebar:          #2A2A38;
+  --b0-sidebar-selected: rgba(255, 255, 255, 0.03);
+  --grey-g01:            #fafafa;
+  /* Lines */
+  --line-l07: rgba(0, 0, 0, 0.05);
+  --line-l12: rgba(0, 0, 0, 0.12);
+  --line-l2:  rgba(0, 0, 0, 0.2);
+  --line-l3:  rgba(0, 0, 0, 0.3);
+
   --font-size: 16px;
   /* Typography font sizes */
   --text-2xl: 28px;
@@ -178,6 +209,17 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/**
+ * 大号文字字重规则：font-size ≥ 24px 统一使用 Regular(400)
+ * 适用于 KPI 数值、大标题数字等展示型文字。
+ */
+@layer base {
+  .text-\[24px\],
+  .text-\[28px\] {
+    font-weight: var(--font-weight-normal); /* 400 */
   }
 }
 

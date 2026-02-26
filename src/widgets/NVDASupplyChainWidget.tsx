@@ -55,7 +55,7 @@ export function NVDASupplyChainWidget() {
         color: 'rgba(0,0,0,0.7)',
         fontFamily: FONT,
         fontSize: 11,
-        fontWeight: (idx: number) => stocks[idx].name === 'NVDA' ? 600 : 400,
+        fontWeight: (idx: number) => stocks[idx].name === 'NVDA' ? 500 : 400,
       },
     },
     series: [
@@ -122,7 +122,7 @@ export function NVDASupplyChainWidget() {
           style={{ height: '100%', width: '100%' }}
           opts={{ renderer: 'canvas' }}
         />
-        <div className="absolute bottom-[16px] left-[16px] font-['Delight:Regular',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
+        <div className="absolute bottom-[16px] left-[16px] font-['Delight:Regular',sans-serif] text-[16px] font-medium text-[rgba(0,0,0,1)] opacity-20 z-[1]">
           Alva
         </div>
       </div>

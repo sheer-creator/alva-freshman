@@ -113,23 +113,14 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <SectionHeader label="Playbooks" />
         <NavItem label="Dashboard Playbook" active={activePage === 'dashboard'} onClick={() => onNavigate('dashboard')} />
         <NavItem label="Dashboard Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
-        <NavItem label="Dashboard Test" active={activePage === 'test'} onClick={() => onNavigate('test')} />
+        <NavItem label="Custom Layout" active={activePage === 'test'} onClick={() => onNavigate('test')} />
+        <NavItem label="Popular Stock Playbook" active={activePage === 'popular-stock'} onClick={() => onNavigate('popular-stock')} />
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
-        <NavItem label="Trading Strategy Playbook" />
-        <NavItem label="Google / X Trends Tracker" />
       </div>
 
-      {/* Threads */}
-      <div className="content-stretch flex flex-[1_0_0] flex-col items-start min-h-px min-w-px py-[4px] relative w-full z-[2]">
-        <SectionHeader label="Threads" />
-        <NavItem label="TSLA Financial Trends and Charts Analysis" />
-        <NavItem label="US Treasury Yield and Bitcoin Correlation Analysis" />
-        <NavItem label="Impact of Strong US Payrolls on Markets" />
-      </div>
-
-      {/* 用户 */}
+      {/* 用户 — mt-auto 撑到底部 */}
       <div
-        className="relative rounded-[4px] shrink-0 w-full z-[1]"
+        className="relative rounded-[4px] shrink-0 w-full z-[1] mt-auto"
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
       >
