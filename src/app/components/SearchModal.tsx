@@ -1,4 +1,4 @@
-import Search from "@/imports/Search";
+import Search from "./Search";
 
 interface SearchModalProps {
   isOpen: boolean;

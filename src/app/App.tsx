@@ -1,26 +1,37 @@
-import { useState } from "react";
-import Home from "@/imports/Home";
-import Explore from "@/imports/Explore";
-import Library from "@/imports/Library";
-import DashboardWrapper from "@/app/components/DashboardWrapper";
-import { DashboardWorkspaceWrapper } from "@/imports/DashboardWorkspaceWrapper";
-import { DashboardTestWrapper } from "@/imports/DashboardTestWrapper";
+import { lazy, Suspense, useState } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "explore" | "library" | "dashboard" | "workspace" | "test";
+export type Page = "home" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda";
+
+/* ========== 按需加载页面 ========== */
+
+const Home = lazy(() => import("@/pages/Home"));
+const Explore = lazy(() => import("@/pages/Explore"));
+const Library = lazy(() => import("@/pages/Library"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const DashboardWorkspace = lazy(() => import("@/pages/DashboardWorkspace").then(m => ({ default: m.DashboardWorkspace })));
+const DashboardTest = lazy(() => import("@/pages/DashboardTest").then(m => ({ default: m.DashboardTest })));
+const NVDADashboard = lazy(() => import("@/pages/NVDADashboard"));
+
+/* ========== App ========== */
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+  const openSearch = () => setIsSearchOpen(true);
+
   return (
     <>
-      {currentPage === "home" && <Home onNavigate={setCurrentPage} onOpenSearch={() => setIsSearchOpen(true)} />}
-      {currentPage === "explore" && <Explore onNavigate={setCurrentPage} onOpenSearch={() => setIsSearchOpen(true)} />}
-      {currentPage === "library" && <Library onNavigate={setCurrentPage} onOpenSearch={() => setIsSearchOpen(true)} />}
-      {currentPage === "dashboard" && <DashboardWrapper onNavigate={setCurrentPage} onOpenSearch={() => setIsSearchOpen(true)} />}
-      {currentPage === "workspace" && <DashboardWorkspaceWrapper onNavigate={setCurrentPage} />}
-      {currentPage === "test" && <DashboardTestWrapper onNavigate={setCurrentPage} />}
+      <Suspense>
+        {currentPage === "home" && <Home onNavigate={setCurrentPage} onOpenSearch={openSearch} />}
+        {currentPage === "explore" && <Explore onNavigate={setCurrentPage} onOpenSearch={openSearch} />}
+        {currentPage === "library" && <Library onNavigate={setCurrentPage} onOpenSearch={openSearch} />}
+        {currentPage === "dashboard" && <Dashboard onNavigate={setCurrentPage} />}
+        {currentPage === "workspace" && <DashboardWorkspace onNavigate={setCurrentPage} />}
+        {currentPage === "test" && <DashboardTest onNavigate={setCurrentPage} />}
+        {currentPage === "nvda" && <NVDADashboard onNavigate={setCurrentPage} />}
+      </Suspense>
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
