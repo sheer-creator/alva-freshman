@@ -1,6 +1,6 @@
 import ReactECharts from 'echarts-for-react';
 import {
-  CHART_COLORS, tooltipConfig, tooltipFormatter,
+  CHART_COLORS, FONT, CHART_DOT_BG, tooltipConfig, tooltipFormatter,
   timeXAxisConfig, valueYAxisConfig, GRID_DEFAULT,
   lineSeriesConfig, monthYearFormatter, ZERO_MARK_LINE,
 } from '@/lib/chart-theme';
@@ -19,7 +19,7 @@ export function NVDAGoogleTrendWidget() {
     legend: { show: false },
     grid: GRID_DEFAULT,
     xAxis: timeXAxisConfig({
-      axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif", fontSize: 10, formatter: monthYearFormatter },
+      axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10, formatter: monthYearFormatter },
       min: '2025-02-01',
       max: '2026-02-01',
     }),
@@ -66,12 +66,7 @@ export function NVDAGoogleTrendWidget() {
       {/* Chart Body */}
       <div
         className="flex-[1_0_0] min-h-px min-w-px relative rounded-[6px] w-full"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-          padding: '16px'
-        }}
+        style={{ ...CHART_DOT_BG, padding: '16px' }}
       >
         <ReactECharts
           option={option}

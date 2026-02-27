@@ -6,7 +6,7 @@
 
 import ReactECharts from 'echarts-for-react';
 import {
-  CHART_COLORS, tooltipConfig, GRID_DEFAULT,
+  CHART_COLORS, FONT, CHART_DOT_BG, tooltipConfig, GRID_DEFAULT,
   timeXAxisConfig, valueYAxisConfig, lineSeriesConfig,
   monthYearFormatter,
 } from '@/lib/chart-theme';
@@ -46,8 +46,6 @@ const volumeData: [string, number][] = [
   ['2026-01-09', 365], ['2026-01-16', 388], ['2026-01-23', 418], ['2026-01-30', 445],
   ['2026-02-06', 385], ['2026-02-13', 368], ['2026-02-20', 342],
 ];
-
-const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export function NVDAStockPriceWidget() {
   const option = {
@@ -152,12 +150,7 @@ export function NVDAStockPriceWidget() {
       {/* Chart Body - dotted background */}
       <div
         className="flex-1 min-h-0 relative rounded-[6px] w-full"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-          padding: '16px',
-        }}
+        style={{ ...CHART_DOT_BG, padding: '16px' }}
       >
         <ReactECharts
           option={option}

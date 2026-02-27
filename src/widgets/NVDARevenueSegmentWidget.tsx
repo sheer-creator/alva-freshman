@@ -5,7 +5,7 @@
  */
 
 import ReactECharts from 'echarts-for-react';
-import { tooltipConfig, GRID_DEFAULT } from '@/lib/chart-theme';
+import { FONT, CHART_DOT_BG, tooltipConfig, GRID_DEFAULT } from '@/lib/chart-theme';
 
 /* ========== 真实数据（NVDA 季度营收，单位: $B） ========== */
 
@@ -24,8 +24,6 @@ const segmentColors: Record<string, string> = {
   'Pro Viz':     '#5F75C9',
   'Auto & Robot':'#40A544',
 };
-
-const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export function NVDARevenueSegmentWidget() {
   const option = {
@@ -96,12 +94,7 @@ export function NVDARevenueSegmentWidget() {
       {/* Chart Body - dotted background */}
       <div
         className="flex-1 min-h-0 relative rounded-[6px] w-full"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-          padding: '16px',
-        }}
+        style={{ ...CHART_DOT_BG, padding: '16px' }}
       >
         {/* Legend */}
         <div className="flex gap-[8px] h-[16px] items-center justify-end w-full mb-[4px]">

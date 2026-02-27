@@ -1,5 +1,5 @@
 import ReactECharts from 'echarts-for-react';
-import { CHART_COLORS, tooltipConfig, ZERO_MARK_LINE } from '@/lib/chart-theme';
+import { CHART_COLORS, FONT, CHART_DOT_BG, tooltipConfig, ZERO_MARK_LINE } from '@/lib/chart-theme';
 
 // Mock data for trending AI Storage keywords this month
 const keywordData = [
@@ -35,7 +35,7 @@ export function AIStorageKeyWordTrendsWidget() {
       name: 'Trend Score',
       nameTextStyle: {
         color: 'rgba(0, 0, 0, 0.5)',
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: FONT,
         fontSize: 10,
         align: 'right' as const,
         padding: [0, 0, 8, 0]
@@ -49,7 +49,7 @@ export function AIStorageKeyWordTrendsWidget() {
       splitLine: { show: false },
       axisLabel: {
         color: 'rgba(0, 0, 0, 0.7)',
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: FONT,
         fontSize: 10,
         padding: [8, 0, 0, 0]
       }
@@ -61,7 +61,7 @@ export function AIStorageKeyWordTrendsWidget() {
       axisTick: { show: false },
       axisLabel: {
         color: 'rgba(0, 0, 0, 0.7)',
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: FONT,
         fontSize: 10,
         padding: [0, 8, 0, 0]
       }
@@ -80,7 +80,7 @@ export function AIStorageKeyWordTrendsWidget() {
           show: true,
           position: 'right' as const,
           color: 'rgba(0,0,0,0.7)',
-          fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
+          fontFamily: FONT,
           fontSize: 9,
           fontWeight: 400,
           formatter: '{c}'
@@ -124,12 +124,7 @@ export function AIStorageKeyWordTrendsWidget() {
       {/* Chart Body */}
       <div
         className="flex-[1_0_0] min-h-px min-w-px relative rounded-[6px] w-full"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-          padding: '16px'
-        }}
+        style={{ ...CHART_DOT_BG, padding: '16px' }}
       >
         <div style={{ width: '100%', height: '100%', position: 'relative' }}>
           <ReactECharts

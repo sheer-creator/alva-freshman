@@ -1,7 +1,7 @@
 import ReactECharts from 'echarts-for-react';
 import { ddr4Data, ddr5Data } from '@/data/dramPriceData';
 import {
-  CHART_COLORS, tooltipConfig, tooltipFormatter,
+  CHART_COLORS, FONT, CHART_DOT_BG, tooltipConfig, tooltipFormatter,
   timeXAxisConfig, valueYAxisConfig, GRID_DEFAULT,
   lineSeriesConfig, monthYearFormatter, ZERO_MARK_LINE,
 } from '@/lib/chart-theme';
@@ -18,7 +18,7 @@ export function DRAMPriceTrendWidget() {
     xAxis: timeXAxisConfig({
       axisLabel: {
         color: 'rgba(0,0,0,0.7)',
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: FONT,
         fontSize: 10,
         formatter: monthYearFormatter,
       },
@@ -29,7 +29,7 @@ export function DRAMPriceTrendWidget() {
       interval: 20,
       axisLabel: {
         color: 'rgba(0,0,0,0.7)',
-        fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: FONT,
         fontSize: 10,
         padding: [0, 8, 0, 0],
         formatter: '${value}',
@@ -74,12 +74,7 @@ export function DRAMPriceTrendWidget() {
       {/* Chart Body */}
       <div
         className="flex-[1_0_0] min-h-px min-w-px relative rounded-[6px] w-full"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-          padding: '16px'
-        }}
+        style={{ ...CHART_DOT_BG, padding: '16px' }}
       >
         {/* Legend */}
         <div className="content-stretch flex gap-[8px] h-[16px] items-center justify-end overflow-clip relative shrink-0 w-full z-[5] mb-[4px]">

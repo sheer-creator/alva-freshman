@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import {
-  CHART_COLORS, tooltipConfig, tooltipFormatter,
+  CHART_COLORS, FONT, CHART_DOT_BG, tooltipConfig, tooltipFormatter,
   timeXAxisConfig, valueYAxisConfig, GRID_DEFAULT,
   lineSeriesConfig, monthYearFormatter, dayOfWeekFormatter,
 } from '@/lib/chart-theme';
@@ -87,7 +87,7 @@ export function AIStorageRelativePerfWidget() {
     legend: { show: false },
     grid: GRID_DEFAULT,
     xAxis: timeXAxisConfig({
-      axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif", fontSize: 10, formatter: xAxisFormatter },
+      axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10, formatter: xAxisFormatter },
     }),
     yAxis: valueYAxisConfig('Relative Perf', { min: 80, max: 160, interval: 20 }),
     series: [
@@ -143,12 +143,7 @@ export function AIStorageRelativePerfWidget() {
       {/* Chart Body */}
       <div
         className="flex-[1_0_0] min-h-px min-w-px relative rounded-[6px] w-full"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-          padding: '16px'
-        }}
+        style={{ ...CHART_DOT_BG, padding: '16px' }}
       >
         {/* Legend */}
         <div className="content-stretch flex gap-[8px] h-[16px] items-center justify-end overflow-clip relative shrink-0 w-full z-[5] mb-[4px]">

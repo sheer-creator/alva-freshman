@@ -5,7 +5,7 @@
  */
 
 import ReactECharts from 'echarts-for-react';
-import { tooltipConfig, CHART_COLORS } from '@/lib/chart-theme';
+import { FONT, CHART_DOT_BG, tooltipConfig, CHART_COLORS } from '@/lib/chart-theme';
 
 /* ========== 真实数据（2026 YTD 涨跌幅 %） ========== */
 
@@ -21,8 +21,6 @@ const stocks = [
   { name: 'MU',    ytd: -5.1 },
   { name: 'INTC',  ytd: -8.6 },
 ];
-
-const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export function NVDASupplyChainWidget() {
   const option = {
@@ -110,12 +108,7 @@ export function NVDASupplyChainWidget() {
       {/* Chart Body - dotted background */}
       <div
         className="flex-1 min-h-0 relative rounded-[6px] w-full"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'radial-gradient(circle, rgba(0, 0, 0, 0.18) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-          padding: '16px',
-        }}
+        style={{ ...CHART_DOT_BG, padding: '16px' }}
       >
         <ReactECharts
           option={option}

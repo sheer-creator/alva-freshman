@@ -25,9 +25,16 @@ export const CHART_COLOR_PALETTE = [
   CHART_COLORS.yellow,
 ];
 
-/* ========== 字体 ========== */
+/* ========== 字体 & 图表背景 ========== */
 
-const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";
+export const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";
+
+/** 点阵背景：图表卡片通用底纹（不含 padding，由使用方按需叠加） */
+export const CHART_DOT_BG = {
+  backgroundColor: '#ffffff',
+  backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.18) 0.6px, transparent 0.6px)',
+  backgroundSize: '3px 3px',
+} as const;
 
 /* ========== Tooltip ========== */
 

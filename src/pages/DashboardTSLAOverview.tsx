@@ -13,7 +13,7 @@ import ReactECharts from 'echarts-for-react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { Topbar } from '@/app/components/shell/Topbar';
-import { tooltipConfig, CHART_COLORS } from '@/lib/chart-theme';
+import { tooltipConfig, CHART_COLORS, FONT, CHART_DOT_BG } from '@/lib/chart-theme';
 
 /* ─────────────────────────────────────────
    Design tokens
@@ -27,13 +27,7 @@ const T = {
   pos: '#2a9b7d',
   neg: '#e05357',
   teal: '#49A3A6',
-  FONT: "'Delight',-apple-system,BlinkMacSystemFont,sans-serif",
-} as const;
-
-const CHART_DOT_BG = {
-  backgroundColor: '#ffffff',
-  backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.18) 0.6px, transparent 0.6px)',
-  backgroundSize: '3px 3px',
+  FONT,
 } as const;
 
 // Axis shared config
