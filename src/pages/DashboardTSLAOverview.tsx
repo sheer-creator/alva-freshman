@@ -290,9 +290,12 @@ function NewsFeedWidget() {
           const badge = BADGE[item.sentiment];
           return (
             <div key={i} style={{
-              padding: 16, display: 'flex', gap: 12,
-              borderBottom: i < newsItems.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined,
+              position: 'relative', padding: 16, display: 'flex', gap: 12,
             }}>
+              {/* 非通栏分割线：内缩 16px，与 padding 对齐 */}
+              {i < newsItems.length - 1 && (
+                <div style={{ position: 'absolute', bottom: 0, left: 16, right: 16, height: 1, background: 'rgba(0,0,0,0.05)' }} />
+              )}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <p style={{ fontSize: 13, color: T.n9, fontFamily: T.FONT, lineHeight: '1.5', letterSpacing: '0.13px' }}>{item.headline}</p>
                 <div className="flex items-center gap-[8px]">
