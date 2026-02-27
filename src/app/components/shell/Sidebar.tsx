@@ -42,7 +42,7 @@ function NavItem({ label, active, onClick }: { label: string; active?: boolean; 
     >
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
-          <p className={`flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${active ? 'text-[#49a3a6]' : 'text-white'}`}>
+          <p className={`flex-[1_0_0] font-['Delight',sans-serif] font-normal leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${active ? 'text-[#49a3a6]' : 'text-white'}`}>
             {label}
           </p>
         </div>
@@ -56,7 +56,7 @@ function SectionHeader({ label }: { label: string }) {
     <div className="h-[36px] relative rounded-[4px] shrink-0 w-full">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[4px] relative size-full">
-          <p className="font-['Delight',sans-serif] leading-[20px] not-italic opacity-50 overflow-hidden relative shrink-0 text-[12px] text-ellipsis text-white tracking-[0.12px]">
+          <p className="font-['Delight',sans-serif] font-normal leading-[20px] not-italic opacity-50 overflow-hidden relative shrink-0 text-[12px] text-ellipsis text-white tracking-[0.12px]">
             {label}
           </p>
         </div>
@@ -99,7 +99,7 @@ function Logo() {
 
 export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave }: SidebarProps) {
   return (
-    <div className="bg-[#2a2a38] flex flex-col h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 w-[228px] z-[2] overflow-y-auto">
+    <div className="antialiased bg-[#2a2a38] flex flex-col h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 w-[228px] z-[2] overflow-y-auto" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)', backgroundSize: '3px 3px' }}>
       <Logo />
 
       {/* New Playbook 按钮 */}
@@ -142,7 +142,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       >
         <div className="content-stretch flex gap-[8px] items-center p-[8px] relative w-full">
           <UserAvatar name="YGGYLL" size={24} />
-          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[13px] text-white tracking-[0.13px] whitespace-pre-wrap">YGGYLL</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] font-normal leading-[22px] min-h-px min-w-px not-italic relative text-[13px] text-white tracking-[0.13px] whitespace-pre-wrap">YGGYLL</p>
         </div>
       </div>
     </div>
