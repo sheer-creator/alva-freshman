@@ -57,7 +57,7 @@ function ArrowRightL4() {
 function Title4() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">AI Storage Watchlist</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">AI Storage Watchlist</p>
       <ArrowRightL4 />
     </div>
   );
@@ -84,7 +84,7 @@ function Timestamp4() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL4 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">6h</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">6h</p>
     </div>
   );
 }
@@ -115,7 +115,7 @@ function TableItemGrid() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center pl-[16px] pr-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Ticker</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Ticker</p>
           <SortF />
         </div>
       </div>
@@ -128,7 +128,7 @@ function TableItemGrid1() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center pl-[16px] pr-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">MU</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">MU</p>
         </div>
       </div>
     </div>
@@ -140,7 +140,7 @@ function TableItemGrid2() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center pl-[16px] pr-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">WDC</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">WDC</p>
         </div>
       </div>
     </div>
@@ -152,7 +152,7 @@ function TableItemGrid3() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center pl-[16px] pr-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">STX</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">STX</p>
         </div>
       </div>
     </div>
@@ -164,7 +164,7 @@ function TableItemGrid4() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center pl-[16px] pr-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">TSM</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">TSM</p>
         </div>
       </div>
     </div>
@@ -176,7 +176,7 @@ function TableItemGrid5() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center pl-[16px] pr-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">VRT</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">VRT</p>
         </div>
       </div>
     </div>
@@ -188,7 +188,7 @@ function TableItemGrid6() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center pl-[16px] pr-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">SMCI</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">SMCI</p>
         </div>
       </div>
     </div>
@@ -226,7 +226,7 @@ function TableItemGrid7() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Last Price</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Last Price</p>
           <SortF1 />
         </div>
       </div>
@@ -239,7 +239,7 @@ function TableItemGrid8() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">399.65</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">399.65</p>
         </div>
       </div>
     </div>
@@ -251,7 +251,7 @@ function TableItemGrid9() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">236.39</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">236.39</p>
         </div>
       </div>
     </div>
@@ -263,7 +263,7 @@ function TableItemGrid10() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">346.10</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">346.10</p>
         </div>
       </div>
     </div>
@@ -275,7 +275,7 @@ function TableItemGrid11() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">334.88</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">334.88</p>
         </div>
       </div>
     </div>
@@ -287,7 +287,7 @@ function TableItemGrid12() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">182.49</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">182.49</p>
         </div>
       </div>
     </div>
@@ -299,7 +299,7 @@ function TableItemGrid13() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">31.70</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">31.70</p>
         </div>
       </div>
     </div>
@@ -337,7 +337,7 @@ function TableItemGrid14() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">1D %</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">1D %</p>
           <SortF2 />
         </div>
       </div>
@@ -350,7 +350,7 @@ function TableItemGrid15() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">0.52%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">0.52%</p>
         </div>
       </div>
     </div>
@@ -362,7 +362,7 @@ function TableItemGrid16() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-2.84%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-2.84%</p>
         </div>
       </div>
     </div>
@@ -374,7 +374,7 @@ function TableItemGrid17() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-0.12%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-0.12%</p>
         </div>
       </div>
     </div>
@@ -386,7 +386,7 @@ function TableItemGrid18() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2.29%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2.29%</p>
         </div>
       </div>
     </div>
@@ -398,7 +398,7 @@ function TableItemGrid19() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">0.76%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">0.76%</p>
         </div>
       </div>
     </div>
@@ -410,7 +410,7 @@ function TableItemGrid20() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-2.31%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-2.31%</p>
         </div>
       </div>
     </div>
@@ -448,7 +448,7 @@ function TableItemGrid21() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">1W %</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">1W %</p>
           <SortF3 />
         </div>
       </div>
@@ -461,7 +461,7 @@ function TableItemGrid22() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">18.72%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">18.72%</p>
         </div>
       </div>
     </div>
@@ -473,7 +473,7 @@ function TableItemGrid23() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">6.43%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">6.43%</p>
         </div>
       </div>
     </div>
@@ -485,7 +485,7 @@ function TableItemGrid24() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">8.05%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">8.05%</p>
         </div>
       </div>
     </div>
@@ -497,7 +497,7 @@ function TableItemGrid25() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-1.98%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-1.98%</p>
         </div>
       </div>
     </div>
@@ -509,7 +509,7 @@ function TableItemGrid26() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">5.77%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">5.77%</p>
         </div>
       </div>
     </div>
@@ -521,7 +521,7 @@ function TableItemGrid27() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">7.75%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">7.75%</p>
         </div>
       </div>
     </div>
@@ -559,7 +559,7 @@ function TableItemGrid28() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">1M %</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">1M %</p>
           <SortF4 />
         </div>
       </div>
@@ -572,7 +572,7 @@ function TableItemGrid29() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">44.49%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">44.49%</p>
         </div>
       </div>
     </div>
@@ -584,7 +584,7 @@ function TableItemGrid30() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">33.74%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">33.74%</p>
         </div>
       </div>
     </div>
@@ -596,7 +596,7 @@ function TableItemGrid31() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">22.36%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">22.36%</p>
         </div>
       </div>
     </div>
@@ -608,7 +608,7 @@ function TableItemGrid32() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">14.18%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">14.18%</p>
         </div>
       </div>
     </div>
@@ -620,7 +620,7 @@ function TableItemGrid33() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">9.77%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">9.77%</p>
         </div>
       </div>
     </div>
@@ -632,7 +632,7 @@ function TableItemGrid34() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2.03%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2.03%</p>
         </div>
       </div>
     </div>
@@ -670,7 +670,7 @@ function TableItemGrid35() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">3M %</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">3M %</p>
           <SortF5 />
         </div>
       </div>
@@ -683,7 +683,7 @@ function TableItemGrid36() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">101.37%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">101.37%</p>
         </div>
       </div>
     </div>
@@ -695,7 +695,7 @@ function TableItemGrid37() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">96.22%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">96.22%</p>
         </div>
       </div>
     </div>
@@ -707,7 +707,7 @@ function TableItemGrid38() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">60.94%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">60.94%</p>
         </div>
       </div>
     </div>
@@ -719,7 +719,7 @@ function TableItemGrid39() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">15.92%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">15.92%</p>
         </div>
       </div>
     </div>
@@ -731,7 +731,7 @@ function TableItemGrid40() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">6.35%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">6.35%</p>
         </div>
       </div>
     </div>
@@ -743,7 +743,7 @@ function TableItemGrid41() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-39.62%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">-39.62%</p>
         </div>
       </div>
     </div>
@@ -781,7 +781,7 @@ function TableItemGrid42() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">YTD %</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">YTD %</p>
           <SortF6 />
         </div>
       </div>
@@ -794,7 +794,7 @@ function TableItemGrid43() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">26.70%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">26.70%</p>
         </div>
       </div>
     </div>
@@ -806,7 +806,7 @@ function TableItemGrid44() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">25.94%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">25.94%</p>
         </div>
       </div>
     </div>
@@ -818,7 +818,7 @@ function TableItemGrid45() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">20.37%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">20.37%</p>
         </div>
       </div>
     </div>
@@ -830,7 +830,7 @@ function TableItemGrid46() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">4.77%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">4.77%</p>
         </div>
       </div>
     </div>
@@ -842,7 +842,7 @@ function TableItemGrid47() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">3.92%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">3.92%</p>
         </div>
       </div>
     </div>
@@ -854,7 +854,7 @@ function TableItemGrid48() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2.39%</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2.39%</p>
         </div>
       </div>
     </div>
@@ -892,7 +892,7 @@ function TableItemGrid49() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">52W High</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">52W High</p>
           <SortF7 />
         </div>
       </div>
@@ -905,7 +905,7 @@ function TableItemGrid50() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">412.43</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">412.43</p>
         </div>
       </div>
     </div>
@@ -917,7 +917,7 @@ function TableItemGrid51() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">247.94</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">247.94</p>
         </div>
       </div>
     </div>
@@ -929,7 +929,7 @@ function TableItemGrid52() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">350.05</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">350.05</p>
         </div>
       </div>
     </div>
@@ -941,7 +941,7 @@ function TableItemGrid53() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">351.33</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">351.33</p>
         </div>
       </div>
     </div>
@@ -953,7 +953,7 @@ function TableItemGrid54() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">202.45</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">202.45</p>
         </div>
       </div>
     </div>
@@ -965,7 +965,7 @@ function TableItemGrid55() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">66.44</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">66.44</p>
         </div>
       </div>
     </div>
@@ -1003,7 +1003,7 @@ function TableItemGrid56() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">52W Low</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">52W Low</p>
           <SortF8 />
         </div>
       </div>
@@ -1016,7 +1016,7 @@ function TableItemGrid57() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">61.54</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">61.54</p>
         </div>
       </div>
     </div>
@@ -1028,7 +1028,7 @@ function TableItemGrid58() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">28.83</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">28.83</p>
         </div>
       </div>
     </div>
@@ -1040,7 +1040,7 @@ function TableItemGrid59() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">63.19</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">63.19</p>
         </div>
       </div>
     </div>
@@ -1052,7 +1052,7 @@ function TableItemGrid60() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">134.25</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">134.25</p>
         </div>
       </div>
     </div>
@@ -1064,7 +1064,7 @@ function TableItemGrid61() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">53.60</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">53.60</p>
         </div>
       </div>
     </div>
@@ -1076,7 +1076,7 @@ function TableItemGrid62() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">25.71</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">25.71</p>
         </div>
       </div>
     </div>
@@ -1114,7 +1114,7 @@ function TableItemGrid63() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Avg Vol 30D</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Avg Vol 30D</p>
           <SortF9 />
         </div>
       </div>
@@ -1127,7 +1127,7 @@ function TableItemGrid64() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">26,909,216</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">26,909,216</p>
         </div>
       </div>
     </div>
@@ -1139,7 +1139,7 @@ function TableItemGrid65() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">6,472,615</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">6,472,615</p>
         </div>
       </div>
     </div>
@@ -1151,7 +1151,7 @@ function TableItemGrid66() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2,795,527</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">2,795,527</p>
         </div>
       </div>
     </div>
@@ -1163,7 +1163,7 @@ function TableItemGrid67() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">11,633,277</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">11,633,277</p>
         </div>
       </div>
     </div>
@@ -1175,7 +1175,7 @@ function TableItemGrid68() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">5,176,158</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">5,176,158</p>
         </div>
       </div>
     </div>
@@ -1187,7 +1187,7 @@ function TableItemGrid69() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">24,359,645</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">24,359,645</p>
         </div>
       </div>
     </div>
@@ -1225,7 +1225,7 @@ function TableItemGrid70() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[4px] items-center px-[8px] py-[12px] relative size-full">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Market Cap</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Market Cap</p>
           <SortF10 />
         </div>
       </div>
@@ -1238,7 +1238,7 @@ function TableItemGrid71() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$449.81B</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$449.81B</p>
         </div>
       </div>
     </div>
@@ -1250,7 +1250,7 @@ function TableItemGrid72() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$81.03B</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$81.03B</p>
         </div>
       </div>
     </div>
@@ -1262,7 +1262,7 @@ function TableItemGrid73() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$73.91B</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$73.91B</p>
         </div>
       </div>
     </div>
@@ -1274,7 +1274,7 @@ function TableItemGrid74() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$1.74T</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$1.74T</p>
         </div>
       </div>
     </div>
@@ -1286,7 +1286,7 @@ function TableItemGrid75() {
     <div className="h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$69.77B</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$69.77B</p>
         </div>
       </div>
     </div>
@@ -1298,7 +1298,7 @@ function TableItemGrid76() {
     <div className="bg-[#fafafa] h-[46px] relative shrink-0 w-full" data-name="Table Item/Grid">
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center px-[8px] py-[12px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$18.92B</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">$18.92B</p>
         </div>
       </div>
     </div>

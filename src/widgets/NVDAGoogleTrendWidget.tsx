@@ -42,7 +42,7 @@ export function NVDAGoogleTrendWidget() {
       {/* Widget Title */}
       <div className="content-stretch flex gap-[12px] h-[22px] items-center relative shrink-0 w-full">
         <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NVDA Google Trend</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NVDA Google Trend</p>
         </div>
         <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
           <div className="relative shrink-0 size-[12px]">
@@ -57,7 +57,7 @@ export function NVDAGoogleTrendWidget() {
               </defs>
             </svg>
           </div>
-          <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
+          <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
             <p className="leading-[20px]">02/13/2026 10:00</p>
           </div>
         </div>
@@ -74,7 +74,7 @@ export function NVDAGoogleTrendWidget() {
           opts={{ renderer: 'canvas' }}
         />
         {/* Watermark */}
-        <div className="absolute bottom-[16px] left-[16px] font-['Delight:Regular',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
+        <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
           Alva
         </div>
       </div>

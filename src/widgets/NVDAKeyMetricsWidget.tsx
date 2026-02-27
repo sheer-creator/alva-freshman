@@ -35,16 +35,16 @@ const trendColor = {
 function MetricCell({ label, value, change, trend = 'neutral' }: Metric) {
   return (
     <div className="flex flex-col gap-[6px] p-[20px] min-w-0 flex-1">
-      <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
+      <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
         {label}
       </p>
       <div className="flex items-baseline gap-[6px]">
-        <p className="font-['Delight:Regular',sans-serif] text-[24px] font-normal text-[rgba(0,0,0,0.9)] leading-[28px]">
+        <p className="font-['Delight',sans-serif] text-[24px] font-normal text-[rgba(0,0,0,0.9)] leading-[28px]">
           {value}
         </p>
         {change && (
           <span
-            className="font-['Delight:Regular',sans-serif] text-[12px] leading-[20px]"
+            className="font-['Delight',sans-serif] text-[12px] leading-[20px]"
             style={{ color: trendColor[trend] }}
           >
             {change}
@@ -63,10 +63,10 @@ export function NVDAKeyMetricsWidget() {
     <div className="flex flex-col gap-[16px] w-full relative overflow-hidden">
       {/* Widget Title */}
       <div className="flex justify-between h-[22px] items-center w-full">
-        <p className="font-['Delight:Regular',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+        <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
           Key Metrics
         </p>
-        <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
+        <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
           As of 02/20/2026
         </p>
       </div>
@@ -106,7 +106,7 @@ export function NVDAKeyMetricsWidget() {
           </div>
         </div>
 
-        <div className="absolute bottom-[16px] left-[20px] font-['Delight:Regular',sans-serif] text-[16px] font-medium text-[rgba(0,0,0,1)] opacity-20 z-[1]">
+        <div className="absolute bottom-[16px] left-[20px] font-['Delight',sans-serif] text-[16px] font-medium text-[rgba(0,0,0,1)] opacity-20 z-[1]">
           Alva
         </div>
       </div>

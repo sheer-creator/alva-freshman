@@ -57,7 +57,7 @@ function DataFeedCreatorInfo({ name }: { name: string }) {
           <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
         </svg>
       </div>
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">{name}</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">{name}</p>
     </div>
   );
 }
@@ -65,7 +65,7 @@ function DataFeedCreatorInfo({ name }: { name: string }) {
 function DataFeedTitle({ title }: { title: string }) {
   return (
     <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Title">
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">{title}</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">{title}</p>
     </div>
   );
 }
@@ -73,7 +73,7 @@ function DataFeedTitle({ title }: { title: string }) {
 function DataFeedVisualization() {
   return (
     <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-center justify-center relative shrink-0 w-full h-[160px] rounded-[4px]" data-name="Visualization">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic text-[12px] text-[rgba(0,0,0,0.3)] tracking-[0.12px]">Chart Preview</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic text-[12px] text-[rgba(0,0,0,0.3)] tracking-[0.12px]">Chart Preview</p>
     </div>
   );
 }
@@ -91,7 +91,7 @@ function MoreIcon() {
 function DataFeedCardActions({ createdAt }: { createdAt: string }) {
   return (
     <div className="content-stretch flex gap-[8px] items-center justify-between relative shrink-0 w-full" data-name="DataFeed/Card Info">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">{createdAt}</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">{createdAt}</p>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
@@ -105,7 +105,7 @@ function DataFeedCardActions({ createdAt }: { createdAt: string }) {
         <DropdownMenuContent
           align="end"
           sideOffset={4}
-          className="w-52 min-w-[8rem] rounded-md border border-[rgba(0,0,0,0.12)] bg-white py-2 shadow-lg font-['Delight:Regular',sans-serif] text-sm text-[rgba(0,0,0,0.9)]"
+          className="w-52 min-w-[8rem] rounded-md border border-[rgba(0,0,0,0.12)] bg-white py-2 shadow-lg font-['Delight',sans-serif] text-sm text-[rgba(0,0,0,0.9)]"
           style={{ boxShadow: "0px 6px 20px 0px rgba(0,0,0,0.04)" }}
         >
           <DropdownMenuItem
@@ -174,12 +174,12 @@ function LibraryContent({ activeTab, onTabChange }: { activeTab: string; onTabCh
       {activeTab === "dataFeeds" && <DataFeedCardList />}
       {activeTab === "universe" && (
         <div className="content-stretch flex items-center justify-center w-full h-[400px]">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px]">Universe content coming soon</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px]">Universe content coming soon</p>
         </div>
       )}
       {activeTab === "file" && (
         <div className="content-stretch flex items-center justify-center w-full h-[400px]">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px]">File content coming soon</p>
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px]">File content coming soon</p>
         </div>
       )}
     </div>

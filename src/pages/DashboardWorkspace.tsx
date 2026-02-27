@@ -5,9 +5,8 @@
  *
  * 布局（自上而下）：
  *   Row 1: FigmaWatchlistWidget（全宽）
- *   Row 2: NVDAGoogleTrendWidget（全宽）
- *   Row 3: MarkdownWidget | NVDATechAnalysisWidget（1:1）
- *   Row 4: NVDAGoogleTrendWidget | NVDAPriceVsSPYWidget（1:1）
+ *   Row 2: MarkdownWidget | NVDATechAnalysisWidget（1:1）
+ *   Row 3: NVDAGoogleTrendWidget | NVDAPriceVsSPYWidget（1:1）
  */
 
 import type { Page } from '@/app/App';
@@ -32,12 +31,7 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
             {/* Row 1: Figma Watchlist（全宽，来自 Dashboard Playbook） */}
             <FigmaWatchlistWidget />
 
-            {/* Row 2: NVDA Google Trend 独立行（来自 Dashboard Playbook） */}
-            <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
-              <NVDAGoogleTrendWidget />
-            </div>
-
-            {/* Row 3: Markdown | Tech Analysis（来自 Dashboard Workspace） */}
+            {/* Row 2: Markdown | Tech Analysis（来自 Dashboard Workspace） */}
             <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
               <div className="flex-[1_0_0] min-w-0">
                 <MarkdownWidget />

@@ -87,7 +87,7 @@ function CompanyHeader({ data }: { data: EarningsDetailData }) {
         style={{ backgroundColor: config.bg }}
       >
         <p
-          className="font-['Delight:Medium',sans-serif] text-[15px] font-semibold"
+          className="font-['Delight',sans-serif] font-medium text-[15px] font-semibold"
           style={{ color: config.text }}
         >
           {data.ticker}
@@ -97,14 +97,14 @@ function CompanyHeader({ data }: { data: EarningsDetailData }) {
       {/* Company Info */}
       <div className="flex-1 flex flex-col gap-[4px]">
         <div className="flex items-baseline gap-[6px]">
-          <p className="font-['Delight:Regular',sans-serif] text-[18px] text-[rgba(0,0,0,0.9)]">
+          <p className="font-['Delight',sans-serif] text-[18px] text-[rgba(0,0,0,0.9)]">
             {data.ticker}
           </p>
-          <p className="font-['Delight:Regular',sans-serif] text-[15px] text-[rgba(0,0,0,0.9)]">
+          <p className="font-['Delight',sans-serif] text-[15px] text-[rgba(0,0,0,0.9)]">
             {data.quarter || 'Q2 2026'}
           </p>
         </div>
-        <p className="font-['Delight:Regular',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
+        <p className="font-['Delight',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
           {data.company} · {data.earningsDate} {data.timeSlot}
         </p>
       </div>
@@ -112,7 +112,7 @@ function CompanyHeader({ data }: { data: EarningsDetailData }) {
       {/* Status Badge */}
       {data.daysUntil && (
         <div className="shrink-0">
-          <p className="font-['Delight:Regular',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
+          <p className="font-['Delight',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
             In {data.daysUntil} days
           </p>
         </div>
@@ -124,7 +124,7 @@ function CompanyHeader({ data }: { data: EarningsDetailData }) {
 function InfoSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-[8px] mb-[16px]">
-      <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
+      <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
         {title}
       </p>
       <div>{children}</div>
@@ -135,15 +135,15 @@ function InfoSection({ title, children }: { title: string; children: React.React
 function MetricRow({ label, value, subValue }: { label: string; value: string; subValue?: string }) {
   return (
     <div className="flex items-baseline justify-between py-[6px]">
-      <span className="font-['Delight:Regular',sans-serif] text-[13px] text-[rgba(0,0,0,0.7)]">
+      <span className="font-['Delight',sans-serif] text-[13px] text-[rgba(0,0,0,0.7)]">
         {label}
       </span>
       <div className="flex items-baseline gap-[4px]">
-        <span className="font-['Delight:Medium',sans-serif] text-[14px] text-[rgba(0,0,0,0.9)] font-medium">
+        <span className="font-['Delight',sans-serif] font-medium text-[14px] text-[rgba(0,0,0,0.9)] font-medium">
           {value}
         </span>
         {subValue && (
-          <span className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
+          <span className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
             {subValue}
           </span>
         )}
@@ -190,14 +190,14 @@ function UpcomingContent({ data }: { data: EarningsDetailData }) {
     <div className="flex flex-col gap-[12px]">
       {/* Earnings Date Box */}
       <div className="bg-white p-[16px] rounded-[6px]">
-        <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px] mb-[8px]">
+        <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px] mb-[8px]">
           Earnings Date
         </p>
         <div className="flex items-baseline gap-[8px]">
-          <span className="font-['Delight:Regular',sans-serif] text-[18px] text-[rgba(0,0,0,0.9)]">
+          <span className="font-['Delight',sans-serif] text-[18px] text-[rgba(0,0,0,0.9)]">
             {data.earningsDate} {data.timeSlot}
           </span>
-          <span className="font-['Delight:Regular',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
+          <span className="font-['Delight',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
             {data.timeSlot === 'AMC' ? 'After Market Close' : 'Before Market Open'}
           </span>
         </div>
@@ -208,14 +208,14 @@ function UpcomingContent({ data }: { data: EarningsDetailData }) {
         <div className="grid grid-cols-2 gap-[20px]">
           {/* EPS Column */}
           <div className="flex flex-col gap-[4px]">
-            <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
+            <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
               EPS Est.
             </p>
-            <p className="font-['Delight:Regular',sans-serif] text-[28px] text-[rgba(0,0,0,0.9)]">
+            <p className="font-['Delight',sans-serif] text-[28px] text-[rgba(0,0,0,0.9)]">
               {formatEPS(data.epsEstimate!)}
             </p>
             {data.epsEstimateRange && (
-              <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
+              <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
                 Range: {formatEPS(data.epsEstimateRange[0])} - {formatEPS(data.epsEstimateRange[1])}
               </p>
             )}
@@ -223,14 +223,14 @@ function UpcomingContent({ data }: { data: EarningsDetailData }) {
 
           {/* Revenue Column */}
           <div className="flex flex-col gap-[4px]">
-            <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
+            <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
               Revenue Est
             </p>
-            <p className="font-['Delight:Regular',sans-serif] text-[28px] text-[rgba(0,0,0,0.9)]">
+            <p className="font-['Delight',sans-serif] text-[28px] text-[rgba(0,0,0,0.9)]">
               {formatRevenue(data.revenueEstimate!)}
             </p>
             {data.revenueEstimateRange && (
-              <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
+              <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
                 Range: {formatRevenue(data.revenueEstimateRange[0])} - {formatRevenue(data.revenueEstimateRange[1])}
               </p>
             )}
@@ -242,10 +242,10 @@ function UpcomingContent({ data }: { data: EarningsDetailData }) {
       {data.beatStreak && (
         <div className="bg-white p-[16px] rounded-[6px]">
           <div className="flex items-center justify-between mb-[8px]">
-            <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
+            <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
               Beat Streak
             </p>
-            <p className="font-['Delight:Regular',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
+            <p className="font-['Delight',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
               {data.beatStreak.filter(s => s === 'beat').length}/{data.beatStreak.length}
             </p>
           </div>
@@ -266,42 +266,42 @@ function ResultsContent({ data }: { data: EarningsDetailData }) {
     <div className="flex flex-col gap-[12px]">
       {/* Results vs Estimates Box - Two-column layout */}
       <div className="bg-white p-[16px] rounded-[6px]">
-        <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px] mb-[8px]">
+        <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px] mb-[8px]">
           Results vs Estimates
         </p>
         <div className="grid grid-cols-2 gap-[20px]">
           {/* EPS Column */}
           <div className="flex flex-col gap-[4px]">
-            <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
+            <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
               EPS
             </p>
             <div className="flex items-baseline gap-[6px]">
-              <p className="font-['Delight:Regular',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
+              <p className="font-['Delight',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
                 {formatEPS(data.epsActual!)}
               </p>
-              <p className="font-['Delight:Regular',sans-serif] text-[13px] text-[#2a9b7d]">
+              <p className="font-['Delight',sans-serif] text-[13px] text-[#2a9b7d]">
                 {formatSurprise(data.epsSurprise!)}
               </p>
             </div>
-            <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
+            <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
               vs {formatEPS(data.epsEstimate!)}
             </p>
           </div>
 
           {/* Revenue Column */}
           <div className="flex flex-col gap-[4px]">
-            <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
+            <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
               Revenue
             </p>
             <div className="flex items-baseline gap-[6px]">
-              <p className="font-['Delight:Regular',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
+              <p className="font-['Delight',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
                 {formatRevenue(data.revenueActual!)}
               </p>
-              <p className="font-['Delight:Regular',sans-serif] text-[13px] text-[#2a9b7d]">
+              <p className="font-['Delight',sans-serif] text-[13px] text-[#2a9b7d]">
                 {formatSurprise(data.revenueSurprise!)}
               </p>
             </div>
-            <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
+            <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)]">
               vs {formatRevenue(data.revenueEstimate!)}
             </p>
           </div>
@@ -310,26 +310,26 @@ function ResultsContent({ data }: { data: EarningsDetailData }) {
 
       {/* Guidance Box - Two-column layout */}
       <div className="bg-white p-[16px] rounded-[6px]">
-        <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px] mb-[8px]">
+        <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px] mb-[8px]">
           Guidance ({data.guidanceType})
         </p>
         <div className="grid grid-cols-2 gap-[20px]">
           {/* EPS Column */}
           <div className="flex flex-col gap-[4px]">
-            <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
+            <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
               EPS
             </p>
-            <p className="font-['Delight:Regular',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
+            <p className="font-['Delight',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
               {formatEPS(data.guidanceEps!)}
             </p>
           </div>
 
           {/* Revenue Column */}
           <div className="flex flex-col gap-[4px]">
-            <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
+            <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.7)]">
               Revenue
             </p>
-            <p className="font-['Delight:Regular',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
+            <p className="font-['Delight',sans-serif] text-[20px] text-[rgba(0,0,0,0.9)]">
               {formatRevenue(data.guidanceRevenue!)}
             </p>
           </div>
@@ -340,10 +340,10 @@ function ResultsContent({ data }: { data: EarningsDetailData }) {
       {data.beatStreak && (
         <div className="bg-white p-[16px] rounded-[6px]">
           <div className="flex items-center justify-between mb-[8px]">
-            <p className="font-['Delight:Medium',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
+            <p className="font-['Delight',sans-serif] font-medium text-[12px] text-[rgba(0,0,0,0.5)] uppercase tracking-[0.5px]">
               Beat Streak
             </p>
-            <p className="font-['Delight:Regular',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
+            <p className="font-['Delight',sans-serif] text-[13px] text-[rgba(0,0,0,0.5)]">
               {data.beatStreak.filter(s => s === 'beat').length}/{data.beatStreak.length}
             </p>
           </div>
@@ -354,7 +354,7 @@ function ResultsContent({ data }: { data: EarningsDetailData }) {
       <div className="mt-[8px] pt-[16px] border-t border-[rgba(0,0,0,0.05)] flex justify-center">
         <a
           href="#"
-          className="font-['Delight:Regular',sans-serif] text-[13px] text-[#2196F3] hover:underline flex items-center gap-[4px]"
+          className="font-['Delight',sans-serif] text-[13px] text-[#2196F3] hover:underline flex items-center gap-[4px]"
         >
           View Full Earnings Details
           <span>→</span>
@@ -373,7 +373,7 @@ export function EarningsDetailWidget() {
       {/* Widget Title */}
       <div className="content-stretch flex gap-[12px] h-[22px] items-center relative shrink-0 w-full">
         <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative">
-          <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
             Earnings Detail
           </p>
         </div>
@@ -419,7 +419,7 @@ export function EarningsDetailWidget() {
               </defs>
             </svg>
           </div>
-          <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
+          <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
             <p className="leading-[20px]">02/13/2026 10:00</p>
           </div>
         </div>
@@ -442,7 +442,7 @@ export function EarningsDetailWidget() {
       </div>
 
       {/* Watermark - Fixed at page bottom-left */}
-      <div className="fixed bottom-[16px] left-[244px] font-['Delight:Regular',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[9999] pointer-events-none">
+      <div className="fixed bottom-[16px] left-[244px] font-['Delight',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[9999] pointer-events-none">
         Alva
       </div>
     </div>

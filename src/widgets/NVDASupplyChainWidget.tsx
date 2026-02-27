@@ -97,10 +97,10 @@ export function NVDASupplyChainWidget() {
     <div className="flex flex-col gap-[16px] h-[370px] w-full relative rounded-[4px]">
       {/* Widget Title */}
       <div className="flex gap-[12px] h-[22px] items-center w-full">
-        <p className="font-['Delight:Regular',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+        <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
           AI Supply Chain YTD Performance
         </p>
-        <p className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px] ml-auto">
+        <p className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px] ml-auto">
           02/20/2026
         </p>
       </div>
@@ -115,7 +115,7 @@ export function NVDASupplyChainWidget() {
           style={{ height: '100%', width: '100%' }}
           opts={{ renderer: 'canvas' }}
         />
-        <div className="absolute bottom-[16px] left-[16px] font-['Delight:Regular',sans-serif] text-[16px] font-medium text-[rgba(0,0,0,1)] opacity-20 z-[1]">
+        <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-medium text-[rgba(0,0,0,1)] opacity-20 z-[1]">
           Alva
         </div>
       </div>

@@ -177,12 +177,12 @@ export function WidgetTitle({ title, timestamp = 'Live', href }: WidgetTitleProp
         {href ? (
           <a
             href={href}
-            className="font-['Delight:Regular',sans-serif] text-[14px] text-[rgba(0,0,0,0.9)] leading-[22px] tracking-[0.14px] hover:text-primary transition-colors cursor-pointer"
+            className="font-['Delight',sans-serif] text-[14px] text-[rgba(0,0,0,0.9)] leading-[22px] tracking-[0.14px] hover:text-primary transition-colors cursor-pointer"
           >
             {title}
           </a>
         ) : (
-          <span className="font-['Delight:Regular',sans-serif] text-[14px] text-[rgba(0,0,0,0.9)] leading-[22px] tracking-[0.14px]">
+          <span className="font-['Delight',sans-serif] text-[14px] text-[rgba(0,0,0,0.9)] leading-[22px] tracking-[0.14px]">
             {title}
           </span>
         )}
@@ -190,7 +190,7 @@ export function WidgetTitle({ title, timestamp = 'Live', href }: WidgetTitleProp
       </div>
       <div className="flex gap-[4px] items-center">
         <ClockIcon />
-        <span className="font-['Delight:Regular',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
+        <span className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
           {timestamp}
         </span>
       </div>

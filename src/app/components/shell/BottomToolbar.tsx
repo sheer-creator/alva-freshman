@@ -37,7 +37,7 @@ function ToolbarButton({ icon, label }: { icon: React.ReactNode; label: string }
   return (
     <div className="content-stretch flex gap-[6px] h-[32px] items-center justify-center overflow-clip px-[12px] py-[4px] relative rounded-[4px] shrink-0">
       {icon}
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.12px]">{label}</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.12px]">{label}</p>
     </div>
   );
 }

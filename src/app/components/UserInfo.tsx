@@ -36,7 +36,7 @@ function Icon() {
 function Name() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0 w-full" data-name="Name">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">YGGYLL</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">YGGYLL</p>
       <Icon />
     </div>
   );
@@ -69,7 +69,7 @@ function Login() {
   return (
     <div className="content-stretch flex gap-[4px] items-center justify-center relative shrink-0 w-full" data-name="Login">
       <LogoSocial />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[20px] min-h-px min-w-px not-italic relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-pre-wrap">sheer@alva.xyz</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[20px] min-h-px min-w-px not-italic relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-pre-wrap">sheer@alva.xyz</p>
     </div>
   );
 }
@@ -116,7 +116,7 @@ function ListItemR() {
 function Item() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-name="Item">
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Credits Records</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Credits Records</p>
     </div>
   );
 }
@@ -145,7 +145,7 @@ function ArrowRightL() {
 function ListItemR1() {
   return (
     <div className="content-stretch flex gap-[4px] items-center justify-end relative shrink-0" data-name="List Item/R">
-      <p className="font-['Delight:Medium',sans-serif] leading-[22px] not-italic relative shrink-0 text-[#49a3a6] text-[14px] tracking-[0.14px]">12000</p>
+      <p className="font-['Delight',sans-serif] font-medium leading-[22px] not-italic relative shrink-0 text-[#49a3a6] text-[14px] tracking-[0.14px]">12000</p>
       <ArrowRightL />
     </div>
   );
@@ -183,7 +183,7 @@ function ListItemR2() {
 function Item1() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-name="Item">
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Language</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Language</p>
     </div>
   );
 }
@@ -249,7 +249,7 @@ function ListItemR4() {
 function Item2() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-name="Item">
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Log Out</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Log Out</p>
     </div>
   );
 }

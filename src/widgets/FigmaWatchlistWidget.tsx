@@ -64,7 +64,7 @@ function ArrowRightL() {
 function Title() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">{`Brief & Notes`}</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">{`Brief & Notes`}</p>
       <ArrowRightL />
     </div>
   );
@@ -91,7 +91,7 @@ function Timestamp() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">6h</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">6h</p>
     </div>
   );
 }
@@ -108,7 +108,7 @@ function WidgetTitle() {
 function MarkdownLGap() {
   return (
     <div className="content-stretch flex items-center justify-center pb-[4px] pt-[12px] relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">AI Storage Theme Brief</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">AI Storage Theme Brief</p>
     </div>
   );
 }
@@ -116,13 +116,13 @@ function MarkdownLGap() {
 function MarkdownLGap1() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[0] min-h-px min-w-px not-italic relative text-[0px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">
-        <span className="font-['Delight:Medium',sans-serif] leading-[22px] text-[14px] tracking-[0.14px]">Date:</span>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[0] min-h-px min-w-px not-italic relative text-[0px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">
+        <span className="font-['Delight',sans-serif] font-medium leading-[22px] text-[14px] tracking-[0.14px]">Date:</span>
         <span className="leading-[26px] text-[16px]">
           {` January 22, 2026`}
           <br aria-hidden="true" />
         </span>
-        <span className="font-['Delight:Medium',sans-serif] leading-[22px] text-[14px] tracking-[0.14px]">Theme:</span>
+        <span className="font-['Delight',sans-serif] font-medium leading-[22px] text-[14px] tracking-[0.14px]">Theme:</span>
         <span className="leading-[26px] text-[16px]">{` AI Infrastructure Storage Demand`}</span>
       </p>
     </div>
@@ -144,7 +144,7 @@ function Line() {
 function MarkdownLGap2() {
   return (
     <div className="content-stretch flex items-center justify-center pb-[4px] pt-[12px] relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">1. AI Storage Segments</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">1. AI Storage Segments</p>
     </div>
   );
 }
@@ -152,7 +152,7 @@ function MarkdownLGap2() {
 function MarkdownLGap3() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Enterprise AI Storage</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Enterprise AI Storage</p>
     </div>
   );
 }
@@ -173,7 +173,7 @@ function Item() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">High-performance NVMe/SSD arrays for training clusters</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">High-performance NVMe/SSD arrays for training clusters</p>
     </div>
   );
 }
@@ -194,7 +194,7 @@ function Item1() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component1 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Object storage for model checkpoints and datasets</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Object storage for model checkpoints and datasets</p>
     </div>
   );
 }
@@ -215,7 +215,7 @@ function Item2() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component2 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: Pure Storage, NetApp, Dell EMC</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: Pure Storage, NetApp, Dell EMC</p>
     </div>
   );
 }
@@ -233,7 +233,7 @@ function MarkdownLGap4() {
 function MarkdownLGap5() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Hyperscale Cloud Storage</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Hyperscale Cloud Storage</p>
     </div>
   );
 }
@@ -254,7 +254,7 @@ function Item3() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component3 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Distributed file systems (e.g., HDFS, Ceph)</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Distributed file systems (e.g., HDFS, Ceph)</p>
     </div>
   );
 }
@@ -275,7 +275,7 @@ function Item4() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component4 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Tiered storage (hot/warm/cold) for cost optimization</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Tiered storage (hot/warm/cold) for cost optimization</p>
     </div>
   );
 }
@@ -296,7 +296,7 @@ function Item5() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component5 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: AWS S3, Azure Blob, Google Cloud Storage</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: AWS S3, Azure Blob, Google Cloud Storage</p>
     </div>
   );
 }
@@ -314,7 +314,7 @@ function MarkdownLGap6() {
 function MarkdownLGap7() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Edge AI Storage</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Edge AI Storage</p>
     </div>
   );
 }
@@ -335,7 +335,7 @@ function Item6() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component6 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Local inference caching and model storage</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Local inference caching and model storage</p>
     </div>
   );
 }
@@ -356,7 +356,7 @@ function Item7() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component7 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Low-latency edge compute storage</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Low-latency edge compute storage</p>
     </div>
   );
 }
@@ -377,7 +377,7 @@ function Item8() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component8 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: Western Digital, Seagate, Micron</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: Western Digital, Seagate, Micron</p>
     </div>
   );
 }
@@ -395,7 +395,7 @@ function MarkdownLGap8() {
 function MarkdownLGap9() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Memory/Storage Convergence</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Memory/Storage Convergence</p>
     </div>
   );
 }
@@ -416,7 +416,7 @@ function Item9() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component9 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">CXL-enabled memory pooling</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">CXL-enabled memory pooling</p>
     </div>
   );
 }
@@ -437,7 +437,7 @@ function Item10() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component10 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Persistent memory (PMem) for AI workloads</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Persistent memory (PMem) for AI workloads</p>
     </div>
   );
 }
@@ -458,7 +458,7 @@ function Item11() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component11 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: Samsung, SK Hynix, Intel</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Key players: Samsung, SK Hynix, Intel</p>
     </div>
   );
 }
@@ -488,7 +488,7 @@ function Line1() {
 function MarkdownLGap11() {
   return (
     <div className="content-stretch flex items-center justify-center pb-[4px] pt-[12px] relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">2. Demand Drivers</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">2. Demand Drivers</p>
     </div>
   );
 }
@@ -496,7 +496,7 @@ function MarkdownLGap11() {
 function MarkdownLGap12() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Primary Drivers</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Primary Drivers</p>
     </div>
   );
 }
@@ -517,7 +517,7 @@ function Item12() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component12 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Model Size Expansion: GPT-4+ scale models require 100TB+ storage per training run</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Model Size Expansion: GPT-4+ scale models require 100TB+ storage per training run</p>
     </div>
   );
 }
@@ -538,7 +538,7 @@ function Item13() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component13 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Training Data Growth: Multimodal datasets (text, image, video) expanding 3-5x annually</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Training Data Growth: Multimodal datasets (text, image, video) expanding 3-5x annually</p>
     </div>
   );
 }
@@ -559,7 +559,7 @@ function Item14() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component14 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Inference Scale: Real-time serving requires low-latency storage at edge and cloud</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Inference Scale: Real-time serving requires low-latency storage at edge and cloud</p>
     </div>
   );
 }
@@ -584,7 +584,7 @@ function Item15() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component15 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative self-stretch text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Regulatory Compliance: Data sovereignty laws driving localized storage buildouts</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative self-stretch text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Regulatory Compliance: Data sovereignty laws driving localized storage buildouts</p>
       <Code />
     </div>
   );
@@ -604,7 +604,7 @@ function MarkdownLGap13() {
 function MarkdownLGap14() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Secondary Drivers</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Secondary Drivers</p>
     </div>
   );
 }
@@ -625,7 +625,7 @@ function Item16() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component16 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Model Versioning: Multiple checkpoint storage for A/B testing and rollback</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Model Versioning: Multiple checkpoint storage for A/B testing and rollback</p>
     </div>
   );
 }
@@ -646,7 +646,7 @@ function Item17() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component17 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Synthetic Data: AI-generated training data creating storage feedback loop</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Synthetic Data: AI-generated training data creating storage feedback loop</p>
     </div>
   );
 }
@@ -667,7 +667,7 @@ function Item18() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component18 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Fine-tuning Proliferation: Enterprise custom models multiplying storage needs</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Fine-tuning Proliferation: Enterprise custom models multiplying storage needs</p>
     </div>
   );
 }
@@ -697,7 +697,7 @@ function Line2() {
 function MarkdownLGap16() {
   return (
     <div className="content-stretch flex items-center justify-center pb-[4px] pt-[12px] relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">{`3. Supply & Price Signals`}</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[30px] min-h-px min-w-px not-italic relative text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-pre-wrap">{`3. Supply & Price Signals`}</p>
     </div>
   );
 }
@@ -705,7 +705,7 @@ function MarkdownLGap16() {
 function MarkdownLGap17() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Supply Indicators</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Supply Indicators</p>
     </div>
   );
 }
@@ -726,7 +726,7 @@ function Item19() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component19 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">{`NAND Flash Utilization: Monitor >85% = tight supply, <70% = oversupply`}</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">{`NAND Flash Utilization: Monitor >85% = tight supply, <70% = oversupply`}</p>
     </div>
   );
 }
@@ -747,7 +747,7 @@ function Item20() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component20 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">HDD Shipment Volumes: Hyperscale HDD orders (leading indicator, 2-3 month lag)</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">HDD Shipment Volumes: Hyperscale HDD orders (leading indicator, 2-3 month lag)</p>
     </div>
   );
 }
@@ -768,7 +768,7 @@ function Item21() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component21 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Fab Capacity Additions: Samsung/Micron capex announcements (6-12 month lead time)</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Fab Capacity Additions: Samsung/Micron capex announcements (6-12 month lead time)</p>
     </div>
   );
 }
@@ -786,7 +786,7 @@ function MarkdownLGap18() {
 function MarkdownLGap19() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Price Signals</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Price Signals</p>
     </div>
   );
 }
@@ -807,7 +807,7 @@ function Item22() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component22 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">NAND Contract Prices: Track quarterly enterprise SSD pricing (DRAMeXchange)</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">NAND Contract Prices: Track quarterly enterprise SSD pricing (DRAMeXchange)</p>
     </div>
   );
 }
@@ -828,7 +828,7 @@ function Item23() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component23 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Cloud Storage Pricing: AWS S3/Azure price cuts = margin pressure signal</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Cloud Storage Pricing: AWS S3/Azure price cuts = margin pressure signal</p>
     </div>
   );
 }
@@ -849,7 +849,7 @@ function Item24() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component24 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">{`Spot Market Premiums: Gray market SSD premiums >10% = shortage forming`}</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">{`Spot Market Premiums: Gray market SSD premiums >10% = shortage forming`}</p>
     </div>
   );
 }
@@ -867,7 +867,7 @@ function MarkdownLGap20() {
 function MarkdownLGap21() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0 w-full" data-name="Markdown/L (Gap16)">
-      <p className="flex-[1_0_0] font-['Delight:Medium',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Current Status (as of Jan 2026)</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Current Status (as of Jan 2026)</p>
     </div>
   );
 }
@@ -888,7 +888,7 @@ function Item25() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component25 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">NAND prices: Stabilizing after 2025 correction</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">NAND prices: Stabilizing after 2025 correction</p>
     </div>
   );
 }
@@ -909,7 +909,7 @@ function Item26() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component26 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">HDD demand: Steady for nearline hyperscale</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">HDD demand: Steady for nearline hyperscale</p>
     </div>
   );
 }
@@ -930,7 +930,7 @@ function Item27() {
   return (
     <div className="content-stretch flex items-start relative shrink-0 w-full" data-name="Item">
       <Component27 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Enterprise SSD: Tight supply for high-capacity (30TB+) drives</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Enterprise SSD: Tight supply for high-capacity (30TB+) drives</p>
     </div>
   );
 }
@@ -1007,7 +1007,7 @@ function ArrowRightL1() {
 function Title1() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">AI Memory Storage Index</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">AI Memory Storage Index</p>
       <ArrowRightL1 />
     </div>
   );
@@ -1034,7 +1034,7 @@ function Timestamp1() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL1 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">6h</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">6h</p>
     </div>
   );
 }
@@ -1094,7 +1094,7 @@ function Component29() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="1">
       <Frame1 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">AI Memory Storage Index</p>
       </div>
     </div>
@@ -1109,7 +1109,7 @@ function Component30() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="4">
       <Frame2 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">{`S&P`}</p>
       </div>
     </div>
@@ -1127,7 +1127,7 @@ function Component28() {
 
 function Info() {
   return (
-    <div className="content-stretch flex font-['Delight:Regular',sans-serif] gap-[8px] items-center leading-[0] not-italic py-[4px] relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] w-full z-[3]" data-name="Info">
+    <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center leading-[0] not-italic py-[4px] relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] w-full z-[3]" data-name="Info">
       <div className="flex flex-col justify-center relative shrink-0 whitespace-nowrap">
         <p className="leading-[16px]">Price (USD)</p>
       </div>
@@ -1173,7 +1173,7 @@ function Component31() {
 function YItem() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[5]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
         <p className="leading-[16px] whitespace-pre-wrap">6940</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1188,7 +1188,7 @@ function YItem() {
 function YItem1() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[4]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
         <p className="leading-[16px] whitespace-pre-wrap">6930</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1203,7 +1203,7 @@ function YItem1() {
 function YItem2() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[3]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
         <p className="leading-[16px] whitespace-pre-wrap">6920</p>
       </div>
       <div className="flex-[1_0_0] h-0 min-h-px min-w-px opacity-0 relative" data-name="起始资金线">
@@ -1216,7 +1216,7 @@ function YItem2() {
 function YItem3() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[2]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
         <p className="leading-[16px] whitespace-pre-wrap">6910</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1233,7 +1233,7 @@ function YItem3() {
 function YItem4() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[1]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[30px]">
         <p className="leading-[16px] whitespace-pre-wrap">6900</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1263,7 +1263,7 @@ function Y() {
 function X() {
   return (
     <div className="h-[16px] relative shrink-0 w-full z-[1]" data-name="X">
-      <div className="content-stretch flex font-['Delight:Regular',sans-serif] items-start justify-between leading-[0] not-italic pl-[38px] relative size-full text-[10px] text-[rgba(0,0,0,0.7)] text-center tracking-[0.1px]">
+      <div className="content-stretch flex font-['Delight',sans-serif] items-start justify-between leading-[0] not-italic pl-[38px] relative size-full text-[10px] text-[rgba(0,0,0,0.7)] text-center tracking-[0.1px]">
         <div className="flex flex-[1_0_0] flex-col justify-center min-h-px min-w-px relative">
           <p className="leading-[16px] whitespace-pre-wrap">11/01</p>
         </div>
@@ -1443,7 +1443,7 @@ function ArrowRightL2() {
 function Title2() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <a className="block font-['Delight:Regular',sans-serif] leading-[0] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap" href="https://stg.alva.xyz/dashboard?id=2014552503732015104">
+      <a className="block font-['Delight',sans-serif] leading-[0] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap" href="https://stg.alva.xyz/dashboard?id=2014552503732015104">
         <p className="cursor-pointer leading-[22px]">DRAM Price Trend</p>
       </a>
       <ArrowRightL2 />
@@ -1472,7 +1472,7 @@ function Timestamp2() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL2 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">02/12/2026 12:30</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">02/12/2026 12:30</p>
     </div>
   );
 }
@@ -1494,7 +1494,7 @@ function Component33() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="4">
       <Frame3 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">NVDA</p>
       </div>
     </div>
@@ -1509,7 +1509,7 @@ function Component34() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="3">
       <Frame4 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">AMD</p>
       </div>
     </div>
@@ -1524,7 +1524,7 @@ function Component35() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="2">
       <Frame5 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">AVGO</p>
       </div>
     </div>
@@ -1539,7 +1539,7 @@ function Component36() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="1">
       <Frame6 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">MU</p>
       </div>
     </div>
@@ -1554,7 +1554,7 @@ function Component37() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="5">
       <Frame7 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">WDC</p>
       </div>
     </div>
@@ -1569,7 +1569,7 @@ function Component38() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="6">
       <Frame8 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">STX</p>
       </div>
     </div>
@@ -1584,7 +1584,7 @@ function Component39() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="7">
       <Frame9 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">KLAC</p>
       </div>
     </div>
@@ -1599,7 +1599,7 @@ function Component40() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="8">
       <Frame10 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">LRCX</p>
       </div>
     </div>
@@ -1614,7 +1614,7 @@ function Component41() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="9">
       <Frame11 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">AMAT</p>
       </div>
     </div>
@@ -1629,7 +1629,7 @@ function Component42() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="10">
       <Frame12 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">ANET</p>
       </div>
     </div>
@@ -1644,7 +1644,7 @@ function Component43() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="11">
       <Frame13 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">SMH</p>
       </div>
     </div>
@@ -1659,7 +1659,7 @@ function Component44() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="12">
       <Frame14 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">SOXX</p>
       </div>
     </div>
@@ -1671,13 +1671,13 @@ function Component32() {
     <div className="content-stretch flex gap-[8px] h-[16px] items-center justify-end overflow-clip relative shrink-0 w-full z-[5]" data-name="图例">
       <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
         <div className="bg-[#49A3A6] rounded-[100px] shrink-0 size-[8px]" />
-        <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+        <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
           <p className="leading-[16px]">DDR5 16Gb</p>
         </div>
       </div>
       <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
         <div className="bg-[#FF9800] rounded-[100px] shrink-0 size-[8px]" />
-        <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+        <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
           <p className="leading-[16px]">DDR4 16Gb</p>
         </div>
       </div>
@@ -1688,7 +1688,7 @@ function Component32() {
 function Info1() {
   return (
     <div className="content-stretch flex items-center py-[4px] relative shrink-0 w-full z-[4]" data-name="Info">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">Normalized Performance</p>
       </div>
     </div>
@@ -1716,7 +1716,7 @@ function ChartArea() {
 function YItem5() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[8]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">400</p>
       </div>
     </div>
@@ -1726,7 +1726,7 @@ function YItem5() {
 function YItem6() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[7]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">350</p>
       </div>
     </div>
@@ -1736,7 +1736,7 @@ function YItem6() {
 function YItem7() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[6]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">300</p>
       </div>
     </div>
@@ -1746,7 +1746,7 @@ function YItem7() {
 function YItem8() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[5]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">250</p>
       </div>
     </div>
@@ -1756,7 +1756,7 @@ function YItem8() {
 function YItem9() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[4]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">200</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1773,7 +1773,7 @@ function YItem9() {
 function YItem10() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[3]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">150</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1790,7 +1790,7 @@ function YItem10() {
 function YItem11() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[2]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">100</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1807,7 +1807,7 @@ function YItem11() {
 function YItem12() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[1]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">50</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -1841,16 +1841,16 @@ function X1() {
   return (
     <div className="relative shrink-0 w-full z-[2]" data-name="X">
       <div className="content-stretch flex items-start leading-[0] not-italic pl-[32px] relative text-[10px] text-[rgba(0,0,0,0.7)] text-center tracking-[0.1px] w-full">
-        <div className="flex flex-[1_0_0] flex-col font-['Delight:Regular',sans-serif] justify-center min-h-px min-w-px relative">
+        <div className="flex flex-[1_0_0] flex-col font-['Delight',sans-serif] justify-center min-h-px min-w-px relative">
           <p className="leading-[16px] whitespace-pre-wrap">Oct</p>
         </div>
-        <div className="flex flex-[1_0_0] flex-col font-['Delight:Regular',sans-serif] justify-center min-h-px min-w-px relative">
+        <div className="flex flex-[1_0_0] flex-col font-['Delight',sans-serif] justify-center min-h-px min-w-px relative">
           <p className="leading-[16px] whitespace-pre-wrap">Nov</p>
         </div>
-        <div className="flex flex-[1_0_0] flex-col font-['Delight:Regular',sans-serif] justify-center min-h-px min-w-px relative">
+        <div className="flex flex-[1_0_0] flex-col font-['Delight',sans-serif] justify-center min-h-px min-w-px relative">
           <p className="leading-[16px] whitespace-pre-wrap">Dec</p>
         </div>
-        <div className="flex flex-[1_0_0] flex-col font-['Delight:Medium',sans-serif] justify-center min-h-px min-w-px relative">
+        <div className="flex flex-[1_0_0] flex-col font-['Delight',sans-serif] font-medium justify-center min-h-px min-w-px relative">
           <p className="leading-[16px] whitespace-pre-wrap">2026</p>
         </div>
       </div>
@@ -2056,7 +2056,7 @@ function ArrowRightLHeatmap() {
 function TitleHeatmap() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Trading Activity Heatmap</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Trading Activity Heatmap</p>
       <ArrowRightLHeatmap />
     </div>
   );
@@ -2083,7 +2083,7 @@ function TimestampHeatmap() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockLHeatmap />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Live</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Live</p>
     </div>
   );
 }
@@ -2283,7 +2283,7 @@ function ArrowRightL3() {
 function Title3() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Forward Valuation Comparison</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Forward Valuation Comparison</p>
       <ArrowRightL3 />
     </div>
   );
@@ -2310,7 +2310,7 @@ function Timestamp3() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL3 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">02/12/2026 12:30</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">02/12/2026 12:30</p>
     </div>
   );
 }
@@ -2332,7 +2332,7 @@ function Component47() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="4">
       <Frame15 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">TTM P/E</p>
       </div>
     </div>
@@ -2347,7 +2347,7 @@ function Component48() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="3">
       <Frame16 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">Forward P/E</p>
       </div>
     </div>
@@ -2362,7 +2362,7 @@ function Component49() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="2">
       <Frame17 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">EV/EBITDA (TTM)</p>
       </div>
     </div>
@@ -2377,7 +2377,7 @@ function Component50() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="1">
       <Frame18 />
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">Price/Sales (TTM)</p>
       </div>
     </div>
@@ -2398,7 +2398,7 @@ function Component46() {
 function Info2() {
   return (
     <div className="content-stretch flex items-center py-[4px] relative shrink-0 w-full z-[4]" data-name="Info">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
         <p className="leading-[16px]">Valuation Multiple</p>
       </div>
     </div>
@@ -3231,7 +3231,7 @@ function ChartArea1() {
 function YItem13() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[7]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">180</p>
       </div>
     </div>
@@ -3241,7 +3241,7 @@ function YItem13() {
 function YItem14() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[6]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">150</p>
       </div>
     </div>
@@ -3251,7 +3251,7 @@ function YItem14() {
 function YItem15() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[5]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">120</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -3268,7 +3268,7 @@ function YItem15() {
 function YItem16() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[4]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">90</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -3285,7 +3285,7 @@ function YItem16() {
 function YItem17() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[3]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">60</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -3302,7 +3302,7 @@ function YItem17() {
 function YItem18() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[2]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">30</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -3319,7 +3319,7 @@ function YItem18() {
 function YItem19() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full z-[1]" data-name="Y Item">
-      <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
+      <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.7)] text-right tracking-[0.1px] w-[24px]">
         <p className="leading-[16px] whitespace-pre-wrap">0</p>
       </div>
       <div className="flex flex-[1_0_0] items-center justify-center min-h-px min-w-px relative">
@@ -3351,7 +3351,7 @@ function Y2() {
 function X2() {
   return (
     <div className="relative shrink-0 w-full z-[2]" data-name="X">
-      <div className="content-stretch flex font-['Delight:Regular',sans-serif] items-start leading-[0] not-italic pl-[32px] relative text-[10px] text-[rgba(0,0,0,0.7)] text-center tracking-[0.1px] w-full">
+      <div className="content-stretch flex font-['Delight',sans-serif] items-start leading-[0] not-italic pl-[32px] relative text-[10px] text-[rgba(0,0,0,0.7)] text-center tracking-[0.1px] w-full">
         <div className="flex flex-[1_0_0] flex-col justify-center min-h-px min-w-px relative">
           <p className="leading-[16px] whitespace-pre-wrap">NVDA</p>
         </div>
@@ -3422,25 +3422,25 @@ function ValuationLegend() {
     <div className="content-stretch flex gap-[8px] h-[16px] items-center justify-end overflow-clip relative shrink-0 w-full z-[5]" data-name="图例">
       <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
         <div className="bg-[#49A3A6] rounded-[100px] shrink-0 size-[8px]" />
-        <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+        <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
           <p className="leading-[16px]">MU</p>
         </div>
       </div>
       <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
         <div className="bg-[#FF9800] rounded-[100px] shrink-0 size-[8px]" />
-        <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+        <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
           <p className="leading-[16px]">SNDK</p>
         </div>
       </div>
       <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
         <div className="bg-[#40A544] rounded-[100px] shrink-0 size-[8px]" />
-        <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+        <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
           <p className="leading-[16px]">WDC</p>
         </div>
       </div>
       <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
         <div className="bg-[#5F75C9] rounded-[100px] shrink-0 size-[8px]" />
-        <div className="flex flex-col font-['Delight:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
+        <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10px] text-[rgba(0,0,0,0.5)] tracking-[0.1px] whitespace-nowrap">
           <p className="leading-[16px]">STX</p>
         </div>
       </div>
@@ -3604,7 +3604,7 @@ function XY2() {
           opts={{ renderer: 'canvas' }}
         />
       </div>
-      <div className="absolute bottom-[16px] left-[16px] font-['Delight:Regular',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
+      <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
         Alva
       </div>
     </div>

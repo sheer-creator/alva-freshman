@@ -97,7 +97,7 @@ function Title5() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
       <LeftIcon />
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Trending Threads</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Trending Threads</p>
       <ArrowRightL5 />
     </div>
   );
@@ -124,7 +124,7 @@ function Timestamp5() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL5 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">01/26/2026 16:20</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">01/26/2026 16:20</p>
     </div>
   );
 }
@@ -144,8 +144,8 @@ function Info3() {
       <div className="relative shrink-0 size-[22px]" data-name="头像">
         <img alt="" className="block max-w-none size-full" height="22" src={img3} width="22" />
       </div>
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Marty Chargin</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@MartyChargin</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Marty Chargin</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@MartyChargin</p>
     </div>
   );
 }
@@ -154,7 +154,7 @@ function Basic() {
   return (
     <div className="content-stretch flex gap-[8px] h-[22px] items-center relative shrink-0 w-full" data-name="Basic">
       <Info3 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 24</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 24</p>
     </div>
   );
 }
@@ -175,7 +175,7 @@ function Group2() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XReplyL />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">8</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">8</p>
     </div>
   );
 }
@@ -196,7 +196,7 @@ function Group3() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XRepostL />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">2</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">2</p>
     </div>
   );
 }
@@ -217,7 +217,7 @@ function Group4() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XLikeL />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">33</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">33</p>
     </div>
   );
 }
@@ -237,8 +237,8 @@ function Content() {
     <div className="relative shrink-0 w-full" data-name="Content">
       <div className="flex flex-col items-center justify-center size-full">
         <div className="content-stretch flex flex-col gap-[4px] items-center justify-center pl-[26px] relative w-full">
-          <p className="font-['Delight:Regular',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
-            <span className="font-['Delight:Medium',sans-serif] leading-[22px] text-[#49a3a6]">$SNDK</span>
+          <p className="font-['Delight',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
+            <span className="font-['Delight',sans-serif] font-medium leading-[22px] text-[#49a3a6]">$SNDK</span>
             <span className="leading-[22px]">{` ... This stock is not only kissing its 5 day line... it is on second base and ready for a triple.... maybe they need to get a room now?`}</span>
           </p>
           <Frame71 />
@@ -286,8 +286,8 @@ function Info4() {
       <div className="relative shrink-0 size-[22px]" data-name="头像">
         <img alt="" className="block max-w-none size-full" height="22" src={img4} width="22" />
       </div>
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">FLUX</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@FluxAlgo_TA</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">FLUX</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@FluxAlgo_TA</p>
     </div>
   );
 }
@@ -296,7 +296,7 @@ function Basic1() {
   return (
     <div className="content-stretch flex gap-[8px] h-[22px] items-center relative shrink-0 w-full" data-name="Basic">
       <Info4 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 21</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 21</p>
     </div>
   );
 }
@@ -317,7 +317,7 @@ function Group5() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XReplyL1 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">0</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">0</p>
     </div>
   );
 }
@@ -338,7 +338,7 @@ function Group6() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XRepostL1 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">2</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">2</p>
     </div>
   );
 }
@@ -359,7 +359,7 @@ function Group7() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XLikeL1 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">3</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">3</p>
     </div>
   );
 }
@@ -379,8 +379,8 @@ function Content1() {
     <div className="relative shrink-0 w-full" data-name="Content">
       <div className="flex flex-col items-center justify-center size-full">
         <div className="content-stretch flex flex-col gap-[4px] items-center justify-center pl-[26px] relative w-full">
-          <p className="font-['Delight:Regular',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
-            <span className="font-['Delight:Medium',sans-serif] leading-[22px] text-[#49a3a6]">$NVDA</span>
+          <p className="font-['Delight',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
+            <span className="font-['Delight',sans-serif] font-medium leading-[22px] text-[#49a3a6]">$NVDA</span>
             <span className="leading-[22px]">{` Blue line crosses below the zero level – short-term bearish signal confirmed, more downside likely.`}</span>
           </p>
           <Frame72 />
@@ -428,8 +428,8 @@ function Info5() {
       <div className="relative shrink-0 size-[22px]" data-name="头像">
         <img alt="" className="block max-w-none size-full" height="22" src={img5} width="22" />
       </div>
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Justin Banks</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@RealJGBanks</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Justin Banks</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@RealJGBanks</p>
     </div>
   );
 }
@@ -438,7 +438,7 @@ function Basic2() {
   return (
     <div className="content-stretch flex gap-[8px] h-[22px] items-center relative shrink-0 w-full" data-name="Basic">
       <Info5 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 12</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 12</p>
     </div>
   );
 }
@@ -459,7 +459,7 @@ function Group8() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XReplyL2 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">30</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">30</p>
     </div>
   );
 }
@@ -480,7 +480,7 @@ function Group9() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XRepostL2 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">261</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">261</p>
     </div>
   );
 }
@@ -501,7 +501,7 @@ function Group10() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XLikeL2 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">1.1K</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">1.1K</p>
     </div>
   );
 }
@@ -521,13 +521,13 @@ function Content2() {
     <div className="relative shrink-0 w-full" data-name="Content">
       <div className="flex flex-col items-center justify-center size-full">
         <div className="content-stretch flex flex-col gap-[4px] items-center justify-center pl-[26px] relative w-full">
-          <p className="font-['Delight:Regular',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
+          <p className="font-['Delight',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
             <span className="leading-[22px]">
               AI’S NEXT BOTTLENECK: MEMORY (2026)
               <br aria-hidden="true" />
               {`If you missed `}
             </span>
-            <span className="font-['Delight:Medium',sans-serif] leading-[22px] text-[#49a3a6]">$MU</span>
+            <span className="font-['Delight',sans-serif] font-medium leading-[22px] text-[#49a3a6]">$MU</span>
             <span className="leading-[22px]">
               <br aria-hidden="true" />
               <br aria-hidden="true" />
@@ -579,8 +579,8 @@ function Info6() {
       <div className="relative shrink-0 size-[22px]" data-name="头像">
         <img alt="" className="block max-w-none size-full" height="22" src={img6} width="22" />
       </div>
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Shay Boloor</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@StockSavvyShay</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Shay Boloor</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@StockSavvyShay</p>
     </div>
   );
 }
@@ -589,7 +589,7 @@ function Basic3() {
   return (
     <div className="content-stretch flex gap-[8px] h-[22px] items-center relative shrink-0 w-full" data-name="Basic">
       <Info6 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 11</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 11</p>
     </div>
   );
 }
@@ -610,7 +610,7 @@ function Group11() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XReplyL3 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">91</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">91</p>
     </div>
   );
 }
@@ -631,7 +631,7 @@ function Group12() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XRepostL3 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">465</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">465</p>
     </div>
   );
 }
@@ -652,7 +652,7 @@ function Group13() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XLikeL3 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">2.1K</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">2.1K</p>
     </div>
   );
 }
@@ -672,8 +672,8 @@ function Content3() {
     <div className="relative shrink-0 w-full" data-name="Content">
       <div className="flex flex-col items-center justify-center size-full">
         <div className="content-stretch flex flex-col gap-[4px] items-center justify-center pl-[26px] relative w-full">
-          <p className="font-['Delight:Regular',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
-            <span className="font-['Delight:Medium',sans-serif] leading-[22px] text-[#49a3a6]">$MU</span>
+          <p className="font-['Delight',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
+            <span className="font-['Delight',sans-serif] font-medium leading-[22px] text-[#49a3a6]">$MU</span>
             <span className="leading-[22px]">{` just announced the largest semiconductor manufacturing facility in U.S. history with a $100B advanced memory megafab in New York.`}</span>
           </p>
           <Frame74 />
@@ -721,8 +721,8 @@ function Info7() {
       <div className="relative shrink-0 size-[22px]" data-name="头像">
         <img alt="" className="block max-w-none size-full" height="22" src={img7} width="22" />
       </div>
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Lin</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@Speculator_io</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Lin</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@Speculator_io</p>
     </div>
   );
 }
@@ -731,7 +731,7 @@ function Basic4() {
   return (
     <div className="content-stretch flex gap-[8px] h-[22px] items-center relative shrink-0 w-full" data-name="Basic">
       <Info7 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 7</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 7</p>
     </div>
   );
 }
@@ -752,7 +752,7 @@ function Group14() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XReplyL4 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">29</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">29</p>
     </div>
   );
 }
@@ -773,7 +773,7 @@ function Group15() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XRepostL4 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">251</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">251</p>
     </div>
   );
 }
@@ -794,7 +794,7 @@ function Group16() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XLikeL4 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">1.2K</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">1.2K</p>
     </div>
   );
 }
@@ -814,11 +814,11 @@ function Content4() {
     <div className="relative shrink-0 w-full" data-name="Content">
       <div className="flex flex-col items-center justify-center size-full">
         <div className="content-stretch flex flex-col gap-[4px] items-center justify-center pl-[26px] relative w-full">
-          <div className="font-['Delight:Regular',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[0px] text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
+          <div className="font-['Delight',sans-serif] h-[44px] leading-[0] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[0px] text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
             <p className="leading-[22px] mb-0">{`We're in an AI memory supercycle:`}</p>
             <p>
               <span className="leading-[22px]">{`HBM: `}</span>
-              <span className="font-['Delight:Medium',sans-serif] leading-[22px] not-italic text-[#49a3a6] tracking-[0.14px]">$MU</span>
+              <span className="font-['Delight',sans-serif] font-medium leading-[22px] not-italic text-[#49a3a6] tracking-[0.14px]">$MU</span>
               <span className="leading-[22px]">{` SK hynix Samsung`}</span>
             </p>
           </div>
@@ -867,8 +867,8 @@ function Info8() {
       <div className="relative shrink-0 size-[22px]" data-name="头像">
         <img alt="" className="block max-w-none size-full" height="22" src={img8} width="22" />
       </div>
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Shantaram</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@shantaram83</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Shantaram</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">@shantaram83</p>
     </div>
   );
 }
@@ -877,7 +877,7 @@ function Basic5() {
   return (
     <div className="content-stretch flex gap-[8px] h-[22px] items-center relative shrink-0 w-full" data-name="Basic">
       <Info8 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan7</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan7</p>
     </div>
   );
 }
@@ -898,7 +898,7 @@ function Group17() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XReplyL5 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">28K</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">28K</p>
     </div>
   );
 }
@@ -919,7 +919,7 @@ function Group18() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XRepostL5 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">118K</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">118K</p>
     </div>
   );
 }
@@ -940,7 +940,7 @@ function Group19() {
   return (
     <div className="content-stretch flex gap-[2px] items-center overflow-clip relative shrink-0">
       <XLikeL5 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">4.3K</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">4.3K</p>
     </div>
   );
 }
@@ -960,7 +960,7 @@ function Content5() {
     <div className="relative shrink-0 w-full" data-name="Content">
       <div className="flex flex-col items-center justify-center size-full">
         <div className="content-stretch flex flex-col gap-[4px] items-center justify-center pl-[26px] relative w-full">
-          <div className="font-['Delight:Regular',sans-serif] h-[44px] leading-[22px] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
+          <div className="font-['Delight',sans-serif] h-[44px] leading-[22px] max-h-[44px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-pre-wrap">
             <p className="mb-0">Picked up a little memory</p>
             <p>$MU $SNDK $WDC $STX</p>
           </div>
@@ -1079,7 +1079,7 @@ function ArrowRightL6() {
 function Title6() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Trending Posts</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Trending Posts</p>
       <ArrowRightL6 />
     </div>
   );
@@ -1106,7 +1106,7 @@ function Timestamp6() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL6 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">01/26/2026 16:20</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">01/26/2026 16:20</p>
     </div>
   );
 }
@@ -1137,11 +1137,11 @@ function Info9() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0 w-full" data-name="Info">
       <LogoSocial />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Morningstar</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 25</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Tori Brovet</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Morningstar</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 25</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Tori Brovet</p>
     </div>
   );
 }
@@ -1149,8 +1149,8 @@ function Info9() {
 function Main6() {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-h-px min-w-px relative" data-name="Main">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">The Best AI Stocks to Buy Now</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">These stock picks stand to benefit most from developing artificial intelligence technologies in 2026.</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">The Best AI Stocks to Buy Now</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">These stock picks stand to benefit most from developing artificial intelligence technologies in 2026.</p>
       <Info9 />
     </div>
   );
@@ -1196,11 +1196,11 @@ function Info10() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0 w-full" data-name="Info">
       <LogoSocial1 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Seeking Alpha</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 24</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Chris Ciaccia</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Seeking Alpha</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 24</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Chris Ciaccia</p>
     </div>
   );
 }
@@ -1208,8 +1208,8 @@ function Info10() {
 function Main7() {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-h-px min-w-px relative" data-name="Main">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">Memory is the hottest part of the market. Can the rally continue?</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">Spurred by insatiable demand from data centers and all things related to artificial intelligence, memory, and storage makers have become the hottest part of the stock market.</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">Memory is the hottest part of the market. Can the rally continue?</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">Spurred by insatiable demand from data centers and all things related to artificial intelligence, memory, and storage makers have become the hottest part of the stock market.</p>
       <Info10 />
     </div>
   );
@@ -1255,11 +1255,11 @@ function Info11() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0 w-full" data-name="Info">
       <LogoSocial2 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Yahoo Finance</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 22</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Rich Duprey</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Yahoo Finance</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 22</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Rich Duprey</p>
     </div>
   );
 }
@@ -1267,8 +1267,8 @@ function Info11() {
 function Main8() {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-h-px min-w-px relative" data-name="Main">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">SanDisk Stock Keeps Surging. Did You Miss Your Chance to Buy?</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">SanDisk (SNDK) was spun off from Western Digital (WDC) last February, marking a strategic separation to unlock value in its flash memory business. Since then, the company has delivered a master class in market dominance, capitalizing on surging demand for NAND flash driven by artificial intelligence (AI) and data centers.</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">SanDisk Stock Keeps Surging. Did You Miss Your Chance to Buy?</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">SanDisk (SNDK) was spun off from Western Digital (WDC) last February, marking a strategic separation to unlock value in its flash memory business. Since then, the company has delivered a master class in market dominance, capitalizing on surging demand for NAND flash driven by artificial intelligence (AI) and data centers.</p>
       <Info11 />
     </div>
   );
@@ -1314,11 +1314,11 @@ function Info12() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0 w-full" data-name="Info">
       <LogoSocial3 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">{`Podcast `}</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 21</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By mcgrof</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">{`Podcast `}</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 21</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By mcgrof</p>
     </div>
   );
 }
@@ -1326,8 +1326,8 @@ function Info12() {
 function Main9() {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-h-px min-w-px relative" data-name="Main">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">Storage-next: Do We Need New Hardware for AI Storage, or Just Better Layouts?</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">{`We review the "Storage-Next" paper, published in November 2025, which argues that a fundamental hardware architectural shift is required to elevate NAND flash from a passive storage tier to an active memory tier capable of "seconds-scale" caching. The authors contend that standard SSDs impose a "channel-side ceiling" on IOPS because they are optimized for 4KB blocks, creating massive bandwidth waste when AI applications demand fine-grained access to small items, such as 128-byte embedding vectors. To solve this, they propose specialized "Storage-Next" drives capable of scalable IOPS for small block sizes (e.g., 50M IOPS at 512B), arguing this hardware is necessary to simplify software stacks and enable high-throughput random access without the read amplification penalties inherent in current technology.`}</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">Storage-next: Do We Need New Hardware for AI Storage, or Just Better Layouts?</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">{`We review the "Storage-Next" paper, published in November 2025, which argues that a fundamental hardware architectural shift is required to elevate NAND flash from a passive storage tier to an active memory tier capable of "seconds-scale" caching. The authors contend that standard SSDs impose a "channel-side ceiling" on IOPS because they are optimized for 4KB blocks, creating massive bandwidth waste when AI applications demand fine-grained access to small items, such as 128-byte embedding vectors. To solve this, they propose specialized "Storage-Next" drives capable of scalable IOPS for small block sizes (e.g., 50M IOPS at 512B), arguing this hardware is necessary to simplify software stacks and enable high-throughput random access without the read amplification penalties inherent in current technology.`}</p>
       <Info12 />
     </div>
   );
@@ -1387,11 +1387,11 @@ function Info13() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0 w-full" data-name="Info">
       <LogoSocial4 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Yahoo Finance</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 8</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Joey Frenette</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Yahoo Finance</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 8</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Joey Frenette</p>
     </div>
   );
 }
@@ -1399,8 +1399,8 @@ function Info13() {
 function Main10() {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-h-px min-w-px relative" data-name="Main">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">Memory Chip Stocks are Red-Hot. Is it Too Late to Buy?</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">{`The memory chip stocks have been really heating up to start the year, thanks in part to the AI-driven RAM shortage, which could last well into the year's end and perhaps beyond. Undoubtedly, AI demand is showing no signs of slowing down, and as the high-performance memory needs continue to blast off, questions linger as to how the top memory players can step up to meet the needs of this unprecedented boom.`}</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">Memory Chip Stocks are Red-Hot. Is it Too Late to Buy?</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">{`The memory chip stocks have been really heating up to start the year, thanks in part to the AI-driven RAM shortage, which could last well into the year's end and perhaps beyond. Undoubtedly, AI demand is showing no signs of slowing down, and as the high-performance memory needs continue to blast off, questions linger as to how the top memory players can step up to meet the needs of this unprecedented boom.`}</p>
       <Info13 />
     </div>
   );
@@ -1454,11 +1454,11 @@ function Info14() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0 w-full" data-name="Info">
       <LogoSocial5 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Youtube</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 6</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Extrinsic Trades</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Youtube</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">Jan 6</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">•</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[20px] min-h-px min-w-px not-italic overflow-hidden relative text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] whitespace-nowrap">By Extrinsic Trades</p>
     </div>
   );
 }
@@ -1466,8 +1466,8 @@ function Info14() {
 function Main11() {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-h-px min-w-px relative" data-name="Main">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">MU, STX, SNDK, WDC, CRDO Stock Analysis 2026</p>
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] w-full whitespace-nowrap">MU, STX, SNDK, WDC, CRDO Stock Analysis 2026</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-ellipsis tracking-[0.12px] w-full whitespace-nowrap">
         {`📈 Stock Technical Analysis | MU, STX, SNDK, WDC & CRDO`}
         <br aria-hidden="true" />
         Micron Technology (MU), Seagate Technology (STX), SanDisk (SNDK), Western Digital (WDC), and Credo Technology (CRDO).
@@ -1576,7 +1576,7 @@ function ArrowRightL7() {
 function Title7() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
-      <p className="font-['Delight:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Earnings Calls</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Earnings Calls</p>
       <ArrowRightL7 />
     </div>
   );
@@ -1603,7 +1603,7 @@ function Timestamp7() {
   return (
     <div className="content-stretch flex gap-[4px] items-center relative shrink-0" data-name="Timestamp">
       <ClockL7 />
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">01/26/2026 16:20</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">01/26/2026 16:20</p>
     </div>
   );
 }
@@ -1628,7 +1628,7 @@ function LogoStock() {
 function Tag() {
   return (
     <div className="bg-[rgba(0,0,0,0.05)] content-stretch flex items-center justify-center px-[8px] py-px relative rounded-[4px] shrink-0" data-name="Tag">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">in 1d</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">in 1d</p>
     </div>
   );
 }
@@ -1637,7 +1637,7 @@ function Frame79() {
   return (
     <div className="content-stretch flex gap-[6px] items-start relative shrink-0 w-full">
       <LogoStock />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">STX 2026 Q2 Earnings Call</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">STX 2026 Q2 Earnings Call</p>
       <Tag />
     </div>
   );
@@ -1647,7 +1647,7 @@ function Frame80() {
   return (
     <div className="relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-center size-full">
-        <div className="content-stretch flex flex-col font-['Delight:Regular',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
+        <div className="content-stretch flex flex-col font-['Delight',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
           <p className="max-h-[44px] overflow-hidden relative shrink-0 text-ellipsis w-full whitespace-nowrap">Event upcoming</p>
           <p className="relative shrink-0 w-full whitespace-pre-wrap">01/28/2026 06:00</p>
         </div>
@@ -1687,7 +1687,7 @@ function LogoStock1() {
 function Tag1() {
   return (
     <div className="bg-[rgba(42,155,125,0.1)] content-stretch flex items-center justify-center px-[8px] py-px relative rounded-[4px] shrink-0" data-name="Tag">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#2a9b7d] text-[12px] text-center tracking-[0.12px]">+17.9%</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#2a9b7d] text-[12px] text-center tracking-[0.12px]">+17.9%</p>
     </div>
   );
 }
@@ -1696,7 +1696,7 @@ function Frame81() {
   return (
     <div className="content-stretch flex gap-[6px] items-start relative shrink-0 w-full">
       <LogoStock1 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">MU 2026 Q1 Earnings Call</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">MU 2026 Q1 Earnings Call</p>
       <Tag1 />
     </div>
   );
@@ -1706,7 +1706,7 @@ function Frame82() {
   return (
     <div className="relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-center size-full">
-        <div className="content-stretch flex flex-col font-['Delight:Regular',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
+        <div className="content-stretch flex flex-col font-['Delight',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
           <p className="h-[20px] max-h-[44px] overflow-hidden relative shrink-0 text-ellipsis w-full whitespace-nowrap">Record financial performance with supply constraints: Micron achieved record gross margins of ~68% in Q1 fiscal 2026 and generated near 30% free cash flow margin, while being unable to meet substantial customer demand across DRAM, HBM, and NAND segments due to industrywide supply constraints that are expected to persist for the foreseeable future.</p>
           <p className="relative shrink-0 w-full whitespace-pre-wrap">12/18/2025 07:00</p>
         </div>
@@ -1746,7 +1746,7 @@ function LogoStock2() {
 function Tag2() {
   return (
     <div className="bg-[rgba(42,155,125,0.1)] content-stretch flex items-center justify-center px-[8px] py-px relative rounded-[4px] shrink-0" data-name="Tag">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#2a9b7d] text-[12px] text-center tracking-[0.12px]">+5.88%</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#2a9b7d] text-[12px] text-center tracking-[0.12px]">+5.88%</p>
     </div>
   );
 }
@@ -1755,7 +1755,7 @@ function Frame83() {
   return (
     <div className="content-stretch flex gap-[6px] items-start relative shrink-0 w-full">
       <LogoStock2 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">SNDK 2026 Q1 Earnings Call</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">SNDK 2026 Q1 Earnings Call</p>
       <Tag2 />
     </div>
   );
@@ -1765,7 +1765,7 @@ function Frame84() {
   return (
     <div className="relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-center size-full">
-        <div className="content-stretch flex flex-col font-['Delight:Regular',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
+        <div className="content-stretch flex flex-col font-['Delight',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
           <p className="h-[20px] max-h-[44px] overflow-hidden relative shrink-0 text-ellipsis w-full whitespace-nowrap">SanDisk delivered strong Q1 FY26 results with revenue of $2.38 billion (up 21% QoQ, 23% YoY), non-GAAP EPS of $1.22, and $448 million in adjusted free cash flow; net cash position achieved six months ahead of target.</p>
           <p className="relative shrink-0 w-full whitespace-pre-wrap">11/08/2026 05:30</p>
         </div>
@@ -1805,7 +1805,7 @@ function LogoStock3() {
 function Tag3() {
   return (
     <div className="bg-[rgba(42,155,125,0.1)] content-stretch flex items-center justify-center px-[8px] py-px relative rounded-[4px] shrink-0" data-name="Tag">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#2a9b7d] text-[12px] text-center tracking-[0.12px]">+3.14%</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#2a9b7d] text-[12px] text-center tracking-[0.12px]">+3.14%</p>
     </div>
   );
 }
@@ -1814,7 +1814,7 @@ function Frame85() {
   return (
     <div className="content-stretch flex gap-[6px] items-start relative shrink-0 w-full">
       <LogoStock3 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">WDC 2026 Q1 Earnings Call</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">WDC 2026 Q1 Earnings Call</p>
       <Tag3 />
     </div>
   );
@@ -1824,7 +1824,7 @@ function Frame86() {
   return (
     <div className="relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-center size-full">
-        <div className="content-stretch flex flex-col font-['Delight:Regular',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
+        <div className="content-stretch flex flex-col font-['Delight',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
           <p className="h-[20px] max-h-[44px] overflow-hidden relative shrink-0 text-ellipsis w-full whitespace-nowrap">Western Digital reported Q1 FY26 revenue of $2.8 billion (up 27% YoY), non-GAAP gross margin of 43.9%, non-GAAP EPS of $1.78, and free cash flow of $599 million; cloud represented 89% of total revenue.</p>
           <p className="relative shrink-0 w-full whitespace-pre-wrap">10/31/2025 04:30</p>
         </div>
@@ -1864,7 +1864,7 @@ function LogoStock4() {
 function Tag4() {
   return (
     <div className="bg-[rgba(224,83,87,0.1)] content-stretch flex items-center justify-center px-[8px] py-px relative rounded-[4px] shrink-0" data-name="Tag">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#e05357] text-[12px] text-center tracking-[0.12px]">-7.14%</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[#e05357] text-[12px] text-center tracking-[0.12px]">-7.14%</p>
     </div>
   );
 }
@@ -1873,7 +1873,7 @@ function Frame87() {
   return (
     <div className="content-stretch flex gap-[6px] items-start relative shrink-0 w-full">
       <LogoStock4 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">SMCI 2026 Q1 Earnings Call</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">SMCI 2026 Q1 Earnings Call</p>
       <Tag4 />
     </div>
   );
@@ -1883,7 +1883,7 @@ function Frame88() {
   return (
     <div className="relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-center size-full">
-        <div className="content-stretch flex flex-col font-['Delight:Regular',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full whitespace-pre-wrap">
+        <div className="content-stretch flex flex-col font-['Delight',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full whitespace-pre-wrap">
           <p className="h-[40px] max-h-[44px] overflow-hidden relative shrink-0 text-ellipsis w-full">Seagate reported strong fiscal Q1 2026 results: revenue grew 21% year-over-year to $2.63B, non-GAAP gross margin reached a record 40.1%, and non-GAAP operating margin climbed to 29%; non-GAAP EPS was $2.61, exceeding guidance.</p>
           <p className="relative shrink-0 w-full">10/29/2025 05:00</p>
         </div>
@@ -1923,7 +1923,7 @@ function LogoStock5() {
 function Tag5() {
   return (
     <div className="bg-[rgba(0,0,0,0.05)] content-stretch flex items-center justify-center px-[8px] py-px relative rounded-[4px] shrink-0" data-name="Tag">
-      <p className="font-['Delight:Regular',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">0.00%</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px]">0.00%</p>
     </div>
   );
 }
@@ -1932,7 +1932,7 @@ function Frame89() {
   return (
     <div className="content-stretch flex gap-[6px] items-start relative shrink-0 w-full">
       <LogoStock5 />
-      <p className="flex-[1_0_0] font-['Delight:Regular',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">MU 2025 Q4 Earnings Call</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">MU 2025 Q4 Earnings Call</p>
       <Tag5 />
     </div>
   );
@@ -1942,7 +1942,7 @@ function Frame90() {
   return (
     <div className="relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-center size-full">
-        <div className="content-stretch flex flex-col font-['Delight:Regular',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
+        <div className="content-stretch flex flex-col font-['Delight',sans-serif] gap-[4px] items-center justify-center leading-[20px] not-italic pl-[28px] relative text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
           <p className="h-[20px] max-h-[44px] overflow-hidden relative shrink-0 text-ellipsis w-full whitespace-nowrap">Micron expects significant improvement in the NAND industry in calendar 2026, driven by increased demand from hyperscalers for AI server deployments, while DRAM market conditions are already tight and expected to tighten further.</p>
           <p className="relative shrink-0 w-full whitespace-pre-wrap">12/18/2025 07:00</p>
         </div>
