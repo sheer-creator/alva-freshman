@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock";
+export type Page = "home" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview";
 
 /* ========== 按需加载页面 ========== */
 
@@ -13,10 +13,11 @@ const DashboardWorkspace = lazy(() => import("@/pages/DashboardWorkspace").then(
 const DashboardTest = lazy(() => import("@/pages/DashboardTest").then(m => ({ default: m.DashboardTest })));
 const NVDADashboard = lazy(() => import("@/pages/NVDADashboard"));
 const DashboardPopularStock = lazy(() => import("@/pages/DashboardPopularStock").then(m => ({ default: m.DashboardPopularStock })));
+const DashboardTSLAOverview = lazy(() => import("@/pages/DashboardTSLAOverview").then(m => ({ default: m.DashboardTSLAOverview })));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock"];
+const VALID_PAGES: Page[] = ["home", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -54,6 +55,7 @@ export default function App() {
         {currentPage === "test" && <DashboardTest onNavigate={navigate} />}
         {currentPage === "nvda" && <NVDADashboard onNavigate={navigate} />}
         {currentPage === "popular-stock" && <DashboardPopularStock onNavigate={navigate} />}
+        {currentPage === "tsla-overview" && <DashboardTSLAOverview onNavigate={navigate} />}
       </Suspense>
       <SearchModal
         isOpen={isSearchOpen}

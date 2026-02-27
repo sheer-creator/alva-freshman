@@ -111,10 +111,10 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* Playbooks */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]">
         <SectionHeader label="Playbooks" />
-        <NavItem label="Dashboard Playbook" active={activePage === 'dashboard'} onClick={() => onNavigate('dashboard')} />
-        <NavItem label="Dashboard Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
+        <NavItem label="Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
         <NavItem label="Custom Layout" active={activePage === 'test'} onClick={() => onNavigate('test')} />
         <NavItem label="Popular Stock Playbook" active={activePage === 'popular-stock'} onClick={() => onNavigate('popular-stock')} />
+        <NavItem label="TSLA Overview" active={activePage === 'tsla-overview'} onClick={() => onNavigate('tsla-overview')} />
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
       </div>
 

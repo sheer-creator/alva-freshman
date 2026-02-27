@@ -330,8 +330,8 @@ function GoogleTrendsWidget() {
   return (
     <div className="flex flex-col w-full relative">
       <WidgetTitle title="Google Trends" timestamp="90D · TSLA" />
-      <div style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
-        <ReactECharts option={option} style={{ height: 220 }} notMerge />
+      <div style={{ flex: 1, ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
+        <ReactECharts option={option} style={{ height: '100%', minHeight: 180 }} notMerge />
       </div>
       <div style={{ position: 'absolute', bottom: 16, left: 16, fontSize: 16, fontWeight: 600, color: 'rgba(0,0,0,0.2)', fontFamily: T.FONT, pointerEvents: 'none' }}>Alva</div>
     </div>
@@ -370,7 +370,7 @@ function PriceChartWidget() {
   return (
     <div className="flex flex-col w-full relative">
       <WidgetTitle title="Price Chart" timestamp="12M · % Change" />
-      <div style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
         <div className="flex items-center justify-end gap-[8px] mb-[4px]" style={{ height: 16 }}>
           <div className="flex items-center gap-[4px]">
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#cc0000', flexShrink: 0 }} />
@@ -381,7 +381,9 @@ function PriceChartWidget() {
             <p style={{ fontSize: 10, color: T.n5, fontFamily: T.FONT }}>S&P 500</p>
           </div>
         </div>
-        <ReactECharts option={option} style={{ height: 220 }} notMerge />
+        <div style={{ flex: 1, minHeight: 180 }}>
+          <ReactECharts option={option} style={{ height: '100%' }} notMerge />
+        </div>
       </div>
       <div style={{ position: 'absolute', bottom: 16, left: 16, fontSize: 16, fontWeight: 600, color: 'rgba(0,0,0,0.2)', fontFamily: T.FONT, pointerEvents: 'none' }}>Alva</div>
     </div>
@@ -420,7 +422,7 @@ function SocialKeywordsWidget() {
   return (
     <div className="flex flex-col w-full relative">
       <WidgetTitle title="Social Keyword Trends" timestamp="90D · Twitter/Reddit" />
-      <div style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
         <div className="flex items-center justify-end gap-[8px] mb-[4px]" style={{ height: 16 }}>
           {kwSeries.map((s) => (
             <div key={s.name} className="flex items-center gap-[4px]">
@@ -429,7 +431,9 @@ function SocialKeywordsWidget() {
             </div>
           ))}
         </div>
-        <ReactECharts option={option} style={{ height: 220 }} notMerge />
+        <div style={{ flex: 1, minHeight: 180 }}>
+          <ReactECharts option={option} style={{ height: '100%' }} notMerge />
+        </div>
       </div>
       <div style={{ position: 'absolute', bottom: 16, left: 16, fontSize: 16, fontWeight: 600, color: 'rgba(0,0,0,0.2)', fontFamily: T.FONT, pointerEvents: 'none' }}>Alva</div>
     </div>
@@ -588,18 +592,18 @@ function FSDModule() {
         </p>
       </div>
       {/* Two charts */}
-      <div className="grid grid-cols-2 gap-[24px]">
+      <div className="grid grid-cols-2 gap-[24px]" style={{ alignItems: 'stretch' }}>
         <div className="flex flex-col relative">
           <WidgetTitle title="FSD 累计里程" timestamp="12M · Billion Miles" />
-          <div style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
-            <ReactECharts option={milesOption} style={{ height: 200 }} notMerge />
+          <div style={{ flex: 1, ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
+            <ReactECharts option={milesOption} style={{ height: '100%', minHeight: 180 }} notMerge />
           </div>
           <div style={{ position: 'absolute', bottom: 16, left: 16, fontSize: 16, fontWeight: 600, color: 'rgba(0,0,0,0.2)', fontFamily: T.FONT, pointerEvents: 'none' }}>Alva</div>
         </div>
         <div className="flex flex-col relative">
           <WidgetTitle title="FSD 人工干预率" timestamp="12M · Per 100K Miles" />
-          <div style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
-            <ReactECharts option={interventionOption} style={{ height: 200 }} notMerge />
+          <div style={{ flex: 1, ...CHART_DOT_BG, borderRadius: 6, padding: 16 }}>
+            <ReactECharts option={interventionOption} style={{ height: '100%', minHeight: 180 }} notMerge />
           </div>
           <div style={{ position: 'absolute', bottom: 16, left: 16, fontSize: 16, fontWeight: 600, color: 'rgba(0,0,0,0.2)', fontFamily: T.FONT, pointerEvents: 'none' }}>Alva</div>
         </div>
@@ -757,13 +761,13 @@ export function DashboardPopularStock({ onNavigate }: { onNavigate: (page: Page)
             <HeatmapWidget />
 
             {/* 4. Google Trends | Price Chart */}
-            <div className="grid grid-cols-2 gap-[24px] w-full">
+            <div className="grid grid-cols-2 gap-[24px] w-full" style={{ alignItems: 'stretch' }}>
               <GoogleTrendsWidget />
               <PriceChartWidget />
             </div>
 
             {/* 5. Social Keywords | News Feed */}
-            <div className="grid grid-cols-2 gap-[24px] w-full">
+            <div className="grid grid-cols-2 gap-[24px] w-full" style={{ alignItems: 'stretch' }}>
               <SocialKeywordsWidget />
               <NewsFeedWidget />
             </div>
