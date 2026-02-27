@@ -6,7 +6,21 @@
 
 import type { Page } from '@/app/App';
 import svgPaths from '@/data/svg-nheoeek59y';
-import imgAvatar from 'figma:asset/b6ec6224880e49a1fd078b50b5b248ac0bdaff74.png';
+import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
+
+/* ========== 用户头像 ========== */
+
+function UserAvatar({ name, size = 24 }: { name: string; size?: number }) {
+  const initial = name.trim().charAt(0).toUpperCase();
+  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, letterSpacing: 0, fontFamily: "'Delight', sans-serif" }}>
+        {initial}
+      </span>
+    </div>
+  );
+}
 
 /* ========== 类型 ========== */
 
@@ -125,9 +139,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         onMouseLeave={onUserMouseLeave}
       >
         <div className="content-stretch flex gap-[8px] items-center p-[8px] relative w-full">
-          <div className="relative rounded-[100px] shrink-0 size-[24px]">
-            <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[100px] size-full" src={imgAvatar} />
-          </div>
+          <UserAvatar name="YGGYLL" size={24} />
           <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[13px] text-white tracking-[0.13px] whitespace-pre-wrap">YGGYLL</p>
         </div>
       </div>

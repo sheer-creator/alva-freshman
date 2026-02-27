@@ -25,6 +25,30 @@ export const CHART_COLOR_PALETTE = [
   CHART_COLORS.yellow,
 ];
 
+/**
+ * 用户头像专用调色板（15 色）。
+ * sum(charCodes) % 15 对以下全部已知用户保证零碰撞：
+ * Alva Intern(9) · YGGYLL(7) · Harry Zzz(14) · Leo Leo(8)
+ * Sheer YLL YGG(4) · Macro Scope X(1) · Smart Jing(13)
+ */
+export const AVATAR_COLOR_PALETTE = [
+  '#49A3A6',  // 0  cyan / Alva primary
+  '#FF9800',  // 1  orange
+  '#40A544',  // 2  green1
+  '#8FC13A',  // 3  green2
+  '#3D8BD1',  // 4  blue1
+  '#0D7498',  // 5  blue2
+  '#5F75C9',  // 6  purple1
+  '#7474D8',  // 7  purple2
+  '#A878DC',  // 8  violet
+  '#DC7AA5',  // 9  pink
+  '#C76466',  // 10 red1
+  '#E6A91A',  // 11 yellow
+  '#E05357',  // 12 neg-red
+  '#007949',  // 13 deep-green
+  '#838383',  // 14 grey
+];
+
 /* ========== 字体 & 图表背景 ========== */
 
 export const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";

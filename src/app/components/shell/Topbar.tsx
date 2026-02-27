@@ -5,7 +5,7 @@
  */
 
 import svgPaths from '@/data/svg-nheoeek59y';
-import { CHART_COLOR_PALETTE } from '@/lib/chart-theme';
+import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
 
 interface TopbarProps {
   title: string;
@@ -14,7 +14,7 @@ interface TopbarProps {
 /** 名称首字母圆形头像，底色从 chart token 色盘中按名称哈希取色 */
 function UserAvatar({ name, size = 20 }: { name: string; size?: number }) {
   const initial = name.trim().charAt(0).toUpperCase();
-  const color = CHART_COLOR_PALETTE[name.charCodeAt(0) % CHART_COLOR_PALETTE.length];
+  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
   return (
     <div
       style={{

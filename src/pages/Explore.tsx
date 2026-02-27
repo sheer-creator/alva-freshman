@@ -9,6 +9,19 @@ import type { Page } from '@/app/App';
 import { useState } from 'react';
 import UserInfo from '@/app/components/UserInfo';
 import { AppShell } from '@/app/components/shell/AppShell';
+import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
+
+function UserAvatar({ name, size = 22 }: { name: string; size?: number }) {
+  const initial = name.trim().charAt(0).toUpperCase();
+  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, letterSpacing: 0, fontFamily: "'Delight', sans-serif" }}>
+        {initial}
+      </span>
+    </div>
+  );
+}
 
 
 function TabItem() {
@@ -44,18 +57,15 @@ function TabBar() {
   );
 }
 
-function PlaybookCreatorInfo() {
+function PlaybookCreatorInfo({ name }: { name: string }) {
   return (
     <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Alva Intern</p>
+      <UserAvatar name={name} size={22} />
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">{name}</p>
     </div>
   );
 }
+
 
 function Name() {
   return (
@@ -96,7 +106,7 @@ function PlaybookCard() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo />
+          <PlaybookCreatorInfo name="Alva Intern" />
           <Frame1 />
           <FeedCardInfo />
         </div>
@@ -106,18 +116,6 @@ function PlaybookCard() {
   );
 }
 
-function PlaybookCreatorInfo1() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Harry Zzz</p>
-    </div>
-  );
-}
 
 function Name1() {
   return (
@@ -158,7 +156,7 @@ function PlaybookCard1() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo1 />
+          <PlaybookCreatorInfo name="Harry Zzz" />
           <Frame2 />
           <FeedCardInfo1 />
         </div>
@@ -168,18 +166,6 @@ function PlaybookCard1() {
   );
 }
 
-function PlaybookCreatorInfo2() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Leo Leo</p>
-    </div>
-  );
-}
 
 function Name2() {
   return (
@@ -220,7 +206,7 @@ function PlaybookCard2() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo2 />
+          <PlaybookCreatorInfo name="Leo Leo" />
           <Frame3 />
           <FeedCardInfo2 />
         </div>
@@ -240,18 +226,6 @@ function Component() {
   );
 }
 
-function PlaybookCreatorInfo3() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Sheer YLL YGG</p>
-    </div>
-  );
-}
 
 function SidebarStrategyNormal() {
   return (
@@ -305,7 +279,7 @@ function PlaybookCard3() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo3 />
+          <PlaybookCreatorInfo name="Sheer YLL YGG" />
           <Frame4 />
           <FeedCardInfo3 />
         </div>
@@ -315,18 +289,6 @@ function PlaybookCard3() {
   );
 }
 
-function PlaybookCreatorInfo4() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Macro Scope X</p>
-    </div>
-  );
-}
 
 function Name4() {
   return (
@@ -367,7 +329,7 @@ function PlaybookCard4() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo4 />
+          <PlaybookCreatorInfo name="Macro Scope X" />
           <Frame5 />
           <FeedCardInfo4 />
         </div>
@@ -377,18 +339,6 @@ function PlaybookCard4() {
   );
 }
 
-function PlaybookCreatorInfo5() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Smart Jing</p>
-    </div>
-  );
-}
 
 function Name5() {
   return (
@@ -429,7 +379,7 @@ function PlaybookCard5() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo5 />
+          <PlaybookCreatorInfo name="Smart Jing" />
           <Frame6 />
           <FeedCardInfo5 />
         </div>
@@ -458,18 +408,6 @@ function PlaybookCardList() {
   );
 }
 
-function PlaybookCreatorInfo6() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Alva Intern</p>
-    </div>
-  );
-}
 
 function Name6() {
   return (
@@ -510,7 +448,7 @@ function PlaybookCard6() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo6 />
+          <PlaybookCreatorInfo name="Alva Intern" />
           <Frame7 />
           <FeedCardInfo6 />
         </div>
@@ -520,18 +458,6 @@ function PlaybookCard6() {
   );
 }
 
-function PlaybookCreatorInfo7() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Harry Zzz</p>
-    </div>
-  );
-}
 
 function Name7() {
   return (
@@ -572,7 +498,7 @@ function PlaybookCard7() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo7 />
+          <PlaybookCreatorInfo name="Harry Zzz" />
           <Frame8 />
           <FeedCardInfo7 />
         </div>
@@ -582,18 +508,6 @@ function PlaybookCard7() {
   );
 }
 
-function PlaybookCreatorInfo8() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Leo Leo</p>
-    </div>
-  );
-}
 
 function Name8() {
   return (
@@ -634,7 +548,7 @@ function PlaybookCard8() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo8 />
+          <PlaybookCreatorInfo name="Leo Leo" />
           <Frame9 />
           <FeedCardInfo8 />
         </div>
@@ -654,18 +568,6 @@ function Component2() {
   );
 }
 
-function PlaybookCreatorInfo9() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Sheer YLL YGG</p>
-    </div>
-  );
-}
 
 function SidebarStrategyNormal1() {
   return (
@@ -719,7 +621,7 @@ function PlaybookCard9() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo9 />
+          <PlaybookCreatorInfo name="Sheer YLL YGG" />
           <Frame10 />
           <FeedCardInfo9 />
         </div>
@@ -729,18 +631,6 @@ function PlaybookCard9() {
   );
 }
 
-function PlaybookCreatorInfo10() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Macro Scope X</p>
-    </div>
-  );
-}
 
 function Name10() {
   return (
@@ -781,7 +671,7 @@ function PlaybookCard10() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo10 />
+          <PlaybookCreatorInfo name="Macro Scope X" />
           <Frame11 />
           <FeedCardInfo10 />
         </div>
@@ -791,18 +681,6 @@ function PlaybookCard10() {
   );
 }
 
-function PlaybookCreatorInfo11() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <div className="relative shrink-0 size-[22px]" data-name="image">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 22 22">
-          <circle cx="11" cy="11" fill="var(--fill-0, #D9D9D9)" id="image" r="11" />
-        </svg>
-      </div>
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">Smart Jing</p>
-    </div>
-  );
-}
 
 function Name11() {
   return (
@@ -843,7 +721,7 @@ function PlaybookCard11() {
     <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo11 />
+          <PlaybookCreatorInfo name="Smart Jing" />
           <Frame12 />
           <FeedCardInfo11 />
         </div>
