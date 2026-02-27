@@ -404,6 +404,8 @@ function PlaybookCardList() {
     <div className="content-stretch flex flex-col gap-[12px] items-start justify-center max-w-[1200px] relative shrink-0 w-full" data-name="Playbook/Card List">
       <Component />
       <Component1 />
+      <Component2 />
+      <Component3 />
     </div>
   );
 }
@@ -760,8 +762,6 @@ export default function Explore({ onNavigate, onOpenSearch }: { onNavigate?: (pa
           <div className="content-stretch flex flex-col gap-[20px] items-center pb-[40px] pt-[28px] px-[28px] relative w-full">
             <TabBar />
             <PlaybookCardList />
-            <Component2 />
-            <Component3 />
           </div>
         </div>
       </AppShell>
