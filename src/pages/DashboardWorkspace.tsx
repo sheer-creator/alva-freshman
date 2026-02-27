@@ -7,6 +7,7 @@
  *   Row 1: FigmaWatchlistWidget（全宽）
  *   Row 2: MarkdownWidget | NVDATechAnalysisWidget（1:1）
  *   Row 3: NVDAGoogleTrendWidget | NVDAPriceVsSPYWidget（1:1）
+ *   Row 4: NVDAEarningsWidget（全宽）
  */
 
 import type { Page } from '@/app/App';
@@ -17,6 +18,8 @@ import { MarkdownWidget } from '@/widgets/MarkdownWidget';
 import { NVDATechAnalysisWidget } from '@/widgets/NVDATechAnalysisWidget';
 import { NVDAGoogleTrendWidget } from '@/widgets/NVDAGoogleTrendWidget';
 import { NVDAPriceVsSPYWidget } from '@/widgets/NVDAPriceVsSPYWidget';
+import { NVDAEarningsWidget } from '@/widgets/NVDAEarningsWidget';
+import { NVDAEarningsDetailWidget } from '@/widgets/NVDAEarningsDetailWidget';
 
 /* ========== 页面 ========== */
 
@@ -41,10 +44,20 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
               </div>
             </div>
 
-            {/* Row 4: Google Trend | Price vs SPY（来自 Dashboard Workspace） */}
+            {/* Row 3: Google Trend | Price vs SPY（来自 Dashboard Workspace） */}
             <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
               <NVDAGoogleTrendWidget />
               <NVDAPriceVsSPYWidget />
+            </div>
+
+            {/* Row 4: NVDA Quarterly Earnings | Q4 FY25 Detail（1:1，等高填充） */}
+            <div className="content-stretch flex gap-[24px] items-stretch relative shrink-0 w-full">
+              <div className="flex-[1_0_0] min-w-0 flex flex-col">
+                <NVDAEarningsWidget />
+              </div>
+              <div className="flex-[1_0_0] min-w-0 flex flex-col">
+                <NVDAEarningsDetailWidget />
+              </div>
             </div>
 
           </div>
