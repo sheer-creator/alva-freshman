@@ -6,6 +6,17 @@
 
 import { useState } from 'react';
 
+const SCROLL_STYLE = `
+.skill-modal-scroll ::-webkit-scrollbar { width: 4px; height: 4px; }
+.skill-modal-scroll ::-webkit-scrollbar-track { background: transparent; }
+.skill-modal-scroll ::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; }
+.skill-modal-scroll *:hover::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+.skill-modal-scroll *::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+.skill-modal-scroll { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.skill-modal-scroll * { font-weight: 400 !important; }
+.skill-modal-scroll [data-fw500] { font-weight: 500 !important; }
+`;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SkillApp {
@@ -171,59 +182,231 @@ Alva 字重仅允许 Regular(400) 和 Medium(500)，不得使用 Semibold(600) �
 
 const SKILLS: SkillItem[] = [
   {
-    id: 'web-search',
-    name: 'web-search',
-    description: 'Search the web and extract content via inference.sh CLI.',
+    id: 'company-crypto-holdings',
+    name: 'company_crypto_holdings',
+    description: 'Track publicly listed companies\' cryptocurrency holdings and treasury allocations.',
     category: 'alva',
-    author: 'Arrays',
-    version: '2.3.1',
+    author: 'Alva',
+    version: '1.0.0',
     lastUpdated: '03/01/2026',
-    provider: 'inference-sh-9/skills',
-    installCommand: 'npx skills add https://github.com/inference-sh-9/skills --skill web-search',
+    provider: 'alva-platform/skills',
     apps: [
-      {
-        id: 'tavily',
-        name: 'tavily',
-        type: 'folder',
-        description: 'Tavily search and extract tools.',
-        children: [
-          { id: 'tavily-search', name: 'search-assistant', type: 'file', description: 'AI-powered search with answers and cited sources.' },
-          { id: 'tavily-extract', name: 'extract', type: 'file', description: 'Retrieves and parses page content from any URL.' },
-        ],
-      },
-      {
-        id: 'exa',
-        name: 'exa',
-        type: 'folder',
-        description: 'Exa search and answer tools.',
-        children: [
-          { id: 'exa-search', name: 'search', type: 'file', description: 'Intelligent web search with AI-ranked results.' },
-          { id: 'exa-answer', name: 'answer', type: 'file', description: 'Delivers direct factual answers from the live web.' },
-          { id: 'exa-extract', name: 'extract', type: 'file', description: 'Extracts and analyzes web page content in depth.' },
-        ],
-      },
+      { id: 'company-crypto-holdings-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — company crypto holdings data and configuration.' },
     ],
-    weeklyInstalls: '10.0K',
-    stars: 67,
-    firstSeen: '5 days ago',
-    platforms: [
-      { name: 'claude-code', count: '7.8K' },
-      { name: 'codex', count: '7.2K' },
-      { name: 'gemini-cli', count: '7.1K' },
+  },
+  {
+    id: 'crypto-exchange-flow',
+    name: 'crypto_exchange_flow',
+    description: 'Monitor cryptocurrency exchange inflow/outflow and net flow metrics.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'crypto-exchange-flow-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — exchange flow tracking configuration.' },
     ],
-    useCases: [
-      'Research tasks and information gathering',
-      'Retrieval-augmented generation (RAG)',
-      'Fact-checking with cited sources',
-      'Content aggregation across multiple sources',
-      'Building research-capable AI agents',
+  },
+  {
+    id: 'crypto-fundamentals',
+    name: 'crypto_fundamentals',
+    description: 'Access on-chain fundamentals including TVL, active addresses, and protocol revenue.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'crypto-fundamentals-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — crypto fundamental metrics and data sources.' },
+    ],
+  },
+  {
+    id: 'crypto-futures-data',
+    name: 'crypto_futures_data',
+    description: 'Retrieve crypto futures open interest, funding rates, and liquidation data.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'crypto-futures-data-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — futures data providers and configuration.' },
+    ],
+  },
+  {
+    id: 'crypto-screener',
+    name: 'crypto_screener',
+    description: 'Screen and filter cryptocurrencies by market cap, volume, momentum, and on-chain metrics.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'crypto-screener-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — crypto screening filters and criteria.' },
+    ],
+  },
+  {
+    id: 'crypto-technical-metrics',
+    name: 'crypto_technical_metrics',
+    description: 'Compute technical indicators (RSI, MACD, Bollinger Bands) for crypto assets.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'crypto-technical-metrics-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — crypto technical indicator configuration.' },
+    ],
+  },
+  {
+    id: 'equity-estimates-and-targets',
+    name: 'equity_estimates_and_targets',
+    description: 'Access analyst consensus estimates, price targets, and recommendation changes.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'equity-estimates-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — analyst estimates and price target data.' },
+    ],
+  },
+  {
+    id: 'equity-events-calendar',
+    name: 'equity_events_calendar',
+    description: 'Track earnings dates, ex-dividend dates, splits, and other corporate events.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'equity-events-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — equity events calendar configuration.' },
+    ],
+  },
+  {
+    id: 'equity-fundamentals',
+    name: 'equity_fundamentals',
+    description: 'Retrieve financial statements, valuation ratios, and key equity metrics.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'equity-fundamentals-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — equity fundamental data and financials.' },
+    ],
+  },
+  {
+    id: 'equity-ownership-and-flow',
+    name: 'equity_ownership_and_flow',
+    description: 'Monitor institutional ownership changes, insider trades, and fund flow data.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'equity-ownership-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — ownership and fund flow tracking.' },
+    ],
+  },
+  {
+    id: 'etf-fundamentals',
+    name: 'etf_fundamentals',
+    description: 'Access ETF holdings, expense ratios, AUM, and sector/country breakdowns.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'etf-fundamentals-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — ETF fundamental data and holdings.' },
+    ],
+  },
+  {
+    id: 'feed-widgets',
+    name: 'feed_widgets',
+    description: 'Pre-built feed widgets for news, social sentiment, and market commentary.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'feed-widgets-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — feed widget types and configuration.' },
+    ],
+  },
+  {
+    id: 'macro-and-economics-data',
+    name: 'macro_and_economics_data',
+    description: 'Access macroeconomic indicators: GDP, CPI, employment, rates, and yield curves.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'macro-economics-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — macro data sources and indicator configuration.' },
+    ],
+  },
+  {
+    id: 'spot-market-price-and-volume',
+    name: 'spot_market_price_and_volume',
+    description: 'Real-time and historical spot price and volume data for equities and crypto.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'spot-market-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — spot market data providers and intervals.' },
+    ],
+  },
+  {
+    id: 'stock-screener',
+    name: 'stock_screener',
+    description: 'Screen stocks by fundamentals, technicals, sector, market cap, and custom criteria.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'stock-screener-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — stock screening filters and criteria.' },
+    ],
+  },
+  {
+    id: 'stock-technical-metrics',
+    name: 'stock_technical_metrics',
+    description: 'Compute technical indicators (SMA, EMA, RSI, MACD) for equities.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'stock-technical-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — stock technical indicator configuration.' },
+    ],
+  },
+  {
+    id: 'technical-indicator-calculation-helpers',
+    name: 'technical_indicator_calculation_helpers',
+    description: 'Utility functions for computing moving averages, oscillators, and volatility metrics.',
+    category: 'alva',
+    author: 'Alva',
+    version: '1.0.0',
+    lastUpdated: '03/01/2026',
+    provider: 'alva-platform/skills',
+    apps: [
+      { id: 'tech-indicator-helpers-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — calculation helper functions and usage.' },
     ],
   },
   {
     id: 'alva-design',
     name: 'alva-design',
     description: 'Alva design system for building dashboards, widgets, playbooks, and components with unified design tokens.',
-    category: 'alva',
+    category: 'custom',
     author: 'Alva',
     version: '1.2.0',
     lastUpdated: '03/02/2026',
@@ -259,117 +442,6 @@ const SKILLS: SkillItem[] = [
     ],
   },
   {
-    id: 'market-data',
-    name: 'market-data',
-    description: 'Access real-time and historical market data for equities, crypto, and indices.',
-    category: 'alva',
-    author: 'Alva',
-    version: '3.1.0',
-    lastUpdated: '02/28/2026',
-    provider: 'alva-platform/skills',
-    installCommand: 'npx skills add https://skills.alva.co --skill market-data',
-    apps: [
-      {
-        id: 'quotes',
-        name: 'quotes',
-        type: 'folder',
-        description: 'Quote data tools.',
-        children: [
-          { id: 'quotes-realtime', name: 'real-time', type: 'file', description: 'Live price quotes and bid-ask spreads for any ticker.' },
-          { id: 'quotes-historical', name: 'historical', type: 'file', description: 'OHLCV candle data with adjustable intervals from 1m to 1M.' },
-        ],
-      },
-      {
-        id: 'fundamentals',
-        name: 'fundamentals',
-        type: 'folder',
-        description: 'Fundamental data tools.',
-        children: [
-          { id: 'fundamentals-financials', name: 'financials', type: 'file', description: 'Balance sheet, income statement, and key valuation ratios.' },
-        ],
-      },
-    ],
-    weeklyInstalls: '8.2K',
-    stars: 124,
-    firstSeen: '3 months ago',
-    useCases: [
-      'Live portfolio monitoring and price alerts',
-      'Backtesting strategies with historical price series',
-      'Fundamental screening and DCF valuation analysis',
-    ],
-  },
-  {
-    id: 'news-aggregator',
-    name: 'news-aggregator',
-    description: 'Aggregate and summarize financial news from premium sources in real time.',
-    category: 'alva',
-    author: 'Alva',
-    version: '1.5.2',
-    lastUpdated: '02/20/2026',
-    provider: 'alva-platform/skills',
-    installCommand: 'npx skills add https://skills.alva.co --skill news-aggregator',
-    apps: [
-      {
-        id: 'bloomberg',
-        name: 'bloomberg',
-        type: 'folder',
-        description: 'Bloomberg news.',
-        children: [
-          { id: 'bloomberg-feed', name: 'feed', type: 'file', description: 'Bloomberg terminal headlines and article summaries.' },
-        ],
-      },
-      {
-        id: 'reuters',
-        name: 'reuters',
-        type: 'folder',
-        description: 'Reuters news.',
-        children: [
-          { id: 'reuters-feed', name: 'feed', type: 'file', description: 'Reuters financial wire with real-time market alerts.' },
-        ],
-      },
-    ],
-    weeklyInstalls: '4.7K',
-    stars: 51,
-    firstSeen: '2 months ago',
-    useCases: [
-      'Market-moving event detection',
-      'Sentiment analysis pipelines',
-      'Earnings call transcript summarization',
-    ],
-  },
-  {
-    id: 'portfolio-tracker',
-    name: 'portfolio-tracker',
-    description: 'Track positions, PnL, and risk metrics across your connected brokerage accounts.',
-    category: 'alva',
-    author: 'Alva',
-    version: '2.0.1',
-    lastUpdated: '02/15/2026',
-    provider: 'alva-platform/skills',
-    apps: [
-      {
-        id: 'portfolio',
-        name: 'portfolio',
-        type: 'folder',
-        description: 'Portfolio data and analytics.',
-        children: [
-          { id: 'portfolio-positions', name: 'positions', type: 'file', description: 'Current holdings with live market value and weight.' },
-          { id: 'portfolio-pnl', name: 'pnl', type: 'file', description: 'Realized and unrealized PnL breakdown by asset.' },
-          { id: 'portfolio-risk', name: 'risk', type: 'file', description: 'VaR, beta, and portfolio correlation metrics.' },
-          { id: 'portfolio-allocation', name: 'allocation', type: 'file', description: 'Asset class and sector allocation heatmap.' },
-        ],
-      },
-    ],
-    weeklyInstalls: '6.3K',
-    stars: 89,
-    firstSeen: '4 months ago',
-    useCases: [
-      'Portfolio rebalancing automation',
-      'Real-time risk exposure monitoring',
-      'Performance attribution analysis',
-    ],
-  },
-  {
     id: 'my-crypto-alerts',
     name: 'my-crypto-alerts',
     description: 'Custom price alert system for BTC, ETH, and selected altcoins with on-chain signals.',
@@ -378,6 +450,9 @@ const SKILLS: SkillItem[] = [
     version: '0.3.0',
     lastUpdated: '01/10/2026',
     provider: 'local',
+    apps: [
+      { id: 'my-crypto-alerts-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — alert thresholds and on-chain signal configuration.' },
+    ],
     useCases: [
       'Trigger alerts on configurable price thresholds',
       'Monitor on-chain volume and funding rate spikes',
@@ -393,6 +468,7 @@ const SKILLS: SkillItem[] = [
     lastUpdated: '12/28/2025',
     provider: 'local',
     apps: [
+      { id: 'dram-price-monitor-skill-md', name: 'SKILL.md', type: 'file', description: 'Skill entry point — DRAM price tracking and supply chain signal setup.' },
       {
         id: 'dram',
         name: 'dram',
@@ -443,8 +519,8 @@ function DisclaimerIcon({ isSelected }: { isSelected: boolean }) {
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
       <path
         d="M15.7993 1.5C16.7382 1.5 17.4995 2.26131 17.4995 3.2002V16.7998C17.4993 17.7385 16.7381 18.5 15.7993 18.5H4.19971C3.26109 18.4998 2.49971 17.7384 2.49951 16.7998V6.19434L2.64502 6.04785L7.02002 1.64746L7.1665 1.5H15.7993ZM7.87451 6.90039H3.49951V16.7998C3.49971 17.1861 3.81338 17.4998 4.19971 17.5H15.7993C16.1858 17.5 16.4993 17.1862 16.4995 16.7998V3.2002C16.4995 2.8136 16.1859 2.5 15.7993 2.5H7.87451V6.90039ZM13.4243 13.666C13.7003 13.666 13.9241 13.89 13.9243 14.166C13.9243 14.4422 13.7005 14.666 13.4243 14.666H6.57471C6.29866 14.6659 6.07471 14.4421 6.07471 14.166C6.0749 13.8901 6.29878 13.6661 6.57471 13.666H13.4243ZM13.4243 11.166C13.7003 11.166 13.9241 11.39 13.9243 11.666C13.9243 11.9422 13.7005 12.166 13.4243 12.166H6.57471C6.29866 12.1659 6.07471 11.9421 6.07471 11.666C6.0749 11.3901 6.29878 11.1661 6.57471 11.166H13.4243ZM13.4243 8.66602C13.7003 8.66602 13.9241 8.89004 13.9243 9.16602C13.9243 9.44216 13.7005 9.66602 13.4243 9.66602H6.57471C6.29866 9.66591 6.07471 9.44209 6.07471 9.16602C6.0749 8.89011 6.29878 8.66613 6.57471 8.66602H13.4243ZM4.20166 5.90039H6.87451V3.21191L4.20166 5.90039Z"
-        fill={isSelected ? '#49a3a6' : 'black'}
-        fillOpacity={isSelected ? 0.85 : 0.7}
+        fill={isSelected ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.7)'}
+        fillOpacity={isSelected ? 0.85 : 1}
       />
     </svg>
   );
@@ -489,19 +565,19 @@ function SkillEnableToggle({ enabled, onToggle }: { enabled: boolean; onToggle: 
       aria-checked={enabled}
       className="shrink-0 cursor-pointer rounded-full transition-colors duration-150"
       style={{
-        width: 20,
+        width: 24,
         height: 12,
-        background: enabled ? 'var(--main-m1, #49a3a6)' : 'var(--line-l07, rgba(0,0,0,0.07))',
+        background: enabled ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.07)',
       }}
       onClick={(e) => { e.stopPropagation(); onToggle(); }}
     >
       <div
         className="rounded-full bg-white shadow-sm transition-transform duration-150"
         style={{
-          width: 10,
-          height: 10,
-          marginTop: 1,
-          marginLeft: enabled ? 9 : 1,
+          width: 8,
+          height: 8,
+          marginTop: 2,
+          marginLeft: enabled ? 14 : 2,
           border: '0.5px solid rgba(0,0,0,0.08)',
         }}
       />
@@ -517,7 +593,7 @@ function renderInline(text: string): React.ReactNode[] {
   const parts = cleaned.split(/(\*\*[^*]+\*\*)/);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} style={{ fontWeight: 500 }}>{part.slice(2, -2)}</strong>;
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
     }
     return <span key={i}>{part}</span>;
   });
@@ -548,7 +624,7 @@ function SimpleMarkdown({ content }: { content: string }) {
       const size = level === 1 ? 18 : level === 2 ? 16 : 15;
       const mt = level === 1 ? 0 : level === 2 ? 20 : 14;
       elements.push(
-        <p key={key} style={{ fontSize: size, fontWeight: 500, color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: 'Delight, sans-serif', marginTop: elements.length === 0 ? 0 : mt, lineHeight: '22px' }}>
+        <p key={key} data-fw500 style={{ fontSize: size, color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: 'Delight, sans-serif', marginTop: elements.length === 0 ? 0 : mt, lineHeight: '22px' }}>
           {text}
         </p>
       );
@@ -580,7 +656,7 @@ function SimpleMarkdown({ content }: { content: string }) {
             return (
               <div key={ri} style={{ display: 'flex', borderBottom: ri < dataRows.length - 1 ? '0.5px solid rgba(0,0,0,0.07)' : 'none', background: ri === 0 ? 'rgba(0,0,0,0.02)' : 'transparent' }}>
                 {cells.map((cell, ci) => (
-                  <div key={ci} style={{ flex: 1, padding: '6px 10px', fontSize: 12, fontFamily: 'Delight, sans-serif', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontWeight: ri === 0 ? 500 : 400 }}>
+                  <div key={ci} style={{ flex: 1, padding: '6px 10px', fontSize: 12, fontFamily: 'Delight, sans-serif', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontWeight: 400 }}>
                     {renderInline(cell)}
                   </div>
                 ))}
@@ -664,7 +740,7 @@ function SectionHeader({ label, action }: { label: string; action?: React.ReactN
   return (
     <div className="flex items-center justify-between px-[8px] py-[5px]">
       <span
-        className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.55px] uppercase select-none font-medium"
+        className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.55px] uppercase select-none"
         style={{ color: 'rgba(0,0,0,0.35)' }}
       >
         {label}
@@ -698,27 +774,24 @@ function SkillListItem({
   return (
     <div
       className={`flex items-center gap-[4px] h-[32px] px-[8px] rounded-[4px] cursor-pointer transition-colors ${
-        isSelected ? 'bg-[rgba(73,163,166,0.08)]' : 'hover:bg-[rgba(0,0,0,0.03)]'
+        isSelected ? 'bg-[var(--main-m1-10,rgba(73,163,166,0.1))]' : 'hover:bg-[rgba(0,0,0,0.03)]'
       } ${!enabled ? 'opacity-60' : ''}`}
       onClick={onSelect}
     >
-      {hasChildren ? (
-        <div
-          className="shrink-0 flex items-center justify-center w-[16px] h-[16px]"
-          style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}
-          onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
-        >
-          {isExpanded ? <ArrowDownIcon /> : <ArrowRightIcon />}
-        </div>
-      ) : (
-        <div className="shrink-0 w-[16px] h-[16px]" aria-hidden />
-      )}
+      <div
+        className="shrink-0 flex items-center justify-center w-[16px] h-[16px]"
+        style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}
+        onClick={hasChildren ? (e) => { e.stopPropagation(); onToggleExpand(); } : undefined}
+      >
+        {hasChildren ? (isExpanded ? <ArrowDownIcon /> : <ArrowRightIcon />) : <ArrowRightIcon />}
+      </div>
       <div className="shrink-0 flex items-center justify-center w-[16px] h-[16px]">
         <DisclaimerIcon isSelected={isSelected} />
       </div>
       <span
         className="flex-1 min-w-0 font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
-        style={{ color: isSelected ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.65)', fontWeight: isSelected ? 500 : 400 }}
+        data-fw500={isSelected || undefined}
+        style={{ color: isSelected ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'rgba(0,0,0,0.7)' }}
       >
         {skill.name}
       </span>
@@ -778,7 +851,7 @@ function TreeItem({
         <div
           className={`flex items-center flex-1 min-w-0 h-full px-[8px] rounded-[4px] transition-colors cursor-pointer ${
             isFolder ? 'gap-[4px]' : ''
-          } ${isFileSelected ? 'bg-[rgba(73,163,166,0.08)]' : 'hover:bg-[rgba(0,0,0,0.03)]'}`}
+          } ${isFileSelected ? 'bg-[var(--main-m1-10,rgba(73,163,166,0.1))]' : 'hover:bg-[rgba(0,0,0,0.03)]'}`}
           onClick={handleClick}
         >
           {isFolder ? (
@@ -801,7 +874,8 @@ function TreeItem({
           ) : null}
           <span
             className="flex-1 min-w-0 font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
-            style={{ color: isFileSelected ? 'rgba(0,0,0,0.9)' : isFolder ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.55)', fontWeight: isFileSelected ? 500 : 400 }}
+            data-fw500={isFileSelected || undefined}
+            style={{ color: isFileSelected ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'rgba(0,0,0,0.7)' }}
           >
             {app.name}
           </span>
@@ -853,7 +927,7 @@ function AuthorTag({ author }: { author: 'Arrays' | 'Alva' | 'My Skill' }) {
       : { background: 'rgba(0,0,0,0.05)', color: 'rgba(0,0,0,0.45)' };
   return (
     <span
-      className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.11px] px-[6px] py-[1px] rounded-[3px] font-medium shrink-0"
+      className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.11px] px-[6px] py-[1px] rounded-[3px] shrink-0"
       style={style}
     >
       {author}
@@ -877,7 +951,7 @@ function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; en
       <div className="flex flex-col gap-[8px]">
         <div className="flex items-center gap-[10px]">
           <h2
-            className="font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px] font-medium"
+            className="font-['Delight',sans-serif] text-[20px] leading-[30px] tracking-[0.2px]"
             style={{ color: 'rgba(0,0,0,0.9)' }}
           >
             {skill.name}
@@ -929,7 +1003,7 @@ function FileContentView({ app }: { app: SkillApp }) {
     <div className="flex flex-col gap-[20px] p-[28px]">
       <div className="flex flex-col gap-[6px]">
         <h2
-          className="font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px] font-medium"
+          className="font-['Delight',sans-serif] text-[20px] leading-[30px] tracking-[0.2px]"
           style={{ color: 'rgba(0,0,0,0.9)' }}
         >
           {app.name}
@@ -975,6 +1049,17 @@ function EmptyDetail() {
 
 // ─── Modal Content ────────────────────────────────────────────────────────────
 
+const DEFAULT_DISABLED_SKILLS = new Set([
+  'dram-price-monitor',
+  'crypto-screener',
+  'crypto-technical-metrics',
+  'macro-and-economics-data',
+  'spot-market-price-and-volume',
+  'stock-screener',
+  'stock-technical-metrics',
+  'technical-indicator-calculation-helpers',
+]);
+
 function loadEnabledMap(): Record<string, boolean> {
   try {
     const raw = localStorage.getItem(SKILL_ENABLED_STORAGE_KEY);
@@ -985,7 +1070,9 @@ function loadEnabledMap(): Record<string, boolean> {
   } catch {
     /* ignore */
   }
-  return {};
+  const defaults: Record<string, boolean> = {};
+  for (const id of DEFAULT_DISABLED_SKILLS) defaults[id] = false;
+  return defaults;
 }
 
 function saveEnabledMap(map: Record<string, boolean>) {
@@ -1026,7 +1113,10 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
   }
 
   function handleSelectSkill(skillId: string) {
-    if (selectedSkillId === skillId) return;
+    if (selectedSkillId === skillId) {
+      setSelectedAppId(null);
+      return;
+    }
     setSelectedSkillId(skillId);
     setSelectedAppId(null);
     const skill = SKILLS.find((s) => s.id === skillId);
@@ -1096,8 +1186,8 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="bg-white relative rounded-[8px] flex flex-col"
-      style={{ width: 'min(calc(100vw - 56px), 1280px)', height: 720 }}
+      className="bg-white relative rounded-[8px] flex flex-col skill-modal-scroll"
+      style={{ width: 'min(calc(100vw - 56px), 1280px)', height: 'min(calc(100vh - 96px), 1280px)' }}
     >
       {/* Border + shadow */}
       <div
@@ -1112,7 +1202,8 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
         style={{ padding: '20px 24px 18px', borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}
       >
         <p
-          className="flex-1 font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px] font-medium"
+          className="flex-1 font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px]"
+          data-fw500
           style={{ color: 'rgba(0,0,0,0.9)' }}
         >
           Skills
@@ -1184,6 +1275,7 @@ export default function SkillModal({ isOpen, onClose }: SkillModalProps) {
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.5)' }}
     >
+      <style>{SCROLL_STYLE}</style>
       <SkillModalContent onClose={onClose} />
     </div>
   );
