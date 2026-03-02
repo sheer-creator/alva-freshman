@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview";
+export type Page = "home" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "skills";
 
 /* ========== 按需加载页面 ========== */
 
@@ -17,7 +17,7 @@ const DashboardTSLAOverview = lazy(() => import("@/pages/DashboardTSLAOverview")
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview"];
+const VALID_PAGES: Page[] = ["home", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "skills"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -48,6 +48,7 @@ export default function App() {
     <>
       <Suspense>
         {currentPage === "home" && <Home onNavigate={navigate} onOpenSearch={openSearch} />}
+        {(currentPage === "skills") && <Home onNavigate={navigate} onOpenSearch={openSearch} initialSkillModalOpen />}
         {currentPage === "explore" && <Explore onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "library" && <Library onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "dashboard" && <Dashboard onNavigate={navigate} />}

@@ -733,9 +733,9 @@ function FeaturedPlaybooks() {
 
 /* ========== 页面 ========== */
 
-export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
+export default function Home({ onNavigate, onOpenSearch, initialSkillModalOpen }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void; initialSkillModalOpen?: boolean }) {
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
-  const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
+  const [isSkillModalOpen, setIsSkillModalOpen] = useState(!!initialSkillModalOpen);
 
   return (
     <>
@@ -762,7 +762,13 @@ export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page:
           <UserInfo />
         </div>
       )}
-      <SkillModal isOpen={isSkillModalOpen} onClose={() => setIsSkillModalOpen(false)} />
+      <SkillModal
+        isOpen={isSkillModalOpen}
+        onClose={() => {
+          setIsSkillModalOpen(false);
+          if (window.location.hash === '#skills') onNavigate?.('home');
+        }}
+      />
     </>
   );
 }

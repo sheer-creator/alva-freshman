@@ -27,6 +27,9 @@ interface SkillItem {
   name: string;
   description: string;
   category: 'alva' | 'custom';
+  author?: 'Arrays' | 'Alva' | 'My Skill';
+  version?: string;
+  lastUpdated?: string;
   provider?: string;
   installCommand?: string;
   apps?: SkillApp[];
@@ -36,6 +39,9 @@ interface SkillItem {
   platforms?: Platform[];
   useCases?: string[];
 }
+
+// 左侧栏「启用」状态持久化 key（可选）
+const SKILL_ENABLED_STORAGE_KEY = 'alva-skills-enabled';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -169,6 +175,9 @@ const SKILLS: SkillItem[] = [
     name: 'web-search',
     description: 'Search the web and extract content via inference.sh CLI.',
     category: 'alva',
+    author: 'Arrays',
+    version: '2.3.1',
+    lastUpdated: '03/01/2026',
     provider: 'inference-sh-9/skills',
     installCommand: 'npx skills add https://github.com/inference-sh-9/skills --skill web-search',
     apps: [
@@ -215,6 +224,9 @@ const SKILLS: SkillItem[] = [
     name: 'alva-design',
     description: 'Alva design system for building dashboards, widgets, playbooks, and components with unified design tokens.',
     category: 'alva',
+    author: 'Alva',
+    version: '1.2.0',
+    lastUpdated: '03/02/2026',
     provider: 'alva-platform/skills',
     apps: [
       {
@@ -251,6 +263,9 @@ const SKILLS: SkillItem[] = [
     name: 'market-data',
     description: 'Access real-time and historical market data for equities, crypto, and indices.',
     category: 'alva',
+    author: 'Alva',
+    version: '3.1.0',
+    lastUpdated: '02/28/2026',
     provider: 'alva-platform/skills',
     installCommand: 'npx skills add https://skills.alva.co --skill market-data',
     apps: [
@@ -288,6 +303,9 @@ const SKILLS: SkillItem[] = [
     name: 'news-aggregator',
     description: 'Aggregate and summarize financial news from premium sources in real time.',
     category: 'alva',
+    author: 'Alva',
+    version: '1.5.2',
+    lastUpdated: '02/20/2026',
     provider: 'alva-platform/skills',
     installCommand: 'npx skills add https://skills.alva.co --skill news-aggregator',
     apps: [
@@ -324,6 +342,9 @@ const SKILLS: SkillItem[] = [
     name: 'portfolio-tracker',
     description: 'Track positions, PnL, and risk metrics across your connected brokerage accounts.',
     category: 'alva',
+    author: 'Alva',
+    version: '2.0.1',
+    lastUpdated: '02/15/2026',
     provider: 'alva-platform/skills',
     apps: [
       {
@@ -353,6 +374,9 @@ const SKILLS: SkillItem[] = [
     name: 'my-crypto-alerts',
     description: 'Custom price alert system for BTC, ETH, and selected altcoins with on-chain signals.',
     category: 'custom',
+    author: 'My Skill',
+    version: '0.3.0',
+    lastUpdated: '01/10/2026',
     provider: 'local',
     useCases: [
       'Trigger alerts on configurable price thresholds',
@@ -364,6 +388,9 @@ const SKILLS: SkillItem[] = [
     name: 'dram-price-monitor',
     description: 'Track DRAM spot prices and supply chain signals for semiconductor sector analysis.',
     category: 'custom',
+    author: 'My Skill',
+    version: '0.1.2',
+    lastUpdated: '12/28/2025',
     provider: 'local',
     apps: [
       {
@@ -400,11 +427,11 @@ function ArrowDownIcon() {
   );
 }
 
-function ArrowUpIcon() {
+function ArrowRightIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
       <path
-        d="M16.7765 12.4443C17.3062 13.0713 16.8348 14 15.9867 14H4.01328C3.16523 14 2.69375 13.0713 3.22352 12.4443L9.21025 5.35936C9.61513 4.88021 10.3849 4.88021 10.7898 5.35936L16.7765 12.4443Z"
+        d="M7.55569 3.22352C6.92874 2.69375 6 3.16523 6 4.01328V15.9867C6 16.8348 6.92873 17.3062 7.55569 16.7765L14.6406 10.7898C15.1198 10.3849 15.1198 9.61513 14.6406 9.21025L7.55569 3.22352Z"
         fill={ARROW_FILL}
       />
     </svg>
@@ -450,6 +477,34 @@ function CloseIcon({ onClick }: { onClick?: () => void }) {
       <svg className="block size-full" viewBox="0 0 16 16" fill="none">
         <path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="rgba(0,0,0,0.9)" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
+    </div>
+  );
+}
+
+// 左侧栏「是否启用」小开关：启用 = 主题色轨道，禁用 = 灰色轨道
+function SkillEnableToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+  return (
+    <div
+      role="switch"
+      aria-checked={enabled}
+      className="shrink-0 cursor-pointer rounded-full transition-colors duration-150"
+      style={{
+        width: 20,
+        height: 12,
+        background: enabled ? 'var(--main-m1, #49a3a6)' : 'var(--line-l07, rgba(0,0,0,0.07))',
+      }}
+      onClick={(e) => { e.stopPropagation(); onToggle(); }}
+    >
+      <div
+        className="rounded-full bg-white shadow-sm transition-transform duration-150"
+        style={{
+          width: 10,
+          height: 10,
+          marginTop: 1,
+          marginLeft: enabled ? 9 : 1,
+          border: '0.5px solid rgba(0,0,0,0.08)',
+        }}
+      />
     </div>
   );
 }
@@ -624,26 +679,41 @@ function SkillListItem({
   isSelected,
   isActive,
   isExpanded,
+  enabled,
   onSelect,
   onToggleExpand,
+  onToggleEnabled,
 }: {
   skill: SkillItem;
   isSelected: boolean; // visual highlight — false when a child file is selected
   isActive: boolean;   // this skill is the current context (controls chevron visibility)
   isExpanded: boolean;
+  enabled: boolean;
   onSelect: () => void;
   onToggleExpand: () => void;
+  onToggleEnabled: () => void;
 }) {
   const hasChildren = !!skill.apps?.length;
 
   return (
     <div
-      className={`flex items-center gap-[8px] h-[32px] px-[8px] rounded-[4px] cursor-pointer transition-colors ${
+      className={`flex items-center gap-[4px] h-[32px] px-[8px] rounded-[4px] cursor-pointer transition-colors ${
         isSelected ? 'bg-[rgba(73,163,166,0.08)]' : 'hover:bg-[rgba(0,0,0,0.03)]'
-      }`}
+      } ${!enabled ? 'opacity-60' : ''}`}
       onClick={onSelect}
     >
-      <div className="shrink-0 flex items-center justify-center w-[20px] h-[20px]">
+      {hasChildren ? (
+        <div
+          className="shrink-0 flex items-center justify-center w-[16px] h-[16px]"
+          style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}
+          onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
+        >
+          {isExpanded ? <ArrowDownIcon /> : <ArrowRightIcon />}
+        </div>
+      ) : (
+        <div className="shrink-0 w-[16px] h-[16px]" aria-hidden />
+      )}
+      <div className="shrink-0 flex items-center justify-center w-[16px] h-[16px]">
         <DisclaimerIcon isSelected={isSelected} />
       </div>
       <span
@@ -652,15 +722,7 @@ function SkillListItem({
       >
         {skill.name}
       </span>
-      {hasChildren && isActive && (
-        <div
-          className="shrink-0 flex items-center justify-center w-[16px] h-[16px]"
-          style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}
-          onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
-        >
-          {isExpanded ? <ArrowUpIcon /> : <ArrowDownIcon />}
-        </div>
-      )}
+      <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} />
     </div>
   );
 }
@@ -702,7 +764,7 @@ function TreeItem({
 
   return (
     <>
-      <div className="relative flex items-center h-[32px]" style={{ paddingLeft }}>
+      <div className="relative flex items-center h-[28px]" style={{ paddingLeft }}>
         {/* Vertical tree line */}
         <div
           className="absolute"
@@ -714,27 +776,35 @@ function TreeItem({
           style={{ left: lineLeft, top: '50%', width: 8, height: '0.5px', background: 'rgba(0,0,0,0.1)' }}
         />
         <div
-          className={`flex items-center gap-[5px] flex-1 min-w-0 h-[32px] px-[8px] rounded-[4px] transition-colors cursor-pointer ${
-            isFileSelected ? 'bg-[rgba(73,163,166,0.08)]' : 'hover:bg-[rgba(0,0,0,0.03)]'
-          }`}
+          className={`flex items-center flex-1 min-w-0 h-full px-[8px] rounded-[4px] transition-colors cursor-pointer ${
+            isFolder ? 'gap-[4px]' : ''
+          } ${isFileSelected ? 'bg-[rgba(73,163,166,0.08)]' : 'hover:bg-[rgba(0,0,0,0.03)]'}`}
           onClick={handleClick}
         >
-          {isFolder && (
-            <div className="shrink-0 flex items-center">
-              <FolderIcon />
-            </div>
-          )}
+          {isFolder ? (
+            <>
+              {hasChildren ? (
+                <div
+                  className="shrink-0 flex items-center justify-center w-[16px] h-[16px]"
+                  style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}
+                  onClick={(e) => { e.stopPropagation(); onToggleSubExpand(app.id); }}
+                >
+                  {isExpanded ? <ArrowDownIcon /> : <ArrowRightIcon />}
+                </div>
+              ) : (
+                <div className="shrink-0 w-[16px] h-[16px]" aria-hidden />
+              )}
+              <div className="shrink-0 flex items-center">
+                <FolderIcon />
+              </div>
+            </>
+          ) : null}
           <span
             className="flex-1 min-w-0 font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
             style={{ color: isFileSelected ? 'rgba(0,0,0,0.9)' : isFolder ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.55)', fontWeight: isFileSelected ? 500 : 400 }}
           >
             {app.name}
           </span>
-          {hasChildren && (
-            <div className="shrink-0 flex items-center" style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>
-              {isExpanded ? <ArrowUpIcon /> : <ArrowDownIcon />}
-            </div>
-          )}
         </div>
       </div>
       {isExpanded && app.children && (
@@ -763,20 +833,30 @@ function Divider() {
   return <div className="shrink-0 w-full" style={{ height: '0.5px', background: 'rgba(0,0,0,0.07)' }} />;
 }
 
-function CategoryTag({ category }: { category: 'alva' | 'custom' }) {
-  return category === 'alva' ? (
+function findFirstContent(apps: SkillApp[]): string | null {
+  for (const app of apps) {
+    if (app.type === 'file' && app.content) return app.content;
+    if (app.children) {
+      const found = findFirstContent(app.children);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function AuthorTag({ author }: { author: 'Arrays' | 'Alva' | 'My Skill' }) {
+  const style =
+    author === 'Arrays'
+      ? { background: 'rgba(33,150,243,0.1)', color: '#2196F3' }
+      : author === 'Alva'
+      ? { background: 'rgba(73,163,166,0.12)', color: '#49a3a6' }
+      : { background: 'rgba(0,0,0,0.05)', color: 'rgba(0,0,0,0.45)' };
+  return (
     <span
       className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.11px] px-[6px] py-[1px] rounded-[3px] font-medium shrink-0"
-      style={{ background: 'rgba(73,163,166,0.12)', color: '#49a3a6' }}
+      style={style}
     >
-      Alva Built-in
-    </span>
-  ) : (
-    <span
-      className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.11px] px-[6px] py-[1px] rounded-[3px] font-medium shrink-0"
-      style={{ background: 'rgba(0,0,0,0.05)', color: 'rgba(0,0,0,0.45)' }}
-    >
-      My Skill
+      {author}
     </span>
   );
 }
@@ -789,84 +869,55 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SkillDetail({ skill }: { skill: SkillItem }) {
-  const flatFiles = skill.apps ? flattenApps(skill.apps) : [];
+function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; enabled: boolean; onToggleEnabled: () => void }) {
+  const skillContent = skill.apps ? findFirstContent(skill.apps) : null;
   return (
-    <div className="flex flex-col gap-[20px] p-[28px]">
+    <div className="flex flex-col gap-[16px] p-[28px]">
       {/* Header */}
       <div className="flex flex-col gap-[8px]">
-        <div className="flex items-center gap-[10px] flex-wrap">
+        <div className="flex items-center gap-[10px]">
           <h2
             className="font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px] font-medium"
             style={{ color: 'rgba(0,0,0,0.9)' }}
           >
             {skill.name}
           </h2>
-          <CategoryTag category={skill.category} />
+          {skill.author && <AuthorTag author={skill.author} />}
+          <div className="flex-1" />
+          <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} />
         </div>
-        {skill.provider && skill.provider !== 'local' && skill.provider !== 'alva-platform/skills' && (
-          <p className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.35)' }}>
-            {skill.provider}
-          </p>
+        {(skill.version || skill.lastUpdated) && (
+          <div className="flex items-center gap-[16px]">
+            {skill.version && (
+              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.45)' }}>
+                Version: {skill.version}
+              </span>
+            )}
+            {skill.lastUpdated && (
+              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.45)' }}>
+                Last Updated: {skill.lastUpdated}
+              </span>
+            )}
+          </div>
         )}
         <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'rgba(0,0,0,0.7)' }}>
           {skill.description}
         </p>
       </div>
 
-      {/* Files — flattened with hierarchical path names */}
-      {flatFiles.length > 0 && (
-        <>
-          <Divider />
-          <div className="flex flex-col gap-[12px]">
-            <SectionTitle>
-              Files&ensp;<span style={{ fontWeight: 400, color: 'rgba(0,0,0,0.35)' }}>{flatFiles.length}</span>
-            </SectionTitle>
-            <div className="flex flex-col gap-[8px]">
-              {flatFiles.map(({ app, displayName }) => (
-                <div
-                  key={app.id}
-                  className="flex flex-col gap-[3px] p-[12px] rounded-[6px]"
-                  style={{ background: 'rgba(0,0,0,0.02)', border: '0.5px solid rgba(0,0,0,0.07)' }}
-                >
-                  <span
-                    className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
-                    style={{ color: 'rgba(0,0,0,0.9)' }}
-                  >
-                    {displayName}
-                  </span>
-                  <span
-                    className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
-                    style={{ color: 'rgba(0,0,0,0.5)' }}
-                  >
-                    {app.description}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Install Command */}
-      {skill.installCommand && (
-        <>
-          <Divider />
-          <div className="flex flex-col gap-[10px]">
-            <SectionTitle>Install</SectionTitle>
-            <div
-              className="flex items-center p-[12px] rounded-[4px] overflow-x-auto"
-              style={{ background: 'rgba(0,0,0,0.03)', border: '0.5px solid rgba(0,0,0,0.07)' }}
-            >
-              <code
-                className="font-['JetBrains_Mono',monospace] text-[12px] leading-[20px] tracking-[0.12px] whitespace-nowrap"
-                style={{ color: 'rgba(0,0,0,0.65)' }}
-              >
-                {skill.installCommand}
-              </code>
-            </div>
-          </div>
-        </>
+      {/* SKILL.md content */}
+      {skillContent && (
+        <div
+          style={{
+            background: 'rgba(0,0,0,0.02)',
+            borderRadius: 6,
+            padding: 16,
+            height: 600,
+            overflowY: 'auto',
+          }}
+        >
+          <SimpleMarkdown content={skillContent} />
+        </div>
       )}
     </div>
   );
@@ -924,6 +975,27 @@ function EmptyDetail() {
 
 // ─── Modal Content ────────────────────────────────────────────────────────────
 
+function loadEnabledMap(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(SKILL_ENABLED_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Record<string, boolean>;
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch {
+    /* ignore */
+  }
+  return {};
+}
+
+function saveEnabledMap(map: Record<string, boolean>) {
+  try {
+    localStorage.setItem(SKILL_ENABLED_STORAGE_KEY, JSON.stringify(map));
+  } catch {
+    /* ignore */
+  }
+}
+
 function SkillModalContent({ onClose }: { onClose: () => void }) {
   // Default: alva-design selected with all folder levels expanded
   const [selectedSkillId, setSelectedSkillId] = useState<string>('alva-design');
@@ -933,11 +1005,25 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
     return new Set(alvaDesign?.apps ? collectFolderIds(alvaDesign.apps) : []);
   });
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
+  // 左侧栏「是否启用」：未存过则默认 true，持久化到 localStorage
+  const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabledMap);
 
   const alvaSkills = SKILLS.filter((s) => s.category === 'alva');
   const customSkills = SKILLS.filter((s) => s.category === 'custom');
   const selectedSkill = SKILLS.find((s) => s.id === selectedSkillId) ?? null;
   const selectedApp = selectedSkill?.apps ? findApp(selectedSkill.apps, selectedAppId ?? '') : null;
+
+  function getEnabled(skillId: string): boolean {
+    return enabledMap[skillId] !== false;
+  }
+
+  function handleToggleEnabled(skillId: string) {
+    setEnabledMap((prev) => {
+      const next = { ...prev, [skillId]: !getEnabled(skillId) };
+      saveEnabledMap(next);
+      return next;
+    });
+  }
 
   function handleSelectSkill(skillId: string) {
     if (selectedSkillId === skillId) return;
@@ -982,8 +1068,10 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
             isSelected={isSelected}
             isActive={isActive}
             isExpanded={isExpanded}
+            enabled={getEnabled(skill.id)}
             onSelect={() => handleSelectSkill(skill.id)}
             onToggleExpand={() => handleToggleExpand(skill.id)}
+            onToggleEnabled={() => handleToggleEnabled(skill.id)}
           />
           {isActive && isExpanded && skill.apps && (
             <div className="flex flex-col mb-[2px]">
@@ -1072,7 +1160,7 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
           {selectedApp
             ? <FileContentView app={selectedApp} />
             : selectedSkill
-              ? <SkillDetail skill={selectedSkill} />
+              ? <SkillDetail skill={selectedSkill} enabled={getEnabled(selectedSkill.id)} onToggleEnabled={() => handleToggleEnabled(selectedSkill.id)} />
               : <EmptyDetail />
           }
         </div>
