@@ -11,6 +11,7 @@ import { Button } from '@/app/components/ui/button';
 import UserInfo from '@/app/components/UserInfo';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
+import SkillModal from '@/app/components/SkillModal';
 
 function UserAvatar({ name, size = 22 }: { name: string; size?: number }) {
   const initial = name.trim().charAt(0).toUpperCase();
@@ -125,9 +126,13 @@ function LeftInfo() {
   );
 }
 
-function ToolboxL() {
+function ToolboxL({ onClick }: { onClick?: () => void }) {
   return (
-    <div className="relative shrink-0 size-[16px]" data-name="toolbox-l">
+    <div
+      className="relative shrink-0 size-[16px] cursor-pointer hover:opacity-60 transition-opacity"
+      data-name="toolbox-l"
+      onClick={onClick}
+    >
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
         <g clipPath="url(#clip0_1_4784)" id="toolbox-l">
           <path d={svgPaths.p11beaf80} fill="var(--fill-0, black)" fillOpacity="0.9" id="Union" />
@@ -179,18 +184,18 @@ function ChatSend({ hasInput }: { hasInput?: boolean }) {
   );
 }
 
-function ChatToolbar({ hasInput }: { hasInput?: boolean }) {
+function ChatToolbar({ hasInput, onOpenSkills }: { hasInput?: boolean; onOpenSkills?: () => void }) {
   return (
     <div className="content-stretch flex gap-[16px] h-[28px] items-center justify-end relative shrink-0 w-full" data-name="Chat/Toolbar">
       <LeftInfo />
-      <ToolboxL />
+      <ToolboxL onClick={onOpenSkills} />
       <PhotoL />
       <ChatSend hasInput={hasInput} />
     </div>
   );
 }
 
-function ChatBoxHome() {
+function ChatBoxHome({ onOpenSkills }: { onOpenSkills?: () => void }) {
   const [inputValue, setInputValue] = useState("");
 
   return (
@@ -203,7 +208,7 @@ function ChatBoxHome() {
             placeholder="Build an investing playbook from your ideas"
             className="font-['Delight',sans-serif] leading-[22px] max-h-[480px] min-h-[48px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px] w-full whitespace-pre-wrap resize-none border-none outline-none bg-transparent placeholder:text-[rgba(0,0,0,0.3)]"
           />
-          <ChatToolbar hasInput={inputValue.trim().length > 0} />
+          <ChatToolbar hasInput={inputValue.trim().length > 0} onOpenSkills={onOpenSkills} />
         </div>
       </div>
       <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.2)] border-solid inset-0 pointer-events-none rounded-[8px]" />
@@ -270,20 +275,20 @@ function ChatReminder() {
   );
 }
 
-function HomeChatBar() {
+function HomeChatBar({ onOpenSkills }: { onOpenSkills?: () => void }) {
   return (
     <div className="content-stretch flex flex-col gap-[20px] items-center relative shrink-0 w-full" data-name="Home/Chat Bar">
-      <ChatBoxHome />
+      <ChatBoxHome onOpenSkills={onOpenSkills} />
       <ChatReminder />
     </div>
   );
 }
 
-function Chat() {
+function Chat({ onOpenSkills }: { onOpenSkills?: () => void }) {
   return (
     <div className="content-stretch flex flex-col gap-[20px] items-start max-w-[960px] relative shrink-0 w-full" data-name="Chat">
       <Slogan />
-      <HomeChatBar />
+      <HomeChatBar onOpenSkills={onOpenSkills} />
     </div>
   );
 }
@@ -730,6 +735,7 @@ function FeaturedPlaybooks() {
 
 export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
+  const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
 
   return (
     <>
@@ -742,7 +748,7 @@ export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page:
       >
         <div className="flex flex-col items-center min-h-full">
           <div className="content-stretch flex flex-col gap-[48px] items-center px-[28px] py-[64px] relative w-full">
-            <Chat />
+            <Chat onOpenSkills={() => setIsSkillModalOpen(true)} />
             <FeaturedPlaybooks />
           </div>
         </div>
@@ -756,6 +762,7 @@ export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page:
           <UserInfo />
         </div>
       )}
+      <SkillModal isOpen={isSkillModalOpen} onClose={() => setIsSkillModalOpen(false)} />
     </>
   );
 }
