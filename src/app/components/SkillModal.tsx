@@ -4,7 +4,7 @@
  * [POS]: 组件层 — 首页 Chat Toolbar Toolbox 图标触发的 Skill 弹窗
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const SCROLL_STYLE = `
 .skill-modal-scroll ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -1092,8 +1092,8 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
     return new Set(alvaDesign?.apps ? collectFolderIds(alvaDesign.apps) : []);
   });
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
-  // 左侧栏「是否启用」：未存过则默认 true，持久化到 localStorage
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabledMap);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const alvaSkills = SKILLS.filter((s) => s.category === 'alva');
   const customSkills = SKILLS.filter((s) => s.category === 'custom');
@@ -1226,18 +1226,32 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
               <button
                 className="flex items-center gap-[3px] font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] hover:opacity-70 transition-opacity"
                 style={{ color: '#49a3a6', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                onClick={() => fileInputRef.current?.click()}
               >
                 <UploadIcon />
                 Upload
               </button>
             }
           />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".md,.txt,.json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                console.log('Uploaded skill file:', file.name, file);
+              }
+              e.target.value = '';
+            }}
+          />
           <div className="flex flex-col mt-[4px]">
             {renderSkillList(customSkills)}
           </div>
 
           {/* Divider */}
-          <div style={{ margin: '12px 0', height: '0.5px', background: 'rgba(0,0,0,0.07)' }} />
+          <div style={{ margin: '12px 0', borderTop: '0.5px solid rgba(0,0,0,0.07)' }} />
 
           {/* Alva Built-in (bottom) */}
           <SectionHeader label="Alva Built-in" />
