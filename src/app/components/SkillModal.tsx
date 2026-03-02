@@ -638,7 +638,7 @@ function SkillListItem({
 
   return (
     <div
-      className={`flex items-center gap-[8px] px-[8px] py-[5px] rounded-[4px] cursor-pointer transition-colors ${
+      className={`flex items-center gap-[8px] h-[32px] px-[8px] rounded-[4px] cursor-pointer transition-colors ${
         isSelected ? 'bg-[rgba(73,163,166,0.08)]' : 'hover:bg-[rgba(0,0,0,0.03)]'
       }`}
       onClick={onSelect}
@@ -702,7 +702,7 @@ function TreeItem({
 
   return (
     <>
-      <div className="relative flex items-center" style={{ paddingLeft }}>
+      <div className="relative flex items-center h-[32px]" style={{ paddingLeft }}>
         {/* Vertical tree line */}
         <div
           className="absolute"
@@ -714,7 +714,7 @@ function TreeItem({
           style={{ left: lineLeft, top: '50%', width: 8, height: '0.5px', background: 'rgba(0,0,0,0.1)' }}
         />
         <div
-          className={`flex items-center gap-[5px] flex-1 min-w-0 px-[8px] py-[4px] rounded-[4px] transition-colors cursor-pointer ${
+          className={`flex items-center gap-[5px] flex-1 min-w-0 h-[32px] px-[8px] rounded-[4px] transition-colors cursor-pointer ${
             isFileSelected ? 'bg-[rgba(73,163,166,0.08)]' : 'hover:bg-[rgba(0,0,0,0.03)]'
           }`}
           onClick={handleClick}
@@ -783,7 +783,7 @@ function CategoryTag({ category }: { category: 'alva' | 'custom' }) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] font-medium" style={{ color: 'rgba(0,0,0,0.9)' }}>
+    <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'rgba(0,0,0,0.9)' }}>
       {children}
     </p>
   );
@@ -804,7 +804,7 @@ function SkillDetail({ skill }: { skill: SkillItem }) {
           </h2>
           <CategoryTag category={skill.category} />
         </div>
-        {skill.provider && skill.provider !== 'local' && (
+        {skill.provider && skill.provider !== 'local' && skill.provider !== 'alva-platform/skills' && (
           <p className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.35)' }}>
             {skill.provider}
           </p>
@@ -830,7 +830,7 @@ function SkillDetail({ skill }: { skill: SkillItem }) {
                   style={{ background: 'rgba(0,0,0,0.02)', border: '0.5px solid rgba(0,0,0,0.07)' }}
                 >
                   <span
-                    className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] font-medium"
+                    className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
                     style={{ color: 'rgba(0,0,0,0.9)' }}
                   >
                     {displayName}
