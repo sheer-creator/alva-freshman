@@ -4,9 +4,12 @@
  * [POS]: 页面层 — TSLA 全景总览看板
  *
  * 布局（自上而下）：
- *   Section 1: Price & Valuation  — Price+Volume Chart (3fr) | Valuation 2×3 KPI grid (2fr)
- *   Section 2: Risk Indicators    — Beta | 30D Vol | Max Drawdown | Sharpe (4 equal cols)
- *   Section 3: Sentiment Monitor  — News Feed (1fr) | Social Sentiment Chart (1fr)
+ *   Section 1: Price & Valuation  — Price+Volume Chart (col-5) | Valuation 2×3 KPI grid (col-3)
+ *                                    mweb: stacked (grid-cols-1)
+ *   Section 2: Risk Indicators    — Beta | 30D Vol | Max Drawdown | Sharpe (4 × col-2)
+ *                                    mweb: 2 per row (grid-cols-2)
+ *   Section 3: Sentiment Monitor  — News Feed (col-4) | Social Sentiment Chart (col-4)
+ *                                    mweb: stacked (grid-cols-1)
  */
 
 import ReactECharts from 'echarts-for-react';
@@ -400,27 +403,28 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
   return (
     <AppShell activePage="tsla-overview" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
-        <div className="flex flex-col items-center px-[28px] relative w-full">
+        {/* px: 16px on mweb, 28px on web */}
+        <div className="flex flex-col items-center px-[16px] md:px-[28px] relative w-full">
           <Topbar title="TSLA Overview" />
 
           <div className="flex flex-col gap-[24px] pb-[56px] w-full">
 
-            {/* Section 1: Price & Valuation */}
+            {/* Section 1: col-5 + col-3 = 8 → mweb: stacked */}
             <SectionLabel icon="📈" title="Price & Valuation" sub="12-Month Price · P/E · P/S · EV/EBITDA" />
-            <div className="grid grid-cols-[3fr_2fr] gap-[24px]" style={{ alignItems: 'stretch' }}>
+            <div className="grid grid-cols-1 md:grid-cols-[5fr_3fr] gap-[16px] md:gap-[24px] items-stretch">
               <PriceChartWidget />
               <ValuationWidget />
             </div>
 
-            {/* Section 2: Risk Indicators */}
+            {/* Section 2: 4 × col-2 = 8 → mweb: col-2 stays half-width → 2 per row */}
             <SectionLabel icon="⚠️" title="Risk Indicators" sub="Beta · Volatility · Max Drawdown · Sharpe" />
-            <div className="grid grid-cols-4 gap-[24px]" style={{ alignItems: 'stretch' }}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-[16px] md:gap-[24px] items-stretch">
               {riskCards.map((c) => <RiskKPICard key={c.title} {...c} />)}
             </div>
 
-            {/* Section 3: Sentiment Monitor */}
+            {/* Section 3: col-4 + col-4 = 8 → mweb: stacked */}
             <SectionLabel icon="🗞️" title="Sentiment Monitor" sub="News · Reddit · X/Twitter" />
-            <div className="grid grid-cols-2 gap-[24px]" style={{ alignItems: 'stretch' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px] md:gap-[24px] items-stretch">
               <NewsFeedWidget />
               <SocialSentimentWidget />
             </div>

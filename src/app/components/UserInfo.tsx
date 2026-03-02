@@ -1,14 +1,16 @@
 import svgPaths from "@/data/svg-guyqw4in5w";
-import imgAvatar from "figma:asset/13cfcc8363d46d8e6a81daeb285c9348de3c8bad.png";
-import imgImage from "figma:asset/b6ec6224880e49a1fd078b50b5b248ac0bdaff74.png";
+import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
+
+const USER_NAME = 'YGGYLL';
 
 function Avatar() {
+  const initial = USER_NAME.trim().charAt(0).toUpperCase();
+  const color = AVATAR_COLOR_PALETTE[[...USER_NAME].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
   return (
-    <div className="overflow-clip relative rounded-[100px] shrink-0 size-[48px]" data-name="Avatar">
-      <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[100px] size-full" src={imgAvatar} />
-      <div className="absolute left-0 rounded-[100px] size-[48px] top-0" data-name="Image">
-        <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[100px] size-full" src={imgImage} />
-      </div>
+    <div style={{ width: 48, height: 48, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontSize: 48 * 0.44, color: '#fff', lineHeight: 1, letterSpacing: 0, fontFamily: "'Delight', sans-serif" }}>
+        {initial}
+      </span>
     </div>
   );
 }
