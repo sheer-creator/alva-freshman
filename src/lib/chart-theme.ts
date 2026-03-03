@@ -79,10 +79,14 @@ export function tooltipConfig(overrides?: Record<string, unknown>) {
   };
 }
 
-/** 标准 tooltip formatter：日期标题 + 彩点系列值 */
+/** 标准 tooltip formatter：日期标题 + 彩点系列值
+ * @param valueSuffix - 值前缀（如 '$'）
+ * @param formatValue - 自定义值格式化函数（如 v => v.toFixed(1)）
+ */
 export function tooltipFormatter(
   params: { color: string; seriesName: string; data: [string, number] }[],
   valueSuffix = '',
+  formatValue?: (val: number) => string,
 ) {
   if (!params.length) return '';
   const d = new Date(params[0].data[0]);
@@ -90,7 +94,8 @@ export function tooltipFormatter(
   let html = `<div style="font-family:${FONT};font-size:12px;color:rgba(0,0,0,0.7);margin-bottom:6px">${title}</div>`;
   params.forEach((p) => {
     const dot = `<span style="display:inline-block;margin-right:4px;border-radius:50%;width:8px;height:8px;background:${p.color};vertical-align:middle"></span>`;
-    html += `<div style="font-family:${FONT};font-size:12px;color:rgba(0,0,0,0.9);line-height:20px">${dot}${p.seriesName}: ${valueSuffix}${p.data[1]}</div>`;
+    const val = formatValue ? formatValue(p.data[1]) : p.data[1];
+    html += `<div style="font-family:${FONT};font-size:12px;color:rgba(0,0,0,0.9);line-height:20px">${dot}${p.seriesName}: ${valueSuffix}${val}</div>`;
   });
   return html;
 }

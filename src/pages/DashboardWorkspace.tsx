@@ -56,8 +56,12 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
 
             {/* Row 4: Google Trend | Price vs SPY（来自 Dashboard Workspace） */}
             <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
-              <NVDAGoogleTrendWidget />
-              <NVDAPriceVsSPYWidget />
+              <div className="flex-[1_0_0] min-w-0">
+                <NVDAGoogleTrendWidget />
+              </div>
+              <div className="flex-[1_0_0] min-w-0">
+                <NVDAPriceVsSPYWidget />
+              </div>
             </div>
 
           </div>

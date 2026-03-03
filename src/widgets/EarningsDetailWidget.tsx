@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { WidgetTitle } from '@/app/components/alva-ui-kit';
+import { TICKER_LOGO_CONFIG } from '@/lib/ticker-config';
 
 type WidgetState = 'upcoming' | 'results';
 
@@ -67,17 +69,7 @@ const mockResultsData: EarningsDetailData = {
 };
 
 function CompanyHeader({ data }: { data: EarningsDetailData }) {
-  const getLogoConfig = (ticker: string) => {
-    const configs: Record<string, { bg: string; text: string }> = {
-      MU: { bg: '#E8F4F5', text: '#49A3A6' },
-      WDC: { bg: '#E8F5E9', text: '#40A544' },
-      SNDK: { bg: '#FFF3E0', text: '#FF9800' },
-      STX: { bg: '#EDE7F6', text: '#5F75C9' },
-    };
-    return configs[ticker] || { bg: '#F5F5F5', text: '#666666' };
-  };
-
-  const config = getLogoConfig(data.ticker);
+  const config = TICKER_LOGO_CONFIG[data.ticker] ?? { bg: '#F5F5F5', text: '#666666' };
 
   return (
     <div className="flex items-start gap-[12px] mb-[20px]">
@@ -368,62 +360,32 @@ export function EarningsDetailWidget() {
   const [mode, setMode] = useState<WidgetState>('upcoming');
   const data = mode === 'upcoming' ? mockUpcomingData : mockResultsData;
 
+  const modeButtons = (
+    <div className="flex gap-[4px]">
+      {(['upcoming', 'results'] as const).map((m) => (
+        <button
+          key={m}
+          onClick={() => setMode(m)}
+          className="px-[8px] py-[2px] text-[11px] rounded-[3px] transition-colors"
+          style={{
+            backgroundColor: mode === m ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.03)',
+            color: mode === m ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.5)',
+          }}
+        >
+          {m === 'upcoming' ? 'Before' : 'After'}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col gap-[16px] h-full items-center min-h-px min-w-px relative rounded-[4px]">
-      {/* Widget Title */}
-      <div className="content-stretch flex gap-[12px] h-[22px] items-center relative shrink-0 w-full">
-        <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative">
-          <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
-            Earnings Detail
-          </p>
-        </div>
-
-        {/* Toggle buttons for demo */}
-        <div className="flex gap-[4px]">
-          <button
-            onClick={() => setMode('upcoming')}
-            className="px-[8px] py-[2px] text-[11px] rounded-[3px] transition-colors"
-            style={{
-              backgroundColor: mode === 'upcoming' ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.03)',
-              color: mode === 'upcoming' ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.5)'
-            }}
-          >
-            Before
-          </button>
-          <button
-            onClick={() => setMode('results')}
-            className="px-[8px] py-[2px] text-[11px] rounded-[3px] transition-colors"
-            style={{
-              backgroundColor: mode === 'results' ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.03)',
-              color: mode === 'results' ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.5)'
-            }}
-          >
-            After
-          </button>
-        </div>
-
-        <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-          <div className="relative shrink-0 size-[12px]">
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 12 12">
-              <g clipPath="url(#clip0_earnings_detail)">
-                <path
-                  d="M6 0.6C8.98234 0.6 11.4 3.01766 11.4 6C11.4 8.98234 8.98234 11.4 6 11.4C3.01766 11.4 0.6 8.98234 0.6 6C0.6 3.01766 3.01766 0.6 6 0.6ZM6 1.2C3.34903 1.2 1.2 3.34903 1.2 6C1.2 8.65097 3.34903 10.8 6 10.8C8.65097 10.8 10.8 8.65097 10.8 6C10.8 3.34903 8.65097 1.2 6 1.2ZM6 3.50859C6.16569 3.50859 6.3 3.64291 6.3 3.80859V5.87578L7.71211 7.28789C7.82927 7.40505 7.82927 7.59495 7.71211 7.71211C7.59495 7.82927 7.40505 7.82927 7.28789 7.71211L5.78789 6.21211C5.73163 6.15585 5.7 6.07957 5.7 6V3.80859C5.7 3.64291 5.83431 3.50859 6 3.50859Z"
-                  fill="var(--fill-0, black)"
-                  fillOpacity="0.5"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_earnings_detail">
-                  <rect fill="white" height="12" width="12" />
-                </clipPath>
-              </defs>
-            </svg>
-          </div>
-          <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
-            <p className="leading-[20px]">02/13/2026 10:00</p>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col gap-[16px] h-full min-w-px relative rounded-[4px]">
+      <WidgetTitle
+        title="Earnings Detail"
+        timestamp="02/13/2026 10:00"
+        showArrow={false}
+        rightExtra={modeButtons}
+      />
 
       {/* Widget Body */}
       <div
@@ -441,8 +403,7 @@ export function EarningsDetailWidget() {
         )}
       </div>
 
-      {/* Watermark - Fixed at page bottom-left */}
-      <div className="fixed bottom-[16px] left-[244px] font-['Delight',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[9999] pointer-events-none">
+      <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-medium text-[rgba(0,0,0,1)] opacity-20 z-[1] pointer-events-none">
         Alva
       </div>
     </div>

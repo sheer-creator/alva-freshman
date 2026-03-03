@@ -140,16 +140,34 @@ export function Badge({ children, variant = 'default', className = '' }: BadgePr
 // ============================================================================
 
 /**
+ * 时钟图标，用于 Widget 标题时间戳
+ */
+export function ClockIcon() {
+  return (
+    <svg className="block size-[12px] shrink-0" fill="none" viewBox="0 0 12 12">
+      <path
+        d="M6 0.6C8.98234 0.6 11.4 3.01766 11.4 6C11.4 8.98234 8.98234 11.4 6 11.4C3.01766 11.4 0.6 8.98234 0.6 6C0.6 3.01766 3.01766 0.6 6 0.6ZM6 1.2C3.34903 1.2 1.2 3.34903 1.2 6C1.2 8.65097 3.34903 10.8 6 10.8C8.65097 10.8 10.8 8.65097 10.8 6C10.8 3.34903 8.65097 1.2 6 1.2ZM6 3.50859C6.16569 3.50859 6.3 3.64291 6.3 3.80859V5.87578L7.71211 7.28789C7.82927 7.40505 7.82927 7.59495 7.71211 7.71211C7.59495 7.82927 7.40505 7.82927 7.28789 7.71211L5.78789 6.21211C5.73163 6.15585 5.7 6.07957 5.7 6V3.80859C5.7 3.64291 5.83431 3.50859 6 3.50859Z"
+        fill="rgba(0,0,0,0.5)"
+      />
+    </svg>
+  );
+}
+
+/**
  * Widget 标题组件
  * 包含标题、箭头图标和时间戳
+ * @param rightExtra - 时钟左侧的额外内容（如时间段切换按钮）
+ * @param showArrow - 是否显示标题右侧箭头，默认 true
  */
 interface WidgetTitleProps {
   title: string;
   timestamp?: string;
   href?: string;
+  rightExtra?: React.ReactNode;
+  showArrow?: boolean;
 }
 
-export function WidgetTitle({ title, timestamp = 'Live', href }: WidgetTitleProps) {
+export function WidgetTitle({ title, timestamp = 'Live', href, rightExtra, showArrow = true }: WidgetTitleProps) {
   const ArrowIcon = () => (
     <svg className="block size-[14px] shrink-0" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
       <g id="arrow-right-l">
@@ -158,21 +176,8 @@ export function WidgetTitle({ title, timestamp = 'Live', href }: WidgetTitleProp
     </svg>
   );
 
-  const ClockIcon = () => (
-    <svg className="block size-[12px] shrink-0" fill="none" preserveAspectRatio="none" viewBox="0 0 12 12">
-      <g clipPath="url(#clip0_widget_title)" id="clock-l">
-        <path d="M6 0.6C8.98234 0.6 11.4 3.01766 11.4 6C11.4 8.98234 8.98234 11.4 6 11.4C3.01766 11.4 0.6 8.98234 0.6 6C0.6 3.01766 3.01766 0.6 6 0.6ZM6 1.2C3.34903 1.2 1.2 3.34903 1.2 6C1.2 8.65097 3.34903 10.8 6 10.8C8.65097 10.8 10.8 8.65097 10.8 6C10.8 3.34903 8.65097 1.2 6 1.2ZM6 3.50859C6.16569 3.50859 6.3 3.64291 6.3 3.80859V5.87578L7.71211 7.28789C7.82927 7.40505 7.82927 7.59495 7.71211 7.71211C7.59495 7.82927 7.40505 7.82927 7.28789 7.71211L5.78789 6.21211C5.73163 6.15585 5.7 6.07957 5.7 6V3.80859C5.7 3.64291 5.83431 3.50859 6 3.50859Z" fill="var(--fill-0, black)" fillOpacity="0.5" id="Union" />
-      </g>
-      <defs>
-        <clipPath id="clip0_widget_title">
-          <rect fill="white" height="12" width="12" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-
   return (
-    <div className="flex gap-[12px] h-[22px] items-center w-full">
+    <div className="flex gap-[12px] h-[22px] items-center w-full shrink-0">
       <div className="flex flex-1 gap-[2px] items-center min-w-0">
         {href ? (
           <a
@@ -186,9 +191,10 @@ export function WidgetTitle({ title, timestamp = 'Live', href }: WidgetTitleProp
             {title}
           </span>
         )}
-        <ArrowIcon />
+        {showArrow && <ArrowIcon />}
       </div>
       <div className="flex gap-[4px] items-center">
+        {rightExtra}
         <ClockIcon />
         <span className="font-['Delight',sans-serif] text-[12px] text-[rgba(0,0,0,0.5)] leading-[20px] tracking-[0.12px]">
           {timestamp}

@@ -15,37 +15,27 @@ import '@/styles/dashboard-grid.css';
 
 /* ========== 默认布局 ========== */
 
+const WIDGET_IDS = ['relative-perf', 'keyword-trends', 'earnings-feed', 'earnings-detail'];
+
+function buildLayout(cols: number, perRow: number, minW = 4): Layout[] {
+  const w = cols / perRow;
+  return WIDGET_IDS.map((id, idx) => ({
+    i: id,
+    x: (idx % perRow) * w,
+    y: Math.floor(idx / perRow) * 5,
+    w,
+    h: 5,
+    minW,
+    minH: 4,
+  }));
+}
+
 const DEFAULT_LAYOUTS: ResponsiveLayouts = {
-  lg: [
-    { i: 'relative-perf', x: 0, y: 0, w: 6, h: 5, minW: 4, minH: 4 },
-    { i: 'keyword-trends', x: 6, y: 0, w: 6, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-feed', x: 0, y: 5, w: 6, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-detail', x: 6, y: 5, w: 6, h: 5, minW: 4, minH: 4 },
-  ],
-  md: [
-    { i: 'relative-perf', x: 0, y: 0, w: 5, h: 5, minW: 4, minH: 4 },
-    { i: 'keyword-trends', x: 5, y: 0, w: 5, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-feed', x: 0, y: 5, w: 5, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-detail', x: 5, y: 5, w: 5, h: 5, minW: 4, minH: 4 },
-  ],
-  sm: [
-    { i: 'relative-perf', x: 0, y: 0, w: 6, h: 5, minW: 4, minH: 4 },
-    { i: 'keyword-trends', x: 0, y: 5, w: 6, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-feed', x: 0, y: 10, w: 6, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-detail', x: 0, y: 15, w: 6, h: 5, minW: 4, minH: 4 },
-  ],
-  xs: [
-    { i: 'relative-perf', x: 0, y: 0, w: 4, h: 5, minW: 4, minH: 4 },
-    { i: 'keyword-trends', x: 0, y: 5, w: 4, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-feed', x: 0, y: 10, w: 4, h: 5, minW: 4, minH: 4 },
-    { i: 'earnings-detail', x: 0, y: 15, w: 4, h: 5, minW: 4, minH: 4 },
-  ],
-  xxs: [
-    { i: 'relative-perf', x: 0, y: 0, w: 2, h: 5, minW: 2, minH: 4 },
-    { i: 'keyword-trends', x: 0, y: 5, w: 2, h: 5, minW: 2, minH: 4 },
-    { i: 'earnings-feed', x: 0, y: 10, w: 2, h: 5, minW: 2, minH: 4 },
-    { i: 'earnings-detail', x: 0, y: 15, w: 2, h: 5, minW: 2, minH: 4 },
-  ],
+  lg:  buildLayout(12, 2),
+  md:  buildLayout(10, 2),
+  sm:  buildLayout(6,  1),
+  xs:  buildLayout(4,  1),
+  xxs: buildLayout(2,  1, 2),
 };
 
 const STORAGE_KEY = 'dashboardTestLayouts';
