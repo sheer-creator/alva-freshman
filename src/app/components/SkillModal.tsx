@@ -557,28 +557,33 @@ function CloseIcon({ onClick }: { onClick?: () => void }) {
   );
 }
 
-// 左侧栏「是否启用」小开关：启用 = 主题色轨道，禁用 = 灰色轨道
-function SkillEnableToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+// 开关组件：sm = 左侧栏，md = 右侧详情
+function SkillEnableToggle({ enabled, onToggle, size = 'sm' }: { enabled: boolean; onToggle: () => void; size?: 'sm' | 'md' }) {
+  const cfg = size === 'md'
+    ? { w: 32, h: 16, thumb: 10.67, gap: 2.67 }
+    : { w: 24, h: 12, thumb: 8, gap: 2 };
+  const travel = cfg.w - cfg.thumb - cfg.gap * 2;
   return (
     <div
       role="switch"
       aria-checked={enabled}
-      className="shrink-0 cursor-pointer rounded-full transition-colors duration-150"
+      className="shrink-0 cursor-pointer relative transition-colors duration-150"
       style={{
-        width: 24,
-        height: 12,
-        background: enabled ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.07)',
+        width: cfg.w,
+        height: cfg.h,
+        borderRadius: 1000,
+        background: enabled ? '#49a3a6' : 'rgba(0,0,0,0.1)',
       }}
       onClick={(e) => { e.stopPropagation(); onToggle(); }}
     >
       <div
-        className="rounded-full bg-white shadow-sm transition-transform duration-150"
+        className="absolute rounded-full bg-white transition-transform duration-150"
         style={{
-          width: 8,
-          height: 8,
-          marginTop: 2,
-          marginLeft: enabled ? 14 : 2,
-          border: '0.5px solid rgba(0,0,0,0.08)',
+          width: cfg.thumb,
+          height: cfg.thumb,
+          top: '50%',
+          left: cfg.gap,
+          transform: `translateY(-50%) translateX(${enabled ? travel : 0}px)`,
         }}
       />
     </div>
@@ -870,7 +875,7 @@ function TreeItem({
             </>
           ) : null}
           <span
-            className="flex-1 min-w-0 font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
+            className="flex-1 min-w-0 font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
             data-fw500={isFileSelected || undefined}
             style={{ color: isFileSelected ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'rgba(0,0,0,0.7)' }}
           >
@@ -955,7 +960,7 @@ function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; en
           </h2>
           {skill.author && <AuthorTag author={skill.author} />}
           <div className="flex-1" />
-          <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} />
+          <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} size="md" />
         </div>
         {(skill.version || skill.lastUpdated) && (
           <div className="flex items-center gap-[16px]">
