@@ -757,7 +757,6 @@ function SkillListItem({
   isExpanded,
   enabled,
   onSelect,
-  onToggleExpand,
   onToggleEnabled,
 }: {
   skill: SkillItem;
@@ -766,7 +765,6 @@ function SkillListItem({
   isExpanded: boolean;
   enabled: boolean;
   onSelect: () => void;
-  onToggleExpand: () => void;
   onToggleEnabled: () => void;
 }) {
   const hasChildren = !!skill.apps?.length;
@@ -781,7 +779,6 @@ function SkillListItem({
       <div
         className="shrink-0 flex items-center justify-center w-[16px] h-[16px]"
         style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}
-        onClick={hasChildren ? (e) => { e.stopPropagation(); onToggleExpand(); } : undefined}
       >
         {hasChildren ? (isExpanded ? <ArrowDownIcon /> : <ArrowRightIcon />) : <ArrowRightIcon />}
       </div>
@@ -1125,13 +1122,6 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
     setExpandedSubIds(new Set(skill?.apps ? collectFolderIds(skill.apps) : []));
   }
 
-  function handleToggleExpand(skillId: string) {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      next.has(skillId) ? next.delete(skillId) : next.add(skillId);
-      return next;
-    });
-  }
 
   function handleToggleSubExpand(appId: string) {
     setExpandedSubIds((prev) => {
@@ -1160,7 +1150,6 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
             isExpanded={isExpanded}
             enabled={getEnabled(skill.id)}
             onSelect={() => handleSelectSkill(skill.id)}
-            onToggleExpand={() => handleToggleExpand(skill.id)}
             onToggleEnabled={() => handleToggleEnabled(skill.id)}
           />
           {isActive && isExpanded && skill.apps && (
