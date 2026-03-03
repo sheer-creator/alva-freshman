@@ -519,7 +519,7 @@ function DisclaimerIcon({ isSelected }: { isSelected: boolean }) {
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
       <path
         d="M15.7993 1.5C16.7382 1.5 17.4995 2.26131 17.4995 3.2002V16.7998C17.4993 17.7385 16.7381 18.5 15.7993 18.5H4.19971C3.26109 18.4998 2.49971 17.7384 2.49951 16.7998V6.19434L2.64502 6.04785L7.02002 1.64746L7.1665 1.5H15.7993ZM7.87451 6.90039H3.49951V16.7998C3.49971 17.1861 3.81338 17.4998 4.19971 17.5H15.7993C16.1858 17.5 16.4993 17.1862 16.4995 16.7998V3.2002C16.4995 2.8136 16.1859 2.5 15.7993 2.5H7.87451V6.90039ZM13.4243 13.666C13.7003 13.666 13.9241 13.89 13.9243 14.166C13.9243 14.4422 13.7005 14.666 13.4243 14.666H6.57471C6.29866 14.6659 6.07471 14.4421 6.07471 14.166C6.0749 13.8901 6.29878 13.6661 6.57471 13.666H13.4243ZM13.4243 11.166C13.7003 11.166 13.9241 11.39 13.9243 11.666C13.9243 11.9422 13.7005 12.166 13.4243 12.166H6.57471C6.29866 12.1659 6.07471 11.9421 6.07471 11.666C6.0749 11.3901 6.29878 11.1661 6.57471 11.166H13.4243ZM13.4243 8.66602C13.7003 8.66602 13.9241 8.89004 13.9243 9.16602C13.9243 9.44216 13.7005 9.66602 13.4243 9.66602H6.57471C6.29866 9.66591 6.07471 9.44209 6.07471 9.16602C6.0749 8.89011 6.29878 8.66613 6.57471 8.66602H13.4243ZM4.20166 5.90039H6.87451V3.21191L4.20166 5.90039Z"
-        fill={isSelected ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.7)'}
+        fill={isSelected ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.9)'}
         fillOpacity={isSelected ? 0.85 : 1}
       />
     </svg>
@@ -532,7 +532,7 @@ function FolderIcon() {
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
       <path
         d="M6.31934 2.5C6.55303 2.50008 6.7794 2.5819 6.95898 2.73145L9.68066 5H16.5C17.6046 5 18.5 5.89543 18.5 7V15.5C18.5 16.6046 17.6046 17.5 16.5 17.5H3.5C2.39543 17.5 1.5 16.6046 1.5 15.5V4.5C1.5 3.39543 2.39543 2.5 3.5 2.5H6.31934ZM2.5 9.5V15.5C2.5 16.0523 2.94772 16.5 3.5 16.5H16.5C17.0523 16.5 17.5 16.0523 17.5 15.5V9.5H2.5ZM3.5 3.5C2.94772 3.5 2.5 3.94772 2.5 4.5V8.5H17.5V7C17.5 6.44772 17.0523 6 16.5 6H9.68066C9.44697 5.99992 9.22059 5.9181 9.04102 5.76855L6.31934 3.5H3.5Z"
-        fill="rgba(0,0,0,0.7)"
+        fill="rgba(0,0,0,0.9)"
       />
     </svg>
   );
@@ -643,7 +643,7 @@ function SimpleMarkdown({ content }: { content: string }) {
       }
       i++;
       elements.push(
-        <pre key={key} style={{ background: 'rgba(0,0,0,0.03)', border: '0.5px solid rgba(0,0,0,0.07)', borderRadius: 4, padding: '10px 12px', fontSize: 12, lineHeight: '18px', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: "'JetBrains Mono', monospace", overflowX: 'auto', margin: '6px 0', whiteSpace: 'pre' }}>
+        <pre key={key} style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 4, padding: '10px 12px', fontSize: 12, lineHeight: '18px', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: "'JetBrains Mono', monospace", overflowX: 'auto', margin: '6px 0', whiteSpace: 'pre' }}>
           {codeLines.join('\n')}
         </pre>
       );
@@ -655,11 +655,11 @@ function SimpleMarkdown({ content }: { content: string }) {
       }
       const dataRows = tableLines.filter(l => !/^\|[\s\-|:]+\|/.test(l));
       elements.push(
-        <div key={key} style={{ border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 4, overflow: 'hidden', margin: '6px 0' }}>
+        <div key={key} style={{ border: '1px solid rgba(0,0,0,0.1)', borderRadius: 4, overflow: 'hidden', margin: '6px 0' }}>
           {dataRows.map((row, ri) => {
             const cells = row.split('|').filter(c => c.trim() !== '').map(c => c.trim());
             return (
-              <div key={ri} style={{ display: 'flex', borderBottom: ri < dataRows.length - 1 ? '0.5px solid rgba(0,0,0,0.07)' : 'none', background: ri === 0 ? 'rgba(0,0,0,0.02)' : 'transparent' }}>
+              <div key={ri} style={{ display: 'flex', borderBottom: ri < dataRows.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none', background: ri === 0 ? 'rgba(0,0,0,0.02)' : 'transparent' }}>
                 {cells.map((cell, ci) => (
                   <div key={ci} style={{ flex: 1, padding: '6px 10px', fontSize: 12, fontFamily: 'Delight, sans-serif', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontWeight: 400 }}>
                     {renderInline(cell)}
@@ -746,7 +746,7 @@ function SectionHeader({ label, action }: { label: string; action?: React.ReactN
     <div className="flex items-center justify-between px-[8px] py-[5px]">
       <span
         className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.55px] uppercase select-none"
-        style={{ color: 'rgba(0,0,0,0.35)' }}
+        style={{ color: 'rgba(0,0,0,0.5)' }}
       >
         {label}
       </span>
@@ -793,7 +793,7 @@ function SkillListItem({
       <span
         className="flex-1 min-w-0 font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
         data-fw500={isSelected || undefined}
-        style={{ color: isSelected ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'rgba(0,0,0,0.7)' }}
+        style={{ color: 'rgba(0,0,0,0.9)' }}
       >
         {skill.name}
       </span>
@@ -843,12 +843,12 @@ function TreeItem({
         {/* Vertical tree line */}
         <div
           className="absolute"
-          style={{ left: lineLeft, top: 0, width: '0.5px', height: isLast ? '50%' : '100%', background: 'rgba(0,0,0,0.1)' }}
+          style={{ left: lineLeft, top: 0, width: '1px', height: isLast ? '50%' : '100%', background: 'rgba(0,0,0,0.1)' }}
         />
         {/* Horizontal connector */}
         <div
           className="absolute"
-          style={{ left: lineLeft, top: '50%', width: 8, height: '0.5px', background: 'rgba(0,0,0,0.1)' }}
+          style={{ left: lineLeft, top: '50%', width: 8, height: '1px', background: 'rgba(0,0,0,0.1)' }}
         />
         <div
           className={`flex items-center flex-1 min-w-0 h-full px-[8px] rounded-[4px] transition-colors cursor-pointer ${
@@ -877,7 +877,7 @@ function TreeItem({
           <span
             className="flex-1 min-w-0 font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
             data-fw500={isFileSelected || undefined}
-            style={{ color: isFileSelected ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'rgba(0,0,0,0.7)' }}
+            style={{ color: 'rgba(0,0,0,0.9)' }}
           >
             {app.name}
           </span>
@@ -906,7 +906,7 @@ function TreeItem({
 // ─── Right Panel Components ───────────────────────────────────────────────────
 
 function Divider() {
-  return <div className="shrink-0 w-full" style={{ height: '0.5px', background: 'rgba(0,0,0,0.07)' }} />;
+  return <div className="shrink-0 w-full" style={{ height: '1px', background: 'rgba(0,0,0,0.07)' }} />;
 }
 
 function findFirstContent(apps: SkillApp[]): string | null {
@@ -926,7 +926,7 @@ function AuthorTag({ author }: { author: 'Arrays' | 'Alva' | 'My Skill' }) {
       ? { background: 'rgba(33,150,243,0.1)', color: '#2196F3' }
       : author === 'Alva'
       ? { background: 'rgba(73,163,166,0.12)', color: '#49a3a6' }
-      : { background: 'rgba(0,0,0,0.05)', color: 'rgba(0,0,0,0.45)' };
+      : { background: 'rgba(0,0,0,0.05)', color: 'rgba(0,0,0,0.5)' };
   return (
     <span
       className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.11px] px-[6px] py-[1px] rounded-[3px] shrink-0"
@@ -965,12 +965,12 @@ function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; en
         {(skill.version || skill.lastUpdated) && (
           <div className="flex items-center gap-[16px]">
             {skill.version && (
-              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.45)' }}>
+              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
                 Version: {skill.version}
               </span>
             )}
             {skill.lastUpdated && (
-              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.45)' }}>
+              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
                 Last Updated: {skill.lastUpdated}
               </span>
             )}
@@ -1010,7 +1010,7 @@ function FileContentView({ app }: { app: SkillApp }) {
         >
           {app.name}
         </h2>
-        <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'rgba(0,0,0,0.45)' }}>
+        <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
           {app.description}
         </p>
       </div>
@@ -1041,7 +1041,7 @@ function EmptyDetail() {
       </div>
       <p
         className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]"
-        style={{ color: 'rgba(0,0,0,0.28)' }}
+        style={{ color: 'rgba(0,0,0,0.3)' }}
       >
         Select a skill to view details
       </p>
@@ -1086,13 +1086,10 @@ function saveEnabledMap(map: Record<string, boolean>) {
 }
 
 function SkillModalContent({ onClose }: { onClose: () => void }) {
-  // Default: alva-design selected with all folder levels expanded
+  // Default: alva-design selected, all skills collapsed
   const [selectedSkillId, setSelectedSkillId] = useState<string>('alva-design');
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(['alva-design']));
-  const [expandedSubIds, setExpandedSubIds] = useState<Set<string>>(() => {
-    const alvaDesign = SKILLS.find((s) => s.id === 'alva-design');
-    return new Set(alvaDesign?.apps ? collectFolderIds(alvaDesign.apps) : []);
-  });
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [expandedSubIds, setExpandedSubIds] = useState<Set<string>>(new Set());
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabledMap);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1115,16 +1112,24 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
   }
 
   function handleSelectSkill(skillId: string) {
-    if (selectedSkillId === skillId) {
-      setSelectedAppId(null);
-      return;
-    }
     setSelectedSkillId(skillId);
     setSelectedAppId(null);
     const skill = SKILLS.find((s) => s.id === skillId);
-    setExpandedIds(new Set(skill?.apps?.length ? [skillId] : []));
-    // Auto-expand all folder levels
-    setExpandedSubIds(new Set(skill?.apps ? collectFolderIds(skill.apps) : []));
+    if (!skill?.apps?.length) return;
+    // Toggle expand; auto-expand sub-folders only when first opening
+    const isExpanded = expandedIds.has(skillId);
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      isExpanded ? next.delete(skillId) : next.add(skillId);
+      return next;
+    });
+    if (!isExpanded) {
+      setExpandedSubIds((prev) => {
+        const next = new Set(prev);
+        for (const id of collectFolderIds(skill.apps!)) next.add(id);
+        return next;
+      });
+    }
   }
 
 
@@ -1134,10 +1139,6 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
       next.has(appId) ? next.delete(appId) : next.add(appId);
       return next;
     });
-  }
-
-  function handleSelectApp(appId: string) {
-    setSelectedAppId(appId);
   }
 
   function renderSkillList(skills: SkillItem[]) {
@@ -1157,7 +1158,7 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
             onSelect={() => handleSelectSkill(skill.id)}
             onToggleEnabled={() => handleToggleEnabled(skill.id)}
           />
-          {isActive && isExpanded && skill.apps && (
+          {isExpanded && skill.apps && (
             <div className="flex flex-col mb-[2px]">
               {skill.apps.map((app, idx) => (
                 <TreeItem
@@ -1168,7 +1169,10 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
                   expandedSubIds={expandedSubIds}
                   selectedAppId={selectedAppId}
                   onToggleSubExpand={handleToggleSubExpand}
-                  onSelectApp={handleSelectApp}
+                  onSelectApp={(appId) => {
+                    setSelectedSkillId(skill.id);
+                    setSelectedAppId(appId);
+                  }}
                 />
               ))}
             </div>
@@ -1187,13 +1191,13 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none rounded-[8px]"
-        style={{ border: '0.5px solid rgba(0,0,0,0.2)', boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.1)' }}
+        style={{ border: '1px solid rgba(0,0,0,0.2)', boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.1)' }}
       />
 
       {/* Header */}
       <div
         className="flex items-center gap-[12px] shrink-0"
-        style={{ padding: '20px 24px 18px', borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}
+        style={{ padding: '20px 24px 18px', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
       >
         <p
           className="flex-1 font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px]"
@@ -1211,7 +1215,7 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
         {/* Left Panel — 16px horizontal padding aligns with header "Skills" at 24px */}
         <div
           className="shrink-0 flex flex-col overflow-y-auto"
-          style={{ width: 280, borderRight: '0.5px solid rgba(0,0,0,0.07)', padding: '12px 16px 16px' }}
+          style={{ width: 280, borderRight: '1px solid rgba(0,0,0,0.07)', padding: '12px 16px 16px' }}
         >
           {/* My Skills (top) */}
           <SectionHeader
@@ -1245,7 +1249,7 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Divider */}
-          <div style={{ margin: '12px 0', borderTop: '0.5px solid rgba(0,0,0,0.07)' }} />
+          <div style={{ margin: '12px 0', borderTop: '1px solid rgba(0,0,0,0.07)' }} />
 
           {/* Alva Built-in (bottom) */}
           <SectionHeader label="Alva Built-in" />
