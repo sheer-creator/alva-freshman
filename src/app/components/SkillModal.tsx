@@ -1022,8 +1022,6 @@ function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; en
             background: 'rgba(0,0,0,0.02)',
             borderRadius: 6,
             padding: 20,
-            height: 600,
-            overflowY: 'auto',
           }}
         >
           <SimpleMarkdown content={skillContent} />
