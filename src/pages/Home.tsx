@@ -748,7 +748,7 @@ export default function Home({ onNavigate, onOpenSearch, initialSkillModalOpen }
       >
         <div className="flex flex-col items-center min-h-full">
           <div className="content-stretch flex flex-col gap-[48px] items-center px-[28px] py-[64px] relative w-full">
-            <Chat onOpenSkills={() => setIsSkillModalOpen(true)} />
+            <Chat onOpenSkills={() => { setIsSkillModalOpen(true); window.location.hash = 'skills'; }} />
             <FeaturedPlaybooks />
           </div>
         </div>
