@@ -28,11 +28,6 @@ interface SkillApp {
   content?: string;
 }
 
-interface Platform {
-  name: string;
-  count: string;
-}
-
 interface SkillItem {
   id: string;
   name: string;
@@ -78,108 +73,154 @@ function findApp(apps: SkillApp[], id: string): SkillApp | null {
   return null;
 }
 
-// Returns all leaf files with their display path (e.g. "references / components.md")
-function flattenApps(apps: SkillApp[], prefix?: string): Array<{ app: SkillApp; displayName: string }> {
-  const result: Array<{ app: SkillApp; displayName: string }> = [];
-  for (const app of apps) {
-    const displayName = prefix ? `${prefix} / ${app.name}` : app.name;
-    if (app.type === 'file') {
-      result.push({ app, displayName });
-    } else if (app.type === 'folder' && app.children) {
-      result.push(...flattenApps(app.children, displayName));
-    }
-  }
-  return result;
-}
-
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const SKILL_MD_CONTENT = `# Alva Design System
 
 ## Design Tokens
 
-### Colors 颜色规范
+### Color Tokens
 
 \`\`\`css
 /* Text */
---text-n10: rgb(0,0,0);   /* 强调文本 */
---text-n9: rgba(0,0,0,0.9);   /* 主文本 */
---text-n7: rgba(0,0,0,0.7);   /* 次级 */
---text-n5: rgba(0,0,0,0.5);   /* 辅助 */
---text-n3: rgba(0,0,0,0.3);   /* 占位提示 */
---text-n2: rgba(0,0,0,0.2);   /* 按钮禁用文本 */
+--text-n9: rgba(0,0,0,0.9);         /* Primary */
+--text-n7: rgba(0,0,0,0.7);         /* Secondary */
+--text-n5: rgba(0,0,0,0.5);         /* Supporting Text */
+--text-n3: rgba(0,0,0,0.3);         /* Hint */
+--text-n2: rgba(0,0,0,0.2);         /* Disabled */
 
 /* Semantic */
---main-m1: #49A3A6;           /* Alva全局主题色 青 */
---main-m1-10: #49A3A6;        /* 带透明度背景 青 */
---main-m2: #2196F3;           /* 文字链 蓝 */
---main-m2-10: rgba(33,150,243,0.1); /* 带透明度背景 蓝 */
---main-m3: #2a9b7d;           /* 正向/上涨 绿 */
---main-m3-10: rgba(42,155,125,0.1); /* 带透明度背景 绿 */
---main-m4: #e05357;           /* 负向/下跌 红 */
---main-m4-10: rgba(224,83,87,0.1); /* 带透明度背景 红 */
---main-m5: #E6A91A;           /* 警示 黄 */
---main-m5-10: rgba(230,169,26,0.1); /* 带透明度背景 黄 */
---main-m6: #ff9800;           /* 强调 橙 */
---main-m6-10: rgba(255,152,0,0.1); /* 带透明度背景 橙 */
---main-m7: rgba(0,0,0,0.5);    /* 弹窗背景遮罩 */
+--main-m1: #49A3A6;                 /* Alva Theme */
+--main-m1-10: #49A3A6;              /* Alva Theme with transparency */
+--main-m2: #2196F3;                 /* Link */
+--main-m2-10: rgba(33,150,243,0.1); /* Link with transparency */
+--main-m3: #2a9b7d;                 /* Bullish */
+--main-m3-10: rgba(42,155,125,0.1); /* Bullish with transparency */
+--main-m4: #e05357;                 /* Bearish */
+--main-m4-10: rgba(224,83,87,0.1);  /* Bearish with transparency */
+--main-m5: #E6A91A;                 /* Alert */
+--main-m5-10: rgba(230,169,26,0.1); /* Alert with transparency */
+--main-m6: #ff9800;                 /* Emphasize */
+--main-m6-10: rgba(255,152,0,0.1);  /* Emphasize with transparency */
+--main-m7: rgba(0,0,0,0.5);         /* Modal Mask */
+
+/* Chart & Widget */
+--chart-orange1-main: #FF9800;
+--chart-orange1-1: #FFBB1C;
+--chart-orange1-2: #F8CB86;
+--chart-green1-main: #40A544;
+--chart-green1-1: #007949;
+--chart-green1-2: #78C26D;
+--chart-green2-main: #8FC13A;
+--chart-green2-1: #5B8513;
+--chart-green2-2: #C0D40F;
+--chart-cyan1-1: #117A7D;
+--chart-cyan1-2: #77C9C2;
+--chart-cyan2-main: #7CAFAD;
+--chart-cyan2-1: #4C807E;
+--chart-cyan2-2: #A5C7C6;
+--chart-blue1-main: #3D8BD1;
+--chart-blue1-1: #005DAF;
+--chart-blue1-2: #88B7E0;
+--chart-blue2-main: #0D7498;
+--chart-blue2-1: #54A5C2;
+--chart-blue2-2: #91D1DB;
+--chart-purple1-main: #5F75C9;
+--chart-purple1-1: #3A52BE;
+--chart-purple1-2: #9AB1D7;
+--chart-purple2-main: #7474D8;
+--chart-purple2-1: #4646AE;
+--chart-purple2-2: #AFBBF7;
+--chart-violet1-main: #A878DC;
+--chart-violet1-1: #7F4EB4;
+--chart-violet1-2: #D4B2E1;
+--chart-pink1-main: #DC7AA5;
+--chart-pink1-1: #BA5883;
+--chart-pink1-2: #ECB0CA;
+--chart-red1-main: #C76466;
+--chart-red1-1: #A94749;
+--chart-red1-2: #F2A0A1;
+--chart-grey-main: #838383;
+--chart-grey-1: #555555;
+--chart-grey-2: #B7B7B7;
 
 /* Background */
---b0-page: #ffffff;           /* 页面默认背景 */
---b0-container: #ffffff;      /* 大模块背景 */
---b0-sidebar: #2A2A38;       /* 侧边栏背景 */
+--b0-page: #ffffff;
+--b0-container: #ffffff;
+--b0-sidebar: #2A2A38;
 --b0-sidebar-select: rgba(255,255,255,.03);
---grey-g01: #fafafa;          /* Dashboard卡片背景 */
+--grey-g01: #fafafa;          /* Dashboard Card */
+--b-r02: rgba(0,0,0,.02);     /* Content Block */
+--b-r03: rgba(0,0,0,.03);     /* Darker Block */
 
 /* Line & Divider & Border */
---line-l07: rgba(0,0,0,0.07); /* 默认分割线或边框 */
---line-l05: rgba(0,0,0,0.05); /* 弱化分割线或边框 */
---line-l12: rgba(0,0,0,0.12); /* 加强分割线或边框 */
---line-l2: rgba(0,0,0,0.2);  /* 下拉框/悬浮组件 边框 */
---line-l3: rgba(0,0,0,0.3);  /* 按钮/输入框/选择框 边框 */
+--line-l07: rgba(0,0,0,0.07); /* Default */
+--line-l05: rgba(0,0,0,0.05); /* Weaker */
+--line-l12: rgba(0,0,0,0.12); /* Card Border */
+--line-l2: rgba(0,0,0,0.2);   /* Popup/Dropdown Border */
+--line-l3: rgba(0,0,0,0.3);   /* Button/Input/Select Border */
 \`\`\`
 
-### Spacing & Radius 间距和圆角规范
+### Spacing & Radius Tokens
 
 \`\`\`css
 --spacing-xxxs: 2px;  --spacing-xxs: 4px;  --spacing-xs: 8px;   --spacing-s: 12px;
 --spacing-m: 16px;   --spacing-l: 20px;   --spacing-xl: 24px;   --spacing-xxl: 28px;
---spacing-xxxl: 32px;   --spacing-xxxxl: 40px;
+--spacing-xxxl: 32px;   --spacing-xxxxl: 40px;   --spacing-xxxxxl: 48px;   --spacing-xxxxxxl: 56px;
 
---radius-ct-xs: 2px;  /* 标签 */
---radius-ct-s: 4px;  /* 小卡片 */
---radius-ct-m: 6px;  /* 大卡片/内容区 */
---radius-ct-l: 8px;  /* 页面级 */
+--radius-ct-xs: 2px;  /* Tag */
+--radius-ct-s: 4px;   /* Small Card */
+--radius-ct-m: 6px;   /* Medium Card */
+--radius-ct-l: 8px;   /* Large Card/Page */
+\`\`\`
+
+### Shadow Tokens
+
+\`\`\`css
+--shadow-xs: 0 4px 15px 0 rgba(0, 0, 0, 0.05);  /* Toolbar/Sidebar */
+--shadow-s: 0 6px 20px 0 rgba(0, 0, 0, 0.04);   /* Popup/Dropdown */
+--shadow-l: 0 10px 20px 0 rgba(0, 0, 0, 0.08);  /* Card Hover */
 \`\`\`
 
 ## General Design Guideline
 
-### Background 背景规范
+### Background
 
-**页面级别的背景颜色，必须使用--b0-page**
+**The page background color must use '--b0-page'**
 
-### Typography & Font 字体规范
+### Typography & Font
 
-#### 字体通用规范
+#### General Rules
 
-1. **默认使用Delight，代码使用JetBrains Mono**；
-2. 备选字体为: -apple-system, BlinkMacSystemFont, sans-serif；
+1. **The default font for Alva must be Delight, and the code uses JetBrains Mono**；
+2. Backup fonts: -apple-system, BlinkMacSystemFont, sans-serif；
 
-#### 字重规范
+#### Font Weight
 
-Alva 字重仅允许 Regular(400) 和 Medium(500)，不得使用 Semibold(600) 或 Bold(700)。
+The font weight for Alva is limited to Regular (400) and Medium (500), and the use of Semibold (600) or Bold (700) is prohibited.
 
-| font-size | 允许字重 |
+| Font Size | Font Weight |
 |---|---|
-| < 24px | Regular(400) 或 Medium(500) |
-| **≥ 24px** | **仅 Regular(400)** |
+| < 24px | Regular(400) or Medium(500) |
+| **≥ 24px** | **Regular(400) only** |
 
-## 使用方式
+#### Anti-aliasing Standards
 
-1. **设计 Page / Dashboard / Playbook / Module** → 遵循 Design Tokens
-2. **生成 Widget & Chart** → 参考本文档 + references/widgets.md
-3. **调用 Components** → 参考本文档 + references/components.md
-4. **生成数据驱动 Dashboard（动态数据）** → 参考本文档 + references/data-driven-dashboard.md`;
+Text anti-aliasing is enabled by default. The following declarations must be included when generating or modifying styles:
+
+\`\`\`css
+/* Text anti-aliasing: global or text containers requiring sharp rendering */
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+text-rendering: optimizeLegibility;
+\`\`\`
+
+## Usage
+
+1. **Design Page / Dashboard / Playbook / Module** → Follow Design Tokens
+2. **Generate Widgets & Charts** → Refer to this document + references/widgets.md
+3. **Use Components** → Refer to this document + references/components.md
+4. **Generate Data-driven Dashboard (Dynamic Data)** → Refer to this document + references/data-driven-dashboard.md`;
 
 const SKILLS: SkillItem[] = [
   {
@@ -511,18 +552,6 @@ function ArrowRightIcon() {
       <path
         d="M7.55569 3.22352C6.92874 2.69375 6 3.16523 6 4.01328V15.9867C6 16.8348 6.92873 17.3062 7.55569 16.7765L14.6406 10.7898C15.1198 10.3849 15.1198 9.61513 14.6406 9.21025L7.55569 3.22352Z"
         fill={ARROW_FILL}
-      />
-    </svg>
-  );
-}
-
-function DisclaimerIcon({ isSelected }: { isSelected: boolean }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-      <path
-        d="M15.7993 1.5C16.7382 1.5 17.4995 2.26131 17.4995 3.2002V16.7998C17.4993 17.7385 16.7381 18.5 15.7993 18.5H4.19971C3.26109 18.4998 2.49971 17.7384 2.49951 16.7998V6.19434L2.64502 6.04785L7.02002 1.64746L7.1665 1.5H15.7993ZM7.87451 6.90039H3.49951V16.7998C3.49971 17.1861 3.81338 17.4998 4.19971 17.5H15.7993C16.1858 17.5 16.4993 17.1862 16.4995 16.7998V3.2002C16.4995 2.8136 16.1859 2.5 15.7993 2.5H7.87451V6.90039ZM13.4243 13.666C13.7003 13.666 13.9241 13.89 13.9243 14.166C13.9243 14.4422 13.7005 14.666 13.4243 14.666H6.57471C6.29866 14.6659 6.07471 14.4421 6.07471 14.166C6.0749 13.8901 6.29878 13.6661 6.57471 13.666H13.4243ZM13.4243 11.166C13.7003 11.166 13.9241 11.39 13.9243 11.666C13.9243 11.9422 13.7005 12.166 13.4243 12.166H6.57471C6.29866 12.1659 6.07471 11.9421 6.07471 11.666C6.0749 11.3901 6.29878 11.1661 6.57471 11.166H13.4243ZM13.4243 8.66602C13.7003 8.66602 13.9241 8.89004 13.9243 9.16602C13.9243 9.44216 13.7005 9.66602 13.4243 9.66602H6.57471C6.29866 9.66591 6.07471 9.44209 6.07471 9.16602C6.0749 8.89011 6.29878 8.66613 6.57471 8.66602H13.4243ZM4.20166 5.90039H6.87451V3.21191L4.20166 5.90039Z"
-        fill={isSelected ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.9)'}
-        fillOpacity={isSelected ? 0.85 : 1}
       />
     </svg>
   );
@@ -983,14 +1012,6 @@ function AuthorTag({ author }: { author: 'Arrays' | 'Alva' | 'My Skill' }) {
   );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'rgba(0,0,0,0.9)' }}>
-      {children}
-    </p>
-  );
-}
-
 function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; enabled: boolean; onToggleEnabled: () => void }) {
   const skillContent = skill.apps ? findFirstContent(skill.apps) : null;
   return (
@@ -1175,7 +1196,6 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
       });
     }
   }
-
 
   function handleToggleSubExpand(appId: string) {
     setExpandedSubIds((prev) => {
