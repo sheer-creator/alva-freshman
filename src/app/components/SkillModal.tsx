@@ -528,6 +528,18 @@ function DisclaimerIcon({ isSelected }: { isSelected: boolean }) {
   );
 }
 
+function NotebookLIcon({ isSelected }: { isSelected: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M16.7998 1.5C17.4625 1.5 18 2.03745 18 2.7002V17.2998C18 17.9625 17.4625 18.5 16.7998 18.5H3.2002L3.07715 18.4941C2.4721 18.4326 2 17.9211 2 17.2998V2.7002C2 2.07892 2.4721 1.56737 3.07715 1.50586L3.2002 1.5H16.7998ZM6 17.5H16.7998C16.9103 17.5 17 17.4103 17 17.2998V2.7002C17 2.58974 16.9103 2.5 16.7998 2.5H6V17.5ZM3.2002 2.5C3.08974 2.5 3 2.58974 3 2.7002V17.2998C3 17.4103 3.08974 17.5 3.2002 17.5H5V2.5H3.2002ZM14.3662 11.5C14.6424 11.5 14.8662 11.7239 14.8662 12C14.8662 12.2761 14.6424 12.5 14.3662 12.5H8.54492C8.26878 12.5 8.04492 12.2761 8.04492 12C8.04492 11.7239 8.26878 11.5 8.54492 11.5H14.3662ZM14.3662 7.5C14.6424 7.5 14.8662 7.72386 14.8662 8C14.8662 8.27614 14.6424 8.5 14.3662 8.5H8.54492C8.26878 8.5 8.04492 8.27614 8.04492 8C8.04492 7.72386 8.26878 7.5 8.54492 7.5H14.3662Z"
+        fill={isSelected ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.9)'}
+        fillOpacity={isSelected ? 0.85 : 1}
+      />
+    </svg>
+  );
+}
+
 // folder-l.svg asset, colored n7
 function FolderIcon() {
   return (
@@ -822,7 +834,7 @@ function SkillListItem({
         {hasChildren ? (isExpanded ? <ArrowDownIcon /> : <ArrowRightIcon />) : <ArrowRightIcon />}
       </div>
       <div className="shrink-0 flex items-center justify-center w-[16px] h-[16px]">
-        <DisclaimerIcon isSelected={isSelected} />
+        <NotebookLIcon isSelected={isSelected} />
       </div>
       <span
         className="flex-1 min-w-0 font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"

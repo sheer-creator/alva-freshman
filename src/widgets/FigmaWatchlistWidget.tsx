@@ -8,6 +8,7 @@ import svgPaths from '@/data/svg-nheoeek59y';
 import ReactECharts from 'echarts-for-react';
 import { DRAMPriceTrendWidget } from './DRAMPriceTrendWidget';
 import { ddr4Data, ddr5Data } from '@/data/dramPriceData';
+import { AlvaWatermark } from '@/app/components/alva-ui-kit';
 import img1 from 'figma:asset/11f742b6bf227629e0bd445a4655f9faedb0d5cf.png';
 import img2 from 'figma:asset/245a7d0f66b2a4c07c6f65541bd8759f79b07f71.png';
 import img11 from 'figma:asset/82e4e2abde2f2ae67d295ccb417c5bf345acddbc.png';
@@ -985,7 +986,7 @@ function Frame() {
 function WidgetGeneral() {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[16px] h-[370px] isolate items-center min-h-px min-w-px relative rounded-[4px]" data-name="Widget/General">
-      <ChartWatermark />
+      <AlvaWatermark />
       <WidgetTitle />
       <Frame />
     </div>
@@ -1404,7 +1405,7 @@ function XY() {
             opts={{ renderer: 'canvas' }}
           />
         </div>
-        <ChartWatermark1 />
+        <AlvaWatermark />
       </div>
     </div>
   );
@@ -2031,7 +2032,7 @@ function XY1() {
             opts={{ renderer: 'canvas' }}
           />
         </div>
-        <ChartWatermark2 />
+        <AlvaWatermark />
       </div>
     </div>
   );
@@ -2260,7 +2261,7 @@ function TradingActivityHeatmap() {
               style={{ height: '100%', width: '100%' }}
               opts={{ renderer: 'canvas' }}
             />
-            <ChartWatermarkHeatmap />
+            <AlvaWatermark />
           </div>
         </div>
       </div>

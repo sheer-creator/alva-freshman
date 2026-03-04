@@ -5,7 +5,7 @@ import {
   timeXAxisConfig, valueYAxisConfig, GRID_DEFAULT,
   lineSeriesConfig, monthYearFormatter, dayOfWeekFormatter,
 } from '@/lib/chart-theme';
-import { WidgetTitle } from '@/app/components/alva-ui-kit';
+import { AlvaWatermark, WidgetTitle } from '@/app/components/alva-ui-kit';
 
 type TimeWindow = '1M' | '3M' | '6M' | '1Y';
 
@@ -145,10 +145,7 @@ export function AIStorageRelativePerfWidget() {
             opts={{ renderer: 'canvas' }}
           />
         </div>
-        {/* Watermark */}
-        <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
-          Alva
-        </div>
+        <AlvaWatermark />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@
 
 import { Fragment } from 'react';
 import { FONT } from '@/lib/chart-theme';
+import { AlvaWatermark } from '@/app/components/alva-ui-kit';
 
 /* ========== 数据 ========== */
 
@@ -185,10 +186,7 @@ export function NVDAEarningsDetailWidget() {
 
         </div>
 
-        {/* Alva watermark */}
-        <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-medium text-[rgba(0,0,0,1)] opacity-20 z-[1]">
-          Alva
-        </div>
+        <AlvaWatermark />
       </div>
 
     </div>

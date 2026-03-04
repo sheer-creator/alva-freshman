@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WidgetTitle } from '@/app/components/alva-ui-kit';
+import { AlvaWatermark, WidgetTitle } from '@/app/components/alva-ui-kit';
 import { TICKER_LOGO_CONFIG } from '@/lib/ticker-config';
 
 type EarningsStatus = 'upcoming' | 'beat' | 'miss' | 'meet';
@@ -237,10 +237,7 @@ export function AIStorageEarningsWidget() {
           ))}
         </div>
 
-        {/* Watermark */}
-        <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1] pointer-events-none">
-          Alva
-        </div>
+        <AlvaWatermark />
       </div>
     </div>
   );

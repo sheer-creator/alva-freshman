@@ -1,6 +1,6 @@
 import ReactECharts from 'echarts-for-react';
 import { CHART_COLORS, FONT, CHART_DOT_BG, tooltipConfig, ZERO_MARK_LINE } from '@/lib/chart-theme';
-import { WidgetTitle } from '@/app/components/alva-ui-kit';
+import { AlvaWatermark, WidgetTitle } from '@/app/components/alva-ui-kit';
 
 // Mock data for trending AI Storage keywords this month
 const keywordData = [
@@ -112,10 +112,7 @@ export function AIStorageKeyWordTrendsWidget() {
             opts={{ renderer: 'canvas' }}
           />
         </div>
-        {/* Watermark */}
-        <div className="absolute bottom-[16px] left-[16px] font-['Delight',sans-serif] text-[16px] font-semibold text-[rgba(0,0,0,1)] opacity-20 z-[1]">
-          Alva
-        </div>
+        <AlvaWatermark />
       </div>
     </div>
   );
