@@ -42,7 +42,7 @@ interface SkillItem {
   weeklyInstalls?: string;
   stars?: number;
   firstSeen?: string;
-  platforms?: Platform[];
+  platforms?: string[];
   useCases?: string[];
 }
 
@@ -530,6 +530,11 @@ const SKILLS: SkillItem[] = [
   },
 ];
 
+// ─── Derived Constants ────────────────────────────────────────────────────────
+
+const ALVA_SKILLS = SKILLS.filter((s) => s.category === 'alva');
+const CUSTOM_SKILLS = SKILLS.filter((s) => s.category === 'custom');
+
 // ─── Icon Components ──────────────────────────────────────────────────────────
 
 // arrow-down-f2：展开时；arrow-up-f2：收起时；颜色 text-n2
@@ -581,11 +586,10 @@ function FolderIcon() {
   );
 }
 
-function UploadIcon() {
+function AddL2Icon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-      <path d="M6.5 9V4M6.5 4L4.5 6M6.5 4L8.5 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M2.5 10H10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+      <path d="M10 2C10.2761 2 10.5 2.22386 10.5 2.5V9.5H17.5C17.7761 9.5 18 9.72386 18 10C18 10.2761 17.7761 10.5 17.5 10.5H10.5V17.5C10.5 17.7761 10.2761 18 10 18C9.72386 18 9.5 17.7761 9.5 17.5V10.5H2.5C2.22386 10.5 2 10.2761 2 10C2 9.72386 2.22386 9.5 2.5 9.5H9.5V2.5C9.5 2.22386 9.72386 2 10 2Z" fill="var(--text-n5, rgba(0,0,0,0.5))" />
     </svg>
   );
 }
@@ -662,26 +666,16 @@ const BODY_STYLE: React.CSSProperties = {
   fontFamily: 'Delight, sans-serif',
 };
 
-// Returns per-level heading props for Medium size
-// padding-top per Alva spec (Medium): H1=2px, H2=2px, H3–H6=0
-// margin is 0 — section spacing comes from container gap (8px)
+// Pre-computed heading styles for Medium size (Alva spec)
+// padding-top: H1=2px, H2=2px, H3–H6=0; margin=0 — section spacing via container gap
+const HEADING_STYLES: Record<number, React.CSSProperties> = {
+  1: { fontSize: 18, lineHeight: '28px', letterSpacing: '0.18px', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: 'Delight, sans-serif', paddingTop: 2, margin: 0 },
+  2: { fontSize: 16, lineHeight: '26px', letterSpacing: '0.16px', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: 'Delight, sans-serif', paddingTop: 2, margin: 0 },
+  3: { fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: 'Delight, sans-serif', paddingTop: 0, margin: 0 },
+  4: { fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: 'Delight, sans-serif', paddingTop: 0, margin: 0 },
+};
 function headingStyle(level: number): React.CSSProperties {
-  const configs: Record<number, { size: number; lh: string; ls: string; pt: number }> = {
-    1: { size: 18, lh: '28px', ls: '0.18px', pt: 2 },
-    2: { size: 16, lh: '26px', ls: '0.16px', pt: 2 },
-    3: { size: 14, lh: '22px', ls: '0.14px', pt: 0 },
-    4: { size: 14, lh: '22px', ls: '0.14px', pt: 0 },
-  };
-  const cfg = configs[Math.min(level, 4)];
-  return {
-    fontSize: cfg.size,
-    lineHeight: cfg.lh,
-    letterSpacing: cfg.ls,
-    color: 'var(--text-n9, rgba(0,0,0,0.9))',
-    fontFamily: 'Delight, sans-serif',
-    paddingTop: cfg.pt,
-    margin: 0,
-  };
+  return HEADING_STYLES[Math.min(level, 4)];
 }
 
 function SimpleMarkdown({ content }: { content: string }) {
@@ -900,9 +894,9 @@ function TreeItem({
   const isExpanded = expandedSubIds.has(app.id);
   const isFileSelected = !isFolder && selectedAppId === app.id;
 
-  // Indent 16px per extra depth level; line anchors at parent icon center (18px from content edge)
-  const paddingLeft = 28 + (depth - 1) * 16;
-  const lineLeft = 18 + (depth - 1) * 16;
+  // Indent 20px per extra depth level; line anchors at 16px + depth offset from left edge
+  const paddingLeft = 28 + (depth - 1) * 20;
+  const lineLeft = 16 + (depth - 1) * 20;
 
   function handleClick() {
     if (isFolder) {
@@ -914,7 +908,13 @@ function TreeItem({
 
   return (
     <>
-      <div className="relative flex items-center h-[28px]" style={{ paddingLeft }}>
+      <div
+        className={`relative flex items-center h-[28px] rounded-[4px] cursor-pointer transition-colors ${
+          isFileSelected ? 'bg-[var(--main-m1-10,rgba(73,163,166,0.1))]' : 'hover:bg-[rgba(0,0,0,0.03)]'
+        }`}
+        style={{ paddingLeft }}
+        onClick={handleClick}
+      >
         {/* Vertical tree line */}
         <div
           className="absolute"
@@ -926,10 +926,9 @@ function TreeItem({
           style={{ left: lineLeft, top: '50%', width: 8, height: '1px', background: 'rgba(0,0,0,0.1)' }}
         />
         <div
-          className={`flex items-center flex-1 min-w-0 h-full px-[8px] rounded-[4px] transition-colors cursor-pointer ${
+          className={`flex items-center flex-1 min-w-0 h-full ${
             isFolder ? 'gap-[4px]' : ''
-          } ${isFileSelected ? 'bg-[var(--main-m1-10,rgba(73,163,166,0.1))]' : 'hover:bg-[rgba(0,0,0,0.03)]'}`}
-          onClick={handleClick}
+          }`}
         >
           {isFolder ? (
             <>
@@ -1159,8 +1158,8 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabledMap);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const alvaSkills = SKILLS.filter((s) => s.category === 'alva');
-  const customSkills = SKILLS.filter((s) => s.category === 'custom');
+  const alvaSkills = ALVA_SKILLS;
+  const customSkills = CUSTOM_SKILLS;
   const selectedSkill = SKILLS.find((s) => s.id === selectedSkillId) ?? null;
   const selectedApp = selectedSkill?.apps ? findApp(selectedSkill.apps, selectedAppId ?? '') : null;
 
@@ -1276,10 +1275,10 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
       {/* Body */}
       <div className="flex flex-1 min-h-0 overflow-hidden rounded-b-[8px]">
 
-        {/* Left Panel — 16px horizontal padding aligns with header "Skills" at 24px */}
+        {/* Left Panel */}
         <div
           className="shrink-0 flex flex-col overflow-y-auto"
-          style={{ width: 280, borderRight: '1px solid rgba(0,0,0,0.07)', padding: '12px 16px 16px' }}
+          style={{ width: 280, borderRight: '1px solid rgba(0,0,0,0.07)', padding: '8px 8px 8px' }}
         >
           {/* My Skills (top) */}
           <SectionHeader
@@ -1290,8 +1289,7 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
                 style={{ color: '#49a3a6', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <UploadIcon />
-                Upload
+                <AddL2Icon />
               </button>
             }
           />
