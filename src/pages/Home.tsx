@@ -11,7 +11,7 @@ import { Button } from '@/app/components/ui/button';
 import UserInfo from '@/app/components/UserInfo';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
-import SkillModal from '@/app/components/SkillModal';
+
 
 function UserAvatar({ name, size = 22 }: { name: string; size?: number }) {
   const initial = name.trim().charAt(0).toUpperCase();
@@ -733,9 +733,8 @@ function FeaturedPlaybooks() {
 
 /* ========== 页面 ========== */
 
-export default function Home({ onNavigate, onOpenSearch, initialSkillModalOpen }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void; initialSkillModalOpen?: boolean }) {
+export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
-  const [isSkillModalOpen, setIsSkillModalOpen] = useState(!!initialSkillModalOpen);
 
   return (
     <>
@@ -748,7 +747,7 @@ export default function Home({ onNavigate, onOpenSearch, initialSkillModalOpen }
       >
         <div className="flex flex-col items-center min-h-full">
           <div className="content-stretch flex flex-col gap-[48px] items-center px-[28px] py-[64px] relative w-full">
-            <Chat onOpenSkills={() => { setIsSkillModalOpen(true); window.location.hash = 'skills'; }} />
+            <Chat onOpenSkills={() => onNavigate?.('skills')} />
             <FeaturedPlaybooks />
           </div>
         </div>
@@ -762,13 +761,6 @@ export default function Home({ onNavigate, onOpenSearch, initialSkillModalOpen }
           <UserInfo />
         </div>
       )}
-      <SkillModal
-        isOpen={isSkillModalOpen}
-        onClose={() => {
-          setIsSkillModalOpen(false);
-          if (window.location.hash === '#skills') onNavigate?.('home');
-        }}
-      />
     </>
   );
 }

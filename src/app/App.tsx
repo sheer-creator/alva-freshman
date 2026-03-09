@@ -15,6 +15,7 @@ const NVDADashboard = lazy(() => import("@/pages/NVDADashboard"));
 const DashboardPopularStock = lazy(() => import("@/pages/DashboardPopularStock").then(m => ({ default: m.DashboardPopularStock })));
 const DashboardTSLAOverview = lazy(() => import("@/pages/DashboardTSLAOverview").then(m => ({ default: m.DashboardTSLAOverview })));
 const DashboardTSLATracking = lazy(() => import("@/pages/DashboardTSLATracking").then(m => ({ default: m.DashboardTSLATracking })));
+const Skills = lazy(() => import("@/pages/Skills"));
 
 /* ========== URL hash 路由工具 ========== */
 
@@ -49,7 +50,7 @@ export default function App() {
     <>
       <Suspense>
         {currentPage === "home" && <Home onNavigate={navigate} onOpenSearch={openSearch} />}
-        {(currentPage === "skills") && <Home onNavigate={navigate} onOpenSearch={openSearch} initialSkillModalOpen />}
+        {currentPage === "skills" && <Skills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "library" && <Library onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "dashboard" && <Dashboard onNavigate={navigate} />}

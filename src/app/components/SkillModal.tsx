@@ -6,7 +6,7 @@
 
 import { useState, useRef } from 'react';
 
-const SCROLL_STYLE = `
+export const SCROLL_STYLE = `
 .skill-modal-scroll ::-webkit-scrollbar { width: 4px; height: 4px; }
 .skill-modal-scroll ::-webkit-scrollbar-track { background: transparent; }
 .skill-modal-scroll ::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; }
@@ -810,11 +810,11 @@ function SimpleMarkdown({ content }: { content: string }) {
 
 // ─── Left Panel Components ────────────────────────────────────────────────────
 
-function SectionHeader({ label, action }: { label: string; action?: React.ReactNode }) {
+function SectionHeader({ label, action, noUppercase }: { label: string; action?: React.ReactNode; noUppercase?: boolean }) {
   return (
     <div className="flex items-center justify-between px-[8px] py-[5px]">
       <span
-        className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.55px] uppercase select-none"
+        className={`font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.55px] select-none${noUppercase ? '' : ' uppercase'}`}
         style={{ color: 'rgba(0,0,0,0.5)' }}
       >
         {label}
@@ -832,14 +832,16 @@ function SkillListItem({
   enabled,
   onSelect,
   onToggleEnabled,
+  hideToggle,
 }: {
   skill: SkillItem;
-  isSelected: boolean; // visual highlight — false when a child file is selected
-  isActive: boolean;   // this skill is the current context (controls chevron visibility)
+  isSelected: boolean;
+  isActive: boolean;
   isExpanded: boolean;
   enabled: boolean;
   onSelect: () => void;
   onToggleEnabled: () => void;
+  hideToggle?: boolean;
 }) {
   const hasChildren = !!skill.apps?.length;
 
@@ -866,7 +868,7 @@ function SkillListItem({
       >
         {skill.name}
       </span>
-      <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} />
+      {!hideToggle && <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} />}
     </div>
   );
 }
@@ -1011,7 +1013,7 @@ function AuthorTag({ author }: { author: 'Arrays' | 'Alva' | 'My Skill' }) {
   );
 }
 
-function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; enabled: boolean; onToggleEnabled: () => void }) {
+function SkillDetail({ skill, enabled, onToggleEnabled, isPage }: { skill: SkillItem; enabled: boolean; onToggleEnabled: () => void; isPage?: boolean }) {
   const skillContent = skill.apps ? findFirstContent(skill.apps) : null;
   return (
     <div className="flex flex-col gap-[16px] p-[28px]">
@@ -1026,7 +1028,7 @@ function SkillDetail({ skill, enabled, onToggleEnabled }: { skill: SkillItem; en
           </h2>
           {skill.author && <AuthorTag author={skill.author} />}
           <div className="flex-1" />
-          <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} size="md" />
+          {!isPage && <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} size="md" />}
         </div>
         {(skill.version || skill.lastUpdated) && (
           <div className="flex items-center gap-[16px]">
@@ -1149,7 +1151,7 @@ function saveEnabledMap(map: Record<string, boolean>) {
   }
 }
 
-function SkillModalContent({ onClose }: { onClose: () => void }) {
+export function SkillModalContent({ onClose }: { onClose?: () => void }) {
   // Default: alva-design selected, all skills collapsed
   const [selectedSkillId, setSelectedSkillId] = useState<string>('alva-design');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -1207,7 +1209,6 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
   function renderSkillList(skills: SkillItem[]) {
     return skills.map((skill) => {
       const isActive = selectedSkillId === skill.id;
-      // Visual highlight only when this skill is active AND no child file is selected
       const isSelected = isActive && selectedAppId === null;
       const isExpanded = expandedIds.has(skill.id);
       return (
@@ -1217,9 +1218,10 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
             isSelected={isSelected}
             isActive={isActive}
             isExpanded={isExpanded}
-            enabled={getEnabled(skill.id)}
+            enabled={isPage ? true : getEnabled(skill.id)}
             onSelect={() => handleSelectSkill(skill.id)}
             onToggleEnabled={() => handleToggleEnabled(skill.id)}
+            hideToggle={isPage}
           />
           {isExpanded && skill.apps && (
             <div className="flex flex-col mb-[2px]">
@@ -1245,32 +1247,36 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
     });
   }
 
+  const isPage = !onClose;
+
   return (
     <div
-      className="bg-white relative rounded-[8px] flex flex-col skill-modal-scroll"
-      style={{ width: 'min(calc(100vw - 56px), 1280px)', height: 'min(calc(100vh - 96px), 1280px)' }}
+      className={`bg-white relative flex flex-col skill-modal-scroll ${isPage ? 'flex-1 min-h-0' : 'rounded-[8px]'}`}
+      style={isPage ? undefined : { width: 'min(calc(100vw - 56px), 1280px)', height: 'min(calc(100vh - 96px), 1280px)' }}
     >
-      {/* Border + shadow */}
-      <div
+      {/* Border + shadow (modal only) */}
+      {!isPage && <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none rounded-[8px]"
         style={{ border: '1px solid rgba(0,0,0,0.2)', boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.1)' }}
-      />
+      />}
 
-      {/* Header */}
-      <div
-        className="flex items-center gap-[12px] shrink-0"
-        style={{ padding: '20px 24px 18px', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
-      >
-        <p
-          className="flex-1 font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px]"
-          data-fw500
-          style={{ color: 'rgba(0,0,0,0.9)' }}
+      {/* Header (modal only) */}
+      {!isPage && (
+        <div
+          className="flex items-center gap-[12px] shrink-0"
+          style={{ padding: '20px 24px 18px', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
         >
-          Skills
-        </p>
-        <CloseIcon onClick={onClose} />
-      </div>
+          <p
+            className="flex-1 font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px]"
+            data-fw500
+            style={{ color: 'rgba(0,0,0,0.9)' }}
+          >
+            Skills
+          </p>
+          {onClose && <CloseIcon onClick={onClose} />}
+        </div>
+      )}
 
       {/* Body */}
       <div className="flex flex-1 min-h-0 overflow-hidden rounded-b-[8px]">
@@ -1280,54 +1286,66 @@ function SkillModalContent({ onClose }: { onClose: () => void }) {
           className="shrink-0 flex flex-col overflow-y-auto"
           style={{ width: 280, borderRight: '1px solid rgba(0,0,0,0.07)', padding: '8px 8px 8px' }}
         >
-          {/* My Skills (top) */}
-          <SectionHeader
-            label="My Skills"
-            action={
-              <button
-                className="flex items-center gap-[3px] font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] hover:opacity-70 transition-opacity"
-                style={{ color: '#49a3a6', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <AddL2Icon />
-              </button>
-            }
-          />
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".md,.txt,.json"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                console.log('Uploaded skill file:', file.name, file);
-              }
-              e.target.value = '';
-            }}
-          />
-          <div className="flex flex-col mt-[4px]">
-            {renderSkillList(customSkills)}
-          </div>
-
-          {/* Divider */}
-          <div style={{ margin: '12px 0', borderTop: '1px solid rgba(0,0,0,0.07)' }} />
-
-          {/* Alva Built-in (bottom) */}
-          <SectionHeader label="Alva Built-in" />
-          <div className="flex flex-col mt-[4px]">
-            {renderSkillList(alvaSkills)}
-          </div>
+          {isPage ? (
+            <>
+              {/* Page mode: Alva Built-In only */}
+              <div style={{ paddingTop: 8 }}>
+                <SectionHeader label="Alva Built-In" noUppercase />
+              </div>
+              <div className="flex flex-col mt-[4px]">
+                {renderSkillList([...CUSTOM_SKILLS, ...ALVA_SKILLS])}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Modal mode: My Skills + Alva Built-in */}
+              <SectionHeader
+                label="My Skills"
+                action={
+                  <button
+                    className="flex items-center gap-[3px] font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] hover:opacity-70 transition-opacity"
+                    style={{ color: '#49a3a6', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <AddL2Icon />
+                  </button>
+                }
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".md,.txt,.json"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    console.log('Uploaded skill file:', file.name, file);
+                  }
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex flex-col mt-[4px]">
+                {renderSkillList(customSkills)}
+              </div>
+              <div style={{ margin: '12px 0', borderTop: '1px solid rgba(0,0,0,0.07)' }} />
+              <SectionHeader label="Alva Built-In" />
+              <div className="flex flex-col mt-[4px]">
+                {renderSkillList(alvaSkills)}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right Panel */}
         <div className="flex-1 min-w-0 overflow-y-auto">
-          {selectedApp
-            ? <FileContentView app={selectedApp} />
-            : selectedSkill
-              ? <SkillDetail skill={selectedSkill} enabled={getEnabled(selectedSkill.id)} onToggleEnabled={() => handleToggleEnabled(selectedSkill.id)} />
-              : <EmptyDetail />
-          }
+          <div style={isPage ? { maxWidth: 1200, margin: '0 auto' } : undefined}>
+            {selectedApp
+              ? <FileContentView app={selectedApp} />
+              : selectedSkill
+                ? <SkillDetail skill={selectedSkill} enabled={getEnabled(selectedSkill.id)} onToggleEnabled={() => handleToggleEnabled(selectedSkill.id)} isPage={isPage} />
+                : <EmptyDetail />
+            }
+          </div>
         </div>
       </div>
     </div>

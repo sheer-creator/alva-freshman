@@ -102,23 +102,11 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
     <div className="antialiased bg-[#2a2a38] flex flex-col h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 w-[228px] z-[2] overflow-y-auto" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)', backgroundSize: '3px 3px' }}>
       <Logo />
 
-      {/* New Playbook 按钮 */}
-      <div className="relative shrink-0 w-full z-[6]">
-        <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
-          <div className="bg-[#49a3a6] h-[32px] relative rounded-[4px] shrink-0 w-full">
-            <div className="flex flex-row items-center justify-center overflow-clip rounded-[inherit] size-full">
-              <div className="content-stretch flex gap-[8px] items-center justify-center p-[8px] relative size-full">
-                <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-ellipsis text-white tracking-[0.12px]">New Playbook</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 主导航 */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[5]">
         <NavItem label="Home" active={activePage === 'home'} onClick={() => onNavigate('home')} />
         <NavItem label="Explore" active={activePage === 'explore'} onClick={() => onNavigate('explore')} />
+        <NavItem label="Skills Hub" active={activePage === 'skills'} onClick={() => onNavigate('skills')} />
         <NavItem label="Library" active={activePage === 'library'} onClick={() => onNavigate('library')} />
         <NavItem label="Search" onClick={onOpenSearch} />
         <NavItem label="About" onClick={() => window.open('https://alva.ai/landing', '_blank')} />
