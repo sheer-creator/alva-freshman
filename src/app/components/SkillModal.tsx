@@ -1028,22 +1028,25 @@ function SkillDetail({ skill, enabled, onToggleEnabled, isPage }: { skill: Skill
           </h2>
           {skill.author && <AuthorTag author={skill.author} />}
           <div className="flex-1" />
+          {(skill.version || skill.lastUpdated) && (
+            <div className="flex items-center gap-[6px] shrink-0">
+              {skill.version && (
+                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
+                  Version: {skill.version}
+                </span>
+              )}
+              {skill.version && skill.lastUpdated && (
+                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px]" style={{ color: 'rgba(0,0,0,0.3)' }}>•</span>
+              )}
+              {skill.lastUpdated && (
+                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
+                  Last Updated: {skill.lastUpdated}
+                </span>
+              )}
+            </div>
+          )}
           {!isPage && <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} size="md" />}
         </div>
-        {(skill.version || skill.lastUpdated) && (
-          <div className="flex items-center gap-[16px]">
-            {skill.version && (
-              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
-                Version: {skill.version}
-              </span>
-            )}
-            {skill.lastUpdated && (
-              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
-                Last Updated: {skill.lastUpdated}
-              </span>
-            )}
-          </div>
-        )}
         <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'rgba(0,0,0,0.7)' }}>
           {skill.description}
         </p>
