@@ -132,6 +132,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Popular Stock Playbook" active={activePage === 'popular-stock'} onClick={() => onNavigate('popular-stock')} />
         <NavItem label="TSLA Overview" active={activePage === 'tsla-overview'} onClick={() => onNavigate('tsla-overview')} />
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
+        <NavItem label="TSLA Tracking" active={activePage === 'tsla-tracking'} onClick={() => onNavigate('tsla-tracking')} />
       </div>
 
       {/* 用户 — mt-auto 撑到底部 */}
