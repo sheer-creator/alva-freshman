@@ -1,0 +1,299 @@
+import { useState } from 'react';
+import type { Page } from '@/app/App';
+import { AlphaSlogan } from '@/app/components/AlphaSlogan';
+import UserInfo from '@/app/components/UserInfo';
+import { FeaturedPlaybooks } from '@/app/components/FeaturedPlaybooks';
+import { AppShell } from '@/app/components/shell/AppShell';
+
+const INSTALL_COMMAND = 'npm install -g @alva/open-alva-skill';
+
+const CAPABILITIES = [
+  {
+    number: '01',
+    title: 'Rich Market Data',
+    description: 'Request rich financial data across US equities and crypto.',
+  },
+  {
+    number: '02',
+    title: 'Visual Strategy Views',
+    description: 'Visualize investment research, dashboards, and trading strategies.',
+  },
+  {
+    number: '03',
+    title: 'Backtest & Paper Trade',
+    description: 'Test ideas with backtesting and paper trading before live capital.',
+  },
+  {
+    number: '04',
+    title: 'Live Signals',
+    description: 'Push real-time market updates and trading signals as conditions change.',
+  },
+  {
+    number: '05',
+    title: 'Publish Playbooks',
+    description: 'Ship investing playbooks to the Alva community when they are ready.',
+  },
+];
+
+
+function HeroChip({
+  label,
+  className,
+  toneClassName,
+}: {
+  label: string;
+  className: string;
+  toneClassName: string;
+}) {
+  return (
+    <div
+      className={`absolute flex size-[72px] items-center justify-center rounded-full text-[15px] leading-[20px] tracking-[0.15px] shadow-[0_16px_40px_rgba(0,0,0,0.08)] ${className} ${toneClassName}`}
+    >
+      <span className="font-['Delight',sans-serif]">{label}</span>
+    </div>
+  );
+}
+
+function HeroIllustration() {
+  return (
+    <div className="relative h-[320px] w-full max-w-[560px]">
+      <div className="absolute left-1/2 top-[42px] h-[178px] w-[220px] -translate-x-1/2 rounded-[40px] border-[6px] border-[rgba(0,0,0,0.12)]" />
+
+      <HeroChip
+        label="BTC"
+        className="left-[70px] top-[116px]"
+        toneClassName="bg-[#f7931a] text-white"
+      />
+      <HeroChip
+        label="NVDA"
+        className="left-1/2 top-[36px] -translate-x-[132px]"
+        toneClassName="bg-[#7cc14a] text-white"
+      />
+      <HeroChip
+        label="Alert"
+        className="right-[62px] top-[116px]"
+        toneClassName="bg-[#49a3a6] text-white"
+      />
+      <HeroChip
+        label="Alpha"
+        className="left-1/2 top-[36px] translate-x-[60px]"
+        toneClassName="bg-[#111214] text-white"
+      />
+
+      <div className="absolute left-1/2 top-[160px] w-full max-w-[420px] -translate-x-1/2 rounded-[16px] border border-[rgba(0,0,0,0.08)] bg-white px-[18px] py-[16px] shadow-[0_24px_50px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center gap-[12px]">
+          <div className="flex size-[42px] items-center justify-center rounded-full bg-[rgba(73,163,166,0.12)]">
+            <span className="font-['Delight',sans-serif] text-[18px] leading-[22px] tracking-[0.18px] text-[#49a3a6]">
+              A
+            </span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[rgba(0,0,0,0.9)]">
+              Open Alva
+            </p>
+            <div className="mt-[6px] h-[6px] w-full rounded-full bg-[rgba(0,0,0,0.08)]" />
+            <div className="mt-[8px] h-[6px] w-[58%] rounded-full bg-[rgba(0,0,0,0.08)]" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CapabilityCard({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[12px] border border-[rgba(0,0,0,0.06)] bg-white px-[20px] py-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+      <div className="flex size-[28px] items-center justify-center rounded-[6px] bg-[rgba(0,0,0,0.04)]">
+        <span className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.55px] text-[rgba(0,0,0,0.36)]">
+          {number}
+        </span>
+      </div>
+      <p className="mt-[14px] font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[rgba(0,0,0,0.88)]">
+        {title}
+      </p>
+      <p className="mt-[6px] font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.45)]">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function InstallCommandCta() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(INSTALL_COMMAND);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="flex w-full min-w-0 items-center gap-[12px] rounded-[12px] bg-[#111214] px-[20px] py-[16px] text-white shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+      <span className="font-mono text-[14px] leading-[22px] text-white/30 select-none shrink-0">$</span>
+      <code className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap font-mono text-[14px] leading-[22px] text-white">
+        {INSTALL_COMMAND}
+      </code>
+      <button
+        onClick={handleCopy}
+        className="shrink-0 flex items-center justify-center size-[28px] rounded-[6px] text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors cursor-pointer"
+        title="Copy to clipboard"
+      >
+        {copied ? (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8.5L6.5 12L13 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
+            <path d="M11 5V3.5C11 2.67 10.33 2 9.5 2H3.5C2.67 2 2 2.67 2 3.5V9.5C2 10.33 2.67 11 3.5 11H5" stroke="currentColor" strokeWidth="1.3" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function DocsButton({ onOpen }: { onOpen?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="inline-flex shrink-0 items-center gap-[8px] rounded-[8px] bg-[#49a3a6] px-[14px] py-[12px] font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-white shadow-[0_4px_16px_rgba(73,163,166,0.25)] transition-colors hover:bg-[#3d8a8d] cursor-pointer"
+    >
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="shrink-0">
+        <path d="M4.5 2h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M6 5.5h4M6 8h4M6 10.5h2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+      <span>Quick Start Guide</span>
+    </button>
+  );
+}
+
+function ApiKeysButton({ onManage }: { onManage?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onManage}
+      className="inline-flex shrink-0 items-center gap-[8px] rounded-[8px] border border-[rgba(0,0,0,0.08)] bg-white px-[14px] py-[12px] font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.8)] shadow-[0_4px_16px_rgba(0,0,0,0.03)] transition-colors hover:bg-[rgba(0,0,0,0.02)] cursor-pointer"
+    >
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="shrink-0 text-[#49a3a6]">
+        <path d="M10.5 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M8 9v4.5M6.5 12H9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+      <span>API Keys</span>
+    </button>
+  );
+}
+
+export default function HomeB({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
+  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
+
+  return (
+    <>
+      <AppShell
+        activePage="home-b"
+        onNavigate={onNavigate!}
+        onOpenSearch={onOpenSearch}
+        onUserMouseEnter={() => setIsUserInfoOpen(true)}
+        onUserMouseLeave={() => setIsUserInfoOpen(false)}
+      >
+        <div className="min-h-full bg-[#f6f6f2]">
+          <div className="mx-auto w-full max-w-[1440px] px-[28px] py-[48px]">
+            <div className="flex flex-col items-center">
+              <HeroIllustration />
+
+              <div className="w-full max-w-[960px]">
+                <AlphaSlogan />
+              </div>
+
+              <p className="mt-[12px] max-w-[640px] text-center font-['Delight',sans-serif] text-[16px] leading-[28px] tracking-[0.16px] text-[rgba(0,0,0,0.5)]">
+                Deploy an investing agent for your workflow — from market data to signals and community playbooks.
+              </p>
+
+              <div className="mt-[40px] grid w-full max-w-[1200px] gap-[14px] md:grid-cols-2 xl:grid-cols-5">
+                {CAPABILITIES.map((capability) => (
+                  <CapabilityCard
+                    key={capability.title}
+                    number={capability.number}
+                    title={capability.title}
+                    description={capability.description}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-[36px] flex w-full max-w-[720px] flex-col items-center gap-[10px]">
+                <InstallCommandCta />
+                <div className="flex items-center gap-[10px] mt-[10px]">
+                  <ApiKeysButton onManage={() => onNavigate?.('api-keys')} />
+                  <DocsButton onOpen={() => onNavigate?.('docs')} />
+                </div>
+                <div className="flex items-center gap-[14px] mt-[2px]">
+                  <span className="font-['Delight',sans-serif] text-[13px] leading-[22px] tracking-[0.13px] text-[rgba(0,0,0,0.3)]">
+                    Works with
+                  </span>
+                  {/* Cursor */}
+                  <svg width="22" height="22" viewBox="0 0 256 256" fill="none" className="opacity-40">
+                    <rect width="256" height="256" rx="48" fill="#000" />
+                    <path d="M72 200L72 56L200 128L72 200Z" fill="#fff" />
+                    <path d="M152 128L200 128L200 200L152 128Z" fill="#888" />
+                  </svg>
+                  {/* Windsurf */}
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="opacity-50">
+                    <path d="M12 2L13.5 9.5L20 6L14.5 11.5L22 12L14.5 12.5L20 18L13.5 14.5L12 22L10.5 14.5L4 18L9.5 12.5L2 12L9.5 11.5L4 6L10.5 9.5L12 2Z" fill="#E8590C" />
+                  </svg>
+                  {/* Google Gemini */}
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="opacity-50">
+                    <path d="M22 12.2C22 11.5 21.9 10.7 21.8 10H12.2V14.1H17.7C17.5 15.3 16.7 16.4 15.5 17.1V19.5H18.8C20.8 17.7 22 15.2 22 12.2Z" fill="#4285F4" />
+                    <path d="M12.2 22C14.9 22 17.2 21.1 18.8 19.5L15.5 17.1C14.6 17.7 13.5 18.1 12.2 18.1C9.6 18.1 7.4 16.3 6.6 13.9H3.2V16.4C4.8 19.5 8.2 22 12.2 22Z" fill="#34A853" />
+                    <path d="M6.6 13.9C6.2 12.7 6.2 11.4 6.6 10.2V7.7H3.2C1.8 10.4 1.8 13.6 3.2 16.4L6.6 13.9Z" fill="#FBBC04" />
+                    <path d="M12.2 6C13.6 6 14.9 6.5 15.9 7.4L18.9 4.4C17.1 2.8 14.9 2 12.2 2C8.2 2 4.8 4.5 3.2 7.7L6.6 10.2C7.4 7.8 9.6 6 12.2 6Z" fill="#EA4335" />
+                  </svg>
+                  {/* OpenAI / ChatGPT */}
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="opacity-40">
+                    <path d="M22.2 8.3C21.8 7 21 5.8 19.9 5C18.8 4.1 17.4 3.6 16 3.6C15.5 3.6 15 3.7 14.5 3.8C13.7 2.9 12.6 2.3 11.4 2.1C10.2 1.8 9 1.9 7.9 2.5C6.8 3 5.9 3.8 5.3 4.9C4.7 6 4.5 7.2 4.7 8.4C3.5 8.9 2.5 9.7 1.9 10.8C1.2 11.9 1 13.2 1.2 14.5C1.5 15.7 2.1 16.8 3 17.7C4 18.5 5.2 19 6.4 19.1C6.4 19.1 6.4 19.1 6.5 19.1C6.5 19.1 6.5 19.1 6.5 19.1C7.1 20.2 8 21 9.2 21.5C10.3 22 11.6 22 12.8 21.7C14 21.4 15 20.7 15.7 19.7C15.8 19.6 15.8 19.5 15.9 19.4C17 19 17.9 18.3 18.6 17.3C19.3 16.3 19.6 15.1 19.5 13.9C19.4 12.7 18.9 11.5 18.1 10.6C18.1 10.6 18.1 10.5 18 10.5C18.9 9.9 19.6 9.1 20 8.1" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {/* GitHub */}
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="opacity-40">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 16.42 4.87 20.17 8.84 21.5C9.34 21.58 9.5 21.27 9.5 21V19.31C6.73 19.91 6.14 17.97 6.14 17.97C5.68 16.81 5.03 16.5 5.03 16.5C4.12 15.88 5.1 15.9 5.1 15.9C6.1 15.97 6.63 16.93 6.63 16.93C7.5 18.45 8.97 18 9.54 17.76C9.63 17.11 9.89 16.67 10.17 16.42C7.95 16.17 5.62 15.31 5.62 11.5C5.62 10.39 6.01 9.5 6.65 8.79C6.55 8.54 6.2 7.5 6.75 6.15C6.75 6.15 7.59 5.88 9.5 7.17C10.29 6.95 11.15 6.84 12 6.84C12.85 6.84 13.71 6.95 14.5 7.17C16.41 5.88 17.25 6.15 17.25 6.15C17.8 7.5 17.45 8.54 17.35 8.79C17.99 9.5 18.38 10.39 18.38 11.5C18.38 15.32 16.04 16.16 13.81 16.41C14.17 16.72 14.5 17.33 14.5 18.26V21C14.5 21.27 14.66 21.59 15.17 21.5C19.14 20.16 22 16.42 22 12C22 6.48 17.52 2 12 2Z" fill="#000" />
+                  </svg>
+                  {/* Cody */}
+                  <svg width="22" height="22" viewBox="0 0 256 256" fill="none" className="opacity-50">
+                    <path d="M128 32L48 80V176L128 224L208 176V80L128 32Z" fill="url(#cody-grad-b)" />
+                    <defs>
+                      <linearGradient id="cody-grad-b" x1="48" y1="32" x2="208" y2="224">
+                        <stop stopColor="#00CBEC" />
+                        <stop offset="0.5" stopColor="#A112FF" />
+                        <stop offset="1" stopColor="#FF5543" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+
+              <div className="mt-[56px] w-full max-w-[1200px] border-t border-[rgba(0,0,0,0.05)] pt-[28px]">
+                <FeaturedPlaybooks />
+              </div>
+            </div>
+          </div>
+        </div>
+      </AppShell>
+      {isUserInfoOpen && (
+        <div
+          className="fixed bottom-[56px] left-[8px] z-[9999] w-[320px]"
+          onMouseEnter={() => setIsUserInfoOpen(true)}
+          onMouseLeave={() => setIsUserInfoOpen(false)}
+        >
+          <UserInfo />
+        </div>
+      )}
+    </>
+  );
+}

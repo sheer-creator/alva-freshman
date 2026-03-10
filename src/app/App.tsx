@@ -1,11 +1,14 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills";
+export type Page = "home" | "home-b" | "home-c" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills";
 
 /* ========== 按需加载页面 ========== */
 
 const Home = lazy(() => import("@/pages/Home"));
+const HomeB = lazy(() => import("@/pages/HomeB"));
+const HomeC = lazy(() => import("@/pages/HomeC"));
+const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
 const Explore = lazy(() => import("@/pages/Explore"));
 const Library = lazy(() => import("@/pages/Library"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -16,10 +19,11 @@ const DashboardPopularStock = lazy(() => import("@/pages/DashboardPopularStock")
 const DashboardTSLAOverview = lazy(() => import("@/pages/DashboardTSLAOverview").then(m => ({ default: m.DashboardTSLAOverview })));
 const DashboardTSLATracking = lazy(() => import("@/pages/DashboardTSLATracking").then(m => ({ default: m.DashboardTSLATracking })));
 const Skills = lazy(() => import("@/pages/Skills"));
+const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills"];
+const VALID_PAGES: Page[] = ["home", "home-b", "home-c", "docs", "api-keys", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -50,6 +54,10 @@ export default function App() {
     <>
       <Suspense>
         {currentPage === "home" && <Home onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "home-b" && <HomeB onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "home-c" && <HomeC onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "skills" && <Skills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "library" && <Library onNavigate={navigate} onOpenSearch={openSearch} />}

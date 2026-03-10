@@ -34,7 +34,8 @@ interface SidebarProps {
 
 /* ========== 导航项组件 ========== */
 
-function NavItem({ label, active, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+function NavItem({ label, active, dimmed, onClick }: { label: string; active?: boolean; dimmed?: boolean; onClick?: () => void }) {
+  const textColor = active ? 'text-[#49a3a6]' : dimmed ? 'text-white/25' : 'text-white';
   return (
     <div
       className={`h-[36px] relative rounded-[4px] shrink-0 w-full ${onClick ? 'cursor-pointer hover:bg-white/5 transition-colors' : ''}`}
@@ -42,7 +43,7 @@ function NavItem({ label, active, onClick }: { label: string; active?: boolean; 
     >
       <div className="flex flex-row items-center overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center px-[8px] py-[4px] relative size-full">
-          <p className={`flex-[1_0_0] font-['Delight',sans-serif] font-normal leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${active ? 'text-[#49a3a6]' : 'text-white'}`}>
+          <p className={`flex-[1_0_0] font-['Delight',sans-serif] font-normal leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${textColor}`}>
             {label}
           </p>
         </div>
@@ -104,16 +105,26 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[5]">
-        <NavItem label="Home" active={activePage === 'home'} onClick={() => onNavigate('home')} />
-        <NavItem label="Explore" active={activePage === 'explore'} onClick={() => onNavigate('explore')} />
+        <NavItem label="Open Alva" active={activePage === 'home-b'} onClick={() => onNavigate('home-b')} />
+        <NavItem label="Open Alva #2" active={activePage === 'home-c'} onClick={() => onNavigate('home-c')} />
         <NavItem label="Skills Hub" active={activePage === 'skills'} onClick={() => onNavigate('skills')} />
-        <NavItem label="Library" active={activePage === 'library'} onClick={() => onNavigate('library')} />
-        <NavItem label="Search" onClick={onOpenSearch} />
         <NavItem label="About" onClick={() => window.open('https://alva.ai/landing', '_blank')} />
+        <NavItem label="Home" active={activePage === 'home'} dimmed onClick={() => onNavigate('home')} />
+        <NavItem label="Explore" active={activePage === 'explore'} dimmed onClick={() => onNavigate('explore')} />
+        <NavItem label="Library" active={activePage === 'library'} dimmed onClick={() => onNavigate('library')} />
+        <NavItem label="Search" dimmed onClick={onOpenSearch} />
+      </div>
+
+      {/* Starred */}
+      <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]">
+        <SectionHeader label="Starred" />
+        <NavItem label="BTC Ultimate AI Trader" />
+        <NavItem label="MAG7 Equal-Weight" />
+        <NavItem label="ETH/BTC Mean Reversion" />
       </div>
 
       {/* Playbooks */}
-      <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]">
+      <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[3]">
         <SectionHeader label="Playbooks" />
         <NavItem label="Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
         <NavItem label="Custom Layout" active={activePage === 'test'} onClick={() => onNavigate('test')} />
