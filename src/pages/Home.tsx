@@ -4,38 +4,14 @@
  * [POS]: 页面层 — Home
  */
 
-import svgPaths from '@/data/svg-qs8zi2fru8';
+import { useState } from 'react';
 import type { Page } from '@/app/App';
-import { useState, useEffect, useRef } from 'react';
-import { Button } from '@/app/components/ui/button';
+import { AlphaSlogan } from '@/app/components/AlphaSlogan';
 import UserInfo from '@/app/components/UserInfo';
+import { FeaturedPlaybooks } from '@/app/components/FeaturedPlaybooks';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
-
-
-function UserAvatar({ name, size = 22 }: { name: string; size?: number }) {
-  const initial = name.trim().charAt(0).toUpperCase();
-  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
-  return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, letterSpacing: 0, fontFamily: "'Delight', sans-serif" }}>
-        {initial}
-      </span>
-    </div>
-  );
-}
-
-function Slogan() {
-  return (
-    <div className="content-stretch flex flex-col items-center max-w-[960px] relative shrink-0 w-full" data-name="Slogan">
-      <p className="font-['Delight',sans-serif] leading-[0] not-italic relative shrink-0 text-[0px] text-[28px] text-[rgba(0,0,0,0.9)] text-center tracking-[0.28px] w-full whitespace-pre-wrap">
-        <span className="leading-[38px]">{`Ideas in. `}</span>
-        <span className="leading-[38px] text-[#49a3a6]">Alpha</span>
-        <span className="leading-[38px]">{` out.`}</span>
-      </p>
-    </div>
-  );
-}
+import { Button } from '@/app/components/ui/button';
+import svgPaths from '@/data/svg-qs8zi2fru8';
 
 function ChatL() {
   return (
@@ -70,7 +46,7 @@ function StrategyL() {
   );
 }
 
-function TabItem1() {
+function TabItemActive() {
   return (
     <div className="bg-[rgba(73,163,166,0.2)] content-stretch flex gap-[4px] h-[28px] items-center px-[12px] py-[4px] relative rounded-[4px] shrink-0" data-name="Tab Item">
       <StrategyL />
@@ -79,11 +55,11 @@ function TabItem1() {
   );
 }
 
-function Tab() {
+function ChatModeTabs() {
   return (
     <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-start relative rounded-[4px] shrink-0" data-name="Tab">
       <TabItem />
-      <TabItem1 />
+      <TabItemActive />
     </div>
   );
 }
@@ -120,7 +96,7 @@ function Select() {
 function LeftInfo() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-name="Left Info">
-      <Tab />
+      <ChatModeTabs />
       <Select />
     </div>
   );
@@ -164,7 +140,7 @@ function ArrowUpL({ isActive }: { isActive?: boolean }) {
     <div className="relative shrink-0 size-[14px]" data-name="arrow-up-l1">
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
         <g id="arrow-up-l1">
-          <path d={svgPaths.p764a8f0} fill={isActive ? "var(--fill-0, white)" : "var(--fill-0, black)"} fillOpacity={isActive ? "1" : "0.2"} id="Union" />
+          <path d={svgPaths.p764a8f0} fill={isActive ? 'var(--fill-0, white)' : 'var(--fill-0, black)'} fillOpacity={isActive ? '1' : '0.2'} id="Union" />
         </g>
       </svg>
     </div>
@@ -174,7 +150,7 @@ function ArrowUpL({ isActive }: { isActive?: boolean }) {
 function ChatSend({ hasInput }: { hasInput?: boolean }) {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0" data-name="Chat/Send">
-      <Button 
+      <Button
         disabled={!hasInput}
         className={`h-[28px] w-[28px] p-0 rounded-[4px] ${hasInput ? 'bg-[#49a3a6] hover:bg-[#3d8a8d]' : 'bg-[rgba(0,0,0,0.05)]'}`}
       >
@@ -196,7 +172,7 @@ function ChatToolbar({ hasInput, onOpenSkills }: { hasInput?: boolean; onOpenSki
 }
 
 function ChatBoxHome({ onOpenSkills }: { onOpenSkills?: () => void }) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
 
   return (
     <div className="bg-white relative rounded-[8px] shrink-0 w-full" data-name="ChatBox/Home">
@@ -216,48 +192,14 @@ function ChatBoxHome({ onOpenSkills }: { onOpenSkills?: () => void }) {
   );
 }
 
-function ChatPromptCardBuild() {
+function ChatPromptCard({ text }: { text: string }) {
   return (
     <div className="bg-[rgba(0,0,0,0.03)] flex-[1_0_0] min-h-px min-w-[160px] relative rounded-[6px]" data-name="Chat/Prompt Card/Build">
       <div className="flex flex-row items-center min-w-[inherit] overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex items-center min-w-[inherit] px-[16px] py-[12px] relative w-full">
-          <p className="flex-[1_0_0] font-['Delight',sans-serif] h-[44px] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.14px] whitespace-pre-wrap">🪙 Tom Lee’s Ethereum Price Prediction</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ChatPromptCardBuild1() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] flex-[1_0_0] min-h-px min-w-[160px] relative rounded-[6px]" data-name="Chat/Prompt Card/Build">
-      <div className="flex flex-row items-center min-w-[inherit] overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex items-center min-w-[inherit] px-[16px] py-[12px] relative w-full">
-          <p className="flex-[1_0_0] font-['Delight',sans-serif] h-[44px] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.14px] whitespace-pre-wrap">💻 NVIDIA Q2 FY2025 Data Center Revenue vs Total Revenue (%)</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ChatPromptCardBuild2() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] flex-[1_0_0] min-h-px min-w-[160px] relative rounded-[6px]" data-name="Chat/Prompt Card/Build">
-      <div className="flex flex-row items-center min-w-[inherit] overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex items-center min-w-[inherit] px-[16px] py-[12px] relative w-full">
-          <p className="flex-[1_0_0] font-['Delight',sans-serif] h-[44px] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.14px] whitespace-pre-wrap">💱 Coinbase Trading Volume – Retail vs Institutional</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ChatPromptCardBuild3() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] flex-[1_0_0] min-h-px min-w-[160px] relative rounded-[6px]" data-name="Chat/Prompt Card/Build">
-      <div className="flex flex-row items-center min-w-[inherit] overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex items-center min-w-[inherit] px-[16px] py-[12px] relative w-full">
-          <p className="flex-[1_0_0] font-['Delight',sans-serif] h-[44px] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.14px] whitespace-pre-wrap">📝 Stock Tickers Mentioned by @JamesWynnReal</p>
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] h-[44px] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.14px] whitespace-pre-wrap">
+            {text}
+          </p>
         </div>
       </div>
     </div>
@@ -267,10 +209,10 @@ function ChatPromptCardBuild3() {
 function ChatReminder() {
   return (
     <div className="content-stretch flex gap-[12px] items-start overflow-clip relative shrink-0 w-full" data-name="Chat/Reminder">
-      <ChatPromptCardBuild />
-      <ChatPromptCardBuild1 />
-      <ChatPromptCardBuild2 />
-      <ChatPromptCardBuild3 />
+      <ChatPromptCard text="🪙 Tom Lee’s Ethereum Price Prediction" />
+      <ChatPromptCard text="💻 NVIDIA Q2 FY2025 Data Center Revenue vs Total Revenue (%)" />
+      <ChatPromptCard text="💱 Coinbase Trading Volume – Retail vs Institutional" />
+      <ChatPromptCard text="📝 Stock Tickers Mentioned by @JamesWynnReal" />
     </div>
   );
 }
@@ -287,451 +229,11 @@ function HomeChatBar({ onOpenSkills }: { onOpenSkills?: () => void }) {
 function Chat({ onOpenSkills }: { onOpenSkills?: () => void }) {
   return (
     <div className="content-stretch flex flex-col gap-[20px] items-start max-w-[960px] relative shrink-0 w-full" data-name="Chat">
-      <Slogan />
+      <AlphaSlogan />
       <HomeChatBar onOpenSkills={onOpenSkills} />
     </div>
   );
 }
-
-function ViewAll() {
-  return (
-    <div className="content-stretch flex items-center justify-end relative shrink-0" data-name="View All">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px]">View All</p>
-    </div>
-  );
-}
-
-function HomeSecionTitle() {
-  return (
-    <div className="content-stretch flex gap-[12px] items-center relative shrink-0 w-full" data-name="Home/Secion Title">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Featured Playbooks</p>
-      <ViewAll />
-    </div>
-  );
-}
-
-function TabItem2() {
-  return (
-    <div className="bg-[rgba(73,163,166,0.2)] content-stretch flex flex-col items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] font-medium leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-center tracking-[0.14px]">Smart Screener</p>
-    </div>
-  );
-}
-
-function TabItem3() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Asset Tracker</p>
-    </div>
-  );
-}
-
-function TabItem4() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Portfolio Lens</p>
-    </div>
-  );
-}
-
-function TabItem5() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Quant Signals</p>
-    </div>
-  );
-}
-
-function TabItem6() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Risk Monitors</p>
-    </div>
-  );
-}
-
-function TabItem7() {
-  return (
-    <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">Macro Pulse</p>
-    </div>
-  );
-}
-
-function Tab1() {
-  return (
-    <div className="content-start flex flex-wrap gap-[12px] items-start relative shrink-0 w-full" data-name="Tab">
-      <TabItem2 />
-      <TabItem3 />
-      <TabItem4 />
-      <TabItem5 />
-      <TabItem6 />
-      <TabItem7 />
-    </div>
-  );
-}
-
-function PlaybookCreatorInfo({ name }: { name: string }) {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
-      <UserAvatar name={name} size={22} />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">{name}</p>
-    </div>
-  );
-}
-
-function Name() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Name">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">BTC Ultimate AI Trader</p>
-    </div>
-  );
-}
-
-function Frame() {
-  return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full" data-name="Frame">
-      <Name />
-      <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">{`This strategy intelligently pinpoints BTC's optimal trading sweet spots through dual-engine analysis: RSI oversold alerts + Bollinger Band breakouts. Automatically trimming position extremities to capture core price movements, it strategically accumulates during bumpy markets.`}</p>
-    </div>
-  );
-}
-
-function Left() {
-  return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col font-['Delight',sans-serif] items-start min-h-px min-w-px not-italic relative whitespace-pre-wrap" data-name="Left">
-      <p className="leading-[38px] relative shrink-0 text-[#49a3a6] text-[28px] tracking-[0.28px] w-full">338.23%</p>
-      <p className="leading-[20px] relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">Annualized Return</p>
-    </div>
-  );
-}
-
-function FeedCardInfo() {
-  return (
-    <div className="content-stretch flex gap-[8px] items-end relative shrink-0 w-full" data-name="Feed/Card Info">
-      <Left />
-    </div>
-  );
-}
-
-function PlaybookCard() {
-  return (
-    <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
-      <div className="overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo name="Alva Intern" />
-          <Frame />
-          <FeedCardInfo />
-        </div>
-      </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
-    </div>
-  );
-}
-
-
-function Name1() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Name">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">MAG7 Equal-Weight Monthly Rebalance</p>
-    </div>
-  );
-}
-
-function Frame1() {
-  return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full" data-name="Frame">
-      <Name1 />
-      <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">Maintains a fully invested equal-weight portfolio of the Magnificent 7 stocks and rebalances monthly</p>
-    </div>
-  );
-}
-
-function Left1() {
-  return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col font-['Delight',sans-serif] items-start min-h-px min-w-px not-italic relative whitespace-pre-wrap" data-name="Left">
-      <p className="leading-[38px] relative shrink-0 text-[#49a3a6] text-[28px] tracking-[0.28px] w-full">142.8%</p>
-      <p className="leading-[20px] relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">Annualized Return</p>
-    </div>
-  );
-}
-
-function FeedCardInfo1() {
-  return (
-    <div className="content-stretch flex gap-[8px] h-[58px] items-end relative shrink-0 w-full" data-name="Feed/Card Info">
-      <Left1 />
-    </div>
-  );
-}
-
-function PlaybookCard1() {
-  return (
-    <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
-      <div className="overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo name="Harry Zzz" />
-          <Frame1 />
-          <FeedCardInfo1 />
-        </div>
-      </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
-    </div>
-  );
-}
-
-
-function Name2() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Name">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">PEPE Long vs BTC Short Monthly Rebalance</p>
-    </div>
-  );
-}
-
-function Frame2() {
-  return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full" data-name="Frame">
-      <Name2 />
-      <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">The OI Abnormal Movement Monitoring Strategy tracks selected crypto tokens on a 4-hour timeframe to detect unusually large changes in Open Interest (OI) and trading volume.</p>
-    </div>
-  );
-}
-
-function Left2() {
-  return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col font-['Delight',sans-serif] items-start min-h-px min-w-px not-italic relative whitespace-pre-wrap" data-name="Left">
-      <p className="leading-[38px] relative shrink-0 text-[#49a3a6] text-[28px] tracking-[0.28px] w-full">65.36%</p>
-      <p className="leading-[20px] relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">Annualized Return</p>
-    </div>
-  );
-}
-
-function FeedCardInfo2() {
-  return (
-    <div className="content-stretch flex gap-[8px] items-end relative shrink-0 w-full" data-name="Feed/Card Info">
-      <Left2 />
-    </div>
-  );
-}
-
-function PlaybookCard2() {
-  return (
-    <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
-      <div className="overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo name="Leo Leo" />
-          <Frame2 />
-          <FeedCardInfo2 />
-        </div>
-      </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
-    </div>
-  );
-}
-
-function Component() {
-  return (
-    <div className="content-stretch flex gap-[12px] items-center relative shrink-0 w-full" data-name="1">
-      <PlaybookCard />
-      <PlaybookCard1 />
-      <PlaybookCard2 />
-    </div>
-  );
-}
-
-
-function SidebarStrategyNormal() {
-  return (
-    <div className="relative shrink-0 size-[20px]" data-name="sidebar-strategy-normal">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 20">
-        <g id="sidebar-strategy-normal">
-          <path d={svgPaths.p3c400500} fill="var(--fill-0, black)" fillOpacity="0.9" id="Union" />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function Name3() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Name">
-      <SidebarStrategyNormal />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">Attribution Analysis Strategy for Price Trends</p>
-    </div>
-  );
-}
-
-function Frame3() {
-  return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full" data-name="Frame">
-      <Name3 />
-      <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">Monitor selected tokens on a 4-hour timeframe to detect abnormal changes in Open Interest (OI) and trading volume in order to capture unusual market activity and generate alerts.</p>
-    </div>
-  );
-}
-
-function Left3() {
-  return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col font-['Delight',sans-serif] items-start min-h-px min-w-px not-italic relative whitespace-pre-wrap" data-name="Left">
-      <p className="leading-[38px] relative shrink-0 text-[#49a3a6] text-[28px] tracking-[0.28px] w-full">120.9%</p>
-      <p className="leading-[20px] relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">Annualized Return</p>
-    </div>
-  );
-}
-
-function FeedCardInfo3() {
-  return (
-    <div className="content-stretch flex gap-[8px] h-[58px] items-end relative shrink-0 w-full" data-name="Feed/Card Info">
-      <Left3 />
-    </div>
-  );
-}
-
-function PlaybookCard3() {
-  return (
-    <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
-      <div className="overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo name="Sheer YLL YGG" />
-          <Frame3 />
-          <FeedCardInfo3 />
-        </div>
-      </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
-    </div>
-  );
-}
-
-
-function Name4() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Name">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">BTC MACD 1h Simple Crossover</p>
-    </div>
-  );
-}
-
-function Frame4() {
-  return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full" data-name="Frame">
-      <Name4 />
-      <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">Trade BTC using MACD(12,26,9) line crossing its signal on 1-hour candles; enter long on bullish cross, exit on bearish cross.</p>
-    </div>
-  );
-}
-
-function Left4() {
-  return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col font-['Delight',sans-serif] items-start min-h-px min-w-px not-italic relative whitespace-pre-wrap" data-name="Left">
-      <p className="leading-[38px] relative shrink-0 text-[#49a3a6] text-[28px] tracking-[0.28px] w-full">12.8%</p>
-      <p className="leading-[20px] relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">Annualized Return</p>
-    </div>
-  );
-}
-
-function FeedCardInfo4() {
-  return (
-    <div className="content-stretch flex gap-[8px] items-end relative shrink-0 w-full" data-name="Feed/Card Info">
-      <Left4 />
-    </div>
-  );
-}
-
-function PlaybookCard4() {
-  return (
-    <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
-      <div className="overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo name="Macro Scope X" />
-          <Frame4 />
-          <FeedCardInfo4 />
-        </div>
-      </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
-    </div>
-  );
-}
-
-
-function Name5() {
-  return (
-    <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Name">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">NVDA +3% Triggered TSM TP/SL</p>
-    </div>
-  );
-}
-
-function Frame5() {
-  return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full" data-name="Frame">
-      <Name5 />
-      <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">{`Buys TSM at the close when NVDA gains >3% close-to-close, then exits on +10% take-profit or -5% stop-loss.`}</p>
-    </div>
-  );
-}
-
-function Left5() {
-  return (
-    <div className="content-stretch flex flex-[1_0_0] flex-col font-['Delight',sans-serif] items-start min-h-px min-w-px not-italic relative whitespace-pre-wrap" data-name="Left">
-      <p className="leading-[38px] relative shrink-0 text-[#49a3a6] text-[28px] tracking-[0.28px] w-full">27.73%</p>
-      <p className="leading-[20px] relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">Annualized Return</p>
-    </div>
-  );
-}
-
-function FeedCardInfo5() {
-  return (
-    <div className="content-stretch flex gap-[8px] items-end relative shrink-0 w-full" data-name="Feed/Card Info">
-      <Left5 />
-    </div>
-  );
-}
-
-function PlaybookCard5() {
-  return (
-    <div className="bg-white flex-[1_0_0] min-h-px min-w-px relative rounded-[6px]" data-name="Playbook/Card">
-      <div className="overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex flex-col gap-[20px] items-start p-[16px] relative w-full">
-          <PlaybookCreatorInfo name="Smart Jing" />
-          <Frame5 />
-          <FeedCardInfo5 />
-        </div>
-      </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
-    </div>
-  );
-}
-
-function Component1() {
-  return (
-    <div className="content-stretch flex gap-[12px] items-center relative shrink-0 w-full" data-name="2">
-      <PlaybookCard3 />
-      <PlaybookCard4 />
-      <PlaybookCard5 />
-    </div>
-  );
-}
-
-function PlaybookCardList() {
-  return (
-    <div className="content-stretch flex flex-col gap-[12px] items-start justify-center relative shrink-0 w-full" data-name="Playbook/Card List">
-      <Component />
-      <Component1 />
-    </div>
-  );
-}
-
-function FeaturedPlaybooks() {
-  return (
-    <div className="content-stretch flex flex-col gap-[20px] items-start max-w-[1200px] relative shrink-0 w-full" data-name="Featured Playbooks">
-      <HomeSecionTitle />
-      <Tab1 />
-      <PlaybookCardList />
-    </div>
-  );
-}
-
-/* ========== 页面 ========== */
 
 export default function Home({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);

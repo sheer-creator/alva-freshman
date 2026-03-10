@@ -2,6 +2,7 @@ import svgPaths from "@/data/svg-guyqw4in5w";
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
 
 const USER_NAME = 'YGGYLL';
+const API_KEYS_PAGE_HASH = 'api-keys';
 
 function Avatar() {
   const initial = USER_NAME.trim().charAt(0).toUpperCase();
@@ -162,6 +163,63 @@ function ListItemMain() {
   );
 }
 
+function ApiKeysL() {
+  return (
+    <div className="relative shrink-0 size-[20px]" data-name="api-keys-l">
+      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 20">
+        <path
+          d="M12.4987 4.16675C14.5702 4.16675 16.2497 5.8463 16.2497 7.91777C16.2497 9.98923 14.5702 11.6688 12.4987 11.6688C11.7423 11.6688 11.038 11.4449 10.4489 11.0598L7.45581 14.0539V16.2501H5.25964V18.3334H2.75964V15.5338L8.97979 9.31361C8.76522 8.8817 8.74774 8.45129 8.74774 7.91777C8.74774 5.8463 10.4273 4.16675 12.4987 4.16675ZM12.4987 5.83341C11.3477 5.83341 10.4144 6.76675 10.4144 7.91777C10.4144 9.06878 11.3477 10.0021 12.4987 10.0021C13.6498 10.0021 14.5831 9.06878 14.5831 7.91777C14.5831 6.76675 13.6498 5.83341 12.4987 5.83341Z"
+          fill="var(--fill-0, black)"
+          fillOpacity="0.9"
+        />
+      </svg>
+    </div>
+  );
+}
+
+function ListItemRApiKeys() {
+  return (
+    <div className="content-stretch flex items-center justify-end relative shrink-0" data-name="List Item/R">
+      <ApiKeysL />
+    </div>
+  );
+}
+
+function ItemApiKeys() {
+  return (
+    <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-name="Item">
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">API Keys</p>
+    </div>
+  );
+}
+
+function ListItemLApiKeys() {
+  return (
+    <div className="content-stretch flex flex-[1_0_0] gap-[8px] h-[22px] items-center min-h-px min-w-px relative" data-name="List Item/L">
+      <ListItemRApiKeys />
+      <ItemApiKeys />
+    </div>
+  );
+}
+
+function ListItemMainApiKeys() {
+  return (
+    <button
+      type="button"
+      className="content-stretch flex gap-[8px] items-center py-[12px] px-[4px] -mx-[4px] relative shrink-0 rounded-[6px] w-[calc(100%+8px)] text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+      data-name="List Item/Main"
+      onClick={() => {
+        window.location.hash = API_KEYS_PAGE_HASH;
+      }}
+    >
+      <ListItemLApiKeys />
+      <div className="content-stretch flex items-center justify-end relative shrink-0" data-name="List Item/R">
+        <ArrowRightL1 />
+      </div>
+    </button>
+  );
+}
+
 function LanguageL() {
   return (
     <div className="relative shrink-0 size-[20px]" data-name="language-l">
@@ -299,6 +357,7 @@ function List() {
     <div className="content-stretch flex flex-col items-start max-w-[480px] min-w-[180px] py-[8px] relative shrink-0 w-full" data-name="List">
       <div aria-hidden="true" className="absolute border-[rgba(0,0,0,0.07)] border-b border-solid inset-0 pointer-events-none" />
       <ListItemMain />
+      <ListItemMainApiKeys />
       <ListItemMain1 />
       <ListItemMain2 />
     </div>
@@ -394,14 +453,18 @@ function Component() {
 
 function Frame3() {
   return (
-    <div className="flex-[1_0_0] h-[32px] min-h-px min-w-px relative rounded-[4px]">
+    <button
+      type="button"
+      onClick={() => { window.location.hash = 'docs'; }}
+      className="flex-[1_0_0] h-[32px] min-h-px min-w-px relative rounded-[4px] cursor-pointer hover:bg-[rgba(0,0,0,0.03)] transition-colors"
+    >
       <div aria-hidden="true" className="absolute border-[0.5px] border-[rgba(0,0,0,0.3)] border-solid inset-0 pointer-events-none rounded-[4px]" />
       <div className="flex flex-row items-center justify-center size-full">
         <div className="content-stretch flex items-center justify-center p-[4px] relative size-full">
           <Component />
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
