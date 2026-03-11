@@ -15,7 +15,8 @@
 import ReactECharts from 'echarts-for-react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { Topbar } from '@/app/components/shell/Topbar';
+import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { MOCK_TSLA_OVERVIEW } from '@/data/community-mock';
 import { tooltipConfig, CHART_COLORS, FONT, CHART_DOT_BG } from '@/lib/chart-theme';
 
 /* ─────────────────────────────────────────
@@ -405,7 +406,19 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         {/* px: 16px on mweb, 28px on web */}
         <div className="flex flex-col items-center px-[16px] md:px-[28px] relative w-full">
-          <Topbar title="TSLA Overview" />
+          <PlaybookTopbar
+            title={MOCK_TSLA_OVERVIEW.name}
+            stats={MOCK_TSLA_OVERVIEW.stats}
+            signals={MOCK_TSLA_OVERVIEW.signals}
+            lineage={MOCK_TSLA_OVERVIEW.lineage}
+            comments={MOCK_TSLA_OVERVIEW.discussion}
+            agentTake={MOCK_TSLA_OVERVIEW.agentTake}
+            author={MOCK_TSLA_OVERVIEW.author}
+            pulse={MOCK_TSLA_OVERVIEW.pulse}
+            description={MOCK_TSLA_OVERVIEW.description}
+            builtOn={MOCK_TSLA_OVERVIEW.builtOn}
+            onAuthorClick={() => onNavigate('user-profile')}
+          />
 
           <div className="flex flex-col gap-[24px] pb-[56px] w-full">
 

@@ -28,7 +28,8 @@
 import ReactECharts from 'echarts-for-react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { Topbar } from '@/app/components/shell/Topbar';
+import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { MOCK_TSLA_TRACKING } from '@/data/community-mock';
 import {
   CHART_COLORS, tooltipConfig, GRID_DEFAULT,
   timeXAxisConfig, valueYAxisConfig, lineSeriesConfig,
@@ -1037,7 +1038,19 @@ export function DashboardTSLATracking({ onNavigate }: { onNavigate: (page: Page)
     <AppShell activePage="tsla-tracking" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="flex flex-col items-center px-[28px] relative w-full">
-          <Topbar title="TSLA Tracking" />
+          <PlaybookTopbar
+            title={MOCK_TSLA_TRACKING.name}
+            stats={MOCK_TSLA_TRACKING.stats}
+            signals={MOCK_TSLA_TRACKING.signals}
+            lineage={MOCK_TSLA_TRACKING.lineage}
+            comments={MOCK_TSLA_TRACKING.discussion}
+            agentTake={MOCK_TSLA_TRACKING.agentTake}
+            author={MOCK_TSLA_TRACKING.author}
+            pulse={MOCK_TSLA_TRACKING.pulse}
+            description={MOCK_TSLA_TRACKING.description}
+            builtOn={MOCK_TSLA_TRACKING.builtOn}
+            onAuthorClick={() => onNavigate('user-profile')}
+          />
 
           <div className="flex flex-col gap-[24px] pb-[56px] w-full">
 
