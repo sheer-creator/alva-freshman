@@ -18,7 +18,8 @@
 import ReactECharts from 'echarts-for-react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { Topbar } from '@/app/components/shell/Topbar';
+import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { MOCK_POPULAR_STOCK } from '@/data/community-mock';
 import {
   CHART_COLORS, tooltipConfig, GRID_DEFAULT,
   timeXAxisConfig, valueYAxisConfig, lineSeriesConfig,
@@ -747,7 +748,19 @@ export function DashboardPopularStock({ onNavigate }: { onNavigate: (page: Page)
     <AppShell activePage="popular-stock" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="flex flex-col items-center px-[28px] relative w-full">
-          <Topbar title="Popular Stock Playbook" />
+          <PlaybookTopbar
+            title={MOCK_POPULAR_STOCK.name}
+            stats={MOCK_POPULAR_STOCK.stats}
+            signals={MOCK_POPULAR_STOCK.signals}
+            lineage={MOCK_POPULAR_STOCK.lineage}
+            comments={MOCK_POPULAR_STOCK.discussion}
+            agentTake={MOCK_POPULAR_STOCK.agentTake}
+            author={MOCK_POPULAR_STOCK.author}
+            pulse={MOCK_POPULAR_STOCK.pulse}
+            description={MOCK_POPULAR_STOCK.description}
+            builtOn={MOCK_POPULAR_STOCK.builtOn}
+            onAuthorClick={() => onNavigate('user-profile')}
+          />
 
           <div className="flex flex-col gap-[24px] pb-[56px] w-full">
 

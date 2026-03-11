@@ -12,7 +12,8 @@
 
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { Topbar } from '@/app/components/shell/Topbar';
+import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { MOCK_NVDA } from '@/data/community-mock';
 import { BottomToolbar } from '@/app/components/shell/BottomToolbar';
 import { NVDAStockPriceWidget } from '@/widgets/NVDAStockPriceWidget';
 import { NVDAKeyMetricsWidget } from '@/widgets/NVDAKeyMetricsWidget';
@@ -26,7 +27,19 @@ export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page)
     <AppShell activePage="nvda" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="flex flex-col items-center px-[28px] relative w-full">
-          <Topbar title="NVDA Panoramic Dashboard" />
+          <PlaybookTopbar
+            title={MOCK_NVDA.name}
+            stats={MOCK_NVDA.stats}
+            signals={MOCK_NVDA.signals}
+            lineage={MOCK_NVDA.lineage}
+            comments={MOCK_NVDA.discussion}
+            agentTake={MOCK_NVDA.agentTake}
+            author={MOCK_NVDA.author}
+            pulse={MOCK_NVDA.pulse}
+            description={MOCK_NVDA.description}
+            builtOn={MOCK_NVDA.builtOn}
+            onAuthorClick={() => onNavigate('user-profile')}
+          />
 
           <div className="flex flex-col gap-[24px] pb-[56px] w-full">
             {/* Row 1: KPI 指标 */}

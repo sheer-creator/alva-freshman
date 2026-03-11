@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "home-b" | "home-c" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills";
+export type Page = "home" | "home-b" | "home-c" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills" | "playbook-detail" | "user-profile";
 
 /* ========== 按需加载页面 ========== */
 
@@ -20,10 +20,12 @@ const DashboardTSLAOverview = lazy(() => import("@/pages/DashboardTSLAOverview")
 const DashboardTSLATracking = lazy(() => import("@/pages/DashboardTSLATracking").then(m => ({ default: m.DashboardTSLATracking })));
 const Skills = lazy(() => import("@/pages/Skills"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
+const PlaybookDetail = lazy(() => import("@/pages/PlaybookDetail").then(m => ({ default: m.PlaybookDetail })));
+const UserProfile = lazy(() => import("@/pages/UserProfile"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "home-b", "home-c", "docs", "api-keys", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills"];
+const VALID_PAGES: Page[] = ["home", "home-b", "home-c", "docs", "api-keys", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills", "playbook-detail", "user-profile"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -68,6 +70,8 @@ export default function App() {
         {currentPage === "popular-stock" && <DashboardPopularStock onNavigate={navigate} />}
         {currentPage === "tsla-overview" && <DashboardTSLAOverview onNavigate={navigate} />}
         {currentPage === "tsla-tracking" && <DashboardTSLATracking onNavigate={navigate} />}
+        {currentPage === "playbook-detail" && <PlaybookDetail onNavigate={navigate} />}
+        {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
       </Suspense>
       <SearchModal
         isOpen={isSearchOpen}

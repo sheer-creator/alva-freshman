@@ -6,7 +6,8 @@
 
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { Topbar } from '@/app/components/shell/Topbar';
+import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { MOCK_CUSTOM_LAYOUT } from '@/data/community-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
 import { NVDAGoogleTrendWidget } from '@/widgets/NVDAGoogleTrendWidget';
 
@@ -17,7 +18,19 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
     <AppShell activePage="dashboard" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="content-stretch flex flex-col items-center px-[28px] relative w-full">
-          <Topbar title="Dashboard Playbook" />
+          <PlaybookTopbar
+            title={MOCK_CUSTOM_LAYOUT.name}
+            stats={MOCK_CUSTOM_LAYOUT.stats}
+            signals={MOCK_CUSTOM_LAYOUT.signals}
+            lineage={MOCK_CUSTOM_LAYOUT.lineage}
+            comments={MOCK_CUSTOM_LAYOUT.discussion}
+            agentTake={MOCK_CUSTOM_LAYOUT.agentTake}
+            author={MOCK_CUSTOM_LAYOUT.author}
+            pulse={MOCK_CUSTOM_LAYOUT.pulse}
+            description={MOCK_CUSTOM_LAYOUT.description}
+            builtOn={MOCK_CUSTOM_LAYOUT.builtOn}
+            onAuthorClick={() => onNavigate('user-profile')}
+          />
           <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full">
             <FigmaWatchlistWidget />
             <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">

@@ -12,7 +12,8 @@
 
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { Topbar } from '@/app/components/shell/Topbar';
+import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { MOCK_WORKSPACE } from '@/data/community-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
 import { MarkdownWidget } from '@/widgets/MarkdownWidget';
 import { NVDATechAnalysisWidget } from '@/widgets/NVDATechAnalysisWidget';
@@ -28,7 +29,19 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
     <AppShell activePage="workspace" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="content-stretch flex flex-col items-center px-[28px] relative w-full">
-          <Topbar title="Workspace" />
+          <PlaybookTopbar
+            title={MOCK_WORKSPACE.name}
+            stats={MOCK_WORKSPACE.stats}
+            signals={MOCK_WORKSPACE.signals}
+            lineage={MOCK_WORKSPACE.lineage}
+            comments={MOCK_WORKSPACE.discussion}
+            agentTake={MOCK_WORKSPACE.agentTake}
+            author={MOCK_WORKSPACE.author}
+            pulse={MOCK_WORKSPACE.pulse}
+            description={MOCK_WORKSPACE.description}
+            builtOn={MOCK_WORKSPACE.builtOn}
+            onAuthorClick={() => onNavigate('user-profile')}
+          />
           <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full">
 
             {/* Row 1: NVDA Quarterly Earnings | Q4 FY25 Detail（1:1，等高填充） */}

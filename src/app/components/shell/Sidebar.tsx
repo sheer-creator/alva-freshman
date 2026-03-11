@@ -118,7 +118,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* Starred */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]">
         <SectionHeader label="Starred" />
-        <NavItem label="BTC Ultimate AI Trader" />
+        <NavItem label="BTC Ultimate AI Trader" active={activePage === 'playbook-detail'} onClick={() => onNavigate('playbook-detail')} />
         <NavItem label="MAG7 Equal-Weight" />
         <NavItem label="ETH/BTC Mean Reversion" />
       </div>
@@ -132,13 +132,15 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="TSLA Overview" active={activePage === 'tsla-overview'} onClick={() => onNavigate('tsla-overview')} />
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
         <NavItem label="TSLA Tracking" active={activePage === 'tsla-tracking'} onClick={() => onNavigate('tsla-tracking')} />
+        <NavItem label="Playbook Detail" active={activePage === 'playbook-detail'} onClick={() => onNavigate('playbook-detail')} />
       </div>
 
-      {/* 用户 — mt-auto 撑到底部 */}
+      {/* 用户 — mt-auto 撑到底部，点击进入 Profile */}
       <div
-        className="relative rounded-[4px] shrink-0 w-full z-[1] mt-auto"
+        className="relative rounded-[4px] shrink-0 w-full z-[1] mt-auto cursor-pointer hover:bg-white/5 transition-colors"
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
+        onClick={() => onNavigate('user-profile')}
       >
         <div className="content-stretch flex gap-[8px] items-center p-[8px] relative w-full">
           <UserAvatar name="YGGYLL" size={24} />
