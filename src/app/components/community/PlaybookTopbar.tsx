@@ -1,5 +1,5 @@
 /**
- * [INPUT]: svgPaths, ForkNetwork, DiscussionPanel, PlaybookHeader, mock data types
+ * [INPUT]: svgPaths, RemixPrompt, DiscussionPanel, PlaybookHeader, mock data types
  * [OUTPUT]: Playbook 专用 Topbar — 左侧 hover 展开 Header，右侧 stats + 弹层交互
  * [POS]: 社区组件 — 替代通用 Topbar，整合所有社区交互入口
  */
@@ -7,7 +7,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import svgPaths from '@/data/svg-nheoeek59y';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
-import { ForkNetwork } from './ForkNetwork';
+import { RemixPrompt } from './RemixPrompt';
 import { DiscussionPanel } from './DiscussionPanel';
 import { PlaybookHeader } from './PlaybookHeader';
 import type { PlaybookHeaderProps } from './PlaybookHeader';
@@ -152,28 +152,6 @@ export function PlaybookTopbar({
             <span>{stats.stars}</span>
           </div>
 
-          {/* 🍴 Forks — 点击展开 Fork Network */}
-          <div ref={forkRef} className="relative">
-            <button onClick={() => setForkOpen(v => !v)} style={STAT_STYLE}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="5" cy="3" r="1.5" stroke="rgba(0,0,0,0.9)" strokeWidth="1.2" />
-                <circle cx="11" cy="3" r="1.5" stroke="rgba(0,0,0,0.9)" strokeWidth="1.2" />
-                <circle cx="8" cy="13" r="1.5" stroke="rgba(0,0,0,0.9)" strokeWidth="1.2" />
-                <path d="M5 4.5V7C5 9 6.5 10 8 10C9.5 10 11 9 11 7V4.5" stroke="rgba(0,0,0,0.9)" strokeWidth="1.2" strokeLinecap="round" />
-                <path d="M8 10V11.5" stroke="rgba(0,0,0,0.9)" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-              <span>{stats.forks}</span>
-            </button>
-            {forkOpen && (
-              <div
-                className="absolute top-full right-0 mt-[8px]"
-                style={{ background: '#fff', borderRadius: 8, boxShadow: '0 8px 30px rgba(0,0,0,0.12)', maxWidth: 420, padding: 16, zIndex: 30, minWidth: 320 }}
-              >
-                <ForkNetwork lineage={lineage} />
-              </div>
-            )}
-          </div>
-
           {/* Emoji 反应 — 点击展开 signal pills */}
           <div ref={reactionsRef} className="relative">
             <button onClick={() => setReactionsOpen(v => !v)} style={STAT_STYLE}>
@@ -230,21 +208,25 @@ export function PlaybookTopbar({
             </svg>
           </div>
 
-          {/* Chat */}
-          <div className="content-stretch flex flex-col items-start relative rounded-[6px] shrink-0">
-            <div className="bg-white h-[36px] relative rounded-[6px] shrink-0 w-full">
-              <div className="flex flex-row items-center justify-center overflow-clip rounded-[inherit] size-full">
-                <div className="content-stretch flex gap-[6px] items-center justify-center px-[12px] py-[6px] relative size-full">
-                  <div className="relative shrink-0 size-[18px]">
-                    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 18 18">
-                      <path d={svgPaths.p143c1e00} fill="black" fillOpacity="0.9" />
-                    </svg>
-                  </div>
-                  <p className="font-['Delight',sans-serif] font-medium leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.12px]">Chat</p>
-                </div>
-              </div>
+          {/* Remix — 最右侧按钮 */}
+          <div ref={forkRef} className="relative content-stretch flex flex-col items-start rounded-[6px] shrink-0">
+            <button
+              onClick={() => setForkOpen(v => !v)}
+              className="bg-white h-[36px] rounded-[6px] shrink-0 flex items-center justify-center gap-[6px] px-[12px] py-[6px] relative"
+              style={{ border: 'none', cursor: 'pointer', fontFamily: "'Delight', sans-serif", fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.9)' }}
+            >
+              <span>Remix</span>
+              <span style={{ color: 'rgba(0,0,0,0.5)' }}>{stats.forks}</span>
               <div aria-hidden="true" className="absolute border-[0.5px] border-[rgba(0,0,0,0.3)] border-solid inset-0 pointer-events-none rounded-[6px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.05)]" />
-            </div>
+            </button>
+            {forkOpen && (
+              <div
+                className="absolute top-full right-0 mt-[8px]"
+                style={{ background: '#fff', borderRadius: 8, boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: 16, zIndex: 30 }}
+              >
+                <RemixPrompt />
+              </div>
+            )}
           </div>
         </div>
 
