@@ -1,4 +1,4 @@
-import{r as k,j as e}from"./index-D-KnRP_z.js";import{A as Y,U as $}from"./AppShell-CNJc-8t7.js";const J=`
+import{r as k,j as e}from"./index-DALvcFfh.js";import{A as Y,U as $}from"./AppShell-4q05Sw31.js";const J=`
 .skill-modal-scroll ::-webkit-scrollbar { width: 4px; height: 4px; }
 .skill-modal-scroll ::-webkit-scrollbar-track { background: transparent; }
 .skill-modal-scroll ::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; }
