@@ -12,10 +12,12 @@
  *                                    mweb: stacked (grid-cols-1)
  */
 
+import { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_TSLA_OVERVIEW } from '@/data/community-mock';
 import { tooltipConfig, CHART_COLORS, FONT, CHART_DOT_BG } from '@/lib/chart-theme';
 
@@ -401,8 +403,12 @@ function SocialSentimentWidget() {
    Page
    ───────────────────────────────────────── */
 export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [discussionOpen, setDiscussionOpen] = useState(false);
+
   return (
     <AppShell activePage="tsla-overview" onNavigate={onNavigate}>
+      <div className="flex h-full">
+        <div className="flex-1 min-w-0 overflow-y-auto">
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         {/* px: 16px on mweb, 28px on web */}
         <div className="flex flex-col items-center px-[16px] md:px-[28px] relative w-full">
@@ -412,7 +418,8 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
             signals={MOCK_TSLA_OVERVIEW.signals}
             lineage={MOCK_TSLA_OVERVIEW.lineage}
             comments={MOCK_TSLA_OVERVIEW.discussion}
-            agentTake={MOCK_TSLA_OVERVIEW.agentTake}
+            discussionOpen={discussionOpen}
+            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
             author={MOCK_TSLA_OVERVIEW.author}
             pulse={MOCK_TSLA_OVERVIEW.pulse}
             description={MOCK_TSLA_OVERVIEW.description}
@@ -444,6 +451,14 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
 
           </div>
         </div>
+      </div>
+        </div>
+        <DiscussionPanel
+          open={discussionOpen}
+          onClose={() => setDiscussionOpen(false)}
+          comments={MOCK_TSLA_OVERVIEW.discussion}
+          agentTake={MOCK_TSLA_OVERVIEW.agentTake}
+        />
       </div>
     </AppShell>
   );

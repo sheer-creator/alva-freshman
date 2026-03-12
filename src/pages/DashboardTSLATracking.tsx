@@ -25,10 +25,12 @@
  *     Row 16: Analyst Price Targets（全宽）
  */
 
+import { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_TSLA_TRACKING } from '@/data/community-mock';
 import {
   CHART_COLORS, tooltipConfig, GRID_DEFAULT,
@@ -1034,8 +1036,12 @@ function AnalystTargetsWidget() {
    Page
    ───────────────────────────────────────── */
 export function DashboardTSLATracking({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [discussionOpen, setDiscussionOpen] = useState(false);
+
   return (
     <AppShell activePage="tsla-tracking" onNavigate={onNavigate}>
+      <div className="flex h-full">
+        <div className="flex-1 min-w-0 overflow-y-auto">
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="flex flex-col items-center px-[28px] relative w-full">
           <PlaybookTopbar
@@ -1044,7 +1050,8 @@ export function DashboardTSLATracking({ onNavigate }: { onNavigate: (page: Page)
             signals={MOCK_TSLA_TRACKING.signals}
             lineage={MOCK_TSLA_TRACKING.lineage}
             comments={MOCK_TSLA_TRACKING.discussion}
-            agentTake={MOCK_TSLA_TRACKING.agentTake}
+            discussionOpen={discussionOpen}
+            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
             author={MOCK_TSLA_TRACKING.author}
             pulse={MOCK_TSLA_TRACKING.pulse}
             description={MOCK_TSLA_TRACKING.description}
@@ -1119,6 +1126,14 @@ export function DashboardTSLATracking({ onNavigate }: { onNavigate: (page: Page)
 
           </div>
         </div>
+      </div>
+        </div>
+        <DiscussionPanel
+          open={discussionOpen}
+          onClose={() => setDiscussionOpen(false)}
+          comments={MOCK_TSLA_TRACKING.discussion}
+          agentTake={MOCK_TSLA_TRACKING.agentTake}
+        />
       </div>
     </AppShell>
   );

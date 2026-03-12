@@ -14,10 +14,12 @@
  *   Row 4: News Feed (col-5) | Podcasts (col-3)
  */
 
+import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { AlvaWatermark } from '@/app/components/alva-ui-kit';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_ASSET } from '@/data/community-mock';
 import ReactECharts from 'echarts-for-react';
 import {
@@ -401,62 +403,78 @@ function PodcastFeed() {
 /* ========== 页面 ========== */
 
 export function PlaybookDetail({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [discussionOpen, setDiscussionOpen] = useState(false);
+
   return (
     <AppShell activePage="playbook-detail" onNavigate={onNavigate}>
-      <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
-        <div className="content-stretch flex flex-col items-center px-[28px] relative w-full">
-          <PlaybookTopbar
-            title={MOCK_ASSET.name}
-            stats={MOCK_ASSET.stats}
-            signals={MOCK_ASSET.signals}
-            lineage={MOCK_ASSET.lineage}
-            comments={MOCK_ASSET.discussion}
-            agentTake={MOCK_ASSET.agentTake}
-            author={MOCK_ASSET.author}
-            pulse={MOCK_ASSET.pulse}
-            description={MOCK_ASSET.description}
-            builtOn={MOCK_ASSET.builtOn}
-            onAuthorClick={() => onNavigate('user-profile')}
-          />
+      <div className="flex h-full">
+        {/* 主内容区 — 挤压式：flex-1 自动缩小 */}
+        <div className="flex-1 min-w-0 overflow-y-auto">
+          <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
+            <div className="content-stretch flex flex-col items-center px-[28px] relative w-full">
+              <PlaybookTopbar
+                title={MOCK_ASSET.name}
+                stats={MOCK_ASSET.stats}
+                signals={MOCK_ASSET.signals}
+                lineage={MOCK_ASSET.lineage}
+                comments={MOCK_ASSET.discussion}
+                discussionOpen={discussionOpen}
+                onToggleDiscussion={() => setDiscussionOpen(v => !v)}
+                author={MOCK_ASSET.author}
+                pulse={MOCK_ASSET.pulse}
+                description={MOCK_ASSET.description}
+                builtOn={MOCK_ASSET.builtOn}
+                onAuthorClick={() => onNavigate('user-profile')}
+              />
 
-          {/* Widget 区域 — 每行 flex row 保证等高 */}
-          <div className="flex flex-col gap-[24px] pb-[56px] w-full">
+              {/* Widget 区域 — 每行 flex row 保证等高 */}
+              <div className="flex flex-col gap-[24px] pb-[56px] w-full">
 
-            {/* Row 1: Performance (1:1) + Key Metrics (1:1) */}
-            <div className="flex gap-[24px]">
-              <PerformanceChart />
-              <KeyMetrics />
+                {/* Row 1: Performance (1:1) + Key Metrics (1:1) */}
+                <div className="flex gap-[24px]">
+                  <PerformanceChart />
+                  <KeyMetrics />
+                </div>
+
+                {/* Section: Social Sentiment */}
+                <SectionTitle icon="💬" title="Social Sentiment" sub="Twitter · Reddit · Community Pulse" />
+
+                {/* Row 2: Twitter (1:1) + Reddit (1:1) */}
+                <div className="flex gap-[24px]">
+                  <TwitterBuzz />
+                  <RedditDiscussion />
+                </div>
+
+                {/* Section: Technical Analysis */}
+                <SectionTitle icon="📊" title="Technical Analysis" sub="RSI · MACD · Fear & Greed" />
+
+                {/* Row 3: Chart (5:3) + Indicators (5:3) */}
+                <div className="flex gap-[24px]">
+                  <TechnicalChart />
+                  <FearGreedAndIndicators />
+                </div>
+
+                {/* Section: News & Media */}
+                <SectionTitle icon="📰" title="News & Media" sub="Headlines · Podcasts · Analysis" />
+
+                {/* Row 4: News (5:3) + Podcasts (5:3) */}
+                <div className="flex gap-[24px]">
+                  <NewsFeed />
+                  <PodcastFeed />
+                </div>
+
+              </div>
             </div>
-
-            {/* Section: Social Sentiment */}
-            <SectionTitle icon="💬" title="Social Sentiment" sub="Twitter · Reddit · Community Pulse" />
-
-            {/* Row 2: Twitter (1:1) + Reddit (1:1) */}
-            <div className="flex gap-[24px]">
-              <TwitterBuzz />
-              <RedditDiscussion />
-            </div>
-
-            {/* Section: Technical Analysis */}
-            <SectionTitle icon="📊" title="Technical Analysis" sub="RSI · MACD · Fear & Greed" />
-
-            {/* Row 3: Chart (5:3) + Indicators (5:3) */}
-            <div className="flex gap-[24px]">
-              <TechnicalChart />
-              <FearGreedAndIndicators />
-            </div>
-
-            {/* Section: News & Media */}
-            <SectionTitle icon="📰" title="News & Media" sub="Headlines · Podcasts · Analysis" />
-
-            {/* Row 4: News (5:3) + Podcasts (5:3) */}
-            <div className="flex gap-[24px]">
-              <NewsFeed />
-              <PodcastFeed />
-            </div>
-
           </div>
         </div>
+
+        {/* Discussion 右侧挤压式面板 */}
+        <DiscussionPanel
+          open={discussionOpen}
+          onClose={() => setDiscussionOpen(false)}
+          comments={MOCK_ASSET.discussion}
+          agentTake={MOCK_ASSET.agentTake}
+        />
       </div>
     </AppShell>
   );

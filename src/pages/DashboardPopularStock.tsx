@@ -15,10 +15,12 @@
  *   Row 9: Fundamentals（KPI grid + Insider Table）
  */
 
+import { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_POPULAR_STOCK } from '@/data/community-mock';
 import {
   CHART_COLORS, tooltipConfig, GRID_DEFAULT,
@@ -744,8 +746,12 @@ function FundamentalsModule() {
    Page
    ───────────────────────────────────────── */
 export function DashboardPopularStock({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [discussionOpen, setDiscussionOpen] = useState(false);
+
   return (
     <AppShell activePage="popular-stock" onNavigate={onNavigate}>
+      <div className="flex h-full">
+        <div className="flex-1 min-w-0 overflow-y-auto">
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="flex flex-col items-center px-[28px] relative w-full">
           <PlaybookTopbar
@@ -754,7 +760,8 @@ export function DashboardPopularStock({ onNavigate }: { onNavigate: (page: Page)
             signals={MOCK_POPULAR_STOCK.signals}
             lineage={MOCK_POPULAR_STOCK.lineage}
             comments={MOCK_POPULAR_STOCK.discussion}
-            agentTake={MOCK_POPULAR_STOCK.agentTake}
+            discussionOpen={discussionOpen}
+            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
             author={MOCK_POPULAR_STOCK.author}
             pulse={MOCK_POPULAR_STOCK.pulse}
             description={MOCK_POPULAR_STOCK.description}
@@ -799,6 +806,14 @@ export function DashboardPopularStock({ onNavigate }: { onNavigate: (page: Page)
 
           </div>
         </div>
+      </div>
+        </div>
+        <DiscussionPanel
+          open={discussionOpen}
+          onClose={() => setDiscussionOpen(false)}
+          comments={MOCK_POPULAR_STOCK.discussion}
+          agentTake={MOCK_POPULAR_STOCK.agentTake}
+        />
       </div>
     </AppShell>
   );

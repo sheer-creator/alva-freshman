@@ -10,9 +10,11 @@
  *   Row 4: NVDAGoogleTrendWidget | NVDAPriceVsSPYWidget（1:1）
  */
 
+import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_WORKSPACE } from '@/data/community-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
 import { MarkdownWidget } from '@/widgets/MarkdownWidget';
@@ -25,8 +27,12 @@ import { NVDAEarningsDetailWidget } from '@/widgets/NVDAEarningsDetailWidget';
 /* ========== 页面 ========== */
 
 export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [discussionOpen, setDiscussionOpen] = useState(false);
+
   return (
     <AppShell activePage="workspace" onNavigate={onNavigate}>
+      <div className="flex h-full">
+        <div className="flex-1 min-w-0 overflow-y-auto">
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="content-stretch flex flex-col items-center px-[28px] relative w-full">
           <PlaybookTopbar
@@ -35,7 +41,8 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
             signals={MOCK_WORKSPACE.signals}
             lineage={MOCK_WORKSPACE.lineage}
             comments={MOCK_WORKSPACE.discussion}
-            agentTake={MOCK_WORKSPACE.agentTake}
+            discussionOpen={discussionOpen}
+            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
             author={MOCK_WORKSPACE.author}
             pulse={MOCK_WORKSPACE.pulse}
             description={MOCK_WORKSPACE.description}
@@ -79,6 +86,14 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
 
           </div>
         </div>
+      </div>
+        </div>
+        <DiscussionPanel
+          open={discussionOpen}
+          onClose={() => setDiscussionOpen(false)}
+          comments={MOCK_WORKSPACE.discussion}
+          agentTake={MOCK_WORKSPACE.agentTake}
+        />
       </div>
     </AppShell>
   );

@@ -28,28 +28,52 @@ export function RemixPrompt() {
   }, []);
 
   return (
-    <div style={{ width: 360 }}>
+    <div style={{ width: 480, padding: 20 }}>
       {/* 描述 */}
-      <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.5)', lineHeight: '20px', margin: '0 0 12px', fontFamily: "'Delight', sans-serif" }}>
+      <p style={{
+        fontSize: 13, color: 'var(--text-n7, rgba(0,0,0,0.7))', lineHeight: '20px',
+        margin: '0 0 12px', fontFamily: "'Delight', sans-serif",
+      }}>
         {DESCRIPTION}
       </p>
 
-      {/* 代码块 */}
-      <div style={{ position: 'relative', background: 'rgba(0,0,0,0.03)', borderRadius: 8, padding: '12px 14px' }}>
-        <pre style={{ margin: 0, fontSize: 12, lineHeight: '18px', color: 'rgba(0,0,0,0.8)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: "'Delight', monospace", paddingRight: 50 }}>
+      {/* Prompt 内容块 + Copy 按钮 */}
+      <div style={{
+        background: 'var(--main-m1-10, rgba(73,163,166,0.1))',
+        borderRadius: 8,
+        padding: '16px 20px',
+        display: 'flex', flexDirection: 'column', gap: 16,
+      }}>
+        <pre style={{
+          margin: 0, fontSize: 16, lineHeight: '26px',
+          color: 'var(--text-n9, rgba(0,0,0,0.9))',
+          whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+          fontFamily: "'Delight', sans-serif",
+        }}>
           {PROMPT}
         </pre>
+
+        {/* Copy 按钮 — Alva Design btn-secondary btn-medium */}
         <button
           onClick={handleCopy}
           style={{
-            position: 'absolute', top: 8, right: 8, padding: '4px 10px',
-            borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer',
-            fontSize: 12, fontFamily: "'Delight', sans-serif",
-            background: '#fff', color: 'rgba(0,0,0,0.7)',
-            transition: 'all 0.15s ease',
+            width: '100%',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            height: 40, padding: '9px 20px', gap: 8,
+            borderRadius: 6,
+            border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
+            background: 'transparent',
+            color: 'var(--text-n9, rgba(0,0,0,0.9))',
+            fontSize: 14, fontWeight: 500, lineHeight: '22px', letterSpacing: '0.14px',
+            fontFamily: "'Delight', sans-serif",
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
           }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--text-n9, rgba(0,0,0,0.9))')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--line-l3, rgba(0,0,0,0.3))')}
         >
-          {copied ? 'Copied' : 'Copy'}
+          <img src={copied ? 'https://alva-ai-static.b-cdn.net/icons/check-l1.svg' : 'https://alva-ai-static.b-cdn.net/icons/copy-l.svg'} width={18} height={18} alt={copied ? 'copied' : 'copy'} />
+          <span>{copied ? 'Copied' : 'Copy'}</span>
         </button>
       </div>
     </div>

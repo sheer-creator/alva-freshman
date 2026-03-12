@@ -10,9 +10,11 @@
  *   Row 4: 同业估值对比表格（全宽）
  */
 
+import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
+import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_NVDA } from '@/data/community-mock';
 import { BottomToolbar } from '@/app/components/shell/BottomToolbar';
 import { NVDAStockPriceWidget } from '@/widgets/NVDAStockPriceWidget';
@@ -23,8 +25,12 @@ import { NVDAPeerValuationWidget } from '@/widgets/NVDAPeerValuationWidget';
 import { NVDAInvestmentThesisWidget } from '@/widgets/NVDAInvestmentThesisWidget';
 
 export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [discussionOpen, setDiscussionOpen] = useState(false);
+
   return (
     <AppShell activePage="nvda" onNavigate={onNavigate}>
+      <div className="flex h-full">
+        <div className="flex-1 min-w-0 overflow-y-auto">
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="flex flex-col items-center px-[28px] relative w-full">
           <PlaybookTopbar
@@ -33,7 +39,8 @@ export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page)
             signals={MOCK_NVDA.signals}
             lineage={MOCK_NVDA.lineage}
             comments={MOCK_NVDA.discussion}
-            agentTake={MOCK_NVDA.agentTake}
+            discussionOpen={discussionOpen}
+            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
             author={MOCK_NVDA.author}
             pulse={MOCK_NVDA.pulse}
             description={MOCK_NVDA.description}
@@ -61,6 +68,14 @@ export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page)
             <NVDAPeerValuationWidget />
           </div>
         </div>
+      </div>
+      </div>
+        <DiscussionPanel
+          open={discussionOpen}
+          onClose={() => setDiscussionOpen(false)}
+          comments={MOCK_NVDA.discussion}
+          agentTake={MOCK_NVDA.agentTake}
+        />
       </div>
       <BottomToolbar />
     </AppShell>

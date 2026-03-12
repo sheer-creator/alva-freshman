@@ -31,6 +31,10 @@
   --line-l12: rgba(0, 0, 0, 0.12);
   --line-l2:  rgba(0, 0, 0, 0.2);
   --line-l3:  rgba(0, 0, 0, 0.3);
+  /* Shadows */
+  --shadow-xs: 0 4px 15px 0 rgba(0, 0, 0, 0.05);
+  --shadow-s:  0 6px 20px 0 rgba(0, 0, 0, 0.04);
+  --shadow-l:  0 10px 20px 0 rgba(0, 0, 0, 0.08);
 
   --font-size: 16px;
   /* Typography font sizes */
@@ -209,6 +213,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
