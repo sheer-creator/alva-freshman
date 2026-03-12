@@ -115,7 +115,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* Starred */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]">
         <SectionHeader label="Starred" />
-        <NavItem label="BTC Ultimate AI Trader" active={activePage === 'playbook-detail'} onClick={() => onNavigate('playbook-detail')} />
+        <NavItem label="BTC Ultimate AI Trader" active={activePage === 'btc-playbook'} onClick={() => onNavigate('btc-playbook')} />
         <NavItem label="MAG7 Equal-Weight" />
         <NavItem label="ETH/BTC Mean Reversion" />
       </div>

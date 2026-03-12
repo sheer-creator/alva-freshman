@@ -40,7 +40,7 @@ interface PlaybookTopbarProps extends PlaybookHeaderProps {
 /* ========== Stat 按钮样式 ========== */
 
 const STAT_STYLE: React.CSSProperties = {
-  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+  background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 6,
   display: 'flex', alignItems: 'center', gap: 4,
   fontSize: 12, color: 'rgba(0,0,0,0.9)', fontFamily: "'Delight', sans-serif",
 };
@@ -141,16 +141,16 @@ export function PlaybookTopbar({
         </div>
 
         {/* Right: Stats + Actions */}
-        <div className="content-stretch flex gap-[16px] items-center justify-end relative shrink-0">
+        <div className="content-stretch flex gap-[4px] items-center justify-end relative shrink-0">
           {/* ★ Stars */}
-            <div style={STAT_STYLE}>
+            <button style={STAT_STYLE}>
               <div className="relative shrink-0 size-[16px]">
                 <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
                   <path d={svgPaths.p2b2d8380} fill="black" fillOpacity="0.9" />
                 </svg>
               </div>
               <span>{stats.stars}</span>
-            </div>
+            </button>
 
             {/* Emoji 反应 — 点击展开 signal pills */}
             <div ref={reactionsRef} className="relative">
@@ -161,7 +161,7 @@ export function PlaybookTopbar({
               {reactionsOpen && (
                 <div
                   className="absolute top-full right-0 mt-[8px]"
-                  style={{ background: '#fff', borderRadius: 8, boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: 12, zIndex: 30, minWidth: 200 }}
+                  style={{ background: '#fff', borderRadius: 8, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', padding: 12, zIndex: 30, minWidth: 200 }}
                 >
                   <div className="flex flex-wrap gap-[6px]">
                     {signals.map(s => (
@@ -187,45 +187,54 @@ export function PlaybookTopbar({
               )}
             </div>
 
-            {/* Remix — 原评论位置，改用 remix 图标 */}
-            <div ref={forkRef} className="relative">
-              <button
-                onMouseDown={e => e.stopPropagation()}
-                onClick={() => setForkOpen(v => !v)}
-                style={STAT_STYLE}
-              >
-                <img src="https://alva-ai-static.b-cdn.net/icons/remix-l.svg" width={16} height={16} alt="remix" style={{ opacity: 0.9 }} />
-                <span>{stats.forks}</span>
-              </button>
-              {forkOpen && (
-                <div
-                  className="absolute top-full right-0 mt-[8px]"
-                  style={{ background: '#fff', borderRadius: 8, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', zIndex: 30 }}
-                >
-                  <RemixPrompt />
-                </div>
-              )}
-            </div>
+            {/* Discuss — 原 Remix 位置，改用 chat 图标 */}
+            <button
+              onMouseDown={e => e.stopPropagation()}
+              onClick={onToggleDiscussion}
+              style={{
+                ...STAT_STYLE,
+                background: discussionOpen ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : 'none',
+                borderRadius: 6,
+                padding: '4px 6px',
+                color: discussionOpen ? 'var(--main-m1, #49A3A6)' : 'rgba(0,0,0,0.9)',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+            >
+              <img src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg" width={16} height={16} alt="discuss" style={{ opacity: discussionOpen ? 1 : 0.9, filter: discussionOpen ? 'invert(59%) sepia(30%) saturate(550%) hue-rotate(140deg) brightness(90%) contrast(90%)' : 'none', transition: 'filter 0.15s' }} />
+              <span>{comments.length}</span>
+            </button>
 
             {/* 📤 Share */}
-            <div className="relative shrink-0 size-[16px]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
-                <path d={svgPaths.p272ac1f0} fill="black" fillOpacity="0.9" />
-              </svg>
-            </div>
+            <button style={STAT_STYLE}>
+              <div className="relative shrink-0 size-[16px]">
+                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
+                  <path d={svgPaths.p272ac1f0} fill="black" fillOpacity="0.9" />
+                </svg>
+              </div>
+            </button>
 
-          {/* Discuss — 最右侧按钮，点击打开 Discussion 面板 */}
-          {!discussionOpen && <button
-            onMouseDown={e => e.stopPropagation()}
-            onClick={onToggleDiscussion}
-            className="bg-white h-[36px] rounded-[6px] shrink-0 flex items-center justify-center gap-[6px] px-[12px] py-[6px] relative"
-            style={{ border: 'none', cursor: 'pointer', fontFamily: "'Delight', sans-serif", fontSize: 12, color: 'rgba(0,0,0,0.9)' }}
-          >
-            <img src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg" width={16} height={16} alt="discuss" style={{ opacity: 0.9 }} />
-            <span style={{ fontWeight: 500 }}>Discuss</span>
-            <span style={{ fontWeight: 400, color: 'rgba(0,0,0,0.5)' }}>{comments.length}</span>
-            <div aria-hidden="true" className="absolute border-[0.5px] border-[rgba(0,0,0,0.3)] border-solid inset-0 pointer-events-none rounded-[6px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.05)]" />
-          </button>}
+          {/* Remix — 最右侧按钮，点击打开 RemixPrompt 弹层 */}
+          <div ref={forkRef} className="relative" style={{ marginLeft: 4 }}>
+            <button
+              onMouseDown={e => e.stopPropagation()}
+              onClick={() => setForkOpen(v => !v)}
+              className="bg-white h-[36px] rounded-[6px] shrink-0 flex items-center justify-center gap-[6px] px-[12px] py-[6px] relative"
+              style={{ border: 'none', cursor: 'pointer', fontFamily: "'Delight', sans-serif", fontSize: 12, color: 'rgba(0,0,0,0.9)' }}
+            >
+              <img src="https://alva-ai-static.b-cdn.net/icons/remix-l.svg" width={16} height={16} alt="remix" style={{ opacity: 0.9 }} />
+              <span style={{ fontWeight: 500 }}>Remix</span>
+              <span style={{ fontWeight: 400, color: 'rgba(0,0,0,0.5)' }}>{stats.forks}</span>
+              <div aria-hidden="true" className="absolute border-[0.5px] border-[rgba(0,0,0,0.3)] border-solid inset-0 pointer-events-none rounded-[6px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.05)]" />
+            </button>
+            {forkOpen && (
+              <div
+                className="absolute top-full right-0 mt-[8px]"
+                style={{ background: '#fff', borderRadius: 8, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', zIndex: 30 }}
+              >
+                <RemixPrompt />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Hover 浮层：PlaybookHeader — 挂在 topbar 根级，top-full = 56px */}
@@ -236,7 +245,7 @@ export function PlaybookTopbar({
             onMouseEnter={openHeader}
             onMouseLeave={closeHeader}
           >
-            <div style={{ borderRadius: 6, boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
+            <div style={{ borderRadius: 6, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
               <PlaybookHeader author={author} pulse={pulse} description={description} builtOn={builtOn} onAuthorClick={onAuthorClick} />
             </div>
           </div>

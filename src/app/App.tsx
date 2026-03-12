@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "home-b" | "home-c" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills" | "playbook-detail" | "user-profile";
+export type Page = "home" | "home-b" | "home-c" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills" | "playbook-detail" | "btc-playbook" | "user-profile";
 
 /* ========== 按需加载页面 ========== */
 
@@ -71,6 +71,7 @@ export default function App() {
         {currentPage === "tsla-overview" && <DashboardTSLAOverview onNavigate={navigate} />}
         {currentPage === "tsla-tracking" && <DashboardTSLATracking onNavigate={navigate} />}
         {currentPage === "playbook-detail" && <PlaybookDetail onNavigate={navigate} />}
+        {currentPage === "btc-playbook" && <PlaybookDetail onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
       </Suspense>
       <SearchModal
