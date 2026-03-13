@@ -430,7 +430,7 @@ export const MOCK_WORKSPACE = {
       id: 'ws1', author: 'Nina Patel', isAgent: false, timestamp: '4h ago',
       text: "The **markdown notes widget** is a game-changer for me. I jot down earnings call takeaways right next to the chart — no more switching to Notion mid-analysis.",
       replies: [
-        { id: 'ws1-r1', author: 'Marcus Webb', isAgent: false, timestamp: '3h 45m ago', text: "That's exactly the workflow I designed it for. Tip: use `## headers` in the markdown to create collapsible sections for different tickers." },
+        { id: 'ws1-r1', author: 'Marcus Webb', isAgent: false, timestamp: '3h 45m ago', text: "That's exactly the workflow I designed it for. Tip: use **markdown headers** to create collapsible sections for different tickers." },
         { id: 'ws1-r2', author: 'Nina Patel', isAgent: false, timestamp: '3h 30m ago', text: 'Collapsible sections! Didn\'t know that worked. This just replaced my entire note-taking setup.', sticker: 'Chad_Heart_Minimal.png' },
       ],
     },

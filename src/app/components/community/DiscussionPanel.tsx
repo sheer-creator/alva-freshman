@@ -32,23 +32,33 @@ function CommentAvatar({ name, isAgent, size = 32 }: { name: string; isAgent: bo
 
 /* ========== Markdown 样式 ========== */
 
-/* Markdown M size — Alva design-components.md */
+/* Markdown M size — Alva design-components.md §markdown-container--m */
+const MD_FONT = "'Delight', 'Helvetica Neue', Arial, sans-serif";
+const MD_MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace";
 const MD_COMPONENTS: Record<string, React.ComponentType<Record<string, unknown>>> = {
-  p: (props) => <p {...props} style={{ margin: 0, fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px' }} />,
+  p: (props) => <p {...props} style={{ margin: 0, fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', color: 'var(--text-n9)', fontFamily: MD_FONT, whiteSpace: 'pre-wrap' as const }} />,
   strong: (props) => <strong {...props} style={{ fontWeight: 600, color: 'var(--text-n9)' }} />,
   em: (props) => <em {...props} />,
-  h1: (props) => <h1 {...props} style={{ margin: 0, fontSize: 18, lineHeight: '28px', letterSpacing: '0.18px', fontWeight: 500 }} />,
-  h2: (props) => <h2 {...props} style={{ margin: 0, fontSize: 16, lineHeight: '26px', letterSpacing: '0.16px', fontWeight: 500 }} />,
-  h3: (props) => <h3 {...props} style={{ margin: 0, fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', fontWeight: 500 }} />,
+  h1: (props) => <h1 {...props} style={{ margin: 0, fontSize: 18, lineHeight: '28px', letterSpacing: '0.18px', fontWeight: 500, paddingTop: 2, color: 'var(--text-n9)', fontFamily: MD_FONT }} />,
+  h2: (props) => <h2 {...props} style={{ margin: 0, fontSize: 16, lineHeight: '26px', letterSpacing: '0.16px', fontWeight: 500, paddingTop: 2, color: 'var(--text-n9)', fontFamily: MD_FONT }} />,
+  h3: (props) => <h3 {...props} style={{ margin: 0, fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', fontWeight: 500, paddingTop: 0, color: 'var(--text-n9)', fontFamily: MD_FONT }} />,
   code: (props) => (
     <code {...props} style={{
-      background: 'rgba(0,0,0,0.05)', padding: 8, borderRadius: 3,
-      fontSize: '0.9em', fontFamily: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
+      background: 'rgba(0,0,0,0.05)', padding: '1px 8px', borderRadius: 3, fontFamily: MD_MONO,
     }} />
   ),
-  ul: (props) => <ul {...props} style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4 }} />,
-  ol: (props) => <ol {...props} style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4 }} />,
-  li: (props) => <li {...props} style={{ fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px' }} />,
+  pre: (props) => (
+    <pre {...props} style={{
+      margin: 0, fontSize: 12, lineHeight: '20px', letterSpacing: '0.12px',
+      background: 'rgba(0,0,0,0.05)', padding: '12px 16px', borderRadius: 6, overflow: 'auto',
+      fontFamily: MD_MONO,
+    }} />
+  ),
+  ul: (props) => <ul {...props} style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }} />,
+  ol: (props) => <ol {...props} style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }} />,
+  li: (props) => <li {...props} style={{ fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', color: 'var(--text-n9)', fontFamily: MD_FONT, position: 'relative' as const, paddingLeft: 24 }} />,
+  a: (props) => <a {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)} style={{ color: 'var(--main-m1, #49A3A6)', textDecoration: 'underline', textUnderlineOffset: 3 }} target="_blank" rel="noopener noreferrer" />,
+  hr: () => <hr style={{ border: 'none', borderTop: '1px solid var(--line-l12, rgba(0,0,0,0.12))', margin: 0 }} />,
 };
 
 /* ========== Playbook 引用卡片 ========== */
@@ -56,35 +66,34 @@ const MD_COMPONENTS: Record<string, React.ComponentType<Record<string, unknown>>
 function PlaybookRefCard({ item }: { item: PlaybookRef }) {
   const r = item;
   const navigate = () => { window.location.hash = '#' + r.page; };
-  const borderDefault = r.isFork ? 'rgba(73,163,166,0.2)' : 'rgba(0,0,0,0.08)';
   return (
     <div
       onClick={navigate}
       style={{
-        background: 'var(--grey-g01, #fafafa)', border: `1px solid ${borderDefault}`,
-        borderRadius: 8, padding: '10px 12px', cursor: 'pointer',
+        background: 'rgba(73,163,166,0.04)', border: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))',
+        borderRadius: 8, padding: 12, cursor: 'pointer',
         transition: 'border-color 150ms',
       }}
       onMouseEnter={e => (e.currentTarget.style.borderColor = '#49A3A6')}
-      onMouseLeave={e => (e.currentTarget.style.borderColor = borderDefault)}
+      onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--line-l12, rgba(0,0,0,0.12))')}
     >
       {/* 第一行：作者 + Playbook 图标 + 名称 + Pulse */}
-      <div className="flex items-center gap-[6px]">
-        <CommentAvatar name={r.author} isAgent={false} size={18} />
-        <span style={{ fontSize: 12, color: 'var(--text-n5)', fontFamily: "'Delight', sans-serif" }}>{r.author}</span>
-        <span style={{ fontSize: 12, color: 'var(--text-n5)' }}>·</span>
-        <img src={`${ICON_CDN}/remix-l.svg`} width={14} height={14} alt="" style={{ opacity: 0.5 }} />
+      <div className="flex items-center gap-[4px]">
+        <CommentAvatar name={r.author} isAgent={false} size={20} />
+        <span style={{ fontSize: 12, lineHeight: '20px', color: 'var(--text-n9)', fontFamily: "'Delight', sans-serif" }}>{r.author}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-n5)' }}>•</span>
+        <img src={`${ICON_CDN}/sidebar-dashboard-normal.svg`} width={14} height={14} alt="" style={{ filter: 'brightness(0) opacity(0.9)' }} />
         <span style={{
-          fontSize: 13, color: '#49A3A6', fontWeight: 500, fontFamily: "'Delight', sans-serif",
+          fontSize: 12, lineHeight: '20px', color: 'var(--text-n9)', fontFamily: "'Delight', sans-serif",
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0,
         }}>{r.name}</span>
         {r.pulse && <PulseIndicator status={r.pulse} />}
       </div>
       {/* 第二行：描述 */}
-      <div className="flex items-center gap-[8px] mt-[4px]">
+      <div className="mt-[4px]">
         <span style={{
-          flex: 1, fontSize: 12, color: 'var(--text-n5)', overflow: 'hidden',
-          textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          fontSize: 12, lineHeight: '20px', color: 'var(--text-n5)',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block',
         }}>{r.description}</span>
       </div>
     </div>
@@ -95,7 +104,7 @@ function PlaybookRefCard({ item }: { item: PlaybookRef }) {
 
 function CommentItem({ comment, onReply }: { comment: Comment; onReply: (id: string) => void }) {
   return (
-    <div className="flex gap-[10px]" style={{ padding: '12px 0' }}>
+    <div className="flex gap-[8px]" style={{ padding: '12px 0' }}>
       <CommentAvatar name={comment.author} isAgent={comment.isAgent} size={22} />
       <div className="flex-1 min-w-0">
         {/* 作者 + 时间（右对齐） */}
@@ -157,11 +166,11 @@ function CommentThread({ comment, depth, onReply }: { comment: Comment; depth: n
   const hasReplies = comment.replies && comment.replies.length > 0;
   return (
     <div className="relative">
-      {/* 从头像中心向下延伸到子评论的竖线 */}
+      {/* 从头像底部向下延伸的竖线 */}
       {hasReplies && (
         <div style={{
           position: 'absolute',
-          left: 10, /* 头像中心: 22/2 = 11, 取整 10 */
+          left: 11, /* 头像中心 x: 22/2 = 11 */
           top: 34,  /* 头像底部: padding 12 + avatar 22 = 34 */
           bottom: 0,
           width: 1,
@@ -170,10 +179,10 @@ function CommentThread({ comment, depth, onReply }: { comment: Comment; depth: n
       )}
       <CommentItem comment={comment} onReply={onReply} />
       {hasReplies && (
-        <div style={{ marginLeft: 10, paddingLeft: 21 }}>
+        <div style={{ marginLeft: 11, paddingLeft: 21 }}>
           {comment.replies!.map((reply, i) => (
             <div key={reply.id} className="relative">
-              {/* 从竖线到子评论头像的横线 */}
+              {/* 从竖线到子评论头像中心的横线 */}
               <div style={{
                 position: 'absolute',
                 left: -21,
@@ -182,12 +191,12 @@ function CommentThread({ comment, depth, onReply }: { comment: Comment; depth: n
                 height: 1,
                 background: 'var(--grey-g05, #eaeaea)',
               }} />
-              {/* 子评论之间的竖线延续 */}
+              {/* 子评论之间的竖线：从当前头像底部到下一个头像顶部 */}
               {i < comment.replies!.length - 1 && (
                 <div style={{
                   position: 'absolute',
                   left: -21,
-                  top: 23,
+                  top: 34, /* 当前头像底部: padding 12 + avatar 22 = 34 */
                   bottom: 0,
                   width: 1,
                   background: 'var(--grey-g05, #eaeaea)',
@@ -259,6 +268,8 @@ interface DiscussionPanelProps {
 export function DiscussionPanel({ open, onClose, comments, agentTake }: DiscussionPanelProps) {
   const [width, setWidth] = useState(480);
   const [replyTarget, setReplyTarget] = useState<string | null>(null);
+  const [inputText, setInputText] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const widthRef = useRef(width);
   widthRef.current = width;
@@ -334,7 +345,29 @@ export function DiscussionPanel({ open, onClose, comments, agentTake }: Discussi
         {/* 评论列表 */}
         <div className="flex-1 overflow-y-auto px-[24px]">
           {comments.map((c, i) => (
-            <div key={c.id}>
+            <div key={c.id} className="relative">
+              {/* 从上一个评论底部连接到当前头像顶部 */}
+              {i > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  left: 11,
+                  top: 0,
+                  height: 12, /* CommentItem padding-top */
+                  width: 1,
+                  background: 'var(--grey-g05, #eaeaea)',
+                }} />
+              )}
+              {/* 从当前头像底部延伸到下一个头像 */}
+              {i < comments.length - 1 && (
+                <div style={{
+                  position: 'absolute',
+                  left: 11,
+                  top: 34, /* 头像底部: padding 12 + avatar 22 */
+                  bottom: 0,
+                  width: 1,
+                  background: 'var(--grey-g05, #eaeaea)',
+                }} />
+              )}
               <CommentThread comment={c} depth={0} onReply={id => setReplyTarget(id)} />
               {replyTarget && findComment(c, replyTarget) && (
                 <div style={{ marginLeft: 42 }}>
@@ -349,30 +382,45 @@ export function DiscussionPanel({ open, onClose, comments, agentTake }: Discussi
         </div>
 
         {/* 底部输入 */}
-        <div className="shrink-0 px-[24px] pb-[16px] pt-[8px]">
+        <div className="shrink-0 px-[8px] pb-[8px] pt-[8px]">
           <div
-            className="flex items-center"
+            className="flex items-center gap-[8px]"
             style={{
-              border: '1px solid var(--line-l12, rgba(0,0,0,0.12))',
-              borderRadius: 20,
-              height: 44,
-              paddingLeft: 16,
-              paddingRight: 4,
+              border: `0.5px solid ${inputFocused ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--line-l2, rgba(0,0,0,0.2))'}`,
+              borderRadius: 8,
+              padding: '12px 16px',
+              transition: 'border-color 150ms',
             }}
           >
-            <span className="flex-1 text-[13px]" style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))', fontFamily: "'Delight', sans-serif" }}>Write a reply</span>
-            <button
+            <input
+              className="flex-1"
+              placeholder="Write a reply"
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
               style={{
-                width: 36, height: 36, borderRadius: '50%',
-                background: 'var(--grey-g01, #fafafa)',
-                border: 'none', cursor: 'pointer',
+                fontSize: 14, lineHeight: '22px', color: 'var(--text-n9)',
+                fontFamily: "'Delight', sans-serif", border: 'none', outline: 'none',
+                background: 'transparent', padding: 0, width: '100%',
+              }}
+            />
+            <button
+              disabled={!inputText.trim()}
+              style={{
+                width: 28, height: 28, borderRadius: 6,
+                background: inputText.trim() ? 'var(--main-m1, #49A3A6)' : 'white',
+                border: inputText.trim() ? 'none' : '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
+                cursor: inputText.trim() ? 'pointer' : 'not-allowed',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 3L8 13M8 3L4 7M8 3L12 7" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <img
+                src={`${ICON_CDN}/arrow-up-l1.svg`}
+                width={14} height={14} alt=""
+                style={{ filter: inputText.trim() ? 'invert(1) brightness(100)' : 'brightness(0) opacity(0.2)' }}
+              />
             </button>
           </div>
         </div>
