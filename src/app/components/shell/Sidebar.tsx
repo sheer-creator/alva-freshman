@@ -105,8 +105,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[5]">
-        <NavItem label="Open Alva" active={activePage === 'home-b'} onClick={() => onNavigate('home-b')} />
-        <NavItem label="Open Alva #2" active={activePage === 'home-c'} onClick={() => onNavigate('home-c')} />
+        <NavItem label="Home" active={activePage === 'home'} onClick={() => onNavigate('home')} />
         <NavItem label="Explore" active={activePage === 'explore'} onClick={() => onNavigate('explore')} />
         <NavItem label="Skills Hub" active={activePage === 'skills'} onClick={() => onNavigate('skills')} />
         <NavItem label="About" onClick={() => window.open('https://alva.ai/landing', '_blank')} />
