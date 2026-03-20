@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills" | "playbook-detail" | "btc-playbook" | "user-profile";
+export type Page = "home" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills" | "playbook-detail" | "btc-playbook" | "user-profile" | "portfolio" | "portfolio-settings";
 
 /* ========== 按需加载页面 ========== */
 
@@ -20,10 +20,12 @@ const Skills = lazy(() => import("@/pages/Skills"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
 const PlaybookDetail = lazy(() => import("@/pages/PlaybookDetail").then(m => ({ default: m.PlaybookDetail })));
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
+const Portfolio = lazy(() => import("@/pages/Portfolio"));
+const PortfolioSettings = lazy(() => import("@/pages/PortfolioSettings"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills", "playbook-detail", "user-profile"];
+const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills", "playbook-detail", "user-profile", "portfolio", "portfolio-settings"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -69,6 +71,8 @@ export default function App() {
         {currentPage === "playbook-detail" && <PlaybookDetail onNavigate={navigate} />}
         {currentPage === "btc-playbook" && <PlaybookDetail onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
+        {currentPage === "portfolio" && <Portfolio onNavigate={navigate} />}
+        {currentPage === "portfolio-settings" && <PortfolioSettings onNavigate={navigate} />}
       </Suspense>
       <SearchModal
         isOpen={isSearchOpen}

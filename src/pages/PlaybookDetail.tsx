@@ -22,6 +22,7 @@ import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_ASSET } from '@/data/community-mock';
 import ReactECharts from 'echarts-for-react';
+import { DriftWidget } from '@/app/components/trading/DriftWidget';
 import {
   CHART_DOT_BG, CHART_COLORS, FONT,
   tooltipConfig, tooltipFormatter, timeXAxisConfig, valueYAxisConfig,
@@ -434,6 +435,15 @@ export function PlaybookDetail({ onNavigate }: { onNavigate: (page: Page) => voi
                 <div className="flex gap-[24px]">
                   <PerformanceChart />
                   <KeyMetrics />
+                </div>
+
+                {/* Holdings Alignment — DriftWidget */}
+                <div className="flex gap-[24px]">
+                  <DriftWidget weights={[
+                    { symbol: 'BTC', currentWeight: 0.58, targetWeight: 0.55, drift: 0.03 },
+                    { symbol: 'ETH', currentWeight: 0.35, targetWeight: 0.35, drift: 0.00 },
+                    { symbol: 'SOL', currentWeight: 0.07, targetWeight: 0.10, drift: -0.03 },
+                  ]} totalDrift={3.2} lastRebalance="3 days ago" />
                 </div>
 
                 {/* Section: Social Sentiment */}
