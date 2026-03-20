@@ -90,7 +90,7 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
         {/* Back */}
         <div className="px-[28px] pt-[28px]">
           <div className="flex items-center gap-[4px] cursor-pointer group w-fit"
-            onClick={() => onNavigate('home')}
+            onClick={() => { if (window.history.length > 1) window.history.back(); else onNavigate('home'); }}
           >
             <div className="w-[12px] h-[12px] bg-[rgba(0,0,0,0.5)] group-hover:bg-[rgba(0,0,0,0.9)] transition-colors"
               style={{ WebkitMask: 'url(https://alva-ai-static.b-cdn.net/icons/arrow-left-l2.svg) center / contain no-repeat', mask: 'url(https://alva-ai-static.b-cdn.net/icons/arrow-left-l2.svg) center / contain no-repeat' }}
@@ -99,7 +99,7 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
           </div>
         </div>
 
-        <div className="max-w-[960px] mx-auto px-[28px] pt-[24px] pb-[80px]">
+        <div className="px-[28px] pt-[24px] pb-[80px]"><div className="max-w-[960px] mx-auto">
 
           {/* Title */}
           <h1 className="text-[28px] leading-[38px] mb-[28px]" style={{ color: 'var(--text-n9)', fontFamily: "'Delight', serif", fontWeight: 400 }}>
@@ -178,7 +178,7 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
             ))}
           </div>
 
-        </div>
+        </div></div>
       </div>
     </AppShell>
   );

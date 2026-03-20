@@ -74,7 +74,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
           {/* Back button */}
           <div
             className="absolute left-[28px] top-[28px] flex items-center gap-[4px] cursor-pointer group"
-            onClick={() => onNavigate('home')}
+            onClick={() => { if (window.history.length > 1) window.history.back(); else onNavigate('home'); }}
           >
             <div
               className="w-[12px] h-[12px] transition-colors bg-[rgba(0,0,0,0.5)] group-hover:bg-[rgba(0,0,0,0.9)]"
