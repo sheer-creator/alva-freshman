@@ -124,33 +124,28 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[3]">
         <SectionHeader label="Playbooks" />
         <NavItem label="Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
-        <NavItem label="Custom Layout" active={activePage === 'test'} onClick={() => onNavigate('test')} />
-        <NavItem label="Popular Stock Playbook" active={activePage === 'popular-stock'} onClick={() => onNavigate('popular-stock')} />
         <NavItem label="TSLA Overview" active={activePage === 'tsla-overview'} onClick={() => onNavigate('tsla-overview')} />
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
-        <NavItem label="TSLA Tracking" active={activePage === 'tsla-tracking'} onClick={() => onNavigate('tsla-tracking')} />
-        <NavItem label="Playbook Detail" active={activePage === 'playbook-detail'} onClick={() => onNavigate('playbook-detail')} />
       </div>
 
       {/* 用户 — mt-auto 撑到底部 */}
-      <div className="relative shrink-0 w-full z-[1] mt-auto flex items-center gap-[4px] p-[4px]">
-        <div
-          className="flex-1 min-w-0 rounded-[4px] cursor-pointer hover:bg-white/5 transition-colors"
-          onMouseEnter={onUserMouseEnter}
-          onMouseLeave={onUserMouseLeave}
-          onClick={() => onNavigate('user-profile')}
-        >
-          <div className="flex gap-[8px] items-center p-[4px]">
-            <UserAvatar name="YGGYLL" size={24} />
-            <p className="flex-[1_0_0] font-['Delight',sans-serif] font-normal leading-[22px] min-h-px min-w-px not-italic relative text-[13px] text-white tracking-[0.13px] truncate">YGGYLL</p>
-          </div>
+      <div
+        className="relative shrink-0 w-full z-[1] mt-auto rounded-[4px] cursor-pointer hover:bg-white/5 transition-colors"
+        onMouseEnter={onUserMouseEnter}
+        onMouseLeave={onUserMouseLeave}
+        onClick={() => onNavigate('user-profile')}
+      >
+        <div className="flex gap-[8px] items-center p-[8px]">
+          <UserAvatar name="YGGYLL" size={24} />
+          <p className="flex-1 font-['Delight',sans-serif] font-normal leading-[22px] min-w-0 not-italic relative text-[13px] text-white tracking-[0.13px] truncate">YGGYLL</p>
+          <button
+            className="shrink-0 rounded-[4px] px-[8px] py-[3px] text-[11px] leading-[18px] tracking-[0.11px] font-normal font-['Delight',sans-serif] text-white border-[0.5px] border-white/12 bg-white/3 hover:border-white/30 transition-all cursor-pointer"
+            style={{ WebkitFontSmoothing: 'antialiased' }}
+            onClick={(e) => { e.stopPropagation(); onNavigate('pricing'); }}
+          >
+            Upgrade
+          </button>
         </div>
-        <button
-          className="shrink-0 rounded-[4px] px-[10px] py-[4px] text-[12px] leading-[18px] font-medium font-['Delight',sans-serif] text-white/60 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-          onClick={() => onNavigate('pricing')}
-        >
-          Upgrade
-        </button>
       </div>
     </div>
   );

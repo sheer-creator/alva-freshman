@@ -119,7 +119,7 @@ function ListItemR() {
 function Item() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-name="Item">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Credits Records</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Billing</p>
     </div>
   );
 }
@@ -156,10 +156,15 @@ function ListItemR1() {
 
 function ListItemMain() {
   return (
-    <div className="content-stretch flex gap-[8px] items-center py-[12px] relative shrink-0 w-full" data-name="List Item/Main">
+    <button
+      type="button"
+      className="content-stretch flex gap-[8px] items-center py-[12px] px-[4px] -mx-[4px] relative shrink-0 rounded-[6px] w-[calc(100%+8px)] text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+      data-name="List Item/Main"
+      onClick={() => { window.location.hash = 'billing'; }}
+    >
       <ListItemL />
       <ListItemR1 />
-    </div>
+    </button>
   );
 }
 
@@ -384,7 +389,6 @@ function List() {
       <div aria-hidden="true" className="absolute border-[rgba(0,0,0,0.07)] border-b border-solid inset-0 pointer-events-none" />
       <ListItemMain />
       <ListItemMainApiKeys />
-      <ListItemMainSettings />
       <ListItemMain1 />
       <ListItemMain2 />
     </div>
