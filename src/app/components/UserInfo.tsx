@@ -119,7 +119,7 @@ function ListItemR() {
 function Item() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative" data-name="Item">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Credits Records</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Billing</p>
     </div>
   );
 }
@@ -156,22 +156,23 @@ function ListItemR1() {
 
 function ListItemMain() {
   return (
-    <div className="content-stretch flex gap-[8px] items-center py-[12px] relative shrink-0 w-full" data-name="List Item/Main">
+    <button
+      type="button"
+      className="content-stretch flex gap-[8px] items-center py-[12px] px-[4px] -mx-[4px] relative shrink-0 rounded-[6px] w-[calc(100%+8px)] text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+      data-name="List Item/Main"
+      onClick={() => { window.location.hash = 'billing'; }}
+    >
       <ListItemL />
       <ListItemR1 />
-    </div>
+    </button>
   );
 }
 
 function ApiKeysL() {
   return (
     <div className="relative shrink-0 size-[20px]" data-name="api-keys-l">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 20">
-        <path
-          d="M12.4987 4.16675C14.5702 4.16675 16.2497 5.8463 16.2497 7.91777C16.2497 9.98923 14.5702 11.6688 12.4987 11.6688C11.7423 11.6688 11.038 11.4449 10.4489 11.0598L7.45581 14.0539V16.2501H5.25964V18.3334H2.75964V15.5338L8.97979 9.31361C8.76522 8.8817 8.74774 8.45129 8.74774 7.91777C8.74774 5.8463 10.4273 4.16675 12.4987 4.16675ZM12.4987 5.83341C11.3477 5.83341 10.4144 6.76675 10.4144 7.91777C10.4144 9.06878 11.3477 10.0021 12.4987 10.0021C13.6498 10.0021 14.5831 9.06878 14.5831 7.91777C14.5831 6.76675 13.6498 5.83341 12.4987 5.83341Z"
-          fill="var(--fill-0, black)"
-          fillOpacity="0.9"
-        />
+      <svg className="block size-full" viewBox="0 0 20 20" fill="none">
+        <path d="M12.5005 2C15.5379 2.00018 18.0005 4.46254 18.0005 7.5C18.0005 10.5375 15.5379 12.9998 12.5005 13C11.0342 13 9.70321 12.4245 8.71725 11.4893L6.20553 14.001L7.50143 15.2979C7.89068 15.6883 7.89107 16.3207 7.50143 16.7109L6.20748 18.0059C5.8171 18.3962 5.18396 18.396 4.79342 18.0059L3.49752 16.709L2.85397 17.3535C2.65877 17.5487 2.34221 17.5486 2.14693 17.3535C1.95167 17.1583 1.95167 16.8417 2.14693 16.6465L8.05514 10.7373C7.39241 9.8289 7.00045 8.71056 7.00045 7.5C7.00045 4.46243 9.46288 2 12.5005 2ZM4.20455 16.002L5.50045 17.2988L6.79342 16.0039L5.4985 14.708L4.20455 16.002ZM12.5005 3C10.0152 3 8.00045 5.01472 8.00045 7.5C8.00045 9.98528 10.0152 12 12.5005 12C14.9856 11.9998 17.0005 9.98517 17.0005 7.5C17.0005 5.01483 14.9856 3.00018 12.5005 3Z" fill="black" fillOpacity="0.9" />
       </svg>
     </div>
   );
@@ -349,6 +350,36 @@ function ListItemMain2() {
       <ListItemL2 />
       <ListItemR5 />
     </div>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <div className="relative shrink-0 size-[20px]">
+      <img src="https://alva-ai-static.b-cdn.net/icons/settings-l.svg" alt="" className="block size-full" />
+    </div>
+  );
+}
+
+function ListItemMainSettings() {
+  return (
+    <button
+      type="button"
+      className="content-stretch flex gap-[8px] items-center py-[12px] px-[4px] -mx-[4px] relative shrink-0 rounded-[6px] w-[calc(100%+8px)] text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+      onClick={() => { window.location.hash = 'settings'; }}
+    >
+      <div className="content-stretch flex flex-[1_0_0] gap-[8px] h-[22px] items-center min-h-px min-w-px relative">
+        <div className="content-stretch flex items-center justify-end relative shrink-0">
+          <SettingsIcon />
+        </div>
+        <div className="content-stretch flex flex-[1_0_0] gap-[8px] items-center min-h-px min-w-px relative">
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Settings</p>
+        </div>
+      </div>
+      <div className="content-stretch flex items-center justify-end relative shrink-0">
+        <ArrowRightL1 />
+      </div>
+    </button>
   );
 }
 

@@ -545,7 +545,7 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
       style={{ height: 340 }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      onClick={() => onNavigate('playbook-detail')}
+      onClick={() => onNavigate('btc-playbook')}
     >
       {/* ── 背景层 ── */}
       <div className="absolute inset-0" style={{ background: '#0c0c14' }} />
@@ -832,7 +832,7 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
             <div className="grid grid-cols-3 gap-[16px] w-full max-w-[1200px]">
               {PLAYBOOKS.map((pb, i) => (
                 <div key={pb.id} style={{ animationDelay: `${i * 60}ms` }} className="animate-[fadeInUp_0.4s_ease-out_both]">
-                  <PlaybookCard pb={pb} onClick={() => onNavigate?.('playbook-detail')} />
+                  <PlaybookCard pb={pb} onClick={() => onNavigate?.('btc-playbook')} />
                 </div>
               ))}
             </div>

@@ -124,24 +124,27 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[3]">
         <SectionHeader label="Playbooks" />
         <NavItem label="Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
-        <NavItem label="Custom Layout" active={activePage === 'test'} onClick={() => onNavigate('test')} />
-        <NavItem label="Popular Stock Playbook" active={activePage === 'popular-stock'} onClick={() => onNavigate('popular-stock')} />
         <NavItem label="TSLA Overview" active={activePage === 'tsla-overview'} onClick={() => onNavigate('tsla-overview')} />
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
-        <NavItem label="TSLA Tracking" active={activePage === 'tsla-tracking'} onClick={() => onNavigate('tsla-tracking')} />
-        <NavItem label="Playbook Detail" active={activePage === 'playbook-detail'} onClick={() => onNavigate('playbook-detail')} />
       </div>
 
-      {/* 用户 — mt-auto 撑到底部，点击进入 Profile */}
+      {/* 用户 — mt-auto 撑到底部 */}
       <div
-        className="relative rounded-[4px] shrink-0 w-full z-[1] mt-auto cursor-pointer hover:bg-white/5 transition-colors"
+        className="relative shrink-0 w-full z-[1] mt-auto rounded-[4px] cursor-pointer hover:bg-white/5 transition-colors"
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
         onClick={() => onNavigate('user-profile')}
       >
-        <div className="content-stretch flex gap-[8px] items-center p-[8px] relative w-full">
+        <div className="flex gap-[8px] items-center p-[8px]">
           <UserAvatar name="YGGYLL" size={24} />
-          <p className="flex-[1_0_0] font-['Delight',sans-serif] font-normal leading-[22px] min-h-px min-w-px not-italic relative text-[13px] text-white tracking-[0.13px] whitespace-pre-wrap">YGGYLL</p>
+          <p className="flex-1 font-['Delight',sans-serif] font-normal leading-[22px] min-w-0 not-italic relative text-[13px] text-white tracking-[0.13px] truncate">YGGYLL</p>
+          <button
+            className="shrink-0 rounded-[4px] px-[8px] py-[3px] text-[11px] leading-[18px] tracking-[0.11px] font-normal font-['Delight',sans-serif] text-white border-[0.5px] border-white/12 bg-white/3 hover:border-white/30 transition-all cursor-pointer"
+            style={{ WebkitFontSmoothing: 'antialiased' }}
+            onClick={(e) => { e.stopPropagation(); onNavigate('pricing'); }}
+          >
+            Upgrade
+          </button>
         </div>
       </div>
     </div>
