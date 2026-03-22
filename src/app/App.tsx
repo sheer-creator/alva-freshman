@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "docs" | "api-keys" | "explore" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills" | "playbook-detail" | "btc-playbook" | "user-profile" | "portfolio" | "portfolio-settings";
+export type Page = "home" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "test" | "nvda" | "popular-stock" | "tsla-overview" | "tsla-tracking" | "skills" | "playbook-detail" | "btc-playbook" | "user-profile" | "portfolio" | "portfolio-settings";
 
 /* ========== 按需加载页面 ========== */
 
@@ -22,10 +22,11 @@ const PlaybookDetail = lazy(() => import("@/pages/PlaybookDetail").then(m => ({ 
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
 const Portfolio = lazy(() => import("@/pages/Portfolio"));
 const PortfolioSettings = lazy(() => import("@/pages/PortfolioSettings"));
+const Explore2 = lazy(() => import("@/pages/Explore2"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills", "playbook-detail", "user-profile", "portfolio", "portfolio-settings"];
+const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "test", "nvda", "popular-stock", "tsla-overview", "tsla-tracking", "skills", "playbook-detail", "user-profile", "portfolio", "portfolio-settings"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -60,6 +61,7 @@ export default function App() {
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "skills" && <Skills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "library" && <Library onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "dashboard" && <Dashboard onNavigate={navigate} />}
         {currentPage === "workspace" && <DashboardWorkspace onNavigate={navigate} />}
