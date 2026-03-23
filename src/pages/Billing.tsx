@@ -48,10 +48,10 @@ function ManageDropdown({ onNavigate }: { onNavigate: (page: Page) => void }) {
   return (
     <div className="relative" ref={ref}>
       <button
-        className="flex items-center gap-[6px] h-[28px] px-[10px] rounded-[4px] text-[12px] font-medium leading-[20px] tracking-[0.12px] cursor-pointer transition-all"
-        style={{ color: 'var(--text-n7)', background: 'transparent', border: '0.5px solid rgba(0,0,0,0.15)' }}
+        className="flex items-center gap-[4px] h-[28px] px-[8px] rounded-[4px] text-[12px] font-medium leading-[20px] tracking-[0.12px] cursor-pointer transition-all"
+        style={{ color: 'var(--text-n7)', background: 'transparent', border: '0.5px solid var(--line-l3)' }}
         onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.5)'; }}
-        onMouseLeave={(e) => { if (!open) e.currentTarget.style.borderColor = 'rgba(0,0,0,0.15)'; }}
+        onMouseLeave={(e) => { if (!open) e.currentTarget.style.borderColor = 'var(--line-l3)'; }}
         onClick={() => setOpen(!open)}
       >
         <div className="w-[14px] h-[14px]" style={{ background: 'var(--text-n7)', WebkitMask: 'url(https://alva-ai-static.b-cdn.net/icons/settings-l.svg) center / contain no-repeat', mask: 'url(https://alva-ai-static.b-cdn.net/icons/settings-l.svg) center / contain no-repeat' }} />
@@ -111,9 +111,9 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
           {/* Top row: Plan + Credits side by side */}
           <div className="grid grid-cols-[1fr_1fr] gap-[24px] mb-[24px]">
 
-            {/* Plan card — 180px = 24 padding-top + 30 title + 16 gap + 48 price + 16 gap + 22 dates + 24 padding-bottom */}
-            <div className="relative rounded-[12px] px-[24px] py-[24px] flex flex-col gap-[16px]" style={{ border: '0.5px solid rgba(73,163,166,0.4)', background: 'rgba(73,163,166,0.05)', height: 180 }}>
-              <div className="flex items-center justify-between h-[30px]">
+            {/* Plan card — 178px = 24 + 28 title + 16 + 48 price + 16 + 22 dates + 24 */}
+            <div className="relative rounded-[12px] px-[24px] py-[24px] flex flex-col gap-[16px]" style={{ border: '0.5px solid rgba(73,163,166,0.4)', background: 'rgba(73,163,166,0.05)', height: 178 }}>
+              <div className="flex items-center justify-between h-[28px]">
                 <div className="flex items-center gap-[10px]">
                   <span className="text-[18px] font-normal leading-[28px] tracking-[0.18px]" style={{ color: 'var(--text-n9)' }}>{PLAN.name}</span>
                   <span className="text-[11px] leading-[18px] tracking-[0.11px] px-[8px] py-[1px] rounded-[4px]" style={{ color: 'var(--main-m1, #49A3A6)', background: 'rgba(73,163,166,0.15)' }}>Annually</span>
@@ -136,10 +136,10 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
               </div>
             </div>
 
-            {/* Credits card — 180px = 24 padding-top + 30 title + 16 gap + 48 number + 16 gap + 22 bar + 24 padding-bottom */}
-            <div className="relative rounded-[12px] px-[24px] py-[24px] flex flex-col gap-[16px]" style={{ border: '0.5px solid rgba(0,0,0,0.12)', background: '#fff', height: 180 }}>
-              <div className="flex items-center h-[30px]">
-                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9)' }}>Credits</span>
+            {/* Credits card — 178px = 24 + 28 title + 16 + 48 number + 16 + 22 bar + 24 */}
+            <div className="relative rounded-[12px] px-[24px] py-[24px] flex flex-col gap-[16px]" style={{ border: '0.5px solid rgba(0,0,0,0.12)', background: '#fff', height: 178 }}>
+              <div className="flex items-center h-[28px]">
+                <span className="text-[18px] leading-[28px] tracking-[0.18px]" style={{ color: 'var(--text-n9)' }}>Credits</span>
               </div>
               <div className="flex items-baseline gap-[6px] h-[48px]">
                 <span className="text-[36px] font-normal leading-[48px]" style={{ color: 'var(--text-n9)' }}>{PLAN.credits.used.toLocaleString()}</span>
