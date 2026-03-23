@@ -1,4 +1,4 @@
-import{r as q,j as d,g as Hn}from"./index-CDKYJTqG.js";import{A as Pe,s as st}from"./AppShell-LTbTn53c.js";import{P as Vn}from"./PulseIndicator-B4KFlOox.js";const Mr="Copy the prompt below and send it to your agent (e.g. OpenClaw, Claude Code) to remix this Playbook.",Jt=`Create a customized version based on this Playbook template:
+import{r as q,j as d,g as Hn}from"./index-MCfT8xnV.js";import{A as Pe,s as st}from"./AppShell-CCl3FbHj.js";import{P as Vn}from"./PulseIndicator-BIxLsgYe.js";const Mr="Copy the prompt below and send it to your agent (e.g. OpenClaw, Claude Code) to remix this Playbook.",Jt=`Create a customized version based on this Playbook template:
 
 1. Keep the core strategy logic
 2. Adjust parameters to my investment preferences
