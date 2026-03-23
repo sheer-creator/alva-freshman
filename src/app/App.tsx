@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "btc-playbook" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing";
+export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing";
 
 /* ========== 按需加载页面 ========== */
 
@@ -26,7 +26,7 @@ const HomeV3 = lazy(() => import("@/pages/HomeV3"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "btc-playbook", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing"];
+const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
