@@ -171,9 +171,9 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
               <div key={i} className="grid grid-cols-[1fr_120px_120px] gap-[8px] px-[24px] py-[16px] items-center"
                 style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)' }}
               >
-                <span className="text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'var(--text-n9)' }}>{h.detail}</span>
-                <span className="text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'var(--text-n5)' }}>{h.date}</span>
-                <span className="text-[13px] leading-[20px] tracking-[0.13px] text-right font-medium" style={{ color: h.credits > 0 ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9)' }}>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9)' }}>{h.detail}</span>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5)' }}>{h.date}</span>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px] text-right font-medium" style={{ color: h.credits > 0 ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9)' }}>
                   {h.credits > 0 ? '+' : ''}{h.credits.toLocaleString()}
                 </span>
               </div>
