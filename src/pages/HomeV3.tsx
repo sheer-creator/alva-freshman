@@ -567,7 +567,7 @@ function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
         {/* Skills pill banner */}
         <div className="flex justify-center mb-[16px]">
           <button
-            onClick={() => onNavigate('skills')}
+            onClick={() => onNavigate('alva-skills')}
             className="inline-flex items-center gap-[8px] px-[6px] py-[5px] pr-[16px] rounded-full bg-white/80 backdrop-blur-sm border border-[rgba(0,0,0,0.06)] shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)] transition-all cursor-pointer group"
           >
             <span className="px-[10px] py-[2px] rounded-full bg-[#49a3a6] text-white text-[12px] leading-[18px] font-['Delight',sans-serif] font-normal">
