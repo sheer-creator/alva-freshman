@@ -1,6 +1,6 @@
 /**
  * [INPUT]: AppShell, trading-mock
- * [OUTPUT]: Portfolio 设置页 — Broker / Risk / Kill Switch / Notifications
+ * [OUTPUT]: Portfolio 设置页 — Broker / Risk / Notifications
  * [POS]: 页面层 — Portfolio 配置管理
  */
 
@@ -118,8 +118,6 @@ function Toggle({ label, defaultOn = true, last }: { label: string; defaultOn?: 
 /* ========== 页面 ========== */
 
 export default function PortfolioSettings({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [killSwitch, setKillSwitch] = useState(P.risk.killSwitch);
-
   return (
     <AppShell activePage="portfolio-settings" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
@@ -157,36 +155,6 @@ export default function PortfolioSettings({ onNavigate }: { onNavigate: (page: P
               <RiskRule label="Max Single Order" value={`$${P.risk.maxOrderSize.toLocaleString()}`} />
               <RiskRule label="Max Daily Turnover" value={`$${P.risk.maxDailyTurnover.toLocaleString()}`} />
               <RiskRule label="Max Daily Orders" value={P.risk.maxDailyOrders.toString()} last />
-            </div>
-          </Section>
-
-          {/* Kill Switch */}
-          <Section title="Kill Switch" subtitle="Emergency stop for all automated trading">
-            <div style={{
-              ...CARD_BG, padding: 20,
-              background: killSwitch ? 'rgba(224,83,87,0.04)' : 'var(--grey-g01)',
-              border: killSwitch ? '1px solid rgba(224,83,87,0.2)' : '1px solid transparent',
-              transition: 'all 0.3s',
-            }}>
-              <div className="flex items-center justify-between mb-[16px]">
-                <div className="flex items-center gap-[8px]">
-                  <div className="w-[8px] h-[8px] rounded-full" style={{ background: killSwitch ? 'var(--main-m4)' : 'var(--main-m3)' }} />
-                  <span className="text-[13px]" style={{ color: killSwitch ? 'var(--main-m4)' : 'var(--main-m3)', fontWeight: 500 }}>
-                    {killSwitch ? 'Trading Paused' : 'Trading Active'}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setKillSwitch(v => !v)}
-                className="transition-all"
-                style={{
-                  width: '100%', padding: '12px 0', borderRadius: 6,
-                  border: 'none', cursor: 'pointer',
-                  background: killSwitch ? 'var(--main-m3)' : 'var(--main-m4)',
-                  color: '#fff', fontSize: 13, fontWeight: 500,
-                  fontFamily: FONT_FAMILY, letterSpacing: '0.02em',
-                }}
-              >{killSwitch ? 'Resume Trading' : 'Stop All Trading'}</button>
             </div>
           </Section>
 
