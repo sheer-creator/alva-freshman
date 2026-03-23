@@ -105,9 +105,22 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
     <div className="antialiased bg-[#2a2a38] flex flex-col h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 w-[228px] z-[2] overflow-y-auto" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)', backgroundSize: '3px 3px' }}>
       <Logo />
 
+      {/* New Playbook 按钮 */}
+      <div className="px-[8px] py-[4px] shrink-0 w-full z-[6]">
+        <button
+          className="flex items-center justify-center gap-[6px] w-full h-[32px] rounded-[6px] bg-[#49a3a6] hover:bg-[#3d8e91] active:bg-[#358082] transition-colors cursor-pointer border-none"
+          onClick={() => {}}
+        >
+          <span className="font-['Delight',sans-serif] font-normal text-[13px] leading-[22px] tracking-[0.13px] text-white">
+            New Playbook
+          </span>
+        </button>
+      </div>
+
       {/* 主导航 */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[5]">
         <NavItem label="Home" active={activePage === 'home'} onClick={() => onNavigate('home')} />
+        <NavItem label="Home V3" active={activePage === 'home-v3'} onClick={() => onNavigate('home-v3')} />
         <NavItem label="Explore" active={activePage === 'explore'} onClick={() => onNavigate('explore-2' as any)} />
         <NavItem label="Portfolio" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Skills Hub" active={activePage === 'skills'} onClick={() => onNavigate('skills')} />

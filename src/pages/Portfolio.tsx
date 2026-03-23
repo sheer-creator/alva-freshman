@@ -86,6 +86,9 @@ function PortfolioHeader({ onNavigate }: { onNavigate: (page: Page) => void }) {
 /* ========== Equity Curve (Overview 主图) ========== */
 
 function EquityCurveChart() {
+  const values = P.equityCurve.map(([, v]) => v);
+  const yMin = Math.floor(Math.min(...values) / 5000) * 5000;
+
   const option = {
     tooltip: tooltipConfig({
       formatter: (params: { color: string; seriesName: string; data: [string, number] }[]) =>
@@ -94,6 +97,7 @@ function EquityCurveChart() {
     grid: { ...GRID_DEFAULT, top: 24, bottom: 24, left: 48 },
     xAxis: timeXAxisConfig(),
     yAxis: valueYAxisConfig('', {
+      min: yMin,
       axisLabel: {
         color: 'rgba(0,0,0,0.5)', fontFamily: FONT, fontSize: 10,
         formatter: (v: number) => '$' + (v / 1000).toFixed(0) + 'K',
@@ -490,9 +494,9 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
 
           {/* Stats */}
           <div className="flex gap-[8px]">
+            <StatItem value={`$${P.positions.reduce((s, p) => s + p.marketValue, 0).toLocaleString()}`} label="Invested" />
             <StatItem value={`${P.todayPnl >= 0 ? '+' : ''}$${P.todayPnl.toLocaleString()}`} label="Today P&L" accent />
             <StatItem value={P.positions.length.toString()} label="Positions" />
-            <StatItem value={P.strategies.filter(s => s.status === 'active').length.toString()} label="Active Strategies" />
             <StatItem value={pendingCount.toString()} label="Pending Orders" />
           </div>
 
