@@ -12,19 +12,22 @@ import { AppShell } from '@/app/components/shell/AppShell';
 
 const PLAN = {
   name: 'Pro', price: '$29', interval: 'month',
-  renewDate: 'Apr 20, 2026', credits: { used: 8420, total: 12000 },
+  startDate: '01/08/2026', nextBilling: '01/08/2027',
+  credits: { used: 8000, total: 12000 },
 };
 
 const HISTORY = [
-  { date: 'Mar 20', action: 'Playbook auto-refresh', credits: -120, balance: 8420 },
-  { date: 'Mar 19', action: 'BTC Ultimate AI Trader — full analysis', credits: -350, balance: 8540 },
-  { date: 'Mar 19', action: 'NVDA Panoramic — data refresh', credits: -80, balance: 8890 },
-  { date: 'Mar 18', action: 'Skill: Sentiment Scanner × 12 assets', credits: -240, balance: 8970 },
-  { date: 'Mar 18', action: 'Playbook auto-refresh', credits: -120, balance: 9210 },
-  { date: 'Mar 17', action: 'Backtest: MAG7 Equal-Weight (3Y)', credits: -500, balance: 9330 },
-  { date: 'Mar 17', action: 'Skill: Earnings Analyzer — AAPL', credits: -60, balance: 9830 },
-  { date: 'Mar 16', action: 'Playbook auto-refresh', credits: -120, balance: 9890 },
-  { date: 'Mar 15', action: 'Monthly credits top-up', credits: 12000, balance: 10010 },
+  { detail: 'Viral Video Spotlight', date: '12/12/2025', credits: -80 },
+  { detail: 'Monitoring Twitter for Crypto Token Performance', date: '12/12/2025', credits: -500 },
+  { detail: 'New Feature Launch', date: '12/12/2025', credits: -1000 },
+  { detail: 'Bitcoin News, Sentiment, and Market Analysis', date: '12/12/2025', credits: -2000 },
+  { detail: 'Marketing Campaign Analysis', date: '12/12/2025', credits: -300 },
+  { detail: 'Operation promotion', date: '12/12/2025', credits: 1500 },
+  { detail: 'App Crash Reports', date: '12/12/2025', credits: -1200 },
+  { detail: 'Website Traffic Surge', date: '12/12/2025', credits: -5000 },
+  { detail: 'Clarification Needed for Number Inquiry', date: '12/12/2025', credits: -450 },
+  { detail: 'Product Update Rollout', date: '12/12/2025', credits: -200 },
+  { detail: 'Invitation code submitted', date: '12/12/2025', credits: 20000 },
 ];
 
 /* ========== Manage Dropdown ========== */
@@ -45,13 +48,13 @@ function ManageDropdown({ onNavigate }: { onNavigate: (page: Page) => void }) {
   return (
     <div className="relative" ref={ref}>
       <button
-        className="flex items-center gap-[6px] h-[32px] px-[12px] rounded-[4px] text-[12px] font-medium leading-[20px] tracking-[0.12px] cursor-pointer transition-all"
+        className="flex items-center gap-[6px] h-[28px] px-[10px] rounded-[4px] text-[12px] font-medium leading-[20px] tracking-[0.12px] cursor-pointer transition-all"
         style={{ color: 'var(--text-n7)', background: 'transparent', border: '0.5px solid rgba(0,0,0,0.15)' }}
         onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.5)'; }}
         onMouseLeave={(e) => { if (!open) e.currentTarget.style.borderColor = 'rgba(0,0,0,0.15)'; }}
         onClick={() => setOpen(!open)}
       >
-        <img src="https://alva-ai-static.b-cdn.net/icons/settings-l.svg" alt="" className="w-[14px] h-[14px] opacity-50" />
+        <div className="w-[14px] h-[14px]" style={{ background: 'var(--text-n7)', WebkitMask: 'url(https://alva-ai-static.b-cdn.net/icons/settings-l.svg) center / contain no-repeat', mask: 'url(https://alva-ai-static.b-cdn.net/icons/settings-l.svg) center / contain no-repeat' }} />
         Manage
       </button>
 
@@ -81,7 +84,6 @@ function ManageDropdown({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
 export default function Billing({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const pct = Math.min((PLAN.credits.used / PLAN.credits.total) * 100, 100);
-  const remaining = PLAN.credits.total - PLAN.credits.used;
 
   return (
     <AppShell activePage="billing" onNavigate={onNavigate}>
@@ -102,49 +104,52 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
         <div className="px-[28px] pt-[24px] pb-[80px]"><div className="max-w-[960px] mx-auto">
 
           {/* Title */}
-          <h1 className="text-[28px] leading-[38px] mb-[28px]" style={{ color: 'var(--text-n9)', fontFamily: "'Delight', serif", fontWeight: 400 }}>
+          <h1 className="text-[28px] leading-[38px] mb-[24px]" style={{ color: 'var(--text-n9)', fontFamily: "'Delight', serif", fontWeight: 400 }}>
             Billing
           </h1>
 
           {/* Top row: Plan + Credits side by side */}
-          <div className="grid grid-cols-[1fr_1fr] gap-[20px] mb-[20px]">
+          <div className="grid grid-cols-[1fr_1fr] gap-[24px] mb-[24px]">
 
-            {/* Plan card */}
-            <div className="relative rounded-[12px] p-[24px] flex flex-col" style={{ border: '0.5px solid rgba(73,163,166,0.2)', background: 'rgba(73,163,166,0.05)' }}>
-              <div className="flex items-center justify-between mb-[16px]">
-                <div className="flex items-center gap-[8px]">
+            {/* Plan card — 180px = 24 padding-top + 30 title + 16 gap + 48 price + 16 gap + 22 dates + 24 padding-bottom */}
+            <div className="relative rounded-[12px] px-[24px] py-[24px] flex flex-col gap-[16px]" style={{ border: '0.5px solid rgba(73,163,166,0.4)', background: 'rgba(73,163,166,0.05)', height: 180 }}>
+              <div className="flex items-center justify-between h-[30px]">
+                <div className="flex items-center gap-[10px]">
                   <span className="text-[18px] font-normal leading-[28px] tracking-[0.18px]" style={{ color: 'var(--text-n9)' }}>{PLAN.name}</span>
-                  <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>Annually</span>
+                  <span className="text-[11px] leading-[18px] tracking-[0.11px] px-[8px] py-[1px] rounded-[4px]" style={{ color: 'var(--main-m1, #49A3A6)', background: 'rgba(73,163,166,0.15)' }}>Annually</span>
                 </div>
                 <ManageDropdown onNavigate={onNavigate} />
               </div>
-              <div className="flex items-baseline gap-[4px]">
-                <span className="text-[32px] font-normal leading-[40px]" style={{ color: 'var(--main-m1, #49A3A6)' }}>{PLAN.price}</span>
+              <div className="flex items-baseline gap-[4px] h-[48px]">
+                <span className="text-[36px] font-normal leading-[48px]" style={{ color: 'var(--main-m1, #49A3A6)' }}>{PLAN.price}</span>
                 <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5)' }}>/ {PLAN.interval}</span>
               </div>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px] mt-[4px]" style={{ color: 'var(--text-n5)' }}>
-                Renews {PLAN.renewDate}
-              </span>
+              <div className="flex items-center gap-[24px] h-[22px]">
+                <div className="flex items-center gap-[6px]">
+                  <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5)' }}>Start Date</span>
+                  <span className="text-[14px] leading-[22px] tracking-[0.14px] font-medium" style={{ color: 'var(--text-n9)' }}>{PLAN.startDate}</span>
+                </div>
+                <div className="flex items-center gap-[6px]">
+                  <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5)' }}>Next Billing</span>
+                  <span className="text-[14px] leading-[22px] tracking-[0.14px] font-medium" style={{ color: 'var(--text-n9)' }}>{PLAN.nextBilling}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Credits card */}
-            <div className="relative rounded-[12px] p-[24px] flex flex-col" style={{ border: '0.5px solid rgba(0,0,0,0.12)', background: '#fff' }}>
-              <div className="flex items-center justify-between mb-[16px]">
-                <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>Credits</span>
-                <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>
-                  Resets {PLAN.renewDate}
-                </span>
+            {/* Credits card — 180px = 24 padding-top + 30 title + 16 gap + 48 number + 16 gap + 22 bar + 24 padding-bottom */}
+            <div className="relative rounded-[12px] px-[24px] py-[24px] flex flex-col gap-[16px]" style={{ border: '0.5px solid rgba(0,0,0,0.12)', background: '#fff', height: 180 }}>
+              <div className="flex items-center h-[30px]">
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9)' }}>Credits</span>
               </div>
-              <div className="flex items-baseline gap-[6px] mb-[4px]">
-                <span className="text-[32px] font-normal leading-[40px]" style={{ color: 'var(--text-n9)' }}>{remaining.toLocaleString()}</span>
+              <div className="flex items-baseline gap-[6px] h-[48px]">
+                <span className="text-[36px] font-normal leading-[48px]" style={{ color: 'var(--text-n9)' }}>{PLAN.credits.used.toLocaleString()}</span>
                 <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5)' }}>/ {PLAN.credits.total.toLocaleString()}</span>
               </div>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px] mb-[16px]" style={{ color: 'var(--text-n5)' }}>
-                remaining this cycle
-              </span>
-              {/* Progress bar */}
-              <div className="w-full h-[6px] rounded-full" style={{ background: 'rgba(0,0,0,0.06)' }}>
-                <div className="h-full rounded-full" style={{ width: `${100 - pct}%`, background: 'var(--main-m1, #49A3A6)' }} />
+              {/* Progress bar row — h-22, bar vertically centered */}
+              <div className="flex items-center h-[22px]">
+                <div className="w-full h-[6px] rounded-full" style={{ background: 'rgba(0,0,0,0.06)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'var(--main-m1, #49A3A6)' }} />
+                </div>
               </div>
             </div>
           </div>
@@ -152,28 +157,25 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
           {/* History */}
           <div className="rounded-[12px]" style={{ border: '0.5px solid rgba(0,0,0,0.12)', background: '#fff' }}>
             {/* Header */}
-            <div className="flex items-center justify-between px-[24px] py-[16px]" style={{ borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}>
-              <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9)' }}>Credits History</span>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>This billing cycle</span>
+            <div className="px-[24px] py-[16px]" style={{ borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}>
+              <span className="text-[16px] leading-[24px] tracking-[0.16px]" style={{ color: 'var(--text-n9)' }}>Credits History</span>
             </div>
             {/* Table header */}
-            <div className="grid grid-cols-[72px_1fr_100px_100px] gap-[8px] px-[24px] py-[10px]" style={{ borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n7)' }}>Date</span>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n7)' }}>Action</span>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px] text-right" style={{ color: 'var(--text-n7)' }}>Credits</span>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px] text-right" style={{ color: 'var(--text-n7)' }}>Balance</span>
+            <div className="grid grid-cols-[1fr_120px_120px] gap-[8px] px-[24px] py-[10px]" style={{ background: 'rgba(0,0,0,0.02)' }}>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>Detail</span>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>Date</span>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px] text-right" style={{ color: 'var(--text-n5)' }}>Credits Usage</span>
             </div>
             {/* Rows */}
             {HISTORY.map((h, i) => (
-              <div key={i} className="grid grid-cols-[72px_1fr_100px_100px] gap-[8px] px-[24px] py-[12px]"
-                style={i < HISTORY.length - 1 ? { borderBottom: '0.5px solid rgba(0,0,0,0.04)' } : undefined}
+              <div key={i} className="grid grid-cols-[1fr_120px_120px] gap-[8px] px-[24px] py-[14px] items-center"
+                style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)' }}
               >
-                <span className="text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'var(--text-n9)' }}>{h.date}</span>
-                <span className="text-[13px] leading-[20px] tracking-[0.13px] truncate" style={{ color: 'var(--text-n9)' }}>{h.action}</span>
-                <span className="text-[13px] leading-[20px] tracking-[0.13px] text-right" style={{ color: h.credits > 0 ? 'var(--main-m3, #2a9b7d)' : 'var(--text-n9)' }}>
+                <span className="text-[13px] leading-[20px] tracking-[0.13px] font-medium" style={{ color: 'var(--text-n9)' }}>{h.detail}</span>
+                <span className="text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'var(--text-n5)' }}>{h.date}</span>
+                <span className="text-[13px] leading-[20px] tracking-[0.13px] font-medium text-right" style={{ color: h.credits > 0 ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9)' }}>
                   {h.credits > 0 ? '+' : ''}{h.credits.toLocaleString()}
                 </span>
-                <span className="text-[13px] leading-[20px] tracking-[0.13px] text-right" style={{ color: 'var(--text-n9)' }}>{h.balance.toLocaleString()}</span>
               </div>
             ))}
           </div>
