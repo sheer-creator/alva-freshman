@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing";
+export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing";
 
 /* ========== 按需加载页面 ========== */
 
@@ -23,10 +23,11 @@ const Explore2 = lazy(() => import("@/pages/Explore2"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
 const Billing = lazy(() => import("@/pages/Billing"));
 const HomeV3 = lazy(() => import("@/pages/HomeV3"));
+const AlvaSkills = lazy(() => import("@/pages/AlvaSkills"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing"];
+const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -61,6 +62,7 @@ export default function App() {
         {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "skills" && <Skills onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "library" && <Library onNavigate={navigate} onOpenSearch={openSearch} />}
