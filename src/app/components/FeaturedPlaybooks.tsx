@@ -160,7 +160,6 @@ const PLAYBOOK_ROWS = [
       description:
         'Monitor selected tokens on a 4-hour timeframe to detect abnormal changes in Open Interest (OI) and trading volume in order to capture unusual market activity and generate alerts.',
       value: '120.9%',
-      icon: <StrategyIcon />,
     },
     {
       creator: 'Macro Scope X',
