@@ -15,7 +15,7 @@ const NVDADashboard = lazy(() => import("@/pages/NVDADashboard"));
 const DashboardTSLAOverview = lazy(() => import("@/pages/DashboardTSLAOverview").then(m => ({ default: m.DashboardTSLAOverview })));
 const Skills = lazy(() => import("@/pages/Skills"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
-const PlaybookDetail = lazy(() => import("@/pages/PlaybookDetail").then(m => ({ default: m.PlaybookDetail })));
+
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
 const Portfolio = lazy(() => import("@/pages/Portfolio"));
 const PortfolioSettings = lazy(() => import("@/pages/PortfolioSettings"));
@@ -68,7 +68,6 @@ export default function App() {
         {currentPage === "workspace" && <DashboardWorkspace onNavigate={navigate} />}
         {currentPage === "nvda" && <NVDADashboard onNavigate={navigate} />}
         {currentPage === "tsla-overview" && <DashboardTSLAOverview onNavigate={navigate} />}
-        {currentPage === "btc-playbook" && <PlaybookDetail onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
         {currentPage === "portfolio" && <Portfolio onNavigate={navigate} />}
         {currentPage === "portfolio-settings" && <PortfolioSettings onNavigate={navigate} />}

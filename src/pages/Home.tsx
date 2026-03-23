@@ -9,7 +9,7 @@ import type { Page } from '@/app/App';
 import UserInfo from '@/app/components/UserInfo';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { FeaturedPlaybooks } from '@/app/components/FeaturedPlaybooks';
-import homepageBg from '@/assets/homepage-bg.webp';
+import homepageBg from '@/assets/homepage-bg.png';
 import homepageBgMobile from '@/assets/homepage-bg-mobile.webp';
 
 /* ========== Config (from mono-meta config.ts) ========== */

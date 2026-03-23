@@ -280,7 +280,7 @@ function ListItemR3() {
 
 function ListItemMain1() {
   return (
-    <div className="content-stretch flex gap-[8px] items-center py-[12px] relative shrink-0 w-full" data-name="List Item/Main">
+    <div className="content-stretch flex gap-[8px] items-center py-[12px] px-[4px] -mx-[4px] relative shrink-0 rounded-[6px] w-[calc(100%+8px)] cursor-pointer transition-colors hover:bg-[rgba(0,0,0,0.03)]" data-name="List Item/Main">
       <ListItemL1 />
       <ListItemR3 />
     </div>
@@ -346,7 +346,7 @@ function ListItemR5() {
 
 function ListItemMain2() {
   return (
-    <div className="content-stretch flex gap-[8px] items-center py-[12px] relative shrink-0 w-full" data-name="List Item/Main">
+    <div className="content-stretch flex gap-[8px] items-center py-[12px] px-[4px] -mx-[4px] relative shrink-0 rounded-[6px] w-[calc(100%+8px)] cursor-pointer transition-colors hover:bg-[rgba(0,0,0,0.03)]" data-name="List Item/Main">
       <ListItemL2 />
       <ListItemR5 />
     </div>

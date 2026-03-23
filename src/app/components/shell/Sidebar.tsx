@@ -7,6 +7,8 @@
 import type { Page } from '@/app/App';
 import svgPaths from '@/data/svg-nheoeek59y';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
+import btnUpgradeBg from '@/assets/btn-upgrade.png';
+import upgradeIcon from '@/assets/upgrade-l.svg';
 
 /* ========== 用户头像 ========== */
 
@@ -128,7 +130,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* Starred */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]">
         <SectionHeader label="Starred" />
-        <NavItem label="BTC Ultimate AI Trader" active={activePage === 'btc-playbook'} onClick={() => onNavigate('btc-playbook')} />
         <NavItem label="MAG7 Equal-Weight" />
         <NavItem label="ETH/BTC Mean Reversion" />
       </div>
@@ -141,23 +142,35 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
       </div>
 
-      {/* 用户 — mt-auto 撑到底部 */}
-      <div
-        className="relative shrink-0 w-full z-[1] mt-auto rounded-[4px] cursor-pointer hover:bg-white/5 transition-colors"
-        onMouseEnter={onUserMouseEnter}
-        onMouseLeave={onUserMouseLeave}
-        onClick={() => onNavigate('user-profile')}
-      >
-        <div className="flex gap-[8px] items-center p-[8px]">
-          <UserAvatar name="YGGYLL" size={24} />
-          <p className="flex-1 font-['Delight',sans-serif] font-normal leading-[22px] min-w-0 not-italic relative text-[13px] text-white tracking-[0.13px] truncate">YGGYLL</p>
-          <button
-            className="shrink-0 rounded-[4px] px-[8px] py-[3px] text-[11px] leading-[18px] tracking-[0.11px] font-normal font-['Delight',sans-serif] text-white border-[0.5px] border-white/12 bg-white/3 hover:border-white/30 transition-all cursor-pointer"
-            style={{ WebkitFontSmoothing: 'antialiased' }}
-            onClick={(e) => { e.stopPropagation(); onNavigate('pricing'); }}
+      {/* Upgrade + 用户 — mt-auto 撑到底部 */}
+      <div className="shrink-0 w-full z-[1] mt-auto flex flex-col gap-[8px]">
+        {/* Upgrade 按钮 */}
+        <div
+          className="group relative mx-[8px] rounded-[6px] overflow-hidden flex items-center justify-center gap-[6px] py-[10px] cursor-pointer transition-all"
+          style={{ border: '0.5px solid rgba(255,255,255,0.12)' }}
+          onClick={() => onNavigate('pricing')}
+        >
+          <img src={btnUpgradeBg} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-x-[-1]" />
+          <span
+            className="relative text-[12px] leading-[20px] tracking-[0.12px] font-['Delight',sans-serif]"
+            style={{ background: 'linear-gradient(90deg, #3EE4D4, #FFFFFF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
           >
-            Upgrade
-          </button>
+            Upgrade and Xxxx Now
+          </span>
+          <img src={upgradeIcon} alt="" className="relative w-[16px] h-[16px]" />
+        </div>
+
+        {/* 用户行 */}
+        <div
+          className="relative shrink-0 w-full rounded-[4px] cursor-pointer hover:bg-white/5 transition-colors"
+          onMouseEnter={onUserMouseEnter}
+          onMouseLeave={onUserMouseLeave}
+          onClick={() => onNavigate('user-profile')}
+        >
+          <div className="flex gap-[8px] items-center p-[8px]">
+            <UserAvatar name="YGGYLL" size={24} />
+            <p className="flex-1 font-['Delight',sans-serif] font-normal leading-[22px] min-w-0 not-italic relative text-[13px] text-white tracking-[0.13px] truncate">YGGYLL</p>
+          </div>
         </div>
       </div>
     </div>

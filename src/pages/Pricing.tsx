@@ -8,6 +8,7 @@ import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import bgPricing from '@/assets/bg-pricing.png';
+import cardGradient from '@/assets/card-gradient.png';
 
 /* ========== 套餐特性数据 ========== */
 
@@ -100,7 +101,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
           <div className="grid grid-cols-2 gap-[24px] max-w-[960px] mx-auto">
             {/* Free */}
             <div className="flex flex-col gap-[20px] rounded-[16px] bg-white p-[28px] pb-[32px]"
-              style={{ border: '0.5px solid rgba(0,0,0,0.3)' }}
+              style={{ border: '0.5px solid var(--line-l2)' }}
             >
               {/* Header */}
               <div className="flex flex-col gap-[12px]">
@@ -126,7 +127,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
               </button>
 
               {/* Features */}
-              <span className="text-[12px] font-normal leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>
+              <span className="text-[14px] font-normal leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n7)' }}>
                 What's included
               </span>
               <ul className="flex flex-col gap-[16px] list-none p-0 m-0">
@@ -144,9 +145,10 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
             </div>
 
             {/* Pro */}
-            <div className="flex flex-col gap-[20px] rounded-[16px] bg-white p-[28px] pb-[32px]"
+            <div className="relative flex flex-col gap-[20px] rounded-[16px] bg-white p-[28px] pb-[32px] overflow-hidden"
               style={{ border: '0.5px solid #49A3A6' }}
             >
+              <img src={cardGradient} alt="" className="absolute top-0 right-0 pointer-events-none" />
               {/* Header */}
               <div className="flex flex-col gap-[12px]">
                 <div className="flex items-center justify-between">
@@ -172,7 +174,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
               </button>
 
               {/* Features */}
-              <span className="text-[12px] font-normal leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5)' }}>
+              <span className="text-[14px] font-normal leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n7)' }}>
                 Everything in Free, plus
               </span>
               <ul className="flex flex-col gap-[16px] list-none p-0 m-0">
