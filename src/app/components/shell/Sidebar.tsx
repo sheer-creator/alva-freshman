@@ -124,6 +124,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Explore" active={activePage === 'explore'} onClick={() => onNavigate('explore-2' as any)} />
         <NavItem label="Portfolio" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Skills Hub" active={activePage === 'skills'} onClick={() => onNavigate('skills')} />
+        <NavItem label="Alva Skills" active={activePage === 'alva-skills'} onClick={() => onNavigate('alva-skills')} />
         <NavItem label="About" onClick={() => window.open('https://alva.ai/landing', '_blank')} />
       </div>
 
@@ -143,21 +144,28 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       </div>
 
       {/* Upgrade + 用户 — mt-auto 撑到底部 */}
-      <div className="shrink-0 w-full z-[1] mt-auto flex flex-col gap-[8px]">
-        {/* Upgrade 按钮 */}
+      <div className="shrink-0 w-full z-[1] mt-auto flex flex-col gap-[6px]">
+        {/* Upgrade 按钮 — 双行 */}
         <div
-          className="group relative mx-[8px] rounded-[6px] overflow-hidden flex items-center justify-center gap-[6px] py-[10px] cursor-pointer transition-all"
+          className="group relative mx-[8px] rounded-[6px] overflow-hidden cursor-pointer transition-all"
           style={{ border: '0.5px solid rgba(255,255,255,0.12)' }}
           onClick={() => onNavigate('pricing')}
         >
           <img src={btnUpgradeBg} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-x-[-1]" />
-          <span
-            className="relative text-[12px] leading-[20px] tracking-[0.12px] font-['Delight',sans-serif]"
-            style={{ background: 'linear-gradient(90deg, #3EE4D4, #FFFFFF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
-          >
-            Upgrade and Xxxx Now
-          </span>
-          <img src={upgradeIcon} alt="" className="relative w-[16px] h-[16px]" />
+          <div className="relative flex flex-col items-center py-[10px] gap-[2px]">
+            <div className="flex items-center gap-[6px]">
+              <span
+                className="text-[12px] leading-[18px] tracking-[0.12px] font-['Delight',sans-serif] font-normal"
+                style={{ background: 'linear-gradient(90deg, #3EE4D4, #FFFFFF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+              >
+                Unlock Pro
+              </span>
+              <img src={upgradeIcon} alt="" className="w-[14px] h-[14px] opacity-60 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <span className="text-[10px] leading-[14px] font-['Delight',sans-serif] text-white/25 tracking-[0.3px]">
+              Unlimited strategies &amp; signals
+            </span>
+          </div>
         </div>
 
         {/* 用户行 */}
