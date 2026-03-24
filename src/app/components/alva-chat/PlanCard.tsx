@@ -15,7 +15,7 @@ export function PlanCard({ data }: PlanCardProps) {
     <div style={{
       margin: '8px 0', borderRadius: 10, overflow: 'hidden',
       border: '1px solid rgba(0,0,0,0.06)',
-      borderLeft: '3px solid #49A3A6',
+      borderLeft: '3px solid var(--main-m1)',
       background: '#fff',
     }}>
       <div style={{ padding: '16px 20px' }}>
@@ -29,7 +29,7 @@ export function PlanCard({ data }: PlanCardProps) {
           </span>
           {data.accepted && (
             <span style={{
-              marginLeft: 'auto', fontSize: 11, fontWeight: 500, color: '#49A3A6',
+              marginLeft: 'auto', fontSize: 11, fontWeight: 500, color: 'var(--main-m1)',
               fontFamily: "'Delight', sans-serif",
             }}>
               Accepted

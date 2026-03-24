@@ -19,6 +19,7 @@ export interface ToolCallData {
   status: 'running' | 'done' | 'error';
   durationMs?: number;
   groupLabel?: string;
+  summary?: string;
 }
 
 export interface AgentStepData {
@@ -146,6 +147,11 @@ const NVDA_CONVERSATION: Conversation = {
             accepted: true,
           },
         },
+        /* — transition after plan accept */
+        {
+          type: 'text',
+          content: "Got it — let's get started. I'll pull the financial data first and then we can decide on the layout together.\n\nData sources:\n- `alva_equity_fundamentals` — quarterly income statement + valuation\n- `fetch_peer_pe.py` — custom script for peer comparison",
+        },
         /* 2. Todo init */
         {
           type: 'todo_update',
@@ -165,6 +171,7 @@ const NVDA_CONVERSATION: Conversation = {
           data: {
             id: 'tc1',
             tool: 'alva_equity_fundamentals',
+            summary: 'Pulled NVDA quarterly financials (revenue, margin, P/E)',
             input: '{\n  "ticker": "NVDA",\n  "metrics": ["revenue", "gross_margin", "forward_pe"],\n  "period": "quarterly",\n  "limit": 12\n}',
             result: '{\n  "ticker": "NVDA",\n  "periods": 12,\n  "latest_revenue": "$35.1B",\n  "latest_gross_margin": "73.0%",\n  "forward_pe": 32.4,\n  "data_points": 48\n}',
             status: 'done',
@@ -177,6 +184,7 @@ const NVDA_CONVERSATION: Conversation = {
           data: {
             id: 'tc2',
             tool: 'Bash',
+            summary: 'Fetched AMD and INTC forward P/E for comparison',
             input: 'python fetch_peer_pe.py --tickers AMD,INTC --metric forward_pe',
             result: 'AMD forward P/E: 28.1\nINTC forward P/E: 18.7\nSaved to /workspace/output/peer_pe.json',
             status: 'done',
@@ -196,12 +204,17 @@ const NVDA_CONVERSATION: Conversation = {
             ],
           },
         },
+        /* — transition before question */
+        {
+          type: 'text',
+          content: "Data is in — NVDA's latest quarter looks strong. Now I need your input on the dashboard layout before I start building.",
+        },
         /* 5. Question — 流式时暂停等用户选择 */
         {
           type: 'question',
           data: {
             id: 'q-layout',
-            header: 'Layout',
+            header: 'Question',
             question: 'Which dashboard layout do you prefer for the earnings overview?',
             options: [
               { label: '3-Widget Grid (Recommended)', description: 'Revenue bar chart + Gross Margin line + P/E horizontal bar — compact, scannable' },
@@ -214,7 +227,7 @@ const NVDA_CONVERSATION: Conversation = {
         /* 6. Continue after user choice */
         {
           type: 'text',
-          content: "Building the **3-Widget Grid** layout:\n- **Revenue Trend** — bar chart, quarterly\n- **Gross Margin** — line chart with 73% current highlight\n- **Forward P/E Comparison** — horizontal bar (NVDA vs AMD vs INTC)",
+          content: "Building the **3-Widget Grid** layout:\n\n- **Revenue Trend** — bar chart, quarterly data, color-coded by segment\n- **Gross Margin** — line chart with 73% current highlight and historical band\n- **Forward P/E Comparison** — horizontal bar (NVDA vs AMD vs INTC)\n\nEach widget will be interactive with tooltips and zoom.",
         },
         /* 7. Todo update: step 3 done */
         {
@@ -229,29 +242,25 @@ const NVDA_CONVERSATION: Conversation = {
             ],
           },
         },
+        /* — transition before write */
+        {
+          type: 'text',
+          content: "Looks good. Assembling the dashboard now.\n\nProject structure:\n\n```\nnvda-earnings/\n\u251C\u2500\u2500 index.html\n\u251C\u2500\u2500 styles.css\n\u2514\u2500\u2500 src/\n    \u251C\u2500\u2500 charts/\n    \u2502   \u251C\u2500\u2500 RevenueChart.js\n    \u2502   \u251C\u2500\u2500 GrossMarginChart.js\n    \u2502   \u2514\u2500\u2500 PeerPEChart.js\n    \u251C\u2500\u2500 data/\n    \u2502   \u251C\u2500\u2500 fundamentals.json\n    \u2502   \u2514\u2500\u2500 peer_pe.json\n    \u2514\u2500\u2500 utils/\n        \u2514\u2500\u2500 format.js\n```",
+        },
         /* 8. Write dashboard */
         {
           type: 'tool_call',
           data: {
             id: 'tc3',
             tool: 'Write',
+            summary: 'Built interactive NVDA earnings dashboard with ECharts',
             input: '/workspace/playground/nvda-earnings/index.html\n<!-- Dashboard with ECharts: 3 widget grid layout -->',
             result: 'Wrote 287 lines to /workspace/playground/nvda-earnings/index.html',
             status: 'done',
             durationMs: 980,
           },
         },
-        /* 9. Artifact preview */
-        {
-          type: 'artifact',
-          data: {
-            id: 'art-nvda',
-            artifactType: 'html',
-            title: 'NVDA Earnings Dashboard',
-            description: 'Interactive 3-widget grid with quarterly revenue, gross margin trend, and peer P/E comparison',
-          },
-        },
-        /* 10. Todo all done */
+        /* 9. Todo all done */
         {
           type: 'todo_update',
           data: {
@@ -264,10 +273,20 @@ const NVDA_CONVERSATION: Conversation = {
             ],
           },
         },
-        /* 11. Summary */
+        /* 10. Summary */
         {
           type: 'text',
-          content: "Dashboard is ready. Here's a summary:\n\n- **NVDA Q4 Revenue**: $35.1B (+265% YoY)\n- **Gross Margin**: 73.0%, up from 64.6% a year ago\n- **Forward P/E**: NVDA 32.4x vs AMD 28.1x vs INTC 18.7x\n\nThe dashboard has been deployed to your playground.",
+          content: "Dashboard is ready. Here's a summary:\n\n| KPI | Value | Context |\n|-----|-------|---------|\n| **Q4 Revenue** | $35.1B | +265% YoY, driven by data center |\n| **Gross Margin** | 73.0% | Up from 64.6% a year ago |\n| **Forward P/E** | 32.4x | vs AMD 28.1x, INTC 18.7x |\n\nKey takeaways:\n- NVDA trades at a **15% premium** to AMD on forward P/E, but delivered **4.7x** the revenue growth\n- Gross margin expansion is accelerating — the data center mix shift is structural\n- Source: [NVDA Q4 FY2025 Earnings Report](https://investor.nvidia.com/financial-info/quarterly-results)",
+        },
+        /* 11. Artifact preview — after summary */
+        {
+          type: 'artifact',
+          data: {
+            id: 'art-nvda',
+            artifactType: 'html',
+            title: 'NVDA Earnings Dashboard',
+            description: 'Interactive 3-widget grid with quarterly revenue, gross margin trend, and peer P/E comparison',
+          },
         },
         /* 12. Completion */
         {
@@ -321,6 +340,7 @@ const ETH_BTC_CONVERSATION: Conversation = {
                 data: {
                   id: 'tc4',
                   tool: 'Grep',
+                  summary: 'Searched for crypto price data sources',
                   input: 'crypto.*ohlcv|btc.*price',
                   result: 'src/feeds/crypto_ohlcv.py\nsrc/feeds/btc_dominance.py\nsrc/feeds/eth_gas.py',
                   status: 'done',
@@ -358,6 +378,7 @@ const ETH_BTC_CONVERSATION: Conversation = {
           data: {
             id: 'tc5',
             tool: 'alva_crypto_ohlcv',
+            summary: 'Pulled 2-year daily ETH and BTC price data',
             input: '{\n  "tickers": ["ETH", "BTC"],\n  "interval": "1d",\n  "start": "2024-03-24",\n  "end": "2026-03-24"\n}',
             result: 'Fetched 730 daily candles for ETH\nFetched 730 daily candles for BTC\nCorrelation (full period): 0.87\nCorrelation (30d rolling, current): 0.62',
             status: 'done',
@@ -370,6 +391,7 @@ const ETH_BTC_CONVERSATION: Conversation = {
           data: {
             id: 'tc6',
             tool: 'Bash',
+            summary: 'Ran HMM regime detection on ETH/BTC pair',
             input: 'python regime_detect.py --pair ETH/BTC --method hmm --states 3',
             result: 'Regime Detection Results (HMM, 3 states):\n  State 0 (High Corr): 412 days, avg corr 0.91\n  State 1 (Decoupling): 198 days, avg corr 0.54\n  State 2 (Divergence): 120 days, avg corr 0.23\n\nKey transitions:\n  2024-11 → Decoupling (ETH underperformance vs BTC ETF flows)\n  2025-03 → High Corr (both rallied on rate cut)\n  2025-09 → Divergence (AI narrative favored SOL over ETH)',
             status: 'done',
@@ -424,6 +446,7 @@ const REBALANCE_CONVERSATION: Conversation = {
           data: {
             id: 'tc7',
             tool: 'alva_portfolio_analysis',
+            summary: 'Analyzed portfolio drift and generated rebalance trades',
             input: '{\n  "holdings": [\n    {"ticker": "SPY", "weight": 0.68},\n    {"ticker": "AGG", "weight": 0.32}\n  ],\n  "target": {"SPY": 0.60, "AGG": 0.40}\n}',
             result: 'Drift Analysis:\n  SPY: 68% → 60% (overweight +8%)\n  AGG: 32% → 40% (underweight -8%)\n\nRebalance threshold (5%) exceeded.\n\nSuggested trades (for $100k portfolio):\n  SELL 15 shares SPY @ $542.30 = $8,134.50\n  BUY  79 shares AGG @ $102.85 = $8,125.15',
             status: 'done',

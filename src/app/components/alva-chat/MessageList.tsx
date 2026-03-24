@@ -1,6 +1,6 @@
 /**
- * [INPUT]: ConversationTurn[]
- * [OUTPUT]: 消息列表 — auto-scroll + turn 入场动画
+ * [INPUT]: ConversationTurn[] + thinking state
+ * [OUTPUT]: 消息列表 — auto-scroll + turn 入场动画 + inline ThinkingIndicator
  * [POS]: alva-chat — 对话流渲染容器
  */
 
@@ -8,12 +8,15 @@ import { useRef, useEffect, useState } from 'react';
 import type { ConversationTurn } from '@/data/alva-chat-mock';
 import { UserMessage } from './UserMessage';
 import { AgentTurn } from './AgentTurn';
+import { ThinkingIndicator } from './ThinkingIndicator';
 
 interface MessageListProps {
   turns: ConversationTurn[];
   activeToolId?: string | null;
   onUserAction?: () => void;
   onRelease?: () => void;
+  showThinking?: boolean;
+  thinkingText?: string | null;
 }
 
 function AnimatedTurn({ children, turnId }: { children: React.ReactNode; turnId: string }) {
@@ -26,22 +29,20 @@ function AnimatedTurn({ children, turnId }: { children: React.ReactNode; turnId:
     <div style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(8px)',
-      transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
+      transition: 'opacity 0.25s ease-out, transform 0.25s ease-out',
     }}>
       {children}
     </div>
   );
 }
 
-export function MessageList({ turns, activeToolId, onUserAction, onRelease }: MessageListProps) {
+export function MessageList({ turns, activeToolId, onUserAction, onRelease, showThinking, thinkingText }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  /* scroll to bottom on any content change */
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    /* only auto-scroll if user is near bottom (within 120px) */
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
     if (nearBottom) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,6 +57,7 @@ export function MessageList({ turns, activeToolId, onUserAction, onRelease }: Me
         display: 'flex', flexDirection: 'column',
       }}
     >
+      <div style={{ maxWidth: 720, width: '100%', margin: '0 auto', paddingTop: 16 }}>
       {turns.map((turn) => (
         <AnimatedTurn key={turn.id} turnId={turn.id}>
           {turn.role === 'user'
@@ -64,7 +66,9 @@ export function MessageList({ turns, activeToolId, onUserAction, onRelease }: Me
           }
         </AnimatedTurn>
       ))}
-      <div ref={bottomRef} />
+      {showThinking && <ThinkingIndicator activeText={thinkingText} />}
+      <div ref={bottomRef} style={{ height: 16, flexShrink: 0 }} />
+      </div>
     </div>
   );
 }

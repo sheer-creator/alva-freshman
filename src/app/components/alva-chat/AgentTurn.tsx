@@ -9,23 +9,97 @@ import type { AgentTurnData, MessageBlock, ToolCallData } from '@/data/alva-chat
 import { TextBlock } from './TextBlock';
 import { ToolCallBlock } from './ToolCallBlock';
 import { AgentStepGroup } from './AgentStepGroup';
-import { QuestionCard } from './QuestionCard';
-import { PlanCard } from './PlanCard';
 import { ArtifactPreview } from './ArtifactPreview';
+import { Collapse } from './Collapse';
 
-/* ========== Finished ========== */
+/* ========== Inline Result (plan/question 提交后的轻量折叠行) ========== */
+
+function InlineResult({ summary, action, object, detail }: { summary: string; action: string; object: string; detail: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div style={{ margin: '2px 0' }}>
+      {/* 外层：纯自然语言摘要 */}
+      <div
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '4px 0', cursor: 'pointer', userSelect: 'none',
+        }}
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" style={{
+          flexShrink: 0, transition: 'transform 0.15s',
+          transform: expanded ? 'rotate(90deg)' : 'rotate(0)',
+        }}>
+          <path d="M3 1.5L7 5L3 8.5" stroke="var(--text-n5)" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+        </svg>
+        <span style={{
+          flex: 1, fontSize: 12, color: 'var(--text-n9)',
+          fontFamily: "'Delight', sans-serif",
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {summary}
+        </span>
+      </div>
+      {/* 展开：树线 + action 加粗 + 对象 pill + detail */}
+      <Collapse open={expanded}>
+        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid rgba(0,0,0,0.08)' }}>
+          <div style={{ padding: '6px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{
+                fontSize: 13, fontWeight: 600, color: 'var(--text-n9)',
+                fontFamily: "'Delight', sans-serif", flexShrink: 0,
+              }}>
+                {action}
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '2px 8px', borderRadius: 4,
+                background: 'rgba(0,0,0,0.06)',
+                fontSize: 11, fontFamily: "'Delight', sans-serif", color: 'var(--text-n7, rgba(0,0,0,0.7))',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                maxWidth: '70%',
+              }}>
+                {object}
+              </span>
+            </div>
+            <div style={{
+              fontSize: 11, lineHeight: '17px',
+              color: 'rgba(0,0,0,0.4)', whiteSpace: 'pre-wrap',
+              fontFamily: "'Delight', sans-serif",
+            }}>
+              {detail}
+            </div>
+          </div>
+        </div>
+      </Collapse>
+    </div>
+  );
+}
+
+/* ========== Finished — 和 ThinkingIndicator 统一布局 ========== */
 
 function FinishedIndicator({ durationSec, tokenCount }: { durationSec: number; tokenCount: number }) {
   return (
-    <div style={{ padding: '8px 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
-      <svg width="16" height="16" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#49A3A6" />
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 6,
+      padding: '8px 0',
+    }}>
+      <svg width="14" height="14" viewBox="0 0 14 14" style={{ flexShrink: 0 }}>
+        <circle cx="7" cy="7" r="5.5" fill="none" stroke="var(--main-m1)" strokeWidth="1.2" />
+        <path d="M4.5 7l2 2L9.5 5.5" stroke="var(--main-m1)" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <span style={{ fontSize: 14, fontWeight: 600, color: '#49A3A6', fontFamily: "'Delight', sans-serif" }}>
+      <span style={{
+        fontSize: 12, fontFamily: "'Delight', sans-serif",
+        color: 'var(--main-m1)', fontWeight: 500,
+      }}>
         Finished
       </span>
-      <span style={{ fontSize: 12, color: 'var(--text-n5)', marginLeft: 8, fontFamily: "'JetBrains Mono', monospace" }}>
-        {durationSec.toFixed(1)}s &middot; {tokenCount.toLocaleString()} tok
+      <span style={{
+        fontSize: 11, color: 'rgba(0,0,0,0.25)',
+        fontFamily: "'JetBrains Mono', monospace",
+      }}>
+        {durationSec.toFixed(1)}s &middot; {tokenCount.toLocaleString()} tokens
       </span>
     </div>
   );
@@ -33,22 +107,23 @@ function FinishedIndicator({ durationSec, tokenCount }: { durationSec: number; t
 
 /* ========== Reaction Bar ========== */
 
+const REACTION_ICONS: { d: string; title: string }[] = [
+  { d: 'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z', title: 'Like' },
+  { d: 'M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z', title: 'Dislike' },
+  { d: 'M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z', title: 'Copy' },
+];
+
 function ReactionBar() {
   return (
     <div style={{ display: 'flex', gap: 4, padding: '8px 0 4px' }}>
-      {[
-        'M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z',
-        'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z',
-        'M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z',
-        'M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z',
-      ].map((d, i) => (
-        <button key={i} style={{
+      {REACTION_ICONS.map(({ d, title }, i) => (
+        <button key={i} title={title} style={{
           width: 28, height: 28, borderRadius: 6, border: 'none',
           background: 'transparent', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'background 0.15s',
         }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.05)')}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--grey-g01)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24"><path d={d} fill="var(--text-n5)" /></svg>
@@ -74,23 +149,27 @@ function generateGroupSummary(tools: ToolCallData[]): string {
   return `${count} tool calls (${names.join(', ')})`;
 }
 
+const GROUP_PREVIEW_COUNT = 3;
+
 function ToolCallGroup({ tools, activeToolId }: { tools: ToolCallData[]; activeToolId?: string | null }) {
   const hasActive = tools.some(t => t.id === activeToolId);
   const [expanded, setExpanded] = useState(hasActive);
+  const [showAll, setShowAll] = useState(false);
 
-  /* auto-expand when active tool enters the group */
   if (hasActive && !expanded) setExpanded(true);
 
   const summary = tools.find(t => t.groupLabel)?.groupLabel ?? generateGroupSummary(tools);
+  const visible = showAll ? tools : tools.slice(0, GROUP_PREVIEW_COUNT);
+  const hiddenCount = tools.length - GROUP_PREVIEW_COUNT;
 
   return (
-    <div style={{ margin: '4px 0' }}>
+    <div style={{ margin: '2px 0' }}>
       {/* Group header */}
       <div
         onClick={() => setExpanded(!expanded)}
         style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '5px 0', cursor: 'pointer', userSelect: 'none',
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '4px 0', cursor: 'pointer', userSelect: 'none',
         }}
       >
         <svg width="10" height="10" viewBox="0 0 10 10" style={{
@@ -100,7 +179,7 @@ function ToolCallGroup({ tools, activeToolId }: { tools: ToolCallData[]; activeT
           <path d="M3 1.5L7 5L3 8.5" stroke="var(--text-n5)" strokeWidth="1.3" fill="none" strokeLinecap="round" />
         </svg>
         <span style={{
-          fontSize: 13, color: 'var(--text-n9)',
+          fontSize: 12, color: 'var(--text-n9)',
           fontFamily: "'Delight', sans-serif",
         }}>
           {summary}
@@ -108,13 +187,25 @@ function ToolCallGroup({ tools, activeToolId }: { tools: ToolCallData[]; activeT
       </div>
 
       {/* Child tools with tree line */}
-      {expanded && (
-        <div style={{ marginLeft: 5, paddingLeft: 14, borderLeft: '1.5px solid rgba(0,0,0,0.08)' }}>
-          {tools.map(t => (
-            <ToolCallBlock key={t.id} data={t} isActive={t.id === activeToolId} />
+      <Collapse open={expanded}>
+        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid rgba(0,0,0,0.08)' }}>
+          {visible.map(t => (
+            <ToolCallBlock key={t.id} data={t} isActive={t.id === activeToolId} nested />
           ))}
+          {hiddenCount > 0 && !showAll && (
+            <div
+              onClick={() => setShowAll(true)}
+              style={{
+                padding: '6px 0', fontSize: 12, fontWeight: 500,
+                color: 'var(--text-n5)', cursor: 'pointer', userSelect: 'none',
+                fontFamily: "'Delight', sans-serif",
+              }}
+            >
+              Show {hiddenCount} more
+            </div>
+          )}
         </div>
-      )}
+      </Collapse>
     </div>
   );
 }
@@ -181,12 +272,13 @@ export function AgentTurn({ turn, activeToolId, onUserAction, onRelease }: Agent
           case 'agent_step':
             return <AgentStepGroup key={block.data.id} data={block.data} />;
           case 'question':
-            return <QuestionCard key={block.data.id} data={block.data} onAnswer={onUserAction ? () => onUserAction() : undefined} />;
+            if (block.data.selectedIndex == null) return null;
+            return <InlineResult key={block.data.id} summary={`Chose ${block.data.options[block.data.selectedIndex!]?.label ?? ''}`} action="Answered" object={block.data.question} detail={block.data.options.map((o, j) => `${j === block.data.selectedIndex ? '● ' : '○ '}${o.label} — ${o.description}`).join('\n')} />;
           case 'completion':
             return <FinishedIndicator key={idx} durationSec={block.data.durationSec} tokenCount={block.data.tokenCount} />;
           case 'plan':
             if (!block.data.accepted) return null;
-            return <PlanCard key={block.data.id} data={block.data} />;
+            return <InlineResult key={block.data.id} summary={`Approved plan: ${block.data.title}`} action="Plan" object={block.data.title} detail={block.data.steps.map((s, j) => `${j + 1}. ${s}`).join('\n')} />;
           case 'artifact':
             return <ArtifactPreview key={block.data.id} data={block.data} onRelease={onRelease} />;
           default:
