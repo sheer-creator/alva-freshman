@@ -36,7 +36,7 @@ export function QuestionCard({ data, onAnswer }: QuestionCardProps) {
   return (
     <div style={{
       margin: '8px 0', padding: '16px', borderRadius: 8,
-      border: '1px solid rgba(0,0,0,0.08)', background: '#fafafa',
+      border: '1px solid rgba(0,0,0,0.08)', background: 'var(--grey-g01)',
     }}>
       {/* Header chip */}
       <span style={{

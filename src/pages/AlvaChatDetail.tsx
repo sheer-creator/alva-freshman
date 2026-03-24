@@ -9,14 +9,13 @@ import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { MessageList } from '@/app/components/alva-chat/MessageList';
 import { InputBar } from '@/app/components/alva-chat/InputBar';
-import { ThinkingIndicator } from '@/app/components/alva-chat/ThinkingIndicator';
 import { TodoBar } from '@/app/components/alva-chat/TodoBar';
 import { useStreamSimulator } from '@/app/components/alva-chat/useStreamSimulator';
 import {
   getActiveConversation, MOCK_CONVERSATIONS, setActiveConversation,
   onConversationChange, setChatPanelOpen,
 } from '@/data/alva-chat-mock';
-import type { Conversation, TodoItem, PlanCardData } from '@/data/alva-chat-mock';
+import type { Conversation, TodoItem, PlanCardData, QuestionCardData } from '@/data/alva-chat-mock';
 
 interface Props {
   onNavigate: (page: Page) => void;
@@ -44,6 +43,19 @@ function extractPendingPlan(turns: Conversation['turns']): PlanCardData | null {
     for (let b = turn.blocks.length - 1; b >= 0; b--) {
       const block = turn.blocks[b];
       if (block.type === 'plan' && !block.data.accepted) return block.data;
+    }
+  }
+  return null;
+}
+
+/* 提取最新的未回答 question */
+function extractPendingQuestion(turns: Conversation['turns']): QuestionCardData | null {
+  for (let t = turns.length - 1; t >= 0; t--) {
+    const turn = turns[t];
+    if (turn.role !== 'agent') continue;
+    for (let b = turn.blocks.length - 1; b >= 0; b--) {
+      const block = turn.blocks[b];
+      if (block.type === 'question' && block.data.selectedIndex == null) return block.data;
     }
   }
   return null;
@@ -80,6 +92,7 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
   }, [latestTodo]);
   const showTodoBar = latestTodo && !latestTodo.items.every(i => i.status === 'completed');
   const pendingPlan = useMemo(() => waitingBlockType === 'plan' ? extractPendingPlan(visibleTurns) : null, [visibleTurns, waitingBlockType]);
+  const pendingQuestion = useMemo(() => waitingBlockType === 'question' ? extractPendingQuestion(visibleTurns) : null, [visibleTurns, waitingBlockType]);
 
   return (
     <AppShell activePage="alva-chat-detail" onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
@@ -89,7 +102,7 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
           position: 'relative',
           opacity: entered ? 1 : 0,
           transform: entered ? 'translateY(0)' : 'translateY(12px)',
-          transition: 'opacity 0.35s ease-out, transform 0.35s ease-out',
+          transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
         }}
       >
         {/* Topbar */}
@@ -112,13 +125,12 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
           activeToolId={activeToolId}
           onUserAction={resumeStream}
           onRelease={() => { setChatPanelOpen(true); onNavigate('nvda'); }}
+          showThinking={showThinking}
+          thinkingText={todoActiveForm}
         />
 
-        {/* Thinking — activeForm 联动 todo */}
-        {showThinking && <ThinkingIndicator activeText={todoActiveForm} />}
-
-        {/* Todo bar */}
-        {showTodoBar && <TodoBar label={latestTodo.label} items={latestTodo.items} />}
+        {/* Todo bar — Question/Plan 出现时隐藏 */}
+        {showTodoBar && !waitingForUser && <TodoBar label={latestTodo.label} items={latestTodo.items} />}
 
         {/* Input */}
         <InputBar
@@ -127,6 +139,8 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
           waitingBlockType={waitingForUser ? waitingBlockType : null}
           onAcceptPlan={resumeStream}
           planData={pendingPlan}
+          questionData={pendingQuestion}
+          onAnswerQuestion={resumeStream}
         />
       </div>
     </AppShell>

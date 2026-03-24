@@ -18,11 +18,17 @@ export function TodoBar({ label, items }: TodoBarProps) {
 
   return (
     <div style={{
-      padding: '10px 24px', borderTop: '1px solid rgba(0,0,0,0.06)',
-      flexShrink: 0,
+      padding: '0 24px 4px', flexShrink: 0,
+    }}>
+    <div style={{
+      maxWidth: 720, margin: '0 auto', width: '100%',
+      borderRadius: 16, overflow: 'hidden',
+      border: '1px solid rgba(0,0,0,0.08)', background: '#fff',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      padding: '10px 20px 12px',
     }}>
       {/* Title + count */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-n9)', fontFamily: "'Delight', sans-serif" }}>
           {label}
         </span>
@@ -37,12 +43,12 @@ export function TodoBar({ label, items }: TodoBarProps) {
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {item.status === 'completed' ? (
               <svg width="12" height="12" viewBox="0 0 12 12" style={{ flexShrink: 0 }}>
-                <path d="M2.5 6L5 8.5L9.5 3.5" stroke="#49A3A6" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2.5 6L5 8.5L9.5 3.5" stroke="var(--main-m1)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             ) : item.status === 'in_progress' ? (
               <div style={{
                 width: 12, height: 12, flexShrink: 0,
-                borderRadius: '50%', border: '1.5px solid #49A3A6',
+                borderRadius: '50%', border: '1.5px solid var(--main-m1)',
                 borderTopColor: 'transparent',
                 animation: 'todoSpin .8s linear infinite',
               }} />
@@ -60,6 +66,7 @@ export function TodoBar({ label, items }: TodoBarProps) {
         ))}
       </div>
       <style>{`@keyframes todoSpin{to{transform:rotate(360deg)}}`}</style>
+    </div>
     </div>
   );
 }

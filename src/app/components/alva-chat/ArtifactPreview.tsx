@@ -4,6 +4,7 @@
  * [POS]: alva-chat — Agent 生成产物预览
  */
 
+import { useState } from 'react';
 import type { ArtifactData } from '@/data/alva-chat-mock';
 
 interface ArtifactPreviewProps {
@@ -12,28 +13,25 @@ interface ArtifactPreviewProps {
 }
 
 export function ArtifactPreview({ data, onRelease }: ArtifactPreviewProps) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div
-      className="group"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         margin: '10px 0', borderRadius: 8, overflow: 'hidden',
         background: '#fff', position: 'relative',
         maxWidth: 380, width: '100%',
-        transition: 'transform 0.3s ease-out, box-shadow 0.3s ease-out',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)';
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'none';
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+        boxShadow: hovered ? '0 12px 32px rgba(0,0,0,0.08)' : 'none',
+        transition: 'transform 0.25s ease-out, box-shadow 0.25s ease-out',
       }}
     >
       {/* 缩略图区 */}
       <div style={{
         height: 140, position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(135deg, #2a2a38 0%, #3d6b6d 50%, #49A3A6 100%)',
+        background: 'linear-gradient(135deg, #2a2a38 0%, #3d6b6d 50%, var(--main-m1) 100%)',
       }}>
         {/* Mock chart lines */}
         <svg width="100%" height="100%" viewBox="0 0 600 140" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0 }}>
@@ -41,27 +39,27 @@ export function ArtifactPreview({ data, onRelease }: ArtifactPreviewProps) {
           <polyline points="0,120 60,115 120,118 180,85 240,100 300,65 360,90 420,55 480,75 540,45 600,60" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="6,4" />
           <polyline points="0,130 60,125 120,128 180,105 240,115 300,90 360,105 420,80 480,95 540,70 600,85" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeDasharray="3,3" />
         </svg>
-        {/* Type badge */}
-        <span style={{
-          position: 'absolute', bottom: 10, left: 12,
-          padding: '3px 8px', borderRadius: 4,
-          background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)',
-          fontSize: 11, color: 'rgba(255,255,255,0.8)',
-          fontFamily: "'JetBrains Mono', monospace", fontWeight: 500,
-        }}>
-          {data.artifactType.toUpperCase()}
-        </span>
       </div>
 
       {/* 信息区 */}
       <div style={{ padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         <p style={{
           margin: 0, fontSize: 16, fontWeight: 500, lineHeight: '24px',
-          color: 'rgba(0,0,0,0.9)', fontFamily: "'Delight', sans-serif",
+          color: 'var(--text-n9)', fontFamily: "'Delight', sans-serif",
           letterSpacing: '0.16px',
         }}>
           {data.title}
         </p>
+        {/* Creator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{
+            width: 18, height: 18, borderRadius: '50%', background: 'var(--main-m1)', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 9, color: '#fff', fontFamily: "'Delight', sans-serif", fontWeight: 600 }}>Y</span>
+          </div>
+          <span style={{ fontSize: 13, color: 'var(--text-n5)', fontFamily: "'Delight', sans-serif" }}>YGGYLL</span>
+        </div>
         <p style={{
           margin: 0, fontSize: 12, lineHeight: '18px',
           color: 'rgba(0,0,0,0.4)', fontFamily: "'Delight', sans-serif",
@@ -76,7 +74,7 @@ export function ArtifactPreview({ data, onRelease }: ArtifactPreviewProps) {
             onClick={onRelease}
             style={{
               padding: '6px 16px', borderRadius: 6, border: 'none',
-              background: '#49A3A6', color: '#fff',
+              background: 'var(--main-m1)', color: '#fff',
               fontSize: 13, fontWeight: 500, cursor: 'pointer',
               fontFamily: "'Delight', sans-serif",
             }}
@@ -97,23 +95,10 @@ export function ArtifactPreview({ data, onRelease }: ArtifactPreviewProps) {
       {/* Hover 边框辉光 */}
       <div style={{
         position: 'absolute', inset: 0, borderRadius: 8, pointerEvents: 'none',
-        border: '1px solid rgba(0,0,0,0.06)',
-        transition: 'border-color 0.3s, box-shadow 0.3s',
-      }}
-        ref={el => {
-          if (!el) return;
-          const parent = el.parentElement;
-          if (!parent) return;
-          parent.addEventListener('mouseenter', () => {
-            el.style.borderColor = 'rgba(73,163,166,0.3)';
-            el.style.boxShadow = 'inset 0 0 0 1px rgba(73,163,166,0.08)';
-          });
-          parent.addEventListener('mouseleave', () => {
-            el.style.borderColor = 'rgba(0,0,0,0.06)';
-            el.style.boxShadow = 'none';
-          });
-        }}
-      />
+        border: hovered ? '1px solid rgba(73,163,166,0.3)' : '1px solid var(--line-l07)',
+        boxShadow: hovered ? 'inset 0 0 0 1px rgba(73,163,166,0.08)' : 'none',
+        transition: 'border-color 0.25s, box-shadow 0.25s',
+      }} />
     </div>
   );
 }
