@@ -36,7 +36,7 @@ export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page)
           <PlaybookTopbar
             title={MOCK_NVDA.name}
             stats={MOCK_NVDA.stats}
-            signals={MOCK_NVDA.signals}
+
             lineage={MOCK_NVDA.lineage}
             comments={MOCK_NVDA.discussion}
             discussionOpen={discussionOpen}

@@ -11,7 +11,7 @@ import { RemixPrompt } from './RemixPrompt';
 import { StrategyBindPanel } from '../trading/StrategyBindPanel';
 import { PlaybookHeader } from './PlaybookHeader';
 import type { PlaybookHeaderProps } from './PlaybookHeader';
-import type { SignalReaction, LineageNode, Comment } from '@/data/community-mock';
+import type { LineageNode, Comment } from '@/data/community-mock';
 
 /* ========== 头像 ========== */
 
@@ -30,7 +30,6 @@ function UserAvatar({ name, size = 20 }: { name: string; size?: number }) {
 interface PlaybookTopbarProps extends PlaybookHeaderProps {
   title: string;
   stats: { stars: number; forks: number; shares: number };
-  signals: SignalReaction[];
   lineage: LineageNode;
   comments: Comment[];
   discussionOpen: boolean;
@@ -62,22 +61,19 @@ function useClickOutside(ref: React.RefObject<HTMLElement | null>, open: boolean
 /* ========== 组件 ========== */
 
 export function PlaybookTopbar({
-  title, stats, signals, lineage, comments,
+  title, stats, lineage, comments,
   discussionOpen, onToggleDiscussion,
   author, pulse, description, builtOn, onAuthorClick,
 }: PlaybookTopbarProps) {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [forkOpen, setForkOpen] = useState(false);
   const [tradeOpen, setTradeOpen] = useState(false);
-  const [reactionsOpen, setReactionsOpen] = useState(false);
-  const [activeSignals, setActiveSignals] = useState<Set<string>>(new Set());
   const [starred, setStarred] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
   const forkRef = useRef<HTMLDivElement>(null);
   const tradeRef = useRef<HTMLDivElement>(null);
-  const reactionsRef = useRef<HTMLDivElement>(null);
   const headerTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
   const openHeader = useCallback(() => {
@@ -91,20 +87,6 @@ export function PlaybookTopbar({
 
   useClickOutside(forkRef, forkOpen, () => setForkOpen(false));
   useClickOutside(tradeRef, tradeOpen, () => setTradeOpen(false));
-  useClickOutside(reactionsRef, reactionsOpen, () => setReactionsOpen(false));
-
-  const toggleSignal = (label: string) => {
-    setActiveSignals(prev => {
-      const next = new Set(prev);
-      next.has(label) ? next.delete(label) : next.add(label);
-      return next;
-    });
-  };
-
-  /* Emoji 摘要：top-2 emoji + 总数 */
-  const sorted = [...signals].sort((a, b) => b.count - a.count);
-  const topEmojis = sorted.slice(0, 2).map(s => s.emoji).join('');
-  const totalReactions = signals.reduce((sum, s) => sum + s.count, 0);
 
   return (
     <>
@@ -171,41 +153,6 @@ export function PlaybookTopbar({
               </div>
               <span>{starred ? stats.stars + 1 : stats.stars}</span>
             </button>
-
-            {/* Emoji 反应 — 点击展开 signal pills */}
-            <div ref={reactionsRef} className="relative">
-              <button onClick={() => setReactionsOpen(v => !v)} style={STAT_STYLE}>
-                <span style={{ fontSize: 14 }}>{topEmojis}</span>
-                <span>{totalReactions}</span>
-              </button>
-              {reactionsOpen && (
-                <div
-                  className="absolute top-full right-0 mt-[8px]"
-                  style={{ background: '#fff', borderRadius: 8, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', padding: 12, zIndex: 30, minWidth: 200 }}
-                >
-                  <div className="flex flex-wrap gap-[6px]">
-                    {signals.map(s => (
-                      <button
-                        key={s.label}
-                        onClick={() => toggleSignal(s.label)}
-                        className="flex items-center gap-[3px] transition-colors"
-                        style={{
-                          padding: '4px 10px', borderRadius: 12,
-                          background: activeSignals.has(s.label) ? 'rgba(73,163,166,0.12)' : 'rgba(0,0,0,0.04)',
-                          border: 'none', fontSize: 13,
-                          color: activeSignals.has(s.label) ? 'var(--main-m1, #49A3A6)' : 'var(--text-n5)',
-                          cursor: 'pointer', fontFamily: "'Delight', sans-serif",
-                        }}
-                      >
-                        <span>{s.emoji}</span>
-                        <span>{s.label}</span>
-                        <span style={{ marginLeft: 2 }}>{s.count}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Discuss — 原 Remix 位置，改用 chat 图标 */}
             <button

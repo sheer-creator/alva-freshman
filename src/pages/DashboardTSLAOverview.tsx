@@ -415,7 +415,7 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
           <PlaybookTopbar
             title={MOCK_TSLA_OVERVIEW.name}
             stats={MOCK_TSLA_OVERVIEW.stats}
-            signals={MOCK_TSLA_OVERVIEW.signals}
+
             lineage={MOCK_TSLA_OVERVIEW.lineage}
             comments={MOCK_TSLA_OVERVIEW.discussion}
             discussionOpen={discussionOpen}

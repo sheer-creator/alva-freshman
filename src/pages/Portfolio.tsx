@@ -1,6 +1,6 @@
 /**
  * [INPUT]: AppShell, trading-mock, chart-theme, PulseIndicator
- * [OUTPUT]: Portfolio 主页面 — Overview / Strategies / Activity 三个 Tab
+ * [OUTPUT]: Portfolio 主页面 — 按 Broker Account 切换的完整组合视图
  * [POS]: 页面层 — 展示用户交易组合全貌
  */
 
@@ -15,10 +15,8 @@ import {
   tooltipConfig, tooltipFormatter, timeXAxisConfig, valueYAxisConfig,
   lineSeriesConfig, GRID_DEFAULT,
 } from '@/lib/chart-theme';
-import { MOCK_PORTFOLIO } from '@/data/trading-mock';
-import type { StrategyBinding, WeightBar } from '@/data/trading-mock';
-
-const P = MOCK_PORTFOLIO;
+import { BROKER_PORTFOLIOS } from '@/data/trading-mock';
+import type { BrokerPortfolio, StrategyBinding, WeightBar, Position, Order, JournalEntry } from '@/data/trading-mock';
 
 /* ========== 通用样式常量 ========== */
 
@@ -39,23 +37,47 @@ function StatItem({ value, label, accent }: { value: string; label: string; acce
   );
 }
 
+/* ========== Broker Account Tabs ========== */
+
+function BrokerTabs({ brokers, active, onChange }: { brokers: BrokerPortfolio[]; active: string; onChange: (id: string) => void }) {
+  return (
+    <div className="flex items-center gap-[6px]">
+      {brokers.map(b => {
+        const isActive = b.brokerId === active;
+        return (
+          <button
+            key={b.brokerId}
+            onClick={() => onChange(b.brokerId)}
+            className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] transition-colors cursor-pointer ${
+              isActive
+                ? 'bg-[rgba(73,163,166,0.12)] text-[rgba(0,0,0,0.9)] font-medium'
+                : 'bg-transparent text-[rgba(0,0,0,0.35)] hover:text-[rgba(0,0,0,0.6)]'
+            }`}
+          >
+            {b.brokerLabel}
+            <span className="ml-[6px] text-[11px]" style={{ color: isActive ? 'var(--text-n5)' : 'var(--text-n3)' }}>{b.accountId}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ========== Portfolio Header ========== */
 
-function PortfolioHeader({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const pnlColor = P.todayPnl >= 0 ? 'var(--main-m3, #40A544)' : 'var(--main-m4, #E05357)';
-  const pnlSign = P.todayPnl >= 0 ? '+' : '';
-  const connectedBrokers = P.brokers.filter(b => b.status === 'connected').length;
-  const noBrokers = connectedBrokers === 0;
+function PortfolioHeader({ broker, onNavigate }: { broker: BrokerPortfolio; onNavigate: (page: Page) => void }) {
+  const pnlColor = broker.todayPnl >= 0 ? 'var(--main-m3, #40A544)' : 'var(--main-m4, #E05357)';
+  const pnlSign = broker.todayPnl >= 0 ? '+' : '';
 
   return (
     <div style={{ ...CARD_BG, padding: '20px 24px' }}>
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-[16px]">
           <span className="text-[32px] leading-[40px]" style={{ color: '#49a3a6', fontFamily: FONT_FAMILY, fontWeight: 500, letterSpacing: '-0.02em' }}>
-            ${P.totalEquity.toLocaleString()}
+            ${broker.totalEquity.toLocaleString()}
           </span>
           <span className="text-[14px]" style={{ color: pnlColor, fontFamily: FONT_FAMILY, ...MONO }}>
-            {pnlSign}${P.todayPnl.toLocaleString()} ({pnlSign}{P.todayPnlPercent}%)
+            {pnlSign}${broker.todayPnl.toLocaleString()} ({pnlSign}{broker.todayPnlPercent}%)
           </span>
           <span className="text-[12px]" style={{ color: 'var(--text-n3)' }}>today</span>
         </div>
@@ -71,41 +93,76 @@ function PortfolioHeader({ onNavigate }: { onNavigate: (page: Page) => void }) {
           Settings
         </button>
       </div>
-      {/* Onboarding hint when no brokers connected */}
-      {noBrokers && (
-        <div className="flex items-center gap-[8px] mt-[14px] py-[10px] px-[14px] rounded-[6px]" style={{ background: 'rgba(73,163,166,0.05)', border: '0.5px dashed rgba(73,163,166,0.25)' }}>
-          <span className="text-[12px]" style={{ color: 'var(--text-n5)', lineHeight: '18px' }}>
-            Connect a broker in <span className="cursor-pointer underline" style={{ color: '#49a3a6' }} onClick={() => onNavigate('portfolio-settings')}>Settings</span> to start trading with your strategies.
-          </span>
-        </div>
-      )}
     </div>
   );
 }
 
-/* ========== Equity Curve (Overview 主图) ========== */
+/* ========== Equity Curve ========== */
 
-function EquityCurveChart() {
-  const values = P.equityCurve.map(([, v]) => v);
-  const yMin = Math.floor(Math.min(...values) / 5000) * 5000;
+function EquityCurveChart({ equityCurve, costBasis, benchmark }: {
+  equityCurve: [string, number][];
+  costBasis: [string, number][];
+  benchmark: [string, number][];
+}) {
+  const allValues = [...equityCurve, ...costBasis, ...benchmark].map(([, v]) => v);
+  const yMin = Math.floor(Math.min(...allValues) / 5000) * 5000;
+
+  /* 每日涨跌 */
+  const dailyPnl: [string, number][] = equityCurve.slice(1).map(([date, val], i) => [date, val - equityCurve[i][1]]);
+  const maxAbsPnl = Math.max(...dailyPnl.map(([, v]) => Math.abs(v)), 1);
 
   const option = {
-    tooltip: tooltipConfig({
-      formatter: (params: { color: string; seriesName: string; data: [string, number] }[]) =>
-        tooltipFormatter(params, '$', v => v.toLocaleString()),
-    }),
-    grid: { ...GRID_DEFAULT, top: 24, bottom: 24, left: 48 },
-    xAxis: timeXAxisConfig(),
-    yAxis: valueYAxisConfig('', {
-      min: yMin,
-      axisLabel: {
-        color: 'rgba(0,0,0,0.5)', fontFamily: FONT, fontSize: 10,
-        formatter: (v: number) => '$' + (v / 1000).toFixed(0) + 'K',
+    tooltip: {
+      trigger: 'axis' as const,
+      axisPointer: { type: 'cross' as const, label: { show: false } },
+      backgroundColor: 'rgba(255,255,255,0.96)',
+      borderColor: 'rgba(0,0,0,0.08)',
+      borderWidth: 0.5,
+      textStyle: { fontSize: 11, color: 'rgba(0,0,0,0.7)', fontFamily: FONT },
+      formatter: (params: { color: string; seriesName: string; data: [string, number]; seriesType: string }[]) => {
+        if (!params.length) return '';
+        const date = params[0].data[0];
+        const rows = params.map(p => {
+          const v = p.data[1];
+          const sign = p.seriesType === 'bar' ? (v >= 0 ? '+' : '') : '';
+          return `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};margin-right:6px"></span>${p.seriesName}: ${sign}$${v.toLocaleString()}`;
+        });
+        return `<div style="font-size:11px;line-height:20px"><b>${date}</b><br/>${rows.join('<br/>')}</div>`;
       },
-    }),
+    },
+    legend: {
+      top: 0, right: 0, itemWidth: 16, itemHeight: 2, itemGap: 14,
+      textStyle: { fontSize: 10, color: 'rgba(0,0,0,0.5)', fontFamily: FONT },
+    },
+    axisPointer: { link: [{ xAxisIndex: 'all' }] },
+    grid: [
+      { top: 32, bottom: '30%', left: 48, right: 16 },
+      { top: '76%', bottom: 24, left: 48, right: 16 },
+    ],
+    xAxis: [
+      { ...timeXAxisConfig(), gridIndex: 0 },
+      { ...timeXAxisConfig(), gridIndex: 1, axisLabel: { show: false }, axisTick: { show: false }, axisLine: { show: false } },
+    ],
+    yAxis: [
+      {
+        ...valueYAxisConfig('', {
+          min: yMin,
+          axisLabel: { color: 'rgba(0,0,0,0.5)', fontFamily: FONT, fontSize: 10, formatter: (v: number) => '$' + (v / 1000).toFixed(0) + 'K' },
+        }),
+        gridIndex: 0,
+      },
+      {
+        gridIndex: 1, type: 'value' as const,
+        min: -maxAbsPnl, max: maxAbsPnl,
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        axisTick: { show: false },
+        axisLine: { show: false },
+      },
+    ],
     series: [
-      lineSeriesConfig('Portfolio Value', CHART_COLORS.primary, {
-        data: P.equityCurve,
+      lineSeriesConfig('Portfolio', CHART_COLORS.primary, {
+        data: equityCurve, xAxisIndex: 0, yAxisIndex: 0,
         areaStyle: {
           color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
             { offset: 0, color: 'rgba(73,163,166,0.12)' },
@@ -113,6 +170,22 @@ function EquityCurveChart() {
           ]},
         },
       }),
+      lineSeriesConfig('Cost Basis', CHART_COLORS.yellow, {
+        data: costBasis, xAxisIndex: 0, yAxisIndex: 0,
+        lineStyle: { type: 'dashed', width: 1.2 }, symbol: 'none',
+      }),
+      lineSeriesConfig('Benchmark (SPY)', CHART_COLORS.blue, {
+        data: benchmark, xAxisIndex: 0, yAxisIndex: 0,
+        lineStyle: { type: 'dotted', width: 1.2, opacity: 0.7 }, symbol: 'none',
+      }),
+      {
+        name: 'Daily P&L', type: 'bar',
+        data: dailyPnl, xAxisIndex: 1, yAxisIndex: 1,
+        itemStyle: {
+          color: (p: { data: [string, number] }) => p.data[1] >= 0 ? 'rgba(64,165,68,0.5)' : 'rgba(224,83,87,0.5)',
+        },
+        barMaxWidth: 3,
+      },
     ],
   };
 
@@ -122,8 +195,8 @@ function EquityCurveChart() {
         <p className="text-[14px]" style={{ color: 'var(--text-n9)', letterSpacing: 0.14 }}>Equity Curve</p>
         <span className="text-[12px]" style={{ color: 'var(--text-n5)' }}>6 months</span>
       </div>
-      <div className="relative" style={{ ...CHART_DOT_BG, borderRadius: 4, padding: 16, minHeight: 220 }}>
-        <ReactECharts option={option} style={{ height: 220 }} notMerge />
+      <div className="relative" style={{ ...CHART_DOT_BG, borderRadius: 4, padding: 16, minHeight: 300 }}>
+        <ReactECharts option={option} style={{ height: 300 }} notMerge />
         <AlvaWatermark />
       </div>
     </div>
@@ -132,57 +205,14 @@ function EquityCurveChart() {
 
 /* ========== Positions Table ========== */
 
-/* 列宽: symbol 宽一点不换行, weight 新增, strategy 允许多个 */
 const TH: React.CSSProperties = { ...LABEL, fontWeight: 500 };
 
-function PositionsTable() {
-  const [brokerFilter, setBrokerFilter] = useState<string | null>(null);
-  const connectedBrokers = P.brokers.filter(b => b.status === 'connected');
-  const brokerLabel = (name: string) => name === 'Interactive Brokers' ? 'IBKR' : name;
-
-  const filtered = brokerFilter
-    ? P.positions.filter(pos => pos.account === brokerFilter)
-    : P.positions;
-
+function PositionsTable({ positions }: { positions: Position[] }) {
   return (
     <div className="flex flex-col gap-[12px]">
-      <div className="flex items-center gap-[10px]">
-        <p className="text-[14px]" style={{ color: 'var(--text-n9)', letterSpacing: 0.14 }}>Positions</p>
-        {/* Broker filter pills */}
-        <div className="flex items-center gap-[4px]">
-          <button
-            onClick={() => setBrokerFilter(null)}
-            className="flex items-center gap-[4px] text-[11px] px-[8px] py-[3px] rounded-full cursor-pointer transition-colors"
-            style={{
-              background: !brokerFilter ? 'rgba(73,163,166,0.1)' : 'transparent',
-              color: !brokerFilter ? '#49a3a6' : 'var(--text-n3)',
-              border: 'none', fontFamily: FONT_FAMILY,
-            }}
-          >All</button>
-          {connectedBrokers.map(b => {
-            const label = brokerLabel(b.name);
-            const active = brokerFilter === label;
-            return (
-              <button
-                key={b.id}
-                onClick={() => setBrokerFilter(active ? null : label)}
-                className="flex items-center gap-[4px] text-[11px] px-[8px] py-[3px] rounded-full cursor-pointer transition-colors"
-                style={{
-                  background: active ? 'rgba(73,163,166,0.1)' : 'transparent',
-                  color: active ? '#49a3a6' : 'var(--text-n3)',
-                  border: 'none', fontFamily: FONT_FAMILY,
-                }}
-              >
-                <span className="w-[5px] h-[5px] rounded-full shrink-0" style={{ background: 'var(--main-m3, #40A544)' }} />
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <p className="text-[14px]" style={{ color: 'var(--text-n9)', letterSpacing: 0.14 }}>Positions</p>
       <div style={{ ...CARD_BG, overflow: 'hidden' }}>
-        {/* Header */}
-        <div className="grid items-center px-[20px] py-[10px]" style={{ gridTemplateColumns: '180px 56px 56px 88px 88px 88px 130px 72px 1fr', gap: 8, borderBottom: '1px solid var(--line-l05)' }}>
+        <div className="grid items-center px-[20px] py-[10px]" style={{ gridTemplateColumns: '180px 56px 56px 88px 88px 88px 1fr', gap: 8, borderBottom: '1px solid var(--line-l05)' }}>
           <span style={TH}>Symbol</span>
           <span style={{ ...TH, textAlign: 'right' }}>Weight</span>
           <span style={{ ...TH, textAlign: 'right' }}>Qty</span>
@@ -190,15 +220,12 @@ function PositionsTable() {
           <span style={{ ...TH, textAlign: 'right' }}>Current</span>
           <span style={{ ...TH, textAlign: 'right' }}>Value</span>
           <span style={{ ...TH, textAlign: 'right' }}>P&L</span>
-          <span style={{ ...TH, textAlign: 'right' }}>Broker</span>
-          <span style={{ ...TH, textAlign: 'right' }}>Strategy</span>
         </div>
-        {/* Rows */}
-        {filtered.map((pos, i) => {
+        {positions.map((pos, i) => {
           const pnlColor = pos.pnl >= 0 ? 'var(--main-m3)' : 'var(--main-m4)';
           const sign = pos.pnl >= 0 ? '+' : '';
           return (
-            <div key={pos.symbol} className="grid items-center px-[20px] py-[11px] relative hover:bg-[rgba(0,0,0,0.015)] transition-colors" style={{ gridTemplateColumns: '180px 56px 56px 88px 88px 88px 130px 72px 1fr', gap: 8 }}>
+            <div key={pos.symbol} className="grid items-center px-[20px] py-[11px] relative hover:bg-[rgba(0,0,0,0.015)] transition-colors" style={{ gridTemplateColumns: '180px 56px 56px 88px 88px 88px 1fr', gap: 8 }}>
               <div className="flex items-baseline gap-[6px] min-w-0 whitespace-nowrap">
                 <span className="text-[13px]" style={{ color: 'var(--text-n9)', fontWeight: 500 }}>{pos.symbol}</span>
                 <span className="text-[11px] truncate" style={{ color: 'var(--text-n3)' }}>{pos.name}</span>
@@ -211,26 +238,15 @@ function PositionsTable() {
               <span className="text-[12px] text-right" style={{ color: pnlColor, ...MONO }}>
                 {sign}${pos.pnl.toLocaleString()} <span style={{ opacity: 0.6 }}>({sign}{pos.pnlPercent}%)</span>
               </span>
-              <span className="text-[11px] text-right" style={{ color: 'var(--text-n5)' }}>{pos.account}</span>
-              <div className="flex flex-col items-end gap-[2px]">
-                {pos.sourceStrategies.map(s => (
-                  <span key={s} className="flex items-center gap-[4px] text-[10px] whitespace-nowrap">
-                    <span className="px-[6px] py-[1px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: '#49a3a6' }}>{s}</span>
-                    {pos.sourceStrategies.length > 1 && pos.allocations[s] != null && (
-                      <span style={{ color: 'var(--text-n3)', ...MONO, fontSize: 10 }}>${(pos.allocations[s] / 1000).toFixed(1)}K</span>
-                    )}
-                  </span>
-                ))}
-              </div>
-              {i < filtered.length - 1 && (
+              {i < positions.length - 1 && (
                 <div className="absolute bottom-0 left-[20px] right-[20px]" style={{ ...DIVIDER, gridColumn: '1 / -1' }} />
               )}
             </div>
           );
         })}
-        {filtered.length === 0 && (
+        {positions.length === 0 && (
           <div className="py-[32px] text-center">
-            <span className="text-[13px]" style={{ color: 'var(--text-n3)' }}>No positions for this broker</span>
+            <span className="text-[13px]" style={{ color: 'var(--text-n3)' }}>No positions</span>
           </div>
         )}
         <AlvaWatermark />
@@ -239,16 +255,7 @@ function PositionsTable() {
   );
 }
 
-function OverviewTab() {
-  return (
-    <div className="flex flex-col gap-[24px]">
-      <EquityCurveChart />
-      <PositionsTable />
-    </div>
-  );
-}
-
-/* ========== Strategies Tab ========== */
+/* ========== Strategy Section ========== */
 
 function WeightBarRow({ w }: { w: WeightBar }) {
   const maxWeight = Math.max(w.currentWeight, w.targetWeight, 0.01);
@@ -260,12 +267,10 @@ function WeightBarRow({ w }: { w: WeightBar }) {
     <div className="flex items-center gap-[10px] py-[5px]">
       <span className="text-[11px] w-[36px] shrink-0" style={{ color: 'var(--text-n9)', fontWeight: 500, fontFamily: FONT_FAMILY }}>{w.symbol}</span>
       <div className="flex-1 h-[12px] relative" style={{ background: 'rgba(0,0,0,0.03)', borderRadius: 6 }}>
-        {/* Target: subtle dashed outline */}
         <div className="absolute top-0 bottom-0 left-0 rounded-[6px]" style={{
           width: `${w.targetWeight * barScale * 100}%`,
           border: '1px dashed rgba(73,163,166,0.3)',
         }} />
-        {/* Current fill */}
         <div className="absolute top-0 bottom-0 left-0 rounded-[6px]" style={{
           width: `${w.currentWeight * barScale * 100}%`,
           background: aligned
@@ -274,97 +279,58 @@ function WeightBarRow({ w }: { w: WeightBar }) {
         }} />
       </div>
       <span className="text-[11px] w-[72px] shrink-0 text-right" style={{ color: 'var(--text-n5)', ...MONO }}>
-        {(w.currentWeight * 100).toFixed(0)}% → {(w.targetWeight * 100).toFixed(0)}%
+        {(w.currentWeight * 100).toFixed(0)}% &rarr; {(w.targetWeight * 100).toFixed(0)}%
       </span>
       <span className="text-[11px] w-[44px] shrink-0 text-right" style={{ color: aligned ? 'var(--main-m3)' : 'var(--text-n7)', ...MONO }}>
-        {aligned ? '✓' : `${driftSign}${(w.drift * 100).toFixed(1)}%`}
+        {aligned ? '\u2713' : `${driftSign}${(w.drift * 100).toFixed(1)}%`}
       </span>
     </div>
   );
 }
 
-function StrategyCard({ s, onNavigate }: { s: StrategyBinding; onNavigate: (page: Page) => void }) {
-  const pnlColor = s.pnl >= 0 ? 'var(--main-m3)' : 'var(--main-m4)';
-  const pnlSign = s.pnl >= 0 ? '+' : '';
-
+function StrategySection({ strategy, onNavigate }: { strategy: StrategyBinding; onNavigate: (page: Page) => void }) {
   return (
-    <div style={{ ...CARD_BG, padding: '20px 24px' }}>
-      {/* Title row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-[8px]">
-          <span
-            className="text-[15px] cursor-pointer hover:underline"
-            style={{ color: 'var(--text-n9)', fontWeight: 500 }}
-            onClick={() => onNavigate('btc-playbook')}
-          >{s.playbookName}</span>
-          <span className="text-[12px]" style={{ color: 'var(--text-n3)' }}>by @{s.author}</span>
-          <PulseIndicator status={s.status === 'paused' ? 'idle' : 'active'} />
-        </div>
-        <span className="text-[11px] px-[8px] py-[2px] rounded-full" style={{
-          background: s.mode === 'auto' ? 'rgba(64,165,68,0.08)' : 'rgba(73,163,166,0.08)',
-          color: s.mode === 'auto' ? 'var(--main-m3)' : '#49a3a6',
-        }}>{s.mode === 'auto' ? 'Auto' : 'Approval'}</span>
-      </div>
-
-      {/* Data grid */}
-      {(() => {
-        const virtualNav = s.allocationValue + s.pnl;
-        return (
-          <div className="grid grid-cols-5 gap-[16px] mt-[16px] mb-[16px] py-[14px] px-[16px] rounded-[4px]" style={{ background: 'rgba(0,0,0,0.015)' }}>
-            <div>
-              <p className="text-[11px] mb-[2px]" style={LABEL}>Allocated</p>
-              <p className="text-[14px] leading-[20px]" style={{ color: 'var(--text-n9)', ...MONO }}>
-                ${s.allocationValue.toLocaleString()}<span className="text-[11px] ml-[4px]" style={{ opacity: 0.6 }}>{s.allocation}%</span>
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] mb-[2px]" style={LABEL}>Virtual NAV</p>
-              <p className="text-[14px] leading-[20px]" style={{ color: '#49a3a6', ...MONO }}>
-                ${virtualNav.toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] mb-[2px]" style={LABEL}>P&L</p>
-              <p className="text-[14px] leading-[20px]" style={{ color: pnlColor, ...MONO }}>
-                {pnlSign}${s.pnl.toLocaleString()}<span className="text-[11px] ml-[4px]" style={{ opacity: 0.6 }}>{pnlSign}{s.pnlPercent}%</span>
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] mb-[2px]" style={LABEL}>Broker</p>
-              <p className="text-[14px] leading-[20px]" style={{ color: 'var(--text-n9)', ...MONO }}>{s.broker}</p>
-            </div>
-            <div>
-              <p className="text-[11px] mb-[2px]" style={LABEL}>Last Rebalance</p>
-              <p className="text-[14px] leading-[20px]" style={{ color: 'var(--text-n7)', ...MONO }}>{s.lastRebalance}</p>
-            </div>
+    <div className="flex flex-col gap-[12px]">
+      <p className="text-[14px]" style={{ color: 'var(--text-n9)', letterSpacing: 0.14 }}>Strategy</p>
+      <div style={{ ...CARD_BG, padding: '20px 24px' }}>
+        {/* Title row + Last Rebalance */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-[8px]">
+            <span
+              className="text-[15px] cursor-pointer hover:underline"
+              style={{ color: 'var(--text-n9)', fontWeight: 500 }}
+              onClick={() => onNavigate('btc-playbook')}
+            >{strategy.playbookName}</span>
+            <span className="text-[12px]" style={{ color: 'var(--text-n3)' }}>by @{strategy.author}</span>
+            <PulseIndicator status="active" />
+            <span className="text-[11px] px-[8px] py-[2px] rounded-full" style={{
+              background: strategy.mode === 'auto' ? 'rgba(64,165,68,0.08)' : 'rgba(73,163,166,0.08)',
+              color: strategy.mode === 'auto' ? 'var(--main-m3)' : '#49a3a6',
+            }}>{strategy.mode === 'auto' ? 'Auto' : 'Approval'}</span>
           </div>
-        );
-      })()}
-
-      {/* Weight bars */}
-      <div className="mb-[16px]">
-        {s.weights.map(w => <WeightBarRow key={w.symbol} w={w} />)}
-      </div>
-
-      {/* Divider */}
-      <div style={DIVIDER} />
-
-      {/* Actions — 主操作左, 次操作右, pending 提示居中 */}
-      <div className="flex items-center justify-between mt-[14px]">
-        <div className="flex items-center gap-[6px]">
-          <button
-            className="transition-colors hover:opacity-90"
-            style={{ padding: '6px 16px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500, background: '#49a3a6', color: '#fff', border: 'none' }}
-          >Rebalance Now</button>
-          {s.pendingOrders > 0 && (
-            <span className="text-[11px] px-[8px] py-[3px] rounded-full" style={{ background: 'rgba(230,169,26,0.1)', color: '#E6A91A' }}>
-              {s.pendingOrders} awaiting approval
-            </span>
-          )}
+          <span className="text-[12px]" style={{ color: 'var(--text-n5)', ...MONO }}>Rebalanced {strategy.lastRebalance}</span>
         </div>
-        <div className="flex items-center gap-[4px]">
-          <button className="transition-colors hover:text-[var(--text-n7)]" style={{ padding: '6px 12px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, background: 'none', color: 'var(--text-n3)', border: 'none' }}>Pause</button>
-          <span style={{ color: 'var(--line-l3)', fontSize: 10 }}>|</span>
+
+        {/* Weight bars */}
+        <div className="mt-[16px] mb-[16px]">
+          {strategy.weights.map(w => <WeightBarRow key={w.symbol} w={w} />)}
+        </div>
+
+        <div style={DIVIDER} />
+
+        {/* Actions */}
+        <div className="flex items-center justify-between mt-[14px]">
+          <div className="flex items-center gap-[6px]">
+            <button
+              className="transition-colors hover:opacity-90"
+              style={{ padding: '6px 16px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500, background: '#49a3a6', color: '#fff', border: 'none' }}
+            >Rebalance Now</button>
+            {strategy.pendingOrders > 0 && (
+              <span className="text-[11px] px-[8px] py-[3px] rounded-full" style={{ background: 'rgba(230,169,26,0.1)', color: '#E6A91A' }}>
+                {strategy.pendingOrders} awaiting approval
+              </span>
+            )}
+          </div>
           <button className="transition-colors hover:text-[var(--text-n7)]" style={{ padding: '6px 12px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, background: 'none', color: 'var(--text-n3)', border: 'none' }}>Unbind</button>
         </div>
       </div>
@@ -372,35 +338,13 @@ function StrategyCard({ s, onNavigate }: { s: StrategyBinding; onNavigate: (page
   );
 }
 
-function StrategiesTab({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  /* 双列布局 */
-  const rows: StrategyBinding[][] = [];
-  for (let i = 0; i < P.strategies.length; i += 2) rows.push(P.strategies.slice(i, i + 2));
+/* ========== Activity Tab ========== */
 
-  return (
-    <div className="flex flex-col gap-[12px]">
-      {rows.map((row, i) => (
-        <div key={i} className="flex gap-[12px]">
-          {row.map(s => (
-            <div key={s.id} className="flex-1 min-w-0">
-              <StrategyCard s={s} onNavigate={onNavigate} />
-            </div>
-          ))}
-          {row.length < 2 && <div className="flex-1 min-w-0" />}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ========== Activity Tab (merged Orders + Journal) ========== */
-
-function ActivityTab() {
-  const pendingOrders = P.orders.filter(o => o.status === 'pending');
+function ActivityTab({ orders, journal }: { orders: Order[]; journal: JournalEntry[] }) {
+  const pendingOrders = orders.filter(o => o.status === 'pending');
 
   return (
     <div className="flex flex-col gap-[20px]">
-      {/* Pending approval section — only if there are pending orders */}
       {pendingOrders.length > 0 && (
         <div className="flex flex-col gap-[10px]">
           <div className="flex items-center gap-[8px]">
@@ -433,8 +377,7 @@ function ActivityTab() {
         </div>
       )}
 
-      {/* Trade history by date */}
-      {P.journal.map(entry => (
+      {journal.map(entry => (
         <div key={entry.date}>
           <p className="text-[12px] mb-[8px] uppercase tracking-[0.05em]" style={{ color: 'var(--text-n3)', fontWeight: 500 }}>{entry.date}</p>
           <div style={{ ...CARD_BG, overflow: 'hidden' }}>
@@ -442,19 +385,35 @@ function ActivityTab() {
               const sideColor = t.side === 'buy' ? 'var(--main-m3)' : 'var(--main-m4)';
               const pnlColor = t.pnl && t.pnl >= 0 ? 'var(--main-m3)' : 'var(--main-m4)';
               const pnlSign = t.pnl && t.pnl >= 0 ? '+' : '';
+              const statusStyle = t.status === 'filled'
+                ? { background: 'rgba(64,165,68,0.08)', color: 'var(--main-m3)' }
+                : t.status === 'skipped'
+                  ? { background: 'rgba(230,169,26,0.08)', color: '#E6A91A' }
+                  : { background: 'rgba(224,83,87,0.08)', color: 'var(--main-m4)' };
+              const statusLabel = t.status === 'filled' ? 'Filled' : t.status === 'skipped' ? 'Skipped' : 'Failed';
               return (
-                <div key={`${t.symbol}-${i}`} className="flex items-center px-[20px] py-[11px] gap-[12px] relative hover:bg-[rgba(0,0,0,0.015)] transition-colors">
-                  <span className="text-[10px] w-[28px] shrink-0 text-center py-[2px] rounded-[3px] uppercase font-medium" style={{ color: '#fff', background: sideColor, letterSpacing: '0.04em' }}>{t.side}</span>
-                  <span className="text-[13px] w-[48px] shrink-0" style={{ color: 'var(--text-n9)', fontWeight: 500 }}>{t.symbol}</span>
-                  <span className="text-[12px] w-[48px] shrink-0" style={{ color: 'var(--text-n7)', ...MONO }}>x{t.qty}</span>
-                  <span className="text-[12px] w-[88px] shrink-0" style={{ color: 'var(--text-n5)', ...MONO }}>${t.price.toLocaleString()}</span>
-                  {t.pnl != null ? (
-                    <span className="text-[12px] w-[80px] shrink-0" style={{ color: pnlColor, ...MONO }}>{pnlSign}${t.pnl.toLocaleString()}</span>
-                  ) : (
-                    <span className="text-[12px] w-[80px] shrink-0" style={{ color: 'var(--text-n3)' }}>—</span>
+                <div key={`${t.symbol}-${i}`} className="flex flex-col px-[20px] py-[11px] gap-[4px] relative hover:bg-[rgba(0,0,0,0.015)] transition-colors">
+                  <div className="flex items-center gap-[12px]">
+                    <span className="text-[10px] w-[28px] shrink-0 text-center py-[2px] rounded-[3px] uppercase font-medium" style={{ color: '#fff', background: sideColor, letterSpacing: '0.04em' }}>{t.side}</span>
+                    <span className="text-[13px] w-[48px] shrink-0" style={{ color: 'var(--text-n9)', fontWeight: 500 }}>{t.symbol}</span>
+                    <span className="text-[12px] w-[48px] shrink-0" style={{ color: 'var(--text-n7)', ...MONO }}>x{t.qty}</span>
+                    <span className="text-[12px] w-[88px] shrink-0" style={{ color: 'var(--text-n5)', ...MONO }}>${t.price.toLocaleString()}</span>
+                    {t.pnl != null ? (
+                      <span className="text-[12px] w-[80px] shrink-0" style={{ color: pnlColor, ...MONO }}>{pnlSign}${t.pnl.toLocaleString()}</span>
+                    ) : (
+                      <span className="text-[12px] w-[80px] shrink-0" style={{ color: 'var(--text-n3)' }}>&mdash;</span>
+                    )}
+                    <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={statusStyle}>{statusLabel}</span>
+                    {t.source === 'manual' ? (
+                      <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(0,0,0,0.04)', color: 'var(--text-n5)' }}>Manual</span>
+                    ) : (
+                      <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: '#49a3a6' }}>{t.source}</span>
+                    )}
+                    {t.note && <span className="text-[11px] ml-auto truncate max-w-[200px]" style={{ color: 'var(--text-n3)' }}>{t.note}</span>}
+                  </div>
+                  {t.statusReason && (
+                    <p className="text-[11px] ml-[40px]" style={{ color: 'var(--text-n3)' }}>{t.statusReason}</p>
                   )}
-                  <span className="text-[11px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: '#49a3a6' }}>{t.sourceStrategy}</span>
-                  {t.note && <span className="text-[11px] ml-auto truncate max-w-[200px]" style={{ color: 'var(--text-n3)' }}>{t.note}</span>}
                   {i < entry.trades.length - 1 && (
                     <div className="absolute bottom-0 left-[20px] right-[20px]" style={DIVIDER} />
                   )}
@@ -469,61 +428,69 @@ function ActivityTab() {
   );
 }
 
-/* ========== Tab 类型 ========== */
-
-type PortfolioTab = 'overview' | 'strategies' | 'activity';
-
 /* ========== 页面 ========== */
 
-export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [tab, setTab] = useState<PortfolioTab>('overview');
+type PortfolioTab = 'overview' | 'strategy' | 'activity';
 
-  const pendingCount = P.orders.filter(o => o.status === 'pending').length;
-  const tabMeta: Record<PortfolioTab, { label: string; badge?: string }> = {
-    overview:   { label: 'Overview' },
-    strategies: { label: `Strategies (${P.strategies.length})` },
-    activity:   { label: 'Activity', badge: pendingCount > 0 ? `${pendingCount} pending` : undefined },
-  };
+export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [activeBrokerId, setActiveBrokerId] = useState(BROKER_PORTFOLIOS[0].brokerId);
+  const [tab, setTab] = useState<PortfolioTab>('overview');
+  const broker = BROKER_PORTFOLIOS.find(b => b.brokerId === activeBrokerId)!;
+  const pendingCount = broker.orders.filter(o => o.status === 'pending').length;
+
+  const tabs: { key: PortfolioTab; label: string; badge?: string }[] = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'strategy', label: 'Strategy' },
+    { key: 'activity', label: 'Activity', badge: pendingCount > 0 ? `${pendingCount} pending` : undefined },
+  ];
 
   return (
     <AppShell activePage="portfolio" onNavigate={onNavigate}>
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="content-stretch flex flex-col gap-[20px] px-[28px] pt-[24px] relative w-full">
 
-          <PortfolioHeader onNavigate={onNavigate} />
+          <h2 className="text-[22px] tracking-[0.22px] text-[rgba(0,0,0,0.9)]" style={{ fontFamily: FONT_FAMILY, fontWeight: 500 }}>Portfolio</h2>
 
-          {/* Stats */}
+          <BrokerTabs brokers={BROKER_PORTFOLIOS} active={activeBrokerId} onChange={setActiveBrokerId} />
+
+          <PortfolioHeader broker={broker} onNavigate={onNavigate} />
+
           <div className="flex gap-[8px]">
-            <StatItem value={`$${P.positions.reduce((s, p) => s + p.marketValue, 0).toLocaleString()}`} label="Invested" />
-            <StatItem value={`${P.todayPnl >= 0 ? '+' : ''}$${P.todayPnl.toLocaleString()}`} label="Today P&L" accent />
-            <StatItem value={P.positions.length.toString()} label="Positions" />
+            <StatItem value={`$${broker.positions.reduce((s, p) => s + p.marketValue, 0).toLocaleString()}`} label="Invested" />
+            <StatItem value={`${broker.todayPnl >= 0 ? '+' : ''}$${broker.todayPnl.toLocaleString()}`} label="Today P&L" accent />
+            <StatItem value={broker.positions.length.toString()} label="Positions" />
             <StatItem value={pendingCount.toString()} label="Pending Orders" />
           </div>
 
           {/* Tab bar */}
           <div className="flex items-center gap-[6px]">
-            {(Object.keys(tabMeta) as PortfolioTab[]).map(t => (
+            {tabs.map(t => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
+                key={t.key}
+                onClick={() => setTab(t.key)}
                 className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] transition-colors cursor-pointer ${
-                  tab === t
+                  tab === t.key
                     ? 'bg-[rgba(73,163,166,0.12)] text-[rgba(0,0,0,0.9)] font-medium'
                     : 'bg-transparent text-[rgba(0,0,0,0.35)] hover:text-[rgba(0,0,0,0.6)]'
                 }`}
               >
-                {tabMeta[t].label}
-                {tabMeta[t].badge && (
-                  <span className="ml-[6px] text-[10px] px-[6px] py-[1px] rounded-full" style={{ background: 'rgba(230,169,26,0.12)', color: '#E6A91A' }}>{tabMeta[t].badge}</span>
+                {t.label}
+                {t.badge && (
+                  <span className="ml-[6px] text-[10px] px-[6px] py-[1px] rounded-full" style={{ background: 'rgba(230,169,26,0.12)', color: '#E6A91A' }}>{t.badge}</span>
                 )}
               </button>
             ))}
           </div>
 
           {/* Tab content */}
-          {tab === 'overview' && <OverviewTab />}
-          {tab === 'strategies' && <StrategiesTab onNavigate={onNavigate} />}
-          {tab === 'activity' && <ActivityTab />}
+          {tab === 'overview' && (
+            <div className="flex flex-col gap-[20px]">
+              <EquityCurveChart equityCurve={broker.equityCurve} costBasis={broker.costBasis} benchmark={broker.benchmark} />
+              <PositionsTable positions={broker.positions} />
+            </div>
+          )}
+          {tab === 'strategy' && <StrategySection strategy={broker.strategy} onNavigate={onNavigate} />}
+          {tab === 'activity' && <ActivityTab orders={broker.orders} journal={broker.journal} />}
 
         </div>
       </div>

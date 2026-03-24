@@ -38,7 +38,7 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
           <PlaybookTopbar
             title={MOCK_WORKSPACE.name}
             stats={MOCK_WORKSPACE.stats}
-            signals={MOCK_WORKSPACE.signals}
+
             lineage={MOCK_WORKSPACE.lineage}
             comments={MOCK_WORKSPACE.discussion}
             discussionOpen={discussionOpen}
