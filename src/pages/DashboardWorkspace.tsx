@@ -15,6 +15,7 @@ import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
+import { ChatPanel } from '@/app/components/community/ChatPanel';
 import { MOCK_WORKSPACE } from '@/data/community-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
 import { MarkdownWidget } from '@/widgets/MarkdownWidget';
@@ -28,6 +29,14 @@ import { NVDAEarningsDetailWidget } from '@/widgets/NVDAEarningsDetailWidget';
 
 export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [discussionOpen, setDiscussionOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const toggleDiscussion = () => {
+    setDiscussionOpen(v => { if (!v) setChatOpen(false); return !v; });
+  };
+  const toggleChat = () => {
+    setChatOpen(v => { if (!v) setDiscussionOpen(false); return !v; });
+  };
 
   return (
     <AppShell activePage="workspace" onNavigate={onNavigate}>
@@ -42,7 +51,9 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
             lineage={MOCK_WORKSPACE.lineage}
             comments={MOCK_WORKSPACE.discussion}
             discussionOpen={discussionOpen}
-            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
+            onToggleDiscussion={toggleDiscussion}
+            chatOpen={chatOpen}
+            onToggleChat={toggleChat}
             author={MOCK_WORKSPACE.author}
             pulse={MOCK_WORKSPACE.pulse}
             description={MOCK_WORKSPACE.description}
@@ -93,6 +104,10 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
           onClose={() => setDiscussionOpen(false)}
           comments={MOCK_WORKSPACE.discussion}
           agentTake={MOCK_WORKSPACE.agentTake}
+        />
+        <ChatPanel
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
         />
       </div>
     </AppShell>

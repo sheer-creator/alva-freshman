@@ -18,6 +18,7 @@ import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
+import { ChatPanel } from '@/app/components/community/ChatPanel';
 import { MOCK_TSLA_OVERVIEW } from '@/data/community-mock';
 import { tooltipConfig, CHART_COLORS, FONT, CHART_DOT_BG } from '@/lib/chart-theme';
 
@@ -404,6 +405,14 @@ function SocialSentimentWidget() {
    ───────────────────────────────────────── */
 export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [discussionOpen, setDiscussionOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const toggleDiscussion = () => {
+    setDiscussionOpen(v => { if (!v) setChatOpen(false); return !v; });
+  };
+  const toggleChat = () => {
+    setChatOpen(v => { if (!v) setDiscussionOpen(false); return !v; });
+  };
 
   return (
     <AppShell activePage="tsla-overview" onNavigate={onNavigate}>
@@ -419,7 +428,9 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
             lineage={MOCK_TSLA_OVERVIEW.lineage}
             comments={MOCK_TSLA_OVERVIEW.discussion}
             discussionOpen={discussionOpen}
-            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
+            onToggleDiscussion={toggleDiscussion}
+            chatOpen={chatOpen}
+            onToggleChat={toggleChat}
             author={MOCK_TSLA_OVERVIEW.author}
             pulse={MOCK_TSLA_OVERVIEW.pulse}
             description={MOCK_TSLA_OVERVIEW.description}
@@ -458,6 +469,10 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
           onClose={() => setDiscussionOpen(false)}
           comments={MOCK_TSLA_OVERVIEW.discussion}
           agentTake={MOCK_TSLA_OVERVIEW.agentTake}
+        />
+        <ChatPanel
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
         />
       </div>
     </AppShell>
