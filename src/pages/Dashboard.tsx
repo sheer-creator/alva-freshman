@@ -27,7 +27,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
           <PlaybookTopbar
             title={MOCK_CUSTOM_LAYOUT.name}
             stats={MOCK_CUSTOM_LAYOUT.stats}
-            signals={MOCK_CUSTOM_LAYOUT.signals}
+
             lineage={MOCK_CUSTOM_LAYOUT.lineage}
             comments={MOCK_CUSTOM_LAYOUT.discussion}
             discussionOpen={discussionOpen}
