@@ -10,6 +10,8 @@ import { AppShell } from '@/app/components/shell/AppShell';
 import { PulseIndicator } from '@/app/components/community/PulseIndicator';
 import { AVATAR_COLOR_PALETTE, CHART_COLORS } from '@/lib/chart-theme';
 import { MOCK_CONVERSATIONS, setActiveConversation, setShouldStream } from '@/data/alva-chat-mock';
+import type { MentionItem } from '@/app/components/mention/mention-data';
+import { MentionPopover, MentionChip } from '@/app/components/mention/MentionPopover';
 
 /* ========== 类型 ========== */
 
@@ -444,6 +446,16 @@ function PlaybookListItem({ item, active, onClick }: { item: PlaybookItem; activ
   );
 }
 
+/* ========== Remix Prompt 模板 ========== */
+
+const REMIX_PROMPTS: Record<string, string> = {
+  'btc-ultimate': 'Remix this BTC strategy — switch RSI threshold to 25 and add an ETH correlation filter',
+  'mag7-rebalance': 'Remix this portfolio — replace TSLA with AVGO and switch to weekly rebalance',
+  'nvda-tsm': 'Remix this pair trade — test with AMD as trigger instead of NVDA, keep the same TP/SL',
+  'attribution-analysis': 'Remix this monitor — add funding rate alerts and narrow to top 3 tokens by volume',
+  'btc-macd': 'Remix this MACD strategy — try EMA(9,21) on 4h candles instead of 1h',
+};
+
 /* ========== 社区讨论 mock ========== */
 
 const DISCUSSIONS: Record<string, { user: string; text: string; time: string }[]> = {
@@ -471,7 +483,7 @@ const DISCUSSIONS: Record<string, { user: string; text: string; time: string }[]
 
 /* ========== 右侧拟物化详情窗口 ========== */
 
-function PlaybookDetailWindow({ item }: { item: PlaybookItem }) {
+function PlaybookDetailWindow({ item, onRemix }: { item: PlaybookItem; onRemix: (item: PlaybookItem) => void }) {
   const Thumb = THUMB_MAP[item.id];
   const discussions = DISCUSSIONS[item.id] ?? [];
 
@@ -497,6 +509,7 @@ function PlaybookDetailWindow({ item }: { item: PlaybookItem }) {
           </span>
           {/* Remix 按钮 */}
           <button
+            onClick={e => { e.stopPropagation(); onRemix(item); }}
             className="flex items-center gap-[5px] px-[12px] py-[4px] rounded-[7px] border-none cursor-pointer transition-all hover:brightness-105 active:brightness-95"
             style={{
               background: `linear-gradient(180deg, ${item.themeColor} 0%, ${item.themeColor}dd 100%)`,
@@ -559,8 +572,20 @@ function PlaybookDetailWindow({ item }: { item: PlaybookItem }) {
 
 /* ========== AI Chat Hero ========== */
 
-function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [inputValue, setInputValue] = useState('');
+interface ChatHeroProps {
+  onNavigate: (page: Page) => void;
+  inputValue: string;
+  onInputChange: (v: string) => void;
+  remixTarget: PlaybookItem | null;
+  onClearRemix: () => void;
+}
+
+function ChatHero({ onNavigate, inputValue, onInputChange, remixTarget, onClearRemix }: ChatHeroProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [mentions, setMentions] = useState<MentionItem[]>([]);
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionAnchor, setMentionAnchor] = useState(-1);
 
   const handleSend = () => {
     setShouldStream(true);
@@ -569,11 +594,58 @@ function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (mentionOpen) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
+
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    onInputChange(value);
+    const cursor = e.target.selectionStart ?? value.length;
+    const before = value.slice(0, cursor);
+    const atMatch = before.match(/(^|[\s])@([\w\s]*)$/);
+    if (atMatch) {
+      setMentionOpen(true);
+      setMentionQuery(atMatch[2]);
+      setMentionAnchor(cursor - atMatch[2].length - 1);
+    } else if (mentionAnchor >= 0) {
+      setMentionOpen(false);
+      setMentionAnchor(-1);
+    }
+  };
+
+  const handleAtClick = useCallback(() => {
+    setMentionOpen(o => !o);
+    setMentionQuery('');
+    setMentionAnchor(-1);
+  }, []);
+
+  const handleMentionSelect = useCallback((item: MentionItem) => {
+    if (mentionAnchor >= 0) {
+      const before = inputValue.slice(0, mentionAnchor);
+      const afterAtQuery = inputValue.slice(mentionAnchor).replace(/@[\w\s]*/, '');
+      onInputChange(before + afterAtQuery);
+    }
+    setMentions(prev => prev.some(m => m.id === item.id) ? prev : [...prev, item]);
+    setMentionOpen(false);
+    setMentionAnchor(-1);
+    textareaRef.current?.focus();
+  }, [inputValue, mentionAnchor, onInputChange]);
+
+  const handleMentionClose = useCallback(() => { setMentionOpen(false); setMentionAnchor(-1); }, []);
+
+  /* Remix 触发后自动聚焦输入框 */
+  useEffect(() => {
+    if (remixTarget && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [remixTarget]);
+
+  const hasChips = remixTarget || mentions.length > 0;
 
   return (
     <section className="w-full flex justify-center pt-[40px] pb-[40px] px-[24px]">
@@ -601,25 +673,61 @@ function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
         </h1>
 
         {/* Chat input */}
-        <div className="rounded-[16px] border border-[rgba(0,0,0,0.08)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div
+          className="rounded-[16px] border bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all relative"
+          style={{
+            borderColor: remixTarget ? remixTarget.themeColor + '40' : 'rgba(0,0,0,0.08)',
+            overflow: 'visible',
+          }}
+        >
+          {/* @ Mention Popover — 向下展开 */}
+          {mentionOpen && (
+            <div style={{ position: 'absolute', top: '100%', left: 16, marginTop: 6, zIndex: 9999 }}>
+              <MentionPopover
+                query={mentionQuery}
+                onSelect={handleMentionSelect}
+                onClose={handleMentionClose}
+                selectedIds={new Set(mentions.map(m => m.id))}
+              />
+            </div>
+          )}
+
+          {/* Chips: Remix target + @ mentions */}
+          {hasChips && (
+            <div className="px-[16px] pt-[12px] flex flex-wrap gap-[6px]">
+              {remixTarget && (
+                <MentionChip
+                  item={{ id: 'remix-target', type: 'playbook', title: remixTarget.title, subtitle: remixTarget.creator, themeColor: remixTarget.themeColor }}
+                  onRemove={onClearRemix}
+                />
+              )}
+              {mentions.map(m => (
+                <MentionChip key={m.id} item={m} onRemove={() => setMentions(prev => prev.filter(x => x.id !== m.id))} />
+              ))}
+            </div>
+          )}
+
           <textarea
+            ref={textareaRef}
             value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
+            onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder="Describe a trading strategy and I'll build a Playbook for you..."
+            placeholder={remixTarget ? 'Describe how you want to remix this strategy...' : 'Describe a trading strategy and I\'ll build a Playbook for you...'}
             rows={2}
             className="w-full resize-none border-none outline-none px-[20px] pt-[14px] pb-[6px] text-[14px] leading-[22px] font-['Delight',sans-serif] text-[rgba(0,0,0,0.85)] placeholder:text-[rgba(0,0,0,0.25)]"
             style={{ background: 'transparent' }}
           />
           <div className="flex items-center justify-between px-[16px] pb-[10px]">
-            {/* Attachment button */}
+            {/* @ button */}
             <button
-              className="w-[32px] h-[32px] rounded-full border border-[rgba(0,0,0,0.12)] bg-transparent hover:bg-[rgba(0,0,0,0.04)] transition-colors flex items-center justify-center cursor-pointer"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 3v10M3 8h10" stroke="rgba(0,0,0,0.4)" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </button>
+              onClick={handleAtClick}
+              className="cursor-pointer transition-colors"
+              style={{
+                background: 'none', border: 'none', padding: '4px 2px',
+                fontFamily: "'Delight', sans-serif", fontSize: 16, fontWeight: 600,
+                color: mentionOpen ? '#49a3a6' : 'rgba(0,0,0,0.25)',
+              }}
+            >@</button>
             <button
               onClick={handleSend}
               className="w-[32px] h-[32px] rounded-full bg-[#49a3a6] hover:bg-[#3d8e91] transition-colors flex items-center justify-center border-none cursor-pointer"
@@ -637,7 +745,7 @@ function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
 /* ========== Playbook 浏览区（填满剩余高度，滚动切换） ========== */
 
-function PlaybookBrowser({ selectedIdx, onSelect }: { selectedIdx: number; onSelect: (idx: number) => void }) {
+function PlaybookBrowser({ selectedIdx, onSelect, onRemix }: { selectedIdx: number; onSelect: (idx: number) => void; onRemix: (item: PlaybookItem) => void }) {
   const selected = PLAYBOOKS[selectedIdx];
   const [animating, setAnimating] = useState(false);
   const [direction, setDirection] = useState<'up' | 'down'>('down');
@@ -748,7 +856,7 @@ function PlaybookBrowser({ selectedIdx, onSelect }: { selectedIdx: number; onSel
           {/* 右侧详情 */}
           <div className="flex-1 px-[20px] py-[12px] flex items-stretch justify-center overflow-hidden">
             <div className="w-full max-w-[520px] flex flex-col" style={detailStyle} key={selected.id}>
-              <PlaybookDetailWindow item={selected} />
+              <PlaybookDetailWindow item={selected} onRemix={onRemix} />
             </div>
           </div>
         </div>
@@ -779,6 +887,18 @@ function PlaybookBrowser({ selectedIdx, onSelect }: { selectedIdx: number; onSel
 
 export default function HomeV3({ onNavigate, onOpenSearch }: HomeV3Props) {
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [inputValue, setInputValue] = useState('');
+  const [remixTarget, setRemixTarget] = useState<PlaybookItem | null>(null);
+
+  const handleRemix = useCallback((item: PlaybookItem) => {
+    setRemixTarget(item);
+    setInputValue(REMIX_PROMPTS[item.id] ?? `Remix "${item.title}" — describe your changes...`);
+  }, []);
+
+  const handleClearRemix = useCallback(() => {
+    setRemixTarget(null);
+    setInputValue('');
+  }, []);
 
   return (
     <AppShell activePage={'home-v3' as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
@@ -794,10 +914,16 @@ export default function HomeV3({ onNavigate, onOpenSearch }: HomeV3Props) {
       `}</style>
       {/* 全屏 flex 列布局：ChatHero 自然高度 + PlaybookBrowser 占满剩余 */}
       <div className="h-screen flex flex-col bg-[#fafafa] overflow-hidden">
-        <div className="shrink-0 overflow-y-auto" style={{ maxHeight: '45vh' }}>
-          <ChatHero onNavigate={onNavigate} />
+        <div className="shrink-0" style={{ maxHeight: '45vh', overflow: 'visible', position: 'relative', zIndex: 20 }}>
+          <ChatHero
+            onNavigate={onNavigate}
+            inputValue={inputValue}
+            onInputChange={setInputValue}
+            remixTarget={remixTarget}
+            onClearRemix={handleClearRemix}
+          />
         </div>
-        <PlaybookBrowser selectedIdx={selectedIdx} onSelect={setSelectedIdx} />
+        <PlaybookBrowser selectedIdx={selectedIdx} onSelect={setSelectedIdx} onRemix={handleRemix} />
       </div>
     </AppShell>
   );

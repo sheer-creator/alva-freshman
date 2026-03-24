@@ -57,6 +57,13 @@ export interface AgentTakeData {
   timeline: TimelineEntry[];
 }
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'agent';
+  text: string;
+  timestamp: string;
+}
+
 /* ========== Mock 数据 ========== */
 
 export const MOCK_ASSET = {
@@ -903,3 +910,32 @@ export const MOCK_TSLA_TRACKING = {
     },
   ] as Comment[],
 };
+
+/* ========== Chat Mock 数据 ========== */
+
+export const MOCK_CHAT_MESSAGES: ChatMessage[] = [
+  {
+    id: 'c1',
+    role: 'user',
+    text: 'What are the key risk factors for TSLA right now?',
+    timestamp: '2m ago',
+  },
+  {
+    id: 'c2',
+    role: 'agent',
+    text: 'Based on the dashboard data, the primary risk factors are:\n\n1. **High Beta (1.82)** — TSLA moves ~1.8x the market. A 10% SPY drop implies ~18% TSLA drawdown.\n2. **Elevated Volatility (52.3% 30D)** — significantly above the 90-day average, suggesting turbulent price action ahead.\n3. **Valuation stretch** — P/E at 118x vs S&P 22x prices in enormous growth optionality. Any narrative miss could trigger 30%+ compression.\n4. **Social sentiment divergence** — Reddit bullish, Twitter neutral. Historically this pattern precedes 10-15% corrections.',
+    timestamp: '2m ago',
+  },
+  {
+    id: 'c3',
+    role: 'user',
+    text: 'Should I reduce my position size given the current volatility?',
+    timestamp: '1m ago',
+  },
+  {
+    id: 'c4',
+    role: 'agent',
+    text: 'With 30D vol at **52.3%** (above the 50% threshold), a prudent approach is to scale down. A common heuristic:\n\n- **Vol < 35%**: Full size\n- **35\u201350%**: 75% size\n- **> 50%**: 50% size\n\nAt current levels, half-sizing your TSLA position while maintaining the same dollar-risk via tighter stops would improve your risk-adjusted returns. The Sharpe ratio of 0.87 already tells you the vol isn\'t being compensated adequately.',
+    timestamp: '1m ago',
+  },
+];

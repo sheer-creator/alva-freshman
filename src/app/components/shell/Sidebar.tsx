@@ -135,9 +135,9 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
       </div>
 
-      {/* Chats */}
+      {/* Threads */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[2]">
-        <SectionHeader label="Chats" />
+        <SectionHeader label="Threads" />
         {MOCK_CONVERSATIONS.map(conv => (
           <NavItem
             key={conv.id}

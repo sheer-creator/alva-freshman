@@ -13,7 +13,7 @@ import { getShouldStream, setShouldStream } from '@/data/alva-chat-mock';
 const TURN_DELAY = 500;
 const CHAR_DELAY = 12;
 const TOOL_RUNNING_MS = 1500;
-const THINKING_BEFORE_AGENT = 600;
+const THINKING_BEFORE_AGENT = 3500;
 
 /* ========== 状态 ========== */
 
@@ -151,6 +151,7 @@ export function useStreamSimulator(conversation: Conversation) {
         }
 
         if (block.type === 'text') {
+          /* text 流入时不需要 thinking */
           const len = block.content.length;
           for (let c = 0; c <= len; c += 3) {
             const charPos = Math.min(c, len);
@@ -161,12 +162,26 @@ export function useStreamSimulator(conversation: Conversation) {
           schedule(() => {}, 150);
         } else if (block.type === 'tool_call') {
           const toolId = block.data.id;
+          /* 显示 tool running 态 + thinking 伴随 */
           schedule(() => {
-            setState(s => ({ ...s, visibleTurns: sliceTurns(turns, tIdx + 1, bIdx, 0), showThinking: false, activeToolId: toolId }));
+            setState(s => ({
+              ...s,
+              visibleTurns: sliceTurns(turns, tIdx + 1, bIdx, 0),
+              showThinking: true,
+              activeToolId: toolId,
+            }));
           }, 200);
-          const runTime = block.data.durationMs ? Math.min(block.data.durationMs * 0.6, 2500) : TOOL_RUNNING_MS;
+          /* tool 执行完成 — thinking 消失 */
+          const runTime = block.data.durationMs
+            ? Math.min(block.data.durationMs * 0.8, 4000)
+            : TOOL_RUNNING_MS;
           schedule(() => {
-            setState(s => ({ ...s, visibleTurns: sliceTurns(turns, tIdx + 1, bIdx, 1), showThinking: false, activeToolId: toolId }));
+            setState(s => ({
+              ...s,
+              visibleTurns: sliceTurns(turns, tIdx + 1, bIdx, 1),
+              showThinking: false,
+              activeToolId: toolId,
+            }));
           }, runTime);
         } else if (block.type === 'todo_update') {
           schedule(() => {
@@ -175,7 +190,7 @@ export function useStreamSimulator(conversation: Conversation) {
         } else if (block.type === 'artifact') {
           schedule(() => {
             setState(s => ({ ...s, visibleTurns: sliceTurns(turns, tIdx + 1, bIdx, 1), showThinking: false, activeToolId: null }));
-          }, 500);
+          }, 400);
         } else if (block.type === 'completion') {
           schedule(() => {
             setState(s => ({ ...s, visibleTurns: sliceTurns(turns, tIdx + 1, bIdx, 1), showThinking: false }));

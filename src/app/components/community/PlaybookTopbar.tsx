@@ -34,6 +34,8 @@ interface PlaybookTopbarProps extends PlaybookHeaderProps {
   comments: Comment[];
   discussionOpen: boolean;
   onToggleDiscussion: () => void;
+  chatOpen: boolean;
+  onToggleChat: () => void;
   onAuthorClick?: () => void;
 }
 
@@ -63,6 +65,7 @@ function useClickOutside(ref: React.RefObject<HTMLElement | null>, open: boolean
 export function PlaybookTopbar({
   title, stats, lineage, comments,
   discussionOpen, onToggleDiscussion,
+  chatOpen, onToggleChat,
   author, pulse, description, builtOn, onAuthorClick,
 }: PlaybookTopbarProps) {
   const [headerOpen, setHeaderOpen] = useState(false);
@@ -131,71 +134,18 @@ export function PlaybookTopbar({
 
         {/* Right: Stats + Actions */}
         <div className="content-stretch flex gap-[4px] items-center justify-end relative shrink-0">
-          {/* ★ Stars — toggle + toast */}
-            <button
-              onClick={() => {
-                const next = !starred;
-                setStarred(next);
-                if (next) {
-                  setToastVisible(true);
-                  if (toastTimer.current) clearTimeout(toastTimer.current);
-                  toastTimer.current = setTimeout(() => setToastVisible(false), 6000);
-                } else {
-                  setToastVisible(false);
-                }
-              }}
-              style={{ ...STAT_STYLE, color: starred ? '#E6A91A' : 'rgba(0,0,0,0.9)', transition: 'color 0.15s' }}
-            >
-              <div className="relative shrink-0 size-[16px]">
-                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
-                  <path d={svgPaths.p2b2d8380} fill={starred ? '#E6A91A' : 'black'} fillOpacity={starred ? 1 : 0.9} />
-                </svg>
-              </div>
-              <span>{starred ? stats.stars + 1 : stats.stars}</span>
-            </button>
-
-            {/* Discuss — 原 Remix 位置，改用 chat 图标 */}
-            <button
-              onMouseDown={e => e.stopPropagation()}
-              onClick={onToggleDiscussion}
-              style={{
-                ...STAT_STYLE,
-                background: discussionOpen ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : 'none',
-                borderRadius: 6,
-                padding: '4px 6px',
-                color: discussionOpen ? 'var(--main-m1, #49A3A6)' : 'rgba(0,0,0,0.9)',
-                transition: 'background 0.15s, color 0.15s',
-              }}
-            >
-              <img src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg" width={16} height={16} alt="discuss" style={{ opacity: discussionOpen ? 1 : 0.9, filter: discussionOpen ? 'invert(59%) sepia(30%) saturate(550%) hue-rotate(140deg) brightness(90%) contrast(90%)' : 'none', transition: 'filter 0.15s' }} />
-              <span>{comments.length}</span>
-            </button>
-
-            {/* 📤 Share */}
-            <button style={STAT_STYLE}>
-              <div className="relative shrink-0 size-[16px]">
-                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
-                  <path d={svgPaths.p272ac1f0} fill="black" fillOpacity="0.9" />
-                </svg>
-              </div>
-            </button>
-
-          {/* Trade — 点击打开 StrategyBindPanel */}
-          <div ref={tradeRef} className="relative" style={{ marginLeft: 4 }}>
+          {/* Trade */}
+          <div ref={tradeRef} className="relative">
             <button
               onMouseDown={e => e.stopPropagation()}
               onClick={() => setTradeOpen(v => !v)}
-              className="h-[36px] rounded-[6px] shrink-0 flex items-center justify-center gap-[6px] px-[12px] py-[6px] relative"
-              style={{
-                border: 'none', cursor: 'pointer', fontFamily: "'Delight', sans-serif",
-                fontSize: 12, color: '#fff', background: '#49a3a6',
-              }}
+              style={STAT_STYLE}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 5L7 2L12 5V9L7 12L2 9V5Z" stroke="#fff" strokeWidth="1.2" fill="none" />
-                <path d="M7 2V12M2 5L12 9M12 5L2 9" stroke="#fff" strokeWidth="0.8" opacity="0.5" />
-              </svg>
-              <span style={{ fontWeight: 500 }}>Trade</span>
+              <div className="relative shrink-0 size-[16px]">
+                <svg className="block size-full" viewBox="0 0 16 16" fill="black" fillOpacity="0.9">
+                  <path d="M1.5 5.25a.75.75 0 01.75-.75h8.69L9.22 2.78a.75.75 0 011.06-1.06l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 01-1.06-1.06l1.72-1.72H2.25a.75.75 0 01-.75-.75zM14.5 10.75a.75.75 0 00-.75-.75H5.06l1.72-1.72a.75.75 0 00-1.06-1.06l-3 3a.75.75 0 000 1.06l3 3a.75.75 0 001.06-1.06L5.06 11.5h8.69a.75.75 0 00.75-.75z" />
+                </svg>
+              </div>
             </button>
             {tradeOpen && (
               <div
@@ -207,18 +157,38 @@ export function PlaybookTopbar({
             )}
           </div>
 
-          {/* Remix — 最右侧按钮，点击打开 RemixPrompt 弹层 */}
-          <div ref={forkRef} className="relative" style={{ marginLeft: 4 }}>
+          {/* Stars */}
+          <button
+            onClick={() => {
+              const next = !starred;
+              setStarred(next);
+              if (next) {
+                setToastVisible(true);
+                if (toastTimer.current) clearTimeout(toastTimer.current);
+                toastTimer.current = setTimeout(() => setToastVisible(false), 6000);
+              } else {
+                setToastVisible(false);
+              }
+            }}
+            style={{ ...STAT_STYLE, color: starred ? '#E6A91A' : 'rgba(0,0,0,0.9)', transition: 'color 0.15s' }}
+          >
+            <div className="relative shrink-0 size-[16px]">
+              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
+                <path d={svgPaths.p2b2d8380} fill={starred ? '#E6A91A' : 'black'} fillOpacity={starred ? 1 : 0.9} />
+              </svg>
+            </div>
+            <span>{starred ? stats.stars + 1 : stats.stars}</span>
+          </button>
+
+          {/* Remix */}
+          <div ref={forkRef} className="relative">
             <button
               onMouseDown={e => e.stopPropagation()}
               onClick={() => setForkOpen(v => !v)}
-              className="bg-white h-[36px] rounded-[6px] shrink-0 flex items-center justify-center gap-[6px] px-[12px] py-[6px] relative"
-              style={{ border: 'none', cursor: 'pointer', fontFamily: "'Delight', sans-serif", fontSize: 12, color: 'rgba(0,0,0,0.9)' }}
+              style={STAT_STYLE}
             >
               <img src="https://alva-ai-static.b-cdn.net/icons/remix-l.svg" width={16} height={16} alt="remix" style={{ opacity: 0.9 }} />
-              <span style={{ fontWeight: 500 }}>Remix</span>
-              <span style={{ fontWeight: 400, color: 'rgba(0,0,0,0.5)' }}>{stats.forks}</span>
-              <div aria-hidden="true" className="absolute border-[0.5px] border-[rgba(0,0,0,0.3)] border-solid inset-0 pointer-events-none rounded-[6px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.05)]" />
+              <span>{stats.forks}</span>
             </button>
             {forkOpen && (
               <div
@@ -228,6 +198,54 @@ export function PlaybookTopbar({
                 <RemixPrompt />
               </div>
             )}
+          </div>
+
+          {/* Discuss */}
+          <button
+            onMouseDown={e => e.stopPropagation()}
+            onClick={onToggleDiscussion}
+            style={{
+              ...STAT_STYLE,
+              background: discussionOpen ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : 'none',
+              borderRadius: 6,
+              padding: '4px 6px',
+              color: discussionOpen ? 'var(--main-m1, #49A3A6)' : 'rgba(0,0,0,0.9)',
+              transition: 'background 0.15s, color 0.15s',
+            }}
+          >
+            <img src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg" width={16} height={16} alt="discuss" style={{ opacity: discussionOpen ? 1 : 0.9, filter: discussionOpen ? 'invert(59%) sepia(30%) saturate(550%) hue-rotate(140deg) brightness(90%) contrast(90%)' : 'none', transition: 'filter 0.15s' }} />
+            <span>{comments.length}</span>
+          </button>
+
+          {/* Share */}
+          <button style={STAT_STYLE}>
+            <div className="relative shrink-0 size-[16px]">
+              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
+                <path d={svgPaths.p272ac1f0} fill="black" fillOpacity="0.9" />
+              </svg>
+            </div>
+          </button>
+
+          {/* Chat — 唯一突出的 pill 按钮 */}
+          <div style={{ marginLeft: 4 }}>
+            <button
+              onMouseDown={e => e.stopPropagation()}
+              onClick={onToggleChat}
+              className="h-[36px] rounded-[6px] shrink-0 flex items-center justify-center gap-[6px] px-[12px] py-[6px]"
+              style={{
+                border: 'none', cursor: 'pointer', fontFamily: "'Delight', sans-serif",
+                fontSize: 12, color: '#fff',
+                background: chatOpen ? '#3d8b8e' : '#49a3a6',
+                transition: 'background 0.15s',
+              }}
+            >
+              <img
+                src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg"
+                width={14} height={14} alt="chat"
+                style={{ filter: 'invert(1) brightness(100)' }}
+              />
+              <span style={{ fontWeight: 500 }}>Chat</span>
+            </button>
           </div>
         </div>
 
