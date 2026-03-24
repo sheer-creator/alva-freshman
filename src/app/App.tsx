@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing";
+export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail";
 
 /* ========== 按需加载页面 ========== */
 
@@ -24,10 +24,12 @@ const Pricing = lazy(() => import("@/pages/Pricing"));
 const Billing = lazy(() => import("@/pages/Billing"));
 const HomeV3 = lazy(() => import("@/pages/HomeV3"));
 const AlvaSkills = lazy(() => import("@/pages/AlvaSkills"));
+const AlvaChat = lazy(() => import("@/pages/AlvaChat"));
+const AlvaChatDetail = lazy(() => import("@/pages/AlvaChatDetail"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing"];
+const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -75,6 +77,8 @@ export default function App() {
         {currentPage === "portfolio-settings" && <PortfolioSettings onNavigate={navigate} />}
         {currentPage === "pricing" && <Pricing onNavigate={navigate} />}
         {currentPage === "billing" && <Billing onNavigate={navigate} />}
+        {currentPage === "alva-chat" && <AlvaChat onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "alva-chat-detail" && <AlvaChatDetail onNavigate={navigate} onOpenSearch={openSearch} />}
       </Suspense>
       <SearchModal
         isOpen={isSearchOpen}

@@ -4,12 +4,14 @@
  * [POS]: 页面层 — Dashboard Playbook
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
+import { ChatPanel } from '@/app/components/community/ChatPanel';
 import { MOCK_CUSTOM_LAYOUT } from '@/data/community-mock';
+import { getChatPanelOpen } from '@/data/alva-chat-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
 import { NVDAGoogleTrendWidget } from '@/widgets/NVDAGoogleTrendWidget';
 
@@ -17,6 +19,22 @@ import { NVDAGoogleTrendWidget } from '@/widgets/NVDAGoogleTrendWidget';
 
 export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [discussionOpen, setDiscussionOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  /* 从 Chat 页 Release 过来时自动打开 ChatPanel */
+  useEffect(() => {
+    if (getChatPanelOpen()) {
+      setChatOpen(true);
+      setDiscussionOpen(false);
+    }
+  }, []);
+
+  const toggleDiscussion = () => {
+    setDiscussionOpen(v => { if (!v) setChatOpen(false); return !v; });
+  };
+  const toggleChat = () => {
+    setChatOpen(v => { if (!v) setDiscussionOpen(false); return !v; });
+  };
 
   return (
     <AppShell activePage="dashboard" onNavigate={onNavigate}>
@@ -31,7 +49,9 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
             lineage={MOCK_CUSTOM_LAYOUT.lineage}
             comments={MOCK_CUSTOM_LAYOUT.discussion}
             discussionOpen={discussionOpen}
-            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
+            onToggleDiscussion={toggleDiscussion}
+            chatOpen={chatOpen}
+            onToggleChat={toggleChat}
             author={MOCK_CUSTOM_LAYOUT.author}
             pulse={MOCK_CUSTOM_LAYOUT.pulse}
             description={MOCK_CUSTOM_LAYOUT.description}
@@ -52,6 +72,11 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
           onClose={() => setDiscussionOpen(false)}
           comments={MOCK_CUSTOM_LAYOUT.discussion}
           agentTake={MOCK_CUSTOM_LAYOUT.agentTake}
+        />
+        <ChatPanel
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          onNavigate={onNavigate}
         />
       </div>
     </AppShell>

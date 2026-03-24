@@ -9,6 +9,7 @@ import svgPaths from '@/data/svg-nheoeek59y';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
 import btnUpgradeBg from '@/assets/btn-upgrade.png';
 import upgradeIcon from '@/assets/upgrade-l.svg';
+import { MOCK_CONVERSATIONS, setActiveConversation, setShouldStream } from '@/data/alva-chat-mock';
 
 /* ========== 用户头像 ========== */
 
@@ -132,6 +133,18 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
         <NavItem label="TSLA Overview" active={activePage === 'tsla-overview'} onClick={() => onNavigate('tsla-overview')} />
         <NavItem label="NVDA Panoramic" active={activePage === 'nvda'} onClick={() => onNavigate('nvda')} />
+      </div>
+
+      {/* Chats */}
+      <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[2]">
+        <SectionHeader label="Chats" />
+        {MOCK_CONVERSATIONS.map(conv => (
+          <NavItem
+            key={conv.id}
+            label={conv.title}
+            onClick={() => { setShouldStream(false); setActiveConversation(conv.id); onNavigate('alva-chat-detail'); }}
+          />
+        ))}
       </div>
 
       {/* Upgrade + 用户 — mt-auto 撑到底部 */}

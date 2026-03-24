@@ -10,12 +10,14 @@
  *   Row 4: 同业估值对比表格（全宽）
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
+import { ChatPanel } from '@/app/components/community/ChatPanel';
 import { MOCK_NVDA } from '@/data/community-mock';
+import { getChatPanelOpen } from '@/data/alva-chat-mock';
 import { BottomToolbar } from '@/app/components/shell/BottomToolbar';
 import { NVDAStockPriceWidget } from '@/widgets/NVDAStockPriceWidget';
 import { NVDAKeyMetricsWidget } from '@/widgets/NVDAKeyMetricsWidget';
@@ -26,6 +28,18 @@ import { NVDAInvestmentThesisWidget } from '@/widgets/NVDAInvestmentThesisWidget
 
 export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [discussionOpen, setDiscussionOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    if (getChatPanelOpen()) { setChatOpen(true); setDiscussionOpen(false); }
+  }, []);
+
+  const toggleDiscussion = () => {
+    setDiscussionOpen(v => { if (!v) setChatOpen(false); return !v; });
+  };
+  const toggleChat = () => {
+    setChatOpen(v => { if (!v) setDiscussionOpen(false); return !v; });
+  };
 
   return (
     <AppShell activePage="nvda" onNavigate={onNavigate}>
@@ -40,7 +54,9 @@ export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page)
             lineage={MOCK_NVDA.lineage}
             comments={MOCK_NVDA.discussion}
             discussionOpen={discussionOpen}
-            onToggleDiscussion={() => setDiscussionOpen(v => !v)}
+            onToggleDiscussion={toggleDiscussion}
+            chatOpen={chatOpen}
+            onToggleChat={toggleChat}
             author={MOCK_NVDA.author}
             pulse={MOCK_NVDA.pulse}
             description={MOCK_NVDA.description}
@@ -75,6 +91,11 @@ export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page)
           onClose={() => setDiscussionOpen(false)}
           comments={MOCK_NVDA.discussion}
           agentTake={MOCK_NVDA.agentTake}
+        />
+        <ChatPanel
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          onNavigate={onNavigate}
         />
       </div>
       <BottomToolbar />

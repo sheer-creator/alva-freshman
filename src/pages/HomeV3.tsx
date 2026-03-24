@@ -9,6 +9,7 @@ import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PulseIndicator } from '@/app/components/community/PulseIndicator';
 import { AVATAR_COLOR_PALETTE, CHART_COLORS } from '@/lib/chart-theme';
+import { MOCK_CONVERSATIONS, setActiveConversation, setShouldStream } from '@/data/alva-chat-mock';
 
 /* ========== 类型 ========== */
 
@@ -561,6 +562,19 @@ function PlaybookDetailWindow({ item }: { item: PlaybookItem }) {
 function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [inputValue, setInputValue] = useState('');
 
+  const handleSend = () => {
+    setShouldStream(true);
+    setActiveConversation(MOCK_CONVERSATIONS[0].id);
+    onNavigate('alva-chat-detail');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <section className="w-full flex justify-center pt-[40px] pb-[40px] px-[24px]">
       <div className="w-full max-w-[720px]">
@@ -591,6 +605,7 @@ function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
           <textarea
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Describe a trading strategy and I'll build a Playbook for you..."
             rows={2}
             className="w-full resize-none border-none outline-none px-[20px] pt-[14px] pb-[6px] text-[14px] leading-[22px] font-['Delight',sans-serif] text-[rgba(0,0,0,0.85)] placeholder:text-[rgba(0,0,0,0.25)]"
@@ -605,7 +620,10 @@ function ChatHero({ onNavigate }: { onNavigate: (page: Page) => void }) {
                 <path d="M8 3v10M3 8h10" stroke="rgba(0,0,0,0.4)" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
-            <button className="w-[32px] h-[32px] rounded-full bg-[#49a3a6] hover:bg-[#3d8e91] transition-colors flex items-center justify-center border-none cursor-pointer">
+            <button
+              onClick={handleSend}
+              className="w-[32px] h-[32px] rounded-full bg-[#49a3a6] hover:bg-[#3d8e91] transition-colors flex items-center justify-center border-none cursor-pointer"
+            >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8h10M9 4l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
