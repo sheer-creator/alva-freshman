@@ -158,16 +158,22 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
           <img src={btnUpgradeBg} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-x-[-1]" />
           <div className="relative flex flex-col items-center py-[10px] gap-[2px]">
             <div className="flex items-center gap-[6px]">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-60 group-hover:opacity-100 transition-opacity">
+                <rect x="1.5" y="5" width="9" height="2" rx="0.5" stroke="#3EE4D4" strokeLinejoin="round"/>
+                <rect x="2.5" y="7" width="7" height="3.5" rx="0.5" stroke="#3EE4D4" strokeLinejoin="round"/>
+                <line x1="6" y1="5" x2="6" y2="10.5" stroke="#3EE4D4"/>
+                <path d="M6 5C6 5 6 3 4.5 2C3.5 1.3 2.5 2 3 3C3.5 4 6 5 6 5Z" stroke="#3EE4D4" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 5C6 5 6 3 7.5 2C8.5 1.3 9.5 2 9 3C8.5 4 6 5 6 5Z" stroke="#3EE4D4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <span
                 className="text-[12px] leading-[18px] tracking-[0.12px] font-['Delight',sans-serif] font-normal"
                 style={{ background: 'linear-gradient(90deg, #3EE4D4, #FFFFFF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
               >
-                Unlock Pro
+                Upgrade to Pro
               </span>
-              <img src={upgradeIcon} alt="" className="w-[14px] h-[14px] opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
             <span className="text-[10px] leading-[14px] font-['Delight',sans-serif] text-white/25 tracking-[0.3px]">
-              Run Playbooks without limits
+              Unlock unlimited playbooks
             </span>
           </div>
         </div>
