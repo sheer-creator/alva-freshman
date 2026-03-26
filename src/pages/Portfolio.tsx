@@ -4,7 +4,7 @@
  * [POS]: 页面层 — 展示用户交易组合全貌
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { AlvaWatermark } from '@/app/components/alva-ui-kit';
@@ -435,6 +435,18 @@ type PortfolioTab = 'overview' | 'strategy' | 'activity';
 export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [activeBrokerId, setActiveBrokerId] = useState(BROKER_PORTFOLIOS[0].brokerId);
   const [tab, setTab] = useState<PortfolioTab>('overview');
+  const [toast, setToast] = useState(false);
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('trade-executed')) {
+      sessionStorage.removeItem('trade-executed');
+      setTab('activity');
+      setToast(true);
+      toastTimer.current = setTimeout(() => setToast(false), 4000);
+    }
+    return () => { if (toastTimer.current) clearTimeout(toastTimer.current); };
+  }, []);
   const broker = BROKER_PORTFOLIOS.find(b => b.brokerId === activeBrokerId)!;
   const pendingCount = broker.orders.filter(o => o.status === 'pending').length;
 
@@ -446,6 +458,32 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
 
   return (
     <AppShell activePage="portfolio" onNavigate={onNavigate}>
+      {/* Trade executed toast */}
+      <style>{`@keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } } @keyframes toast-out { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-8px); } }`}</style>
+      {toast && (
+        <div
+          className="fixed top-[16px] left-1/2 -translate-x-1/2 flex items-center gap-[10px] px-[20px] py-[12px] rounded-[8px] z-50"
+          style={{
+            background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+            animation: 'toast-in 0.25s ease-out',
+          }}
+        >
+          <div className="flex items-center justify-center rounded-full" style={{ width: 20, height: 20, background: 'rgba(73,163,166,0.25)', flexShrink: 0 }}>
+            <svg width="12" height="12" viewBox="0 0 18 18" fill="none">
+              <path d="M4 9.5L7.5 13L14 5.5" stroke="#49a3a6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', fontFamily: "'Delight', sans-serif", lineHeight: '20px' }}>
+            Trade orders submitted successfully. Check activity below.
+          </span>
+          <button
+            onClick={() => setToast(false)}
+            className="shrink-0 transition-opacity hover:opacity-70"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'rgba(255,255,255,0.4)', fontSize: 14, lineHeight: 1 }}
+          >✕</button>
+        </div>
+      )}
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="content-stretch flex flex-col gap-[20px] px-[28px] pt-[24px] relative w-full">
 

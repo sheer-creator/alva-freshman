@@ -62,6 +62,7 @@ export default function NVDADashboard({ onNavigate }: { onNavigate: (page: Page)
             description={MOCK_NVDA.description}
             builtOn={MOCK_NVDA.builtOn}
             onAuthorClick={() => onNavigate('user-profile')}
+            onNavigate={onNavigate}
           />
 
           <div className="flex flex-col gap-[24px] pb-[56px] w-full">

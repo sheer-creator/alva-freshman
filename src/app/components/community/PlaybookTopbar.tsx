@@ -37,6 +37,7 @@ interface PlaybookTopbarProps extends PlaybookHeaderProps {
   chatOpen: boolean;
   onToggleChat: () => void;
   onAuthorClick?: () => void;
+  onNavigate?: (page: import('@/app/App').Page) => void;
 }
 
 /* ========== Stat 按钮样式 ========== */
@@ -66,7 +67,7 @@ export function PlaybookTopbar({
   title, stats, lineage, comments,
   discussionOpen, onToggleDiscussion,
   chatOpen, onToggleChat,
-  author, pulse, description, builtOn, onAuthorClick,
+  author, pulse, description, builtOn, onAuthorClick, onNavigate,
 }: PlaybookTopbarProps) {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [forkOpen, setForkOpen] = useState(false);
@@ -152,7 +153,7 @@ export function PlaybookTopbar({
                 className="absolute top-full right-0 mt-[8px]"
                 style={{ background: '#fff', borderRadius: 8, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', zIndex: 30 }}
               >
-                <StrategyBindPanel />
+                <StrategyBindPanel onNavigate={onNavigate} />
               </div>
             )}
           </div>

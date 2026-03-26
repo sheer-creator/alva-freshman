@@ -59,6 +59,7 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
             description={MOCK_WORKSPACE.description}
             builtOn={MOCK_WORKSPACE.builtOn}
             onAuthorClick={() => onNavigate('user-profile')}
+            onNavigate={onNavigate}
           />
           <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full">
 

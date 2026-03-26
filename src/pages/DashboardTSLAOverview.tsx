@@ -436,6 +436,7 @@ export function DashboardTSLAOverview({ onNavigate }: { onNavigate: (page: Page)
             description={MOCK_TSLA_OVERVIEW.description}
             builtOn={MOCK_TSLA_OVERVIEW.builtOn}
             onAuthorClick={() => onNavigate('user-profile')}
+            onNavigate={onNavigate}
           />
 
           <div className="flex flex-col gap-[24px] pb-[56px] w-full">
