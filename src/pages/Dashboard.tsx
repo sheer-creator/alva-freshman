@@ -57,6 +57,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
             description={MOCK_CUSTOM_LAYOUT.description}
             builtOn={MOCK_CUSTOM_LAYOUT.builtOn}
             onAuthorClick={() => onNavigate('user-profile')}
+            onNavigate={onNavigate}
           />
           <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full">
             <FigmaWatchlistWidget />
