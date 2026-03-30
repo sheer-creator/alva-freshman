@@ -6,9 +6,11 @@
 
 import { useRef, useEffect, useState } from 'react';
 import type { ConversationTurn } from '@/data/alva-chat-mock';
+import type { Page } from '@/app/App';
 import { UserMessage } from './UserMessage';
 import { AgentTurn } from './AgentTurn';
 import { ThinkingIndicator } from './ThinkingIndicator';
+import { CreditWarningBanner } from './CreditWarningBanner';
 
 interface MessageListProps {
   turns: ConversationTurn[];
@@ -17,6 +19,8 @@ interface MessageListProps {
   onRelease?: () => void;
   showThinking?: boolean;
   thinkingText?: string | null;
+  showCreditWarning?: boolean;
+  onNavigate?: (page: Page) => void;
 }
 
 function AnimatedTurn({ children, turnId }: { children: React.ReactNode; turnId: string }) {
@@ -36,7 +40,7 @@ function AnimatedTurn({ children, turnId }: { children: React.ReactNode; turnId:
   );
 }
 
-export function MessageList({ turns, activeToolId, onUserAction, onRelease, showThinking, thinkingText }: MessageListProps) {
+export function MessageList({ turns, activeToolId, onUserAction, onRelease, showThinking, thinkingText, showCreditWarning, onNavigate }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +71,9 @@ export function MessageList({ turns, activeToolId, onUserAction, onRelease, show
         </AnimatedTurn>
       ))}
       {showThinking && <ThinkingIndicator activeText={thinkingText} />}
+      {showCreditWarning && onNavigate && (
+        <CreditWarningBanner onNavigate={onNavigate as (page: 'pricing' | 'billing') => void} />
+      )}
       <div ref={bottomRef} style={{ height: 16, flexShrink: 0 }} />
       </div>
     </div>

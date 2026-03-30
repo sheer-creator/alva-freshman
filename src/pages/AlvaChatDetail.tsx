@@ -82,7 +82,18 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  /* Credits 即将耗尽提醒 — 流式播完后延迟显示 */
+  const [showCreditWarning, setShowCreditWarning] = useState(false);
+
   const { visibleTurns, isStreaming, showThinking, activeToolId, waitingForUser, waitingBlockType, resumeStream } = useStreamSimulator(conversation);
+
+  useEffect(() => {
+    if (!isStreaming && visibleTurns.length > 0) {
+      const timer = setTimeout(() => setShowCreditWarning(true), 800);
+      return () => clearTimeout(timer);
+    }
+    setShowCreditWarning(false);
+  }, [isStreaming, visibleTurns.length]);
 
   /* Todo 数据 + ThinkingIndicator activeForm 联动 */
   const latestTodo = useMemo(() => extractLatestTodo(visibleTurns), [visibleTurns]);
@@ -127,6 +138,8 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
           onRelease={() => { setChatPanelOpen(true); onNavigate('nvda'); }}
           showThinking={showThinking}
           thinkingText={todoActiveForm}
+          showCreditWarning={showCreditWarning}
+          onNavigate={onNavigate}
         />
 
         {/* Todo bar — Question/Plan 出现时隐藏 */}
