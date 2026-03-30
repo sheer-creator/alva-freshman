@@ -308,6 +308,14 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
           </div>
         </div>
 
+        {/* Contact */}
+        <div className="flex items-center justify-center gap-[6px] pb-[8px]">
+          <span className="text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'var(--text-n5)' }}>Need help?</span>
+          <a href="https://discord.gg/alva" target="_blank" rel="noopener noreferrer" className="text-[13px] leading-[20px] tracking-[0.13px] font-medium no-underline hover:underline" style={{ color: 'var(--main-m1, #49A3A6)' }}>
+            Contact us on Discord
+          </a>
+        </div>
+
       </div>
     </AppShell>
   );
