@@ -26,13 +26,13 @@ const FREE_FEATURES: Feature[] = [
   { bold: 'Live execution', rest: ' — Alpaca, IBKR, Binance & more' },
 ];
 
-const PRO_FEATURES: Feature[] = [
-  { bold: '500,000 credits/month', rest: ' — for heavy research & iteration' },
-  { bold: 'Unlimited Playbooks', rest: ' — 24/7 auto-refresh, private or public' },
-  { bold: 'Real-time data', rest: ' — minute-level refresh for stocks & crypto' },
+const PRO_FEATURES: (Feature & { tag?: string })[] = [
+  { bold: '3,000 credits/day', rest: '', tag: 'Limited Bonus' },
+  { bold: '30,000 credits/month', rest: ' — for heavy research & iteration' },
+  { bold: 'Unlimited Playbooks', rest: ' — 24/7 auto-refresh' },
+  { bold: 'Private Playbooks', rest: ' — keep your strategies private' },
   { bold: 'Alternative data', rest: ' — smart money flows, analyst estimates & more' },
   { bold: 'Sentiment & media intelligence', rest: ' — news, X, YouTube, Reddit & more' },
-  { bold: 'Priority support', rest: ' — faster responses & dedicated onboarding' },
   { bold: 'Early access', rest: ' — new features before anyone else' },
 ];
 
@@ -66,7 +66,7 @@ function BillingToggle({ annual, onChange }: { annual: boolean; onChange: (v: bo
         }}
         onClick={() => onChange(true)}
       >
-        Annually · Save $120
+        Annually · Save $60
       </button>
     </div>
   );
@@ -91,7 +91,7 @@ function CheckIcon() {
 
 export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [annual, setAnnual] = useState(true); // 默认年付
-  const proPrice = annual ? '19.9' : '29.9';
+  const proPrice = annual ? '24.9' : '29.9';
 
   return (
     <AppShell activePage="pricing" onNavigate={onNavigate}>
@@ -295,6 +295,11 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
                   >
                     <CheckIcon />
                     <strong className="font-medium">{f.bold}</strong>
+                    {f.tag && (
+                      <span className="ml-[6px] text-[10px] leading-[14px] px-[4px] py-[1px] rounded-[3px] font-medium align-middle" style={{ color: '#E6A91A', background: 'rgba(230,169,26,0.12)' }}>
+                        {f.tag}
+                      </span>
+                    )}
                     {f.rest}
                   </li>
                 ))}
