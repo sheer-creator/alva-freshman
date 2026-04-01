@@ -5,7 +5,6 @@ export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explo
 
 /* ========== 按需加载页面 ========== */
 
-const Home = lazy(() => import("@/pages/Home"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
 const Explore = lazy(() => import("@/pages/Explore"));
 const Library = lazy(() => import("@/pages/Library"));
@@ -59,7 +58,7 @@ export default function App() {
   return (
     <>
       <Suspense>
-        {currentPage === "home" && <Home onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "home" && <HomeV3 onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "home-v3" && <HomeV3 onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}

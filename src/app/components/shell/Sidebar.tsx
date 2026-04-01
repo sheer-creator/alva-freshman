@@ -117,7 +117,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Explore" active={activePage === 'explore'} onClick={() => onNavigate('explore-2' as any)} />
         <NavItem label="Portfolio" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Alva Skill" badge="New" active={activePage === 'alva-skills'} onClick={() => onNavigate('alva-skills')} />
-        <NavItem label="About" onClick={() => window.open('https://alva.ai/landing', '_blank')} />
       </div>
 
       {/* Starred */}
