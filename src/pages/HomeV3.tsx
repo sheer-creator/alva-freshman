@@ -650,26 +650,8 @@ function ChatHero({ onNavigate, inputValue, onInputChange, remixTarget, onClearR
   return (
     <section className="w-full flex justify-center pt-[40px] pb-[40px] px-[24px]">
       <div className="w-full max-w-[720px]">
-        {/* Skills pill banner */}
-        <div className="flex justify-center mb-[16px]">
-          <button
-            onClick={() => onNavigate('alva-skills')}
-            className="inline-flex items-center gap-[8px] px-[6px] py-[5px] pr-[16px] rounded-full bg-white/80 backdrop-blur-sm border border-[rgba(0,0,0,0.06)] shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)] transition-all cursor-pointer group"
-          >
-            <span className="px-[10px] py-[2px] rounded-full bg-[#49a3a6] text-white text-[12px] leading-[18px] font-['Delight',sans-serif] font-normal">
-              New
-            </span>
-            <span className="text-[13px] leading-[20px] font-['Delight',sans-serif] font-normal text-[rgba(0,0,0,0.7)] group-hover:text-[rgba(0,0,0,0.9)] transition-colors">
-              Try Alva Skills — build with your Local Agent
-            </span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-40 group-hover:opacity-70 transition-opacity">
-              <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
-
-        <h1 className="font-['Delight',sans-serif] text-[22px] leading-[30px] font-normal text-[rgba(0,0,0,0.88)] text-center mb-[16px]">
-          Ideas in, alpha out.
+        <h1 className="font-['Delight',sans-serif] text-[28px] leading-[38px] font-normal text-[rgba(0,0,0,0.88)] text-center mb-[16px]">
+          Turn Ideas into Live<br />Investing Playbooks in Minutes
         </h1>
 
         {/* Chat input */}
