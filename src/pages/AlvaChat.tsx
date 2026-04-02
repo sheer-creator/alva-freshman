@@ -13,6 +13,6 @@ interface Props {
 }
 
 export default function AlvaChat({ onNavigate }: Props) {
-  useEffect(() => { onNavigate('home-v3'); }, [onNavigate]);
+  useEffect(() => { onNavigate('home'); }, [onNavigate]);
   return null;
 }

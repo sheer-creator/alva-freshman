@@ -648,35 +648,12 @@ function ChatHero({ onNavigate, inputValue, onInputChange, remixTarget, onClearR
   const hasChips = remixTarget || mentions.length > 0;
 
   return (
-    <section className="w-full flex justify-center pt-[40px] pb-[40px] px-[24px]">
-      <div className="w-full max-w-[720px]">
-        {/* Skills pill banner */}
-        <div className="flex justify-center mb-[16px]">
-          <button
-            onClick={() => onNavigate('alva-skills')}
-            className="inline-flex items-center gap-[8px] px-[6px] py-[5px] pr-[16px] rounded-full bg-white/80 backdrop-blur-sm border border-[rgba(0,0,0,0.06)] shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)] transition-all cursor-pointer group"
-          >
-            <span className="px-[10px] py-[2px] rounded-full bg-[#49a3a6] text-white text-[12px] leading-[18px] font-['Delight',sans-serif] font-normal">
-              New
-            </span>
-            <span className="text-[13px] leading-[20px] font-['Delight',sans-serif] font-normal text-[rgba(0,0,0,0.7)] group-hover:text-[rgba(0,0,0,0.9)] transition-colors">
-              Try Alva Skills — build with your Local Agent
-            </span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="opacity-40 group-hover:opacity-70 transition-opacity">
-              <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
-
-        <h1 className="font-['Delight',sans-serif] text-[22px] leading-[30px] font-normal text-[rgba(0,0,0,0.88)] text-center mb-[16px]">
-          Ideas in, alpha out.
-        </h1>
-
+    <div className="w-full">
         {/* Chat input */}
         <div
-          className="rounded-[16px] border bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all relative"
+          className="rounded-[16px] bg-white shadow-[0_4px_15px_rgba(0,0,0,0.05)] transition-all relative"
           style={{
-            borderColor: remixTarget ? remixTarget.themeColor + '40' : 'rgba(0,0,0,0.08)',
+            border: `0.5px solid ${remixTarget ? remixTarget.themeColor + '40' : 'rgba(0,0,0,0.2)'}`,
             overflow: 'visible',
           }}
         >
@@ -712,30 +689,168 @@ function ChatHero({ onNavigate, inputValue, onInputChange, remixTarget, onClearR
             value={inputValue}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder={remixTarget ? 'Describe how you want to remix this strategy...' : 'Describe a trading strategy and I\'ll build a Playbook for you...'}
+            placeholder={remixTarget ? 'Describe how you want to remix this strategy...' : 'Build an investing playbook from your ideas'}
             rows={2}
-            className="w-full resize-none border-none outline-none px-[20px] pt-[14px] pb-[6px] text-[14px] leading-[22px] font-['Delight',sans-serif] text-[rgba(0,0,0,0.85)] placeholder:text-[rgba(0,0,0,0.25)]"
-            style={{ background: 'transparent' }}
+            className="w-full resize-none border-none outline-none px-[16px] pt-[16px] pb-[0px] text-[14px] leading-[22px] font-['Delight',sans-serif] text-[rgba(0,0,0,0.85)] placeholder:text-[rgba(0,0,0,0.3)]"
+            style={{ background: 'transparent', minHeight: 48, maxHeight: 480, letterSpacing: '0.14px' }}
           />
-          <div className="flex items-center justify-between px-[16px] pb-[10px]">
+          <div className="flex items-center gap-[12px] px-[16px] pb-[16px] pt-[12px] h-[28px]" style={{ boxSizing: 'content-box' }}>
             {/* @ button */}
             <button
               onClick={handleAtClick}
-              className="cursor-pointer transition-colors"
-              style={{
-                background: 'none', border: 'none', padding: '4px 2px',
-                fontFamily: "'Delight', sans-serif", fontSize: 16, fontWeight: 600,
-                color: mentionOpen ? '#49a3a6' : 'rgba(0,0,0,0.25)',
-              }}
-            >@</button>
-            <button
-              onClick={handleSend}
-              className="w-[32px] h-[32px] rounded-full bg-[#49a3a6] hover:bg-[#3d8e91] transition-colors flex items-center justify-center border-none cursor-pointer"
+              className="cursor-pointer transition-colors shrink-0 flex items-center justify-center"
+              style={{ background: 'none', border: 'none', padding: 0, width: 16, height: 16 }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <path d="M10 13.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke={mentionOpen ? '#49a3a6' : 'rgba(0,0,0,0.5)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M13.5 10v1.25a2.25 2.25 0 0 0 4.5 0V10a8 8 0 1 0-3.12 6.35" stroke={mentionOpen ? '#49a3a6' : 'rgba(0,0,0,0.5)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+            {/* Image upload button */}
+            <button
+              className="cursor-pointer transition-colors shrink-0 flex items-center justify-center"
+              style={{ background: 'none', border: 'none', padding: 0, width: 16, height: 16 }}
+            >
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <rect x="2" y="3" width="16" height="14" rx="2" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="7" cy="8" r="1.5" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5"/>
+                <path d="M18 13l-4.293-4.293a1 1 0 0 0-1.414 0L5 16" stroke="rgba(0,0,0,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            {/* Spacer + Model selector */}
+            <div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
+              <button
+                className="flex items-center gap-[4px] cursor-pointer transition-colors"
+                style={{ background: 'none', border: 'none', padding: '4px 0', fontFamily: "'Delight', sans-serif", fontSize: 12, lineHeight: '20px', letterSpacing: '0.12px', color: 'rgba(0,0,0,0.5)' }}
+              >
+                <span>Sonnet 4.6</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 4.5L6 7.5L9 4.5" stroke="rgba(0,0,0,0.5)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            {/* Send button */}
+            <button
+              onClick={handleSend}
+              className="w-[28px] h-[28px] rounded-[6px] bg-[rgba(0,0,0,0.05)] hover:bg-[rgba(0,0,0,0.1)] transition-colors flex items-center justify-center border-none cursor-pointer shrink-0"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 11V3M7 3L3.5 6.5M7 3l3.5 3.5" stroke="rgba(0,0,0,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+    </div>
+  );
+}
+
+/* ========== What You Can Build 标签数据 ========== */
+
+const BUILD_TAGS = [
+  { label: 'EV Supply Chain Intelligence', active: true },
+  { label: 'Unusual Volume Scanner', active: false },
+  { label: 'Earnings Whisper Board', active: false },
+  { label: 'Thesis Debate Room', active: false },
+  { label: 'Macro Regime Adaptive Trading', active: false },
+];
+
+/* ========== What You Can Build 区块 ========== */
+
+function WhatYouCanBuild({ onRemix }: { onRemix: (item: PlaybookItem) => void }) {
+  const featured = PLAYBOOKS[0];
+  const Thumb = THUMB_MAP[featured.id];
+
+  return (
+    <section
+      className="w-full"
+      style={{ background: '#f6f6f6', borderTop: '0.5px solid rgba(0,0,0,0.15)', borderBottom: '0.5px solid rgba(0,0,0,0.15)' }}
+    >
+      <div className="max-w-[1272px] mx-auto px-[50px] py-[20px]">
+        <div className="flex gap-[28px] items-stretch">
+          {/* Left */}
+          <div className="flex-1 flex flex-col gap-[24px] py-[10px]">
+            <h2 className="font-['Delight',sans-serif] text-[24px] leading-[1.2] font-normal text-[rgba(0,0,0,0.9)]" style={{ letterSpacing: '0.24px' }}>
+              What You Can Build
+            </h2>
+            <div className="flex flex-wrap gap-[10px]">
+              {BUILD_TAGS.map(tag => (
+                <button
+                  key={tag.label}
+                  className="flex items-center gap-[8px] px-[16px] py-[8px] rounded-[6px] border-none cursor-pointer font-['Delight',sans-serif] text-[14px] leading-[22px] font-normal text-[rgba(0,0,0,0.9)] whitespace-nowrap"
+                  style={{
+                    background: tag.active ? '#e5eeee' : 'white',
+                    border: '0.5px solid rgba(0,0,0,0.3)',
+                    letterSpacing: '0.14px',
+                  }}
+                >
+                  {tag.label}
+                </button>
+              ))}
+              <span className="flex items-center py-[8px] font-['Delight',sans-serif] text-[14px] leading-[22px] text-[rgba(0,0,0,0.5)] cursor-pointer" style={{ letterSpacing: '0.14px' }}>
+                Explore More
+              </span>
+            </div>
+            <button
+              onClick={() => onRemix(featured)}
+              className="flex items-center gap-[8px] px-[16px] py-[9px] rounded-[8px] bg-[#49a3a6] border-none cursor-pointer w-fit hover:brightness-105 transition-all"
+            >
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                <path d="M5 3v4.5c0 .83.67 1.5 1.5 1.5h3c.83 0 1.5.67 1.5 1.5V13M5 3L3 5M5 3l2 2M11 13l-2-2M11 13l2-2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] font-medium text-white" style={{ letterSpacing: '0.14px' }}>
+                Remix This
+              </span>
+            </button>
+          </div>
+
+          {/* Right — Preview Card */}
+          <div
+            className="flex-1 rounded-[12px] overflow-hidden relative"
+            style={{
+              border: '0.5px solid rgba(0,0,0,0.3)',
+              background: 'white',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+              aspectRatio: '522/666',
+            }}
+          >
+            {/* Thumbnail */}
+            <div className="absolute inset-[8px] bottom-[160px]">
+              <div className="w-full h-full rounded-[4px] overflow-hidden bg-[#fafafa]">
+                {Thumb && <Thumb />}
+              </div>
+            </div>
+            {/* Creator footer with gradient */}
+            <div
+              className="absolute bottom-0 left-0 right-0 flex flex-col justify-end px-[16px] pb-[16px] pt-[56px]"
+              style={{ background: 'linear-gradient(180deg, transparent 0%, white 60%)' }}
+            >
+              <div className="flex items-center gap-[16px] pt-[16px]" style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}>
+                <div className="flex items-center gap-[4px]">
+                  <Avatar name={featured.creator} size={22} />
+                  <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] text-[rgba(0,0,0,0.9)]" style={{ letterSpacing: '0.14px' }}>
+                    {featured.creator.split(' ')[0].toLowerCase()}
+                  </span>
+                </div>
+                <div className="flex-1 flex items-center justify-end gap-[16px]">
+                  <div className="flex items-center gap-[4px]">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                      <path d="M10 2l2.09 6.26H18.18l-4.93 3.58L15.34 18 10 14.27 4.66 18l2.09-6.16L1.82 8.26h6.09L10 2z" stroke="rgba(0,0,0,0.9)" strokeWidth="1.2" fill="none" />
+                    </svg>
+                    <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] text-[rgba(0,0,0,0.9)]" style={{ letterSpacing: '0.14px' }}>
+                      12.8K
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-[4px]">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M5 3v4.5c0 .83.67 1.5 1.5 1.5h3c.83 0 1.5.67 1.5 1.5V13M5 3L3 5M5 3l2 2M11 13l-2-2M11 13l2-2" stroke="rgba(0,0,0,0.9)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] text-[rgba(0,0,0,0.9)]" style={{ letterSpacing: '0.14px' }}>
+                      3
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -743,150 +858,83 @@ function ChatHero({ onNavigate, inputValue, onInputChange, remixTarget, onClearR
   );
 }
 
-/* ========== Playbook 浏览区（填满剩余高度，滚动切换） ========== */
+/* ========== Featured Playbooks 卡片 ========== */
 
-function PlaybookBrowser({ selectedIdx, onSelect, onRemix }: { selectedIdx: number; onSelect: (idx: number) => void; onRemix: (item: PlaybookItem) => void }) {
-  const selected = PLAYBOOKS[selectedIdx];
-  const [animating, setAnimating] = useState(false);
-  const [direction, setDirection] = useState<'up' | 'down'>('down');
-  const prevIdxRef = useRef(selectedIdx);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const cooldownRef = useRef(false);
-
-  /* 动画方向检测 */
-  useEffect(() => {
-    if (prevIdxRef.current !== selectedIdx) {
-      setDirection(selectedIdx > prevIdxRef.current ? 'down' : 'up');
-      setAnimating(true);
-      prevIdxRef.current = selectedIdx;
-      const t = setTimeout(() => setAnimating(false), 400);
-      return () => clearTimeout(t);
-    }
-  }, [selectedIdx]);
-
-  /* wheel + touchmove 驱动切换 */
-  useEffect(() => {
-    const el = panelRef.current;
-    if (!el) return;
-
-    let touchStartY = 0;
-    let accumulated = 0;
-    const THRESHOLD = 60;
-
-    const step = (dir: 1 | -1) => {
-      if (cooldownRef.current) return;
-      onSelect(Math.max(0, Math.min(PLAYBOOKS.length - 1,
-        (dir === 1 ? prevIdxRef.current + 1 : prevIdxRef.current - 1)
-      )));
-      cooldownRef.current = true;
-      accumulated = 0;
-      setTimeout(() => { cooldownRef.current = false; }, 450);
-    };
-
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      if (cooldownRef.current) return;
-      accumulated += e.deltaY;
-      if (accumulated > THRESHOLD) step(1);
-      else if (accumulated < -THRESHOLD) step(-1);
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-      accumulated = 0;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const dy = touchStartY - e.touches[0].clientY;
-      if (cooldownRef.current) return;
-      accumulated = dy;
-      if (accumulated > THRESHOLD) { step(1); touchStartY = e.touches[0].clientY; }
-      else if (accumulated < -THRESHOLD) { step(-1); touchStartY = e.touches[0].clientY; }
-    };
-
-    el.addEventListener('wheel', onWheel, { passive: false });
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      el.removeEventListener('wheel', onWheel);
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-    };
-  }, [onSelect]);
-
-  const detailStyle: React.CSSProperties = animating
-    ? { animation: `hv3-slide-${direction} 400ms cubic-bezier(0.22, 1, 0.36, 1) forwards` }
-    : {};
-
+function FeaturedCard({ item }: { item: PlaybookItem }) {
+  const Thumb = THUMB_MAP[item.id];
   return (
-    <div ref={panelRef} className="flex-1 flex flex-col min-h-0 px-[24px] pb-[20px]">
-      <div className="flex-1 flex flex-col min-h-0 w-full max-w-[1120px] mx-auto">
-        {/* Section 标题 */}
-        <div className="mb-[12px] flex items-center gap-[12px] shrink-0">
-          <h2 className="font-['Delight',sans-serif] text-[17px] leading-[24px] font-normal text-[rgba(0,0,0,0.80)]">
-            This Week's Alpha
-          </h2>
-          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[rgba(0,0,0,0.30)]">
-            Top strategies the community is remixing right now
+    <div
+      className="flex-1 min-w-0 rounded-[12px] overflow-hidden bg-white cursor-pointer hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-shadow"
+      style={{ border: '0.5px solid rgba(0,0,0,0.12)' }}
+    >
+      {/* Thumbnail */}
+      <div className="w-full aspect-[16/9] bg-[#fafafa] overflow-hidden">
+        {Thumb && <Thumb />}
+      </div>
+      {/* Info */}
+      <div className="p-[16px] flex flex-col gap-[8px]">
+        <h3 className="font-['Delight',sans-serif] text-[15px] leading-[22px] font-normal text-[rgba(0,0,0,0.9)] whitespace-nowrap overflow-hidden text-ellipsis" style={{ letterSpacing: '0.15px' }}>
+          {item.title}
+        </h3>
+        <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[rgba(0,0,0,0.5)] line-clamp-2 h-[40px]" style={{ letterSpacing: '0.13px' }}>
+          {item.description}
+        </p>
+        <div className="flex items-center gap-[8px] mt-[4px]">
+          <Avatar name={item.creator} size={20} />
+          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[rgba(0,0,0,0.7)] flex-1 min-w-0 truncate" style={{ letterSpacing: '0.13px' }}>
+            {item.creator}
           </span>
-        </div>
-
-        {/* 左右分栏 — flex-1 吃满剩余高度 */}
-        <div
-          className="flex rounded-[16px] overflow-hidden flex-1 min-h-0"
-          style={{
-            border: '1px solid rgba(0,0,0,0.06)',
-            background: '#fff',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-          }}
-        >
-          {/* 左侧列表 */}
-          <div className="w-[340px] shrink-0 border-r border-[rgba(0,0,0,0.05)] overflow-y-auto">
-            {PLAYBOOKS.map((pb, i) => (
-              <PlaybookListItem
-                key={pb.id}
-                item={pb}
-                active={i === selectedIdx}
-                onClick={() => onSelect(i)}
-              />
-            ))}
+          <div className="flex items-center gap-[4px] shrink-0">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+              <path d="M10 2l2.09 6.26H18.18l-4.93 3.58L15.34 18 10 14.27 4.66 18l2.09-6.16L1.82 8.26h6.09L10 2z" stroke="rgba(0,0,0,0.3)" strokeWidth="1.2" fill="none" />
+            </svg>
+            <span className="font-['Delight',sans-serif] text-[12px] leading-[18px] text-[rgba(0,0,0,0.4)]">12.8K</span>
           </div>
-
-          {/* 右侧详情 */}
-          <div className="flex-1 px-[20px] py-[12px] flex items-stretch justify-center overflow-hidden">
-            <div className="w-full max-w-[520px] flex flex-col" style={detailStyle} key={selected.id}>
-              <PlaybookDetailWindow item={selected} onRemix={onRemix} />
-            </div>
+          <div className="flex items-center gap-[4px] shrink-0">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M5 3v4.5c0 .83.67 1.5 1.5 1.5h3c.83 0 1.5.67 1.5 1.5V13M5 3L3 5M5 3l2 2M11 13l-2-2M11 13l2-2" stroke="rgba(0,0,0,0.3)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="font-['Delight',sans-serif] text-[12px] leading-[18px] text-[rgba(0,0,0,0.4)]">3</span>
           </div>
-        </div>
-
-        {/* 位置指示器 */}
-        <div className="flex justify-center gap-[6px] mt-[12px] shrink-0">
-          {PLAYBOOKS.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => onSelect(i)}
-              className="border-none cursor-pointer p-0"
-              style={{
-                width: i === selectedIdx ? 20 : 6,
-                height: 6,
-                borderRadius: 3,
-                background: i === selectedIdx ? PLAYBOOKS[i].themeColor : 'rgba(0,0,0,0.10)',
-                transition: 'all 300ms cubic-bezier(0.22, 1, 0.36, 1)',
-              }}
-            />
-          ))}
         </div>
       </div>
     </div>
   );
 }
 
+function FeaturedPlaybooksSection() {
+  return (
+    <section className="w-full">
+      <div className="max-w-[1272px] mx-auto px-[50px] py-[28px]">
+        {/* Section title */}
+        <div className="flex items-center mb-[24px]">
+          <h2 className="font-['Delight',sans-serif] text-[16px] leading-[26px] font-normal text-[rgba(0,0,0,0.9)] flex-1" style={{ letterSpacing: '0.16px' }}>
+            Featured Playbooks
+          </h2>
+          <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] text-[rgba(0,0,0,0.5)] cursor-pointer" style={{ letterSpacing: '0.14px' }}>
+            View All
+          </span>
+        </div>
+        {/* 3-column grid */}
+        <div className="grid grid-cols-3 gap-[16px]">
+          {PLAYBOOKS.map(item => (
+            <FeaturedCard key={item.id} item={item} />
+          ))}
+        </div>
+        {/* Load More */}
+        <div className="flex justify-center mt-[24px]">
+          <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] text-[rgba(0,0,0,0.5)] cursor-pointer" style={{ letterSpacing: '0.14px' }}>
+            Load More
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ========== 主页面 ========== */
 
 export default function HomeV3({ onNavigate, onOpenSearch }: HomeV3Props) {
-  const [selectedIdx, setSelectedIdx] = useState(0);
   const [inputValue, setInputValue] = useState('');
   const [remixTarget, setRemixTarget] = useState<PlaybookItem | null>(null);
 
@@ -901,29 +949,39 @@ export default function HomeV3({ onNavigate, onOpenSearch }: HomeV3Props) {
   }, []);
 
   return (
-    <AppShell activePage={'home-v3' as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
-      <style>{`
-        @keyframes hv3-slide-down {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes hv3-slide-up {
-          from { opacity: 0; transform: translateY(-24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-      {/* 全屏 flex 列布局：ChatHero 自然高度 + PlaybookBrowser 占满剩余 */}
-      <div className="h-screen flex flex-col bg-[#fafafa] overflow-hidden">
-        <div className="shrink-0" style={{ maxHeight: '45vh', overflow: 'visible', position: 'relative', zIndex: 20 }}>
-          <ChatHero
-            onNavigate={onNavigate}
-            inputValue={inputValue}
-            onInputChange={setInputValue}
-            remixTarget={remixTarget}
-            onClearRemix={handleClearRemix}
-          />
-        </div>
-        <PlaybookBrowser selectedIdx={selectedIdx} onSelect={setSelectedIdx} onRemix={handleRemix} />
+    <AppShell activePage={'home' as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
+      <div className="h-screen overflow-y-auto bg-[#fafafa]">
+        {/* Hero section */}
+        <section className="w-full flex flex-col items-center px-[50px] pt-[80px] pb-[40px] gap-[40px] relative">
+          {/* Dot background */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+            maskImage: 'radial-gradient(ellipse 60% 80% at 50% 40%, black 20%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 60% 80% at 50% 40%, black 20%, transparent 70%)',
+          }} />
+          <h1
+            className="font-['Delight',sans-serif] text-[45px] leading-[1.2] font-normal text-[rgba(0,0,0,0.9)] text-center max-w-[616px] relative z-[1]"
+            style={{ letterSpacing: '0.45px' }}
+          >
+            Turn Ideas into Live Investing Playbooks in Minutes
+          </h1>
+          <div className="w-full max-w-[780px] relative z-[1]">
+            <ChatHero
+              onNavigate={onNavigate}
+              inputValue={inputValue}
+              onInputChange={setInputValue}
+              remixTarget={remixTarget}
+              onClearRemix={handleClearRemix}
+            />
+          </div>
+        </section>
+
+        {/* What You Can Build */}
+        <WhatYouCanBuild onRemix={handleRemix} />
+
+        {/* Featured Playbooks */}
+        <FeaturedPlaybooksSection />
       </div>
     </AppShell>
   );
