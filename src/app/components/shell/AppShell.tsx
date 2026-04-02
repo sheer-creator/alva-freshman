@@ -8,6 +8,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Page } from '@/app/App';
 import { Sidebar } from './Sidebar';
 import SearchModal from '../SearchModal';
+import ReferralModal from '../ReferralModal';
 import UserInfo from '../UserInfo';
 
 interface AppShellProps {
@@ -21,6 +22,7 @@ interface AppShellProps {
 
 export function AppShell({ activePage, onNavigate, onUserMouseEnter, onUserMouseLeave, children }: AppShellProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isReferralOpen, setIsReferralOpen] = useState(false);
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -69,8 +71,10 @@ export function AppShell({ activePage, onNavigate, onUserMouseEnter, onUserMouse
         onNavigate={onNavigate}
         onOpenSearch={() => setIsSearchOpen(true)}
         onUserMouseEnter={handleUserEnter}
+        onOpenReferral={() => setIsReferralOpen(true)}
       />
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <ReferralModal isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} onNavigate={onNavigate} />
       <div className="bg-white flex-[1_0_0] h-screen ml-[228px] overflow-y-auto relative rounded-bl-[8px] rounded-tl-[8px]">
         {children}
       </div>

@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail";
+export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail" | "referral-landing" | "playbook-referral";
 
 /* ========== 按需加载页面 ========== */
 
@@ -26,10 +26,12 @@ const HomeV3 = lazy(() => import("@/pages/HomeV3"));
 const AlvaSkills = lazy(() => import("@/pages/AlvaSkills"));
 const AlvaChat = lazy(() => import("@/pages/AlvaChat"));
 const AlvaChatDetail = lazy(() => import("@/pages/AlvaChatDetail"));
+const ReferralLanding = lazy(() => import("@/pages/ReferralLanding"));
+const PlaybookReferral = lazy(() => import("@/pages/PlaybookReferral"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail"];
+const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail", "referral-landing", "playbook-referral"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -79,6 +81,8 @@ export default function App() {
         {currentPage === "billing" && <Billing onNavigate={navigate} />}
         {currentPage === "alva-chat" && <AlvaChat onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-chat-detail" && <AlvaChatDetail onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "referral-landing" && <ReferralLanding onNavigate={navigate} />}
+        {currentPage === "playbook-referral" && <PlaybookReferral onNavigate={navigate} />}
       </Suspense>
       <SearchModal
         isOpen={isSearchOpen}

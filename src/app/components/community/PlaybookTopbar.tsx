@@ -8,6 +8,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import svgPaths from '@/data/svg-nheoeek59y';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
 import { RemixPrompt } from './RemixPrompt';
+import { PlaybookShareModal } from './PlaybookShareModal';
 import { StrategyBindPanel } from '../trading/StrategyBindPanel';
 import { PlaybookHeader } from './PlaybookHeader';
 import type { PlaybookHeaderProps } from './PlaybookHeader';
@@ -72,6 +73,7 @@ export function PlaybookTopbar({
   const [headerOpen, setHeaderOpen] = useState(false);
   const [forkOpen, setForkOpen] = useState(false);
   const [tradeOpen, setTradeOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [starred, setStarred] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -219,13 +221,14 @@ export function PlaybookTopbar({
           </button>
 
           {/* Share */}
-          <button style={STAT_STYLE}>
+          <button style={STAT_STYLE} onClick={() => setShareOpen(true)}>
             <div className="relative shrink-0 size-[16px]">
               <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
                 <path d={svgPaths.p272ac1f0} fill="black" fillOpacity="0.9" />
               </svg>
             </div>
           </button>
+          <PlaybookShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} playbookName={title} onNavigate={onNavigate} />
 
           {/* Chat — 唯一突出的 pill 按钮 */}
           <div style={{ marginLeft: 4 }}>
