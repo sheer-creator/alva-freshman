@@ -33,6 +33,7 @@ interface SidebarProps {
   onOpenSearch?: () => void;
   onUserMouseEnter?: () => void;
   onUserMouseLeave?: () => void;
+  onOpenReferral?: () => void;
 }
 
 /* ========== 导航项组件 ========== */
@@ -106,7 +107,7 @@ function Logo() {
 
 /* ========== 主组件 ========== */
 
-export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, onOpenReferral }: SidebarProps) {
   return (
     <div className="antialiased bg-[#2a2a38] flex flex-col h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 w-[228px] z-[2] overflow-y-auto" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)', backgroundSize: '3px 3px' }}>
       <Logo />
@@ -179,6 +180,25 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
               Unlock unlimited playbooks
             </span>
           </div>
+        </div>
+
+        {/* Referral banner */}
+        <div
+          className="group mx-[8px] rounded-[6px] cursor-pointer transition-all px-[8px] py-[8px] flex items-center gap-[6px]"
+          style={{ background: 'rgba(73,163,166,0.08)', border: '0.5px solid rgba(73,163,166,0.15)' }}
+          onClick={onOpenReferral}
+        >
+          <svg width="14" height="14" viewBox="0 0 48 48" fill="none" className="shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+            <rect x="8" y="20" width="32" height="22" rx="3" stroke="#49A3A6" strokeWidth="3" strokeLinejoin="round" />
+            <line x1="24" y1="20" x2="24" y2="42" stroke="#49A3A6" strokeWidth="3" />
+            <line x1="8" y1="28" x2="40" y2="28" stroke="#49A3A6" strokeWidth="3" />
+            <path d="M24 20C24 20 24 12 19 8C16 5.6 13 7 14 10C15 13 24 20 24 20Z" stroke="#49A3A6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M24 20C24 20 24 12 29 8C32 5.6 35 7 34 10C33 13 24 20 24 20Z" stroke="#49A3A6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span className="text-[11px] leading-[16px] tracking-[0.11px] font-['Delight',sans-serif] text-white/50 group-hover:text-white/70 transition-colors">
+            Invite friends, earn 500 credits
+            <span className="ml-[2px] text-white/30">›</span>
+          </span>
         </div>
 
         {/* 用户行 */}
