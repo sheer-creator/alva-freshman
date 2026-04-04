@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
 export type Page = "home" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail" | "referral-landing" | "playbook-referral";
@@ -42,10 +42,11 @@ function getPageFromHash(): Page {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [, startTransition] = useTransition();
 
   // 监听浏览器前进/后退
   useEffect(() => {
-    const onHashChange = () => setCurrentPage(getPageFromHash());
+    const onHashChange = () => startTransition(() => setCurrentPage(getPageFromHash()));
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
@@ -54,7 +55,7 @@ export default function App() {
 
   const navigate = (page: Page) => {
     window.location.hash = page;
-    setCurrentPage(page);
+    startTransition(() => setCurrentPage(page));
   };
 
   return (

@@ -51,6 +51,14 @@ export const AVATAR_COLOR_PALETTE = [
 
 /* ========== 字体 & 图表背景 ========== */
 
+export const CREATOR_AVATARS: Record<string, string> = {
+  'Alva Intern': 'https://api.dicebear.com/9.x/notionists/svg?seed=AlvaIntern&backgroundColor=e8f5e9',
+  'Harry Zzz': 'https://api.dicebear.com/9.x/notionists/svg?seed=HarryZzz&backgroundColor=e3f2fd',
+  'Smart Jing': 'https://api.dicebear.com/9.x/notionists/svg?seed=SmartJing&backgroundColor=fce4ec',
+  'Sheer YLL YGG': 'https://api.dicebear.com/9.x/notionists/svg?seed=SheerYLL&backgroundColor=fff3e0',
+  'Macro Scope X': 'https://api.dicebear.com/9.x/notionists/svg?seed=MacroScopeX&backgroundColor=ede7f6',
+};
+
 export const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";
 
 /** 点阵背景：图表卡片通用底纹（不含 padding，由使用方按需叠加） */
