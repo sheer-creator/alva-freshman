@@ -1,13 +1,12 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail" | "referral-landing" | "playbook-referral";
+export type Page = "home" | "docs" | "api-keys" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail" | "referral-landing" | "playbook-referral";
 
 /* ========== 按需加载页面 ========== */
 
 const Home = lazy(() => import("@/pages/HomeV3"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
-const Explore = lazy(() => import("@/pages/Explore"));
 const Library = lazy(() => import("@/pages/Library"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const DashboardWorkspace = lazy(() => import("@/pages/DashboardWorkspace").then(m => ({ default: m.DashboardWorkspace })));
@@ -30,7 +29,7 @@ const PlaybookReferral = lazy(() => import("@/pages/PlaybookReferral"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail", "referral-landing", "playbook-referral"];
+const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail", "referral-landing", "playbook-referral"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -66,7 +65,6 @@ export default function App() {
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "skills" && <Skills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
-        {currentPage === "explore" && <Explore onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "library" && <Library onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "dashboard" && <Dashboard onNavigate={navigate} />}

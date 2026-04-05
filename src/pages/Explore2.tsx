@@ -1,7 +1,7 @@
 /**
- * [INPUT]: AppShell, PulseIndicator, chart-theme
- * [OUTPUT]: Explore V2 — 沉浸式 Playbook 发现页（真实 Dashboard 缩略图）
- * [POS]: 页面层 — Explore 重设计原型
+ * [INPUT]: AppShell, PulseIndicator, chart-theme, CdnIcon, Avatar
+ * [OUTPUT]: Explore V2 — Hero Spotlight + Homepage-style Playbook card grid
+ * [POS]: Page — Explore
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,6 +9,8 @@ import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PulseIndicator } from '@/app/components/community/PulseIndicator';
 import { AVATAR_COLOR_PALETTE, CHART_COLORS } from '@/lib/chart-theme';
+import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { Avatar } from '@/app/components/shared/Avatar';
 import UserInfo from '@/app/components/UserInfo';
 
 /* ========== 数据结构 ========== */
@@ -85,7 +87,8 @@ const CATEGORIES = ['Featured', 'Trending', 'Recent'];
 
 /* ========== SVG 绘图工具 ========== */
 
-/** 将数据点转为平滑 SVG path */
+const C = CHART_COLORS;
+
 function smoothLine(data: number[], x0: number, y0: number, w: number, h: number): string {
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -103,12 +106,10 @@ function smoothLine(data: number[], x0: number, y0: number, w: number, h: number
   return d;
 }
 
-/** 将 line path 闭合为 area path */
 function areaFromLine(linePath: string, x0: number, y0: number, w: number, h: number): string {
   return `${linePath} L ${x0 + w},${y0 + h} L ${x0},${y0 + h} Z`;
 }
 
-/** 竖形条 */
 function bars(data: number[], x0: number, y0: number, w: number, h: number, color: string, opacity = 0.25) {
   const max = Math.max(...data);
   const barW = w / data.length * 0.6;
@@ -119,14 +120,12 @@ function bars(data: number[], x0: number, y0: number, w: number, h: number, colo
   });
 }
 
-/** 文本行占位块 */
 function textLines(x: number, y: number, w: number, count: number, gap = 6) {
   return Array.from({ length: count }, (_, i) => (
     <rect key={i} x={x} y={y + i * gap} width={w * (i === count - 1 ? 0.6 : 0.85 + Math.random() * 0.15)} height={3} rx={1} fill="rgba(0,0,0,0.08)" />
   ));
 }
 
-/** KPI 单元格 */
 function kpiCell(x: number, y: number, w: number, h: number, valueColor: string) {
   return (
     <g>
@@ -138,14 +137,11 @@ function kpiCell(x: number, y: number, w: number, h: number, valueColor: string)
   );
 }
 
-/* ========== Playbook 缩略图 — 6 种真实布局 ========== */
+/* ========== 6 种缩略图 ========== */
 
 const W = 320;
 const H = 180;
-const C = CHART_COLORS;
 
-/** BTC Ultimate AI Trader — PlaybookDetail 风格：
- *  大面积图 + 2x2 KPI + 社交 Feed + RSI/MACD 小图 */
 function ThumbPlaybookDetail() {
   const lineData = [100, 108, 103, 115, 112, 128, 135, 140, 132, 148, 155, 162, 158, 172, 180, 195, 210, 225, 238];
   const rsiData = [45, 52, 48, 62, 58, 70, 65, 72, 68, 55, 48, 42, 50, 58, 65, 60, 55, 48, 52];
@@ -159,26 +155,20 @@ function ThumbPlaybookDetail() {
           <stop offset="100%" stopColor={C.primary} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* 性能曲线 */}
       <rect x="6" y="6" width="308" height="78" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <path d={area} fill="url(#t1-g)" />
       <path d={line} fill="none" stroke={C.primary} strokeWidth="1.2" />
-      {/* 2x2 KPI 网格 */}
       {kpiCell(6, 88, 74, 24, C.primary)}
       {kpiCell(82, 88, 74, 24, '#2a9b7d')}
       {kpiCell(6, 114, 74, 24, C.red)}
       {kpiCell(82, 114, 74, 24, C.blue)}
-      {/* RSI 小图 */}
       <rect x="160" y="88" width="152" height="24" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <path d={smoothLine(rsiData, 162, 89, 148, 22)} fill="none" stroke={C.orange} strokeWidth="0.8" />
       <line x1="162" y1="97" x2="308" y2="97" stroke="rgba(0,0,0,0.06)" strokeWidth="0.3" strokeDasharray="2 2" />
-      {/* 社交 Feed */}
       <rect x="160" y="114" width="152" height="24" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       {textLines(166, 119, 140, 3, 5)}
-      {/* 底部新闻 */}
       <rect x="6" y="142" width="152" height="32" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       {textLines(12, 148, 140, 4, 5)}
-      {/* Fear & Greed 弧形 gauge */}
       <rect x="160" y="142" width="152" height="32" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <path d="M 200,170 A 28,28 0 0,1 256,170" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="3" />
       <path d="M 200,170 A 28,28 0 0,1 238,150" fill="none" stroke={C.green} strokeWidth="3" strokeLinecap="round" />
@@ -188,8 +178,6 @@ function ThumbPlaybookDetail() {
   );
 }
 
-/** MAG7 Rebalance — NVDADashboard 风格：
- *  KPI 指标行 + 大盘股价图 + 双小图 */
 function ThumbStockDashboard() {
   const priceData = [100, 105, 110, 108, 116, 122, 118, 125, 132, 128, 138, 145, 142, 150, 158, 162, 168, 175, 180, 190];
   const revData = [40, 45, 42, 50, 55, 52, 60, 65, 58, 62];
@@ -203,7 +191,6 @@ function ThumbStockDashboard() {
           <stop offset="100%" stopColor={C.blue} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* 6-cell KPI 行 */}
       {[0, 1, 2, 3, 4, 5].map(i => {
         const cx = 6 + i * 52;
         const colors = [C.primary, C.blue, C.green, C.orange, C.red, C.deepBlue];
@@ -216,11 +203,9 @@ function ThumbStockDashboard() {
           </g>
         );
       })}
-      {/* 主价格图 */}
       <rect x="6" y="38" width="308" height="74" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <path d={areaFromLine(priceLine, 8, 40, 304, 68)} fill="url(#t2-g)" />
       <path d={priceLine} fill="none" stroke={C.blue} strokeWidth="1.2" />
-      {/* 底部双小图 */}
       <rect x="6" y="116" width="152" height="58" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="12" y="120" width="40" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       {bars(revData, 12, 128, 140, 42, C.primary, 0.3)}
@@ -232,8 +217,6 @@ function ThumbStockDashboard() {
   );
 }
 
-/** PEPE/BTC — DashboardTSLAOverview 风格：
- *  价格+成交量双轴图(左) + 估值网格(右) */
 function ThumbPriceVolumeOverview() {
   const priceData = [100, 112, 95, 118, 105, 130, 110, 125, 140, 120, 135, 150, 128, 145, 160, 142, 155, 148, 162, 158];
   const volumeData = [30, 55, 80, 45, 65, 90, 50, 60, 75, 85, 40, 70, 95, 55, 45, 60, 80, 50, 65, 70];
@@ -246,24 +229,18 @@ function ThumbPriceVolumeOverview() {
           <stop offset="100%" stopColor={C.orange} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* 左侧：价格+成交量 */}
       <rect x="6" y="6" width="204" height="168" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="12" y="10" width="50" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
-      {/* 成交量柱 */}
       {bars(volumeData, 8, 70, 196, 48, C.orange, 0.15)}
-      {/* 价格线 */}
       <path d={areaFromLine(priceLine, 8, 12, 196, 100)} fill="url(#t3-g)" />
       <path d={priceLine} fill="none" stroke={C.orange} strokeWidth="1.2" />
-      {/* 图例 */}
       <circle cx="160" cy="11" r="2" fill={C.orange} />
       <rect x="164" y="9.5" width="16" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       <circle cx="185" cy="11" r="2" fill={C.orange} opacity={0.3} />
       <rect x="189" y="9.5" width="14" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
-      {/* 底部时间轴标记 */}
       {[0, 1, 2, 3, 4].map(i => (
         <rect key={i} x={20 + i * 40} y="164" width="14" height="2" rx={1} fill="rgba(0,0,0,0.06)" />
       ))}
-      {/* 右侧：2x3 估值网格 */}
       <rect x="214" y="6" width="100" height="168" rx="3" fill="#fafafa" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       {[0, 1, 2, 3, 4, 5].map(i => {
         const col = i % 2;
@@ -277,7 +254,6 @@ function ThumbPriceVolumeOverview() {
             <rect x={cx + 4} y={cy + 6} width="22" height="2" rx={1} fill="rgba(0,0,0,0.10)" />
             <rect x={cx + 4} y={cy + 14} width="28" height="4" rx={1} fill={colors[i]} opacity={0.55} />
             <rect x={cx + 4} y={cy + 22} width="18" height="2" rx={1} fill="rgba(0,0,0,0.06)" />
-            {/* mini sparkline */}
             <path d={`M ${cx + 4},${cy + 38} l 5,-4 5,6 5,-3 5,2 5,-5 5,3 3,-2`} fill="none" stroke={colors[i]} strokeWidth="0.6" opacity={0.4} />
           </g>
         );
@@ -286,8 +262,6 @@ function ThumbPriceVolumeOverview() {
   );
 }
 
-/** Attribution Analysis — DashboardWorkspace 风格：
- *  2x2 Widget 网格 */
 function ThumbWidgetGrid() {
   const d1 = [40, 45, 42, 50, 55, 52, 60, 65, 58, 70, 68, 75, 72, 80];
   const d2 = [30, 35, 32, 38, 42, 40, 45, 48, 44, 50, 52, 55, 54, 58];
@@ -305,19 +279,15 @@ function ThumbWidgetGrid() {
           <stop offset="100%" stopColor={C.primary} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* 左上：面积图 — Earnings */}
       <rect x="6" y="6" width="152" height="82" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="12" y="10" width="44" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       {(() => { const l = smoothLine(d1, 10, 18, 144, 64); return <><path d={areaFromLine(l, 10, 18, 144, 64)} fill="url(#t4-g1)" /><path d={l} fill="none" stroke={C.green} strokeWidth="0.9" /></>; })()}
-      {/* 右上：柱形图 — Earnings Detail */}
       <rect x="162" y="6" width="152" height="82" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="168" y="10" width="44" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       {bars(d2, 168, 20, 140, 62, C.blue, 0.35)}
-      {/* 左下：Markdown/Notes */}
       <rect x="6" y="92" width="152" height="82" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="12" y="96" width="44" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       {textLines(12, 104, 140, 8, 7)}
-      {/* 右下：双线对比图 — Price vs SPY */}
       <rect x="162" y="92" width="152" height="82" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="168" y="96" width="44" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       {(() => { const l = smoothLine(d3, 166, 104, 144, 64); return <><path d={areaFromLine(l, 166, 104, 144, 64)} fill="url(#t4-g2)" /><path d={l} fill="none" stroke={C.primary} strokeWidth="0.9" /></>; })()}
@@ -326,8 +296,6 @@ function ThumbWidgetGrid() {
   );
 }
 
-/** BTC MACD — Dashboard 风格：
- *  Markdown Brief 上方 + Google Trend 线图下方 */
 function ThumbBriefAndTrend() {
   const trendData = [40, 38, 45, 42, 50, 55, 48, 52, 58, 62, 55, 60, 65, 58, 62, 68, 72, 65, 70, 75];
   const trendLine = smoothLine(trendData, 8, 100, 304, 68);
@@ -339,29 +307,21 @@ function ThumbBriefAndTrend() {
           <stop offset="100%" stopColor={C.deepBlue} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* 上方 Brief / Markdown 区域 */}
       <rect x="6" y="6" width="308" height="84" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="12" y="12" width="48" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
-      {/* 模拟 Markdown heading */}
       <rect x="12" y="20" width="100" height="4" rx={1} fill="rgba(0,0,0,0.12)" />
-      {/* 多行文字 */}
       {textLines(12, 30, 280, 4, 7)}
-      {/* 子标题 */}
       <rect x="12" y="62" width="70" height="3" rx={1} fill="rgba(0,0,0,0.10)" />
       {textLines(12, 70, 280, 2, 6)}
-      {/* 下方 Trend 线图 */}
       <rect x="6" y="94" width="308" height="80" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="12" y="98" width="44" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       <path d={areaFromLine(trendLine, 8, 100, 304, 68)} fill="url(#t5-g)" />
       <path d={trendLine} fill="none" stroke={C.deepBlue} strokeWidth="1.1" />
-      {/* Watermark */}
       <text x="14" y="168" fill="rgba(0,0,0,0.06)" fontSize="6" fontFamily="'Delight', sans-serif">Alva</text>
     </svg>
   );
 }
 
-/** NVDA Triggered TSM — DashboardPopularStock 风格：
- *  股票头部 + Narrative 叙事块 + 小图 */
 function ThumbNarrativeStock() {
   const priceData = [100, 104, 108, 106, 112, 110, 116, 114, 120, 118, 124, 122, 128, 125, 130];
   return (
@@ -372,17 +332,13 @@ function ThumbNarrativeStock() {
           <stop offset="100%" stopColor={C.red} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* 股票头部栏 */}
       <rect x="6" y="6" width="308" height="32" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
-      {/* 股票 logo */}
       <rect x="12" y="11" width="22" height="22" rx="4" fill={C.red} opacity={0.15} />
       <text x="18" y="26" fill={C.red} fontSize="10" fontWeight="600" fontFamily="'Delight', sans-serif">N</text>
       <rect x="38" y="14" width="40" height="3.5" rx={1} fill="rgba(0,0,0,0.14)" />
       <rect x="38" y="21" width="24" height="2.5" rx={1} fill="rgba(0,0,0,0.07)" />
-      {/* 价格 */}
       <rect x="240" y="13" width="36" height="5" rx={1} fill={C.green} opacity={0.5} />
       <rect x="280" y="14" width="24" height="3" rx={1} fill={C.green} opacity={0.3} />
-      {/* KPI 行 (5 个期间) */}
       {[0, 1, 2, 3, 4].map(i => {
         const cx = 6 + i * 62;
         return (
@@ -394,7 +350,6 @@ function ThumbNarrativeStock() {
           </g>
         );
       })}
-      {/* Narrative 叙事文字块 */}
       <rect x="6" y="68" width="196" height="106" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="12" y="74" width="60" height="3" rx={1} fill={C.primary} opacity={0.4} />
       {textLines(12, 82, 180, 3, 6)}
@@ -402,18 +357,15 @@ function ThumbNarrativeStock() {
       {textLines(12, 112, 180, 3, 6)}
       <rect x="12" y="134" width="40" height="3" rx={1} fill={C.red} opacity={0.3} />
       {textLines(12, 142, 180, 3, 6)}
-      {/* 右侧小图 */}
       <rect x="206" y="68" width="108" height="106" rx="3" fill="white" stroke="rgba(0,0,0,0.05)" strokeWidth="0.5" />
       <rect x="212" y="72" width="36" height="2.5" rx={1} fill="rgba(0,0,0,0.10)" />
       {(() => { const l = smoothLine(priceData, 210, 80, 98, 60); return <><path d={areaFromLine(l, 210, 80, 98, 60)} fill="url(#t6-g)" /><path d={l} fill="none" stroke={C.red} strokeWidth="0.9" /></>; })()}
-      {/* 底部 mini KPI */}
       {kpiCell(212, 148, 44, 20, C.primary)}
       {kpiCell(260, 148, 44, 20, C.orange)}
     </svg>
   );
 }
 
-/** 缩略图映射 */
 const THUMBNAIL_MAP: Record<string, () => React.ReactNode> = {
   'btc-ultimate': ThumbPlaybookDetail,
   'mag7-rebalance': ThumbStockDashboard,
@@ -423,28 +375,7 @@ const THUMBNAIL_MAP: Record<string, () => React.ReactNode> = {
   'nvda-tsm': ThumbNarrativeStock,
 };
 
-function PlaybookThumbnail({ id }: { id: string }) {
-  const Thumb = THUMBNAIL_MAP[id];
-  return (
-    <div className="relative w-full overflow-hidden rounded-t-[8px]" style={{ height: H, background: '#f8f8f8' }}>
-      {/* 点阵网格背景 */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.06) 0.6px, transparent 0.6px)',
-          backgroundSize: '3px 3px',
-        }}
-      />
-      <div className="relative z-[1]">
-        {Thumb && <Thumb />}
-      </div>
-      {/* 底部白色渐变 */}
-      <div className="absolute bottom-0 left-0 right-0 h-[20px] z-[2]" style={{ background: 'linear-gradient(to top, white, transparent)' }} />
-    </div>
-  );
-}
-
-/* ========== Hero Spotlight 数据 ========== */
+/* ========== Hero Spotlight ========== */
 
 interface HeroSlide {
   thumbId: string;
@@ -507,9 +438,6 @@ const HERO_SLIDES: HeroSlide[] = [
   },
 ];
 
-/* ========== Hero Spotlight 组件 ========== */
-
-/** 漂浮的 ticker 数据粒子 */
 const FLOATING_DATA = [
   { text: 'NVDA', x: '12%', y: '15%', opacity: 0.07, size: 11, delay: 0 },
   { text: '+2.4%', x: '8%', y: '65%', opacity: 0.05, size: 10, delay: 1.2 },
@@ -517,11 +445,21 @@ const FLOATING_DATA = [
   { text: '$142.8', x: '82%', y: '72%', opacity: 0.05, size: 10, delay: 2.4 },
   { text: 'SPY', x: '45%', y: '8%', opacity: 0.04, size: 10, delay: 1.8 },
   { text: 'TSM', x: '72%', y: '88%', opacity: 0.06, size: 10, delay: 0.3 },
-  { text: 'α', x: '20%', y: '85%', opacity: 0.05, size: 13, delay: 3.0 },
-  { text: 'Σ', x: '92%', y: '50%', opacity: 0.04, size: 12, delay: 1.5 },
+  { text: '\u03b1', x: '20%', y: '85%', opacity: 0.05, size: 13, delay: 3.0 },
+  { text: '\u03a3', x: '92%', y: '50%', opacity: 0.04, size: 12, delay: 1.5 },
   { text: '+338%', x: '55%', y: '90%', opacity: 0.04, size: 10, delay: 2.1 },
   { text: 'GLD', x: '35%', y: '5%', opacity: 0.05, size: 10, delay: 0.9 },
 ];
+
+function HeroAvatar({ name, size = 18 }: { name: string; size?: number }) {
+  const initial = name.trim().charAt(0).toUpperCase();
+  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, fontFamily: "'Delight', sans-serif" }}>{initial}</span>
+    </div>
+  );
+}
 
 function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [idx, setIdx] = useState(0);
@@ -539,28 +477,20 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const Thumb = THUMBNAIL_MAP[slide.thumbId];
 
   return (
-    <div className="w-full max-w-[1200px] flex flex-col gap-[0px]">
+    <div className="w-full max-w-[1600px] flex flex-col gap-[0px]">
     <div
-      className="relative rounded-[8px] overflow-hidden cursor-pointer group/hero border border-[rgba(0,0,0,0.06)]"
-      style={{ height: 340 }}
+      className="relative rounded-[12px] overflow-hidden cursor-pointer group/hero"
+      style={{ height: 340, border: '0.5px solid rgba(0,0,0,0.3)' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      onClick={() => onNavigate('btc-playbook')}
     >
-      {/* ── 背景层 ── */}
       <div className="absolute inset-0" style={{ background: '#0c0c14' }} />
-      {/* 大型有机光斑 — teal 主光 */}
       <div className="absolute" style={{ width: '55%', height: '120%', top: '-10%', left: '20%', background: 'radial-gradient(ellipse, rgba(73,163,166,0.13) 0%, rgba(73,163,166,0.04) 40%, transparent 70%)', filter: 'blur(40px)' }} />
-      {/* 暖金副光 — 右上 */}
       <div className="absolute" style={{ width: '35%', height: '60%', top: '-5%', right: '5%', background: 'radial-gradient(ellipse, rgba(220,180,80,0.07) 0%, transparent 65%)', filter: 'blur(50px)' }} />
-      {/* 冷蓝副光 — 左下 */}
       <div className="absolute" style={{ width: '30%', height: '50%', bottom: '0%', left: '5%', background: 'radial-gradient(ellipse, rgba(60,100,200,0.06) 0%, transparent 65%)', filter: 'blur(45px)' }} />
-      {/* 精细点阵 */}
       <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 0.5px, transparent 0.5px)', backgroundSize: '4px 4px' }} />
-      {/* 噪点纹理 */}
       <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }} />
 
-      {/* 漂浮数据粒子 */}
       {FLOATING_DATA.map((d, i) => (
         <span
           key={i}
@@ -576,23 +506,17 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
         </span>
       ))}
 
-      {/* ── 主内容：左文字 + 右大图 ── */}
       <div className="relative z-[1] flex items-stretch h-full">
-
-        {/* 左栏：文字信息 */}
         <div className="flex-[4] min-w-0 flex flex-col justify-center pl-[40px] pr-[20px] py-[32px]" style={{ fontFamily: "'Delight', sans-serif" }}>
-          {/* 标签 */}
           <div className="flex items-center gap-[8px] mb-[14px]">
             <span className="text-[11px] px-[8px] py-[3px] rounded-full font-medium" style={{ background: 'rgba(73,163,166,0.15)', color: '#49a3a6', border: '1px solid rgba(73,163,166,0.2)' }}>Featured</span>
             <span className="text-[11px] tracking-[0.05em]" style={{ color: 'rgba(255,255,255,0.3)' }}>Playbook of the Week</span>
           </div>
 
-          {/* 标题 */}
           <h3 className="text-[26px] leading-[34px] tracking-[-0.01em] font-medium truncate" style={{ color: 'rgba(255,255,255,0.95)' }}>
             {slide.title}
           </h3>
 
-          {/* 作者 + 收益率 badge */}
           <div className="flex items-center gap-[8px] mt-[10px]">
             <HeroAvatar name={slide.creator} size={20} />
             <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{slide.creator}</span>
@@ -600,12 +524,10 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
             <span className="ml-[4px] text-[12px] px-[8px] py-[2px] rounded-[4px] font-medium" style={{ background: 'rgba(73,163,166,0.12)', color: '#49a3a6' }}>{slide.annualizedReturn}</span>
           </div>
 
-          {/* 描述 */}
           <p className="text-[13px] leading-[21px] tracking-[0.01em] mt-[12px] overflow-hidden" style={{ color: 'rgba(255,255,255,0.4)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {slide.description}
           </p>
 
-          {/* 社区评论 — 逐条切换 */}
           <div className="relative mt-[14px] pt-[12px] overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', height: 48 }}>
             <div className="flex flex-col" style={{ animation: `heroScrollUp ${slide.comments.length * 4}s linear infinite`, animationPlayState: paused ? 'paused' : 'running' }}>
               {[...slide.comments, ...slide.comments].map((c, i) => (
@@ -619,7 +541,6 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
             </div>
           </div>
 
-          {/* Tickers + Stats */}
           <div className="flex items-center gap-[5px] mt-[16px]">
             {slide.tickers.map(t => (
               <span key={t} className="text-[10px] px-[7px] py-[2px] rounded-[4px] font-medium tracking-[0.03em]" style={{ background: 'rgba(73,163,166,0.12)', color: 'rgba(73,163,166,0.75)', border: '1px solid rgba(73,163,166,0.1)' }}>{t}</span>
@@ -637,7 +558,6 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
           </div>
         </div>
 
-        {/* 右栏：缩略图撑满 */}
         <div className="flex-[7] min-w-0 relative overflow-hidden">
           <div className="absolute inset-0 bg-white">
             <div className="w-full h-full transition-transform duration-700 ease-out group-hover/hero:scale-[1.015] origin-center [&>svg]:w-full [&>svg]:h-full">
@@ -646,7 +566,6 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
           </div>
         </div>
 
-        {/* 左右箭头导航 — hover 时渐显 */}
         <button
           onClick={(e) => { e.stopPropagation(); setIdx(i => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length); }}
           className="absolute left-[12px] top-1/2 -translate-y-1/2 z-[3] size-[32px] rounded-full flex items-center justify-center opacity-0 group-hover/hero:opacity-100 transition-opacity duration-300 cursor-pointer"
@@ -662,9 +581,7 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3l5 5-5 5" /></svg>
         </button>
       </div>
-
     </div>
-      {/* 轮播指示点 — 卡片外部，极度弱化 */}
       <div className="flex justify-center gap-[6px] mt-[10px]">
         {HERO_SLIDES.map((_, i) => (
           <button
@@ -684,44 +601,30 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
   );
 }
 
-/** Hero 内用的头像（白色文字背景适配深色） */
-function HeroAvatar({ name, size = 18 }: { name: string; size?: number }) {
-  const initial = name.trim().charAt(0).toUpperCase();
-  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
-  return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, fontFamily: "'Delight', sans-serif" }}>{initial}</span>
-    </div>
-  );
-}
-
-/* ========== 工具组件 ========== */
-
-function UserAvatar({ name, size = 18 }: { name: string; size?: number }) {
-  const initial = name.trim().charAt(0).toUpperCase();
-  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
-  return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, fontFamily: "'Delight', sans-serif" }}>{initial}</span>
-    </div>
-  );
-}
-
-/* ========== CategoryTabs ========== */
+/* ========== Category Tabs ========== */
 
 function CategoryTabs({ active, onChange }: { active: string; onChange: (cat: string) => void }) {
   return (
-    <div className="flex flex-wrap gap-[10px] w-full max-w-[1200px]">
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', maxWidth: 1600 }}>
       {CATEGORIES.map((cat) => (
         <button
           key={cat}
+          data-text={cat}
           onClick={() => onChange(cat)}
-          className={`px-[16px] py-[6px] rounded-[20px] text-[13px] tracking-[0.13px] transition-all duration-200 cursor-pointer
-            ${cat === active
-              ? 'bg-[rgba(73,163,166,0.15)] text-[rgba(0,0,0,0.9)] font-medium'
-              : 'bg-[rgba(0,0,0,0.03)] text-[rgba(0,0,0,0.5)] hover:bg-[rgba(0,0,0,0.06)]'
-            }`}
-          style={{ fontFamily: "'Delight', sans-serif" }}
+          style={{
+            padding: '6px 16px',
+            borderRadius: 4,
+            border: 'none',
+            background: cat === active ? 'rgba(73,163,166,0.2)' : 'var(--b-r03, rgba(0,0,0,0.03))',
+            fontFamily: "'Delight', -apple-system, BlinkMacSystemFont, sans-serif",
+            fontSize: 14,
+            lineHeight: '22px',
+            letterSpacing: 0.14,
+            fontWeight: cat === active ? 500 : 400,
+            color: cat === active ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n7, rgba(0,0,0,0.7))',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
         >
           {cat}
         </button>
@@ -730,62 +633,97 @@ function CategoryTabs({ active, onChange }: { active: string; onChange: (cat: st
   );
 }
 
-/* ========== PlaybookCard ========== */
+/* ========== PlaybookCard (Homepage style) ========== */
 
-function PlaybookCard({ pb, onClick }: { pb: ExplorePlaybook; onClick: () => void }) {
+function PlaybookCard({ p }: { p: ExplorePlaybook }) {
   return (
     <div
-      className="group relative bg-white rounded-[8px] cursor-pointer overflow-hidden transition-all duration-300 ease-out hover:-translate-y-[4px] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)]"
-      onClick={onClick}
+      className="cursor-pointer transition-shadow hover:shadow-l"
+      style={{
+        borderRadius: 12,
+        overflow: 'hidden',
+        background: 'var(--b0-page, #fff)',
+        border: '0.5px solid rgba(0,0,0,0.3)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
     >
-      {/* 真实布局缩略图 */}
-      <div className="transition-transform duration-300 ease-out group-hover:scale-[1.02] origin-center">
-        <PlaybookThumbnail id={pb.id} />
-      </div>
+      {/* Cover placeholder */}
+      <div
+        style={{
+          margin: '4px 4px 0 4px',
+          width: 'calc(100% - 8px)',
+          aspectRatio: '472 / 265.5',
+          borderRadius: 8,
+          background: 'linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%)',
+          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.06) 0.6px, transparent 0.6px)',
+          backgroundSize: '3px 3px',
+        }}
+      />
 
-      {/* 信息区 */}
-      <div className="flex flex-col gap-[8px] px-[16px] pb-[16px] pt-[6px]">
-        <p className="text-[16px] leading-[24px] tracking-[0.16px] text-[rgba(0,0,0,0.9)] font-medium truncate" style={{ fontFamily: "'Delight', sans-serif" }}>
-          {pb.title}
-        </p>
-        <div className="flex items-center gap-[6px]">
-          <UserAvatar name={pb.creator} size={18} />
-          <span className="text-[13px] text-[rgba(0,0,0,0.5)] tracking-[0.13px]" style={{ fontFamily: "'Delight', sans-serif" }}>{pb.creator}</span>
-          <PulseIndicator status={pb.pulse} />
+      {/* Info */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '16px 16px 12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <p
+            style={{
+              fontSize: 16,
+              lineHeight: '26px',
+              fontWeight: 400,
+              color: 'var(--text-n9, rgba(0,0,0,0.9))',
+              letterSpacing: 0.16,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {p.title}
+          </p>
+          <p
+            style={{
+              fontSize: 12,
+              lineHeight: '20px',
+              color: 'var(--text-n5, rgba(0,0,0,0.5))',
+              letterSpacing: 0.12,
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
+            {p.description}
+          </p>
         </div>
-        <p
-          className="text-[12px] leading-[18px] text-[rgba(0,0,0,0.4)] tracking-[0.12px] overflow-hidden"
-          style={{ fontFamily: "'Delight', sans-serif", display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', height: 36 }}
-        >
-          {pb.description}
-        </p>
-        {/* Tickers */}
-        <div className="flex items-center gap-[4px] overflow-hidden">
-          {pb.tickers.slice(0, 4).map((t) => (
-            <span key={t} className="text-[11px] px-[6px] py-[1px] rounded-[4px] bg-[rgba(73,163,166,0.08)] text-[#49a3a6] font-medium shrink-0" style={{ fontFamily: "'Delight', sans-serif" }}>{t}</span>
-          ))}
-          {pb.tickers.length > 4 && (
-            <span className="text-[11px] text-[rgba(0,0,0,0.3)] shrink-0" style={{ fontFamily: "'Delight', sans-serif" }}>+{pb.tickers.length - 4} more</span>
-          )}
-        </div>
-        {/* Stars + Remixes + 可选收益率 */}
-        <div className="flex items-center gap-[14px] pt-[4px]">
-          <span className="flex items-center gap-[4px] text-[13px] text-[rgba(0,0,0,0.5)]" style={{ fontFamily: "'Delight', sans-serif" }}>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1"><path d="M8 2l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6L8 2z" /></svg>
-            {pb.stars}
-          </span>
-          <span className="flex items-center gap-[4px] text-[13px] text-[rgba(0,0,0,0.5)]" style={{ fontFamily: "'Delight', sans-serif" }}>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 3l2 2-2 2" /><path d="M3 7V6a2 2 0 012-2h6" /><path d="M5 13l-2-2 2-2" /><path d="M13 9v1a2 2 0 01-2 2H5" /></svg>
-            {pb.remixes}
-          </span>
-          {pb.annualizedReturn && (
-            <span className="ml-auto text-[13px] font-medium text-[#49a3a6]" style={{ fontFamily: "'Delight', sans-serif" }}>{pb.annualizedReturn}</span>
-          )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 6, height: 22 }}>
+            <Avatar name={p.creator} size={22} />
+            <span
+              style={{
+                fontSize: 14,
+                lineHeight: '22px',
+                color: 'var(--text-n9, rgba(0,0,0,0.9))',
+                letterSpacing: 0.14,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {p.creator}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14 }}>
+              <CdnIcon name="star-l" size={16} />
+              {p.stars}
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14 }}>
+              <CdnIcon name="remix-l" size={16} />
+              {p.remixes}
+            </span>
+          </div>
         </div>
       </div>
-
-      {/* 边框 — hover 变 teal 辉光 */}
-      <div aria-hidden="true" className="absolute inset-0 rounded-[8px] pointer-events-none border border-[rgba(0,0,0,0.06)] transition-all duration-300 group-hover:border-[rgba(73,163,166,0.3)] group-hover:shadow-[inset_0_0_0_1px_rgba(73,163,166,0.08)]" />
     </div>
   );
 }
@@ -819,20 +757,25 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
         onUserMouseEnter={() => setIsUserInfoOpen(true)}
         onUserMouseLeave={() => setIsUserInfoOpen(false)}
       >
-        <div
-          className="flex flex-col items-center min-h-full"
-          style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.05) 0.5px, transparent 0.5px)', backgroundSize: '4px 4px' }}
-        >
+        <div className="flex flex-col items-center min-h-full">
           <div className="flex flex-col gap-[24px] items-center pb-[60px] pt-[32px] px-[28px] w-full">
-            <div className="w-full max-w-[1200px]">
+            <div className="w-full max-w-[1600px]">
               <h2 className="text-[22px] tracking-[0.22px] text-[rgba(0,0,0,0.9)]" style={{ fontFamily: "'Delight', sans-serif", fontWeight: 500 }}>Explore</h2>
             </div>
             <HeroSpotlight onNavigate={onNavigate!} />
             <CategoryTabs active={activeTab} onChange={setActiveTab} />
-            <div className="grid grid-cols-3 gap-[16px] w-full max-w-[1200px]">
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 24,
+                width: '100%',
+                maxWidth: 1600,
+              }}
+            >
               {PLAYBOOKS.map((pb, i) => (
                 <div key={pb.id} style={{ animationDelay: `${i * 60}ms` }} className="animate-[fadeInUp_0.4s_ease-out_both]">
-                  <PlaybookCard pb={pb} onClick={() => onNavigate?.('btc-playbook')} />
+                  <PlaybookCard p={pb} />
                 </div>
               ))}
             </div>
