@@ -1,30 +1,18 @@
 /**
- * [INPUT]: svgPaths, RemixPrompt, DiscussionPanel, PlaybookHeader, mock data types
- * [OUTPUT]: Playbook 专用 Topbar — 左侧 hover 展开 Header，右侧 stats + 弹层交互
- * [POS]: 社区组件 — 替代通用 Topbar，整合所有社区交互入口
+ * [INPUT]: mock data types, community components
+ * [OUTPUT]: Playbook 专用 Topbar — Infant 风格 + Freshman 交互
+ * [POS]: 社区组件 — 整合所有社区交互入口
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import svgPaths from '@/data/svg-nheoeek59y';
-import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
+import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { Avatar } from '@/app/components/shared/Avatar';
 import { RemixPrompt } from './RemixPrompt';
 import { PlaybookShareModal } from './PlaybookShareModal';
 import { StrategyBindPanel } from '../trading/StrategyBindPanel';
 import { PlaybookHeader } from './PlaybookHeader';
 import type { PlaybookHeaderProps } from './PlaybookHeader';
 import type { LineageNode, Comment } from '@/data/community-mock';
-
-/* ========== 头像 ========== */
-
-function UserAvatar({ name, size = 20 }: { name: string; size?: number }) {
-  const initial = name.trim().charAt(0).toUpperCase();
-  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
-  return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, letterSpacing: 0, fontFamily: "'Delight', sans-serif" }}>{initial}</span>
-    </div>
-  );
-}
 
 /* ========== Props ========== */
 
@@ -35,21 +23,11 @@ interface PlaybookTopbarProps extends PlaybookHeaderProps {
   comments: Comment[];
   discussionOpen: boolean;
   onToggleDiscussion: () => void;
-  chatOpen: boolean;
-  onToggleChat: () => void;
   onAuthorClick?: () => void;
   onNavigate?: (page: import('@/app/App').Page) => void;
 }
 
-/* ========== Stat 按钮样式 ========== */
-
-const STAT_STYLE: React.CSSProperties = {
-  background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 6,
-  display: 'flex', alignItems: 'center', gap: 4,
-  fontSize: 12, color: 'rgba(0,0,0,0.9)', fontFamily: "'Delight', sans-serif",
-};
-
-/* ========== 点击外部关闭 hook ========== */
+/* ========== 点击外部关闭 ========== */
 
 function useClickOutside(ref: React.RefObject<HTMLElement | null>, open: boolean, onClose: () => void) {
   useEffect(() => {
@@ -62,23 +40,112 @@ function useClickOutside(ref: React.RefObject<HTMLElement | null>, open: boolean
   }, [ref, open, onClose]);
 }
 
+/* ========== StatusDot ========== */
+
+function StatusDot() {
+  return (
+    <div className="flex items-center shrink-0 size-[12px]">
+      <div className="flex-1 h-full min-h-px min-w-px overflow-clip relative">
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2">
+          <svg className="block size-full" fill="none" viewBox="0 0 12 12">
+            <circle cx="6" cy="6" fill="#DBEDED" r="6" />
+          </svg>
+        </div>
+        <div className="absolute bottom-[28.6%] left-1/2 top-[28.6%] -translate-x-1/2">
+          <svg className="block size-full" fill="none" viewBox="0 0 5.136 5.136">
+            <circle cx="2.568" cy="2.568" fill="#49A3A6" r="2.568" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========== IconButton ========== */
+
+function IconButton({
+  children,
+  label,
+  active,
+  onClick,
+}: {
+  children: React.ReactNode;
+  label?: string | number;
+  active?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <div
+      className={`flex gap-[4px] h-[32px] items-center justify-center overflow-clip px-[8px] py-[6px] rounded-[6px] shrink-0 cursor-pointer transition-colors ${
+        active ? 'bg-[rgba(73,163,166,0.1)]' : 'hover:bg-black/[0.04]'
+      }`}
+      onClick={onClick}
+    >
+      <div className="flex items-center overflow-clip shrink-0">
+        <div className="shrink-0 size-[16px]">{children}</div>
+      </div>
+      {label !== undefined && (
+        <p
+          className={`font-['Delight',sans-serif] leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap ${
+            active ? 'text-[#49A3A6]' : 'text-[rgba(0,0,0,0.9)]'
+          }`}
+        >
+          {label}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ========== Remix prompt body ========== */
+
+const PLAYBOOK_REF = '@ivan/geopolitical-risk';
+
+function buildRemixPrompt() {
+  return `Remix Playbook(${PLAYBOOK_REF}):
+
+If you have the Alva skill → use it to build my own version.
+If not → install it first: npx skills add https://github.com/alva-ai/skills
+
+Then:
+1. Customize it based on my preferences
+2. Deploy as a new playbook under my account
+3. If I don't specify what to change, ask me what I'd like to customize.`;
+}
+
+function RemixPromptBody() {
+  return (
+    <div className="w-full font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.7)]">
+      <p className="mb-0">Remix Playbook({PLAYBOOK_REF}):</p>
+      <p className="mb-0">&nbsp;</p>
+      <p className="mb-0">If you have the Alva skill → use it to build my own version.</p>
+      <p className="mb-0">If not → install it first: npx skills add https://github.com/alva-ai/skills</p>
+      <p className="mb-0">&nbsp;</p>
+      <p className="mb-0">Then:</p>
+      <p className="mb-0">1. Customize it based on my preferences</p>
+      <p className="mb-0">2. Deploy as a new playbook under my account</p>
+      <p className="mb-0">{`3. If I don't specify what to change, ask me what I'd like to customize.`}</p>
+    </div>
+  );
+}
+
+const COPY_FEEDBACK_MS = 2000;
+
 /* ========== 组件 ========== */
 
 export function PlaybookTopbar({
   title, stats, lineage, comments,
   discussionOpen, onToggleDiscussion,
-  chatOpen, onToggleChat,
   author, pulse, description, builtOn, onAuthorClick, onNavigate,
 }: PlaybookTopbarProps) {
   const [headerOpen, setHeaderOpen] = useState(false);
-  const [forkOpen, setForkOpen] = useState(false);
+  const [remixOpen, setRemixOpen] = useState(false);
+  const [ownAgentOpen, setOwnAgentOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [tradeOpen, setTradeOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [starred, setStarred] = useState(false);
-  const [toastVisible, setToastVisible] = useState(false);
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
-  const forkRef = useRef<HTMLDivElement>(null);
+  const remixRef = useRef<HTMLDivElement>(null);
   const tradeRef = useRef<HTMLDivElement>(null);
   const headerTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
@@ -91,169 +158,189 @@ export function PlaybookTopbar({
   }, []);
   useEffect(() => () => { if (headerTimer.current) clearTimeout(headerTimer.current); }, []);
 
-  useClickOutside(forkRef, forkOpen, () => setForkOpen(false));
+  const closeRemix = useCallback(() => {
+    setRemixOpen(false);
+    setOwnAgentOpen(false);
+    setCopied(false);
+  }, []);
+
+  useClickOutside(remixRef, remixOpen, closeRemix);
   useClickOutside(tradeRef, tradeOpen, () => setTradeOpen(false));
+
+  const copyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(buildRemixPrompt());
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
+    } catch { /* noop */ }
+  };
+
+  const authorName = author?.name ?? 'Alva Intern';
 
   return (
     <>
-      <div className="content-stretch flex gap-[12px] h-[56px] items-center py-[10px] sticky top-0 shrink-0 w-full z-10 bg-white relative">
-        {/* Left: 头像 + 标题 + 状态 — hover 展开 PlaybookHeader */}
+      <div className="flex gap-[12px] h-[56px] items-center py-[10px] sticky top-0 shrink-0 w-full z-10 bg-white relative">
+        {/* Left: avatar + author + title + status */}
         <div
-          className="content-stretch flex flex-[1_0_0] gap-[4px] items-center min-h-px min-w-px"
+          className="flex flex-1 gap-[4px] items-center min-h-px min-w-px"
           onMouseEnter={openHeader}
           onMouseLeave={closeHeader}
         >
-          <div className="relative shrink-0 size-[20px]">
-            <UserAvatar name="Alva Intern" size={20} />
+          <div className="shrink-0 size-[20px]">
+            <Avatar name={authorName} size={20} />
           </div>
-          <div className="content-stretch flex flex-[1_0_0] gap-[4px] items-center min-h-px min-w-px relative">
-            <p className="font-['Delight',sans-serif] leading-[22px] max-w-[136px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px]">Alva Intern</p>
-            <div className="flex flex-col font-['Delight',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] text-center tracking-[0.12px] w-[6px]">
-              <p className="leading-[20px] whitespace-pre-wrap">&bull;</p>
-            </div>
-            <div className="relative shrink-0 size-[18px]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 18 18">
-                <path d={svgPaths.p10e63780} fill="black" fillOpacity="0.9" />
-              </svg>
-            </div>
-            <p className="font-['Delight',sans-serif] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px]">{title}</p>
-            {/* 状态指示灯 */}
-            <div className="content-stretch flex items-center relative shrink-0 size-[12px]">
-              <div className="flex-[1_0_0] h-full min-h-px min-w-px overflow-clip relative">
-                <div className="-translate-y-1/2 absolute aspect-[20/20] left-0 right-0 top-1/2">
-                  <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 12 12">
-                    <circle cx="6" cy="6" fill="#DBEDED" r="6" />
-                  </svg>
-                </div>
-                <div className="-translate-x-1/2 absolute aspect-[8.5600004196167/8.5600004196167] bottom-[28.6%] left-1/2 top-[28.6%]">
-                  <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 5.136 5.136">
-                    <circle cx="2.568" cy="2.568" fill="#49A3A6" r="2.568" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-1 gap-[4px] items-center min-h-px min-w-px overflow-hidden">
+            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis shrink-0">
+              {authorName}
+            </p>
+            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px] shrink-0">
+              &bull;
+            </p>
+            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis shrink-0">
+              {title}
+            </p>
+            <StatusDot />
           </div>
         </div>
 
-        {/* Right: Stats + Actions */}
-        <div className="content-stretch flex gap-[4px] items-center justify-end relative shrink-0">
-          {/* Trade */}
-          <div ref={tradeRef} className="relative">
-            <button
-              onMouseDown={e => e.stopPropagation()}
-              onClick={() => setTradeOpen(v => !v)}
-              style={STAT_STYLE}
-            >
-              <div className="relative shrink-0 size-[16px]">
-                <svg className="block size-full" viewBox="0 0 16 16" fill="black" fillOpacity="0.9">
-                  <path d="M1.5 5.25a.75.75 0 01.75-.75h8.69L9.22 2.78a.75.75 0 011.06-1.06l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 01-1.06-1.06l1.72-1.72H2.25a.75.75 0 01-.75-.75zM14.5 10.75a.75.75 0 00-.75-.75H5.06l1.72-1.72a.75.75 0 00-1.06-1.06l-3 3a.75.75 0 000 1.06l3 3a.75.75 0 001.06-1.06L5.06 11.5h8.69a.75.75 0 00.75-.75z" />
-                </svg>
-              </div>
-            </button>
-            {tradeOpen && (
-              <div
-                className="absolute top-full right-0 mt-[8px]"
-                style={{ background: '#fff', borderRadius: 8, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', zIndex: 30 }}
-              >
-                <StrategyBindPanel onNavigate={onNavigate} />
-              </div>
-            )}
-          </div>
-
-          {/* Stars */}
-          <button
-            onClick={() => {
-              const next = !starred;
-              setStarred(next);
-              if (next) {
-                setToastVisible(true);
-                if (toastTimer.current) clearTimeout(toastTimer.current);
-                toastTimer.current = setTimeout(() => setToastVisible(false), 6000);
-              } else {
-                setToastVisible(false);
-              }
-            }}
-            style={{ ...STAT_STYLE, color: starred ? '#E6A91A' : 'rgba(0,0,0,0.9)', transition: 'color 0.15s' }}
-          >
-            <div className="relative shrink-0 size-[16px]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
-                <path d={svgPaths.p2b2d8380} fill={starred ? '#E6A91A' : 'black'} fillOpacity={starred ? 1 : 0.9} />
-              </svg>
-            </div>
-            <span>{starred ? stats.stars + 1 : stats.stars}</span>
-          </button>
-
-          {/* Remix */}
-          <div ref={forkRef} className="relative">
-            <button
-              onMouseDown={e => e.stopPropagation()}
-              onClick={() => setForkOpen(v => !v)}
-              style={STAT_STYLE}
-            >
-              <img src="https://alva-ai-static.b-cdn.net/icons/remix-l.svg" width={16} height={16} alt="remix" style={{ opacity: 0.9 }} />
-              <span>{stats.forks}</span>
-            </button>
-            {forkOpen && (
-              <div
-                className="absolute top-full right-0 mt-[8px]"
-                style={{ background: '#fff', borderRadius: 8, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', zIndex: 30 }}
-              >
-                <RemixPrompt />
-              </div>
-            )}
-          </div>
-
-          {/* Discuss */}
-          <button
-            onMouseDown={e => e.stopPropagation()}
-            onClick={onToggleDiscussion}
-            style={{
-              ...STAT_STYLE,
-              background: discussionOpen ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : 'none',
-              borderRadius: 6,
-              padding: '4px 6px',
-              color: discussionOpen ? 'var(--main-m1, #49A3A6)' : 'rgba(0,0,0,0.9)',
-              transition: 'background 0.15s, color 0.15s',
-            }}
-          >
-            <img src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg" width={16} height={16} alt="discuss" style={{ opacity: discussionOpen ? 1 : 0.9, filter: discussionOpen ? 'invert(59%) sepia(30%) saturate(550%) hue-rotate(140deg) brightness(90%) contrast(90%)' : 'none', transition: 'filter 0.15s' }} />
-            <span>{comments.length}</span>
-          </button>
-
+        {/* Right: actions */}
+        <div className="flex items-center shrink-0">
           {/* Share */}
-          <button style={STAT_STYLE} onClick={() => setShareOpen(true)}>
-            <div className="relative shrink-0 size-[16px]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
-                <path d={svgPaths.p272ac1f0} fill="black" fillOpacity="0.9" />
-              </svg>
-            </div>
-          </button>
-          <PlaybookShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} playbookName={title} onNavigate={onNavigate} />
+          <IconButton onClick={() => setShareOpen(true)}>
+            <CdnIcon name="share-l" />
+          </IconButton>
 
-          {/* Chat — 唯一突出的 pill 按钮 */}
-          <div style={{ marginLeft: 4 }}>
-            <button
-              onMouseDown={e => e.stopPropagation()}
-              onClick={onToggleChat}
-              className="h-[36px] rounded-[6px] shrink-0 flex items-center justify-center gap-[6px] px-[12px] py-[6px]"
-              style={{
-                border: 'none', cursor: 'pointer', fontFamily: "'Delight', sans-serif",
-                fontSize: 12, color: '#fff',
-                background: chatOpen ? '#3d8b8e' : '#49a3a6',
-                transition: 'background 0.15s',
-              }}
+          {/* Star — display only */}
+          <IconButton label={stats.stars}>
+            <CdnIcon name="star-l" />
+          </IconButton>
+
+          {/* Remix — Infant 风格多阶段下拉 */}
+          <div ref={remixRef} className="relative shrink-0">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setRemixOpen(o => !o)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setRemixOpen(o => !o); } }}
+              aria-expanded={remixOpen}
+              aria-haspopup="dialog"
             >
-              <img
-                src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg"
-                width={14} height={14} alt="chat"
-                style={{ filter: 'invert(1) brightness(100)' }}
-              />
-              <span style={{ fontWeight: 500 }}>Chat</span>
-            </button>
+              <IconButton label={stats.forks} active={remixOpen}>
+                <CdnIcon name="remix-l" color={remixOpen ? '#49A3A6' : undefined} />
+              </IconButton>
+            </div>
+            {remixOpen && (
+              <div
+                className="absolute right-0 top-full mt-[6px] z-50 flex w-[480px] flex-col gap-[16px] overflow-hidden rounded-[12px] p-[20px]"
+                style={{ backgroundColor: '#fff', border: '0.5px solid rgba(0,0,0,0.2)', boxShadow: '0 6px 20px rgba(0,0,0,0.04)' }}
+                role="dialog"
+                aria-label="Remix this Playbook"
+              >
+                <h2 className="font-['Delight',sans-serif] font-medium text-[16px] leading-[26px] tracking-[0.16px] text-[rgba(0,0,0,0.9)]">
+                  Remix this Playbook
+                </h2>
+                <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)]">
+                  Create your own version — customize the data, layout, and style to fit your needs. Your remix will be published under your account.
+                </p>
+                <a
+                  href="https://app.alva.xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-[40px] w-full items-center justify-center gap-[8px] rounded-[8px] px-[20px] py-[9px] font-['Delight',sans-serif] font-medium text-[14px] leading-[22px] tracking-[0.14px] text-white no-underline transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: '#49A3A6' }}
+                  onClick={() => setRemixOpen(false)}
+                >
+                  <CdnIcon name="remix-l" size={18} color="#ffffff" />
+                  Start Remixing
+                </a>
+                <div className="flex flex-col w-full">
+                  <div className="flex items-center gap-[8px] w-full">
+                    <div className="h-px min-w-0 flex-1 bg-[rgba(0,0,0,0.05)]" />
+                    <button
+                      type="button"
+                      className="flex items-center gap-[4px] bg-transparent cursor-pointer font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[rgba(0,0,0,0.5)] border-none outline-none hover:opacity-80"
+                      onClick={() => setOwnAgentOpen(o => !o)}
+                      aria-expanded={ownAgentOpen}
+                    >
+                      <span className="whitespace-nowrap">Or use your own agent</span>
+                      <span
+                        className="flex size-[12px] items-center justify-center transition-transform duration-300 ease-out"
+                        style={{ transform: ownAgentOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                      >
+                        <CdnIcon name="arrow-down-l2" size={12} color="rgba(0,0,0,0.5)" />
+                      </span>
+                    </button>
+                    <div className="h-px min-w-0 flex-1 bg-[rgba(0,0,0,0.05)]" />
+                  </div>
+                  <div className={`grid w-full transition-[grid-template-rows,margin-top] duration-300 ease-out ${ownAgentOpen ? 'grid-rows-[1fr] mt-[16px]' : 'grid-rows-[0fr] mt-0'}`}>
+                    <div className="min-h-0 overflow-hidden">
+                      <div
+                        className={`flex flex-col gap-[16px] rounded-[6px] px-[20px] py-[16px] transition-opacity duration-300 ease-out ${ownAgentOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+                        style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}
+                      >
+                        <div className="max-h-[240px] overflow-y-auto">
+                          <RemixPromptBody />
+                        </div>
+                        <button
+                          type="button"
+                          className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[8px] rounded-[8px] bg-transparent px-[20px] py-[9px] font-['Delight',sans-serif] text-[14px] font-medium leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] transition-all hover:border-[rgba(0,0,0,0.9)]"
+                          style={{ border: '0.5px solid rgba(0,0,0,0.2)' }}
+                          onClick={copyPrompt}
+                        >
+                          {copied ? (
+                            <CdnIcon name="check-l1" size={18} color="#49A3A6" />
+                          ) : (
+                            <CdnIcon name="copy-l" size={18} color="rgba(0,0,0,0.9)" />
+                          )}
+                          {copied ? 'Copied' : 'Copy'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Discuss — 保留 Freshman 交互 */}
+          <IconButton
+            label={comments.length}
+            active={discussionOpen}
+            onClick={onToggleDiscussion}
+          >
+            <CdnIcon name="chat-l1" color={discussionOpen ? '#49A3A6' : undefined} />
+          </IconButton>
+
+          {/* Action buttons */}
+          <div className="flex gap-[8px] items-center pl-[8px]">
+            {/* Trade */}
+            <div ref={tradeRef} className="relative">
+              <button
+                onClick={() => setTradeOpen(v => !v)}
+                className="flex gap-[6px] h-[32px] items-center justify-center px-[10px] py-[6px] rounded-[6px] cursor-pointer hover:bg-black/[0.04] transition-colors"
+                style={{ border: '0.5px solid rgba(0,0,0,0.3)' }}
+              >
+                <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-[rgba(0,0,0,0.9)] tracking-[0.12px] whitespace-nowrap">
+                  Trade
+                </span>
+              </button>
+              {tradeOpen && (
+                <div
+                  className="absolute top-full right-0 mt-[8px] z-30"
+                  style={{ background: '#fff', borderRadius: 8, boxShadow: '0 6px 20px rgba(0,0,0,0.04)', border: '0.5px solid rgba(0,0,0,0.2)' }}
+                >
+                  <StrategyBindPanel onNavigate={onNavigate} />
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
 
-        {/* Hover 浮层：PlaybookHeader — 挂在 topbar 根级，top-full = 56px */}
+        {/* Share modal */}
+        <PlaybookShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} playbookName={title} onNavigate={onNavigate} />
+
+        {/* Hover 浮层：PlaybookHeader */}
         {headerOpen && (
           <div
             className="absolute top-full left-0 pt-[4px]"
@@ -261,44 +348,12 @@ export function PlaybookTopbar({
             onMouseEnter={openHeader}
             onMouseLeave={closeHeader}
           >
-            <div style={{ borderRadius: 6, boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+            <div style={{ borderRadius: 6, boxShadow: '0 6px 20px rgba(0,0,0,0.04)', border: '0.5px solid rgba(0,0,0,0.2)' }}>
               <PlaybookHeader author={author} pulse={pulse} description={description} builtOn={builtOn} onAuthorClick={onAuthorClick} />
             </div>
           </div>
         )}
       </div>
-
-      {/* Star toast — 星标成功提示 + Trade CTA */}
-      <style>{`@keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
-      {toastVisible && (
-        <div
-          className="fixed top-[16px] left-1/2 -translate-x-1/2 flex items-center gap-[14px] px-[20px] py-[12px] rounded-[8px] z-50"
-          style={{
-            background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-            animation: 'toast-in 0.25s ease-out',
-          }}
-        >
-          <span style={{ fontSize: 16 }}>⭐</span>
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', fontFamily: "'Delight', sans-serif", lineHeight: '20px' }}>
-            Starred! Bind it to your broker to start live trading.
-          </span>
-          <button
-            onClick={() => { setToastVisible(false); setTradeOpen(true); }}
-            className="shrink-0 transition-opacity hover:opacity-90"
-            style={{
-              background: '#49a3a6', color: '#fff', border: 'none',
-              padding: '5px 14px', borderRadius: 5, fontSize: 12, fontWeight: 500,
-              cursor: 'pointer', fontFamily: "'Delight', sans-serif",
-            }}
-          >Trade</button>
-          <button
-            onClick={() => setToastVisible(false)}
-            className="shrink-0 transition-opacity hover:opacity-70"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'rgba(255,255,255,0.4)', fontSize: 14, lineHeight: 1 }}
-          >✕</button>
-        </div>
-      )}
 
     </>
   );

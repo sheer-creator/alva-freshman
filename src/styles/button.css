@@ -1,0 +1,99 @@
+/* Alva Design System — Button Component */
+.btn {
+  border: none;
+  outline: none;
+  background: none;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Delight", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.btn-primary {
+  background-color: var(--main-m1);
+  color: var(--b-common-white);
+}
+.btn-primary:hover:not(.btn-disabled) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1));
+}
+.btn-primary:active:not(.btn-disabled) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+}
+.btn-primary.btn-disabled {
+  background-color: var(--b0-container);
+  color: var(--text-n2);
+  cursor: not-allowed;
+  border: 0.5px solid var(--line-l3);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-n9);
+  border: 0.5px solid var(--line-l3);
+}
+.btn-secondary:hover:not(.btn-disabled) {
+  border-color: var(--text-n9);
+}
+.btn-secondary:active:not(.btn-disabled) {
+  border-color: var(--line-l3);
+  background-color: var(--b-r02);
+}
+.btn-secondary.btn-disabled {
+  color: var(--text-n2);
+  border-color: var(--line-l3);
+  cursor: not-allowed;
+}
+
+.btn-large {
+  height: 48px;
+  padding: 11px var(--spacing-l);
+  gap: var(--spacing-xs);
+  border-radius: var(--radius-btn-m);
+  font-size: 16px;
+  line-height: 26px;
+  letter-spacing: 0.16px;
+}
+.btn-medium {
+  height: 40px;
+  padding: 9px var(--spacing-l);
+  gap: var(--spacing-xs);
+  border-radius: var(--radius-btn-m);
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.14px;
+}
+.btn-small {
+  height: 32px;
+  padding: 6px var(--spacing-m);
+  gap: 6px;
+  border-radius: var(--radius-btn-s);
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.12px;
+}
+.btn-extra-small {
+  height: 28px;
+  padding: var(--spacing-xxs) var(--spacing-s);
+  gap: var(--spacing-xxs);
+  border-radius: var(--radius-btn-s);
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.12px;
+}
+
+.btn-disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}

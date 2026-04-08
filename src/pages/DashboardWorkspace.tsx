@@ -1,13 +1,7 @@
 /**
  * [INPUT]: AppShell, Topbar, Widget 组件
- * [OUTPUT]: Workspace 看板（合并 Dashboard Playbook + Dashboard Workspace 全部 Widgets）
+ * [OUTPUT]: Workspace 看板
  * [POS]: 页面层 — Workspace
- *
- * 布局（自上而下）：
- *   Row 1: NVDAEarningsWidget | NVDAEarningsDetailWidget（1:1，等高填充）
- *   Row 2: FigmaWatchlistWidget（全宽）
- *   Row 3: MarkdownWidget | NVDATechAnalysisWidget（1:1）
- *   Row 4: NVDAGoogleTrendWidget | NVDAPriceVsSPYWidget（1:1）
  */
 
 import { useState } from 'react';
@@ -15,27 +9,16 @@ import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
-import { ChatPanel } from '@/app/components/community/ChatPanel';
 import { MOCK_WORKSPACE } from '@/data/community-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
-import { MarkdownWidget } from '@/widgets/MarkdownWidget';
-import { NVDATechAnalysisWidget } from '@/widgets/NVDATechAnalysisWidget';
-import { NVDAGoogleTrendWidget } from '@/widgets/NVDAGoogleTrendWidget';
-import { NVDAPriceVsSPYWidget } from '@/widgets/NVDAPriceVsSPYWidget';
-import { NVDAEarningsWidget } from '@/widgets/NVDAEarningsWidget';
-import { NVDAEarningsDetailWidget } from '@/widgets/NVDAEarningsDetailWidget';
 
 /* ========== 页面 ========== */
 
 export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [discussionOpen, setDiscussionOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
 
   const toggleDiscussion = () => {
-    setDiscussionOpen(v => { if (!v) setChatOpen(false); return !v; });
-  };
-  const toggleChat = () => {
-    setChatOpen(v => { if (!v) setDiscussionOpen(false); return !v; });
+    setDiscussionOpen(v => !v);
   };
 
   return (
@@ -47,13 +30,10 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
           <PlaybookTopbar
             title={MOCK_WORKSPACE.name}
             stats={MOCK_WORKSPACE.stats}
-
             lineage={MOCK_WORKSPACE.lineage}
             comments={MOCK_WORKSPACE.discussion}
             discussionOpen={discussionOpen}
             onToggleDiscussion={toggleDiscussion}
-            chatOpen={chatOpen}
-            onToggleChat={toggleChat}
             author={MOCK_WORKSPACE.author}
             pulse={MOCK_WORKSPACE.pulse}
             description={MOCK_WORKSPACE.description}
@@ -62,40 +42,7 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
             onNavigate={onNavigate}
           />
           <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full">
-
-            {/* Row 1: NVDA Quarterly Earnings | Q4 FY25 Detail（1:1，等高填充） */}
-            <div className="content-stretch flex gap-[24px] items-stretch relative shrink-0 w-full">
-              <div className="flex-[1_0_0] min-w-0 flex flex-col">
-                <NVDAEarningsWidget />
-              </div>
-              <div className="flex-[1_0_0] min-w-0 flex flex-col">
-                <NVDAEarningsDetailWidget />
-              </div>
-            </div>
-
-            {/* Row 2: Figma Watchlist（全宽，来自 Dashboard Playbook） */}
             <FigmaWatchlistWidget />
-
-            {/* Row 3: Markdown | Tech Analysis（来自 Dashboard Workspace） */}
-            <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
-              <div className="flex-[1_0_0] min-w-0">
-                <MarkdownWidget />
-              </div>
-              <div className="flex-[1_0_0] min-w-0">
-                <NVDATechAnalysisWidget />
-              </div>
-            </div>
-
-            {/* Row 4: Google Trend | Price vs SPY（来自 Dashboard Workspace） */}
-            <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
-              <div className="flex-[1_0_0] min-w-0">
-                <NVDAGoogleTrendWidget />
-              </div>
-              <div className="flex-[1_0_0] min-w-0">
-                <NVDAPriceVsSPYWidget />
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
@@ -105,10 +52,6 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
           onClose={() => setDiscussionOpen(false)}
           comments={MOCK_WORKSPACE.discussion}
           agentTake={MOCK_WORKSPACE.agentTake}
-        />
-        <ChatPanel
-          open={chatOpen}
-          onClose={() => setChatOpen(false)}
         />
       </div>
     </AppShell>

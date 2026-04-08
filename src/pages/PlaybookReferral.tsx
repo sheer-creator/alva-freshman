@@ -1,11 +1,11 @@
 /**
- * [INPUT]: DashboardTSLAOverview (background) + referral data (modal)
+ * [INPUT]: Dashboard (background) + referral data (modal)
  * [OUTPUT]: Guest playbook view — 真实 playbook 背景 + 注册弹窗
  * [POS]: Pages 层 — 被邀请人通过 playbook 分享链接进入
  */
 
 import type { Page } from '@/app/App';
-import { DashboardTSLAOverview } from '@/pages/DashboardTSLAOverview';
+import Dashboard from '@/pages/Dashboard';
 import { REFERRAL_DATA } from '@/data/referral-mock';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
 
@@ -42,7 +42,7 @@ export default function PlaybookReferral({ onNavigate }: { onNavigate: (page: Pa
 
       {/* 背景 — 真实 TSLA Playbook 页面 */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
-        <DashboardTSLAOverview onNavigate={() => {}} />
+        <Dashboard onNavigate={() => {}} />
       </div>
 
       {/* 遮罩 */}

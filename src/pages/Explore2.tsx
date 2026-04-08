@@ -767,7 +767,7 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
                 gap: 24,
                 width: '100%',
                 maxWidth: 1600,

@@ -1,39 +1,24 @@
 /**
  * [INPUT]: AppShell, Topbar, BottomToolbar, Figma Widget + real Widget 组件
- * [OUTPUT]: 主看板页面（Figma 静态内容 + NVDA 实时图表）
+ * [OUTPUT]: 主看板页面
  * [POS]: 页面层 — Dashboard Playbook
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
-import { ChatPanel } from '@/app/components/community/ChatPanel';
 import { MOCK_CUSTOM_LAYOUT } from '@/data/community-mock';
-import { getChatPanelOpen } from '@/data/alva-chat-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
-import { NVDAGoogleTrendWidget } from '@/widgets/NVDAGoogleTrendWidget';
 
 /* ========== 页面 ========== */
 
 export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [discussionOpen, setDiscussionOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
-
-  /* 从 Chat 页 Release 过来时自动打开 ChatPanel */
-  useEffect(() => {
-    if (getChatPanelOpen()) {
-      setChatOpen(true);
-      setDiscussionOpen(false);
-    }
-  }, []);
 
   const toggleDiscussion = () => {
-    setDiscussionOpen(v => { if (!v) setChatOpen(false); return !v; });
-  };
-  const toggleChat = () => {
-    setChatOpen(v => { if (!v) setDiscussionOpen(false); return !v; });
+    setDiscussionOpen(v => !v);
   };
 
   return (
@@ -45,13 +30,10 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
           <PlaybookTopbar
             title={MOCK_CUSTOM_LAYOUT.name}
             stats={MOCK_CUSTOM_LAYOUT.stats}
-
             lineage={MOCK_CUSTOM_LAYOUT.lineage}
             comments={MOCK_CUSTOM_LAYOUT.discussion}
             discussionOpen={discussionOpen}
             onToggleDiscussion={toggleDiscussion}
-            chatOpen={chatOpen}
-            onToggleChat={toggleChat}
             author={MOCK_CUSTOM_LAYOUT.author}
             pulse={MOCK_CUSTOM_LAYOUT.pulse}
             description={MOCK_CUSTOM_LAYOUT.description}
@@ -61,9 +43,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
           />
           <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full">
             <FigmaWatchlistWidget />
-            <div className="content-stretch flex gap-[24px] items-start relative shrink-0 w-full">
-              <NVDAGoogleTrendWidget />
-            </div>
           </div>
         </div>
       </div>
@@ -73,11 +52,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (page: Page) => 
           onClose={() => setDiscussionOpen(false)}
           comments={MOCK_CUSTOM_LAYOUT.discussion}
           agentTake={MOCK_CUSTOM_LAYOUT.agentTake}
-        />
-        <ChatPanel
-          open={chatOpen}
-          onClose={() => setChatOpen(false)}
-          onNavigate={onNavigate}
         />
       </div>
     </AppShell>

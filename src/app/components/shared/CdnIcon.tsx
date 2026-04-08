@@ -1,7 +1,7 @@
 const CDN = 'https://alva-ai-static.b-cdn.net/icons';
 
 export function CdnIcon({ name, size = 16, color }: { name: string; size?: number; color?: string }) {
-  const url = `${CDN}/${name}.svg`;
+  const url = name.startsWith('/') || name.startsWith('http') ? name : `${CDN}/${name}.svg`;
   if (color) {
     return (
       <div
