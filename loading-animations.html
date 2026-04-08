@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alva Loading Animation Concepts</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #f6f6f6;
+    color: rgba(0,0,0,0.9);
+    padding: 60px 40px;
+  }
+  h1 { font-size: 32px; font-weight: 700; }
+  .subtitle { font-size: 15px; color: rgba(0,0,0,0.4); margin-top: 8px; }
+  .accent-line { width: 60px; height: 3px; background: #49A3A6; border-radius: 2px; margin: 20px 0 40px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+    max-width: 1200px;
+  }
+
+  .concept {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px;
+    border: 1.5px solid rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .concept h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; text-align: center; }
+  .concept .desc { font-size: 12px; color: rgba(0,0,0,0.4); margin-bottom: 28px; text-align: center; }
+  .concept .specs { font-size: 11px; color: rgba(0,0,0,0.3); margin-top: 28px; text-align: center; line-height: 1.6; }
+
+  /* ========== Icon base ========== */
+  .icon {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 64px; height: 64px;
+  }
+  .piece {
+    width: 29px; height: 29px;
+    border-radius: 6px;
+    will-change: transform, opacity;
+  }
+  .piece.tl {
+    background: #49A3A6;
+    -webkit-mask-image: radial-gradient(circle 10px at 100% 100%, transparent 9.5px, black 10px);
+    mask-image: radial-gradient(circle 10px at 100% 100%, transparent 9.5px, black 10px);
+  }
+  .piece.tr {
+    background: #000;
+    -webkit-mask-image: radial-gradient(circle 10px at 0% 100%, transparent 9.5px, black 10px);
+    mask-image: radial-gradient(circle 10px at 0% 100%, transparent 9.5px, black 10px);
+  }
+  .piece.bl {
+    background: #49A3A6;
+    -webkit-mask-image: radial-gradient(circle 10px at 100% 0%, transparent 9.5px, black 10px);
+    mask-image: radial-gradient(circle 10px at 100% 0%, transparent 9.5px, black 10px);
+  }
+  .piece.br {
+    background: #000;
+    -webkit-mask-image: radial-gradient(circle 10px at 0% 0%, transparent 9.5px, black 10px);
+    mask-image: radial-gradient(circle 10px at 0% 0%, transparent 9.5px, black 10px);
+  }
+
+  /* ========== 01: Gentle Breath ========== */
+  .breath {
+    width: 34px !important; height: 34px !important;
+    gap: 3px !important;
+  }
+  .breath .piece {
+    width: 15px !important; height: 15px !important;
+    border-radius: 3px !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  /* Clockwise stagger: TL → TR → BR → BL */
+  .breath .tl { animation: gentle-breath 1.6s ease-in-out infinite; animation-delay: 0s; }
+  .breath .tr { animation: gentle-breath 1.6s ease-in-out infinite; animation-delay: 0.4s; }
+  .breath .br { animation: gentle-breath 1.6s ease-in-out infinite; animation-delay: 0.8s; }
+  .breath .bl { animation: gentle-breath 1.6s ease-in-out infinite; animation-delay: 1.2s; }
+  @keyframes gentle-breath {
+    0%, 100% { opacity: 0.15; }
+    30% { opacity: 0.7; }
+    60% { opacity: 0.15; }
+  }
+
+  /* ========== 02: Assembly / Scatter ========== */
+  .scatter .tl { animation: sc-tl 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .scatter .tr { animation: sc-tr 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .scatter .bl { animation: sc-bl 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .scatter .br { animation: sc-br 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  @keyframes sc-tl {
+    0%, 100% { transform: translate(-18px, -18px); opacity: 0.5; }
+    35%, 65% { transform: translate(0, 0); opacity: 1; }
+  }
+  @keyframes sc-tr {
+    0%, 100% { transform: translate(18px, -18px); opacity: 0.5; }
+    35%, 65% { transform: translate(0, 0); opacity: 1; }
+  }
+  @keyframes sc-bl {
+    0%, 100% { transform: translate(-18px, 18px); opacity: 0.5; }
+    35%, 65% { transform: translate(0, 0); opacity: 1; }
+  }
+  @keyframes sc-br {
+    0%, 100% { transform: translate(18px, 18px); opacity: 0.5; }
+    35%, 65% { transform: translate(0, 0); opacity: 1; }
+  }
+
+  /* ========== 03: Orbital Rotation ========== */
+  .orbital { animation: spin 1.5s linear infinite; }
+  .orbital .piece { animation: breathe 1.5s ease-in-out infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes breathe { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+
+  /* ========== 04: Sequential Reveal ========== */
+  .reveal .piece { opacity: 0; transform: scale(0.7); }
+  .reveal .tl { animation: rev 1.6s ease-out infinite; animation-delay: 0s; }
+  .reveal .tr { animation: rev 1.6s ease-out infinite; animation-delay: 0.15s; }
+  .reveal .bl { animation: rev 1.6s ease-out infinite; animation-delay: 0.3s; }
+  .reveal .br { animation: rev 1.6s ease-out infinite; animation-delay: 0.45s; }
+  @keyframes rev {
+    0% { opacity: 0; transform: scale(0.7); }
+    15%, 60% { opacity: 1; transform: scale(1); }
+    80%, 100% { opacity: 0; transform: scale(0.9); }
+  }
+
+  /* ========== 05: Morphing Tiles ========== */
+  .morph .tl { animation: flip-teal 1.2s ease-in-out infinite; animation-delay: 0s; }
+  .morph .tr { animation: flip-blk  1.2s ease-in-out infinite; animation-delay: 0.15s; }
+  .morph .br { animation: flip-blk  1.2s ease-in-out infinite; animation-delay: 0.3s; }
+  .morph .bl { animation: flip-teal 1.2s ease-in-out infinite; animation-delay: 0.45s; }
+  @keyframes flip-teal {
+    0%, 100% { transform: scaleX(1); background: #49A3A6; }
+    45% { transform: scaleX(0); background: #49A3A6; }
+    55% { transform: scaleX(0); background: #aad5d6; }
+    80% { transform: scaleX(1); background: #aad5d6; }
+    95% { transform: scaleX(1); background: #49A3A6; }
+  }
+  @keyframes flip-blk {
+    0%, 100% { transform: scaleX(1); background: #000; }
+    45% { transform: scaleX(0); background: #000; }
+    55% { transform: scaleX(0); background: #8c8c8c; }
+    80% { transform: scaleX(1); background: #8c8c8c; }
+    95% { transform: scaleX(1); background: #000; }
+  }
+
+  /* ========== 06: Data Stream ========== */
+  .datastream-wrap {
+    position: relative;
+    width: 64px; height: 64px;
+  }
+  .datastream-wrap .icon { position: relative; z-index: 1; }
+  .datastream .piece { opacity: 0.4; animation: ds-piece 1.2s ease-out infinite; }
+  .datastream .piece.tr, .datastream .piece.br { animation-delay: 0.1s; }
+  @keyframes ds-piece {
+    0%, 100% { opacity: 0.4; }
+    40%, 60% { opacity: 1; }
+  }
+  .glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 8px; height: 8px;
+    background: #49A3A6;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    animation: glow-pulse 1.2s ease-out infinite;
+    z-index: 2;
+  }
+  .glow::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 30px; height: 30px;
+    background: radial-gradient(circle, rgba(73,163,166,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: glow-outer 1.2s ease-out infinite;
+  }
+  @keyframes glow-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.3; }
+    30%, 50% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
+  }
+  @keyframes glow-outer {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    30%, 50% { transform: translate(-50%, -50%) scale(2.5); opacity: 1; }
+  }
+
+  /* ========== 07: Square Dotted Spinner ========== */
+  .sq-ring {
+    width: 34px; height: 34px;
+    position: relative;
+  }
+  .dot {
+    position: absolute;
+    width: 5px; height: 5px;
+    border-radius: 1px;
+    background: #49A3A6;
+    opacity: 0.1;
+    animation: dot-trail 1s linear infinite;
+  }
+  /* 12 dots along a ~34px square path */
+  .dot:nth-child(1)  { top: 0; left: 0;      animation-delay: 0s; }
+  .dot:nth-child(2)  { top: 0; left: 10px;    animation-delay: -0.917s; }
+  .dot:nth-child(3)  { top: 0; left: 19px;    animation-delay: -0.833s; }
+  .dot:nth-child(4)  { top: 0; left: 29px;    animation-delay: -0.75s; }
+  .dot:nth-child(5)  { top: 10px; left: 29px; animation-delay: -0.667s; }
+  .dot:nth-child(6)  { top: 19px; left: 29px; animation-delay: -0.583s; }
+  .dot:nth-child(7)  { top: 29px; left: 29px; animation-delay: -0.5s; }
+  .dot:nth-child(8)  { top: 29px; left: 19px; animation-delay: -0.417s; }
+  .dot:nth-child(9)  { top: 29px; left: 10px; animation-delay: -0.333s; }
+  .dot:nth-child(10) { top: 29px; left: 0;    animation-delay: -0.25s; }
+  .dot:nth-child(11) { top: 19px; left: 0;    animation-delay: -0.167s; }
+  .dot:nth-child(12) { top: 10px; left: 0;    animation-delay: -0.083s; }
+  @keyframes dot-trail {
+    0%, 100% { opacity: 1; transform: scale(1.15); }
+    50% { opacity: 0.1; transform: scale(0.85); }
+  }
+
+  /* ========== 09: Hybrid Square Trail ========== */
+  .hybrid-wrap {
+    width: 52px; height: 52px;
+    position: relative;
+  }
+  /* Corner squares: larger, alternating teal/black */
+  .hybrid-wrap .hc {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-radius: 2.5px;
+    opacity: 0.1;
+    animation: hy-trail 1.2s linear infinite;
+  }
+  .hybrid-wrap .hc.c-tl { top: 0; left: 0; background: #49A3A6; animation-delay: 0s; }
+  .hybrid-wrap .hc.c-tr { top: 0; left: 42px; background: #000; animation-delay: -0.9s; }
+  .hybrid-wrap .hc.c-br { top: 42px; left: 42px; background: #000; animation-delay: -0.6s; }
+  .hybrid-wrap .hc.c-bl { top: 42px; left: 0; background: #49A3A6; animation-delay: -0.3s; }
+  /* Edge dots: smaller, teal */
+  .hybrid-wrap .he {
+    position: absolute;
+    width: 5px; height: 5px;
+    border-radius: 1px;
+    background: #49A3A6;
+    opacity: 0.1;
+    animation: hy-trail 1.2s linear infinite;
+  }
+  .hybrid-wrap .he:nth-of-type(1) { top: 0; left: 17px; animation-delay: -1.1s; }
+  .hybrid-wrap .he:nth-of-type(2) { top: 0; left: 31px; animation-delay: -1.0s; }
+  .hybrid-wrap .he:nth-of-type(3) { top: 17px; left: 47px; animation-delay: -0.8s; }
+  .hybrid-wrap .he:nth-of-type(4) { top: 31px; left: 47px; animation-delay: -0.7s; }
+  .hybrid-wrap .he:nth-of-type(5) { top: 47px; left: 31px; animation-delay: -0.5s; }
+  .hybrid-wrap .he:nth-of-type(6) { top: 47px; left: 17px; animation-delay: -0.4s; }
+  .hybrid-wrap .he:nth-of-type(7) { top: 31px; left: 0; animation-delay: -0.2s; }
+  .hybrid-wrap .he:nth-of-type(8) { top: 17px; left: 0; animation-delay: -0.1s; }
+  /* Center: mini 2x2 Alva icon */
+  .hybrid-wrap .hcenter {
+    position: absolute;
+    top: 18px; left: 18px;
+    display: grid;
+    grid-template-columns: 7px 7px;
+    gap: 2px;
+  }
+  .hybrid-wrap .hcenter span {
+    width: 7px; height: 7px;
+    border-radius: 1.5px;
+    display: block;
+    animation: hy-center 1.2s ease-in-out infinite;
+  }
+  .hybrid-wrap .hcenter span:nth-child(1) { background: #49A3A6; }
+  .hybrid-wrap .hcenter span:nth-child(2) { background: #000; }
+  .hybrid-wrap .hcenter span:nth-child(3) { background: #49A3A6; }
+  .hybrid-wrap .hcenter span:nth-child(4) { background: #000; }
+  @keyframes hy-trail {
+    0%, 100% { opacity: 1; transform: scale(1.15); }
+    50% { opacity: 0.08; transform: scale(0.85); }
+  }
+  @keyframes hy-center {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 0.6; }
+  }
+
+  /* ========== 08: Square Grid Spinner ========== */
+  .sq-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 14px);
+    gap: 4px;
+  }
+  .sq {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    background: #49A3A6;
+    opacity: 0.12;
+    animation: sq-light 1.2s ease-in-out infinite;
+  }
+  /* Clockwise order: 0,1,2,5,8,7,6,3 → center 4 separate */
+  .sq:nth-child(1) { animation-delay: 0s; }
+  .sq:nth-child(2) { animation-delay: 0.15s; }
+  .sq:nth-child(3) { animation-delay: 0.3s; }
+  .sq:nth-child(6) { animation-delay: 0.45s; }
+  .sq:nth-child(9) { animation-delay: 0.6s; }
+  .sq:nth-child(8) { animation-delay: 0.75s; }
+  .sq:nth-child(7) { animation-delay: 0.9s; }
+  .sq:nth-child(4) { animation-delay: 1.05s; }
+  .sq:nth-child(5) { background: #000; animation: sq-center 1.2s ease-in-out infinite; }
+  @keyframes sq-light {
+    0%, 100% { opacity: 0.12; transform: scale(0.9); }
+    25% { opacity: 1; transform: scale(1.05); }
+    50% { opacity: 0.3; transform: scale(1); }
+  }
+  @keyframes sq-center {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+
+  /* ========== Badge ========== */
+  .badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 28px; height: 28px;
+    background: #49A3A6;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .concept { position: relative; }
+</style>
+</head>
+<body>
+  <h1>Alva Loading Animation Concepts</h1>
+  <p class="subtitle">6 concepts based on the Alva logo icon  ·  Brand color: #49A3A6  ·  Open in browser to preview</p>
+  <div class="accent-line"></div>
+
+  <div class="grid">
+
+    <!-- 01 Gentle Breath -->
+    <div class="concept">
+      <div class="badge">1</div>
+      <h2>Gentle Breath 微弱呼吸</h2>
+      <p class="desc">2×2 方块同步明灭，极简</p>
+      <div class="icon breath">
+        <div class="piece tl"></div>
+        <div class="piece tr"></div>
+        <div class="piece bl"></div>
+        <div class="piece br"></div>
+      </div>
+      <p class="specs">1.5s cycle · opacity 0.2→0.65 · ease-in-out<br>"Quiet, minimal, always-on"</p>
+    </div>
+
+    <!-- 02 Assembly / Scatter -->
+    <div class="concept">
+      <div class="badge">2</div>
+      <h2>Assembly / Scatter 聚散</h2>
+      <p class="desc">四块飞入组合，再散开</p>
+      <div class="icon scatter">
+        <div class="piece tl"></div>
+        <div class="piece tr"></div>
+        <div class="piece bl"></div>
+        <div class="piece br"></div>
+      </div>
+      <p class="specs">2.0s cycle · bouncy easing<br>"Loading / assembling"</p>
+    </div>
+
+    <!-- 03 Orbital Rotation -->
+    <div class="concept">
+      <div class="badge">3</div>
+      <h2>Orbital Rotation 轨道旋转</h2>
+      <p class="desc">整体绕中心旋转</p>
+      <div class="icon orbital">
+        <div class="piece tl"></div>
+        <div class="piece tr"></div>
+        <div class="piece bl"></div>
+        <div class="piece br"></div>
+      </div>
+      <p class="specs">1.5s cycle · linear · opacity breath<br>"Computing / processing"</p>
+    </div>
+
+    <!-- 04 Sequential Reveal -->
+    <div class="concept">
+      <div class="badge">4</div>
+      <h2>Sequential Reveal 依次显现</h2>
+      <p class="desc">Z 字序逐块淡入</p>
+      <div class="icon reveal">
+        <div class="piece tl"></div>
+        <div class="piece tr"></div>
+        <div class="piece bl"></div>
+        <div class="piece br"></div>
+      </div>
+      <p class="specs">1.6s cycle · ease-out · stagger 0.15s<br>"Progressive loading"</p>
+    </div>
+
+    <!-- 05 Morphing Tiles -->
+    <div class="concept">
+      <div class="badge">5</div>
+      <h2>Morphing Tiles 形变瓦片</h2>
+      <p class="desc">3D 翻牌，颜色变化</p>
+      <div class="icon morph">
+        <div class="piece tl"></div>
+        <div class="piece tr"></div>
+        <div class="piece bl"></div>
+        <div class="piece br"></div>
+      </div>
+      <p class="specs">1.2s cycle · ease-in-out · stagger 0.15s<br>"Refreshing / updating"</p>
+    </div>
+
+    <!-- 06 Data Stream -->
+    <div class="concept">
+      <div class="badge">6</div>
+      <h2>Data Stream 数据流</h2>
+      <p class="desc">中心辉光脉冲扩散</p>
+      <div class="datastream-wrap">
+        <div class="icon datastream">
+          <div class="piece tl"></div>
+          <div class="piece tr"></div>
+          <div class="piece bl"></div>
+          <div class="piece br"></div>
+        </div>
+        <div class="glow"></div>
+      </div>
+      <p class="specs">1.2s cycle · ease-out · radial glow<br>"Data flowing / syncing"</p>
+    </div>
+
+    <!-- 07 Square Dotted Spinner -->
+    <div class="concept">
+      <div class="badge">7</div>
+      <h2>Square Dots 方点旋转</h2>
+      <p class="desc">方形轮廓上的点依次亮起</p>
+      <div class="sq-ring">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <p class="specs">1.0s cycle · linear · square path trail<br>"Clean, geometric spinner"</p>
+    </div>
+
+    <!-- 08 Square Grid Spinner -->
+    <div class="concept">
+      <div class="badge">8</div>
+      <h2>Square Grid 方块旋转</h2>
+      <p class="desc">3×3 方块顺时针依次亮起</p>
+      <div class="sq-grid">
+        <div class="sq"></div><div class="sq"></div><div class="sq"></div>
+        <div class="sq"></div><div class="sq"></div><div class="sq"></div>
+        <div class="sq"></div><div class="sq"></div><div class="sq"></div>
+      </div>
+      <p class="specs">1.2s cycle · ease-in-out · clockwise<br>"Grid processing / pixel loading"</p>
+    </div>
+
+    <!-- 09 Hybrid Square Trail -->
+    <div class="concept">
+      <div class="badge">9</div>
+      <h2>Hybrid Trail 方阵拖尾</h2>
+      <p class="desc">方形轨道 + 角落大方块 + 中心迷你 icon</p>
+      <div class="hybrid-wrap">
+        <div class="hc c-tl"></div>
+        <div class="he"></div><div class="he"></div>
+        <div class="hc c-tr"></div>
+        <div class="he"></div><div class="he"></div>
+        <div class="hc c-br"></div>
+        <div class="he"></div><div class="he"></div>
+        <div class="hc c-bl"></div>
+        <div class="he"></div><div class="he"></div>
+        <div class="hcenter">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <p class="specs">1.2s cycle · corners: teal/black · center: mini Alva icon<br>"Brand-aware geometric loader"</p>
+    </div>
+
+  </div>
+</body>
+</html>
