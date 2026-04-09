@@ -1,4 +1,4 @@
-import{r as k,j as e}from"./index-Db_bLp23.js";import{A as Y,U as $}from"./AppShell-dLmCdZOX.js";import"./referral-mock-DtlbH3Ej.js";const J=`
+import{r as k,j as e}from"./index-Dk0wULUc.js";import{A as Y,U as $}from"./AppShell-BMDlpoEQ.js";import"./referral-mock-DtlbH3Ej.js";const J=`
 .skill-modal-scroll ::-webkit-scrollbar { width: 4px; height: 4px; }
 .skill-modal-scroll ::-webkit-scrollbar-track { background: transparent; }
 .skill-modal-scroll ::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; }
