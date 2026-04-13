@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "docs" | "api-keys" | "explore-2" | "library" | "dashboard" | "workspace" | "agent" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | `thread/${string}`;
+export type Page = "home" | "docs" | "api-keys" | "explore-2" | "library" | "dashboard" | "workspace" | "agent" | "alva-agent" | "skills" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
@@ -15,6 +15,8 @@ const Skills = lazy(() => import("@/pages/Skills"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
 
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
+const Account = lazy(() => import("@/pages/Account"));
+const AlvaAgentSettings = lazy(() => import("@/pages/AlvaAgentSettings"));
 const Portfolio = lazy(() => import("@/pages/Portfolio"));
 const PortfolioSettings = lazy(() => import("@/pages/PortfolioSettings"));
 const Explore2 = lazy(() => import("@/pages/Explore2"));
@@ -29,7 +31,7 @@ const Thread = lazy(() => import("@/pages/Thread"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore-2", "library", "dashboard", "workspace", "agent", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail", "referral-landing", "playbook-referral"];
+const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore-2", "library", "dashboard", "workspace", "agent", "alva-agent", "skills", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail", "referral-landing", "playbook-referral"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -44,14 +46,31 @@ export function getThreadId(page: Page): string | null {
 
 /* ========== App ========== */
 
+const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alva-agent", "api-keys"];
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [, startTransition] = useTransition();
 
-  // 监听浏览器前进/后退
+  // 监听浏览器前进/后退 + 记录进入 settings 前的 page
   useEffect(() => {
-    const onHashChange = () => startTransition(() => setCurrentPage(getPageFromHash()));
+    // 初次进入：若当前非 settings，立即记为 returnPage
+    const init = getPageFromHash();
+    if (!SETTINGS_PAGES.includes(init)) {
+      sessionStorage.setItem('settingsReturnPage', init);
+    }
+
+    let prev = init;
+    const onHashChange = () => {
+      const next = getPageFromHash();
+      // 离开 settings 前/切换中：只要上一个页面不是 settings，就更新 returnPage
+      if (!SETTINGS_PAGES.includes(prev)) {
+        sessionStorage.setItem('settingsReturnPage', prev);
+      }
+      prev = next;
+      startTransition(() => setCurrentPage(next));
+    };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
@@ -79,6 +98,8 @@ export default function App() {
         {currentPage === "workspace" && <DashboardWorkspace onNavigate={navigate} />}
         {currentPage === "agent" && <Agent onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
+        {currentPage === "account" && <Account onNavigate={navigate} />}
+        {currentPage === "alva-agent" && <AlvaAgentSettings onNavigate={navigate} />}
         {currentPage === "portfolio" && <Portfolio onNavigate={navigate} />}
         {currentPage === "portfolio-settings" && <PortfolioSettings onNavigate={navigate} />}
         {currentPage === "pricing" && <Pricing onNavigate={navigate} />}

@@ -1,270 +1,181 @@
+/**
+ * [INPUT]: SettingsLayout
+ * [OUTPUT]: API Key 页 — Alva API Keys / Secrets Vault / Quick Start
+ * [POS]: 页面层
+ */
+
 import { useState } from 'react';
 import type { Page } from '@/app/App';
-import UserInfo from '@/app/components/UserInfo';
-import { AppShell } from '@/app/components/shell/AppShell';
+import { SettingsLayout } from '@/app/components/shell/SettingsLayout';
+import { CdnIcon } from '@/app/components/shared/CdnIcon';
 
-type ApiKeyItem = {
-  id: string;
-  name: string;
-  value: string;
-  revealed: boolean;
-};
+const FONT = "'Delight', sans-serif";
 
-const INITIAL_KEYS: ApiKeyItem[] = [
-  {
-    id: 'oa-1',
-    name: 'oa-1',
-    value: 'alva_2dr7qx9v4m0s8k6n1w5p3c7j9r2h4t6x779a',
-    revealed: false,
-  },
+type KeyItem = { id: string; name: string; value: string };
+
+const INITIAL_KEYS: KeyItem[] = [
+  { id: 'k1', name: 'Open Claw Key',     value: 'lh_sk_69abcdef012345678901abcdef2df9' },
+  { id: 'k2', name: 'Claude Key',        value: 'lh_sk_69zzzzzzzzzzzzzzzzzzzzzzzz2df9' },
+  { id: 'k3', name: 'Gemini Private Key', value: 'lh_sk_69yyyyyyyyyyyyyyyyyyyyyyyy2df9' },
 ];
 
-function maskApiKey(value: string) {
-  if (value.length <= 10) {
-    return value;
-  }
+const INITIAL_VAULT: KeyItem[] = [
+  { id: 'v1', name: 'Sheer Test', value: 'lh_sk_69xxxxxxxxxxxxxxxxxxxxxxxx2df9' },
+];
 
-  return `${value.slice(0, 6)}${'*'.repeat(value.length - 10)}${value.slice(-4)}`;
+function maskKey(value: string) {
+  if (value.length <= 10) return value;
+  return `${value.slice(0, 6)}${'*'.repeat(Math.max(0, value.length - 10))}${value.slice(-4)}`;
 }
 
-function buildMockApiKey(index: number): ApiKeyItem {
-  const seed = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 18)}`;
-  return {
-    id: `oa-${Date.now()}`,
-    name: `oa-${index}`,
-    value: `alva_2${seed.slice(0, 28)}${seed.slice(-4)}`,
-    revealed: true,
+/* ========== Key Row ========== */
+
+function KeyRow({ item, onRename, onDelete }: { item: KeyItem; onRename: (id: string) => void; onDelete: (id: string) => void }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(item.value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
-}
 
-function ActionButton({
-  title,
-  onClick,
-  children,
-}: {
-  title: string;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
   return (
-    <button
-      type="button"
-      title={title}
-      onClick={onClick}
-      className="flex size-[40px] items-center justify-center rounded-[12px] text-[rgba(0,0,0,0.58)] transition-colors hover:bg-white hover:text-[rgba(0,0,0,0.88)]"
-    >
-      {children}
-    </button>
-  );
-}
-
-function EditIcon() {
-  return (
-    <svg fill="none" height="18" viewBox="0 0 18 18" width="18">
-      <path d="M3.75 12.75L3 15L5.25 14.25L13.875 5.625L12.375 4.125L3.75 12.75Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" />
-      <path d="M11.625 4.875L13.125 6.375" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" />
-    </svg>
-  );
-}
-
-function EyeIcon() {
-  return (
-    <svg fill="none" height="18" viewBox="0 0 18 18" width="18">
-      <path d="M1.5 9C2.7 6 5.4 4.125 9 4.125C12.6 4.125 15.3 6 16.5 9C15.3 12 12.6 13.875 9 13.875C5.4 13.875 2.7 12 1.5 9Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" />
-      <circle cx="9" cy="9" r="2.25" stroke="currentColor" strokeWidth="1.4" />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg fill="none" height="18" viewBox="0 0 18 18" width="18">
-      <path d="M3.75 5.25H14.25" stroke="currentColor" strokeLinecap="round" strokeWidth="1.4" />
-      <path d="M6.75 2.99988H11.25" stroke="currentColor" strokeLinecap="round" strokeWidth="1.4" />
-      <path d="M5.25 5.25V13.125C5.25 13.9534 5.92157 14.625 6.75 14.625H11.25C12.0784 14.625 12.75 13.9534 12.75 13.125V5.25" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" />
-      <path d="M7.5 7.875V11.625" stroke="currentColor" strokeLinecap="round" strokeWidth="1.4" />
-      <path d="M10.5 7.875V11.625" stroke="currentColor" strokeLinecap="round" strokeWidth="1.4" />
-    </svg>
-  );
-}
-
-function ApiKeyRow({
-  item,
-  onRename,
-  onToggleReveal,
-  onDelete,
-}: {
-  item: ApiKeyItem;
-  onRename: () => void;
-  onToggleReveal: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <div className="rounded-[28px] bg-[#f6f6f2] px-[28px] py-[24px]">
-      <div className="flex flex-col gap-[16px] lg:flex-row lg:items-center lg:justify-between">
-        <div className="min-w-0">
-          <p className="font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px] text-[rgba(0,0,0,0.92)]">
-            {item.name}
-          </p>
-          <p className="mt-[14px] overflow-x-auto font-mono text-[16px] leading-[28px] tracking-[0.16px] text-[rgba(0,0,0,0.46)]">
-            {item.revealed ? item.value : maskApiKey(item.value)}
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-[6px] self-end lg:self-auto">
-          <ActionButton title="Rename key" onClick={onRename}>
-            <EditIcon />
-          </ActionButton>
-          <ActionButton title={item.revealed ? 'Hide key' : 'Reveal key'} onClick={onToggleReveal}>
-            <EyeIcon />
-          </ActionButton>
-          <ActionButton title="Delete key" onClick={onDelete}>
-            <TrashIcon />
-          </ActionButton>
+    <div className="flex items-center gap-[16px] px-[20px] py-[16px] rounded-[8px]" style={{ background: 'rgba(0,0,0,0.02)' }}>
+      <div className="flex-1 min-w-0">
+        <p className="text-[14px] leading-[22px] font-medium" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>{item.name}</p>
+        <div className="flex items-center gap-[8px] mt-[2px]">
+          <code className="text-[12px] leading-[20px] font-mono" style={{ color: 'rgba(0,0,0,0.5)' }}>{maskKey(item.value)}</code>
+          <button onClick={handleCopy} className="cursor-pointer" style={{ background: 'none', border: 'none', padding: 0 }} title="Copy">
+            <CdnIcon name="copy-l" size={14} color={copied ? '#49a3a6' : 'rgba(0,0,0,0.5)'} />
+          </button>
         </div>
       </div>
+      <button onClick={() => onRename(item.id)} className="w-[32px] h-[32px] flex items-center justify-center rounded-[6px] cursor-pointer transition-colors hover:bg-[rgba(0,0,0,0.04)]" style={{ background: 'none', border: 'none' }} title="Rename">
+        <CdnIcon name="edit-l1" size={16} color="rgba(0,0,0,0.7)" />
+      </button>
+      <button onClick={() => onDelete(item.id)} className="w-[32px] h-[32px] flex items-center justify-center rounded-[6px] cursor-pointer transition-colors hover:bg-[rgba(0,0,0,0.04)]" style={{ background: 'none', border: 'none' }} title="Delete">
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+          <path d="M3.75 5.25H14.25" stroke="rgba(0,0,0,0.7)" strokeLinecap="round" strokeWidth="1.4" />
+          <path d="M6.75 2.99988H11.25" stroke="rgba(0,0,0,0.7)" strokeLinecap="round" strokeWidth="1.4" />
+          <path d="M5.25 5.25V13.125C5.25 13.9534 5.92157 14.625 6.75 14.625H11.25C12.0784 14.625 12.75 13.9534 12.75 13.125V5.25" stroke="rgba(0,0,0,0.7)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" />
+        </svg>
+      </button>
     </div>
   );
 }
 
-function SetupChecklist() {
+/* ========== Section Header ========== */
+
+function SectionHeader({ title, subtitle, right }: { title: string; subtitle?: string; right?: React.ReactNode }) {
   return (
-    <div className="rounded-[24px] border border-[rgba(0,0,0,0.08)] bg-white px-[20px] py-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-      <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.48px] text-[#49a3a6]">
-        Agent setup
-      </p>
-      <div className="mt-[12px] flex flex-col gap-[10px]">
-        <p className="font-['Delight',sans-serif] text-[15px] leading-[24px] tracking-[0.15px] text-[rgba(0,0,0,0.9)]">
-          1. Install `@alva/open-alva-skill`
-        </p>
-        <p className="font-['Delight',sans-serif] text-[15px] leading-[24px] tracking-[0.15px] text-[rgba(0,0,0,0.9)]">
-          2. Create an Alva API key here
-        </p>
-        <p className="font-['Delight',sans-serif] text-[15px] leading-[24px] tracking-[0.15px] text-[rgba(0,0,0,0.9)]">
-          3. Inject it as `ALVA_API_KEY` in your agent runtime
-        </p>
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>{title}</p>
+        {subtitle && <p className="text-[12px] leading-[20px] tracking-[0.12px] mt-[2px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>{subtitle}</p>}
       </div>
+      {right}
     </div>
   );
 }
 
-export default function ApiKeys({ onNavigate, onOpenSearch }: { onNavigate: (page: Page) => void; onOpenSearch?: () => void }) {
-  const [keys, setKeys] = useState<ApiKeyItem[]>(INITIAL_KEYS);
-  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
+/* ========== Page ========== */
 
-  const handleCreateKey = () => {
-    setKeys((current) => [buildMockApiKey(current.length + 1), ...current]);
+export default function ApiKeys({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [keys, setKeys] = useState<KeyItem[]>(INITIAL_KEYS);
+  const [vault, setVault] = useState<KeyItem[]>(INITIAL_VAULT);
+
+  const createKey = () => {
+    const n = keys.length + 1;
+    setKeys(prev => [{ id: `k${Date.now()}`, name: `New Key ${n}`, value: `lh_sk_69${Math.random().toString(36).slice(2, 30)}2df9` }, ...prev]);
   };
 
-  const handleRenameKey = (id: string) => {
-    const currentKey = keys.find((key) => key.id === id);
-    if (!currentKey) {
-      return;
-    }
-
-    const nextName = window.prompt('Rename API key', currentKey.name)?.trim();
-    if (!nextName) {
-      return;
-    }
-
-    setKeys((current) =>
-      current.map((key) => (key.id === id ? { ...key, name: nextName } : key)),
-    );
+  const renameKey = (setter: typeof setKeys) => (id: string) => {
+    setter(prev => {
+      const cur = prev.find(k => k.id === id);
+      if (!cur) return prev;
+      const next = window.prompt('Rename', cur.name)?.trim();
+      if (!next) return prev;
+      return prev.map(k => (k.id === id ? { ...k, name: next } : k));
+    });
   };
 
-  const handleToggleReveal = (id: string) => {
-    setKeys((current) =>
-      current.map((key) =>
-        key.id === id ? { ...key, revealed: !key.revealed } : key,
-      ),
-    );
+  const deleteKey = (setter: typeof setKeys) => (id: string) => {
+    setter(prev => {
+      const cur = prev.find(k => k.id === id);
+      if (!cur || !window.confirm(`Delete ${cur.name}?`)) return prev;
+      return prev.filter(k => k.id !== id);
+    });
   };
-
-  const handleDeleteKey = (id: string) => {
-    const currentKey = keys.find((key) => key.id === id);
-    if (!currentKey || !window.confirm(`Delete ${currentKey.name}?`)) {
-      return;
-    }
-
-    setKeys((current) => current.filter((key) => key.id !== id));
-  };
-
-  const activeKeyValue = keys[0]?.value ?? 'alva_your_key_here';
 
   return (
-    <>
-      <AppShell
-        activePage="api-keys"
-        onNavigate={onNavigate}
-        onOpenSearch={onOpenSearch}
-        onUserMouseEnter={() => setIsUserInfoOpen(true)}
-        onUserMouseLeave={() => setIsUserInfoOpen(false)}
-      >
-        <div className="min-h-full bg-[#f6f6f2]">
-          <div className="mx-auto w-full max-w-[1440px] px-[28px] py-[36px]">
-            <div className="rounded-[32px] border border-[rgba(0,0,0,0.08)] bg-white px-[28px] py-[28px] shadow-[0_18px_40px_rgba(0,0,0,0.05)]">
-              <div className="flex flex-col gap-[20px] lg:flex-row lg:items-start lg:justify-between">
-                <div className="max-w-[780px]">
-                  <p className="font-['Delight',sans-serif] text-[40px] leading-[52px] tracking-[0.4px] text-[rgba(0,0,0,0.92)]">
-                    API Keys & Agent Skills
-                  </p>
-                  <p className="mt-[10px] font-['Delight',sans-serif] text-[17px] leading-[28px] tracking-[0.17px] text-[rgba(0,0,0,0.58)]">
-                    Your Alva API key is the authentication core for third-party agents using the Open Alva skill.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCreateKey}
-                  className="inline-flex h-[56px] shrink-0 items-center justify-center rounded-[14px] bg-[#49a3a6] px-[24px] font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-white transition-colors hover:bg-[#3f8f92]"
-                >
-                  Create New Key
-                </button>
-              </div>
+    <SettingsLayout active="api-keys" onNavigate={onNavigate}>
 
-              <div className="mt-[28px] flex flex-col gap-[16px]">
-                {keys.map((key) => (
-                  <ApiKeyRow
-                    key={key.id}
-                    item={key}
-                    onRename={() => handleRenameKey(key.id)}
-                    onToggleReveal={() => handleToggleReveal(key.id)}
-                    onDelete={() => handleDeleteKey(key.id)}
-                  />
-                ))}
-              </div>
+      <h1 className="text-[28px] leading-[38px] tracking-[0.28px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT, fontWeight: 400 }}>API Key</h1>
 
-              <div className="mt-[20px] grid gap-[16px] xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.8fr)]">
-                <div className="rounded-[24px] bg-[#f6f6f2] px-[20px] py-[20px]">
-                  <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.48px] text-[#49a3a6]">
-                    Skill authentication
-                  </p>
-                  <p className="mt-[8px] font-['Delight',sans-serif] text-[16px] leading-[28px] tracking-[0.16px] text-[rgba(0,0,0,0.9)]">
-                    Inject your key into the runtime environment of Claude Code, Cursor, Windsurf, or your own agent host.
-                  </p>
-                  <div className="mt-[16px] rounded-[20px] bg-[#111214] px-[18px] py-[16px] shadow-[0_18px_40px_rgba(0,0,0,0.14)]">
-                    <code className="block overflow-x-auto whitespace-nowrap font-mono text-[14px] leading-[22px] tracking-[0.14px] text-white">
-                      export ALVA_API_KEY="{activeKeyValue}"
-                    </code>
-                  </div>
-                </div>
-                <SetupChecklist />
-              </div>
+      {/* Alva API Keys */}
+      <SectionHeader
+        title="Alva API Keys"
+        subtitle="Let your agents use Alva Skill to build Playbooks."
+        right={
+          <button
+            onClick={createKey}
+            className="flex items-center gap-[4px] h-[28px] px-[12px] rounded-[6px] text-[12px] font-medium cursor-pointer"
+            style={{ color: '#fff', background: '#49a3a6', border: 'none', fontFamily: FONT }}
+          >
+            <span className="text-[14px] leading-none">+</span>
+            Create
+          </button>
+        }
+      />
+      <div className="flex flex-col gap-[8px] -mt-[12px]">
+        {keys.map(k => (
+          <KeyRow key={k.id} item={k} onRename={renameKey(setKeys)} onDelete={deleteKey(setKeys)} />
+        ))}
+      </div>
 
-              <p className="mt-[14px] font-['Delight',sans-serif] text-[13px] leading-[22px] tracking-[0.13px] text-[rgba(0,0,0,0.4)]">
-                Mock UI for now. Create, rename, reveal, and delete actions are local only until the real API is wired.
-              </p>
+      {/* Secrets Vault */}
+      <SectionHeader
+        title="Secrets Vault"
+        subtitle="Store third-party API keys for use in your Playbooks — no hardcoding needed."
+        right={
+          <button
+            className="flex items-center gap-[4px] h-[28px] px-[12px] rounded-[6px] text-[12px] font-medium cursor-pointer"
+            style={{ color: '#fff', background: '#49a3a6', border: 'none', fontFamily: FONT }}
+            onClick={() => setVault(prev => [...prev, { id: `v${Date.now()}`, name: 'New Secret', value: `lh_sk_69${Math.random().toString(36).slice(2, 30)}2df9` }])}
+          >
+            <CdnIcon name="upload-l" size={12} color="#fff" />
+            Upload
+          </button>
+        }
+      />
+      <div className="flex flex-col gap-[8px] -mt-[12px]">
+        {vault.map(k => (
+          <KeyRow key={k.id} item={k} onRename={renameKey(setVault)} onDelete={deleteKey(setVault)} />
+        ))}
+      </div>
+
+      {/* Quick Start */}
+      <div className="rounded-[12px] p-[24px] flex flex-col gap-[16px]" style={{ background: 'rgba(73,163,166,0.04)', border: '0.5px solid rgba(73,163,166,0.2)' }}>
+        <div className="flex items-center gap-[8px]">
+          <span style={{ fontSize: 18 }}>📚</span>
+          <span className="text-[18px] leading-[28px] font-medium" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>Quick Start</span>
+        </div>
+        <p className="text-[13px] leading-[22px]" style={{ color: 'rgba(0,0,0,0.7)', fontFamily: FONT }}>
+          For full setup instructions, configuration details, and examples, see the{' '}
+          <a href="https://github.com/alva-ai" target="_blank" rel="noopener noreferrer" className="font-medium hover:underline" style={{ color: '#49a3a6' }}>GitHub repo</a>.
+        </p>
+        <div className="grid grid-cols-3 gap-[12px]">
+          {[
+            { title: 'Install Alva Skill',       desc: 'Add Alva Skill to your agent from GitHub.' },
+            { title: 'Build and Ship Playbooks', desc: 'Use natural language to build dashboards, backtest strategies, and publish live investing playbooks' },
+            { title: 'Configure Your API Key',   desc: 'Set your Alva API key to enable platform access.' },
+          ].map((q) => (
+            <div key={q.title} className="p-[16px] rounded-[8px] flex flex-col gap-[6px]" style={{ background: '#fff', border: '0.5px solid rgba(0,0,0,0.08)' }}>
+              <p className="text-[14px] leading-[22px] font-medium" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>{q.title}</p>
+              <p className="text-[12px] leading-[20px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>{q.desc}</p>
             </div>
-          </div>
+          ))}
         </div>
-      </AppShell>
-      {isUserInfoOpen && (
-        <div
-          className="fixed bottom-[56px] left-[8px] z-[9999] w-[320px]"
-          onMouseEnter={() => setIsUserInfoOpen(true)}
-          onMouseLeave={() => setIsUserInfoOpen(false)}
-        >
-          <UserInfo />
-        </div>
-      )}
-    </>
+      </div>
+    </SettingsLayout>
   );
 }
