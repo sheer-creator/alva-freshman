@@ -36,15 +36,15 @@ export default function AlvaAgentSettings({ onNavigate }: { onNavigate: (page: P
           <p className="text-[12px] leading-[20px] tracking-[0.12px] mt-[2px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Choose the messaging app for your Alva Agent (single platform).</p>
         </div>
         <div className="flex items-center gap-[16px] px-[20px] py-[16px] rounded-[8px]" style={{ background: 'rgba(0,0,0,0.02)' }}>
-          <TelegramMark size={40} />
+          <TelegramMark size={52} />
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] leading-[22px] font-medium" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>Telegram</p>
-            <p className="text-[12px] leading-[20px] mt-[2px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Sheerruan</p>
+            <p className="text-[16px] leading-[26px] font-regular" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>Telegram</p>
+            <p className="text-[14px] leading-[22px] mt-[2px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Sheerruan</p>
           </div>
           <button
             onClick={() => setConnected(v => !v)}
-            className="text-[13px] leading-[22px] cursor-pointer"
-            style={{ color: connected ? 'rgba(0,0,0,0.5)' : '#49a3a6', background: 'none', border: 'none', fontFamily: FONT }}
+            className="text-[14px] leading-[22px] cursor-pointer"
+            style={{ color: connected ? 'rgba(0,0,0,0.5)' : '#49a3a6', background: 'none', border: 'none', fontFamily: FONT, fontWeight: 400 }}
           >
             {connected ? 'Disconnect' : 'Connect'}
           </button>
@@ -70,9 +70,9 @@ export default function AlvaAgentSettings({ onNavigate }: { onNavigate: (page: P
         disabled={!dirty}
         className="h-[48px] w-[120px] px-[16px] rounded-[8px] flex items-center justify-center text-[16px] font-medium leading-[26px] tracking-[0.16px]"
         style={{
-          background: 'none',
-          border: '0.5px solid rgba(0,0,0,0.3)',
-          color: dirty ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.2)',
+          background: dirty ? '#49A3A6' : 'rgba(0,0,0,0.05)',
+          border: 'none',
+          color: dirty ? '#fff' : 'rgba(0,0,0,0.2)',
           fontFamily: FONT,
           cursor: dirty ? 'pointer' : 'not-allowed',
         }}

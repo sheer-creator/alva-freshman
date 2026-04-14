@@ -153,7 +153,7 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
         <div className="py-[8px] flex flex-col">
           <MenuItem
             icon={<CdnIcon name="credit-l" size={20} color="rgba(0,0,0,0.9)" />}
-            label="Billing"
+            label="Usage"
             onClick={() => go('billing')}
           />
           <MenuItem
@@ -172,7 +172,7 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
           />
           <MenuItem
             icon={<CdnIcon name="settings-l" size={20} color="rgba(0,0,0,0.9)" />}
-            label="All Settings"
+            label="Settings"
             onClick={() => go('account')}
           />
           <MenuItem
