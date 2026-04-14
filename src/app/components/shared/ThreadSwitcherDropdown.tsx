@@ -25,11 +25,7 @@ export function ThreadSwitcherDropdown({
   align?: 'left' | 'right';
 }) {
   const handleSelect = (id: string) => {
-    if (id === '__agent__') {
-      window.location.hash = 'agent';
-    } else {
-      onSelect(id);
-    }
+    onSelect(id);
   };
 
   return (

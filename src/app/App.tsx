@@ -51,6 +51,7 @@ const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alv
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [agentKey, setAgentKey] = useState(0);
   const [, startTransition] = useTransition();
 
   // 监听浏览器前进/后退 + 记录进入 settings 前的 page
@@ -79,7 +80,10 @@ export default function App() {
 
   const navigate = (page: Page) => {
     window.location.hash = page;
-    startTransition(() => setCurrentPage(page));
+    startTransition(() => {
+      setCurrentPage(page);
+      if (page === 'agent') setAgentKey(k => k + 1);
+    });
   };
 
   const threadId = getThreadId(currentPage);
@@ -96,7 +100,7 @@ export default function App() {
         {currentPage === "library" && <Library onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "dashboard" && <Dashboard onNavigate={navigate} />}
         {currentPage === "workspace" && <DashboardWorkspace onNavigate={navigate} />}
-        {currentPage === "agent" && <Agent onNavigate={navigate} />}
+        {currentPage === "agent" && <Agent key={agentKey} onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
         {currentPage === "account" && <Account onNavigate={navigate} />}
         {currentPage === "alva-agent" && <AlvaAgentSettings onNavigate={navigate} />}

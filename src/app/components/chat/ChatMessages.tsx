@@ -100,10 +100,10 @@ function PlaybookCard({ sourceThreadId }: { sourceThreadId?: string }) {
       <div className="flex flex-col gap-[12px] pt-[16px] pb-[12px] px-[16px] w-full">
         <div className="flex flex-col gap-[4px] w-full">
           <p className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] overflow-hidden whitespace-nowrap text-ellipsis h-[28px]">
-            Google / X Trends Tracker
+            BTC Ultimate AI Trader
           </p>
           <p className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] overflow-hidden h-[44px]" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
-            Track NVDA Google trends, AI storage keyword popularity, and DRAM pricing across DDR4/DDR5 with real-time data from multiple sources.
+            This strategy intelligently pinpoints BTC's optimal trading sweet spots through dual-engine analysis: RSI oversold alerts + Bollinger Band breakouts.
           </p>
         </div>
       </div>
@@ -116,7 +116,7 @@ function ReasonedStepsDivider() {
   const FONT = "font-['Delight',sans-serif]";
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col py-[4px]">
       <div
         className="flex items-center gap-[8px] w-full cursor-pointer"
         onClick={() => setExpanded(v => !v)}
@@ -135,91 +135,151 @@ function ReasonedStepsDivider() {
         <div className="flex-1 h-0" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }} />
       </div>
       {expanded && (
-        <div className="flex flex-col gap-[16px] w-full mt-[12px]">
-          {MOCK_REASON_STEPS.map((step, i) => (
-            <div key={i} className="flex gap-[8px] items-start w-full">
-              <div className="relative shrink-0 w-[12px] self-stretch">
-                <div className="absolute left-1/2 top-[2px] bottom-[2px] w-0 -translate-x-1/2"
-                  style={{ borderLeft: '1px dashed rgba(0,0,0,0.12)' }} />
-              </div>
-              <div className="flex flex-col gap-[8px] items-start flex-1 min-w-0">
-                <div className="flex items-center gap-[8px] w-full">
-                  <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)] shrink-0`}>
-                    {step.label}
-                  </span>
-                  {step.meta && (
-                    <div className="flex items-center justify-center max-w-[640px] px-[6px] py-[1px] rounded-[2px] min-w-0"
-                      style={{ background: 'rgba(0,0,0,0.03)' }}>
-                      <span className={`${MONO} text-[10px] leading-[16px] text-[var(--text-n5)] truncate`}>
-                        {step.meta}
-                      </span>
+        <>
+          <div className="flex flex-col gap-[16px] w-full mt-[12px]">
+            {MOCK_REASON_STEPS.map((step, i) => (
+              <div key={i} className="flex gap-[8px] items-start w-full">
+                <div className="relative shrink-0 w-[12px] self-stretch">
+                  <div className="absolute left-1/2 top-[2px] bottom-[2px] w-0 -translate-x-1/2"
+                    style={{ borderLeft: '1px dashed rgba(0,0,0,0.12)' }} />
+                </div>
+                <div className="flex flex-col gap-[8px] items-start flex-1 min-w-0">
+                  <div className="flex items-center gap-[8px] w-full">
+                    <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)] shrink-0`}>
+                      {step.label}
+                    </span>
+                    {step.meta && (
+                      <div className="flex items-center justify-center max-w-[640px] px-[6px] py-[1px] rounded-[2px] min-w-0"
+                        style={{ background: 'rgba(0,0,0,0.03)' }}>
+                        <span className={`${MONO} text-[10px] leading-[16px] text-[var(--text-n5)] truncate`}>
+                          {step.meta}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {step.lines && step.lines.length > 0 && (
+                    <div className={`${MONO} text-[10px] leading-[16px] text-[var(--text-n5)] flex-1 min-w-0`}>
+                      {step.lines.map((line, li) => (
+                        <p key={li} className="leading-[16px] mb-0">{line}</p>
+                      ))}
                     </div>
                   )}
                 </div>
-                {step.lines && step.lines.length > 0 && (
-                  <div className={`${MONO} text-[10px] leading-[16px] text-[var(--text-n5)] flex-1 min-w-0`}>
-                    {step.lines.map((line, li) => (
-                      <p key={li} className="leading-[16px] mb-0">{line}</p>
-                    ))}
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+          <div className="w-full" style={{ paddingTop: 16, paddingBottom: 4 }}>
+            <div className="w-full h-0" style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }} />
+          </div>
+        </>
       )}
     </div>
   );
 }
 
+const MOCK_QA_PAIRS = [
+  { q: 'What difficulty level do you want for the finance quiz?', a: 'The dividend yield of a stock' },
+  { q: 'Which topic area should the questions focus on?', a: 'S&P 500 annual return' },
+  { q: 'In options trading, what does "theta" represent?', a: 'Sensitivity to changes in the underlying asset\'s price' },
+];
+
+const MOCK_TAKEAWAYS = [
+  'NVDA trades at a 15% premium to AMD on forward P/E, but delivered 4.7x the revenue growth',
+  'Gross margin expansion is accelerating — the data center mix shift is structural',
+];
+
+function AlvaBetaLogo() {
+  return <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" style={{ height: 12, width: 70 }} />;
+}
+
+function BulletList({ items }: { items: { bold?: string; text: string }[] }) {
+  return (
+    <div className="flex flex-col gap-[4px] w-full">
+      {items.map((b, i) => (
+        <div key={i} className="flex items-start w-full">
+          <div className="w-[20px] h-[22px] flex items-center justify-center shrink-0">
+            <div className="size-[5px] rounded-full bg-[var(--text-n9)]" />
+          </div>
+          <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1">
+            {b.bold && <span className="font-medium">{b.bold}</span>}{b.text}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SourceLink({ sourceThreadId }: { sourceThreadId?: string }) {
+  return (
+    <div className="flex items-center gap-[4px]">
+      <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]">Source:</span>
+      <div className="flex items-center gap-[2px]">
+        <span
+          className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] underline decoration-dotted cursor-pointer"
+          style={{ textDecorationColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => { if (sourceThreadId) sessionStorage.setItem('openChatWithThread', sourceThreadId); window.location.hash = 'trends'; }}
+        >
+          BTC Ultimate AI Trader
+        </span>
+        <CdnIcon name="go-l" size={14} />
+      </div>
+    </div>
+  );
+}
+
 function MockConversation({ sourceThreadId }: { sourceThreadId?: string }) {
+  const FONT = "font-['Delight',sans-serif]";
   return (
     <>
+      {/* ── Round 1 ── */}
       <div className="flex flex-col items-end w-full">
-        <div className="w-full max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
-          <p className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]">{MOCK_USER_MSG}</p>
+        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
+          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>{MOCK_USER_MSG}</p>
         </div>
       </div>
       <ReasonedStepsDivider />
-      <div className="flex items-center gap-[4px] shrink-0">
-        <img src="https://alva-ai-static.b-cdn.net/icons/alva-watermark.svg" alt="Alva" style={{ height: 14 }} />
-        <span className="font-['Delight',sans-serif] text-[10px] leading-[14px] px-[4px] py-[1px]" style={{ background: 'rgba(73,163,166,0.1)', color: 'var(--main-m1)', borderRadius: 3 }}>Beta</span>
-      </div>
-      <p className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] w-full">
-        Building the <span className="font-medium text-[14px] leading-[22px] tracking-[0.14px]">3-Widget Grid</span> layout:
+      <AlvaBetaLogo />
+      <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
+        Building the <span className="font-medium">3-Widget Grid</span> layout:
       </p>
-      <div className="flex flex-col gap-[8px] w-full">
-        {MOCK_BULLETS.map((b) => (
-          <div key={b.bold} className="flex items-start w-full">
-            <div className="w-[24px] h-[26px] flex items-center justify-center shrink-0">
-              <div className="size-[5px] rounded-full bg-[var(--text-n9)]" />
-            </div>
-            <p className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] flex-1">
-              <span className="font-medium">{b.bold}</span>{b.text}
-            </p>
-          </div>
-        ))}
-      </div>
-      <p className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] w-full">Dashboard is ready. Here's a summary:</p>
+      <BulletList items={MOCK_BULLETS.map(b => ({ bold: b.bold, text: b.text }))} />
+      <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Dashboard is ready. Here's a summary:</p>
       <div className="flex w-full overflow-x-auto">
         {MOCK_TABLE.headers.map((header, ci) => (
-          <div key={header} className="flex flex-col flex-1 min-w-[108px]">
-            <div className="py-[12px] pr-[12px]">
-              <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)] truncate">{header}</p>
+          <div key={header} className="flex flex-col flex-1 min-w-[96px]">
+            <div className="py-[10px] pr-[8px]">
+              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)] truncate`}>{header}</p>
             </div>
             {MOCK_TABLE.rows.map((row) => (
-              <div key={row[0]} className="py-[12px] pr-[12px]" style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}>
-                <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate">{row[ci]}</p>
+              <div key={row[0]} className="py-[10px] pr-[8px]" style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}>
+                <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate`}>{row[ci]}</p>
               </div>
             ))}
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-[4px]">
-        <span className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]">Source:</span>
-        <span className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n7)] underline decoration-dotted cursor-pointer" onClick={() => { if (sourceThreadId) sessionStorage.setItem('openChatWithThread', sourceThreadId); window.location.hash = 'trends'; }}>BTC Ultimate AI Trader</span>
-        <CdnIcon name="go-l" size={16} />
+      <SourceLink sourceThreadId={sourceThreadId} />
+      <PlaybookCard sourceThreadId={sourceThreadId} />
+
+      {/* ── Round 2: Q&A bubble ── */}
+      <div className="flex flex-col items-end w-full">
+        <div
+          className={`${FONT} flex flex-col max-w-[560px] px-[16px] py-[12px] text-[14px] leading-[22px] tracking-[0.14px]`}
+          style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8, gap: 12 }}
+        >
+          {MOCK_QA_PAIRS.map((pair, i) => (
+            <div key={i} className="flex flex-col gap-[2px]">
+              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n5)]`}>{pair.q}</p>
+              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>{pair.a}</p>
+            </div>
+          ))}
+        </div>
       </div>
+      <ReasonedStepsDivider />
+      <AlvaBetaLogo />
+      <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Key takeaways:</p>
+      <BulletList items={MOCK_TAKEAWAYS.map(t => ({ text: t }))} />
+      <SourceLink sourceThreadId={sourceThreadId} />
       <PlaybookCard sourceThreadId={sourceThreadId} />
     </>
   );
@@ -257,12 +317,12 @@ export function ChatMessages({ conversationId, hasContent }: ChatMessagesProps) 
   // Show streaming conversation
   if (conversationId === 'streaming' && streamingState) {
     return (
-      <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full">
+      <div className="flex flex-col flex-1 gap-[12px] items-start min-h-0 w-full">
         {/* User prompt bubble */}
         {pendingPrompt && (
           <div className="flex flex-col items-end w-full">
-            <div className="w-full max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
-              <p className="font-['Delight',sans-serif] text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]">{pendingPrompt}</p>
+            <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
+              <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]">{pendingPrompt}</p>
             </div>
           </div>
         )}
@@ -272,7 +332,7 @@ export function ChatMessages({ conversationId, hasContent }: ChatMessagesProps) 
   }
 
   return (
-    <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full">
+    <div className="flex flex-col flex-1 gap-[12px] items-start min-h-0 w-full">
       <MockConversation sourceThreadId={conversationId} />
     </div>
   );
