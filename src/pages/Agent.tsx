@@ -56,7 +56,7 @@ function EmptyState({ onConnect }: { onConnect: () => void }) {
           {FEATURES.map(f => (
             <div
               key={f.title}
-              className="flex flex-col gap-[8px] p-[16px] rounded-[10px]"
+              className="flex flex-col gap-[8px] p-[16px] rounded-[var(--radius-ct-l,8px)]"
               style={{ background: 'var(--b0-container, #ffffff)' }}
             >
               <CdnIcon name={f.icon} size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
