@@ -20,7 +20,7 @@ function TelegramMark({ size = 40 }: { size?: number }) {
 }
 
 export default function AlvaAgentSettings({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [connected, setConnected] = useState(true);
+  const [connected, setConnected] = useState(() => localStorage.getItem('agentConnected') === '1');
   const [prompt, setPrompt] = useState('');
   const dirty = prompt.trim().length > 0;
 
@@ -42,7 +42,11 @@ export default function AlvaAgentSettings({ onNavigate }: { onNavigate: (page: P
             <p className="text-[14px] leading-[22px] mt-[2px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Sheerruan</p>
           </div>
           <button
-            onClick={() => setConnected(v => !v)}
+            onClick={() => setConnected(v => {
+              if (v) localStorage.removeItem('agentConnected');
+              else localStorage.setItem('agentConnected', '1');
+              return !v;
+            })}
             className="text-[14px] leading-[22px] cursor-pointer"
             style={{ color: connected ? 'rgba(0,0,0,0.5)' : '#49a3a6', background: 'none', border: 'none', fontFamily: FONT, fontWeight: 400 }}
           >

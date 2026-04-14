@@ -42,7 +42,7 @@ function EmptyState({ onConnect }: { onConnect: () => void }) {
       <div className="relative z-10 flex flex-col items-center gap-[32px] w-full max-w-[888px] px-[24px]">
         {/* Hero illustration */}
         <div className="flex flex-col items-center">
-          <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva Agent" className="rounded-full" style={{ width: 48, height: 48, marginBottom: 16 }} />
+          <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva Agent" className="rounded-full" style={{ width: 48, height: 48, marginBottom: 20 }} />
           <h1 className={`${FONT} text-[28px] leading-[38px] tracking-[0.28px] text-center text-[var(--text-n9)] font-normal`} style={{ marginBottom: 8 }}>
             Your Alva Agent is ready
           </h1>
@@ -59,10 +59,8 @@ function EmptyState({ onConnect }: { onConnect: () => void }) {
               className="flex flex-col gap-[8px] p-[16px] rounded-[10px]"
               style={{ background: 'var(--b0-container, #ffffff)' }}
             >
-              <div className="w-[28px] h-[28px] rounded-[var(--radius-ct-s)] flex items-center justify-center shrink-0" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
-                <CdnIcon name={f.icon} size={18} color="var(--main-m1, #49a3a6)" />
-              </div>
-              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+              <CdnIcon name={f.icon} size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
+              <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]`}>
                 {f.title}
               </p>
               <p className={`${FONT} text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]`}>
