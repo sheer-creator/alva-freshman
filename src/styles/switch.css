@@ -1,0 +1,80 @@
+/* Alva Design System — Switch Component (matches design-components.md) */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  /* Track — Off */
+  background-color: var(--b-r1);
+  /* Size — Medium (default) */
+  width: 32px;
+  height: 16px;
+  border-radius: 1000px;
+}
+
+/* Track — On */
+.switch.on {
+  background-color: var(--main-m1);
+}
+
+/* Thumb */
+.switch-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--b-common-white);
+  border-radius: 50%;
+  transition: left 0.2s ease;
+  /* Size — Medium (default) */
+  width: 10.67px;
+  height: 10.67px;
+  left: 2.67px;
+}
+.switch.on .switch-thumb {
+  left: calc(100% - 10.67px - 2.67px);
+}
+
+/* Disabled */
+.switch.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.switch.disabled:not(.on) {
+  opacity: 0.4;
+}
+.switch.disabled.on {
+  opacity: 0.3;
+}
+
+/* Size — Small */
+.switch-sm {
+  width: 24px;
+  height: 12px;
+  border-radius: 100px;
+}
+.switch-sm .switch-thumb {
+  width: 8px;
+  height: 8px;
+  left: 2px;
+}
+.switch-sm.on .switch-thumb {
+  left: calc(100% - 8px - 2px);
+}
+
+/* Size — Large */
+.switch-lg {
+  width: 40px;
+  height: 20px;
+  border-radius: 166.67px;
+}
+.switch-lg .switch-thumb {
+  width: 13.33px;
+  height: 13.33px;
+  left: 3.33px;
+}
+.switch-lg.on .switch-thumb {
+  left: calc(100% - 13.33px - 3.33px);
+}

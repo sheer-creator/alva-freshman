@@ -1,0 +1,85 @@
+/* Alva Design System — Input Component (matches design-components.md) */
+
+.input {
+  display: flex;
+  align-items: center;
+  background-color: var(--b0-container);
+  position: relative;
+  font-family: "Delight", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: border-color 0.12s ease;
+  /* Size — Medium (default) */
+  height: 40px;
+  padding: var(--spacing-xs) var(--spacing-s);
+  border-radius: var(--radius-btn-m);
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.14px;
+}
+
+.input-border {
+  position: absolute;
+  inset: 0;
+  border: 0.5px solid var(--line-l3);
+  border-radius: inherit;
+  pointer-events: none;
+  transition: border-color 0.12s ease;
+}
+
+.input:hover .input-border,
+.input:focus-within .input-border {
+  border-color: var(--line-l9);
+}
+
+.input-field {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  font: inherit;
+  color: var(--text-n9);
+}
+
+.input-field::placeholder {
+  color: var(--text-n3);
+}
+
+/* Size — Large */
+.input-lg {
+  height: 48px;
+  padding: 11px var(--spacing-m);
+  border-radius: var(--radius-btn-m);
+  font-size: 16px;
+  line-height: 26px;
+  letter-spacing: 0.16px;
+}
+
+/* Size — Small */
+.input-sm {
+  height: 28px;
+  padding: var(--spacing-xxs) var(--spacing-xs);
+  border-radius: var(--radius-btn-s);
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.12px;
+}
+
+/* Textarea variant — wraps a <textarea> instead of <input> */
+.input-textarea {
+  height: auto;
+  padding: var(--spacing-m);
+  border-radius: var(--radius-btn-m);
+  font-size: 16px;
+  line-height: 26px;
+  letter-spacing: 0.16px;
+  align-items: flex-start;
+}
+
+.input-textarea .input-field {
+  resize: none;
+  height: 100%;
+}

@@ -17,6 +17,8 @@ export function CdnIcon({ name, size = 16, color }: { name: string; size?: numbe
           maskSize: 'contain',
           maskRepeat: 'no-repeat',
           maskPosition: 'center',
+          maskMode: 'alpha',
+          WebkitMaskMode: 'alpha' as never,
         }}
       />
     );

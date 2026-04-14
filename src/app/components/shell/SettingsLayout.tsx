@@ -14,7 +14,7 @@ export type SettingsTab = 'account' | 'billing' | 'portfolio-settings' | 'alva-a
 
 const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'account',            label: 'Account'    },
-  { key: 'billing',            label: 'Billing'    },
+  { key: 'billing',            label: 'Usage'       },
   { key: 'portfolio-settings', label: 'Portfolio'  },
   { key: 'alva-agent',         label: 'Alva Agent' },
   { key: 'api-keys',           label: 'API Key'    },
@@ -34,7 +34,7 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
   return (
     <AppShell activePage={activePage} onNavigate={onNavigate}>
       <div className="min-h-full flex flex-col items-center" style={{ background: 'var(--b0-page, #fff)' }}>
-        <div className="w-full flex flex-col gap-[20px] px-[28px] pt-[28px] pb-[80px] items-center">
+        <div className="w-full flex flex-col gap-[var(--spacing-l)] px-[var(--spacing-xxl)] pt-[var(--spacing-xxl)] pb-[80px] items-center">
 
           {/* Back */}
           <div className="w-full max-w-[1200px]">
@@ -43,16 +43,16 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
                 const ret = sessionStorage.getItem('settingsReturnPage') as Page | null;
                 onNavigate(ret && ret.length > 0 ? ret : 'home');
               }}
-              className="flex items-center gap-[4px] cursor-pointer group"
+              className="flex items-center gap-[var(--spacing-xxs)] cursor-pointer group"
               style={{ background: 'none', border: 'none', padding: 0 }}
             >
               <CdnIcon name="arrow-left-l2" size={12} color="rgba(0,0,0,0.5)" />
-              <span className="text-[12px] leading-[20px] tracking-[0.12px] group-hover:text-[rgba(0,0,0,0.9)] transition-colors" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Back</span>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px] group-hover:text-[rgba(0,0,0,0.9)] transition-colors" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT, fontWeight: 400 }}>Back</span>
             </button>
           </div>
 
           {/* Sidebar + Content */}
-          <div className="w-full max-w-[1200px] flex gap-[28px] items-start">
+          <div className="w-full max-w-[1200px] flex gap-[var(--spacing-xxl)] items-start">
 
             {/* Fixed sidebar 184px */}
             <nav className="flex flex-col shrink-0" style={{ width: 184 }}>
@@ -63,7 +63,7 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
                   <button
                     key={t.key}
                     onClick={() => onNavigate(target)}
-                    className="flex items-center px-[16px] py-[10px] rounded-[6px] text-left cursor-pointer transition-colors w-full"
+                    className="flex items-center px-[var(--spacing-m)] py-[10px] rounded-[var(--radius-btn-s)] text-left cursor-pointer transition-colors w-full"
                     style={{
                       background: isActive ? 'rgba(73,163,166,0.1)' : 'transparent',
                       border: 'none',
@@ -87,7 +87,7 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
             </nav>
 
             {/* Flexible content area */}
-            <div className="flex-1 min-w-0 flex flex-col gap-[24px]">
+            <div className="flex-1 min-w-0 flex flex-col gap-[var(--spacing-xl)]">
               {children}
             </div>
           </div>

@@ -236,7 +236,7 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
 
       {/* Header */}
       <div className="flex items-center justify-between w-full">
-        <h1 className="text-[28px] leading-[38px] tracking-[0.28px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT, fontWeight: 400 }}>Billing</h1>
+        <h1 className="text-[28px] leading-[38px] tracking-[0.28px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT, fontWeight: 400 }}>Usage</h1>
         <button
           className="h-[28px] px-[12px] rounded-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] cursor-pointer"
           style={{ color: 'rgba(0,0,0,0.9)', border: '0.5px solid rgba(0,0,0,0.3)', background: 'transparent', fontFamily: FONT }}
@@ -256,12 +256,12 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
             <span className="text-[12px] leading-[20px] tracking-[0.12px] px-[6px] rounded-[4px]" style={{ color: '#49a3a6', background: 'rgba(73,163,166,0.1)', fontFamily: FONT }}>Annually</span>
           </div>
           <button
-            className="flex items-center gap-[4px] h-[28px] px-[12px] rounded-[6px] text-[12px] font-medium leading-[20px] cursor-pointer"
-            style={{ color: '#fff', background: '#49a3a6', border: 'none', fontFamily: FONT }}
+            className="btn btn-primary btn-extra-small"
+            style={{ paddingLeft: 'var(--spacing-s)', paddingRight: 'var(--spacing-s)' }}
             onClick={() => setShowAddCredits(true)}
           >
-            <span className="text-[14px] leading-none">+</span>
-            Add credits
+            <CdnIcon name="add-l2" size={14} color="#fff" />
+            <span style={{ fontFamily: FONT }}>Add credits</span>
           </button>
           <ManageDropdown onNavigate={onNavigate} />
         </div>

@@ -32,6 +32,7 @@
   --grey-g1:             #dedede;
   --b-r02: rgba(0, 0, 0, 0.02);
   --b-r03: rgba(0, 0, 0, 0.03);
+  --b-r1:  rgba(0, 0, 0, 0.1);
   /* Radius */
   --radius-ct-xs: 2px;
   --radius-ct-s: 4px;
@@ -47,6 +48,17 @@
   --line-l12: rgba(0, 0, 0, 0.12);
   --line-l2:  rgba(0, 0, 0, 0.2);
   --line-l3:  rgba(0, 0, 0, 0.3);
+  --line-l9:  rgba(0, 0, 0, 0.9);
+  /* Spacing */
+  --spacing-min: 0px;
+  --spacing-xxs: 4px;
+  --spacing-xs:  8px;
+  --spacing-s:   12px;
+  --spacing-m:   16px;
+  --spacing-l:   20px;
+  --spacing-xl:  24px;
+  --spacing-xxl: 28px;
+  --spacing-xxxl: 32px;
   /* Shadows */
   --shadow-xs: 0 4px 15px 0 rgba(0, 0, 0, 0.05);
   --shadow-s:  0 6px 20px 0 rgba(0, 0, 0, 0.04);

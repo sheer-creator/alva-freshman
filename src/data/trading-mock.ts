@@ -119,7 +119,7 @@ export interface BrokerPortfolio {
 const BROKERS: BrokerConnection[] = [
   { id: 'ibkr-1', name: 'Interactive Brokers', status: 'connected', accountId: 'U****6789', lastSync: '2 min ago' },
   { id: 'binance-1', name: 'Binance', status: 'connected', accountId: 'spot-****42', lastSync: '5 min ago' },
-  { id: 'alpaca-1', name: 'Alpaca', status: 'disconnected', accountId: 'PA****1234', lastSync: '3 days ago' },
+  { id: 'alpaca-1', name: 'Alpaca', status: 'connected', accountId: 'PA****1234', lastSync: '3 days ago' },
 ];
 
 const POSITIONS: Position[] = [
