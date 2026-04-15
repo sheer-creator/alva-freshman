@@ -35,6 +35,7 @@ export interface FeedRunHistoryItem {
   id: string;            // 例: "#142"
   duration: string;      // 例: "3.2s"
   timestamp: string;     // 例: "04/01/2026 14:00"
+  status?: 'success' | 'failed';  // 末尾状态图标,默认 success
   log?: string;          // 展开后的执行日志 (mono 字体)
 }
 
@@ -68,10 +69,10 @@ const DEFAULT_STATS: FeedDetailStats = {
 
 const DEFAULT_LOG_142 = `[14:00:01.102Z] Starting feed execution...
 [14:00:01.205Z] Fetching OEM capacity data from 4 sources...
-[14:00:02.418Z]   GE Vernova: OK (38.2 GW)
-[14:00:02.892Z]   Siemens Energy: OK (31.1 GW)
-[14:00:03.105Z]   MHPS: OK (22.4 GW)
-[14:00:03.401Z]   Shanghai Electric: OK (12.8 GW)
+[14:00:02.418Z] GE Vernova:        OK (38.2 GW)
+[14:00:02.892Z] Siemens Energy:    OK (31.1 GW)
+[14:00:03.105Z] MHPS:              OK (22.4 GW)
+[14:00:03.401Z] Shanghai Electric: OK (12.8 GW)
 [14:00:03.520Z] Computing delta: total=104.5 GW, YoY=+8.3%
 [14:00:03.890Z] Signal written to ~/feeds/.../signal.json
 [14:00:04.302Z] Completed successfully. 3.2s, 0.5 credits.`;
@@ -80,6 +81,7 @@ const DEFAULT_HISTORY: FeedRunHistoryItem[] = Array.from({ length: 10 }, (_, i) 
   id: `#${142 - i}`,
   duration: '3.2s',
   timestamp: '04/01/2026 14:00',
+  status: i === 3 ? 'failed' : 'success',  // #139 失败
   log: i === 0 ? DEFAULT_LOG_142 : undefined,
 }));
 
@@ -161,7 +163,7 @@ export function FeedDetailModal({
         {/* 可滚动主体 — 内容超出 dialog 高度时整体滚动 */}
         <div className="flex flex-col gap-[16px] items-start p-[28px] overflow-y-auto min-h-0">
         {/* Header */}
-        <div className="flex flex-col gap-[4px] items-start w-full">
+        <div className="shrink-0 flex flex-col gap-[4px] items-start w-full">
           <div className="flex items-center gap-[8px] w-full">
             <StatusDot size={14} />
             <p className="font-['Delight',sans-serif] leading-[30px] text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-nowrap">
@@ -178,10 +180,10 @@ export function FeedDetailModal({
         </div>
 
         {/* Divider */}
-        <div className="h-px w-full" style={{ background: 'rgba(0,0,0,0.07)' }} />
+        <div className="shrink-0 h-px w-full" style={{ background: 'rgba(0,0,0,0.07)' }} />
 
         {/* Description */}
-        <div className="flex flex-col gap-[4px] items-start w-full">
+        <div className="shrink-0 flex flex-col gap-[4px] items-start w-full">
           <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
             What This Feed Does
           </p>
@@ -191,14 +193,14 @@ export function FeedDetailModal({
         </div>
 
         {/* Stats (3 cards) */}
-        <div className="flex gap-[16px] items-center w-full">
+        <div className="shrink-0 flex gap-[16px] items-center w-full">
           <StatCard label={stats.totalLabel} value={stats.totalValue} />
           <StatCard label="Success" value={stats.successCount} valueColor="#2a9b7d" />
           <StatCard label="Failed" value={stats.failedCount} valueColor="#e6a91a" />
         </div>
 
         {/* Run History */}
-        <div className="flex flex-col items-start w-full">
+        <div className="shrink-0 flex flex-col items-start w-full">
           {/* 表头 */}
           <div
             className="flex gap-[8px] items-center py-[10px] w-full"
@@ -230,7 +232,7 @@ export function FeedDetailModal({
                     aria-expanded={expanded}
                     onClick={toggle}
                     onKeyDown={expandable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } } : undefined}
-                    className={`flex gap-[8px] items-center py-[10px] w-full ${expandable ? 'cursor-pointer' : ''}`}
+                    className={`flex gap-[12px] items-center py-[10px] w-full ${expandable ? 'cursor-pointer' : ''}`}
                   >
                     <div
                       className="size-[12px] shrink-0 flex items-center justify-center transition-transform duration-200 ease-out"
@@ -241,12 +243,20 @@ export function FeedDetailModal({
                     <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
                       {run.id}
                     </p>
-                    <p className="w-[100px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+                    <p className="w-[120px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
                       {run.duration}
                     </p>
-                    <p className="w-[121px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                    <p className="w-[120px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
                       {run.timestamp}
                     </p>
+                    {/* 状态图标 — check-f2 成功 / alert-f2 失败 */}
+                    <div className="size-[16px] shrink-0 flex items-center justify-center">
+                      {run.status === 'failed' ? (
+                        <CdnIcon name="alert-f2" size={16} color="#e6a91a" />
+                      ) : (
+                        <CdnIcon name="check-f2" size={16} color="#2a9b7d" />
+                      )}
+                    </div>
                   </div>
                   {/* 展开面板 — 用 grid-rows 做高度动画 */}
                   {expandable && (

@@ -86,9 +86,12 @@ function FeedRow({ feed, onClick }: { feed: PlaybookInfoFeed; onClick?: () => vo
       tabIndex={clickable ? 0 : undefined}
       onClick={onClick}
       onKeyDown={clickable ? handleKey : undefined}
-      className={`flex gap-[8px] items-center py-[10px] w-full transition-colors ${clickable ? 'cursor-pointer hover:bg-[rgba(0,0,0,0.02)]' : ''}`}
-      style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+      className={`px-[20px] w-full transition-colors ${clickable ? 'cursor-pointer hover:bg-[rgba(0,0,0,0.02)]' : ''}`}
     >
+      <div
+        className="flex gap-[8px] items-center py-[10px] w-full"
+        style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+      >
       <div className="flex flex-1 min-w-0 gap-[4px] items-center">
         <StatusDot size={12} />
         <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
@@ -103,6 +106,7 @@ function FeedRow({ feed, onClick }: { feed: PlaybookInfoFeed; onClick?: () => vo
       </p>
       <div className="size-[12px] shrink-0 flex items-center justify-center">
         <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />
+      </div>
       </div>
     </div>
   );
@@ -156,23 +160,26 @@ export function PlaybookInfoPopup({
           </p>
         </div>
 
-        {/* Feed List */}
-        <div className="flex flex-col w-full">
+        {/* Feed List — 整体 -mx-20 延伸到 popup 内边距之外,让 row hover 背景通栏;
+            分割线留在内部 div (px-20 padding 内),与之前宽度一致 */}
+        <div className="flex flex-col -mx-[20px] w-[calc(100%+40px)]">
           {/* 表头 */}
-          <div
-            className="flex gap-[8px] items-center py-[10px] w-full"
-            style={{ borderTop: '1px solid rgba(0,0,0,0.07)', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
-          >
-            <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
-              Feed
-            </p>
-            <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
-              Interval
-            </p>
-            <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
-              Last Run
-            </p>
-            <div className="size-[12px] opacity-0 shrink-0" />
+          <div className="px-[20px]">
+            <div
+              className="flex gap-[8px] items-center py-[10px] w-full"
+              style={{ borderTop: '1px solid rgba(0,0,0,0.07)', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+            >
+              <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                Feed
+              </p>
+              <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                Interval
+              </p>
+              <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                Last Run
+              </p>
+              <div className="size-[12px] opacity-0 shrink-0" />
+            </div>
           </div>
           {/* 行 */}
           {feeds.map((feed) => (
