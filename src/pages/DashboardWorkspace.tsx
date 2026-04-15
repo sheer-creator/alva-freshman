@@ -11,6 +11,8 @@ import { PlaybookTopbar } from '@/app/components/community/PlaybookTopbar';
 import { DiscussionPanel } from '@/app/components/community/DiscussionPanel';
 import { MOCK_WORKSPACE } from '@/data/community-mock';
 import { FigmaWatchlistWidget } from '@/widgets/FigmaWatchlistWidget';
+import { KPISnapshotWidget } from '@/widgets/KPISnapshotWidget';
+import { PeerComparisonWidget } from '@/widgets/PeerComparisonWidget';
 
 /* ========== 页面 ========== */
 
@@ -42,7 +44,9 @@ export function DashboardWorkspace({ onNavigate }: { onNavigate: (page: Page) =>
             onNavigate={onNavigate}
           />
           <div className="content-stretch flex flex-col gap-[24px] items-start pb-[56px] relative shrink-0 w-full">
+            <KPISnapshotWidget />
             <FigmaWatchlistWidget />
+            <PeerComparisonWidget />
           </div>
         </div>
       </div>

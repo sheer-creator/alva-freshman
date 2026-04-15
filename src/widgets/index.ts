@@ -11,6 +11,8 @@ import { AIStorageEarningsWidget } from './AIStorageEarningsWidget';
 import { EarningsDetailWidget } from './EarningsDetailWidget';
 import { MarkdownWidget } from './MarkdownWidget';
 import { DRAMPriceTrendWidget } from './DRAMPriceTrendWidget';
+import { KPISnapshotWidget } from './KPISnapshotWidget';
+import { PeerComparisonWidget } from './PeerComparisonWidget';
 
 /* ========== 类型 ========== */
 
@@ -59,5 +61,17 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     title: 'DRAM Price Trend',
     component: DRAMPriceTrendWidget,
     defaultSize: { w: 6, h: 5 },
+  },
+  'kpi-snapshot': {
+    id: 'kpi-snapshot',
+    title: 'Key Metrics',
+    component: KPISnapshotWidget,
+    defaultSize: { w: 12, h: 3 },
+  },
+  'peer-comparison': {
+    id: 'peer-comparison',
+    title: 'Peer Comparison',
+    component: PeerComparisonWidget,
+    defaultSize: { w: 12, h: 5 },
   },
 };
