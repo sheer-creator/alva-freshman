@@ -56,13 +56,15 @@ export interface FeedDetailModalProps {
   description: string;
   stats?: FeedDetailStats;
   history?: FeedRunHistoryItem[];
+  /** 点击 "Manage feed" — 传入时显示入口(跳转到 Settings Automations) */
+  onManage?: () => void;
 }
 
 /* ========== 默认数据(Figma 原型) ========== */
 
 const DEFAULT_STATS: FeedDetailStats = {
-  totalLabel: 'Total Xxxx',
-  totalValue: '$0.78',
+  totalLabel: 'Total Runs',
+  totalValue: '142',
   successCount: 140,
   failedCount: 2,
 };
@@ -118,6 +120,7 @@ export function FeedDetailModal({
   description,
   stats = DEFAULT_STATS,
   history = DEFAULT_HISTORY,
+  onManage,
 }: FeedDetailModalProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -170,12 +173,29 @@ export function FeedDetailModal({
               {feedName}
             </p>
           </div>
-          <div className="flex gap-[4px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full whitespace-nowrap">
-            <p>Last Run: {lastRun}</p>
-            <p>•</p>
-            <p>{runEvery}</p>
-            <p>•</p>
-            <p>{totalRuns} Runs</p>
+          <div className="flex gap-[4px] items-center w-full whitespace-nowrap">
+            <div className="flex gap-[4px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+              <p>Last Run: {lastRun}</p>
+              <p>•</p>
+              <p>{runEvery}</p>
+              <p>•</p>
+              <p>{totalRuns} Runs</p>
+            </div>
+            {onManage && (
+              <>
+                <div className="flex-1" />
+                <button
+                  type="button"
+                  onClick={onManage}
+                  className="flex items-center gap-[2px] cursor-pointer bg-transparent border-none outline-none p-0 hover:opacity-70 transition-opacity"
+                >
+                  <span className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                    Manage feed
+                  </span>
+                  <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />
+                </button>
+              </>
+            )}
           </div>
         </div>
 

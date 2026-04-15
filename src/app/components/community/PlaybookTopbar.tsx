@@ -211,7 +211,7 @@ export function PlaybookTopbar({
           <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px] shrink-0">
             &bull;
           </p>
-          {/* Title unit — hover shows popup + dotted underline */}
+          {/* Title + status — 整块作为 hover 触发区(icon + title + pill) */}
           <div
             className="group relative flex gap-[4px] items-center min-w-0 overflow-visible cursor-pointer"
             onMouseEnter={openHeader}
@@ -225,6 +225,7 @@ export function PlaybookTopbar({
             >
               {title}
             </p>
+            <StatusPill text="15m" />
             {/* Hover 浮层：Playbook Info (Figma 6080:112803) — 标题左对齐,下方 8px,带淡入上浮动画 */}
             <div
               className={`absolute left-0 top-full mt-[8px] z-30 w-[520px] origin-top transition-all duration-200 ease-out ${
@@ -238,10 +239,10 @@ export function PlaybookTopbar({
                 intervalLabel="15m"
                 description={description}
                 authorName={authorName}
+                onNavigate={onNavigate}
               />
             </div>
           </div>
-          <StatusPill text="15m" />
         </div>
 
         {/* Right: actions */}

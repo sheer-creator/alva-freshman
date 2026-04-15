@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import type { Page } from '@/app/App';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { FeedDetailModal } from './FeedDetailModal';
@@ -48,6 +49,8 @@ export interface PlaybookInfoPopupProps {
   description: string;
   feeds?: PlaybookInfoFeed[];
   authorName: string;
+  /** 导航回调 — 传入时,Feed 表格底部显示 "View all feeds in Settings" 入口 */
+  onNavigate?: (page: Page) => void;
 }
 
 /* ========== 默认 Feed 数据(Figma 原型,实际场景由外部传入) ========== */
@@ -121,6 +124,7 @@ export function PlaybookInfoPopup({
   description,
   feeds = DEFAULT_FEEDS,
   authorName,
+  onNavigate,
 }: PlaybookInfoPopupProps) {
   const [activeFeed, setActiveFeed] = useState<PlaybookInfoFeed | null>(null);
 
@@ -189,6 +193,33 @@ export function PlaybookInfoPopup({
               onClick={feed.detail ? () => setActiveFeed(feed) : undefined}
             />
           ))}
+          {/* View all — 仅在传入 onNavigate 时显示,作为 Feed 表尾的次级导航入口 */}
+          {onNavigate && (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onNavigate('automations')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onNavigate('automations');
+                }
+              }}
+              className="px-[20px] w-full transition-colors cursor-pointer hover:bg-[rgba(0,0,0,0.02)]"
+            >
+              <div
+                className="flex gap-[8px] items-center py-[10px] w-full"
+                style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+              >
+                <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                  View all feeds in Settings
+                </p>
+                <div className="size-[12px] shrink-0 flex items-center justify-center">
+                  <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Author */}
@@ -216,6 +247,10 @@ export function PlaybookInfoPopup({
           totalRuns={activeFeed.detail.totalRuns}
           stats={activeFeed.detail.stats}
           history={activeFeed.detail.history}
+          onManage={onNavigate ? () => {
+            setActiveFeed(null);
+            onNavigate('automations');
+          } : undefined}
         />
       )}
     </>
