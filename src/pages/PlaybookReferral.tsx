@@ -5,7 +5,7 @@
  */
 
 import type { Page } from '@/app/App';
-import Dashboard from '@/pages/Dashboard';
+import { DashboardWorkspace } from '@/pages/DashboardWorkspace';
 import { REFERRAL_DATA } from '@/data/referral-mock';
 import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
 
@@ -40,9 +40,9 @@ export default function PlaybookReferral({ onNavigate }: { onNavigate: (page: Pa
   return (
     <div className="relative h-screen overflow-hidden font-['Delight',sans-serif]">
 
-      {/* 背景 — 真实 TSLA Playbook 页面 */}
+      {/* 背景 — 真实 Playbook 页面 */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
-        <Dashboard onNavigate={() => {}} />
+        <DashboardWorkspace onNavigate={() => {}} />
       </div>
 
       {/* 遮罩 */}

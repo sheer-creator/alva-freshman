@@ -10,14 +10,15 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 
 const FONT = "'Delight', sans-serif";
 
-export type SettingsTab = 'account' | 'billing' | 'portfolio-settings' | 'alva-agent' | 'api-keys';
+export type SettingsTab = 'account' | 'billing' | 'portfolio-settings' | 'alva-agent' | 'automations' | 'api-keys';
 
 const TABS: { key: SettingsTab; label: string }[] = [
-  { key: 'account',            label: 'Account'    },
+  { key: 'account',            label: 'Account'     },
   { key: 'billing',            label: 'Usage'       },
-  { key: 'portfolio-settings', label: 'Portfolio'  },
-  { key: 'alva-agent',         label: 'Alva Agent' },
-  { key: 'api-keys',           label: 'API Key'    },
+  { key: 'portfolio-settings', label: 'Portfolio'   },
+  { key: 'alva-agent',         label: 'Alva Agent'  },
+  { key: 'automations',        label: 'Automations' },
+  { key: 'api-keys',           label: 'API Key'     },
 ];
 
 interface SettingsLayoutProps {

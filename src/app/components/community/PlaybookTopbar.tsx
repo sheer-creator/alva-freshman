@@ -7,10 +7,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
-import { RemixPrompt } from './RemixPrompt';
 import { PlaybookShareModal } from './PlaybookShareModal';
-import { StrategyBindPanel } from '../trading/StrategyBindPanel';
-import { PlaybookHeader } from './PlaybookHeader';
+import { PlaybookInfoPopup } from './PlaybookInfoPopup';
 import type { PlaybookHeaderProps } from './PlaybookHeader';
 import type { LineageNode, Comment } from '@/data/community-mock';
 
@@ -42,9 +40,9 @@ function useClickOutside(ref: React.RefObject<HTMLElement | null>, open: boolean
 
 /* ========== StatusDot ========== */
 
-function StatusDot() {
+function StatusDot({ size = 12 }: { size?: number }) {
   return (
-    <div className="flex items-center shrink-0 size-[12px]">
+    <div className="flex items-center shrink-0" style={{ width: size, height: size }}>
       <div className="flex-1 h-full min-h-px min-w-px overflow-clip relative">
         <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2">
           <svg className="block size-full" fill="none" viewBox="0 0 12 12">
@@ -57,6 +55,22 @@ function StatusDot() {
           </svg>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ========== StatusPill (dot + 运行时长) ========== */
+
+function StatusPill({ text = '15m' }: { text?: string }) {
+  return (
+    <div
+      className="flex items-center justify-center gap-[2px] px-[6px] py-px rounded-full shrink-0"
+      style={{ border: '1px solid rgba(0,0,0,0.07)' }}
+    >
+      <StatusDot size={12} />
+      <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
+        {text}
+      </p>
     </div>
   );
 }
@@ -134,19 +148,17 @@ const COPY_FEEDBACK_MS = 2000;
 /* ========== 组件 ========== */
 
 export function PlaybookTopbar({
-  title, stats, lineage, comments,
+  title, stats, comments,
   discussionOpen, onToggleDiscussion,
-  author, pulse, description, builtOn, onAuthorClick, onNavigate,
+  author, description, onAuthorClick, onNavigate,
 }: PlaybookTopbarProps) {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [remixOpen, setRemixOpen] = useState(false);
   const [ownAgentOpen, setOwnAgentOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [tradeOpen, setTradeOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
   const remixRef = useRef<HTMLDivElement>(null);
-  const tradeRef = useRef<HTMLDivElement>(null);
   const headerTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
   const openHeader = useCallback(() => {
@@ -165,7 +177,6 @@ export function PlaybookTopbar({
   }, []);
 
   useClickOutside(remixRef, remixOpen, closeRemix);
-  useClickOutside(tradeRef, tradeOpen, () => setTradeOpen(false));
 
   const copyPrompt = async () => {
     try {
@@ -180,31 +191,71 @@ export function PlaybookTopbar({
   return (
     <>
       <div className="flex gap-[12px] h-[56px] items-center py-[10px] sticky top-0 shrink-0 w-full z-10 bg-white relative">
-        {/* Left: avatar + author + title + status */}
-        <div
-          className="flex flex-1 gap-[4px] items-center min-h-px min-w-px"
-          onMouseEnter={openHeader}
-          onMouseLeave={closeHeader}
-        >
-          <div className="shrink-0 size-[20px]">
-            <Avatar name={authorName} size={20} />
-          </div>
-          <div className="flex flex-1 gap-[4px] items-center min-h-px min-w-px overflow-hidden">
-            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis shrink-0">
+        {/* Left: avatar + author (click → profile) + title (hover → popup) + status */}
+        <div className="flex flex-1 gap-[4px] items-center min-h-px min-w-px">
+          {/* Author unit — click navigates to profile */}
+          <div
+            className="flex gap-[4px] items-center shrink-0 cursor-pointer"
+            onClick={onAuthorClick}
+            role={onAuthorClick ? 'button' : undefined}
+            tabIndex={onAuthorClick ? 0 : undefined}
+            onKeyDown={e => { if (onAuthorClick && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onAuthorClick(); } }}
+          >
+            <div className="shrink-0 size-[20px]">
+              <Avatar name={authorName} size={20} />
+            </div>
+            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap shrink-0">
               {authorName}
             </p>
-            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px] shrink-0">
-              &bull;
-            </p>
-            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis shrink-0">
+          </div>
+          <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px] shrink-0">
+            &bull;
+          </p>
+          {/* Title unit — hover shows popup + dotted underline */}
+          <div
+            className="group relative flex gap-[4px] items-center min-w-0 overflow-visible cursor-pointer"
+            onMouseEnter={openHeader}
+            onMouseLeave={closeHeader}
+          >
+            <div className="shrink-0 size-[18px] flex items-center justify-center">
+              <CdnIcon name="sidebar-dashboard-normal" size={18} color="rgba(0,0,0,0.9)" />
+            </div>
+            <p
+              className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis shrink-0 group-hover:underline group-hover:decoration-dotted group-hover:decoration-[rgba(0,0,0,0.5)] group-hover:underline-offset-[3px]"
+            >
               {title}
             </p>
-            <StatusDot />
+            {/* Hover 浮层：Playbook Info (Figma 6080:112803) — 标题左对齐,下方 8px,带淡入上浮动画 */}
+            <div
+              className={`absolute left-0 top-full mt-[8px] z-30 w-[520px] origin-top transition-all duration-200 ease-out ${
+                headerOpen
+                  ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+                  : 'opacity-0 -translate-y-1 scale-[0.98] pointer-events-none'
+              }`}
+            >
+              <PlaybookInfoPopup
+                title={title}
+                intervalLabel="15m"
+                description={description}
+                authorName={authorName}
+              />
+            </div>
           </div>
+          <StatusPill text="15m" />
         </div>
 
         {/* Right: actions */}
         <div className="flex items-center shrink-0">
+          {/* History */}
+          <IconButton>
+            <CdnIcon name="history-l" />
+          </IconButton>
+
+          {/* Settings */}
+          <IconButton>
+            <CdnIcon name="settings-l" />
+          </IconButton>
+
           {/* Share */}
           <IconButton onClick={() => setShareOpen(true)}>
             <CdnIcon name="share-l" />
@@ -310,49 +361,10 @@ export function PlaybookTopbar({
           >
             <CdnIcon name="chat-l1" color={discussionOpen ? '#49A3A6' : undefined} />
           </IconButton>
-
-          {/* Action buttons */}
-          <div className="flex gap-[8px] items-center pl-[8px]">
-            {/* Trade */}
-            <div ref={tradeRef} className="relative">
-              <button
-                onClick={() => setTradeOpen(v => !v)}
-                className="flex gap-[6px] h-[32px] items-center justify-center px-[10px] py-[6px] rounded-[6px] cursor-pointer hover:bg-black/[0.04] transition-colors"
-                style={{ border: '0.5px solid rgba(0,0,0,0.3)' }}
-              >
-                <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-[rgba(0,0,0,0.9)] tracking-[0.12px] whitespace-nowrap">
-                  Trade
-                </span>
-              </button>
-              {tradeOpen && (
-                <div
-                  className="absolute top-full right-0 mt-[8px] z-30"
-                  style={{ background: '#fff', borderRadius: 8, boxShadow: '0 6px 20px rgba(0,0,0,0.04)', border: '0.5px solid rgba(0,0,0,0.2)' }}
-                >
-                  <StrategyBindPanel onNavigate={onNavigate} />
-                </div>
-              )}
-            </div>
-
-          </div>
         </div>
 
         {/* Share modal */}
         <PlaybookShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} playbookName={title} onNavigate={onNavigate} />
-
-        {/* Hover 浮层：PlaybookHeader */}
-        {headerOpen && (
-          <div
-            className="absolute top-full left-0 pt-[4px]"
-            style={{ zIndex: 30, minWidth: 480 }}
-            onMouseEnter={openHeader}
-            onMouseLeave={closeHeader}
-          >
-            <div style={{ borderRadius: 6, boxShadow: '0 6px 20px rgba(0,0,0,0.04)', border: '0.5px solid rgba(0,0,0,0.2)' }}>
-              <PlaybookHeader author={author} pulse={pulse} description={description} builtOn={builtOn} onAuthorClick={onAuthorClick} />
-            </div>
-          </div>
-        )}
       </div>
 
     </>

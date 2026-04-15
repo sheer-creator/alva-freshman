@@ -135,7 +135,7 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
           turns={visibleTurns}
           activeToolId={activeToolId}
           onUserAction={resumeStream}
-          onRelease={() => { setChatPanelOpen(true); onNavigate('dashboard'); }}
+          onRelease={() => { setChatPanelOpen(true); onNavigate('workspace'); }}
           showThinking={showThinking}
           thinkingText={todoActiveForm}
           showCreditWarning={showCreditWarning}

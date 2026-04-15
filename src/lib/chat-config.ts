@@ -36,7 +36,6 @@ export const PAGE_CONTEXT_MAP: Record<string, ContextTagData | null> = {
   home: { label: 'Home', icon: 'sidebar-discover-normal' },
   explore: { label: 'Explore', icon: 'sidebar-discover-normal' },
   'explore-2': { label: 'Explore', icon: 'sidebar-discover-normal' },
-  dashboard: { label: 'Dashboard', icon: 'sidebar-discover-normal' },
   workspace: { label: 'Workspace', icon: 'sidebar-discover-normal' },
   agent: null,
 };

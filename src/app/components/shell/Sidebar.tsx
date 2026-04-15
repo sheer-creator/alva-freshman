@@ -88,7 +88,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[4]">
         <SectionHeader label="Starred" />
         <NavItem label="MAG7 Equal-Weight" />
-        <NavItem label="ETH/BTC Mean Reversion" />
       </div>
 
       {/* Playbooks */}

@@ -401,7 +401,7 @@ export const MOCK_CUSTOM_LAYOUT = {
 export const MOCK_WORKSPACE = {
   name: 'Workspace',
   description: 'Full-featured workspace merging earnings, watchlist, markdown notes, tech analysis, and price comparison widgets into a single research hub.',
-  author: { name: 'Marcus Webb', bio: 'Portfolio Analyst · 8y equities', totalStars: 560, publishedBy: 'Alva Intern' },
+  author: { name: 'YGGYLL', bio: 'Portfolio Analyst · 8y equities', totalStars: 560, publishedBy: 'Alva Intern' },
   pulse: 'active' as const,
   stats: { stars: 67, forks: 12, shares: 5 },
   builtOn: [
@@ -437,7 +437,7 @@ export const MOCK_WORKSPACE = {
       id: 'ws1', author: 'Nina Patel', isAgent: false, timestamp: '4h ago',
       text: "The **markdown notes widget** is a game-changer for me. I jot down earnings call takeaways right next to the chart — no more switching to Notion mid-analysis.",
       replies: [
-        { id: 'ws1-r1', author: 'Marcus Webb', isAgent: false, timestamp: '3h 45m ago', text: "That's exactly the workflow I designed it for. Tip: use **markdown headers** to create collapsible sections for different tickers." },
+        { id: 'ws1-r1', author: 'YGGYLL', isAgent: false, timestamp: '3h 45m ago', text: "That's exactly the workflow I designed it for. Tip: use **markdown headers** to create collapsible sections for different tickers." },
         { id: 'ws1-r2', author: 'Nina Patel', isAgent: false, timestamp: '3h 30m ago', text: 'Collapsible sections! Didn\'t know that worked. This just replaced my entire note-taking setup.', sticker: 'Chad_Heart_Minimal.png' },
       ],
     },
@@ -453,7 +453,7 @@ export const MOCK_WORKSPACE = {
       text: "Question: is there a way to **pin the tech analysis widget** to always show RSI + MACD? Every time I reload it defaults back to the basic view.",
       replies: [
         { id: 'ws3-r1', author: 'Alva Agent', isAgent: true, timestamp: '1h 30m ago', text: 'Not yet — widget state persistence is coming in the next release. For now, the default view resets on reload. We\'re tracking this as a P1 improvement.' },
-        { id: 'ws3-r2', author: 'Marcus Webb', isAgent: false, timestamp: '1h 20m ago', text: 'I keep the workspace tab pinned in my browser so I rarely reload. Hacky but works for now.' },
+        { id: 'ws3-r2', author: 'YGGYLL', isAgent: false, timestamp: '1h 20m ago', text: 'I keep the workspace tab pinned in my browser so I rarely reload. Hacky but works for now.' },
       ],
     },
     {
@@ -465,7 +465,7 @@ export const MOCK_WORKSPACE = {
       id: 'ws5', author: 'Grace Lee', isAgent: false, timestamp: '30m ago',
       text: "Forked this and swapped NVDA widgets for AAPL ones. The layout structure works great for any single-stock deep dive. Nice modular design, Marcus.",
       replies: [
-        { id: 'ws5-r1', author: 'Marcus Webb', isAgent: false, timestamp: '20m ago', text: 'Thanks! That\'s the idea — the layout is the playbook, the data is interchangeable. Happy to see it adapted.' },
+        { id: 'ws5-r1', author: 'YGGYLL', isAgent: false, timestamp: '20m ago', text: 'Thanks! That\'s the idea — the layout is the playbook, the data is interchangeable. Happy to see it adapted.' },
       ],
     },
     {
@@ -477,8 +477,8 @@ export const MOCK_WORKSPACE = {
       id: 'ws7', author: 'Grace Lee', isAgent: false, timestamp: '6m ago',
       text: "I originally forked from the Custom Layout playbook as a template — it's a great starting point for any workspace.",
       playbookRefs: [{
-        page: 'dashboard',
-        name: 'Dashboard Playbook',
+        page: 'workspace',
+        name: 'Workspace',
         author: 'Leo Zhou',
         description: 'Custom layout combining watchlist, Google Trends, and real-time chart widgets',
         kpi: '+18.3%',

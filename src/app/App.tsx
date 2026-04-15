@@ -1,13 +1,12 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "docs" | "api-keys" | "explore-2" | "dashboard" | "workspace" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | `thread/${string}`;
+export type Page = "home" | "docs" | "api-keys" | "explore-2" | "workspace" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
 const Home = lazy(() => import("@/pages/HomeV3"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const DashboardWorkspace = lazy(() => import("@/pages/DashboardWorkspace").then(m => ({ default: m.DashboardWorkspace })));
 const Agent = lazy(() => import("@/pages/Agent"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
@@ -25,10 +24,11 @@ const AlvaChatDetail = lazy(() => import("@/pages/AlvaChatDetail"));
 const ReferralLanding = lazy(() => import("@/pages/ReferralLanding"));
 const PlaybookReferral = lazy(() => import("@/pages/PlaybookReferral"));
 const Thread = lazy(() => import("@/pages/Thread"));
+const Automations = lazy(() => import("@/pages/Automations"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore-2", "dashboard", "workspace", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat-detail", "referral-landing", "playbook-referral"];
+const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore-2", "workspace", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "alva-chat-detail", "referral-landing", "playbook-referral"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -43,7 +43,7 @@ export function getThreadId(page: Page): string | null {
 
 /* ========== App ========== */
 
-const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alva-agent", "api-keys"];
+const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alva-agent", "automations", "api-keys"];
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
@@ -93,7 +93,6 @@ export default function App() {
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
-        {currentPage === "dashboard" && <Dashboard onNavigate={navigate} />}
         {currentPage === "workspace" && <DashboardWorkspace onNavigate={navigate} />}
         {currentPage === "agent" && <Agent key={agentKey} onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
@@ -103,6 +102,7 @@ export default function App() {
         {currentPage === "portfolio-settings" && <PortfolioSettings onNavigate={navigate} />}
         {currentPage === "pricing" && <Pricing onNavigate={navigate} />}
         {currentPage === "billing" && <Billing onNavigate={navigate} />}
+        {currentPage === "automations" && <Automations onNavigate={navigate} />}
         {currentPage === "alva-chat-detail" && <AlvaChatDetail onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "referral-landing" && <ReferralLanding onNavigate={navigate} />}
         {currentPage === "playbook-referral" && <PlaybookReferral onNavigate={navigate} />}
