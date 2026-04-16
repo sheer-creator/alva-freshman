@@ -55,10 +55,32 @@ interface AutomationFeed {
 const DEFAULT_DESCRIPTION =
   'Tracks global gas turbine manufacturing capacity across major OEMs. Every 5 minutes, pulls order backlog data, computes total installed capacity (GW), YoY growth rates, and projected supply gaps.';
 
+const BTC_MACD_DESCRIPTION = `**Signal Generation**
+Monitors BTC/USDT on the 1-hour timeframe using MACD(12, 26, 9). A bullish crossover (MACD line crossing above signal line) triggers a long entry; a bearish crossover triggers an exit. Only one position is held at a time. The histogram slope is used as a secondary filter — flat or declining histograms after a crossover are treated as low-confidence and may be skipped.
+
+**Risk Management**
+Each trade risks a maximum of 2% of portfolio equity. A trailing stop-loss is placed at 1.5× ATR(14) below the entry price and tightens as the position moves into profit. If the drawdown exceeds 5% from the local equity peak, the feed pauses new entries until the next confirmed crossover. Position sizing is dynamically adjusted based on 30-day realized volatility.
+
+**Data Sources & Frequency**
+Pulls 1-hour OHLCV candles from Binance and Coinbase every 60 seconds, cross-validates the close price, and recomputes the MACD histogram. Divergence between exchanges > 0.3% triggers a data-quality warning instead of a trade. Funding rate data from Binance Futures is also ingested to detect extreme sentiment.
+
+**Multi-Timeframe Confirmation**
+Before executing any entry, the feed checks the 4-hour and daily MACD alignment. A long signal on the 1-hour chart is only acted upon if the 4-hour MACD histogram is positive and the daily MACD line is above its signal line. This triple-timeframe filter reduces false signals by approximately 40% based on backtested data from Jan 2023 to Dec 2025.
+
+**Output Signals**
+Writes a JSON signal to ~/feeds/btc-macd/signal.json containing: direction (long / flat), entry price, stop-loss level, current P&L, and a confidence score (0–1) derived from histogram momentum. Each signal includes a human-readable rationale string summarizing why the trade was taken or skipped.
+
+**Performance Tracking**
+Maintains a rolling 90-day performance ledger at ~/feeds/btc-macd/perf.json. Tracked metrics include: win rate, average R-multiple, Sharpe ratio, max drawdown, and total P&L in both BTC and USD terms. A weekly summary is pushed to the connected Slack webhook every Sunday at 00:00 UTC.
+
+**Alert & Notification**
+Sends real-time alerts via Telegram and Slack when a new signal is generated, when a stop-loss is hit, or when the data-quality check fails. Alert messages include the current BTC price, signal direction, confidence score, and a link to the full signal JSON for manual review.`;
+
 /* ========== Mock ========== */
 
 const FEEDS: AutomationFeed[] = [
   { id: '1', name: 'Capacity-Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142,
+    description: BTC_MACD_DESCRIPTION,
     usedBy: [{ author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }, { author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }] },
   { id: '2', name: 'Capacity-Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142,
     usedBy: [{ author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }, { author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }] },

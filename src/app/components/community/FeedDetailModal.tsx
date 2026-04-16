@@ -4,7 +4,7 @@
  * [POS]: 社区组件 — PlaybookInfoPopup 点击 feed 行弹出
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 
@@ -123,6 +123,9 @@ export function FeedDetailModal({
   onManage,
 }: FeedDetailModalProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [descExpanded, setDescExpanded] = useState(false);
+  const [descOverflows, setDescOverflows] = useState(false);
+  const descRef = useRef<HTMLDivElement>(null);
 
   // ESC 关闭
   useEffect(() => {
@@ -133,7 +136,13 @@ export function FeedDetailModal({
   }, [open, onClose]);
 
   // Modal 关闭时重置展开状态
-  useEffect(() => { if (!open) setExpandedId(null); }, [open]);
+  useEffect(() => { if (!open) { setExpandedId(null); setDescExpanded(false); } }, [open]);
+
+  // 检测描述块是否溢出 280px
+  useEffect(() => {
+    if (!open || !descRef.current) return;
+    setDescOverflows(descRef.current.scrollHeight > 280);
+  }, [open, description]);
 
   if (!open) return null;
 
@@ -199,17 +208,63 @@ export function FeedDetailModal({
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="shrink-0 h-px w-full" style={{ background: 'rgba(0,0,0,0.07)' }} />
-
-        {/* Description */}
-        <div className="shrink-0 flex flex-col gap-[4px] items-start w-full">
+        {/* Description — grey block, collapsed 280px / expanded full height with animation */}
+        <div
+          ref={descRef}
+          className={`shrink-0 relative flex flex-col gap-[8px] items-start w-full rounded-[8px] px-[16px] py-[12px] overflow-hidden ${descOverflows ? 'pb-[31px]' : ''}`}
+          style={{
+            background: '#fafafa',
+            maxHeight: descExpanded ? (descRef.current?.scrollHeight ?? 9999) : 280,
+            transition: 'max-height 0.3s ease-out',
+          }}
+        >
           <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
             What This Feed Does
           </p>
-          <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] w-full">
-            {description}
-          </p>
+          {/* Markdown/M — split paragraphs on blank lines, render **bold** as headings */}
+          {description.split('\n\n').map((block, i) => {
+            const boldMatch = block.match(/^\*\*(.+?)\*\*\n?([\s\S]*)$/);
+            if (boldMatch) {
+              return (
+                <div key={i} className="flex flex-col gap-[4px] w-full">
+                  <p className="font-['Delight',sans-serif] font-medium leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] w-full">
+                    {boldMatch[1]}
+                  </p>
+                  {boldMatch[2] && (
+                    <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] w-full">
+                      {boldMatch[2]}
+                    </p>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <p key={i} className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] w-full">
+                {block}
+              </p>
+            );
+          })}
+          {/* Expand / Collapse — 渐变遮罩 + 箭头按钮 */}
+          {descOverflows && (
+            <div className="absolute bottom-0 left-0 right-0 flex flex-col items-stretch">
+              {!descExpanded && (
+                <div className="h-[32px] pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(250,250,250,0), #fafafa)' }} />
+              )}
+              <button
+                type="button"
+                onClick={() => setDescExpanded(prev => !prev)}
+                className="w-full flex items-start justify-center h-[19px] cursor-pointer border-none outline-none p-0"
+                style={{ background: '#fafafa' }}
+              >
+                <div
+                  className="transition-transform duration-200 ease-out"
+                  style={{ transform: descExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                >
+                  <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                </div>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Stats (3 cards) */}
@@ -223,11 +278,11 @@ export function FeedDetailModal({
         <div className="shrink-0 flex flex-col items-start w-full">
           {/* 表头 */}
           <div
-            className="flex gap-[8px] items-center py-[10px] w-full"
-            style={{ borderTop: '1px solid rgba(0,0,0,0.07)', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+            className="flex gap-[8px] items-center pb-[10px] w-full"
+            style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
           >
             <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
-              Run History
+              Recent 10 Runs
             </p>
             <div className="size-[12px] opacity-0 shrink-0" />
           </div>
@@ -247,12 +302,12 @@ export function FeedDetailModal({
                   style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
                 >
                   <div
-                    role={expandable ? 'button' : undefined}
-                    tabIndex={expandable ? 0 : undefined}
+                    role="button"
+                    tabIndex={0}
                     aria-expanded={expanded}
                     onClick={toggle}
-                    onKeyDown={expandable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } } : undefined}
-                    className={`flex gap-[12px] items-center py-[10px] w-full ${expandable ? 'cursor-pointer' : ''}`}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}
+                    className="flex gap-[12px] items-center py-[10px] w-full cursor-pointer"
                   >
                     <div
                       className="size-[12px] shrink-0 flex items-center justify-center transition-transform duration-200 ease-out"
