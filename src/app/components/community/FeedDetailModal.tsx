@@ -173,12 +173,12 @@ export function FeedDetailModal({
               {feedName}
             </p>
           </div>
-          <div className="flex gap-[4px] items-center w-full whitespace-nowrap">
-            <div className="flex gap-[4px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+          <div className="flex gap-[8px] items-center w-full whitespace-nowrap">
+            <div className="flex gap-[8px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
               <p>Last Run: {lastRun}</p>
-              <p>•</p>
+              <p style={{ color: 'var(--text-n2)' }}>|</p>
               <p>{runEvery}</p>
-              <p>•</p>
+              <p style={{ color: 'var(--text-n2)' }}>|</p>
               <p>{totalRuns} Runs</p>
             </div>
             {onManage && (

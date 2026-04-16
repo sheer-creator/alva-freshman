@@ -115,15 +115,15 @@ function FeedCard({ feed, onNavigate, onOpen }: { feed: AutomationFeed; onNaviga
           {feed.name}
         </p>
         <div
-          className="flex flex-1 min-w-0 gap-[4px] items-center justify-end leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap"
+          className="flex flex-1 min-w-0 gap-[8px] items-center justify-end leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap"
           style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
         >
           {feed.status === 'active' ? (
             <>
               <p>Last Run: {feed.lastRun}</p>
-              <p>•</p>
+              <p style={{ color: 'var(--text-n2)' }}>|</p>
               <p>{feed.runEvery}</p>
-              <p>•</p>
+              <p style={{ color: 'var(--text-n2)' }}>|</p>
               <p>{feed.totalRuns} Runs</p>
             </>
           ) : (

@@ -2285,7 +2285,6 @@ function Title3() {
   return (
     <div className="content-stretch flex flex-[1_0_0] gap-[2px] items-center min-h-px min-w-px relative" data-name="Title">
       <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">Forward Valuation Comparison</p>
-      <ArrowRightL3 />
     </div>
   );
 }

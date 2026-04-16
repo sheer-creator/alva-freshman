@@ -154,9 +154,9 @@ export function PlaybookInfoPopup({
               </p>
             </div>
           </div>
-          <div className="flex gap-[4px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full whitespace-nowrap">
+          <div className="flex gap-[8px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full whitespace-nowrap">
             <p>{runEvery}</p>
-            <p>•</p>
+            <p style={{ color: 'var(--text-n2)' }}>|</p>
             <p>{feeds.length} Feeds</p>
           </div>
           <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.7)] tracking-[0.12px] w-full">
