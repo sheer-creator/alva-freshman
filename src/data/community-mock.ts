@@ -360,7 +360,7 @@ export const MOCK_CUSTOM_LAYOUT = {
       id: 'cl2', author: 'Sarah Lin', isAgent: false, timestamp: '2h ago',
       text: 'Feature request: can we add a **mini earnings calendar** widget? Would be perfect alongside the watchlist for planning the week ahead.',
       replies: [
-        { id: 'cl2-r1', author: 'Alva Agent', isAgent: true, timestamp: '1h 45m ago', text: "Good idea. There's actually an earnings widget available in the Workspace playbook — you could fork this layout and add it. A dedicated mini calendar widget is on the roadmap for Q2." },
+        { id: 'cl2-r1', author: 'Alva Agent', isAgent: true, timestamp: '1h 45m ago', text: "Good idea. There's actually an earnings widget available in the Storage Dashboard playbook — you could fork this layout and add it. A dedicated mini calendar widget is on the roadmap for Q2." },
       ],
     },
     {
@@ -399,8 +399,8 @@ export const MOCK_CUSTOM_LAYOUT = {
 };
 
 export const MOCK_WORKSPACE = {
-  name: 'Workspace',
-  description: 'Full-featured workspace merging earnings, watchlist, markdown notes, tech analysis, and price comparison widgets into a single research hub.',
+  name: 'Storage Dashboard',
+  description: 'Full-featured storage dashboard merging earnings, watchlist, markdown notes, tech analysis, and price comparison widgets into a single research hub.',
   author: { name: 'YGGYLL', bio: 'Portfolio Analyst · 8y equities', totalStars: 560, publishedBy: 'Alva Intern' },
   pulse: 'active' as const,
   stats: { stars: 67, forks: 12, shares: 5 },
@@ -422,10 +422,10 @@ export const MOCK_WORKSPACE = {
       'Widget state resets on reload — unsaved markdown notes and tech analysis configurations are lost',
       'Earnings widget relies on consensus estimates which may lag actual analyst revisions by 1-2 days',
     ],
-    buildLog: 'Workspace assembled from 7 proven widgets across 2 existing playbooks (Dashboard + Dashboard Workspace). Layout tested with 3 analysts over 2 weeks during NVDA Q4 earnings. Row ordering prioritized by information dependency: earnings context first, then price action, then technical confirmation.',
+    buildLog: 'Storage Dashboard assembled from 7 proven widgets across 2 existing playbooks (Dashboard + Storage Dashboard). Layout tested with 3 analysts over 2 weeks during NVDA Q4 earnings. Row ordering prioritized by information dependency: earnings context first, then price action, then technical confirmation.',
     usageGuide: 'Use during earnings season as your primary research hub. Start with the earnings widget for context, check price action vs SPY for relative performance, then use tech analysis for entry timing. Keep markdown notes open for real-time journaling during earnings calls.',
     timeline: [
-      { date: 'Mar 9, 2026', description: 'Merged Dashboard Playbook and Dashboard Workspace into unified layout', active: true },
+      { date: 'Mar 9, 2026', description: 'Merged Dashboard Playbook and Storage Dashboard into unified layout', active: true },
       { date: 'Mar 5, 2026', description: 'Added NVDA earnings detail widget with Q4 FY25 breakdown' },
       { date: 'Feb 28, 2026', description: 'Markdown widget integrated — supports live editing with header collapsing' },
       { date: 'Feb 20, 2026', description: 'Tech analysis + Price vs SPY widgets added for signal confirmation layer' },
@@ -478,7 +478,7 @@ export const MOCK_WORKSPACE = {
       text: "I originally forked from the Custom Layout playbook as a template — it's a great starting point for any workspace.",
       playbookRefs: [{
         page: 'workspace',
-        name: 'Workspace',
+        name: 'Storage Dashboard',
         author: 'Leo Zhou',
         description: 'Custom layout combining watchlist, Google Trends, and real-time chart widgets',
         kpi: '+18.3%',

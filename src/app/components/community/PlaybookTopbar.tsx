@@ -303,7 +303,7 @@ export function PlaybookTopbar({
                   onClick={() => setRemixOpen(false)}
                 >
                   <CdnIcon name="remix-l" size={18} color="#ffffff" />
-                  Start Remixing
+                  Remix
                 </a>
                 <div className="flex flex-col w-full">
                   <div className="flex items-center gap-[8px] w-full">

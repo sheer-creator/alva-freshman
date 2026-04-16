@@ -93,7 +93,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* Playbooks */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[3]">
         <SectionHeader label="Playbooks" />
-        <NavItem label="Workspace" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
+        <NavItem label="Storage Dashboard" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
       </div>
 
 
