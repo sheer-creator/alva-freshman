@@ -104,7 +104,7 @@ function FeedRow({ feed, onClick }: { feed: PlaybookInfoFeed; onClick?: () => vo
       <p className="w-[100px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
         {feed.interval}
       </p>
-      <p className="w-[100px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+      <p className="w-[120px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
         {feed.lastRun}
       </p>
       <div className="size-[12px] shrink-0 flex items-center justify-center">
@@ -179,7 +179,7 @@ export function PlaybookInfoPopup({
               <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
                 Interval
               </p>
-              <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+              <p className="w-[120px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
                 Last Run
               </p>
               <div className="size-[12px] opacity-0 shrink-0" />

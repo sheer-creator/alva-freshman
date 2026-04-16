@@ -160,7 +160,7 @@ export function FeedDetailModal({
           aria-label="Close"
           onClick={onClose}
         >
-          <CdnIcon name="close-l1" size={18} color="rgba(0,0,0,0.9)" />
+          <CdnIcon name="close-l1" size={18} />
         </button>
 
         {/* 可滚动主体 — 内容超出 dialog 高度时整体滚动 */}
