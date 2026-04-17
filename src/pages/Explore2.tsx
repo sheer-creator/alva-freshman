@@ -751,7 +751,7 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
         }
       `}</style>
       <AppShell
-        activePage="explore"
+        activePage="explore-2"
         onNavigate={onNavigate!}
         onOpenSearch={onOpenSearch}
         onUserMouseEnter={() => setIsUserInfoOpen(true)}

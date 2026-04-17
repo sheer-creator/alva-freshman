@@ -1,11 +1,12 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "docs" | "api-keys" | "explore-2" | "workspace" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | `thread/${string}`;
+export type Page = "home" | "new-chat" | "docs" | "api-keys" | "explore-2" | "workspace" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
 const Home = lazy(() => import("@/pages/HomeV3"));
+const NewChat = lazy(() => import("@/pages/NewChat"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
 const DashboardWorkspace = lazy(() => import("@/pages/DashboardWorkspace").then(m => ({ default: m.DashboardWorkspace })));
 const Agent = lazy(() => import("@/pages/Agent"));
@@ -28,7 +29,7 @@ const Automations = lazy(() => import("@/pages/Automations"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "docs", "api-keys", "explore-2", "workspace", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "alva-chat-detail", "referral-landing", "playbook-referral"];
+const VALID_PAGES: Page[] = ["home", "new-chat", "docs", "api-keys", "explore-2", "workspace", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "alva-chat-detail", "referral-landing", "playbook-referral"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -89,6 +90,7 @@ export default function App() {
     <>
       <Suspense>
         {currentPage === "home" && <Home onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "new-chat" && <NewChat onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}

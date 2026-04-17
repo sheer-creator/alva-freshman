@@ -5,6 +5,7 @@ import { Dropdown } from '../shared/Dropdown';
 import { ThreadSwitcherDropdown } from '../shared/ThreadSwitcherDropdown';
 import { useChatContext } from './ChatContext';
 import { ChatMessages } from './ChatMessages';
+import { PlaybookSuggestions, hasContextSuggestions } from './PlaybookSuggestions';
 import { TodoListCard, ReviewPlanCard, AnswerQuestionCard } from './StreamingMessages';
 import type { ContextTagData } from '@/lib/chat-config';
 import { CONVERSATIONS } from '@/lib/chat-config';
@@ -22,15 +23,26 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
-  const { hasInitialInput, activeConversationId, setActiveConversation, sendPrompt, overlay, dismissOverlay } = useChatContext();
+  const { hasInitialInput, activeConversationId, setActiveConversation, sendPrompt, overlay, dismissOverlay, activePage } = useChatContext();
   const [agentMessages, setAgentMessages] = useState([INITIAL_AGENT_MESSAGE]);
+  const [injectSignal, setInjectSignal] = useState<{ text: string; seq: number } | null>(null);
   const agentScrollRef = useRef<HTMLDivElement>(null);
 
   const isAgent = activeConversationId === '__agent__';
+  const showPlaybookEmpty = hasContextSuggestions(activePage) && activeConversationId === 'new' && !hasInitialInput;
+  const handlePromptClick = useCallback((text: string) => {
+    setInjectSignal({ text, seq: Date.now() });
+  }, []);
 
   const handleFullscreen = () => {
     onClose();
-    window.location.hash = isAgent ? 'agent' : `thread/${activeConversationId}`;
+    if (isAgent) {
+      window.location.hash = 'agent';
+    } else if (activeConversationId === 'new') {
+      window.location.hash = 'new-chat';
+    } else {
+      window.location.hash = `thread/${activeConversationId}`;
+    }
   };
 
   const handleAgentSend = useCallback((text: string) => {
@@ -38,7 +50,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
     setTimeout(() => {
       setAgentMessages(prev => [
         ...prev,
-        { role: 'agent' as const, text: `I'll look into "${text}" right away. I've also logged this as a new thread in your history for reference.` },
+        { role: 'agent' as const, text: `I'll look into "${text}" right away. I've also logged this as a new chat in your history for reference.` },
       ]);
       setTimeout(() => {
         agentScrollRef.current?.scrollTo({ top: agentScrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -86,7 +98,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                 ) : (
                   <div className="flex gap-[4px] items-center min-w-0 cursor-pointer">
                     <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] truncate`}>
-                      {CONVERSATIONS.find(c => c.id === activeConversationId)?.label ?? 'New Thread'}
+                      {CONVERSATIONS.find(c => c.id === activeConversationId)?.label ?? 'New Chat'}
                     </p>
                     <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
                   </div>
@@ -112,7 +124,10 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
               </>
             ) : (
               <>
-                <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => setActiveConversation('new')}>
+                <button
+                  className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+                  onClick={() => { onClose(); window.location.hash = 'new-chat'; }}
+                >
                   <CdnIcon name="chat-new-l" size={16} />
                 </button>
                 <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={handleFullscreen}>
@@ -167,9 +182,15 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
             </>
           ) : (
             <>
-              <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full pb-[64px] px-[16px]">
-                <ChatMessages conversationId={activeConversationId} hasContent={hasInitialInput} />
-              </div>
+              {showPlaybookEmpty ? (
+                <div className="flex flex-col flex-1 min-h-0 w-full px-[8px] pt-[16px] pb-[8px] justify-end">
+                  <PlaybookSuggestions page={activePage} onPromptClick={handlePromptClick} />
+                </div>
+              ) : (
+                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full pb-[64px] px-[16px]">
+                  <ChatMessages conversationId={activeConversationId} hasContent={hasInitialInput} />
+                </div>
+              )}
 
               {overlay && overlay.type === 'plan' && overlay.plan ? (
                 <div className="w-full shrink-0">
@@ -191,7 +212,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                       />
                     </div>
                   )}
-                  <ChatInput contextTag={contextTag} onSend={sendPrompt} />
+                  <ChatInput contextTag={contextTag} onSend={sendPrompt} injectText={injectSignal} />
                 </>
               )}
             </>

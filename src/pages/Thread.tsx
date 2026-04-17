@@ -32,7 +32,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
 
   const isAgent = activeView === '__agent__';
   const currentThreadId = isAgent ? threadId : activeView;
-  const title = CONVERSATIONS.find(c => c.id === currentThreadId)?.label ?? 'New Thread';
+  const title = CONVERSATIONS.find(c => c.id === currentThreadId)?.label ?? 'New Chat';
   const hasContent = currentThreadId !== 'new' && CONVERSATIONS.some(c => c.id === currentThreadId);
 
   const handleSwitcherSelect = useCallback((id: string) => {
@@ -44,7 +44,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
     setTimeout(() => {
       setAgentMessages(prev => [
         ...prev,
-        { role: 'agent', text: `I'll look into "${text}" right away. I've also logged this as a new thread in your history for reference.` },
+        { role: 'agent', text: `I'll look into "${text}" right away. I've also logged this as a new chat in your history for reference.` },
       ]);
       setTimeout(() => {
         agentScrollRef.current?.scrollTo({ top: agentScrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -102,7 +102,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
               </button>
             ) : (
               <>
-                <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => setActiveView('new')}>
+                <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => onNavigate('new-chat')}>
                   <CdnIcon name="chat-new-l" size={16} />
                 </button>
                 <Dropdown

@@ -128,7 +128,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isAgent = activeView === '__agent__';
-  const threadTitle = !isAgent ? (CONVERSATIONS.find(c => c.id === activeView)?.label ?? 'New Thread') : '';
+  const threadTitle = !isAgent ? (CONVERSATIONS.find(c => c.id === activeView)?.label ?? 'New Chat') : '';
   const hasThreadContent = !isAgent && activeView !== 'new' && CONVERSATIONS.some(c => c.id === activeView);
 
   const handleSwitcherSelect = useCallback((id: string) => {
@@ -140,7 +140,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
-        { role: 'agent', text: `I'll look into "${text}" right away. I've also logged this as a new thread in your history for reference.` },
+        { role: 'agent', text: `I'll look into "${text}" right away. I've also logged this as a new chat in your history for reference.` },
       ]);
       setTimeout(() => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -188,7 +188,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
           />
         </div>
         <div className="flex items-center gap-[16px] shrink-0">
-          <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => setActiveView('new')}>
+          <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => onNavigate('new-chat')}>
             <CdnIcon name="chat-new-l" size={16} />
           </button>
           {isAgent ? (

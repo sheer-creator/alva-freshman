@@ -9,7 +9,7 @@ const AGENT_SECTION = {
 };
 
 const THREAD_SECTION = {
-  title: 'Recent Threads',
+  title: 'Recent Chats',
   items: CONVERSATIONS.map(c => ({ ...c, icon: 'sidebar-thread-normal' })),
 };
 

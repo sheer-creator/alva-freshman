@@ -21,17 +21,22 @@ interface SidebarProps {
 
 /* ========== 导航项组件 ========== */
 
-function NavItem({ label, icon, badge, active, onClick }: { label: string; icon?: string; badge?: string | number; active?: boolean; onClick?: () => void }) {
+function NavItem({ label, icon, badge, active, deprecated, onClick }: { label: string; icon?: string; badge?: string | number; active?: boolean; deprecated?: boolean; onClick?: () => void }) {
+  const textClass = deprecated
+    ? 'text-white/35'
+    : active
+      ? 'text-[#49A3A6]'
+      : 'text-white hover:bg-white/5';
+  const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? '#49A3A6' : '#ffffff';
   return (
     <div
-      className={`content-stretch flex gap-[8px] h-[36px] items-center overflow-clip px-[8px] py-[4px] relative rounded-[6px] shrink-0 w-full transition-colors ${
-        active ? 'text-[#49A3A6]' : 'text-white hover:bg-white/5'
-      } ${onClick ? 'cursor-pointer' : ''}`}
+      className={`content-stretch flex gap-[8px] h-[36px] items-center overflow-clip px-[8px] py-[4px] relative rounded-[6px] shrink-0 w-full transition-colors ${textClass} ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
+      title={deprecated ? 'Deprecated — use New Chat' : undefined}
     >
       {icon && (
         <div className="overflow-clip relative shrink-0 size-[16px]">
-          <CdnIcon name={icon} size={16} color={active ? '#49A3A6' : '#ffffff'} />
+          <CdnIcon name={icon} size={16} color={iconColor} />
         </div>
       )}
       <p className={`font-['Delight',sans-serif] leading-[22px] overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${badge != null ? 'shrink-0' : 'flex-[1_0_0] min-w-px'}`}>
@@ -85,11 +90,12 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
-        <NavItem label="Home" icon="sidebar-home-normal" active={activePage === 'home'} onClick={() => onNavigate('home')} />
-        <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore'} onClick={() => onNavigate('explore-2' as any)} />
+        <NavItem label="New Chat" icon="chat-new-l" active={activePage === 'new-chat'} onClick={() => onNavigate('new-chat')} />
+        <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore-2'} onClick={() => onNavigate('explore-2')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Agent" icon="sidebar-agent-normal" badge={32} active={activePage === 'agent'} onClick={() => onNavigate('agent')} />
         <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} onClick={() => onNavigate('alva-skills')} />
+        <NavItem label="Home" icon="sidebar-home-normal" active={activePage === 'home'} deprecated onClick={() => onNavigate('home')} />
       </div>
 
       {/* Starred */}

@@ -125,7 +125,7 @@ export function MentionPopover({ query, onSelect, onClose, selectedIds }: Mentio
 
   const sections = [
     { label: 'Playbooks', items: playbooks, hiddenCount: showAll ? 0 : hiddenCount },
-    { label: 'Threads', items: threads, hiddenCount: 0 },
+    { label: 'Chats', items: threads, hiddenCount: 0 },
   ].filter(s => s.items.length > 0 || s.hiddenCount > 0);
 
   const flatItems = sections.flatMap(s => s.items);
@@ -183,7 +183,7 @@ export function MentionPopover({ query, onSelect, onClose, selectedIds }: Mentio
           ref={inputRef}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search playbooks & threads..."
+          placeholder="Search playbooks & chats..."
           style={{
             flex: 1, border: 'none', outline: 'none', background: 'transparent',
             fontFamily: FONT, fontSize: 13, color: 'rgba(0,0,0,0.8)',

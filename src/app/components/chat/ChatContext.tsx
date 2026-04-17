@@ -248,6 +248,15 @@ export function ChatProvider({
       setHasInitialInput(true);
       setChatOpen(true);
     }
+
+    // 带意图跳转进 workspace：自动展开 ChatPanel 并进入 new-chat 空态
+    const autoOpen = sessionStorage.getItem('autoOpenChatPanel');
+    if (autoOpen && activePage === 'workspace') {
+      sessionStorage.removeItem('autoOpenChatPanel');
+      setActiveConversationId('new');
+      setHasInitialInput(false);
+      setChatOpen(true);
+    }
   }, [activePage]);
 
   const toggleChat = useCallback(() => setChatOpen(v => !v), []);
