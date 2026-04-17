@@ -34,7 +34,7 @@ const VALID_PAGES: Page[] = ["home", "new-chat", "docs", "api-keys", "explore-2"
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
   if (hash.startsWith('thread/')) return hash as Page;
-  return VALID_PAGES.includes(hash as Page) ? (hash as Page) : "home";
+  return VALID_PAGES.includes(hash as Page) ? (hash as Page) : "new-chat";
 }
 
 export function getThreadId(page: Page): string | null {
