@@ -25,6 +25,7 @@ export interface NewChatTemplate {
   id: string;
   label: string;
   icon?: string;            // CdnIcon 名称
+  slogan?: string;          // 选中后替换的大标题，缺省使用默认 slogan
   prompts: string[];        // 3-5 条
   playbooks: NewChatPlaybook[];  // 3-6 条
 }
@@ -36,6 +37,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
     id: 'theme-tracker',
     label: 'Theme Tracker',
     icon: 'star-l',
+    slogan: 'Track the themes moving markets',
     prompts: [
       'Build a theme tracker for AI infrastructure covering NVDA, AVGO, TSM, and power grid names',
       'Track the obesity drug theme (LLY, NVO, AMGN) and surface weekly sentiment shifts',
@@ -79,6 +81,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
     id: 'smart-screener',
     label: 'Smart Screener',
     icon: 'researcher-l1',
+    slogan: 'Screen the market for your next idea',
     prompts: [
       'Screen for US large-caps with rising earnings estimates and positive 20-day price momentum',
       'Find cash-rich small-caps trading below 10x forward earnings with expanding gross margins',
@@ -122,6 +125,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
     id: 'deep-dive',
     label: 'Deep Dive',
     icon: 'full-screen-l',
+    slogan: 'Research any ticker end-to-end',
     prompts: [
       'Give me a deep-dive on NVDA — revenue segmentation, peer valuation, supply chain, and bull/bear thesis',
       'Deep-dive TSMC: capacity, customer mix, geopolitical risk, and long-term margin trajectory',
@@ -165,6 +169,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
     id: 'what-if',
     label: 'What If',
     icon: 'remix-l',
+    slogan: 'Model any market scenario',
     prompts: [
       'What if the Fed delivers 3 more cuts in 2026 — how should a balanced 60/40 portfolio reposition?',
       'What if NVDA earnings miss consensus by 5% next quarter — which AI beneficiaries still outperform?',
@@ -213,6 +218,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     id: 'backtest',
     label: 'Backtest',
     icon: 'history-l',
+    slogan: 'Backtest any strategy',
     prompts: [
       'Backtest a monthly-rebalanced equal-weight MAG7 basket over the last 10 years',
       'Backtest a BTC/ETH 70/30 portfolio rebalanced weekly with 15% max drawdown stop',
@@ -255,6 +261,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     id: 'valuation',
     label: 'Valuation',
     icon: 'credit-l',
+    slogan: 'Value any asset like an analyst',
     prompts: [
       'Build a reverse-DCF for MSFT implied by the current share price and compare to peers',
       'Relative valuation snapshot for the Mag7 — EV/Sales, P/E, and FCF yield vs 5Y median',
@@ -287,6 +294,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     id: 'macro-brief',
     label: 'Macro Brief',
     icon: 'language-l',
+    slogan: 'Stay ahead of the macro',
     prompts: [
       'Daily macro brief covering US rates, DXY, oil, and credit spreads with LLM commentary',
       'Weekly China macro digest — credit impulse, property indicators, and policy shifts',
@@ -319,6 +327,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     id: 'earnings',
     label: 'Earnings',
     icon: 'researcher-l1',
+    slogan: 'Read earnings like a pro',
     prompts: [
       'Summarize the latest NVDA earnings call and compare guidance to consensus',
       'Whisper numbers + post-earnings drift scanner for next week\u2019s MAG7 reports',
@@ -351,6 +360,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     id: 'news',
     label: 'News',
     icon: 'chat-l1',
+    slogan: 'Cut through the market noise',
     prompts: [
       'Summarize the last 24h of news on Bitcoin and flag anything that moved price >2%',
       'Daily AI-industry news digest with sentiment scoring across Twitter / Reddit / press',
@@ -378,5 +388,70 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
         remixes: 17,
       },
     ],
+  },
+];
+
+/* ========== Trending Playbooks — 常驻在首页底部 ========== */
+
+export const TRENDING_PLAYBOOKS: NewChatPlaybook[] = [
+  {
+    id: 'trending-ai-capex',
+    title: 'Hyperscaler Capex Tracker',
+    creator: 'Macro Scope X',
+    desc: 'Rolls up AMZN / MSFT / GOOGL / META capex guidance each quarter and maps dollar flows to AI infra beneficiaries. Flags accel / decel vs prior cycle.',
+    tickers: ['MSFT', 'AMZN', 'GOOGL', 'META'],
+    color: C.primary,
+    stars: 489,
+    remixes: 72,
+  },
+  {
+    id: 'trending-gold-regime',
+    title: 'Gold Regime Dashboard',
+    creator: 'Sheer YLL YGG',
+    desc: 'Real-yield, DXY, and central-bank buying regime overlay for gold. Surfaces regime shifts with confidence scoring and positioning suggestions.',
+    tickers: ['GLD', 'GDX', 'DXY'],
+    color: C.orange,
+    stars: 342,
+    remixes: 51,
+  },
+  {
+    id: 'trending-eth-l2',
+    title: 'ETH L2 Market Share',
+    creator: 'YGGYLL',
+    desc: 'Live TVL, daily txn, and fee capture across Base / Arbitrum / Optimism / zkSync. Tracks share migration and revenue accrual back to ETH mainnet.',
+    tickers: ['ETH', 'ARB', 'OP'],
+    color: C.deepBlue,
+    stars: 276,
+    remixes: 44,
+  },
+  {
+    id: 'trending-dividend-alpha',
+    title: 'Dividend Aristocrat Alpha',
+    creator: 'Smart Jing',
+    desc: 'Ranks 65 dividend aristocrats by yield-on-cost, payout coverage, and 3Y growth. Rotates into the top quintile monthly with FCF screen.',
+    tickers: ['SPX', 'NOBL'],
+    color: C.green,
+    stars: 231,
+    remixes: 38,
+  },
+  {
+    id: 'trending-fomc-playbook',
+    title: 'FOMC Day Playbook',
+    creator: 'Harry Zzz',
+    desc: 'Intraday vol + rate-path positioning around every FOMC. Tracks dot-plot surprise, SEP revisions, and auto-maps post-meeting sector rotation.',
+    tickers: ['SPY', 'TLT', 'VIX'],
+    color: C.red,
+    stars: 198,
+    remixes: 29,
+  },
+  {
+    id: 'trending-pair-trade',
+    title: 'Pair-Trade Radar',
+    creator: 'Alva Intern',
+    desc: 'Scans SPX + NDX pairs for 2σ spread dislocations with cointegration filter. Generates long/short candidates with entry/exit and sizing rules.',
+    tickers: ['KO', 'PEP', 'V', 'MA'],
+    color: C.blue,
+    stars: 164,
+    remixes: 23,
   },
 ];
