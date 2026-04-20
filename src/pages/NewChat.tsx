@@ -13,7 +13,7 @@ import { Avatar } from '@/app/components/shared/Avatar';
 import DotMatrixWave from '@/app/components/shared/DotMatrixWave';
 import { Dropdown } from '@/app/components/shared/Dropdown';
 import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDropdown';
-import { PRIMARY_TEMPLATES, OTHERS_TEMPLATES, type NewChatTemplate, type NewChatPlaybook } from '@/data/new-chat-mock';
+import { PRIMARY_TEMPLATES, OTHERS_TEMPLATES, TRENDING_PLAYBOOKS, type NewChatTemplate, type NewChatPlaybook } from '@/data/new-chat-mock';
 import { generateTypedSuggestions } from '@/data/typed-suggestions';
 
 const CHIP_ICON = 'researcher-l1';
@@ -276,6 +276,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           </div>
 
           <h1
+            key={selected?.id ?? 'default'}
             style={{
               fontSize: 45,
               lineHeight: 1.2,
@@ -286,9 +287,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
               letterSpacing: 0.45,
               position: 'relative',
               zIndex: 1,
+              animation: 'newchat-fadeup 240ms ease-out',
             }}
           >
-            Pick a template and start building
+            {selected?.slogan ?? 'Pick a template and start building'}
           </h1>
 
           <div style={{ width: '100%', maxWidth: 780, position: 'relative', zIndex: 1 }}>
@@ -386,7 +388,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           )}
         </section>
 
-        {/* ══════ 选中态内容 — 紧凑版，与 Hero 无边框分隔 ══════ */}
+        {/* ══════ 选中态内容 — Related Playbooks，位于 Trending 之上 ══════ */}
         {selected && (
           <section
             key={selected.id}
@@ -394,14 +396,24 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
               width: '100%',
               maxWidth: 1200,
               margin: '0 auto',
-              padding: '0 24px 56px',
+              padding: '0 24px 8px',
               display: 'flex',
               flexDirection: 'column',
-              gap: 40,
+              gap: 20,
               animation: 'newchat-fadeup 260ms ease-out',
             }}
           >
-            {/* Related Playbooks */}
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: 'rgba(0,0,0,0.5)',
+                letterSpacing: 0.3,
+                textTransform: 'uppercase',
+              }}
+            >
+              Related Playbooks
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {selected.playbooks.map((p) => (
                 <PlaybookCard
@@ -416,6 +428,43 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             </div>
           </section>
         )}
+
+        {/* ══════ Trending Playbooks — 常驻，选中时被 related 顶到下方 ══════ */}
+        <section
+          style={{
+            width: '100%',
+            maxWidth: 1200,
+            margin: '0 auto',
+            padding: '40px 24px 80px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'rgba(0,0,0,0.5)',
+              letterSpacing: 0.3,
+              textTransform: 'uppercase',
+            }}
+          >
+            Trending Playbooks
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+            {TRENDING_PLAYBOOKS.map((p) => (
+              <PlaybookCard
+                key={p.id}
+                p={p}
+                onClick={() => {
+                  sessionStorage.setItem('autoOpenChatPanel', '1');
+                  onNavigate('workspace');
+                }}
+              />
+            ))}
+          </div>
+        </section>
       </div>
     </AppShell>
   );
