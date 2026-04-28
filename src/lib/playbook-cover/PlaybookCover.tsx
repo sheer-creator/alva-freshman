@@ -49,7 +49,10 @@ export function PlaybookCover({
   return (
     <svg
       viewBox={`0 0 ${COVER_W} ${COVER_H}`}
-      preserveAspectRatio="xMidYMid slice"
+      // meet (not slice): slice crops when the CSS box aspect ratio differs from
+      // 320:140 by even a fraction of a pixel — corner icons/logos then look
+      // shifted or clipped vs the gradient. meet always fits the full viewBox.
+      preserveAspectRatio="xMidYMid meet"
       style={{ width: "100%", height: "100%", display: "block", borderRadius: 8 }}
     >
       <defs>
@@ -84,6 +87,8 @@ export function PlaybookCover({
             style={{
               width: "100%",
               height: "100%",
+              margin: 0,
+              boxSizing: "border-box",
               backgroundColor: rgbToCss(icon.color),
               opacity: icon.opacity,
               WebkitMaskImage: `url(${materialSymbolUrl(icon.symbol)})`,
