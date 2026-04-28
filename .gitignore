@@ -4,3 +4,7 @@ dist/
 src/.DS_Store
 .claude
 docs/
+# Local sync artifacts
+.sync-log/
+CONFLICTS.md
+.skills-ref/
