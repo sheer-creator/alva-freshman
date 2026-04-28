@@ -81,6 +81,29 @@ function Logo() {
   );
 }
 
+/* ========== "+ New Playbook" CTA ========== */
+
+function NewPlaybookButton({ onClick }: { active?: boolean; onClick?: () => void }) {
+  // Per Figma node 2951:34937 — secondary-reverse button with 0.5px white-30%
+  // border, transparent bg, white "+" icon and "New Playbook" label centered.
+  // Container row matches existing nav-item rhythm: 4px top/bottom padding.
+  return (
+    <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full">
+      <button
+        onClick={onClick}
+        className="bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex gap-[6px] h-[32px] items-center justify-center overflow-clip px-[16px] py-[6px] relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/5"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
+          <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
+          New Playbook
+        </span>
+      </button>
+    </div>
+  );
+}
+
 /* ========== 主组件 ========== */
 
 export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, onOpenReferral }: SidebarProps) {
@@ -88,9 +111,11 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
     <div className="antialiased bg-[#2a2a38] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 w-[228px] z-[2] overflow-y-auto" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)', backgroundSize: '3px 3px' }}>
       <Logo />
 
+      {/* New Playbook CTA — own group per Figma 2951:34936 */}
+      <NewPlaybookButton onClick={() => onNavigate('new-chat')} />
+
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
-        <NavItem label="New Chat" icon="chat-new-l" active={activePage === 'new-chat'} onClick={() => onNavigate('new-chat')} />
         <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore-2'} onClick={() => onNavigate('explore-2')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Agent" icon="sidebar-agent-normal" badge={32} active={activePage === 'agent'} onClick={() => onNavigate('agent')} />
