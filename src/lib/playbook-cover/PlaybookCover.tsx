@@ -240,12 +240,14 @@ function ThesisContent({ input, textBaseCss }: { input: CoverInput; textBaseCss:
     <>
       <CapsLabel x={SAFE_LEFT} y={24} text={label} fill={textBaseCss} />
 
-      {/* Category indicator with leading dot */}
+      {/* Category indicator with leading dot. Skill 2026-04-28: cy moved
+          from 54 → 60 so the badge sits closer to the delta body (gap
+          18 → 12), pulling category and delta into a tighter body cluster. */}
       <g>
-        <circle cx={SAFE_LEFT + 3} cy={54} r={2.5} fill={catColor} />
+        <circle cx={SAFE_LEFT + 3} cy={60} r={2.5} fill={catColor} />
         <text
           x={SAFE_LEFT + 10}
-          y={54}
+          y={60}
           fill={catColor}
           fontFamily={FONT}
           fontSize={10}
@@ -279,17 +281,24 @@ function ThesisContent({ input, textBaseCss }: { input: CoverInput; textBaseCss:
 
 /**
  * Insert a line break at the natural semantic break point in a thesis delta
- * string. Mirrors `splitDelta()` in skill src/cover-gen.ts.
+ * string. Mirrors `splitDelta()` in skill src/cover-gen.ts (2026-04-28).
  *
  * Priority order (returns the first match found):
- *   1. " vs "   — most common for delta comparisons
- *   2. " — "    — em-dash between clauses
- *   3. ":"      — colon (break AFTER the colon)
- *   4. " −" / " +" — signed-number boundary (catches single-clause deltas
- *                    like "Junior-analyst postings −18% YoY")
+ *   1. " vs "       — most common for delta comparisons
+ *   2. " · "        — middle dot / interpunct (editorial copy separator).
+ *                     Drop the dot on split.
+ *   3. " — "        — em-dash between clauses. Drop the dash on split.
+ *   4. ":"          — colon (break AFTER the colon, keep the colon)
+ *   5. " −" / " +"  — signed-number boundary (catches single-clause deltas
+ *                     like "Junior-analyst postings −18% YoY")
+ *   6. mid-string fallback — for strings >25 chars with no priority match,
+ *                     split at the whitespace closest to the middle. Catches
+ *                     editorial copy with no semantic hook so it doesn't
+ *                     overflow as a single line.
  *
- * If none match, returns the input as a single-element array. Never force
- * a break just to get two lines — the point is breathing room, not count.
+ * If still nothing matches (text shorter than 25 chars and no priority hit),
+ * returns the input as a single-element array. Never force a break just to
+ * get two lines — the point is breathing room, not count.
  */
 function splitDelta(s: string): string[] {
   if (!s) return [""];
@@ -300,22 +309,50 @@ function splitDelta(s: string): string[] {
     return [s.slice(0, vsMatch).trim(), s.slice(vsMatch + 1).replace(/^\s+/, "").trim()];
   }
 
-  // Priority 2: " — " em-dash with surrounding spaces
-  const emIdx = s.indexOf(" — ");
-  if (emIdx > 0) {
-    return [s.slice(0, emIdx).trim(), s.slice(emIdx + 1).replace(/^\s+/, "").trim()];
+  // Priority 2: " · " interpunct — drop separator + both surrounding spaces.
+  const dotIdx = s.indexOf(" · ");
+  if (dotIdx > 0) {
+    return [s.slice(0, dotIdx).trim(), s.slice(dotIdx + 3).trim()];
   }
 
-  // Priority 3: ":" colon (break AFTER the colon)
+  // Priority 3: " — " em-dash — drop the dash on split (it was a separator,
+  // not content; leaving "— pivot delayed" on the new line reads as a typo).
+  const emIdx = s.indexOf(" — ");
+  if (emIdx > 0) {
+    return [s.slice(0, emIdx).trim(), s.slice(emIdx + 3).trim()];
+  }
+
+  // Priority 4: ":" colon (break AFTER the colon, keep the colon)
   const colonIdx = s.indexOf(":");
   if (colonIdx > 0 && colonIdx < s.length - 1) {
     return [s.slice(0, colonIdx + 1).trim(), s.slice(colonIdx + 1).replace(/^\s+/, "").trim()];
   }
 
-  // Priority 4: " −" or " +" — signed-number boundary
+  // Priority 5: " −" or " +" — signed-number boundary
   const signIdx = s.search(/\s[−+]/);
   if (signIdx > 0) {
     return [s.slice(0, signIdx).trim(), s.slice(signIdx + 1).trim()];
+  }
+
+  // Priority 6 (fallback): for strings >25 chars with no priority match,
+  // split at the whitespace closest to the middle — prevents single-line
+  // overflow when content has no semantic hook.
+  if (s.length > 25) {
+    const mid = Math.floor(s.length / 2);
+    let bestIdx = -1;
+    let bestDist = Infinity;
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] === " ") {
+        const dist = Math.abs(i - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestIdx = i;
+        }
+      }
+    }
+    if (bestIdx > 0) {
+      return [s.slice(0, bestIdx).trim(), s.slice(bestIdx + 1).trim()];
+    }
   }
 
   return [s];
