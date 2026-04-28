@@ -8,3 +8,5 @@ docs/
 .sync-log/
 CONFLICTS.md
 .skills-ref/
+# FUSE / cloud sync noise in scripts/
+scripts/.fuse_hidden*
