@@ -66,7 +66,7 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'ptsd-supply',
     creator: 'steven',
     title: 'PTSD — Post-Traumatic Supply',
-    description: 'Tracks 16-name basket across industries showing supply reluctance vs SPY and XLE. Long-only with monthly rebalance.',
+    description: 'Identifies industries with reluctant supply expansion across five layers. 16-name long/short basket benchmarked vs SPY and XLE with daily narrative.',
     tickers: ['XOM', 'CVX', 'LNG', 'MPC'],
     pulse: 'active', stars: 278, remixes: 1,
     cover: {
@@ -105,9 +105,9 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'rave-short-squeeze',
     creator: 'deepstonks',
     title: 'RAVE Short Squeeze Monitor',
-    description: 'Real-time derivatives dashboard for raveDAO. Tracks funding rates, liquidations, and OI delta with 30-second alert cadence.',
+    description: 'Real-time derivatives dashboard tracking funding rates, open interest, sentiment, and liquidations across three exchanges with 60-second auto-refresh.',
     tickers: ['RAVE'],
-    pulse: 'active', stars: 330, remixes: 0,
+    pulse: 'active', stars: 353, remixes: 0,
     cover: {
       template: 'general',
       title: 'RAVE Short Squeeze Monitor',
@@ -124,9 +124,9 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'congressional-buys',
     creator: 'ivan',
     title: 'Congressional Conviction Buys',
-    description: 'US stocks that members of Congress disclosed BUYING in the last 90 days. Conviction-weighted by repeat buyers and committee overlap.',
+    description: 'US stocks ranked by congressional member purchases in the last 90 days, ordered by conviction, volume, recency, and bipartisan diversity.',
     tickers: ['NVDA', 'AAPL', 'TSLA', 'MSFT'],
-    pulse: 'active', stars: 213, remixes: 0,
+    pulse: 'active', stars: 291, remixes: 3,
     cover: {
       template: 'screener',
       title: 'Congressional Conviction Buys',
@@ -173,9 +173,9 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'next-ai-bottleneck',
     creator: 'steven',
     title: 'The Next AI Bottleneck',
-    description: 'Tracks supply constraints across Power, Compute, and Deployment sectors of the AI buildout. Long top-quartile constraint exposure.',
+    description: 'Daily tracker of supply constraints across Power, Compute, and Deployment sectors affecting the AI buildout — fixed thesis with a daily verdict.',
     tickers: ['VST', 'TLN', 'NRG', 'ETR'],
-    pulse: 'active', stars: 178, remixes: 0,
+    pulse: 'active', stars: 250, remixes: 2,
     cover: {
       template: 'thesis',
       title: 'The Next AI Bottleneck',
@@ -213,7 +213,7 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'narrative-alpha',
     creator: 'leoz',
     title: 'Narrative Alpha Discovery',
-    description: 'Mines social media and podcasts for emerging narratives with investable alpha. Surfaces tickers gaining mention velocity 7d before price.',
+    description: 'Agentic signal discovery mining social media, KOL tweets, news, Reddit, and podcasts for emerging investable narratives in US equities.',
     tickers: ['SHOP', 'PLTR', 'NET'],
     pulse: 'active', stars: 177, remixes: 5,
     cover: {
@@ -232,9 +232,9 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'social-smart-money',
     creator: 'stock-king',
     title: 'Social × Smart Money Consensus',
-    description: 'US stocks ranked by convergence of three signals: elevated social mention, hedge-fund accumulation, and insider buying.',
+    description: 'US stocks ranked by convergence of social mention volume, insider buying, and congressional purchases. Daily post-close refresh with consensus highlights.',
     tickers: ['META', 'GOOGL', 'AMD', 'AMZN'],
-    pulse: 'active', stars: 222, remixes: 0,
+    pulse: 'active', stars: 247, remixes: 1,
     cover: {
       template: 'screener',
       title: 'Social × Smart Money Consensus',
@@ -249,9 +249,9 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'space-defense',
     creator: 'siriusshen',
     title: 'Space × Defense Thesis Tracker',
-    description: 'Three-pillar theme covering commercial launch, DoD software, and ISR. Sub-basket weights rebalance with backlog growth.',
+    description: 'Three-pillar theme tracker covering commercial launch disruption, DoD software modernization, and commercial ISR — with a daily narrative and quant feeds.',
     tickers: ['LMT', 'RTX', 'RKLB', 'PLTR'],
-    pulse: 'active', stars: 139, remixes: 0,
+    pulse: 'active', stars: 151, remixes: 0,
     cover: {
       template: 'thesis',
       title: 'Space × Defense Thesis Tracker',
@@ -290,7 +290,7 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     title: 'KOL Trading Leaderboard',
     description: 'Tracks 20 financial influencers by composite tweet-signal performance. Weekly leaderboard with 90D rolling Sharpe.',
     tickers: ['SPY', 'QQQ'],
-    pulse: 'active', stars: 108, remixes: 0,
+    pulse: 'active', stars: 141, remixes: 0,
     cover: {
       template: 'general',
       title: 'KOL Trading Leaderboard',
@@ -307,9 +307,9 @@ const PLAYBOOKS: ExplorePlaybook[] = [
     id: 'inflection-screener',
     creator: 'ivan',
     title: 'Inflection Point Screener',
-    description: 'Screens 948 mid-caps for margin acceleration and profitability crossover. Long top decile with 90-day holding period.',
+    description: 'Screens 948 mid-caps daily for margin acceleration, revenue inflection, and profitability crossover. Top decile with 90-day holding period.',
     tickers: ['SHOP', 'CRWD', 'NET', 'DDOG'],
-    pulse: 'active', stars: 134, remixes: 0,
+    pulse: 'active', stars: 141, remixes: 0,
     cover: {
       template: 'screener',
       title: 'Inflection Point Screener',
@@ -576,41 +576,163 @@ const PLAYBOOKS: ExplorePlaybook[] = [
       },
     },
   },
+  // 28 — alva.ai #6 · BTC Contrarian Crowd Reversal (single-ticker BTC, brand path)
+  {
+    id: 'btc-contrarian',
+    creator: 'furycom',
+    title: 'BTC Contrarian Crowd Reversal',
+    description: 'Mean-reversion strategy that fades crowd consensus using funding rates, long/short ratios, RSI, and Bollinger Bands to identify reversal entries.',
+    tickers: ['BTC'],
+    pulse: 'active', stars: 181, remixes: 1,
+    cover: {
+      template: 'thesis',
+      title: 'BTC Contrarian Crowd Reversal',
+      author: 'furycom',
+      tickers: ['BTC'],
+      anchor: 'APR 28',
+      category: 'AMBIGUOUS',
+      kind: 'Funding −0.06% vs L/S 1.78x crowded',
+    },
+  },
+  // 29 — alva.ai #8 · Citrini Context (named-person feed, no portrait override
+  // because Citrini is a pseudonymous handle, not a real-name attestation)
+  {
+    id: 'citrini-context',
+    creator: 'harryzz',
+    title: 'Citrini Context',
+    description: "Curated direct content from Citrini and team — X posts, Substack articles, and subscriber chat threads aggregated into a single chronological feed.",
+    tickers: [],
+    pulse: 'active', stars: 155, remixes: 0,
+    cover: {
+      template: 'general',
+      title: 'Citrini Context',
+      author: 'harryzz',
+      tickers: [],
+      domain: 'guide',
+      kind: 'CONTEXT FEED · DAILY',
+      anchor: '12 new posts',
+      series: 'X · SUBSTACK · CHAT',
+    },
+  },
+  // 30 — alva.ai #12 · Defense Tech and Space Stocks Tracker
+  {
+    id: 'defense-tech-space',
+    creator: 'syeveline9',
+    title: 'Defense Tech and Space Stocks Tracker',
+    description: 'Three-pillar theme tracker covering commercial launch disruption, DoD software modernization, and commercial space-ISR across a 17-name universe.',
+    tickers: ['RKLB', 'PLTR', 'LMT', 'BA'],
+    pulse: 'active', stars: 124, remixes: 2,
+    cover: {
+      template: 'thesis',
+      title: 'Defense Tech and Space Stocks Tracker',
+      author: 'syeveline9',
+      tickers: ['RKLB', 'PLTR', 'LMT', 'BA'],
+      domain: 'defense',
+      anchor: 'APR 28',
+      category: 'CATALYST',
+      kind: 'Launch leg +2.4% vs ITA +0.6% WTD',
+    },
+  },
+  // 31 — alva.ai #14 · Inflection Point Screener (v2 — alva.ai lists two
+  // entries with the same title by ivan; this is the second, slightly
+  // different framing)
+  {
+    id: 'inflection-screener-v2',
+    creator: 'ivan',
+    title: 'Inflection Point Screener',
+    description: 'US mid-caps where gross margins accelerate, revenue re-accelerates, and operating profitability turns. Top decile rebalanced weekly.',
+    tickers: ['CRWD', 'NET', 'DDOG', 'SNOW'],
+    pulse: 'active', stars: 118, remixes: 2,
+    cover: {
+      template: 'screener',
+      title: 'Inflection Point Screener',
+      author: 'ivan',
+      tickers: ['CRWD', 'NET', 'DDOG', 'SNOW'],
+      domain: 'growth',
+      series: 'GROSS MARGIN ACCEL · WEEKLY',
+    },
+  },
+  // 32 — alva.ai #15 · BTC Crashed 46% — Time to Buy? (single-ticker BTC,
+  // brand path, what-if event-study with 7-indicator bottom-signal scoring)
+  {
+    id: 'btc-crashed-46',
+    creator: 'long-us-10x',
+    title: 'BTC Crashed 46% — Time to Buy?',
+    description: 'Real-time 7-indicator scoring system using on-chain and derivatives data, auto-updated every 4 hours. Historical avg return 200%+ from prior bottom signals.',
+    tickers: ['BTC'],
+    pulse: 'active', stars: 110, remixes: 1,
+    annualizedReturn: '+200%',
+    cover: {
+      template: 'what-if',
+      title: 'BTC Crashed 46% — Time to Buy?',
+      author: 'long-us-10x',
+      tickers: ['BTC'],
+      domain: 'event_study',
+      series: 'BOTTOM SIGNAL · 7/7 BUY · 4H',
+      kind: 'Historically Climbs',
+      anchor: '+182%',
+      whatIfBars: [12, 28, 45, 38, 52, 41, 65, 58],
+    },
+  },
 ];
 
 /**
- * Display order — interleaves single-ticker brand cards and named-person
- * portraits into earlier positions so the grid doesn't put all the new
- * additions at the end. Ids reference PLAYBOOKS entries by id.
+ * Display order — first 9 positions mirror alva.ai/explore's current top 9
+ * Trendings (refreshed 2026-04-28). Remaining positions interleave the
+ * single-ticker brand cards and named-person portraits we author locally.
  */
 const DISPLAY_ORDER = [
+  // ── alva.ai/explore top 9 (verified 2026-04-28) ───────────────
+  'rave-short-squeeze',     // #1 · deepstonks
+  'congressional-buys',     // #2 · ivan
+  'ptsd-supply',            // #3 · steven
+  'next-ai-bottleneck',     // #4 · steven
+  'social-smart-money',     // #5 · stock-king
+  'btc-contrarian',         // #6 · furycom (NEW)
+  'narrative-alpha',        // #7 · leoz
+  'citrini-context',        // #8 · harryzz (NEW)
+  'space-defense',          // #9 · siriusshen
+  // ── alva.ai/explore positions 10–16 (verified 2026-04-28) — these
+  //    feed the hero carousel via HERO_ORDER below ─────────────
+  'kol-leaderboard',        // #10 · inflame
+  'inflection-screener',    // #11 · ivan
+  'defense-tech-space',     // #12 · syeveline9 (NEW)
+  'post-earnings-drift',    // #13 · stock-king
+  'inflection-screener-v2', // #14 · ivan (NEW — duplicate listed by alva.ai)
+  'btc-crashed-46',         // #15 · long-us-10x (NEW)
+  'spy-oil-hormuz',         // #16 · terrezzaeynon897
+  // ── remaining locally authored cards ────────────────────────
   'quality-value-screener',
   'nvda-earnings-beat',
-  'ptsd-supply',
   'buffett-13f',
-  'social-smart-money',
   'tsla-fsd',
-  'spy-oil-hormuz',
   'aapl-buybacks',
   'ackman-activism',
-  'congressional-buys',
   'meta-ai-capex',
-  'rave-short-squeeze',
-  'next-ai-bottleneck',
   'msft-azure',
   'nvda-tsm',
   'dalio-macro',
-  'narrative-alpha',
   'btc-funding',
-  'space-defense',
   'googl-antitrust',
   'copper-gold-spx',
-  'kol-leaderboard',
   'powell-watch',
-  'inflection-screener',
   'white-collar-crisis',
-  'post-earnings-drift',
   'eight-ball-game',
+];
+
+/**
+ * Hero carousel source — alva.ai/explore positions 10–16, in alva.ai order.
+ * Curated rather than top-by-stars: the top 9 are already in the trendings
+ * grid header; the next 7 give the carousel its own distinct rotation.
+ */
+const HERO_ORDER = [
+  'kol-leaderboard',        // #10
+  'inflection-screener',    // #11
+  'defense-tech-space',     // #12
+  'post-earnings-drift',    // #13
+  'inflection-screener-v2', // #14
+  'btc-crashed-46',         // #15
+  'spy-oil-hormuz',         // #16
 ];
 
 const PLAYBOOKS_ORDERED: ExplorePlaybook[] = DISPLAY_ORDER
@@ -1463,10 +1585,14 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
     return PLAYBOOKS_ORDERED.filter((p) => p.cover.template === target);
   }, [templateFilter]);
 
-  // Hero carousel features the top 6 cards by stars — 5s auto-cycle handled
-  // inside the component.
+  // Hero carousel features alva.ai/explore positions 10–16 (curated via
+  // HERO_ORDER) — the top 9 already lead the grid below, so the carousel
+  // gets its own distinct rotation. 5s auto-cycle handled inside the
+  // HeroCarousel component.
   const heroPlaybooks = useMemo(
-    () => [...PLAYBOOKS_ORDERED].sort((a, b) => b.stars - a.stars).slice(0, 6),
+    () => HERO_ORDER
+      .map((id) => PLAYBOOKS.find((p) => p.id === id))
+      .filter((p): p is ExplorePlaybook => p !== undefined),
     [],
   );
 
