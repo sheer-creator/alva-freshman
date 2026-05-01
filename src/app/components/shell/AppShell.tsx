@@ -155,7 +155,7 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
 
 export function AppShell({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, children }: AppShellProps) {
   return (
-    <ChatProvider activePage={activePage ?? 'home'}>
+    <ChatProvider activePage={activePage ?? 'new-chat'}>
       <AppShellInner
         activePage={activePage}
         onNavigate={onNavigate}

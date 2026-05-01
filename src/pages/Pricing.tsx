@@ -106,7 +106,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
             className="absolute left-[28px] top-[28px] flex items-center gap-[4px] cursor-pointer group"
             onClick={() => {
               if (window.history.length > 1) window.history.back();
-              else onNavigate('home');
+              else onNavigate('new-chat');
             }}
           >
             <div
@@ -172,7 +172,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
                   border: '0.5px solid rgba(0,0,0,0.2)',
                   fontFamily: "'Delight', sans-serif",
                 }}
-                onClick={() => onNavigate('home')}
+                onClick={() => onNavigate('new-chat')}
               >
                 Get started — it's free
               </button>

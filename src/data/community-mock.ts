@@ -477,7 +477,7 @@ export const MOCK_WORKSPACE = {
       id: 'ws7', author: 'Grace Lee', isAgent: false, timestamp: '6m ago',
       text: "I originally forked from the Custom Layout playbook as a template — it's a great starting point for any workspace.",
       playbookRefs: [{
-        page: 'workspace',
+        page: 'new-chat',
         name: 'Storage Dashboard',
         author: 'Leo Zhou',
         description: 'Custom layout combining watchlist, Google Trends, and real-time chart widgets',

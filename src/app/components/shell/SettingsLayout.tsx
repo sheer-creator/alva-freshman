@@ -42,7 +42,7 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
             <button
               onClick={() => {
                 const ret = sessionStorage.getItem('settingsReturnPage') as Page | null;
-                onNavigate(ret && ret.length > 0 ? ret : 'home');
+                onNavigate(ret && ret.length > 0 ? ret : 'new-chat');
               }}
               className="flex items-center gap-[var(--spacing-xxs)] cursor-pointer group"
               style={{ background: 'none', border: 'none', padding: 0 }}

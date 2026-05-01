@@ -19,23 +19,6 @@ interface ContextConfig {
 /* ========== 每个页面的上下文建议 ========== */
 
 const CONTEXT_CONFIG: Record<string, ContextConfig> = {
-  workspace: {
-    greeting: "Hey YGGYLL, what's next?",
-    suggestions: [
-      {
-        icon: 'remix-l',
-        text: 'Remix this playbook — swap the MACD trigger for RSI oversold under 30',
-      },
-      {
-        icon: 'alert-f2',
-        text: "Set up an alert when this strategy's drawdown exceeds 8% over any 24h window",
-      },
-      {
-        icon: 'credit-l',
-        text: 'Bind this playbook to my portfolio with a $10k allocation and half-weighted risk',
-      },
-    ],
-  },
   'explore-2': {
     greeting: "Hey YGGYLL, what's next?",
     suggestions: [

@@ -121,7 +121,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
               style={{ color: 'rgba(0,0,0,0.8)', background: '#fff', border: '1px solid rgba(0,0,0,0.12)' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#fafafa'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate('new-chat')}
             >
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -137,7 +137,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
               style={{ color: 'rgba(0,0,0,0.5)', background: 'transparent', border: '1px solid rgba(0,0,0,0.08)' }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.02)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate('new-chat')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(0,0,0,0.4)">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -148,7 +148,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
 
           <p className="mt-[16px] text-[11px] leading-[16px] text-center" style={{ color: 'rgba(0,0,0,0.2)' }}>
             Already on Alva?{' '}
-            <span className="cursor-pointer" style={{ color: '#49A3A6' }} onClick={() => onNavigate('home')}>
+            <span className="cursor-pointer" style={{ color: '#49A3A6' }} onClick={() => onNavigate('new-chat')}>
               Sign in
             </span>
           </p>

@@ -8,6 +8,7 @@ import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { SettingsLayout } from '@/app/components/shell/SettingsLayout';
 import { Avatar } from '@/app/components/shared/Avatar';
+import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { FeedDetailModal } from '@/app/components/community/FeedDetailModal';
 
 const FONT = "'Delight', sans-serif";
@@ -78,17 +79,28 @@ Sends real-time alerts via Telegram and Slack when a new signal is generated, wh
 
 /* ========== Mock ========== */
 
+const SIDEBAR_PLAYBOOKS: UsedByPlaybook[] = [
+  { author: 'YGGYLL',  name: 'quality-value-screener', target: 'screener' as Page },
+  { author: 'satoshi', name: 'btc-macd-1h',            target: 'screener' as Page },
+  { author: 'alva',    name: 'whale-flow-tracker',     target: 'screener' as Page },
+  { author: 'maya',    name: 'gas-turbine-supply',     target: 'screener' as Page },
+  { author: 'quantus', name: 'defi-yield-scanner',     target: 'screener' as Page },
+];
+
+const pick = (i: number, n: number) =>
+  SIDEBAR_PLAYBOOKS.slice(i, i + n);
+
 const FEEDS: AutomationFeed[] = [
   { id: '1', name: 'Capacity-Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142,
     description: BTC_MACD_DESCRIPTION,
-    usedBy: [{ author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }, { author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }] },
-  { id: '2', name: 'Capacity-Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142,
-    usedBy: [{ author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }, { author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }] },
-  { id: '3', name: 'Capacity-Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142,
-    usedBy: [{ author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }, { author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }] },
+    usedBy: pick(0, 2) },
+  { id: '2', name: 'Funding-Rate-Watcher', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142,
+    usedBy: pick(2, 1) },
+  { id: '3', name: 'Liquidity-Drift-Scanner', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142,
+    usedBy: pick(0, 3) },
   { id: '4', name: 'Whale Alert Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', totalRuns: 142 },
-  { id: '5', name: 'Capacity-Monitor', status: 'paused', totalRuns: 142,
-    usedBy: [{ author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }, { author: 'YGGYLL', name: 'BTC Ultimate AI Trader', target: 'workspace' as Page }] },
+  { id: '5', name: 'Earnings-Surprise-Radar', status: 'paused', totalRuns: 142,
+    usedBy: pick(3, 1) },
 ];
 
 /* ========== Used-By 芯片 ========== */
@@ -116,8 +128,35 @@ function PlaybookChip({ playbook, onClick }: { playbook: UsedByPlaybook; onClick
 
 /* ========== Feed Card ========== */
 
-function FeedCard({ feed, onNavigate, onOpen }: { feed: AutomationFeed; onNavigate: (page: Page) => void; onOpen: () => void }) {
+function RowAction({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      className="flex items-center justify-center size-[16px] shrink-0 cursor-pointer bg-transparent border-none outline-none p-0 transition-opacity hover:opacity-60"
+    >
+      <CdnIcon name={icon} size={16} color="var(--text-n9)" />
+    </button>
+  );
+}
+
+function FeedCard({
+  feed,
+  onNavigate,
+  onOpen,
+  onToggleStatus,
+  onDelete,
+}: {
+  feed: AutomationFeed;
+  onNavigate: (page: Page) => void;
+  onOpen: () => void;
+  onToggleStatus: () => void;
+  onDelete: () => void;
+}) {
   const hasUsedBy = !!feed.usedBy?.length;
+  const isActive = feed.status === 'active';
   return (
     <div
       role="button"
@@ -127,47 +166,51 @@ function FeedCard({ feed, onNavigate, onOpen }: { feed: AutomationFeed; onNaviga
       className="flex flex-col gap-[8px] items-center justify-center p-[20px] rounded-[8px] w-full cursor-pointer transition-colors hover:brightness-[0.98]"
       style={{ background: '#fafafa' }}
     >
-      {/* Row 1: dot + name + right meta */}
-      <div className="flex gap-[8px] items-center w-full">
-        <StatusDot status={feed.status === 'active' ? 'green' : 'grey'} size={14} />
-        <p
-          className="leading-[26px] text-[16px] tracking-[0.16px] whitespace-nowrap shrink-0"
-          style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}
-        >
-          {feed.name}
-        </p>
-        <div
-          className="flex flex-1 min-w-0 gap-[8px] items-center justify-end leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap"
-          style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
-        >
-          {feed.status === 'active' ? (
-            <>
-              <p>Last Run: {feed.lastRun}</p>
-              <p style={{ color: 'var(--text-n2)' }}>|</p>
-              <p>{feed.runEvery}</p>
-              <p style={{ color: 'var(--text-n2)' }}>|</p>
-              <p>{feed.totalRuns} Runs</p>
-            </>
-          ) : (
-            <p>{feed.totalRuns} Runs</p>
-          )}
+      {/* Row 1: dot + name + actions */}
+      <div className="flex gap-[12px] items-center w-full">
+        <div className="flex flex-1 min-w-0 gap-[8px] items-center">
+          <StatusDot status={isActive ? 'green' : 'grey'} size={14} />
+          <p
+            className="flex-1 min-w-0 leading-[26px] text-[16px] tracking-[0.16px] whitespace-nowrap overflow-hidden text-ellipsis"
+            style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}
+          >
+            {feed.name}
+          </p>
         </div>
+        <RowAction
+          icon={isActive ? 'pause-l2' : 'play-l'}
+          label={isActive ? 'Stop' : 'Resume'}
+          onClick={onToggleStatus}
+        />
+        <RowAction icon="delete-l" label="Delete" onClick={onDelete} />
       </div>
 
-      {/* Row 2: Used By chips */}
-      {hasUsedBy && (
-        <div className="flex flex-wrap gap-[8px] items-center w-full">
-          <p
-            className="leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap shrink-0"
-            style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
-          >
-            Used By
-          </p>
-          {feed.usedBy!.map((p, i) => (
-            <PlaybookChip key={i} playbook={p} onClick={() => onNavigate(p.target)} />
-          ))}
+      {/* Row 2: meta (left) + Used By chips (right) */}
+      <div className="flex flex-wrap gap-[8px] items-center justify-between w-full">
+        <div
+          className="flex gap-[8px] items-center leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap shrink-0"
+          style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
+        >
+          <p>Last Run: {feed.lastRun ?? '—'}</p>
+          <p style={{ color: 'var(--text-n2)' }}>|</p>
+          <p>{feed.runEvery ?? 'Every 5 minutes'}</p>
+          <p style={{ color: 'var(--text-n2)' }}>|</p>
+          <p>{feed.totalRuns} Runs</p>
         </div>
-      )}
+        {hasUsedBy && (
+          <div className="flex gap-[8px] items-center shrink-0">
+            <p
+              className="leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap shrink-0"
+              style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
+            >
+              Used By
+            </p>
+            {feed.usedBy!.map((p, i) => (
+              <PlaybookChip key={i} playbook={p} onClick={() => onNavigate(p.target)} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -186,10 +229,23 @@ const TABS: { key: TabKey; label: string }[] = [
 export default function Automations({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [tab, setTab] = useState<TabKey>('all');
   const [activeFeed, setActiveFeed] = useState<AutomationFeed | null>(null);
+  const [feeds, setFeeds] = useState<AutomationFeed[]>(FEEDS);
+  const [confirmDelete, setConfirmDelete] = useState<AutomationFeed | null>(null);
 
   const filtered = tab === 'all'
-    ? FEEDS
-    : FEEDS.filter(f => f.status === tab);
+    ? feeds
+    : feeds.filter(f => f.status === tab);
+
+  const toggleStatus = (id: string) => {
+    setFeeds(prev => prev.map(f => f.id === id
+      ? { ...f, status: f.status === 'active' ? 'paused' : 'active' }
+      : f
+    ));
+  };
+  const deleteFeed = (id: string) => {
+    setFeeds(prev => prev.filter(f => f.id !== id));
+    setConfirmDelete(null);
+  };
 
   return (
     <SettingsLayout active="automations" onNavigate={onNavigate}>
@@ -237,7 +293,14 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
       {/* Feed list */}
       <div className="flex flex-col gap-[16px] items-center w-full max-w-[960px]">
         {filtered.map(f => (
-          <FeedCard key={f.id} feed={f} onNavigate={onNavigate} onOpen={() => setActiveFeed(f)} />
+          <FeedCard
+            key={f.id}
+            feed={f}
+            onNavigate={onNavigate}
+            onOpen={() => setActiveFeed(f)}
+            onToggleStatus={() => toggleStatus(f.id)}
+            onDelete={() => setConfirmDelete(f)}
+          />
         ))}
         {filtered.length === 0 && (
           <p
@@ -248,6 +311,46 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
           </p>
         )}
       </div>
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center px-[16px] py-[28px]"
+          style={{ background: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setConfirmDelete(null)}
+        >
+          <div
+            className="flex flex-col gap-[16px] w-[400px] max-w-full p-[24px] rounded-[12px]"
+            style={{ background: '#fff', border: '0.5px solid rgba(0,0,0,0.2)', boxShadow: '0 10px 20px rgba(0,0,0,0.08)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="leading-[26px] text-[16px] tracking-[0.16px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>
+              Delete “{confirmDelete.name}”?
+            </p>
+            <p className="leading-[20px] text-[12px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>
+              This automation will be permanently removed. Playbooks using it will stop receiving data.
+            </p>
+            <div className="flex gap-[8px] justify-end">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(null)}
+                className="px-[14px] py-[6px] rounded-[6px] text-[14px] leading-[22px] tracking-[0.14px] cursor-pointer bg-transparent border-none outline-none hover:bg-[rgba(0,0,0,0.05)]"
+                style={{ color: 'rgba(0,0,0,0.7)', fontFamily: FONT }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => deleteFeed(confirmDelete.id)}
+                className="px-[14px] py-[6px] rounded-[6px] text-[14px] leading-[22px] tracking-[0.14px] cursor-pointer border-none outline-none hover:brightness-110"
+                style={{ color: '#fff', background: '#d64545', fontFamily: FONT }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Feed 详情 Modal */}
       <FeedDetailModal

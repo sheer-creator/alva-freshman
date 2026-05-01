@@ -84,9 +84,6 @@ function Logo() {
 /* ========== "+ New Playbook" CTA ========== */
 
 function NewPlaybookButton({ onClick }: { active?: boolean; onClick?: () => void }) {
-  // Per Figma node 2951:34937 — secondary-reverse button with 0.5px white-30%
-  // border, transparent bg, white "+" icon and "New Playbook" label centered.
-  // Container row matches existing nav-item rhythm: 4px top/bottom padding.
   return (
     <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full">
       <button
@@ -97,7 +94,7 @@ function NewPlaybookButton({ onClick }: { active?: boolean; onClick?: () => void
           <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
         <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
-          New Playbook
+          New Chat
         </span>
       </button>
     </div>
@@ -118,21 +115,23 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
         <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore-2'} onClick={() => onNavigate('explore-2')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} onClick={() => onNavigate('portfolio')} />
-        <NavItem label="Agent" icon="sidebar-agent-normal" badge={32} active={activePage === 'agent'} onClick={() => onNavigate('agent')} />
+        <NavItem label="Agent" icon="sidebar-agent-normal" active={activePage === 'agent'} onClick={() => onNavigate('agent')} />
         <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} onClick={() => onNavigate('alva-skills')} />
-        <NavItem label="Home" icon="sidebar-home-normal" active={activePage === 'home'} deprecated onClick={() => onNavigate('home')} />
       </div>
 
       {/* Starred */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[6]">
         <SectionHeader label="Starred" />
-        <NavItem label="Top-2 Momentum with EMA50 Exit Only" icon="sidebar-dashboard-normal" />
+        <NavItem label="Template-Screener" icon="sidebar-dashboard-normal" active={activePage === 'template-screener'} onClick={() => onNavigate('template-screener')} />
+        <NavItem label="Template-Thesis" icon="sidebar-dashboard-normal" active={activePage === 'template-thesis'} onClick={() => onNavigate('template-thesis')} />
+        <NavItem label="Template-Whatif" icon="sidebar-dashboard-normal" active={activePage === 'template-whatif'} onClick={() => onNavigate('template-whatif')} />
+        <NavItem label="Template-Notification" icon="sidebar-dashboard-normal" active={activePage === 'template-notification'} onClick={() => onNavigate('template-notification')} />
       </div>
 
-      {/* Playbooks */}
+      {/* My Playbooks */}
       <div className="content-stretch flex flex-col flex-[1_0_0] gap-0 items-start min-h-px py-[4px] relative w-full z-[5]">
-        <SectionHeader label="Playbooks" />
-        <NavItem label="Storage Dashboard" icon="sidebar-dashboard-normal" active={activePage === 'workspace'} onClick={() => onNavigate('workspace')} />
+        <SectionHeader label="My Playbooks" />
+        <NavItem label="Feed Test" icon="sidebar-dashboard-normal" active={activePage === 'screener'} onClick={() => onNavigate('screener')} />
       </div>
 
       {/* 用户行 */}

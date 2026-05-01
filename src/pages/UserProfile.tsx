@@ -14,21 +14,9 @@ import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { PulseIndicator } from '@/app/components/community/PulseIndicator';
-import { AVATAR_COLOR_PALETTE } from '@/lib/chart-theme';
+import { Avatar as UserAvatar } from '@/app/components/shared/Avatar';
 import { MOCK_USER, MOCK_PLAYBOOKS, MOCK_COMMENTS, MOCK_SKILLS } from '@/data/profile-mock';
 import type { PlaybookSummary, CommentActivity, SkillSummary } from '@/data/profile-mock';
-
-/* ========== UserAvatar ========== */
-
-function UserAvatar({ name, size = 24 }: { name: string; size?: number }) {
-  const initial = name.trim().charAt(0).toUpperCase();
-  const color = AVATAR_COLOR_PALETTE[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_COLOR_PALETTE.length];
-  return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontSize: size * 0.44, color: '#fff', lineHeight: 1, fontFamily: "'Delight', sans-serif" }}>{initial}</span>
-    </div>
-  );
-}
 
 /* ========== ProfileHeader ========== */
 

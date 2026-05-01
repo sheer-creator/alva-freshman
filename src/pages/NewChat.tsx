@@ -421,7 +421,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   p={p}
                   onClick={() => {
                     sessionStorage.setItem('autoOpenChatPanel', '1');
-                    onNavigate('workspace');
+                    onNavigate('new-chat');
                   }}
                 />
               ))}
@@ -459,7 +459,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                 p={p}
                 onClick={() => {
                   sessionStorage.setItem('autoOpenChatPanel', '1');
-                  onNavigate('workspace');
+                  onNavigate('new-chat');
                 }}
               />
             ))}

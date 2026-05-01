@@ -123,18 +123,6 @@ function RiskRow({ label, value, editable = true }: { label: string; value: stri
   );
 }
 
-/* ========== Notification Row ========== */
-
-function NotifRow({ label, defaultOn = true }: { label: string; defaultOn?: boolean }) {
-  const [on, setOn] = useState(defaultOn);
-  return (
-    <div className="flex items-center gap-[var(--spacing-l)]">
-      <span className="flex-1 text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'var(--text-n9)', fontFamily: FONT, fontWeight: 400 }}>{label}</span>
-      <Switch on={on} onChange={setOn} />
-    </div>
-  );
-}
-
 /* ========== Page ========== */
 
 export default function PortfolioSettings({ onNavigate }: { onNavigate: (page: Page) => void }) {

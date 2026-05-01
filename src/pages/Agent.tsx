@@ -9,10 +9,13 @@ import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDr
 import { Dropdown } from '@/app/components/shared/Dropdown';
 import { CONVERSATIONS } from '@/lib/chat-config';
 import DotMatrixWave from '@/app/components/shared/DotMatrixWave';
+import { Tooltip } from '@/app/components/shared/Tooltip';
+import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
 
 type AgentState = 'empty' | 'connecting' | 'connected';
 
 const FONT = "font-['Delight',sans-serif]";
+
 /* ── Feature cards for empty state ── */
 const FEATURES = [
   { icon: 'bot-l', title: 'Full Alva in Telegram', desc: 'Build Playbooks, run analysis, tweak strategies — no browser needed.' },
@@ -22,13 +25,13 @@ const FEATURES = [
 ];
 
 /* ── Mock agent messages ── */
-const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
+export const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
   role: 'agent',
   text: 'Hey! I\'m your Alva Agent, connected via Telegram. I\'m always-on and ready to help with market analysis, portfolio tracking, and playbook execution. What would you like to work on?',
 };
 
 /* ── Empty state ── */
-function EmptyState({ onConnect }: { onConnect: () => void }) {
+export function AgentEmptyState({ onConnect }: { onConnect: (platform: AgentPlatform) => void }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center min-h-0 relative overflow-hidden" style={{ background: '#F6F6F6' }}>
       <DotMatrixWave
@@ -70,37 +73,61 @@ function EmptyState({ onConnect }: { onConnect: () => void }) {
           ))}
         </div>
 
-        {/* Connect button */}
-        <button
-          className={`${FONT} flex items-center justify-center gap-[8px] text-[14px] leading-[22px] tracking-[0.14px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90`}
-          style={{ height: 48, padding: '11px 20px', borderRadius: 8, background: '#26A5E4', border: 'none' }}
-          onClick={onConnect}
-        >
-          <CdnIcon name={`${import.meta.env.BASE_URL}logo-telegram.svg`} size={18} color="#ffffff" />
-          Connect Telegram
-        </button>
+        {/* Connect buttons — Telegram primary, Discord secondary */}
+        <div className="flex flex-col items-center gap-[12px] w-full">
+          <button
+            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90`}
+            style={{ height: 48, width: 280, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
+            onClick={() => onConnect('telegram')}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.8693 2.23048C17.8693 2.23048 19.6246 1.54575 19.4783 3.20864C19.4295 3.89337 18.9907 6.28986 18.6494 8.88202L17.4793 16.5606C17.4793 16.5606 17.3818 17.6855 16.5042 17.8812C15.6266 18.0768 14.3102 17.1964 14.0664 17.0008C13.8713 16.8541 10.4097 14.6532 9.19079 13.5772C8.84948 13.2838 8.45944 12.6968 9.23954 12.0121L14.3589 7.12132C14.944 6.53442 15.5291 5.16499 13.0913 6.82788L6.26545 11.4742C6.26545 11.4742 5.48535 11.9632 4.02269 11.5231L0.85355 10.5449C0.85355 10.5449 -0.316596 9.81129 1.68238 9.07762C6.558 6.77892 12.5549 4.43132 17.8693 2.23048Z" fill="#ffffff"/>
+            </svg>
+            Connect Telegram
+          </button>
 
-        {/* Coming Soon */}
+          <button
+            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium cursor-pointer transition-colors`}
+            style={{ height: 48, width: 280, padding: '11px 20px', borderRadius: 6, background: 'transparent', color: 'var(--text-n9)', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--b-r03, rgba(0,0,0,0.03))'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+            onClick={() => onConnect('discord')}
+          >
+            <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" style={{ width: 20, height: 20 }} />
+            Connect Discord
+          </button>
+        </div>
+
+        {/* More channels — Slack/WhatsApp/Line coming soon */}
         <div className="flex flex-col items-center gap-[12px]">
           <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
             Same agent, more channels
           </span>
           <div className="flex items-center gap-[8px]">
             {[
-              { name: 'Discord', file: 'logo-social-discord.svg' },
               { name: 'Slack', file: 'logo-social-slack.svg' },
               { name: 'WhatsApp', file: 'logo-social-whatsapp.svg' },
+              { name: 'Line', file: 'logo-social-line.svg' },
             ].map(p => (
-              <div
-                key={p.name}
-                className="flex items-center gap-[6px] rounded-full"
-                style={{ background: 'var(--grey-g05)', padding: '4px 12px 4px 6px' }}
-              >
-                <img src={`${import.meta.env.BASE_URL}${p.file}`} alt={p.name} style={{ width: 18, height: 18 }} />
-                <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-                  {p.name}
+              <Tooltip key={p.name} text="Coming Soon">
+                <span
+                  aria-disabled="true"
+                  className="flex items-center gap-[6px] rounded-full border-none cursor-not-allowed"
+                  style={{
+                    background: 'var(--b-r05)',
+                    padding: '4px 12px 4px 6px',
+                    opacity: 0.7,
+                  }}
+                >
+                  <img src={`${import.meta.env.BASE_URL}${p.file}`} alt={p.name} style={{ width: 18, height: 18 }} />
+                  <span
+                    className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px]`}
+                    style={{ color: 'var(--text-n5)' }}
+                  >
+                    {p.name}
+                  </span>
                 </span>
-              </div>
+              </Tooltip>
             ))}
           </div>
         </div>
@@ -188,7 +215,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
           />
         </div>
         <div className="flex items-center gap-[16px] shrink-0">
-          <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => onNavigate('new-chat')}>
+          <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => onNavigate('thread/new' as Page)}>
             <CdnIcon name="chat-new-l" size={16} />
           </button>
           {isAgent ? (
@@ -270,26 +297,25 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
   );
 }
 
-const AGENT_CONNECTED_KEY = 'agentConnected';
-
 /* ── Main Agent page ── */
 export default function Agent({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [state, setState] = useState<AgentState>(() =>
-    localStorage.getItem(AGENT_CONNECTED_KEY) === '1' ? 'connected' : 'empty',
-  );
+  const { platforms, toggle } = useAgentPlatforms();
+  const [connecting, setConnecting] = useState(false);
+  const connected = platforms.length > 0;
+  const state: AgentState = connecting ? 'connecting' : connected ? 'connected' : 'empty';
 
-  const handleConnect = useCallback(() => {
-    setState('connecting');
+  const handleConnect = useCallback((next: AgentPlatform) => {
+    setConnecting(true);
     setTimeout(() => {
-      localStorage.setItem(AGENT_CONNECTED_KEY, '1');
-      setState('connected');
+      toggle(next);
+      setConnecting(false);
     }, 2000);
-  }, []);
+  }, [toggle]);
 
   return (
     <AppShell activePage="agent" onNavigate={onNavigate}>
       <div className="h-screen flex flex-col bg-white">
-        {state === 'empty' && <EmptyState onConnect={handleConnect} />}
+        {state === 'empty' && <AgentEmptyState onConnect={handleConnect} />}
         {state === 'connecting' && <ConnectingState />}
         {state === 'connected' && <AgentChat onNavigate={onNavigate} />}
       </div>

@@ -1,14 +1,12 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "new-chat" | "docs" | "api-keys" | "explore-2" | "workspace" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | `thread/${string}`;
+export type Page = "new-chat" | "docs" | "api-keys" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
-const Home = lazy(() => import("@/pages/HomeV3"));
 const NewChat = lazy(() => import("@/pages/NewChat"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
-const DashboardWorkspace = lazy(() => import("@/pages/DashboardWorkspace").then(m => ({ default: m.DashboardWorkspace })));
 const Agent = lazy(() => import("@/pages/Agent"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
 
@@ -26,10 +24,15 @@ const ReferralLanding = lazy(() => import("@/pages/ReferralLanding"));
 const PlaybookReferral = lazy(() => import("@/pages/PlaybookReferral"));
 const Thread = lazy(() => import("@/pages/Thread"));
 const Automations = lazy(() => import("@/pages/Automations"));
+const TemplateScreener = lazy(() => import("@/pages/TemplateScreener"));
+const TemplateThesis = lazy(() => import("@/pages/TemplateThesis"));
+const TemplateWhatif = lazy(() => import("@/pages/TemplateWhatif"));
+const TemplateNotification = lazy(() => import("@/pages/TemplateNotification"));
+const Screener = lazy(() => import("@/pages/Screener"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "new-chat", "docs", "api-keys", "explore-2", "workspace", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "alva-chat-detail", "referral-landing", "playbook-referral"];
+const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -89,13 +92,11 @@ export default function App() {
   return (
     <>
       <Suspense>
-        {currentPage === "home" && <Home onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "new-chat" && <NewChat onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
-        {currentPage === "workspace" && <DashboardWorkspace onNavigate={navigate} />}
         {currentPage === "agent" && <Agent key={agentKey} onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
         {currentPage === "account" && <Account onNavigate={navigate} />}
@@ -108,6 +109,11 @@ export default function App() {
         {currentPage === "alva-chat-detail" && <AlvaChatDetail onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "referral-landing" && <ReferralLanding onNavigate={navigate} />}
         {currentPage === "playbook-referral" && <PlaybookReferral onNavigate={navigate} />}
+        {currentPage === "template-screener" && <TemplateScreener onNavigate={navigate} />}
+        {currentPage === "template-thesis" && <TemplateThesis onNavigate={navigate} />}
+        {currentPage === "template-whatif" && <TemplateWhatif onNavigate={navigate} />}
+        {currentPage === "template-notification" && <TemplateNotification onNavigate={navigate} />}
+        {currentPage === "screener" && <Screener onNavigate={navigate} />}
         {threadId && <Thread threadId={threadId} onNavigate={navigate} />}
       </Suspense>
       <SearchModal

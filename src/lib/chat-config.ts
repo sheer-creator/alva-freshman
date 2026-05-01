@@ -33,10 +33,8 @@ export const HOME_CHAT_CONTEXT: ContextTagData = {
 
 /** Maps each page to its @context tag. null = no chat trigger on that page */
 export const PAGE_CONTEXT_MAP: Record<string, ContextTagData | null> = {
-  home: { label: 'Home', icon: 'sidebar-discover-normal' },
   explore: { label: 'Explore', icon: 'sidebar-discover-normal' },
   'explore-2': { label: 'Explore', icon: 'sidebar-discover-normal' },
-  workspace: { label: 'Storage Dashboard', icon: 'sidebar-discover-normal' },
   agent: null,
 };
 

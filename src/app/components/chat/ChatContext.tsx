@@ -249,9 +249,8 @@ export function ChatProvider({
       setChatOpen(true);
     }
 
-    // 带意图跳转进 workspace：自动展开 ChatPanel 并进入 new-chat 空态
     const autoOpen = sessionStorage.getItem('autoOpenChatPanel');
-    if (autoOpen && activePage === 'workspace') {
+    if (autoOpen && activePage === 'new-chat') {
       sessionStorage.removeItem('autoOpenChatPanel');
       setActiveConversationId('new');
       setHasInitialInput(false);
