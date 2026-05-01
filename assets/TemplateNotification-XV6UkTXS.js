@@ -1,0 +1,759 @@
+import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.js";import{i as a}from"./inlinePlaybookHeader-BCaIwBIO.js";import"./referral-mock-BqTpnbXF.js";const i=`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Chip Supply Chain — Notification Playbook</title>
+<link rel="stylesheet" href="./styles/tokens.css" />
+<link rel="stylesheet" href="https://alva-ai-static.b-cdn.net/design-system/design-tokens.css" />
+<link rel="stylesheet" href="./components/playbook-header.css" />
+<link rel="stylesheet" href="./components/discussion-panel.css" />
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@13/dist/markdown-it.min.js"><\/script>
+<script src="./components/playbook-header.js" defer><\/script>
+<script src="./components/discussion-panel.js" defer><\/script>
+<style>
+  /* ── @font-face (Fix #1: load Delight from CDN) ── */
+  @font-face {
+    font-family: "Delight";
+    src: url("https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Delight";
+    src: url("https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  html { height:100%; overflow:hidden; }
+  body {
+    height:100%; overflow-y:auto; overflow-x:hidden;
+    margin:0; background:var(--b0-page); color:var(--text-n9);
+    font-family:"Delight", -apple-system, BlinkMacSystemFont, "OPPO Sans 4.0", sans-serif;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+  }
+  body.modal-open { overflow: hidden; }
+  * {
+    box-sizing: border-box;
+    -ms-overflow-style:none; scrollbar-width:none;
+  }
+  *::-webkit-scrollbar { display:none; }
+
+  strong, b { font-weight: 500; }
+
+  /* ── Fix #2: container top padding → --spacing-xs ── */
+  .playbook-container {
+    width:100%; max-width:980px; margin:0 auto;
+    padding: var(--spacing-xl) var(--spacing-xxl) var(--spacing-xxxxl);
+  }
+  @media (max-width: 768px) {
+    .playbook-container { padding: var(--spacing-m); }
+  }
+
+  /* ── Topic meta row (single header bar) ── */
+  .topic-meta-row {
+    display:flex; flex-wrap:wrap; gap:var(--spacing-xs);
+    align-items:center; margin-bottom:var(--spacing-l);
+  }
+  .topic-meta-spacer { flex: 1 1 auto; min-width: 0; }
+
+  /* README chip — secondary, tab-bar style */
+  .readme-btn {
+    display: inline-flex; align-items: center; gap: var(--spacing-xxs);
+    height: 24px;
+    padding: var(--spacing-xxxs) var(--spacing-xs);
+    background: var(--b-r02);
+    border: 0.5px solid var(--line-l2);
+    border-radius: var(--radius-ct-s);
+    font-family: inherit;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n9); cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .readme-btn:hover,
+  .readme-btn:active {
+    background: var(--b-r03);
+    border-color: var(--line-l9);
+  }
+  .readme-btn-icon {
+    width: 14px; height: 14px; flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask: url("https://alva-ai-static.b-cdn.net/icons/researcher-l1.svg") center / contain no-repeat;
+            mask: url("https://alva-ai-static.b-cdn.net/icons/researcher-l1.svg") center / contain no-repeat;
+  }
+  .pill {
+    display:inline-flex; align-items:center; gap:var(--spacing-xxs);
+    padding:2px var(--spacing-s); border-radius: var(--radius-ct-s);
+    font-size:12px; line-height:20px;
+  }
+  .pill.source { background: var(--b-r05); color: var(--text-n7); }
+  .pill.cadence { background: var(--main-m1-10); color: var(--main-m1); }
+
+  /* ── Subscribe button (primary CTA) ── */
+  .subscribe-cta {
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    height: 32px; padding: 6px var(--spacing-m);
+    background: var(--main-m1); color: var(--b-common-white);
+    border: none; border-radius: var(--radius-btn-s);
+    font-family: inherit; font-weight: 500;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.2s ease-in-out;
+  }
+  .subscribe-cta:hover { background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)); }
+  .subscribe-cta:active { background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)); }
+
+  /* ── Timeline ── */
+  .day-separator {
+    display:flex; align-items:center; gap: var(--spacing-m);
+    margin: var(--spacing-xl) 0;
+  }
+  .day-separator::before, .day-separator::after {
+    content:''; flex:1; height:1px; background: var(--line-l07);
+  }
+  .day-separator-label {
+    font-size:11px; text-transform:uppercase; letter-spacing:0.5px;
+    color: var(--text-n5);
+  }
+
+  /* ── Fix #3 & #4 & #5: widget-card structure, no border, grey-g01 bg ── */
+  .widget-card {
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: visible;
+  }
+
+  .notif-card {
+    background: var(--grey-g01);
+    border: none;
+    border-radius: var(--radius-ct-s);
+    padding: var(--spacing-l) var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    transition: background .15s;
+  }
+  .notif-card:hover { background: var(--b-r02); }
+  .notif-card-header {
+    display:flex; align-items:center; gap: var(--spacing-s);
+    font-size:12px; color: var(--text-n5);
+    margin-bottom: var(--spacing-s);
+  }
+  .notif-time { font-variant-numeric: tabular-nums; }
+  .notif-status {
+    display: inline-flex; align-items: center; gap: var(--spacing-xxs);
+    margin-left: auto;
+  }
+  .notif-status-dot { width:8px; height:8px; border-radius:50%; }
+  .status-pushed { background: var(--main-m3); }
+  .status-skipped { background: var(--text-n3); }
+  .notif-mode { text-transform: lowercase; letter-spacing: 0.12px; }
+  .notif-push-line {
+    font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
+    font-weight: 500; color: var(--text-n9);
+    margin: 0 0 var(--spacing-s); padding-top: 2px;
+  }
+  /* Citation pill — override markdown-container link styles */
+  .notif-body .cite-ref {
+    color: var(--main-m1); margin-left: 2px;
+    font-size: 11px; vertical-align: super; line-height: 1;
+    text-decoration: none;
+  }
+  .notif-body .cite-ref::after { display: none; }
+  .notif-body .cite-ref:hover { color: var(--main-m1); text-decoration: underline; }
+
+  .notif-cite-row {
+    margin-top: var(--spacing-s); padding-top: var(--spacing-s);
+    border-top: 1px solid var(--line-l05);
+  }
+  .notif-sources-toggle {
+    background:transparent; border:none; cursor:pointer;
+    font-size:12px; color: var(--text-n5); padding:0;
+    font-family: inherit;
+    display:inline-flex; align-items:center; gap: var(--spacing-xxs);
+  }
+  .notif-sources-toggle:hover { color: var(--main-m1); }
+  .notif-sources-arrow {
+    width: 12px; height: 12px; flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask: url("https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg") center / contain no-repeat;
+            mask: url("https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg") center / contain no-repeat;
+  }
+  .notif-sources-toggle[aria-expanded="true"] .notif-sources-arrow {
+    -webkit-mask-image: url("https://alva-ai-static.b-cdn.net/icons/arrow-down-l2.svg");
+            mask-image: url("https://alva-ai-static.b-cdn.net/icons/arrow-down-l2.svg");
+  }
+  .notif-matches {
+    margin-top: var(--spacing-s); display:flex; flex-direction:column;
+    gap: var(--spacing-xxs); font-size:12px;
+  }
+  .notif-matches.hidden { display:none; }
+  .match-row {
+    display:grid; grid-template-columns: 76px 1fr auto;
+    gap: var(--spacing-s); align-items:center;
+    padding: var(--spacing-xxs) var(--spacing-s);
+    margin: 0 calc(-1 * var(--spacing-s));
+    border-radius: var(--radius-ct-s);
+    text-decoration:none; color: var(--text-n7);
+    transition: background .15s;
+  }
+  .match-row:hover { background: var(--b-r02); color: var(--text-n9); }
+  .match-source {
+    display:inline-flex; align-items:center; gap: var(--spacing-xxs);
+    font-size:10px; text-transform:uppercase; letter-spacing:0.5px;
+    color: var(--text-n5);
+  }
+  .match-source-icon {
+    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+    object-fit: cover; background: var(--b-r02);
+  }
+  .match-source-icon.no-radius { border-radius: 0; background: transparent; }
+  .match-title {
+    font-size:12px; line-height:18px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .match-ts {
+    font-size:11px; color: var(--text-n5);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Skipped card — muted background, condensed padding ── */
+  .notif-card--skipped {
+    background: var(--b-r02);
+    padding: var(--spacing-s) var(--spacing-m);
+  }
+  .notif-card--skipped:hover { background: var(--b-r03); }
+  .notif-card--skipped .notif-push-line,
+  .notif-card--skipped .notif-body,
+  .notif-card--skipped .notif-cite-row { display: none; }
+  .notif-card--skipped .notif-card-header { color: var(--text-n3); margin-bottom: 0; }
+
+  .loading, .empty {
+    padding: var(--spacing-xxl) 0;
+    text-align:center; color: var(--text-n5); font-size: 13px;
+  }
+
+  .error-banner {
+    background: var(--main-m4-10, rgba(224,83,87,0.1));
+    color: var(--main-m4, #e05357);
+    padding: var(--spacing-s) var(--spacing-m);
+    border-radius: var(--radius-ct-s);
+    font-size: 12px; margin-bottom: var(--spacing-m);
+  }
+
+  /* ── README Modal ── */
+  .readme-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--spacing-m);
+  }
+  .readme-modal[hidden] { display: none; }
+  .readme-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(10, 15, 24, 0.45); backdrop-filter: blur(2px);
+  }
+  .readme-dialog {
+    position: relative; max-width: 680px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    background: var(--b0-container, #fff);
+    border-radius: var(--radius-ct-l);
+    box-shadow: var(--shadow-l, 0 16px 48px rgba(10,15,24,0.2));
+    padding: var(--spacing-xl) var(--spacing-xxl) var(--spacing-xxl);
+  }
+  .readme-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: var(--spacing-m);
+  }
+  .readme-title {
+    font-size: 18px; line-height: 26px; font-weight: 500;
+    color: var(--text-n9); margin: 0; letter-spacing: 0.18px;
+  }
+  .readme-close {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border: none; background-color: var(--text-n9); padding: 0;
+    cursor: pointer;
+    -webkit-mask: url("https://alva-ai-static.b-cdn.net/icons/close-l1.svg") center / contain no-repeat;
+            mask: url("https://alva-ai-static.b-cdn.net/icons/close-l1.svg") center / contain no-repeat;
+    transition: opacity .15s ease;
+  }
+  .readme-close:hover { opacity: 0.6; }
+
+  /* ════════════════════════════════════════════════════════════
+     Alva Markdown — verbatim from design-components.md
+     ════════════════════════════════════════════════════════════ */
+  .markdown-container {
+    width: 100%;
+    display: flex; flex-direction: column;
+    gap: 16px;
+  }
+  .markdown-container * { box-sizing: border-box; }
+
+  /* Headings */
+  .markdown-container h1,
+  .markdown-container h2,
+  .markdown-container h3,
+  .markdown-container h4,
+  .markdown-container h5,
+  .markdown-container h6 {
+    font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 500; font-style: normal;
+    color: var(--text-n9);
+    margin: 0; width: 100%;
+  }
+  .markdown-container h1,
+  .markdown-container h2 {
+    font-size: 20px; line-height: 30px; letter-spacing: 0.2px; padding-top: 8px;
+  }
+  .markdown-container h3 {
+    font-size: 18px; line-height: 28px; letter-spacing: 0.18px; padding-top: 4px;
+  }
+  .markdown-container h4,
+  .markdown-container h5,
+  .markdown-container h6 {
+    font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
+  }
+
+  /* Paragraph */
+  .markdown-container p {
+    font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
+    color: var(--text-n9);
+    margin: 0; white-space: pre-wrap;
+  }
+
+  /* Lists */
+  .markdown-container ul,
+  .markdown-container ol {
+    display: flex; flex-direction: column; gap: 8px;
+    list-style: none; margin: 0; padding: 0;
+  }
+  .markdown-container li {
+    font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
+    color: var(--text-n9);
+    position: relative; padding-left: 24px;
+  }
+  .markdown-container ul > li::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--text-n9);
+    position: absolute; left: 9.5px; top: 10.5px;
+  }
+  .markdown-container ol { counter-reset: md-ol; }
+  .markdown-container ol > li { counter-increment: md-ol; }
+  .markdown-container ol > li::before {
+    content: counter(md-ol) '.';
+    position: absolute; left: 0; top: 0;
+    width: 24px; text-align: center;
+    font-size: 16px; line-height: 26px;
+    color: var(--text-n9);
+  }
+
+  /* Code */
+  .markdown-container code,
+  .markdown-container pre {
+    background: var(--b-r02); border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-n7);
+  }
+  .markdown-container code {
+    display: inline-block; vertical-align: middle;
+    box-shadow: inset 0 0 0 1px var(--line-l07);
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    padding: 2px 8px; margin: 0 4px;
+  }
+  .markdown-container pre {
+    border: 1px solid var(--line-l07);
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    padding: 12px 16px; margin: 0; overflow-x: auto;
+  }
+  .markdown-container pre code {
+    display: inline; vertical-align: baseline;
+    font-size: inherit; line-height: inherit; letter-spacing: inherit;
+    box-shadow: none; padding: 0; margin: 0; background: none;
+  }
+
+  /* Inline emphasis */
+  .markdown-container em { font-style: italic; }
+  .markdown-container strong { font-weight: 500; }
+
+  /* Divider */
+  .markdown-container hr {
+    height: 1px; background: var(--line-l07);
+    border: none; margin: 4px 0;
+  }
+
+  /* Table */
+  .markdown-container table {
+    width: 100%; border-collapse: separate;
+    border-spacing: 16px 0; margin: 0 -16px;
+  }
+  .markdown-container th,
+  .markdown-container td {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-l07);
+    font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    color: var(--text-n9); text-align: left;
+    max-height: 180px;
+  }
+  .markdown-container th {
+    color: var(--text-n7); padding-top: 0; padding-bottom: 12px;
+  }
+  .markdown-container tr:last-child td { border-bottom: none; }
+  .markdown-container td code { margin: 0; }
+
+  /* Link */
+  .markdown-container a {
+    color: var(--text-n7);
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--text-n5);
+    text-decoration-thickness: 8%;
+    text-underline-offset: 30%;
+    text-decoration-skip-ink: none;
+    transition: color 0.15s ease;
+  }
+  .markdown-container a:hover {
+    color: var(--main-m1);
+    text-decoration-color: var(--main-m1);
+  }
+  .markdown-container a::after {
+    content: '';
+    width: 16px; height: 16px;
+    background: currentColor;
+    mask: url('https://alva-ai-static.b-cdn.net/icons/go-l.svg') center / contain no-repeat;
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/go-l.svg') center / contain no-repeat;
+    display: inline-block; vertical-align: middle;
+    margin-left: 4px; flex-shrink: 0;
+  }
+
+  /* Medium size modifier */
+  .markdown-container--m { gap: 8px; }
+  .markdown-container--m h1 {
+    font-size: 18px; line-height: 28px; letter-spacing: 0.18px; padding-top: 2px;
+  }
+  .markdown-container--m h2 {
+    font-size: 16px; line-height: 26px; letter-spacing: 0.16px; padding-top: 2px;
+  }
+  .markdown-container--m h3 {
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px; padding-top: 0;
+  }
+  .markdown-container--m h4,
+  .markdown-container--m h5,
+  .markdown-container--m h6 {
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+  }
+  .markdown-container--m p,
+  .markdown-container--m li {
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+  }
+  .markdown-container--m li { padding-left: var(--spacing-l); }
+  .markdown-container--m ul > li::before { left: 7.5px; top: 8.5px; }
+  .markdown-container--m ol > li::before {
+    font-size: 14px; line-height: 22px; width: 20px;
+  }
+  .markdown-container--m ul,
+  .markdown-container--m ol { gap: 4px; }
+  .markdown-container--m th,
+  .markdown-container--m td {
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    padding: 10px 8px;
+  }
+  .markdown-container--m code { padding: 1px 8px; }
+  .markdown-container--m pre {
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+  }
+  .markdown-container--m a::after { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PLAYBOOK INFO ═══════════════ -->
+<playbook-header
+    title="Template-Notification"
+    freq="1d"
+    last-updated="15 minutes ago"
+    owner="YGGYLL"
+    owner-seed="YGGYLL"
+    built-on="@leo/BTC Ultimate AI Trader"
+    built-on-seed="leo"
+    readme-modal="methodology-modal"
+    get-alerts
+    star="12" remix="56" comments="6"
+    description="Daily AI chip supply-chain digest — fetch from news, social, podcast → relevance filter → dedupe → opinionated push to Telegram followers with inline citations.">
+    <script type="application/json" class="pb-feeds-data">
+[
+  {"id":"news-fetch","name":"News-Fetch","interval":"Daily","lastRun":"15 minutes ago","clickable":true},
+  {"id":"social-fetch","name":"Social-Fetch","interval":"Daily","lastRun":"15 minutes ago"},
+  {"id":"podcast-fetch","name":"Podcast-Fetch","interval":"Weekly","lastRun":"2 hours ago"}
+]
+    <\/script>
+</playbook-header>
+
+<div class="playbook-container">
+
+  <div class="topic-meta-row">
+    <button class="readme-btn" type="button" id="open-readme" aria-label="Open README">
+      <span class="readme-btn-icon" aria-hidden="true"></span>
+      <span class="readme-btn-label">README</span>
+    </button>
+    <span class="pill source">news</span>
+    <span class="pill source">social</span>
+    <span class="pill source">podcast</span>
+    <span class="topic-meta-spacer"></span>
+    <a class="subscribe-cta" href="https://alva.ai/settings" target="_blank" rel="noopener noreferrer">Follow on Telegram</a>
+  </div>
+
+  <div id="timeline">
+    <div class="loading">Loading timeline...</div>
+  </div>
+
+</div>
+
+<!-- ── README Modal ── -->
+<div class="readme-modal" id="readme-modal" hidden>
+  <div class="readme-backdrop" data-readme-close></div>
+  <div class="readme-dialog" role="dialog" aria-modal="true" aria-labelledby="readme-title">
+    <header class="readme-header">
+      <h2 id="readme-title" class="readme-title">About this playbook</h2>
+      <button class="readme-close" data-readme-close aria-label="Close"></button>
+    </header>
+    <div class="readme-body markdown-container markdown-container--m" id="readme-body"></div>
+  </div>
+</div>
+
+<script type="application/json" id="playbook-config">
+{
+  "topic": {
+    "name": "AI Chip Supply Chain",
+    "description": "Monitoring TSMC, SMIC, HBM memory, AI accelerator capacity, and delivery timelines. Emphasis on supply-chain disruption (sanctions, fires, geopolitics, capacity planning) rather than daily share-price moves."
+  },
+  "sources": [
+    { "type": "news",    "query": "TSMC OR SMIC OR HBM memory OR AI chip supply", "lookback_hours": 24 },
+    { "type": "social",  "query": "TSMC capacity OR SMIC sanctions OR HBM shortage", "lookback_hours": 24 },
+    { "type": "podcast", "query": "semiconductor supply chain", "lookback_hours": 168 }
+  ],
+  "cadence": { "mode": "digest", "cron": "0 12 * * *", "quiet_day_policy": "ping" },
+  "audience": "followers",
+  "angle": "Focus on macro supply-chain disruption and capacity signals. Opinionated — tell the reader what to watch next, not just what happened. Every factual claim must cite its source. No buy/sell/price targets.",
+  "output_style": { "length": "medium", "tone": "opinionated", "must_cite": true, "model": "claude-sonnet-4-6" },
+  "relevance_filter": { "mode": "hybrid", "semantic_model": "claude-haiku-4-5", "batch_size": 15 },
+  "dedupe_window_hours": 48
+}
+<\/script>
+
+<script>
+(async function () {
+  const md = window.markdownit({ html: true, linkify: true, breaks: false });
+  const USERNAME = "sheer-ruan";
+  const FEED_PATH = \`/alva/home/\${USERNAME}/feeds/ai-chip-supply-chain/v1/data/notifications/events/@last/50\`;
+  const endpoint = (typeof ALVA_ENDPOINT !== "undefined" && ALVA_ENDPOINT)
+    ? ALVA_ENDPOINT
+    : "https://api-llm.prd.alva.ai";
+  const url = \`\${endpoint}/api/v1/fs/read?path=\${encodeURIComponent(FEED_PATH)}\`;
+
+  // ── README modal ──
+  const readmeModal = document.getElementById("readme-modal");
+  const readmeBody  = document.getElementById("readme-body");
+  const openBtn     = document.getElementById("open-readme");
+  const cfg = JSON.parse(document.getElementById("playbook-config").textContent);
+
+  function humanizeCron(expr) {
+    const m = expr.match(/^(\\S+)\\s+(\\S+)\\s+\\*\\s+\\*\\s+\\*$/);
+    if (!m) return expr + " (UTC)";
+    const mm = m[1], hh = m[2];
+    if (/^\\d+$/.test(mm) && /^\\d+$/.test(hh)) return \`daily at \${hh.padStart(2,"0")}:\${mm.padStart(2,"0")} UTC\`;
+    return expr + " (UTC)";
+  }
+  function readmeMarkdown(c) {
+    const sources = c.sources.map(s =>
+      \`- **\${s.type}** — query \\\`\${s.query}\\\`, \${s.lookback_hours}h lookback\`
+    ).join("\\n");
+    return \`
+## \${c.topic.name}
+
+\${c.topic.description}
+
+### Sources
+\${sources}
+
+### Cadence
+\${c.cadence.mode}, \${humanizeCron(c.cadence.cron)}. Quiet-day policy: \\\`\${c.cadence.quiet_day_policy}\\\` (\${c.cadence.quiet_day_policy === "ping" ? "sends a brief 'nothing material' note even on silent days" : "skips silent days"}).
+
+### Angle
+\${c.angle}
+
+### How it works
+Every run: **fetch** from all sources → **relevance filter** (keyword + semantic yes/no, batched) → **dedupe** against \${c.dedupe_window_hours}h of prior events → **generate** opinionated digest with inline \\\`[N]\\\` citation markers → **grounding check** (every claim cites a source URL; normalized substring match) → **push** to Telegram followers via signal/targets.
+
+### Models
+- Generation: \\\`\${c.output_style.model}\\\`
+- Relevance filter: \\\`\${c.relevance_filter.semantic_model}\\\` (batch size \${c.relevance_filter.batch_size})
+
+### Audience
+Push goes to **\${c.audience === "followers" ? "Telegram followers" : "owner only"}**. All notifications are also written to the feed and replayed here.
+\`;
+  }
+  if (readmeBody) readmeBody.innerHTML = md.render(readmeMarkdown(cfg));
+
+  function openReadme() {
+    if (!readmeModal) return;
+    readmeModal.hidden = false;
+    document.body.classList.add("modal-open");
+    setTimeout(() => readmeModal.querySelector(".readme-close")?.focus(), 30);
+  }
+  function closeReadme() {
+    if (!readmeModal) return;
+    readmeModal.hidden = true;
+    document.body.classList.remove("modal-open");
+    openBtn?.focus();
+  }
+  openBtn?.addEventListener("click", openReadme);
+  readmeModal?.querySelectorAll("[data-readme-close]").forEach(el => el.addEventListener("click", closeReadme));
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && readmeModal && !readmeModal.hidden) closeReadme();
+  });
+
+  // ── Timeline ──
+  const timelineEl = document.getElementById("timeline");
+  let events = [{"date": 1777014389278, "trigger_mode": "digest", "delivery": {"pushed": true, "reason": ""}, "push_line": "AI chip supply chain \\u2014 @pstAsiatech: In other words, TSMC is no longer dealing with a normal semiconductor cycle. It is dealing with a structural reallocatio", "body": "**What moved today:**\\n\\n- @pstAsiatech: In other words, TSMC is no longer dealing with a normal semiconductor cycle. It is dealing with a structural reallocatio [1]\\n- @grok: **Fact-checked (Apr 2026 industry sources):** Your statements hold up.\\n\\nGPUs: NVIDIA prioritizes AI accelerators; gaming [2]\\n- @TheValueist: GPU AND CUSTOM ASIC DEMAND IS VALIDATED, BUT HBM SHORTAGE CAN CAP SYSTEM SHIPMENTS (READ-THROUGH 9)\\n\\nAffected companies: [3]\\n\\n**What to watch next:** TSMC monthly sales cadence and any new SMIC capacity disclosures.", "citations": [{"ref": 1, "claim": "@pstAsiatech: In other words, TSMC is no longer dealing with a normal semiconduc", "url": "https://x.com/pstAsiatech/status/2045191341357875536", "source": "X"}, {"ref": 2, "claim": "@grok: **Fact-checked (Apr 2026 industry sources):** Your statements hold up.\\n\\nG", "url": "https://x.com/grok/status/2046478166504435857", "source": "X"}, {"ref": 3, "claim": "@TheValueist: GPU AND CUSTOM ASIC DEMAND IS VALIDATED, BUT HBM SHORTAGE CAN CAP ", "url": "https://x.com/TheValueist/status/2047132146356109560", "source": "X"}], "matches": [{"source": "social", "url": "https://x.com/pstAsiatech/status/2045191341357875536", "title": "@pstAsiatech: In other words, TSMC is no longer dealing with a normal semiconductor cycle. It is dealing with a structural reallocatio", "ts": 1776446588000, "snippet": "In other words, TSMC is no longer dealing with a normal semiconductor cycle. It is dealing with a structural reallocation of capacity.\\nAI is reshaping the logic of semiconductor capital spending, extending the lifecycle of leading-edge process nodes, and even changing the geography of global expansion.\\n\\n https://t.co/pdAl1bkGcz"}, {"source": "social", "url": "https://x.com/grok/status/2046478166504435857", "title": "@grok: **Fact-checked (Apr 2026 industry sources):** Your statements hold up.\\n\\nGPUs: NVIDIA prioritizes AI accelerators; gaming", "ts": 1776753391000, "snippet": "**Fact-checked (Apr 2026 industry sources):** Your statements hold up.\\n\\nGPUs: NVIDIA prioritizes AI accelerators; gaming supply stays \\u201cvery tight\\u201d through end-2026 due to HBM/GDDR7 memory diversion and TSMC capacity competition.\\n\\nCPUs: Confirmed surge in data-center demand from agentic AI and RL training loops. Example: Microsoft\\u2019s Fairwater uses 1:6 CPU:GPU power ratio (more CPUs needed as accelerators outpace CPUs). Intel/AMD lead times stretched, Xeon prices rising; server TAM up double-digits.\\n\\nMemory: Hyperscalers grabbing outsized share; HBM now ~23% of DRAM wafers, driving 30-50%+ price hikes and server delays.\\n\\nEnergy: ~50% of planned US data-center builds delayed/canceled by power infrastructure shortages (transformers, grid strain, China parts).\\n\\nNo major relief before late 2027\\u20132028 as new fabs and grids come online slowly.\\n\\n**Implications:** Expect more quotas/rate limits (like GitHub Copilot\\u2019s fresh session + weekly caps) and price hikes on hardware/cloud services. AI scaling slows short-term; Intel/AMD server CPUs see strong demand amid the crunch."}, {"source": "social", "url": "https://x.com/TheValueist/status/2047132146356109560", "title": "@TheValueist: GPU AND CUSTOM ASIC DEMAND IS VALIDATED, BUT HBM SHORTAGE CAN CAP SYSTEM SHIPMENTS (READ-THROUGH 9)\\n\\nAffected companies:", "ts": 1776909312000, "snippet": "GPU AND CUSTOM ASIC DEMAND IS VALIDATED, BUT HBM SHORTAGE CAN CAP SYSTEM SHIPMENTS (READ-THROUGH 9)\\n\\nAffected companies: NVIDIA (NVDA: U.S.), Advanced Micro Devices (AMD: U.S.), Broadcom (AVGO: U.S.), Marvell Technology (MRVL: U.S.), Taiwan Semiconductor Manufacturing Co (2330: Taiwan), SK hynix Inc (000660: Korea).\\n\\nDirectional impact and magnitude: Positive for long-term demand, high magnitude; negative near-term supply/margin risk, moderate magnitude.\\n\\nCall support: Management said AI technology is expanding beyond training into inference and agentic AI, with workloads shifting to \\u201cplanning, execution and verification\\u201d and repeated processes until optimal results are achieved. It also said that demand for memory is increasing across HBM, server DRAM, and enterprise SSDs. Separately, management stated that customers\\u2019 HBM demand for the next 3 years exceeds SK hynix\\u2019s current supply capacity.\\n\\nTransmission mechanism: The call validates continued AI accelerator demand because memory suppliers are seeing customers attempt to secure scarce memory several years forward. That is positive for NVIDIA, AMD, Broadcom, Marvell, and TSMC because it confirms that AI compute demand is not limited to training clusters and is broadening into inference and agentic workloads. However, the same memory scarcity can cap system shipments, increase accelerator bill-of-materials, and complicate customer allocation. HBM is a prerequisite for many high-end GPUs and custom AI ASICs; therefore, memory scarcity can limit realized revenue even when logic demand is strong.\\n\\nNear-term trading catalyst: Any commentary from NVIDIA, AMD, Broadcom, or Marvell on HBM availability, customer allocation, and gross margin will be read through the SK hynix lens. HBM constraints may become a more important source of quarterly variance than logic wafer availability.\\n\\nLonger-duration fundamental shift: AI compute competition will be influenced by memory procurement capability and memory co-design, not just accelerator architecture. Vendors with deeper partnerships across HBM, packaging, and hyperscale demand planning should have superior supply assurance.\\n\\nLPU/SRAM AND MEMORY-EFFICIENCY BEAR CASES DO NOT YET THREATEN THE HBM/GPU MEMORY MODEL (READ-THROUGH 10)\\n\\nAffected companies: NVIDIA (NVDA: U.S.), Advanced Micro Devices (AMD: U.S.), SK hynix Inc (000660: Korea), Micron Technology (MU: U.S.), Samsung Electronics (005930: Korea), Astera Labs (ALAB: U.S.), Rambus (RMBS: U.S.).\\n\\nDirectional impact and magnitude: Positive for GPU/HBM ecosystem, moderate to high magnitude; negative for narratives that pure SRAM/LPU architectures can quickly displace HBM-heavy systems.\\n\\nCall support: Management acknowledged that LPUs using SRAM are fast but stated that SRAM has limited physical capacity. Management said it is \\u201chighly likely\\u201d that the market moves toward a hybrid architecture where LPUs handle fast-response tasks while \\u201cHBM-based GPUs handle complex and massive computations.\\u201d On KV-cache optimization, management stated that \\u201cthe intent of this technology is not to use less memory, but to use the same memory more efficiently\\u201d and to support more AI services.\\n\\nTransmission mechanism: The call pushes back against 2 bearish arguments for memory and GPU infrastructure: 1st, that SRAM-heavy architectures can displace HBM-based GPUs; 2nd, that memory optimization will reduce aggregate memory demand. SK hynix\\u2019s view is that efficiency improves AI service economics, which expands usage and increases total memory demand. This supports NVIDIA and AMD by reinforcing the role of HBM GPUs in complex inference and training. It supports SK hynix, Micron, and Samsung by defending the long-term memory TAM. It also supports interconnect and memory-interface companies such as Astera Labs and Rambus because hybrid architectures create more tiered-memory complexity.\\n\\nNear-term trading catalyst: Positive for sentiment around HBM and GPU demand if investors had been concerned that inference optimization would materially reduce memory intensity.\\n\\nLonger-duration fundamental shift: AI infrastructure is moving toward heterogeneous memory architectures rather than memory-light architectures. This creates a larger opportunity for memory pooling, CXL, SOCAMM, HBM, eSSD, and memory-interface silicon.\\n\\nENTERPRISE STORAGE, NAND, AND AI DATA INFRASTRUCTURE\\n\\nENTERPRISE SSD AND QLC NAND ARE BECOMING AI INFRASTRUCTURE ASSETS RATHER THAN CONSUMER-CYCLE COMMODITIES (READ-THROUGH 11)\\n\\nAffected companies: SK hynix Inc (000660: Korea), Samsung Electronics (005930: Korea), Micron Technology (MU: U.S.), SanDisk (SNDK: U.S.), Kioxia Holdings (285A: Japan).\\n\\nDirectional impact and magnitude: Positive, high magnitude.\\n\\nCall support: NAND shipments declined approximately 10% QoQ, yet NAND ASP rose by a mid-70% QoQ. Management attributed demand to enterprise SSDs and stated that NAND is \\u201cno longer a simple storage device but a core component that determines computational speed and efficiency.\\u201d Management said AI models are increasing intermediate data processing, including KV cache, and that customers are adopting high-performance, high-capacity enterprise SSDs \\u201con a large scale.\\u201d The 2Q26 NAND shipment guide is for mid-10% QoQ growth.\\n\\nTransmission mechanism: This is a major positive read-through for NAND suppliers because it suggests that high-end NAND demand is increasingly tied to AI infrastructure rather than PCs, smartphones, or consumer storage. QLC enterprise SSDs can serve high-capacity AI data and KV-cache requirements, improving NAND mix and pricing power. SK hynix benefits directly through Solidigm and 321-layer QLC. Samsung, Micron, SanDisk, and Kioxia benefit from stronger enterprise SSD pricing and better absorption of advanced NAND capacity.\\n\\nNear-term trading catalyst: Positive revision risk for NAND ASPs and enterprise SSD margins. The magnitude of SK hynix\\u2019s NAND ASP increase implies that other NAND vendors may report substantially stronger pricing than previously modeled.\\n\\nLonger-duration fundamental shift: If AI inference and agentic workloads create persistent demand for high-performance, high-capacity SSD tiers, NAND may become less dependent on consumer replacement cycles. This would justify higher normalized margins for the strongest enterprise SSD suppliers.\\n\\nAI HOT-STORAGE DEMAND IS A RELATIVE NEGATIVE FOR HDD EXPOSURE IN PERFORMANCE-SENSITIVE WORKLOADS (READ-THROUGH 12)\\n\\nAffected companies: Seagate Technology (STX: U.S.), Western Digital (WDC: U.S.), SK hynix Inc (000660: Korea), Samsung Electronics (005930: Korea), SanDisk (SNDK: U.S.).\\n\\nDirectional impact and magnitude: Negative for HDD vendors in AI hot/warm storage tiers, low to moderate magnitude; positive for eSSD suppliers, moderate to high magnitude.\\n\\nCall support: Management repeatedly emphasized enterprise SSD demand, high-performance/high-capacity storage, KV-cache growth, and NAND\\u2019s role in determining computational speed and efficiency. The company also said it plans to strengthen an \\u201cESSD-centric product mix\\u201d to address market changes driven by KV-cache growth.\\n\\nTransmission mechanism: AI data infrastructure is tiered. HDDs can still benefit from cold storage and bulk archival data growth, but the SK hynix call indicates that incremental AI workload intensity is shifting toward low-latency, high-bandwidth SSD tiers for KV cache and intermediate data. That is a relative negative for HDD vendors where AI spending is allocated toward performance-sensitive storage rather than bulk capacity. The impact is not a broad HDD demand collapse; it is a mix-share headwind within the most strategic AI infrastructure budgets.\\n\\nNear-term trading catalyst: eSSD pricing commentary and cloud storage architecture updates. If hyperscalers emphasize SSD-heavy AI cache infrastructure, NAND suppliers should outperform HDD-focused storage names.\\n\\nLonger-duration fundamental shift: AI workloads may structurally increase the proportion of data center storage dollars allocated to enterprise SSDs, even if HDD exabytes continue to grow in archival layers.\\n\\nSERVER OEMS, ODMS, AND AI SYSTEM BUILDERS\\n\\nAI SERVER REVENUE DEMAND IS POSITIVE, BUT MEMORY COST AND ALLOCATION PRESSURE ARE NEGATIVE FOR MARGINS AND WORKING CAPITAL (READ-THROUGH 13)\\n\\nAffected companies: Dell Technologies (DELL: U.S.), Super Micro Computer (SMCI: U.S.), Hewlett Packard Enterprise (HPE: U.S.), Lenovo Group (0992: Hong Kong), Quanta Computer (2382: Taiwan), Wiwynn (6669: Taiwan), Wistron (3231: Taiwan), Hon Hai Precision Industry (2317: Taiwan), Inventec (2356: Taiwan).\\n\\nDirectional impact and magnitude: Mixed; positive for revenue backlog, moderate to high magnitude; negative for gross margin and working capital, moderate magnitude.\\n\\nCall support: Management stated that demand is increasing across HBM, server DRAM, and enterprise SSDs. It highlighted robust demand for high-density server modules of 128GB and above and guided 2Q26 DRAM shipments to increase by high-single-digit % QoQ. It also said customers are prioritizing volume over pricing.\\n\\nTransmission mechanism: Server OEMs and ODMs benefit from strong AI server demand and rising server memory content because system ASPs increase. However, memory is a large and rising component of AI server bill-of-materials. When suppliers have pricing power and customers prioritize supply over price, OEMs can face margin compression, pass-through lag, working-capital drag, and fulfillment risk. ODMs with strong relationships to hyperscalers may be better positioned to pass through costs, while branded OEMs may face more visible gross-margin volatility.\\n\\nNear-term trading catalyst: Margin commentary from Dell, Super Micro, HPE, Quanta, Wiwynn, and Wistron. Strong AI server revenue can coexist with disappointing gross margins if memory cost inflation outruns pass-through.\\n\\nLonger-duration fundamental shift: AI server differentiation is shifting from assembly scale alone toward supply-chain control across GPUs, HBM, server DRAM, eSSD, power, thermals, and networking. OEMs and ODMs with better allocation access should gain share.\\n\\nPC, MOBILE, AND EDGE AI DEVICES\\n\\nRISING MEMORY PRICES ARE ALREADY PRESSURING PC AND SMARTPHONE DEMAND (READ-THROUGH 14)\\n\\nAffected companies: Apple (AAPL: U.S.), Samsung Electronics (005930: Korea), Xiaomi (1810: Hong Kong), Lenovo Group (0992: Hong Kong), HP Inc (HPQ: U.S.), Dell Technologies (DELL: U.S.), Acer (2353: Taiwan), Asustek Computer (2357: Taiwan).\\n\\nDirectional impact and magnitude: Negative, moderate magnitude.\\n\\nCall support: Management stated that in PC and mobile markets, \\u201csome signs of demand softening have emerged,\\u201d including \\u201cadjustments in set shipments and changes in product portfolios due to cost pressures stemming from higher memory prices.\\u201d\\n\\nTransmission mechanism: Higher DRAM and NAND prices pressure device OEM gross margins and can force product-mix changes, lower memory configurations, delayed launches, or higher consumer prices. This is negative for PC OEMs and smartphone vendors because memory cost inflation is harder to pass through in mature consumer categories than in AI data center infrastructure. Apple and premium smartphone vendors have better pricing power, but they still face margin pressure if LPDDR and NAND costs rise sharply. PC OEMs such as HP, Dell, Lenovo, Acer, and Asustek are more exposed because PCs are price-elastic and channel inventory can react quickly to component inflation.\\n\\nNear-term trading catalyst: PC and smartphone unit guidance, gross-margin commentary, and channel inventory updates. Any reduction in DRAM/NAND configurations in mainstream devices would validate the negative read-through.\\n\\nLonger-duration fundamental shift: AI-driven memory scarcity may structurally crowd out lower-margin consumer electronics supply during periods of tight capacity, forcing OEMs to either accept higher costs or reduce memory content. This could further concentrate profitability in data center memory at the expense of client-device ecosystems.\\n\\nLPDDR6 AND HIGH-DENSITY MOBILE MEMORY SUPPORT PREMIUM AI DEVICE DIFFERENTIATION BUT INCREASE BOM PRESSURE (READ-THROUGH 15)\\n\\nAffected companies: Apple (AAPL: U.S.), Samsung Electronics (005930: Korea), Xiaomi (1810: Hong Kong), Qualcomm (QCOM: U.S.), MediaTek (2454: Taiwan), SK hynix Inc (000660: Korea), Micron Technology (MU: U.S.).\\n\\nDirectional impact and magnitude: Positive for premium AI-device capability, moderate magnitude; negative for device gross margins, moderate magnitude.\\n\\nCall support: SK hynix said it completed development of the industry\\u2019s 1st 1c nanometer-based LPDDR6 in 1Q26, with 33% better data processing speed and more than 20% better power efficiency than LPDDR5X. Management plans full-scale market supply in 2H26, starting with adoption in a major smartphone customer\\u2019s next-generation flagship model.\\n\\nTransmission mechanism: LPDDR6 enables higher on-device AI performance, faster local inference, and better power efficiency. That is positive for premium smartphone differentiation and for mobile SoC platforms that can exploit higher memory bandwidth. However, the same transition likely raises memory content cost and increases the premium-device bill-of-materials. Apple, Samsung Mobile, and Xiaomi benefit if LPDDR6 supports stronger AI features, but gross-margin pressure increases if component inflation cannot be passed through. Qualcomm and MediaTek benefit indirectly because higher memory bandwidth improves the value proposition of AI-capable flagship SoCs.\\n\\nNear-term trading catalyst: Flagship smartphone teardown costs, LPDDR6 adoption disclosures, and commentary from mobile SoC vendors around on-device AI memory bandwidth.\\n\\nLonger-duration fundamental shift: The smartphone AI cycle will require higher-performance memory, but the economics may favor premium devices and high-end SoCs rather than broad-based unit growth.\\n\\nNEXT-GENERATION MEMORY ARCHITECTURES, CXL, AND MEMORY POOLING\\n\\nSOCAMM2, CXL, AND MEMORY POOLING ARE EMERGING AS IMPORTANT AI INFERENCE ENABLERS (READ-THROUGH 16)\\n\\nAffected companies: Astera Labs (ALAB: U.S.), Rambus (RMBS: U.S.), Montage Technology (688008: China), NVIDIA (NVDA: U.S.), SK hynix Inc (000660: Korea), Micron Technology (MU: U.S.), Samsung Electronics (005930: Korea), Dell Technologies (DELL: U.S.), Super Micro Computer (SMCI: U.S.).\\n\\nDirectional impact and magnitude: Positive, moderate to high magnitude.\\n\\nCall support: SK hynix said it began mass production of a 192GB SOCAMM2 product based on its 1c nanometer process, optimized for NVIDIA\\u2019s Vera Rubin platform, with more than 2x the bandwidth of conventional RDIMMs and over 75% better energy efficiency. Management also highlighted CXL pooling as an option for offloading rapidly increasing KV cache, noted that 1st-generation CXL 2.0 memory modules completed customer qualification last year, and said the company is preparing 2nd-generation CXL 3.0 products.\\n\\nTransmission mechanism: AI inference requires increasingly tiered memory architectures. SOCAMM2 and CXL memory pooling create demand for new memory modules, controllers, retimers, interface IP, and server architecture redesign. Astera Labs is a likely beneficiary of CXL and high-speed connectivity adoption. Rambus and Montage benefit from memory-interface IP, buffer chips, and memory connectivity complexity. NVIDIA benefits because optimized memory modules can improve platform performance and energy efficiency. Server OEMs benefit if differentiated memory architectures improve AI server attach rates, though integration complexity increases.\\n\\nNear-term trading catalyst: Customer qualification announcements, CXL 3.0 product ramps, NVIDIA Vera Rubin platform disclosures, and evidence of hyperscaler deployments.\\n\\nLonger-duration fundamental shift: The memory architecture of AI servers is expanding beyond standard DIMMs and HBM. This creates a durable ecosystem opportunity around memory pooling, high-bandwidth modules, retimers, interface silicon, and platform-level co-design.\\n\\nSEMICONDUCTOR MATERIALS, INDUSTRIAL GASES, AND ENERGY\\n\\nINPUT MATERIALS DO NOT APPEAR TO BE A NEAR-TERM PRODUCTION BOTTLENECK, REDUCING TAIL RISK FOR MEMORY SUPPLY (READ-THROUGH 17)\\n\\nAffected companies: SK hynix Inc (000660: Korea), Linde (LIN: U.S.), Air Liquide (AI: France), Air Products and Chemicals (APD: U.S.), Samsung Electronics (005930: Korea), Micron Technology (MU: U.S.).\\n\\nDirectional impact and magnitude: Positive for memory supply continuity, low to moderate magnitude; neutral to modest positive for industrial gas suppliers.\\n\\nCall support: Management said that for helium and bromine, SK hynix has diversified suppliers and built sufficient inventory, so \\u201cany short-term or long-term impact on our production capacity will be quite limited.\\u201d On tungsten, management said there are no supply disruptions and no production impact. On LNG and electricity, management said long-term agreements minimize price fluctuations and business impact should be limited.\\n\\nTransmission mechanism: This reduces the probability that geopolitical supply disruptions in helium, bromine, tungsten, LNG, or electricity become a near-term upside shock to memory pricing or a downside shock to SK hynix output. For memory buyers, it is modestly positive because it lowers the risk of abrupt production interruptions. For industrial gas suppliers such as Linde, Air Liquide, and Air Products, the read-through is not near-term pricing windfall; it is longer-term volume growth as SK hynix expands fabs and advanced memory production.\\n\\nNear-term trading catalyst: Lower probability of a supply-disruption-driven memory price spike from input materials. The more important catalyst remains memory demand rather than input shortages.\\n\\nLonger-duration fundamental shift: Strategic inventory, supplier diversification, and long-term energy contracts are becoming core operational requirements for memory producers. Large suppliers with reliable global gas and materials capacity should benefit from fab expansions, but customers are actively limiting single-source and geopolitical risk.\\n\\nKOREA CAPITAL MARKETS, SHAREHOLDER RETURNS, AND GLOBAL AI EQUITY FLOWS\\n\\nADR LISTING AND BUYBACK/CANCELLATION OPTIONALITY COULD HELP REDUCE THE KOREA DISCOUNT FOR SK HYNIX (READ-THROUGH 18)\\n\\nAffected companies: SK hynix Inc (000660: Korea), Samsung Electronics (005930: Korea).\\n\\nDirectional impact and magnitude: Positive for SK hynix, moderate magnitude; positive peer-pressure read-through for Samsung, low to moderate magnitude.\\n\\nCall support: Management disclosed that SK hynix confidentially submitted a registration statement to the U.S. SEC on March 24 related to a proposed ADR offering, with a goal of listing on U.S. securities markets within 2026. Management also said the company will review additional shareholder return measures, including \\u201cshare buybacks and cancellations,\\u201d and establish an implementation plan within the year. The company is targeting net cash of more than KRW100 trillion while expanding shareholder returns.\\n\\nTransmission mechanism: A U.S. ADR listing can expand the investor base, improve liquidity, increase comparability with global AI semiconductor peers, and potentially reduce valuation friction associated with the Korea listing discount. Buybacks and cancellations would reinforce the capital-return story at a time when free cash flow generation is accelerating. For Samsung, the read-through is indirect but relevant: SK hynix\\u2019s shareholder-return and global-listing moves increase pressure on Samsung to improve capital allocation and investor communication in its own memory cycle recovery.\\n\\nNear-term trading catalyst: SEC review updates, ADR structure, offering size, primary versus secondary share mix, and any specific buyback/cancellation plan.\\n\\nLonger-duration fundamental shift: If SK hynix becomes easier for U.S. AI investors to own directly and pairs that with material capital returns, the equity could trade more like a global AI infrastructure supplier and less like a domestic Korean cyclical memory stock.\\n\\nTHE NET CASH TARGET IS POSITIVE FOR CREDIT QUALITY BUT COULD CAP NEAR-TERM SHAREHOLDER-RETURN UPSIDE (READ-THROUGH 19)\\n\\nAffected companies: SK hynix Inc (000660: Korea), Samsung Electronics (005930: Korea), Micron Technology (MU: U.S.).\\n\\nDirectional impact and magnitude: Mixed for SK hynix, moderate magnitude; broadly positive for memory-sector financial discipline.\\n\\nCall support: SK hynix ended 1Q26 with cash and short-term investments of KRW54.3 trillion, interest-bearing debt of KRW19.3 trillion, and net cash of KRW35 trillion. Management stated that \\u201creinvesting the cash we generate back into the business is currently the best use of capital\\u201d and that the company seeks net cash of more than KRW100 trillion while also expanding shareholder returns.\\n\\nTransmission mechanism: The net cash target reduces balance-sheet risk and supports aggressive capacity investment through cycles. That is positive for customers who need supply stability and positive for creditors. However, it may limit the scale of near-term cash returns despite extraordinary profitability. For equity holders, the read-through is that SK hynix will prioritize strategic reinvestment and financial flexibility over immediate maximum payout. This may be the right long-term decision given HBM and Yongin returns, but it reduces the probability of a near-term capital-return shock unless management becomes more explicit on buyback size and timing.\\n\\nNear-term trading catalyst: Details of the 2026 shareholder-return plan. A large cancellation or buyback would be positive; a vague framework could disappoint investors expecting immediate distribution of record profits.\\n\\nLonger-duration fundamental shift: Memory leaders are increasingly treating balance-sheet strength as a competitive advantage because customers want assurance that suppliers can invest through downturns and secure long-lead equipment. This may structurally favor SK hynix and Samsung versus more financially constrained suppliers.\\n\\nBROADER MARKET AND STYLE FACTOR IMPLICATIONS\\n\\nAI INFRASTRUCTURE PROFIT POOL IS SHIFTING TOWARD BOTTLENECK SUPPLIERS, NOT ONLY AI APPLICATIONS (READ-THROUGH 20)\\n\\nAffected companies: SK hynix Inc (000660: Korea), Micron Technology (MU: U.S.), ASML Holding (ASML: Netherlands), Applied Materials (AMAT: U.S.), Lam Research (LRCX: U.S.), NVIDIA (NVDA: U.S.), Microsoft (MSFT: U.S.), Amazon (AMZN: U.S.), Alphabet (GOOGL: U.S.), Meta Platforms (META: U.S.).\\n\\nDirectional impact and magnitude: Positive for bottleneck suppliers, high magnitude; negative for AI infrastructure buyers\\u2019 margin leverage, moderate magnitude.\\n\\nCall support: Management stated that memory has become more critical in AI computing, that customers are prioritizing procurement over price, and that demand is rising for a broad range of memory products across HBM, server DRAM, and enterprise SSDs. The financial data show 72% operating margin and 79% EBITDA margin, confirming that scarcity pricing is accruing to the bottleneck supplier.\\n\\nTransmission mechanism: The call is a reminder that in AI infrastructure, the strongest profit pools can accrue to scarce upstream enablers rather than downstream platforms. Memory suppliers, equipment vendors, and advanced packaging suppliers are extracting economics because their capacity is the bottleneck. Hyperscalers and AI service providers may still benefit from demand growth, but they are increasingly absorbing upstream cost inflation. This matters for market allocation because it supports overweighting scarce AI infrastructure suppliers and being more selective on companies whose AI strategies require massive procurement at rising input prices.\\n\\nNear-term trading catalyst: Rotation into semicap, memory, advanced packaging, and AI infrastructure bottleneck names after evidence of continued scarcity.\\n\\nLonger-duration fundamental shift: The AI value chain may increasingly reward control of physical constraints: HBM capacity, advanced packaging, EUV tools, power, cooling, and high-performance storage. Software and cloud platforms remain strategically important, but their incremental returns may be more sensitive to upstream bottleneck pricing than previously modeled."}, {"source": "social", "url": "https://x.com/Goeun_6121/status/2047307002506842418", "title": "@Goeun_6121: 72% operating margin. SK hynix Q1 2026.\\n\\nTSMC printed 58% in the same quarter. a record for them.\\nSK hynix cleared it by", "ts": 1776951001000, "snippet": "72% operating margin. SK hynix Q1 2026.\\n\\nTSMC printed 58% in the same quarter. a record for them.\\nSK hynix cleared it by 14 points. a memory maker running\\nhigher margins than the most dominant foundry on earth is\\nnot something the textbook has a chapter for.\\n\\nthe conference call buried the real line. \\"HBM demand\\nwill exceed our supply for the next three years.\\"\\ncorporate IR usually doesnt talk like that. you say that\\nwhen the queue is locked.\\n\\nthe other line. \\"customers are prioritizing volume\\nsecurity over price.\\" read that again. the buyer side\\nstopped bargaining on the unit price.\\n\\nNVIDIA Vera Rubin ships H2 2026. HBM4 supply split:\\nSK hynix around 70 percent, samsung around 30 percent.\\nper-unit ASP near $700, up 20-30 percent from HBM3E.\\nkorea is the whole bench on that chip.\\n\\nprior memory cycles broke on capacity overshoot. the CFO\\ntoday flagged that \\"the kind of oversupply we used to see\\nis not likely to repeat.\\" the company is moving to\\nmulti-year LTAs and an ADR listing in the US. the posture\\nis not cyclical.\\n\\nthe -2% open on the record print, closing near flat, was\\nnot skepticism. it was positioning exhausted. the price\\ndoesnt tell you what the company is worth here. the\\nmargin does.\\n\\nkorea doesnt ask for the price. it quotes it.\\n\\n#SKhynix #HBM #KoreaBridge #semis"}, {"source": "podcast", "url": "https://podcasts.apple.com/us/podcast/the-silent-threat-cyberattacks-on-semiconductor/id1647267212?i=1000763247858&uo=4", "title": "Conspiracy Theories Exploring The Unseen \\u2014 The Silent Threat_ Cyberattacks on Semiconductor Supply Chains", "ts": 1776947264000, "snippet": "The semiconductor industry, often called the backbone of modern technology, has found itself at the forefront of a silent but dangerous threat. Semiconductors power everything around us, from smartphones to critical military systems, and because of this crucial role, they have become prime targets f"}], "dedupe_keys": [{"key": "h1mlsb39"}, {"key": "h1na3a7t"}, {"key": "hwcbizk"}, {"key": "h1dwu2df"}, {"key": "hyi7iq5"}], "source": "adk"}, {"date": 1777032006235, "trigger_mode": "digest", "delivery": {"pushed": true, "reason": ""}, "push_line": "Nothing material on the AI chip supply chain today \\u2014 watch TSMC and SMIC capacity signals next.", "body": "A quiet day on the supply-chain front. Worth monitoring TSMC capacity allocations and SMIC trailing-edge output for the next trigger.", "citations": [], "matches": [], "dedupe_keys": [], "source": "adk"}, {"date": 1777118403414, "trigger_mode": "digest", "delivery": {"pushed": true, "reason": ""}, "push_line": "AI chip supply chain \\u2014 @bookwormengr: DeepSeek V4 hits it out of the park and addresses HBM shortage:\\n\\nDeepSeek proves why it is such a fundamental research l", "body": "**What moved today:**\\n\\n- @bookwormengr: DeepSeek V4 hits it out of the park and addresses HBM shortage:\\n\\nDeepSeek proves why it is such a fundamental research l [1]\\n- @tushar9590: Advanced-node wafer and packaging capacity at TSMC is heavily oversubscribed by AI GPUs/accelerators. \\n\\nNVIDIA alone has [2]\\n- @InvestmentGuru_: 2027 is when the volume growth engine actually turns on \\u2014 Boise Idaho fab comes online mid-2027, Singapore HBM packaging [3]\\n\\n**What to watch next:** TSMC monthly sales cadence and any new SMIC capacity disclosures.", "citations": [{"ref": 1, "claim": "@bookwormengr: DeepSeek V4 hits it out of the park and addresses HBM shortage:\\n\\n", "url": "https://x.com/bookwormengr/status/2047527303824236545", "source": "X"}, {"ref": 2, "claim": "@tushar9590: Advanced-node wafer and packaging capacity at TSMC is heavily overs", "url": "https://x.com/tushar9590/status/2047624606195081578", "source": "X"}, {"ref": 3, "claim": "@InvestmentGuru_: 2027 is when the volume growth engine actually turns on \\u2014 Bois", "url": "https://x.com/InvestmentGuru_/status/2047638936906830119", "source": "X"}], "matches": [{"source": "social", "url": "https://x.com/bookwormengr/status/2047527303824236545", "title": "@bookwormengr: DeepSeek V4 hits it out of the park and addresses HBM shortage:\\n\\nDeepSeek proves why it is such a fundamental research l", "ts": 1777003525000, "snippet": "DeepSeek V4 hits it out of the park and addresses HBM shortage:\\n\\nDeepSeek proves why it is such a fundamental research lab. \\n\\nIn addition to exceeding Opus 4.6 on Terminal Bench and virtually matching on other performance metrics, the most notable advancement is this statement:\\n\\n\\"In the 1M-token context setting, DeepSeek-V4-Pro requires only 27% of single-token inference FLOPs and 10% of KV cache compared with DeepSeek-V3.2\\"\\n\\nTo understand significance of this point, consider below diagram that shows memory layout for Prefill and Decode nodes.\\n\\nIf you implement Decode with Data and Expert parallelism (DEP16) with 16 GPUs on GB200 or GB300 NVL72 rack with DeepSeek v3.2, you are left with 104GB or 176 GB HBRAM per GPU respectively. Here we are assuming MoE parameters are in NVFP4.\\n\\nThe remaining HBRAM per GPU dictates how large batch size you can have for inference, which determines how many concurrent request you can serve.\\n\\nConsider GB300 with 176GB left:\\n1. For 128K context, you need 4.45 GB HBRam for KV Cache, and you can serve only 36 concurrent requests.\\n2. For 256K context, you need 8.90 GB HBRam for KV Cache, and you can serve only 18 concurrent requests.\\n3. For 512K context, you need 17.80 GB HBRam for KV Cache, and you can serve only 9 concurrent requests.\\n4. For 1M context, you need 35.60 GB HBRam for KV Cache, and you can serve only 4 concurrent requests.\\n\\nYou see the point. Now you imagine, you actually required 10 times less KV cache somehow at 1M! \\n\\nIt basically enables you to server 10 times more requests with same resources. Recall Decode is memory bound and not compute bound, unlike Prefill.\\n\\nThis is probably the most important contribution of DeepSeek V4.\\n\\n@teortaxesTex @jukan05 @zephyr_z9"}, {"source": "social", "url": "https://x.com/tushar9590/status/2047624606195081578", "title": "@tushar9590: Advanced-node wafer and packaging capacity at TSMC is heavily oversubscribed by AI GPUs/accelerators. \\n\\nNVIDIA alone has", "ts": 1777026723000, "snippet": "Advanced-node wafer and packaging capacity at TSMC is heavily oversubscribed by AI GPUs/accelerators. \\n\\nNVIDIA alone has reportedly booked the majority of TSMC's most advanced CoWoS packaging capacity (critical for high-performance AI chips) for years ahead. \\n\\nAI accelerators + related chips (including some host CPUs and networking) are projected to take ~60% of TSMC's N3 output in 2026, rising to ~86% in 2027. \\n\\nThis squeezes out wafers that would otherwise go to smartphones, other CPUs, and general-purpose logic.\\n\\nReallocating even a small % of capacity from non-AI uses can enable significantly more AI GPUs. \\n\\nCPUs aren't immune: AMD (a major CPU maker) relies on TSMC, as do others. \\nApple is reportedly competing hard for the same capacity for its chips (which include CPUs). \\n\\nThe \\"zero-sum\\" nature of leading-edge fab/packaging means prioritizing high-margin AI GPUs reduces availability (and raises costs/lead times) for general CPUs. \\n\\r\\nHowever, there's a counter-trend worth noting that the shift toward inference and agentic AI (autonomous AI agents that run continuously) is increasing demand for more CPUs alongside GPUs. \\nUnlike pure training (GPU-heavy), agentic workloads are more balanced or even CPU-favorable in some cases."}, {"source": "social", "url": "https://x.com/InvestmentGuru_/status/2047638936906830119", "title": "@InvestmentGuru_: 2027 is when the volume growth engine actually turns on \\u2014 Boise Idaho fab comes online mid-2027, Singapore HBM packaging", "ts": 1777030140000, "snippet": "2027 is when the volume growth engine actually turns on \\u2014 Boise Idaho fab comes online mid-2027, Singapore HBM packaging facility contributes meaningfully, and the HBM shortage is expected to persist well into 2027-2028 anyway, meaning new supply gets absorbed immediately. HBM TAM is projected to go from $35B in 2025 \\u2192 $100B in 2028 at 40% CAGR. This isn\\u2019t a one-year trade \\u2014 it\\u2019s a multi-year supercycle with pricing power today and volume growth tomorrow. DYOR"}, {"source": "social", "url": "https://x.com/trendforce/status/2047661938155360696", "title": "@trendforce: \\ud83d\\udca5 Middle East disruptions ripple across chips\\u2014Japan\\u2019s material suppliers reportedly flag risks to #Samsung and #SKhynix", "ts": 1777035624000, "snippet": "\\ud83d\\udca5 Middle East disruptions ripple across chips\\u2014Japan\\u2019s material suppliers reportedly flag risks to #Samsung and #SKhynix, as &gt;40% reliance on Middle East naphtha may put #EUV #photoresist and #HBM production at risk. \\ud83d\\udca1More: https://t.co/aGjDPxmDkx \\ud83d\\udd17"}, {"source": "social", "url": "https://x.com/farzyness/status/2047699555526033475", "title": "@farzyness: Elon has locked capacity across every major advanced foundry on Earth. TSMC. Samsung on 2nm in Texas. Intel via Tera Fab", "ts": 1777044593000, "snippet": "Elon has locked capacity across every major advanced foundry on Earth. TSMC. Samsung on 2nm in Texas. Intel via Tera Fab.\\n\\nThis isn\\u2019t allocation hunting. It\\u2019s building sovereign AI chip infrastructure as Taiwan risks mount. Triple redundancy where the rest of the industry has none. The supply chain moat of the century is taking shape in Austin.\\n\\n*** thanks to @DavidCarbutt_ and team for the edit"}, {"source": "social", "url": "https://x.com/MauiBoyMacro/status/2047726165046280659", "title": "@MauiBoyMacro: Interesting commentary from @pboockvar on why semiconductors have been ripping these past couple weeks, resulting in the", "ts": 1777050937000, "snippet": "Interesting commentary from @pboockvar on why semiconductors have been ripping these past couple weeks, resulting in the indexes spiking.  \\ud83d\\udc47\\ud83c\\udffc\\n\\nSemiconductor manufacturers have been front running orders since there\\u2019s an impending helium shortage, which completely halts production. \\n\\nMeanwhile investors just see orders ripping, but they\\u2019re not pricing in the long term pain that\\u2019s coming.\\n\\nhttps://t.co/WtUtGp1ypZ"}, {"source": "social", "url": "https://x.com/eshanbuilds/status/2047741122915803434", "title": "@eshanbuilds: \\"sovereign AI chip infrastructure\\" for a private company isn't sovereignty. it's monopoly. if musk locks capacity at TSM", "ts": 1777054503000, "snippet": "\\"sovereign AI chip infrastructure\\" for a private company isn't sovereignty. it's monopoly. if musk locks capacity at TSMC, samsung, AND intel foundry simultaneously, he's not just securing tesla's supply chain. he's constraining what's available for every other AI company that needs those same nodes. the \\"moat\\" being described isn't defensive. it's a capacity blockade disguised as vertical integration.\\n\\nthe taiwan risk hedge is real though. anyone building a business that depends on TSMC's taiwan fabs continuing to operate uninterrupted is making an implicit bet on geopolitical stability in the strait. triple redundancy across three countries is the insurance policy. the question is whether one person should be allowed to buy it at the expense of everyone else's access"}, {"source": "social", "url": "https://x.com/JimmyButlerCap/status/2047769213499064341", "title": "@JimmyButlerCap: \\u201cEvery semi is extended.\\u201d What if there was a semi that isn\\u2019t extended at all. Sells GPUs/CPUs. Breaking out of an 8-mon", "ts": 1777061200000, "snippet": "\\u201cEvery semi is extended.\\u201d What if there was a semi that isn\\u2019t extended at all. Sells GPUs/CPUs. Breaking out of an 8-month range and past the psych $200 level. Oh and has locked up 60% of TSMC leading edge capacity for next x years. Higher? $NVDA https://t.co/5wSN5kuECa"}, {"source": "social", "url": "https://x.com/MoMoMacro/status/2047772429611876746", "title": "@MoMoMacro: Next Hot Bottlenecks \\u2014 Copy/Paste\\n#1 Power Transformers & Switchgear \\ud83d\\udd25\\n\\u202250% of 2026 US data centers delayed \\u2014 transform", "ts": 1777061967000, "snippet": "Next Hot Bottlenecks \\u2014 Copy/Paste\\n#1 Power Transformers & Switchgear \\ud83d\\udd25\\n\\u202250% of 2026 US data centers delayed \\u2014 transformer shortage\\n\\u2022Lead times: 30-60 weeks \\u2192 up to 5 years\\n\\u2022Prices +77-95% since 2019\\n\\u2022Plays: GEV, ETN, ABB, HUBB, NVT, PWR, MTZ, WCC\\n#2 HBM / Advanced Packaging / CoWoS\\n\\u2022Micron HBM sold out through 2026\\n\\u2022NAND prices +50% overnight\\n\\u2022Plays: MU, SNDK, WDC, STX, LRCX, AMAT, KLAC, TSM, ASX, AEHR\\n#3 Helium\\n\\u2022Qatar facility offline, spot price doubled\\n\\u2022Chipmaker stockpiles only ~6 months\\n\\u2022Large caps: APD, LIN\\n\\u2022Small caps: AVN.V, PLSR, DMEHF"}, {"source": "podcast", "url": "https://podcasts.apple.com/us/podcast/navigating-the-bull-run-in-semiconductors-4-23-26/id1524487980?i=1000763287576&uo=4", "title": "Halftime Report \\u2014 Navigating the Bull Run in Semiconductors 4/23/26", "ts": 1776964732000, "snippet": "Leslie Picker and the Investment Committee debate what's powering the run in semiconductor stocks and how you should trade the space. Plus, The Committee share their latest portfolio moves. And later, Josh Brown spotlights Trane Technologies in his \\"Best Stocks in the Market.\\"\\u00a0\\n\\n Hosted by Simplecas"}], "dedupe_keys": [{"key": "han4rx"}, {"key": "hegv0gq"}, {"key": "h1mva38r"}, {"key": "h1m938oq"}, {"key": "h1vjvc2b"}, {"key": "hcck8zn"}, {"key": "hw5yqc2"}, {"key": "h1mg5q3e"}, {"key": "h5m1imj"}, {"key": "h1j1beml"}], "source": "adk"}, {"date": 1777204906484, "trigger_mode": "digest", "delivery": {"pushed": true, "reason": ""}, "push_line": "AI chip supply chain \\u2014 @Oxymarun_: Jensen Huang on Dwarkesh is a masterclass in \\"electrons to tokens\\" (from memory):\\n\\nThe Supply Chain Flex:\\n&gt; Most thin", "body": "**What moved today:**\\n\\n- @Oxymarun_: Jensen Huang on Dwarkesh is a masterclass in \\"electrons to tokens\\" (from memory):\\n\\nThe Supply Chain Flex:\\n&gt; Most thin [1]\\n- @escander007: $SOXX semiconductor ETF going parabolic like gold did in recent months.\\nEvery AI model, every data centre, every autonom [2]\\n- @cowowhite: @SawyerMerritt He must be expecting Optimus and datacenter will eat all capacity, so car will likely get AI5 after TSMC/ [3]\\n\\n**What to watch next:** TSMC monthly sales cadence and any new SMIC capacity disclosures.", "citations": [{"ref": 1, "claim": "@Oxymarun_: Jensen Huang on Dwarkesh is a masterclass in \\"electrons to tokens\\" (", "url": "https://x.com/Oxymarun_/status/2046461118399324284", "source": "X"}, {"ref": 2, "claim": "@escander007: $SOXX semiconductor ETF going parabolic like gold did in recent mo", "url": "https://x.com/escander007/status/2046953041807696134", "source": "X"}, {"ref": 3, "claim": "@cowowhite: @SawyerMerritt He must be expecting Optimus and datacenter will eat ", "url": "https://x.com/cowowhite/status/2047083881808179229", "source": "X"}], "matches": [{"source": "social", "url": "https://x.com/Oxymarun_/status/2046461118399324284", "title": "@Oxymarun_: Jensen Huang on Dwarkesh is a masterclass in \\"electrons to tokens\\" (from memory):\\n\\nThe Supply Chain Flex:\\n&gt; Most thin", "ts": 1776749326000, "snippet": "Jensen Huang on Dwarkesh is a masterclass in \\"electrons to tokens\\" (from memory):\\n\\nThe Supply Chain Flex:\\n&gt; Most think Nvidia just designs chips\\n&gt; Real edge is their purchase commitments ($100B+)\\n&gt; Jensen has basically pre-bought the next 3 years of HBM and TSMC capacity \\ud83e\\uddf5"}, {"source": "social", "url": "https://x.com/escander007/status/2046953041807696134", "title": "@escander007: $SOXX semiconductor ETF going parabolic like gold did in recent months.\\nEvery AI model, every data centre, every autonom", "ts": 1776866610000, "snippet": "$SOXX semiconductor ETF going parabolic like gold did in recent months.\\nEvery AI model, every data centre, every autonomous system runs on chips.\\n\\nIts not speculation. It's demand reality. AI inference is scaling faster than fabs can build capacity. TSMC, NVDA, and Broadcom aren't overextended, they're undersupplied.\\n\\nThe chart doesn't lie. $40 \\u2192 $420 in 8 years. And we're still in the early innings of the AI infrastructure build-out.\\n\\nThe world needs more chips the way the 20th century needed more oil. Except this time the commodity is logic, not carbon.\\n\\nLong $SOXX. Long the picks and shovels. The AI revolution runs on silicon.\\n\\n@chamath @Jason"}, {"source": "social", "url": "https://x.com/cowowhite/status/2047083881808179229", "title": "@cowowhite: @SawyerMerritt He must be expecting Optimus and datacenter will eat all capacity, so car will likely get AI5 after TSMC/", "ts": 1776897805000, "snippet": "@SawyerMerritt He must be expecting Optimus and datacenter will eat all capacity, so car will likely get AI5 after TSMC/Samsung discontinue AI4 capacity."}, {"source": "social", "url": "https://x.com/stonkmane69/status/2047845501815386173", "title": "@stonkmane69: The unified read across all so far: every supply-side oracle (TSMC, ASML, SK Hynix, AVGO, INTC, even Tesla saying it has", "ts": 1777079389000, "snippet": "The unified read across all so far: every supply-side oracle (TSMC, ASML, SK Hynix, AVGO, INTC, even Tesla saying it has to build its own fab) is pointing the same direction \\u2014 demand is structurally ahead of supply, the constraint is bottleneck capacity, and 2027 capex is going to be revised up, not down. This strengthens the bottleneck framework's core premise."}, {"source": "social", "url": "https://x.com/TensorSlay/status/2047924473119334655", "title": "@TensorSlay: DOUBT that it will be short lived. Chinese Procurement managers are not in an illusion. I mean, Intel\\u2019s internal allocat", "ts": 1777098217000, "snippet": "DOUBT that it will be short lived. Chinese Procurement managers are not in an illusion. I mean, Intel\\u2019s internal allocation itself reflects the same what Chinese Procurement managers are saying.  Q3 server CPU import  quotas into China would be capped at 590 k units v/s demand north of 900 k sockets from BAT alone. And so, Intel-7 factories are  running 95 % utilization without enough air-gapped wafer starts to spare  capacity for China. The PTL consumer client line has already extended  lead times to 12 weeks, and the a Chengdong  ODM partner confirm cascade failure sherpa-ing server-class  substrates to consumer lines in an attempt to thread the needle between  Raptor and Sapphire. Root cause being, the substrate crisis, ironically accelerated by US  CHIPS Act subsidies that diverted ABF-laminate capacity to Arizona 18A  ramp, meaning key limiting factor being back-end glass-epoxy. Global ABF utilization touched 96 % last quarter;  the Chinese port quotas for laminate imports from Taiwan remain frozen  at April 2025 levels."}, {"source": "social", "url": "https://x.com/eddytilmant/status/2047945411575378304", "title": "@eddytilmant: @zephyr_z9 By chance, demand did not increase; it was production that decreased. \\ud83e\\udd14\\n\\"Micron has reallocated all of its p", "ts": 1777103209000, "snippet": "@zephyr_z9 By chance, demand did not increase; it was production that decreased. \\ud83e\\udd14\\n\\"Micron has reallocated all of its production capacity towards HBM (High Bandwidth Memory), which is essential for servers and AI chips.\\""}, {"source": "social", "url": "https://x.com/SebAaltonen/status/2048056147429433345", "title": "@SebAaltonen: @NightfallOSINT @christi05430996 TSMC is the bottleneck. Everybody is buying from them. Nvidia, Apple, AMD, Qualcomm, AR", "ts": 1777129611000, "snippet": "@NightfallOSINT @christi05430996 TSMC is the bottleneck. Everybody is buying from them. Nvidia, Apple, AMD, Qualcomm, ARM, even Intel nowadays. The wafer prices have skyrocketed. TSMC value has increased 2.5x in the past year. https://t.co/5xRDAC6LwW"}, {"source": "social", "url": "https://x.com/thewhiteboxAI/status/2048074749167714638", "title": "@thewhiteboxAI: What? Memory easy to make? You have to be kidding me, right? We're mostly talking about HBM memory, which only three com", "ts": 1777134046000, "snippet": "What? Memory easy to make? You have to be kidding me, right? We're mostly talking about HBM memory, which only three companies in the world can produce; not even China has a supplier for it (CXMT is still in HBM2 or less).\\n\\nAnd who says TSMC is the only supplier in its market? Intel and Samsung produce advanced nodes at good yields. I'm sorry, but what you're saying doesn't make any sense"}, {"source": "social", "url": "https://x.com/mikalche/status/2048143818575225284", "title": "@mikalche: Stage 1 (already happened) Compute scarcity\\n\\n$NVDA $AMD $TSM ripped @StockSavvyShay \\n\\nBecause the bottleneck was simple ", "ts": 1777150513000, "snippet": "Stage 1 (already happened) Compute scarcity\\n\\n$NVDA $AMD $TSM ripped @StockSavvyShay \\n\\nBecause the bottleneck was simple not enough chips."}], "dedupe_keys": [{"key": "h166cldc"}, {"key": "h13sr15x"}, {"key": "hgn5va7"}, {"key": "hcur9za"}, {"key": "hhhn6xm"}, {"key": "h9i8akj"}, {"key": "htq7hej"}, {"key": "hmik7cc"}, {"key": "h1rnjg2c"}], "source": "adk"}];
+  if (!Array.isArray(events) || events.length === 0) {
+    timelineEl.innerHTML = \`<div class="empty">No notifications yet. First fire at 12:00 UTC.</div>\`;
+    return;
+  }
+  // Demo: add a skipped event so the grey-dot state is visible.
+  events.push({
+    date: 1777291306000,
+    trigger_mode: "digest",
+    delivery: { pushed: false, reason: "low-relevance" },
+    push_line: "", body: "", citations: [], matches: [], dedupe_keys: [], source: "adk"
+  });
+  events.reverse();
+
+  function fmtEst(ms) {
+    const d = new Date(ms);
+    return d.toLocaleString("en-US", {
+      timeZone: "America/New_York",
+      hour: "numeric", minute: "2-digit", hour12: true,
+    }) + " ET";
+  }
+  function dayLabel(ms) {
+    const d = new Date(ms);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const dd = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    if (dd === today) return "Today";
+    if (dd === today - 86400_000) return "Yesterday";
+    return d.toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" });
+  }
+  function fmtRelative(ms) {
+    const diff = Date.now() - ms;
+    const h = Math.floor(diff / 3600_000);
+    if (h < 24) return \`\${h}h ago\`;
+    return \`\${Math.floor(h / 24)}d ago\`;
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;",
+    }[c]));
+  }
+  function sourceIcon(source, url) {
+    const s = String(source || "").toLowerCase();
+    if (s === "social" || s === "x" || s === "twitter") {
+      return { src: "https://alva-ai-static.b-cdn.net/icons/logo-feed-x.svg", noRadius: false };
+    }
+    if (s === "podcast") {
+      return { src: "https://alva-ai-static.b-cdn.net/icons/logo-social-podcast.svg", noRadius: false };
+    }
+    if (s === "youtube") {
+      return { src: "https://alva-ai-static.b-cdn.net/icons/logo-social-youtube.svg", noRadius: true };
+    }
+    if (s === "news") {
+      try {
+        const host = new URL(url).hostname;
+        return { src: \`https://www.google.com/s2/favicons?domain=\${host}&sz=64\`, noRadius: false };
+      } catch (e) { return { src: "", noRadius: false }; }
+    }
+    return { src: "", noRadius: false };
+  }
+  function renderBodyWithCites(body, citations) {
+    const citMap = new Map(citations.map(c => [c.ref, c]));
+    const html = md.render(body);
+    return html.replace(/\\[(\\d+)\\]/g, (m, n) => {
+      const c = citMap.get(+n);
+      if (!c) return m;
+      const title = escapeHtml(\`\${c.source}: \${(c.claim || '').slice(0, 140)}\`);
+      return \`<a class="cite-ref" href="\${c.url}" target="_blank" rel="noopener noreferrer" title="\${title}">[\${n}]</a>\`;
+    });
+  }
+
+  let lastDay = null;
+  let html = "";
+  for (const ev of events) {
+    const label = dayLabel(ev.date);
+    if (label !== lastDay) {
+      html += \`<div class="day-separator"><span class="day-separator-label">\${label}</span></div>\`;
+      lastDay = label;
+    }
+
+    const pushed = ev.delivery && ev.delivery.pushed;
+    const reason = ev.delivery && ev.delivery.reason;
+    if (!pushed) {
+      html += \`<article class="widget-card notif-card notif-card--skipped">
+        <header class="notif-card-header">
+          <time class="notif-time">\${fmtEst(ev.date)}</time>
+          <span class="notif-status">
+            <span class="notif-status-dot status-skipped"></span>
+            <span class="notif-mode">\${ev.trigger_mode || "digest"} · skipped (\${reason || "n/a"})</span>
+          </span>
+        </header>
+      </article>\`;
+      continue;
+    }
+
+    const bodyHtml = renderBodyWithCites(ev.body || "", ev.citations || []);
+    const matches = ev.matches || [];
+    const matchesHtml = matches.slice(0, 20).map(m => {
+      const ic = sourceIcon(m.source, m.url);
+      const iconHtml = ic.src
+        ? \`<img class="match-source-icon\${ic.noRadius ? ' no-radius' : ''}" src="\${ic.src}" alt="" onerror="this.style.visibility='hidden'">\`
+        : "";
+      return \`
+      <a class="match-row" href="\${m.url}" target="_blank" rel="noopener noreferrer">
+        <span class="match-source">\${iconHtml}<span>\${m.source}</span></span>
+        <span class="match-title">\${escapeHtml(m.title)}</span>
+        <time class="match-ts">\${fmtRelative(m.ts)}</time>
+      </a>\`;
+    }).join("");
+
+    html += \`<article class="widget-card notif-card">
+      <header class="notif-card-header">
+        <time class="notif-time">\${fmtEst(ev.date)}</time>
+        <span class="notif-status">
+          <span class="notif-status-dot status-pushed"></span>
+          <span class="notif-mode">\${ev.trigger_mode || "digest"} · pushed</span>
+        </span>
+      </header>
+      <h2 class="notif-push-line">\${escapeHtml(ev.push_line || "")}</h2>
+      <div class="notif-body markdown-container markdown-container--m">\${bodyHtml}</div>
+      <footer class="notif-cite-row">
+        <button class="notif-sources-toggle" type="button" aria-expanded="false" onclick="const m=this.nextElementSibling; m.classList.toggle('hidden'); this.setAttribute('aria-expanded', String(!m.classList.contains('hidden')));">
+          <span>Sources (\${matches.length})</span>
+          <span class="notif-sources-arrow" aria-hidden="true"></span>
+        </button>
+        <div class="notif-matches hidden">\${matchesHtml}</div>
+      </footer>
+    </article>\`;
+  }
+  timelineEl.innerHTML = html;
+})();
+<\/script>
+</body>
+</html>
+`,r=a(i);function o(){return e.jsx("div",{className:"h-screen flex flex-col",style:{background:"var(--b0-page)"},children:e.jsx("div",{className:"flex-1 overflow-hidden",children:e.jsx("iframe",{srcDoc:r,title:"Template-Notification",className:"block h-full w-full border-0"})})})}function m({onNavigate:n}){return e.jsx(t,{activePage:"template-notification",onNavigate:n,children:e.jsx(o,{})})}export{m as default};
