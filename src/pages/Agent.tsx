@@ -11,6 +11,7 @@ import { CONVERSATIONS } from '@/lib/chat-config';
 import DotMatrixWave from '@/app/components/shared/DotMatrixWave';
 import { Tooltip } from '@/app/components/shared/Tooltip';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
+import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
 
 type AgentState = 'empty' | 'connecting' | 'connected';
 
@@ -18,10 +19,74 @@ const FONT = "font-['Delight',sans-serif]";
 
 /* ── Feature cards for empty state ── */
 const FEATURES = [
-  { icon: 'bot-l', title: 'Full Alva in Telegram', desc: 'Build Playbooks, run analysis, tweak strategies — no browser needed.' },
+  { icon: 'bot-l', title: 'Full Alva in your messenger', desc: 'Run analysis, build Playbooks, tweak strategies — right inside Telegram or Discord.' },
   { icon: 'memory-l', title: 'Memory that compounds', desc: 'Your positions, your thesis, your preferences — every conversation builds on the last.' },
   { icon: 'clock-l', title: 'Reaches you first', desc: 'Schedule any alert or report — your agent also knows when to reach out on its own.' },
   { icon: 'update-l', title: 'Runs while you don\u2019t', desc: 'Live 24/7 in a secure cloud sandbox. Never drops, never sleeps.' },
+];
+
+/* \u2500\u2500 Push-ready Notification playbooks \u2500\u2500 */
+const PUSH_PLAYBOOKS: ExplorePlaybook[] = [
+  {
+    id: 'ai-chip-supply-chain',
+    creator: 'ivan',
+    title: 'AI Chip Supply Chain',
+    description: 'TSMC capacity, HBM supply, and foundry signals \u2014 distilled into a daily push digest.',
+    tickers: ['NVDA', 'TSM', 'AMD'],
+    pulse: 'active',
+    stars: 4200,
+    remixes: 12,
+    cover: {
+      template: 'general',
+      title: 'AI Chip Supply Chain',
+      author: 'ivan',
+      tickers: ['NVDA', 'TSM', 'AMD'],
+      domain: 'alerts',
+      kind: 'NOTIFICATIONS \u00b7 DAILY',
+      anchor: '7 today',
+      series: 'NEWS \u00b7 SOCIAL \u00b7 PODCAST',
+    },
+  },
+  {
+    id: 'fed-macro-pulse',
+    creator: 'steven',
+    title: 'Fed & Macro Pulse',
+    description: 'FOMC, CPI, NFP \u2014 every key release with Alva\u2019s read pushed the moment it lands.',
+    tickers: ['SPY', 'TLT', 'DXY'],
+    pulse: 'active',
+    stars: 3700,
+    remixes: 8,
+    cover: {
+      template: 'general',
+      title: 'Fed & Macro Pulse',
+      author: 'steven',
+      tickers: ['SPY', 'TLT', 'DXY'],
+      domain: 'macro',
+      kind: 'NOTIFICATIONS \u00b7 ON RELEASE',
+      anchor: 'Next: CPI',
+      series: '12 RELEASES TRACKED',
+    },
+  },
+  {
+    id: 'whale-wallet-tracker',
+    creator: 'deepstonks',
+    title: 'Whale Wallet Tracker',
+    description: 'Large wallet moves and exchange-flow shifts, alerted in real time.',
+    tickers: ['BTC', 'ETH', 'SOL'],
+    pulse: 'active',
+    stars: 6100,
+    remixes: 21,
+    cover: {
+      template: 'general',
+      title: 'Whale Wallet Tracker',
+      author: 'deepstonks',
+      tickers: ['BTC', 'ETH', 'SOL'],
+      domain: 'alerts',
+      kind: 'NOTIFICATIONS \u00b7 LIVE',
+      anchor: '24 today',
+      series: '120+ WALLETS \u00b7 60S',
+    },
+  },
 ];
 
 /* ── Mock agent messages ── */
@@ -31,9 +96,9 @@ export const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
 };
 
 /* ── Empty state ── */
-export function AgentEmptyState({ onConnect }: { onConnect: (platform: AgentPlatform) => void }) {
+export function AgentEmptyState({ onConnect, onNavigate }: { onConnect: (platform: AgentPlatform) => void; onNavigate?: (page: Page) => void }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center min-h-0 relative overflow-hidden" style={{ background: '#F6F6F6' }}>
+    <div className="flex flex-1 flex-col min-h-0 relative" style={{ background: '#F6F6F6' }}>
       <DotMatrixWave
         enableHover={false}
         bgColor="#F6F6F6"
@@ -42,28 +107,30 @@ export function AgentEmptyState({ onConnect }: { onConnect: (platform: AgentPlat
         className="absolute inset-0 z-0 pointer-events-none w-full h-full"
       />
 
-      <div className="relative z-10 flex flex-col items-center gap-[32px] w-full max-w-[888px] px-[24px]">
+      <div className="relative z-10 flex-1 min-h-0 overflow-y-auto">
+       <div className="min-h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-[24px] w-full max-w-[1280px] px-[24px] py-[48px]">
         {/* Hero illustration */}
         <div className="flex flex-col items-center">
           <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva Agent" className="rounded-full" style={{ width: 48, height: 48, marginBottom: 20 }} />
           <h1 className={`${FONT} text-[28px] leading-[38px] tracking-[0.28px] text-center text-[var(--text-n9)] font-normal`} style={{ marginBottom: 8 }}>
             Your Alva Agent is ready
           </h1>
-          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-center text-[var(--text-n5)] max-w-[480px]`}>
-            Connect Telegram and let your agent work for you around the clock.
+          <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-center text-[var(--text-n5)] whitespace-nowrap`}>
+            Connect Telegram or Discord and let your agent work for you around the clock.
           </p>
         </div>
 
         {/* Feature cards */}
-        <div className="grid grid-cols-2 gap-[16px] w-full">
+        <div className="grid grid-cols-4 gap-[12px] w-full">
           {FEATURES.map(f => (
             <div
               key={f.title}
-              className="flex flex-col gap-[8px] p-[16px] rounded-[var(--radius-ct-l,8px)]"
+              className="flex flex-col gap-[8px] p-[14px] rounded-[var(--radius-ct-l,8px)]"
               style={{ background: 'var(--b0-container, #ffffff)' }}
             >
               <CdnIcon name={f.icon} size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
-              <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]`}>
+              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
                 {f.title}
               </p>
               <p className={`${FONT} text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]`}>
@@ -74,7 +141,7 @@ export function AgentEmptyState({ onConnect }: { onConnect: (platform: AgentPlat
         </div>
 
         {/* Connect buttons — Telegram primary, Discord secondary */}
-        <div className="flex flex-col items-center gap-[12px] w-full">
+        <div className="flex flex-row items-center justify-center gap-[12px] w-full">
           <button
             className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90`}
             style={{ height: 48, width: 280, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
@@ -131,6 +198,34 @@ export function AgentEmptyState({ onConnect }: { onConnect: (platform: AgentPlat
             ))}
           </div>
         </div>
+
+        {/* Push-ready Notification playbooks */}
+        <div className="flex flex-col gap-[12px] w-full">
+          <div className="flex items-end justify-between gap-[12px]">
+            <div className="flex flex-col gap-[2px]">
+              <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]`}>
+                Subscribe to push-ready Playbooks
+              </p>
+              <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+                Hand-picked Playbooks that deliver as updates land — straight to your messenger.
+              </p>
+            </div>
+            <span
+              className={`${FONT} flex items-center gap-[4px] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] cursor-pointer hover:text-[var(--text-n9)] transition-colors shrink-0`}
+              onClick={() => onNavigate?.('explore-2')}
+            >
+              Browse all
+              <CdnIcon name="arrow-right-l1" size={12} color="currentColor" />
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-[16px] w-full">
+            {PUSH_PLAYBOOKS.map(p => (
+              <PlaybookCard key={p.id} p={p} simple />
+            ))}
+          </div>
+        </div>
+        </div>
+       </div>
       </div>
     </div>
   );
@@ -315,7 +410,7 @@ export default function Agent({ onNavigate }: { onNavigate: (page: Page) => void
   return (
     <AppShell activePage="agent" onNavigate={onNavigate}>
       <div className="h-screen flex flex-col bg-white">
-        {state === 'empty' && <AgentEmptyState onConnect={handleConnect} />}
+        {state === 'empty' && <AgentEmptyState onConnect={handleConnect} onNavigate={onNavigate} />}
         {state === 'connecting' && <ConnectingState />}
         {state === 'connected' && <AgentChat onNavigate={onNavigate} />}
       </div>

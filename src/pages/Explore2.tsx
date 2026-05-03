@@ -11,27 +11,10 @@ import { PulseIndicator } from '@/app/components/community/PulseIndicator';
 import { AVATAR_COLOR_PALETTE, CHART_COLORS } from '@/lib/chart-theme';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
-import { PlaybookCover } from '@/lib/playbook-cover/PlaybookCover';
-import { PlaybookTags, buildTags } from '@/lib/playbook-cover/PlaybookTags';
-import { generateCover } from '@/lib/playbook-cover/cover-gen';
-import { hslToRgb, rgbToCss } from '@/lib/playbook-cover/color';
+import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
 import { HeroCarousel } from '@/app/components/explore/HeroCarousel';
-import type { CoverInput } from '@/lib/playbook-cover/types';
 
 /* ========== 数据结构 ========== */
-
-export interface ExplorePlaybook {
-  id: string;
-  creator: string;
-  title: string;
-  description: string;
-  tickers: string[];
-  pulse: 'active' | 'idle';
-  stars: number;
-  remixes: number;
-  annualizedReturn?: string;
-  cover: CoverInput;
-}
 
 /**
  * Playbook list mirrors the live alva.ai/explore catalog as of 2026-04-27.
@@ -1429,138 +1412,6 @@ function TemplateDropdown({
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-/* ========== PlaybookCard (Homepage style) ========== */
-
-function PlaybookCard({ p, staggerMs }: { p: ExplorePlaybook; staggerMs: number }) {
-  const tags = buildTags({
-    template: p.cover.template,
-    domain: p.cover.domain,
-    tickers: p.tickers,
-  });
-
-  // Hover state — animate IN with a fast ease-out, snap OUT instantly
-  // (no animation on mouseleave per spec). Conditional transition: when
-  // hovered=true the next frame uses the timing curve; when hovered=false
-  // transition is 'none' so the styles revert in one frame.
-  const [hovered, setHovered] = useState(false);
-
-  // Shadow color derives from the cover bg's HSL — a desaturated darker
-  // tint of the same hue, applied at low alpha. Matches the cover family
-  // (cool-teal screeners get cool shadows, warm theses get warm ones).
-  const cover = useMemo(() => generateCover(p.cover), [p.cover]);
-  const shadowColor = useMemo(() => {
-    const { H, S } = cover.bg.hsl;
-    // Lower opacity (0.14) and softer derivation for a quieter lift.
-    return rgbToCss(hslToRgb(H, Math.min(S + 0.10, 0.40), 0.30), 0.14);
-  }, [cover]);
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="cursor-pointer"
-      style={{
-        borderRadius: 12,
-        overflow: 'hidden',
-        background: 'var(--b0-page, #fff)',
-        border: '0.5px solid rgba(0,0,0,0.3)',
-        display: 'flex',
-        flexDirection: 'column',
-        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
-        // Smaller, lighter shadow per user feedback. Keeps the lift readable
-        // but stops the card from feeling weighty when hovered.
-        boxShadow: hovered ? `0 4px 12px -2px ${shadowColor}` : '0 0 0 0 transparent',
-        // hover-in: fast ease-out · hover-out: instant (no transition)
-        transition: hovered
-          ? 'transform 130ms cubic-bezier(0.2, 0, 0, 1), box-shadow 130ms cubic-bezier(0.2, 0, 0, 1)'
-          : 'none',
-      }}
-    >
-      {/* Cover */}
-      <div
-        style={{
-          margin: '4px 4px 0 4px',
-          width: 'calc(100% - 8px)',
-          aspectRatio: '320 / 140',
-          borderRadius: 8,
-          overflow: 'hidden',
-        }}
-      >
-        <PlaybookCover input={p.cover} staggerMs={staggerMs} />
-      </div>
-
-      {/* Info */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '16px 16px 12px' }}>
-        <PlaybookTags tags={tags} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {/* Title — single line with ellipsis on overflow (user override of
-              skill's 2-line wrap default). */}
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: '22px',
-              fontWeight: 600,
-              fontFamily: "Inter, sans-serif",
-              color: 'var(--text-n9, rgba(0,0,0,0.9))',
-              letterSpacing: 0.16,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              margin: 0,
-            }}
-          >
-            {p.title}
-          </p>
-          <p
-            style={{
-              fontSize: 12,
-              lineHeight: '20px',
-              color: 'var(--text-n5, rgba(0,0,0,0.5))',
-              letterSpacing: 0.12,
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-            }}
-          >
-            {p.description}
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 6, height: 22 }}>
-            <Avatar name={p.creator} size={22} />
-            <span
-              style={{
-                fontSize: 14,
-                lineHeight: '22px',
-                color: 'var(--text-n9, rgba(0,0,0,0.9))',
-                letterSpacing: 0.14,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {p.creator}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14 }}>
-              <CdnIcon name="star-l" size={16} />
-              {p.stars}
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14 }}>
-              <CdnIcon name="remix-l" size={16} />
-              {p.remixes}
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

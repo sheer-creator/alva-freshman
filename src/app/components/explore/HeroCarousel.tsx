@@ -22,7 +22,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import type { ExplorePlaybook } from "@/pages/Explore2";
+import type { ExplorePlaybook } from "@/app/components/shared/PlaybookCard";
 import { PlaybookCover } from "@/lib/playbook-cover/PlaybookCover";
 import { generateCover } from "@/lib/playbook-cover/cover-gen";
 import { hslToRgb, rgbToCss } from "@/lib/playbook-cover/color";
