@@ -1,9 +1,9 @@
-import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.js";import{i as a}from"./inlinePlaybookHeader-BCaIwBIO.js";import"./referral-mock-BqTpnbXF.js";const i=`<!doctype html>
+import{j as e}from"./index-C4zPU4B7.js";import{A as t}from"./AppShell-DDhMQjNL.js";import{i as a}from"./inlinePlaybookHeader-BCaIwBIO.js";import"./referral-mock-BqTpnbXF.js";const i=`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Feed Test - Alva</title>
+<title>Template-Screener - Alva</title>
 <link rel="stylesheet" href="./styles/tokens.css" />
 <link rel="stylesheet" href="./components/playbook-header.css" />
 <link rel="stylesheet" href="./components/discussion-panel.css" />
@@ -35,7 +35,7 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
 
     .playbook-container {
         width: 100%; max-width: 2048px; margin: 0 auto;
-        padding: var(--sp-xl) var(--sp-xxl) var(--sp-xxxl);
+        padding: 0 var(--sp-xxl) var(--sp-xxxl);
     }
 
     /* ── PLAYBOOK HEADER styles moved to ./components/playbook-header.css ── */
@@ -356,6 +356,13 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
   .tab.tab-underline::-webkit-scrollbar { display:none; }
   .tab.tab-underline .tab-item { flex-shrink:0; white-space:nowrap; }
   .tab-wrapper-row .tab-snapshot { flex-shrink:0; align-self:flex-end; padding-bottom:9px; }
+  .tab-wrapper-row .tab-right-group {
+    display:flex; align-items:center; gap: var(--spacing-xs);
+    flex-shrink:0; align-self:flex-end; padding-bottom:11px;
+  }
+  .tab-wrapper-row .tab-right-group .tab-snapshot { padding-bottom:0; }
+  .tab-wrapper-row .tab-readme { cursor:pointer; }
+  .tab-wrapper-row .tab-right-group:has(#snap-filter[style*="none"]) .pb-meta-sep { display:none; }
   .tab-underline .tab-item {
     padding-bottom: var(--spacing-xxs);
     color: var(--text-n7);
@@ -388,32 +395,76 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
   .tab-panel { display:none; }
   .tab-panel.active { display:block; }
 
-  /* ── Snapshot picker dropdown (original) ── */
+  /* ── Tab-bar README (chip style, scoped to .tab-readme only) ── */
+  .pb-meta-link--readme.tab-readme {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xxs);
+    height: 24px;
+    padding: var(--spacing-xxxs) var(--spacing-xs);
+    background: var(--b-r02);
+    border: 0.5px solid var(--line-l2);
+    border-radius: var(--radius-ct-s);
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 20px;
+    letter-spacing: 0.12px;
+    color: var(--text-n9);
+    transition: background .15s, border-color .15s;
+  }
+  .pb-meta-link--readme.tab-readme .pb-meta-icon-badge {
+    width: 14px; height: 14px;
+    font-size: 12px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+  .pb-meta-link--readme.tab-readme .pb-meta-icon-img {
+    width: 14px; height: 14px;
+  }
+  .pb-meta-link--readme.tab-readme:hover,
+  .pb-meta-link--readme.tab-readme:active,
+  .pb-meta-link--readme.tab-readme.is-open {
+    background: var(--b-r03);
+    border-color: var(--line-l9);
+    opacity: 1;
+  }
+  .pb-meta-link--readme.tab-readme:hover .pb-meta-icon-badge {
+    background: transparent;
+    border: none;
+  }
+  .pb-meta-link--readme.tab-readme:hover .pb-meta-icon-img {
+    filter: brightness(0);
+  }
+
+  /* ── Snapshot picker dropdown (chip style) ── */
   .filter-dropdown { position:relative; display:inline-flex; align-items:center; }
   .filter-dropdown-trigger {
-    background:transparent;
-    border:none;
-    border-radius:0;
-    padding:0;
-    margin:0;
+    background: var(--b-r02);
+    border: 0.5px solid var(--line-l2);
+    border-radius: var(--radius-ct-s);
+    height: 24px;
+    padding: var(--spacing-xxxs) var(--spacing-xs);
+    margin: 0;
     font-family:inherit; font-size:12px; color:var(--text-n9);
-    cursor:pointer; display:inline-flex; align-items:center; gap:8px;
-    line-height:20px;
-    transition:color .15s;
+    cursor:pointer; display:inline-flex; align-items:center; gap: var(--spacing-xxs);
+    line-height:20px; letter-spacing: 0.12px;
+    transition: background .15s, border-color .15s, color .15s;
   }
-  .filter-dropdown-trigger:hover { color:var(--main-m1); }
-  .filter-dropdown.open .filter-dropdown-trigger { color:var(--main-m1); }
+  .filter-dropdown-trigger:hover,
+  .filter-dropdown-trigger:active { background: var(--b-r03); border-color: var(--line-l9); }
+  .filter-dropdown.open .filter-dropdown-trigger { border-color: var(--line-l9); }
   .filter-dropdown-label { color:var(--text-n5); font-size:12px; }
-  .filter-dropdown-value { color:var(--text-n9); flex:1; display:inline-flex; align-items:baseline; gap:6px; }
-  .filter-dropdown-value-sub { font-size:11px; color:var(--text-n5); }
+  .filter-dropdown-value { color:var(--text-n9); display:inline-flex; align-items:baseline; gap:4px; }
+  .filter-dropdown-value-sub { font-size:12px; color:var(--text-n5); letter-spacing: 0.12px; }
   .filter-dropdown-caret {
     display:inline-block; width:12px; height:12px;
-    background-color:var(--text-n3);
+    background-color:var(--text-n2);
     -webkit-mask:url('https://alva-ai-static.b-cdn.net/icons/arrow-down-f2.svg') no-repeat center / contain;
             mask:url('https://alva-ai-static.b-cdn.net/icons/arrow-down-f2.svg') no-repeat center / contain;
     transition:transform .15s, background-color .15s;
   }
-  .filter-dropdown.open .filter-dropdown-caret { transform:rotate(180deg); background-color:var(--main-m1); }
+  .filter-dropdown.open .filter-dropdown-caret { transform:rotate(180deg); background-color:var(--text-n2); }
   .filter-dropdown-menu {
     position:absolute; top:calc(100% + 6px); left:0;
     min-width:220px; background:var(--b0-container);
@@ -440,6 +491,7 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
   /* ── Widgets (Alva base) ── */
   .widget-card { background: transparent; display:flex; flex-direction: column; position: relative; overflow: visible; }
   .widget-card:has(.chart-body) { overflow: hidden; }
+  .free-text-body { padding: var(--spacing-l); }
   .widget-title {
     display:flex; align-items:center; justify-content:space-between;
     margin-bottom: var(--spacing-m);
@@ -676,13 +728,13 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
     background: var(--grey-g01); border-radius: var(--radius-ct-l);
     padding: var(--spacing-m) var(--spacing-l) var(--spacing-xs); min-height: 160px;
   }
-  .mover-card-header { display:flex; align-items: center; gap: var(--spacing-xs); margin-bottom: var(--spacing-s); }
+  .mover-card-header { display:flex; align-items: center; gap: var(--spacing-xs); margin-bottom: var(--spacing-s); min-width:0; }
   .mover-icon {
     width: 22px; height: 22px; border-radius: var(--radius-ct-s);
     display:flex; align-items: center; justify-content: center;
     font-size: 13px; color: var(--b-common-white); font-weight:400; flex-shrink: 0;
   }
-  .mover-card-label { font-size: 14px; font-weight:400; color: var(--text-n9); letter-spacing: 0.14px; }
+  .mover-card-label { font-size: 14px; font-weight:400; color: var(--text-n9); letter-spacing: 0.14px; min-width:0; flex:1 1 auto; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .mover-card-count { font-size: 12px; color: var(--text-n5); margin-left: auto; letter-spacing: 0.12px; }
   .mover-row {
     display:flex; align-items: center; justify-content: space-between;
@@ -1077,13 +1129,13 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
 
 <!-- ═══════════════ PLAYBOOK INFO ═══════════════ -->
 <playbook-header
-    title="Feed Test"
-    creator
+    title="Template-Screener"
     freq="15m"
     last-updated="15 minutes ago"
     owner="YGGYLL"
     owner-seed="YGGYLL"
     readme-modal="methodology-modal"
+    get-alerts
     star="12" remix="56" comments="6"
     description="Tracks the AI infrastructure investment thesis across silicon, networking, hyperscalers, power, and data centers. 17-stock basket with daily quant analysis and ADK-driven narrative.">
     <script type="application/json" class="pb-feeds-data">
@@ -1102,14 +1154,21 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
         <div class="tab-item active" data-tab="overview" data-text="Overview">Overview</div>
         <div class="tab-item" data-tab="trends" data-text="Movers &amp; Trends">Movers &amp; Trends</div>
         <div class="tab-item" data-tab="analysis" data-text="Analysis">Analysis</div>
-        <div class="tab-item" data-tab="feed" data-text="Feed">Feed</div>
       </div>
-      <div class="filter-dropdown tab-snapshot" id="snap-filter" style="display:none;">
-        <button type="button" class="filter-dropdown-trigger" id="snap-filter-trigger" aria-haspopup="listbox" aria-expanded="false">
-          <span class="filter-dropdown-value" id="snap-filter-value">&mdash;</span>
-          <span class="filter-dropdown-caret"></span>
+      <div class="tab-right-group">
+        <button class="pb-meta-link pb-meta-link--readme tab-readme" type="button" data-modal-open="methodology-modal">
+          <span class="pb-meta-icon-badge" aria-hidden="true">
+            <img class="pb-meta-icon-img" src="https://alva-ai-static.b-cdn.net/icons/researcher-l1.svg" width="14" height="14" alt="" />
+          </span>
+          <span>README</span>
         </button>
-        <div class="filter-dropdown-menu" id="snap-filter-menu" role="listbox"></div>
+        <div class="filter-dropdown tab-snapshot" id="snap-filter" style="display:none;">
+          <button type="button" class="filter-dropdown-trigger" id="snap-filter-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="filter-dropdown-value" id="snap-filter-value">&mdash;</span>
+            <span class="filter-dropdown-caret"></span>
+          </button>
+          <div class="filter-dropdown-menu" id="snap-filter-menu" role="listbox"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1121,6 +1180,24 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
       <div class="loading-text">Loading rankings...</div>
     </div>
     <div id="overview-content" style="display:none;">
+      <div class="widget-card" style="margin-bottom: var(--spacing-xl);">
+        <div class="widget-body" style="background:var(--grey-g01);">
+          <div class="free-text-body">
+            <div class="markdown-container markdown-container--m">
+              <script type="text/markdown">
+**Apr 16, 2026 &middot; Market Close Digest**
+
+- **Top of basket:** ALL (Allstate) holds #1 at Score 95 — ROE 39.5%, P/E 5.64; leadership in Insurance — Property & Casualty continues.
+- **New entries:** BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.
+- **Dropouts:** TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.
+- **Sector tilt:** Financial Services remains dominant (9 names); Healthcare contributes NVO as sole Elite-band entry.
+- **Next refresh:** 09:40 ET (6h cadence). Watch earnings-driven repricing in CMCSA and PYPL.
+              <\/script>
+            </div>
+          </div>
+          <div class="alva-watermark"><img src="https://alva-ai-static.b-cdn.net/icons/alva-watermark.svg" alt="Alva"/></div>
+        </div>
+      </div>
       <div class="widget-card">
         <div class="table-card" id="rankings-table"></div>
       </div>
@@ -1248,57 +1325,7 @@ import{j as e}from"./index-ztfbrm-l.js";import{A as t}from"./AppShell-Dztkzn3J.j
     <div id="analysis-error" class="error-state" style="display:none;"></div>
   </div>
 
-  <!-- Tab 4: Feed -->
-  <div class="tab-panel" id="panel-feed">
-    <div class="signal-feed">
-      <div class="signal-feed-card">
-        <div class="feed-header">
-          <span class="feed-strategy-name">📊 Narrative Radar</span>
-          <span class="feed-timestamp">04/22/2026 18:19</span>
-        </div>
-        <ul class="feed-indicators">
-          <li>POL (L1/L2) &middot; vel +140% &middot; px +6.3%</li>
-          <li>ETH (Majors) &middot; vel +400% &middot; px &minus;3.7%</li>
-          <li>ZRO (Other) &middot; vel +1400% &middot; px +3.7%</li>
-        </ul>
-      </div>
-      <div class="signal-feed-card">
-        <div class="feed-header">
-          <span class="feed-strategy-name">PEAD Momentum</span>
-          <span class="feed-timestamp">04/21/2026</span>
-        </div>
-        <ul class="feed-indicators">
-          <li>🆕 New in Top 10: WAFD, ALLY &nbsp;|&nbsp; 👋 Dropped: TFC, SFNC</li>
-          <li>⭐ Top: WAFD &middot; Drift 1.85 &middot; Financial Services &middot; +16% EPS surprise</li>
-          <li>Full list → <a class="feed-link" href="https://alva.ai/u/stock-king/playbooks/post-earnings-drift-momentum">alva.ai/u/stock-king/playbooks/post-earnings-drift-momentum</a></li>
-        </ul>
-      </div>
-      <div class="signal-feed-card">
-        <div class="feed-header">
-          <span class="feed-strategy-name">🏆 Quality Value Screener</span>
-          <span class="feed-timestamp">04/22/2026 09:35</span>
-        </div>
-        <ul class="feed-indicators">
-          <li>🔺 Score breakout: MMM 72 → 85 (+13) &middot; ROE +240bps &middot; P/E &minus;1.4</li>
-          <li>🔻 Flag triggered: HAL at D/E ≥ 2.0 &middot; hard-flag &middot; exits basket</li>
-          <li>⏱ Refresh in 5m &middot; next snapshot 09:40 ET</li>
-        </ul>
-      </div>
-      <div class="signal-feed-card">
-        <div class="feed-header">
-          <span class="feed-strategy-name">📈 Macro Pulse</span>
-          <span class="feed-timestamp">04/22/2026 08:00</span>
-        </div>
-        <ul class="feed-indicators">
-          <li>🛢️ WTI &minus;2.1% intraday &middot; basket energy names (CVX, HAL) may drift</li>
-          <li>💵 DXY &minus;0.4% &middot; tailwind for multinational exporters in basket</li>
-          <li>🗓️ Watch: 14:30 UTC Core PCE print &middot; size-down if surprise &gt; 10bps</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab 5: Methodology -->
+  <!-- Readme Modal -->
   <div class="modal-overlay" id="methodology-modal" aria-hidden="true">
     <div class="modal-panel" role="dialog" aria-labelledby="methodology-modal-title">
       <div class="modal-title">
@@ -2623,4 +2650,4 @@ window.__ALVA_OFFLINE_DATA__ = {
 <\/script>
 
 </body>
-`,o=a(i);function r(){return e.jsx("div",{className:"h-screen flex flex-col",style:{background:"var(--b0-page)"},children:e.jsx("div",{className:"flex-1 overflow-hidden",children:e.jsx("iframe",{srcDoc:o,title:"Feed Test",className:"block h-full w-full border-0"})})})}function p({onNavigate:n}){return e.jsx(t,{activePage:"screener",onNavigate:n,children:e.jsx(r,{})})}export{p as default};
+`,r=a(i);function o(){return e.jsx("div",{className:"h-screen flex flex-col",style:{background:"var(--b0-page)"},children:e.jsx("div",{className:"flex-1 overflow-hidden",children:e.jsx("iframe",{srcDoc:r,title:"Template-Screener",className:"block h-full w-full border-0"})})})}function p({onNavigate:n}){return e.jsx(t,{activePage:"template-screener",onNavigate:n,children:e.jsx(o,{})})}export{p as default};
