@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "new-chat" | "docs" | "api-keys" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
+export type Page = "new-chat" | "docs" | "api-keys" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | "trade-notification-test" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
@@ -24,15 +24,17 @@ const ReferralLanding = lazy(() => import("@/pages/ReferralLanding"));
 const PlaybookReferral = lazy(() => import("@/pages/PlaybookReferral"));
 const Thread = lazy(() => import("@/pages/Thread"));
 const Automations = lazy(() => import("@/pages/Automations"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
 const TemplateScreener = lazy(() => import("@/pages/TemplateScreener"));
 const TemplateThesis = lazy(() => import("@/pages/TemplateThesis"));
 const TemplateWhatif = lazy(() => import("@/pages/TemplateWhatif"));
 const TemplateNotification = lazy(() => import("@/pages/TemplateNotification"));
 const Screener = lazy(() => import("@/pages/Screener"));
+const TradeNotificationTest = lazy(() => import("@/pages/TradeNotificationTest"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener"];
+const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "notifications", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener", "trade-notification-test"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -47,7 +49,7 @@ export function getThreadId(page: Page): string | null {
 
 /* ========== App ========== */
 
-const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alva-agent", "automations", "api-keys"];
+const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alva-agent", "automations", "notifications", "api-keys"];
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
@@ -106,6 +108,7 @@ export default function App() {
         {currentPage === "pricing" && <Pricing onNavigate={navigate} />}
         {currentPage === "billing" && <Billing onNavigate={navigate} />}
         {currentPage === "automations" && <Automations onNavigate={navigate} />}
+        {currentPage === "notifications" && <Notifications onNavigate={navigate} />}
         {currentPage === "alva-chat-detail" && <AlvaChatDetail onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "referral-landing" && <ReferralLanding onNavigate={navigate} />}
         {currentPage === "playbook-referral" && <PlaybookReferral onNavigate={navigate} />}
@@ -114,6 +117,7 @@ export default function App() {
         {currentPage === "template-whatif" && <TemplateWhatif onNavigate={navigate} />}
         {currentPage === "template-notification" && <TemplateNotification onNavigate={navigate} />}
         {currentPage === "screener" && <Screener onNavigate={navigate} />}
+        {currentPage === "trade-notification-test" && <TradeNotificationTest onNavigate={navigate} />}
         {threadId && <Thread threadId={threadId} onNavigate={navigate} />}
       </Suspense>
       <SearchModal
