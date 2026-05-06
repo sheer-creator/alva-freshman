@@ -236,22 +236,8 @@ function SkillInfoCard({
         animation: 'newchat-fadeup 160ms ease-out',
       }}
     >
-      {/* 顶部一句话：Last updated 4d ago */}
-      <div
-        style={{
-          fontFamily: "'Delight', sans-serif",
-          fontSize: 11,
-          lineHeight: '14px',
-          color: 'rgba(0,0,0,0.4)',
-          letterSpacing: 0.11,
-          textAlign: 'right',
-          marginBottom: 8,
-        }}
-      >
-        Last updated {relativeTimeForSkill(template.id)}
-      </div>
-      {/* 用户信息行：左侧头像+名字，右侧 social media 按钮 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      {/* 用户信息：左右两列对称，都是「caps 标题 + 内容」 */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
           <span style={capsLabelStyle}>Created by</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -272,40 +258,55 @@ function SkillInfoCard({
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          {socialsForCreator(template.creator).map((s) => (
-            <a
-              key={s.key}
-              href={s.href}
-              target="_blank"
-              rel="noreferrer noopener"
-              aria-label={s.label}
-              style={{
-                width: 28,
-                height: 28,
-                minWidth: 28,
-                minHeight: 28,
-                borderRadius: '9999px',
-                background: 'rgba(0,0,0,0.05)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'background 120ms ease, transform 120ms ease',
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {s.render()}
-            </a>
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+          <span style={capsLabelStyle}>Last updated</span>
+          <span
+            style={{
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 14,
+              lineHeight: '22px',
+              color: 'rgba(0,0,0,0.9)',
+              letterSpacing: 0.14,
+            }}
+          >
+            {relativeTimeForSkill(template.id)}
+          </span>
         </div>
+      </div>
+      {/* Socials 行：紧跟在用户信息下方，仍在分割线上方 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
+        {socialsForCreator(template.creator).map((s) => (
+          <a
+            key={s.key}
+            href={s.href}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label={s.label}
+            style={{
+              width: 28,
+              height: 28,
+              minWidth: 28,
+              minHeight: 28,
+              borderRadius: '9999px',
+              background: 'rgba(0,0,0,0.05)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 120ms ease, transform 120ms ease',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            {s.render()}
+          </a>
+        ))}
       </div>
       <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
       <p
