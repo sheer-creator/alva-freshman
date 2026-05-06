@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { CdnIcon } from './CdnIcon';
+import { Avatar } from './Avatar';
 import type { ContextTagData } from '@/lib/chat-config';
 
 const CDN = 'https://alva-ai-static.b-cdn.net/icons';
@@ -12,6 +13,8 @@ function buildTagHTML(tag: ContextTagData): string {
 export interface BottomChipData {
   label: string;
   icon?: string;
+  /** Creator name — when set, render an Avatar instead of CdnIcon */
+  avatar?: string;
   onRemove?: () => void;
 }
 
@@ -170,8 +173,10 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             className="shrink-0 flex items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
             style={{ background: 'rgba(0,0,0,0.05)' }}
           >
-            {bottomChip.icon && (
-              <CdnIcon name={bottomChip.icon} size={14} color="rgba(0,0,0,0.9)" />
+            {bottomChip.avatar ? (
+              <Avatar name={bottomChip.avatar} size={16} />
+            ) : (
+              bottomChip.icon && <CdnIcon name={bottomChip.icon} size={14} color="rgba(0,0,0,0.9)" />
             )}
             <span
               className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]"

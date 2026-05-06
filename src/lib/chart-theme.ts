@@ -58,6 +58,8 @@ export const CREATOR_AVATARS: Record<string, string> = {
   'Smart Jing': 'https://api.dicebear.com/9.x/notionists/svg?seed=SmartJing&backgroundColor=fce4ec',
   'Sheer YLL YGG': 'https://api.dicebear.com/9.x/notionists/svg?seed=SheerYLL&backgroundColor=fff3e0',
   'Macro Scope X': 'https://api.dicebear.com/9.x/notionists/svg?seed=MacroScopeX&backgroundColor=ede7f6',
+  'Lily Lou': 'https://api.dicebear.com/9.x/notionists/svg?seed=LilyLou&backgroundColor=ffe0f0',
+  Alva: `${import.meta.env.BASE_URL}logo-portrait.svg`,
 };
 
 export const FONT = "'Delight', -apple-system, BlinkMacSystemFont, sans-serif";
