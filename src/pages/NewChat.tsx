@@ -147,9 +147,8 @@ function SkillInfoCard({
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const cardWidth = 280;
-  const cardHeight = 155;
+  const cardWidth = 300;
+  const cardHeight = 175;
   const gap = 10;
   let left = anchor.left + anchor.width / 2 - cardWidth / 2;
   if (typeof window !== 'undefined') {
@@ -157,16 +156,19 @@ function SkillInfoCard({
   }
   const top = placeAbove ? anchor.top - cardHeight - gap : anchor.bottom + gap;
 
+  const capsLabelStyle: React.CSSProperties = {
+    fontFamily: "'Delight', sans-serif",
+    fontSize: 11,
+    lineHeight: '14px',
+    color: 'rgba(0,0,0,0.4)',
+    letterSpacing: 0.11,
+    fontWeight: 500,
+  };
+
   return (
     <div
-      onMouseEnter={() => {
-        setHovered(true);
-        onMouseEnter?.();
-      }}
-      onMouseLeave={() => {
-        setHovered(false);
-        onMouseLeave?.();
-      }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{
         position: 'fixed',
         top,
@@ -177,25 +179,35 @@ function SkillInfoCard({
         borderRadius: 12,
         border: '0.5px solid rgba(0,0,0,0.1)',
         boxShadow: '0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)',
-        padding: '12px 14px 14px',
+        padding: '14px 14px 14px',
         pointerEvents: 'auto',
         animation: 'newchat-fadeup 160ms ease-out',
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <span
-          style={{
-            fontFamily: "'Delight', sans-serif",
-            fontSize: 12,
-            lineHeight: '16px',
-            color: 'rgba(0,0,0,0.5)',
-            letterSpacing: 0.12,
-          }}
-        >
-          Created by
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Avatar name={template.creator} size={22} />
+      {/* Header row: creator (left) · last updated (right) */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={capsLabelStyle}>Created by</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar name={template.creator} size={22} />
+            <span
+              style={{
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 14,
+                lineHeight: '22px',
+                color: 'rgba(0,0,0,0.9)',
+                letterSpacing: 0.14,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {template.creator}
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+          <span style={capsLabelStyle}>Last updated</span>
           <span
             style={{
               fontFamily: "'Delight', sans-serif",
@@ -203,81 +215,10 @@ function SkillInfoCard({
               lineHeight: '22px',
               color: 'rgba(0,0,0,0.9)',
               letterSpacing: 0.14,
-              flex: 1,
-              minWidth: 0,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
             }}
           >
-            {template.creator}
+            {relativeTimeForSkill(template.id)}
           </span>
-          {/* 右侧：默认显示 last updated；hover 时切换为 social icons */}
-          <div style={{ position: 'relative', flexShrink: 0, height: 22, minWidth: 60 }}>
-            <span
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                fontFamily: "'Delight', sans-serif",
-                fontSize: 11,
-                lineHeight: '14px',
-                color: 'rgba(0,0,0,0.4)',
-                letterSpacing: 0.11,
-                opacity: hovered ? 0 : 1,
-                transition: 'opacity 140ms ease',
-                pointerEvents: hovered ? 'none' : 'auto',
-              }}
-            >
-              {relativeTimeForSkill(template.id)}
-            </span>
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                gap: 6,
-                opacity: hovered ? 1 : 0,
-                transform: hovered ? 'translateY(0)' : 'translateY(2px)',
-                transition: 'opacity 140ms ease, transform 140ms ease',
-                pointerEvents: hovered ? 'auto' : 'none',
-              }}
-            >
-              {SOCIAL_ICONS.map((s) => (
-                <a
-                  key={s.key}
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  aria-label={s.label}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    background: 'rgba(0,0,0,0.05)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'background 120ms ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.1)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.05)')}
-                >
-                  <img
-                    src={`${import.meta.env.BASE_URL}${s.src}`}
-                    alt=""
-                    width={12}
-                    height={12}
-                    style={{ width: 12, height: 12, display: 'block' }}
-                  />
-                </a>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
       <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
@@ -293,6 +234,47 @@ function SkillInfoCard({
       >
         {template.description}
       </p>
+      {/* Social media buttons — 常驻展示 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
+        {SOCIAL_ICONS.map((s) => (
+          <a
+            key={s.key}
+            href={s.href}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label={s.label}
+            style={{
+              width: 28,
+              height: 28,
+              minWidth: 28,
+              minHeight: 28,
+              borderRadius: '9999px',
+              background: 'rgba(0,0,0,0.05)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 120ms ease, transform 120ms ease',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <img
+              src={`${import.meta.env.BASE_URL}${s.src}`}
+              alt=""
+              width={14}
+              height={14}
+              style={{ width: 14, height: 14, display: 'block' }}
+            />
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
