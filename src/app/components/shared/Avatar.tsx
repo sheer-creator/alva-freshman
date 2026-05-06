@@ -10,6 +10,17 @@ export function Avatar({ name, size }: { name: string; size: number }) {
         width={size}
         height={size}
         alt={name}
+        style={{
+          width: size,
+          height: size,
+          minWidth: size,
+          minHeight: size,
+          borderRadius: '50%',
+          objectFit: 'cover',
+          flexShrink: 0,
+          background: '#f0f0f0',
+          display: 'block',
+        }}
       />
     );
   }
