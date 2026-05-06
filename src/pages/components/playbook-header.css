@@ -397,6 +397,75 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     color: var(--text-n9);
 }
+/* Built-with hover card */
+.pb-built-with-menu { position: relative; display: inline-flex; }
+.pb-built-with-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    width: 300px;
+    background: #fff;
+    border-radius: 12px;
+    border: 0.5px solid rgba(0,0,0,0.1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    padding: 14px;
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease, visibility 160ms;
+    font-family: 'Delight', sans-serif;
+}
+.pb-built-with-popover.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+.pb-bw-row { display: flex; align-items: flex-start; gap: 12px; }
+.pb-bw-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.pb-bw-col-right { flex: 0 0 auto; align-items: flex-end; }
+.pb-bw-caps {
+    font-size: 11px;
+    line-height: 14px;
+    color: rgba(0,0,0,0.4);
+    letter-spacing: 0.11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.pb-bw-creator { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.pb-bw-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%; object-fit: cover;
+    background: #f0f0f0; flex-shrink: 0; display: block;
+}
+.pb-bw-creator-name {
+    font-size: 14px; line-height: 22px;
+    color: rgba(0,0,0,0.9);
+    letter-spacing: 0.14px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pb-bw-socials { display: flex; align-items: center; gap: 6px; }
+.pb-bw-social {
+    width: 22px; height: 22px;
+    border-radius: 9999px;
+    background: rgba(0,0,0,0.05);
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    transition: background 120ms ease, transform 120ms ease;
+    flex-shrink: 0;
+}
+.pb-bw-social:hover { background: rgba(0,0,0,0.1); transform: translateY(-1px); }
+.pb-bw-social img,
+.pb-bw-social svg { display: block; width: 13px; height: 13px; }
+.pb-bw-divider { height: 1px; background: rgba(0,0,0,0.08); margin: 12px 0 11px; }
+.pb-bw-desc {
+    font-size: 13px; line-height: 20px;
+    color: rgba(0,0,0,0.7);
+    letter-spacing: 0.13px;
+    margin: 0;
+}
 /* Status pill: dot + automations + • + freq */
 .pb-pill--status { padding-left: 5px; padding-right: 8px; }
 .pb-pill--status .pb-pill-sep {
