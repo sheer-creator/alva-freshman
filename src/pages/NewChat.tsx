@@ -236,9 +236,12 @@ function SkillInfoCard({
         animation: 'newchat-fadeup 160ms ease-out',
       }}
     >
-      {/* 用户信息：左右两列对称，都是「caps 标题 + 内容」 */}
+      {/* 顶部信息区：左右两列
+       *   左：上 caps "Created by"，下 头像+名字
+       *   右：上 "Last updated 1d ago"（单行小字），下 3 个社交媒体按钮
+       */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <span style={capsLabelStyle}>Created by</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Avatar name={template.creator} size={22} />
@@ -258,55 +261,45 @@ function SkillInfoCard({
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-          <span style={capsLabelStyle}>Last updated</span>
-          <span
-            style={{
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 14,
-              lineHeight: '22px',
-              color: 'rgba(0,0,0,0.9)',
-              letterSpacing: 0.14,
-            }}
-          >
-            {relativeTimeForSkill(template.id)}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+          <span style={{ ...capsLabelStyle, whiteSpace: 'nowrap' }}>
+            Last updated {relativeTimeForSkill(template.id)}
           </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {socialsForCreator(template.creator).map((s) => (
+              <a
+                key={s.key}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={s.label}
+                style={{
+                  width: 22,
+                  height: 22,
+                  minWidth: 22,
+                  minHeight: 22,
+                  borderRadius: '9999px',
+                  background: 'rgba(0,0,0,0.05)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 120ms ease, transform 120ms ease',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                {s.render()}
+              </a>
+            ))}
+          </div>
         </div>
-      </div>
-      {/* Socials 行：紧跟在用户信息下方，仍在分割线上方 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
-        {socialsForCreator(template.creator).map((s) => (
-          <a
-            key={s.key}
-            href={s.href}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label={s.label}
-            style={{
-              width: 28,
-              height: 28,
-              minWidth: 28,
-              minHeight: 28,
-              borderRadius: '9999px',
-              background: 'rgba(0,0,0,0.05)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background 120ms ease, transform 120ms ease',
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            {s.render()}
-          </a>
-        ))}
       </div>
       <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
       <p
