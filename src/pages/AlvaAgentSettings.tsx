@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Page } from '@/app/App';
 import { SettingsLayout } from '@/app/components/shell/SettingsLayout';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { DiscordConnectFlow } from '@/app/components/shared/DiscordConnectFlow';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
 
 const FONT = "'Delight', sans-serif";
@@ -247,6 +248,7 @@ export default function AlvaAgentSettings({ onNavigate }: { onNavigate: (page: P
   const [prompt, setPrompt] = useState(INITIAL_PROMPT);
   const [customizeOn, setCustomizeOn] = useState(INITIAL_CUSTOMIZE_ON);
   const [memoryOn, setMemoryOn] = useState(INITIAL_MEMORY_ON);
+  const [discordFlowOpen, setDiscordFlowOpen] = useState(false);
   const INITIAL_MEMORY = `Read .claude/skills/frontend-monorepo-conventions/SKILL.md and AGENTS.md for project-level conventions (token system, coding rules, architecture). The alva-design skill is for playbook/widget generation, not for frontend-monorepo coding standards.
 
 **Why:** User corrected that the authoritative token/convention source for this repo is the in-repo skill, not the external alva-design skill.
@@ -288,23 +290,44 @@ Read .claude/skills/frontend-monorepo-conventions/SKILL.md and AGENTS.md for pro
             return (
               <div
                 key={p.id}
-                className="flex items-center gap-[var(--spacing-s)] p-[var(--spacing-l)] rounded-[var(--radius-ct-l)]"
+                className="flex flex-col gap-[var(--spacing-m)] p-[var(--spacing-l)] rounded-[var(--radius-ct-l)]"
                 style={{ background: 'var(--grey-g01)' }}
               >
-                {p.render(40)}
-                <div className="flex-1 min-w-0">
-                  <p className="text-[16px] leading-[26px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>{p.name}</p>
-                  {isBound && (
-                    <p className="text-[14px] leading-[22px] mt-[var(--spacing-xxxs)]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>{p.handle}</p>
-                  )}
+                <div className="flex items-center gap-[var(--spacing-s)]">
+                  {p.render(40)}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[16px] leading-[26px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>{p.name}</p>
+                    {isBound && (
+                      <p className="text-[14px] leading-[22px] mt-[var(--spacing-xxxs)]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>{p.handle}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (isBound) {
+                        disconnect(p.id);
+                        if (p.id === 'discord') setDiscordFlowOpen(false);
+                        return;
+                      }
+                      if (p.id === 'discord') {
+                        setDiscordFlowOpen(v => !v);
+                        return;
+                      }
+                      connect(p.id);
+                    }}
+                    className="text-[14px] leading-[22px] cursor-pointer"
+                    style={{ color: isBound ? 'var(--text-n5)' : 'var(--main-m1)', background: 'none', border: 'none', fontFamily: FONT, fontWeight: 400 }}
+                  >
+                    {isBound ? 'Disconnect' : 'Connect'}
+                  </button>
                 </div>
-                <button
-                  onClick={() => (isBound ? disconnect(p.id) : connect(p.id))}
-                  className="text-[14px] leading-[22px] cursor-pointer"
-                  style={{ color: isBound ? 'var(--text-n5)' : 'var(--main-m1)', background: 'none', border: 'none', fontFamily: FONT, fontWeight: 400 }}
-                >
-                  {isBound ? 'Disconnect' : 'Connect'}
-                </button>
+                {p.id === 'discord' && !isBound && discordFlowOpen && (
+                  <DiscordConnectFlow
+                    onPaired={() => {
+                      connect('discord');
+                      setDiscordFlowOpen(false);
+                    }}
+                  />
+                )}
               </div>
             );
           })}

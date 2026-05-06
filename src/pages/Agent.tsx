@@ -10,6 +10,7 @@ import { Dropdown } from '@/app/components/shared/Dropdown';
 import { CONVERSATIONS } from '@/lib/chat-config';
 import DotMatrixWave from '@/app/components/shared/DotMatrixWave';
 import { Tooltip } from '@/app/components/shared/Tooltip';
+import { DiscordConnectFlow } from '@/app/components/shared/DiscordConnectFlow';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
 import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
 
@@ -96,7 +97,17 @@ export const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
 };
 
 /* ── Empty state ── */
-export function AgentEmptyState({ onConnect, onNavigate }: { onConnect: (platform: AgentPlatform) => void; onNavigate?: (page: Page) => void }) {
+export function AgentEmptyState({
+  onTelegramConnect,
+  onDiscordPaired,
+  onNavigate,
+}: {
+  onTelegramConnect: () => void;
+  onDiscordPaired: () => void;
+  onNavigate?: (page: Page) => void;
+}) {
+  const [discordFlowOpen, setDiscordFlowOpen] = useState(false);
+
   return (
     <div className="flex flex-1 flex-col min-h-0 relative" style={{ background: '#F6F6F6' }}>
       <DotMatrixWave
@@ -145,7 +156,7 @@ export function AgentEmptyState({ onConnect, onNavigate }: { onConnect: (platfor
           <button
             className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90`}
             style={{ height: 48, width: 280, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
-            onClick={() => onConnect('telegram')}
+            onClick={onTelegramConnect}
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M17.8693 2.23048C17.8693 2.23048 19.6246 1.54575 19.4783 3.20864C19.4295 3.89337 18.9907 6.28986 18.6494 8.88202L17.4793 16.5606C17.4793 16.5606 17.3818 17.6855 16.5042 17.8812C15.6266 18.0768 14.3102 17.1964 14.0664 17.0008C13.8713 16.8541 10.4097 14.6532 9.19079 13.5772C8.84948 13.2838 8.45944 12.6968 9.23954 12.0121L14.3589 7.12132C14.944 6.53442 15.5291 5.16499 13.0913 6.82788L6.26545 11.4742C6.26545 11.4742 5.48535 11.9632 4.02269 11.5231L0.85355 10.5449C0.85355 10.5449 -0.316596 9.81129 1.68238 9.07762C6.558 6.77892 12.5549 4.43132 17.8693 2.23048Z" fill="#ffffff"/>
@@ -155,15 +166,27 @@ export function AgentEmptyState({ onConnect, onNavigate }: { onConnect: (platfor
 
           <button
             className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium cursor-pointer transition-colors`}
-            style={{ height: 48, width: 280, padding: '11px 20px', borderRadius: 6, background: 'transparent', color: 'var(--text-n9)', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+            style={{
+              height: 48,
+              width: 280,
+              padding: '11px 20px',
+              borderRadius: 6,
+              background: discordFlowOpen ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent',
+              color: 'var(--text-n9)',
+              border: `0.5px solid ${discordFlowOpen ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--line-l3, rgba(0,0,0,0.3))'}`,
+            }}
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--b-r03, rgba(0,0,0,0.03))'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-            onClick={() => onConnect('discord')}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = discordFlowOpen ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent'; }}
+            onClick={() => setDiscordFlowOpen(v => !v)}
           >
             <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" style={{ width: 20, height: 20 }} />
             Connect Discord
           </button>
         </div>
+
+        {discordFlowOpen && (
+          <DiscordConnectFlow tone="empty" onPaired={onDiscordPaired} />
+        )}
 
         {/* More channels — Slack/WhatsApp/Line coming soon */}
         <div className="flex flex-col items-center gap-[12px]">
@@ -232,12 +255,12 @@ export function AgentEmptyState({ onConnect, onNavigate }: { onConnect: (platfor
 }
 
 /* ── Connecting state ── */
-function ConnectingState() {
+function ConnectingState({ platform }: { platform: AgentPlatform }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center min-h-0 gap-[20px]">
       <AlvaLoading size={36} />
       <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n5)]`}>
-        Connecting to Telegram...
+        Connecting to {platform === 'discord' ? 'Discord' : 'Telegram'}...
       </p>
     </div>
   );
@@ -394,24 +417,32 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
 /* ── Main Agent page ── */
 export default function Agent({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const { platforms, toggle } = useAgentPlatforms();
+  const { platforms, connect } = useAgentPlatforms();
   const [connecting, setConnecting] = useState(false);
+  const [connectingPlatform, setConnectingPlatform] = useState<AgentPlatform>('telegram');
   const connected = platforms.length > 0;
   const state: AgentState = connecting ? 'connecting' : connected ? 'connected' : 'empty';
 
   const handleConnect = useCallback((next: AgentPlatform) => {
+    setConnectingPlatform(next);
     setConnecting(true);
     setTimeout(() => {
-      toggle(next);
+      connect(next);
       setConnecting(false);
     }, 2000);
-  }, [toggle]);
+  }, [connect]);
 
   return (
     <AppShell activePage="agent" onNavigate={onNavigate}>
       <div className="h-screen flex flex-col bg-white">
-        {state === 'empty' && <AgentEmptyState onConnect={handleConnect} onNavigate={onNavigate} />}
-        {state === 'connecting' && <ConnectingState />}
+        {state === 'empty' && (
+          <AgentEmptyState
+            onTelegramConnect={() => handleConnect('telegram')}
+            onDiscordPaired={() => handleConnect('discord')}
+            onNavigate={onNavigate}
+          />
+        )}
+        {state === 'connecting' && <ConnectingState platform={connectingPlatform} />}
         {state === 'connected' && <AgentChat onNavigate={onNavigate} />}
       </div>
     </AppShell>
