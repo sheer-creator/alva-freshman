@@ -111,7 +111,43 @@ function SkillPill({
 
 /* ========== Skill hover info card ========== */
 
-function SkillInfoCard({ template, anchor, placeAbove }: { template: NewChatTemplate; anchor: DOMRect; placeAbove: boolean }) {
+function relativeTimeForSkill(skillId: string): string {
+  // 用 skill id 派生稳定的「最近更新」相对时间 — 0 ~ 7200 分钟（~5 天）
+  const h = (() => {
+    let x = 0x811c9dc5;
+    for (let i = 0; i < skillId.length; i++) {
+      x ^= skillId.charCodeAt(i);
+      x = Math.imul(x, 0x01000193);
+    }
+    return x >>> 0;
+  })();
+  const minutes = h % 7200;
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)}h ago`;
+  return `${Math.floor(minutes / (24 * 60))}d ago`;
+}
+
+const SOCIAL_ICONS: Array<{ key: string; label: string; src: string; href: string }> = [
+  { key: 'discord', label: 'Discord', src: 'logo-social-discord.svg', href: 'https://discord.com' },
+  { key: 'telegram', label: 'Telegram', src: 'logo-telegram.svg', href: 'https://telegram.org' },
+  { key: 'slack', label: 'Slack', src: 'logo-social-slack.svg', href: 'https://slack.com' },
+];
+
+function SkillInfoCard({
+  template,
+  anchor,
+  placeAbove,
+  onMouseEnter,
+  onMouseLeave,
+}: {
+  template: NewChatTemplate;
+  anchor: DOMRect;
+  placeAbove: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
   const cardWidth = 280;
   const cardHeight = 155;
   const gap = 10;
@@ -123,6 +159,14 @@ function SkillInfoCard({ template, anchor, placeAbove }: { template: NewChatTemp
 
   return (
     <div
+      onMouseEnter={() => {
+        setHovered(true);
+        onMouseEnter?.();
+      }}
+      onMouseLeave={() => {
+        setHovered(false);
+        onMouseLeave?.();
+      }}
       style={{
         position: 'fixed',
         top,
@@ -134,7 +178,7 @@ function SkillInfoCard({ template, anchor, placeAbove }: { template: NewChatTemp
         border: '0.5px solid rgba(0,0,0,0.1)',
         boxShadow: '0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)',
         padding: '12px 14px 14px',
-        pointerEvents: 'none',
+        pointerEvents: 'auto',
         animation: 'newchat-fadeup 160ms ease-out',
       }}
     >
@@ -159,10 +203,81 @@ function SkillInfoCard({ template, anchor, placeAbove }: { template: NewChatTemp
               lineHeight: '22px',
               color: 'rgba(0,0,0,0.9)',
               letterSpacing: 0.14,
+              flex: 1,
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
           >
             {template.creator}
           </span>
+          {/* 右侧：默认显示 last updated；hover 时切换为 social icons */}
+          <div style={{ position: 'relative', flexShrink: 0, height: 22, minWidth: 60 }}>
+            <span
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 11,
+                lineHeight: '14px',
+                color: 'rgba(0,0,0,0.4)',
+                letterSpacing: 0.11,
+                opacity: hovered ? 0 : 1,
+                transition: 'opacity 140ms ease',
+                pointerEvents: hovered ? 'none' : 'auto',
+              }}
+            >
+              {relativeTimeForSkill(template.id)}
+            </span>
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                gap: 6,
+                opacity: hovered ? 1 : 0,
+                transform: hovered ? 'translateY(0)' : 'translateY(2px)',
+                transition: 'opacity 140ms ease, transform 140ms ease',
+                pointerEvents: hovered ? 'auto' : 'none',
+              }}
+            >
+              {SOCIAL_ICONS.map((s) => (
+                <a
+                  key={s.key}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={s.label}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.05)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'background 120ms ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.1)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.05)')}
+                >
+                  <img
+                    src={`${import.meta.env.BASE_URL}${s.src}`}
+                    alt=""
+                    width={12}
+                    height={12}
+                    style={{ width: 12, height: 12, display: 'block' }}
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
       <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
@@ -639,6 +754,18 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const [debouncedTypedText, setDebouncedTypedText] = useState('');
   const [hover, setHover] = useState<{ id: string; rect: DOMRect; placeAbove: boolean } | null>(null);
   const pillsContainerRef = useRef<HTMLDivElement>(null);
+  const hoverHideTimerRef = useRef<number | null>(null);
+
+  const cancelHoverHide = () => {
+    if (hoverHideTimerRef.current !== null) {
+      window.clearTimeout(hoverHideTimerRef.current);
+      hoverHideTimerRef.current = null;
+    }
+  };
+  const scheduleHoverHide = () => {
+    cancelHoverHide();
+    hoverHideTimerRef.current = window.setTimeout(() => setHover(null), 160);
+  };
 
   const computeHover = (id: string, rect: DOMRect) => {
     // 决定信息卡放在 pill 上方还是下方：若同容器内还有 pill 在它下方（更靠近视口底），就放上方避开
@@ -650,6 +777,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         if (r.top > rect.bottom - 1) placeAbove = true;
       });
     }
+    cancelHoverHide();
     setHover({ id, rect, placeAbove });
   };
   // 加载阶段：选中后由 0 → 1 → 2，分别表示骨架展示 / 真实数据已就绪
@@ -882,7 +1010,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   active={selectedId === t.id}
                   onClick={() => handlePillClick(t.id)}
                   onHover={(rect) => computeHover(t.id, rect)}
-                  onLeave={() => setHover((h) => (h?.id === t.id ? null : h))}
+                  onLeave={scheduleHoverHide}
                 />
               ))}
               <div
@@ -992,7 +1120,15 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         )}
       </div>
 
-      {hover && hoveredTemplate && <SkillInfoCard template={hoveredTemplate} anchor={hover.rect} placeAbove={hover.placeAbove} />}
+      {hover && hoveredTemplate && (
+        <SkillInfoCard
+          template={hoveredTemplate}
+          anchor={hover.rect}
+          placeAbove={hover.placeAbove}
+          onMouseEnter={cancelHoverHide}
+          onMouseLeave={scheduleHoverHide}
+        />
+      )}
     </AppShell>
   );
 }
