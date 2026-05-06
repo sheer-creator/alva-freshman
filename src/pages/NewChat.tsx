@@ -128,11 +128,63 @@ function relativeTimeForSkill(skillId: string): string {
   return `${Math.floor(minutes / (24 * 60))}d ago`;
 }
 
-const SOCIAL_ICONS: Array<{ key: string; label: string; src: string; href: string }> = [
-  { key: 'discord', label: 'Discord', src: 'logo-social-discord.svg', href: 'https://discord.com' },
-  { key: 'telegram', label: 'Telegram', src: 'logo-telegram.svg', href: 'https://telegram.org' },
-  { key: 'slack', label: 'Slack', src: 'logo-social-slack.svg', href: 'https://slack.com' },
-];
+/* ========== Social media icons ========== */
+
+interface SocialDef {
+  key: string;
+  label: string;
+  href: string;
+  render: () => React.ReactNode;
+}
+
+const renderImg = (src: string) => () =>
+  (
+    <img
+      src={`${import.meta.env.BASE_URL}${src}`}
+      alt=""
+      width={14}
+      height={14}
+      style={{ width: 14, height: 14, display: 'block' }}
+    />
+  );
+
+const renderXLogo = () => () =>
+  (
+    <svg width={12} height={12} viewBox="0 0 24 24" fill="rgba(0,0,0,0.85)" aria-hidden style={{ display: 'block' }}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+
+const SOCIAL_DEFS: Record<string, SocialDef> = {
+  discord: { key: 'discord', label: 'Discord', href: 'https://discord.com', render: renderImg('logo-social-discord.svg') },
+  telegram: { key: 'telegram', label: 'Telegram', href: 'https://telegram.org', render: renderImg('logo-telegram.svg') },
+  x: { key: 'x', label: 'X', href: 'https://x.com', render: renderXLogo() },
+  line: { key: 'line', label: 'LINE', href: 'https://line.me', render: renderImg('logo-social-line.svg') },
+  whatsapp: { key: 'whatsapp', label: 'WhatsApp', href: 'https://whatsapp.com', render: renderImg('logo-social-whatsapp.svg') },
+};
+
+const ALVA_SOCIALS = ['discord', 'telegram', 'x'] as const;
+const NON_ALVA_POOL = ['discord', 'telegram', 'x', 'line', 'whatsapp'] as const;
+
+function socialsForCreator(creator: string): SocialDef[] {
+  if (creator === 'Alva') return ALVA_SOCIALS.map((k) => SOCIAL_DEFS[k]);
+  // 用 creator 名稳定派生 3 个 socials
+  let h = 0x811c9dc5;
+  for (let i = 0; i < creator.length; i++) {
+    h ^= creator.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  const seedScore = (k: string) => {
+    let s = h;
+    for (let i = 0; i < k.length; i++) {
+      s ^= k.charCodeAt(i);
+      s = Math.imul(s, 0x01000193) >>> 0;
+    }
+    return s;
+  };
+  const sorted = [...NON_ALVA_POOL].sort((a, b) => seedScore(a) - seedScore(b));
+  return sorted.slice(0, 3).map((k) => SOCIAL_DEFS[k]);
+}
 
 function SkillInfoCard({
   template,
@@ -184,8 +236,22 @@ function SkillInfoCard({
         animation: 'newchat-fadeup 160ms ease-out',
       }}
     >
-      {/* Header row: creator (left) · last updated (right) */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+      {/* 顶部一句话：Last updated 4d ago */}
+      <div
+        style={{
+          fontFamily: "'Delight', sans-serif",
+          fontSize: 11,
+          lineHeight: '14px',
+          color: 'rgba(0,0,0,0.4)',
+          letterSpacing: 0.11,
+          textAlign: 'right',
+          marginBottom: 8,
+        }}
+      >
+        Last updated {relativeTimeForSkill(template.id)}
+      </div>
+      {/* 用户信息行：左侧头像+名字，右侧 social media 按钮 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
           <span style={capsLabelStyle}>Created by</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -206,19 +272,39 @@ function SkillInfoCard({
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-          <span style={capsLabelStyle}>Last updated</span>
-          <span
-            style={{
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 14,
-              lineHeight: '22px',
-              color: 'rgba(0,0,0,0.9)',
-              letterSpacing: 0.14,
-            }}
-          >
-            {relativeTimeForSkill(template.id)}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {socialsForCreator(template.creator).map((s) => (
+            <a
+              key={s.key}
+              href={s.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label={s.label}
+              style={{
+                width: 28,
+                height: 28,
+                minWidth: 28,
+                minHeight: 28,
+                borderRadius: '9999px',
+                background: 'rgba(0,0,0,0.05)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background 120ms ease, transform 120ms ease',
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              {s.render()}
+            </a>
+          ))}
         </div>
       </div>
       <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
@@ -234,47 +320,6 @@ function SkillInfoCard({
       >
         {template.description}
       </p>
-      {/* Social media buttons — 常驻展示 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
-        {SOCIAL_ICONS.map((s) => (
-          <a
-            key={s.key}
-            href={s.href}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label={s.label}
-            style={{
-              width: 28,
-              height: 28,
-              minWidth: 28,
-              minHeight: 28,
-              borderRadius: '9999px',
-              background: 'rgba(0,0,0,0.05)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background 120ms ease, transform 120ms ease',
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <img
-              src={`${import.meta.env.BASE_URL}${s.src}`}
-              alt=""
-              width={14}
-              height={14}
-              style={{ width: 14, height: 14, display: 'block' }}
-            />
-          </a>
-        ))}
-      </div>
     </div>
   );
 }
