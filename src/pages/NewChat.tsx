@@ -111,9 +111,103 @@ function SkillPill({
 
 /* ========== Skill hover info card ========== */
 
-function SkillInfoCard({ template, anchor, placeAbove }: { template: NewChatTemplate; anchor: DOMRect; placeAbove: boolean }) {
-  const cardWidth = 280;
-  const cardHeight = 155;
+function relativeTimeForSkill(skillId: string): string {
+  // 用 skill id 派生稳定的「最近更新」相对时间 — 0 ~ 7200 分钟（~5 天）
+  const h = (() => {
+    let x = 0x811c9dc5;
+    for (let i = 0; i < skillId.length; i++) {
+      x ^= skillId.charCodeAt(i);
+      x = Math.imul(x, 0x01000193);
+    }
+    return x >>> 0;
+  })();
+  const minutes = h % 7200;
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)}h ago`;
+  return `${Math.floor(minutes / (24 * 60))}d ago`;
+}
+
+/* ========== Social media icons ========== */
+
+interface SocialDef {
+  key: string;
+  label: string;
+  href: string;
+  render: () => React.ReactNode;
+}
+
+const renderImg = (src: string) => () =>
+  (
+    <img
+      src={`${import.meta.env.BASE_URL}${src}`}
+      alt=""
+      width={14}
+      height={14}
+      style={{ width: 14, height: 14, display: 'block' }}
+    />
+  );
+
+const renderXLogo = () => () =>
+  (
+    <svg width={12} height={12} viewBox="0 0 24 24" fill="rgba(0,0,0,0.85)" aria-hidden style={{ display: 'block' }}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+
+const renderInstagramLogo = () => () =>
+  (
+    <svg width={13} height={13} viewBox="0 0 24 24" fill="rgba(0,0,0,0.85)" aria-hidden style={{ display: 'block' }}>
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+    </svg>
+  );
+
+const SOCIAL_DEFS: Record<string, SocialDef> = {
+  discord: { key: 'discord', label: 'Discord', href: 'https://discord.com', render: renderImg('logo-social-discord.svg') },
+  telegram: { key: 'telegram', label: 'Telegram', href: 'https://telegram.org', render: renderImg('logo-telegram.svg') },
+  x: { key: 'x', label: 'X', href: 'https://x.com', render: renderXLogo() },
+  instagram: { key: 'instagram', label: 'Instagram', href: 'https://instagram.com', render: renderInstagramLogo() },
+};
+
+const ALVA_SOCIALS = ['discord', 'telegram', 'x'] as const;
+const NON_ALVA_POOL = ['x', 'telegram', 'discord', 'instagram'] as const;
+
+function socialsForCreator(creator: string): SocialDef[] {
+  if (creator === 'Alva') return ALVA_SOCIALS.map((k) => SOCIAL_DEFS[k]);
+  // 用 creator 名稳定派生 1-2 个 socials（仅 X / Telegram / Discord / Instagram）
+  let h = 0x811c9dc5;
+  for (let i = 0; i < creator.length; i++) {
+    h ^= creator.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  const seedScore = (k: string) => {
+    let s = h;
+    for (let i = 0; i < k.length; i++) {
+      s ^= k.charCodeAt(i);
+      s = Math.imul(s, 0x01000193) >>> 0;
+    }
+    return s;
+  };
+  const count = (h % 2) + 1; // 1 或 2
+  const sorted = [...NON_ALVA_POOL].sort((a, b) => seedScore(a) - seedScore(b));
+  return sorted.slice(0, count).map((k) => SOCIAL_DEFS[k]);
+}
+
+function SkillInfoCard({
+  template,
+  anchor,
+  placeAbove,
+  onMouseEnter,
+  onMouseLeave,
+}: {
+  template: NewChatTemplate;
+  anchor: DOMRect;
+  placeAbove: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}) {
+  const cardWidth = 300;
+  const cardHeight = 175;
   const gap = 10;
   let left = anchor.left + anchor.width / 2 - cardWidth / 2;
   if (typeof window !== 'undefined') {
@@ -121,8 +215,19 @@ function SkillInfoCard({ template, anchor, placeAbove }: { template: NewChatTemp
   }
   const top = placeAbove ? anchor.top - cardHeight - gap : anchor.bottom + gap;
 
+  const capsLabelStyle: React.CSSProperties = {
+    fontFamily: "'Delight', sans-serif",
+    fontSize: 11,
+    lineHeight: '14px',
+    color: 'rgba(0,0,0,0.4)',
+    letterSpacing: 0.11,
+    fontWeight: 500,
+  };
+
   return (
     <div
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{
         position: 'fixed',
         top,
@@ -133,36 +238,74 @@ function SkillInfoCard({ template, anchor, placeAbove }: { template: NewChatTemp
         borderRadius: 12,
         border: '0.5px solid rgba(0,0,0,0.1)',
         boxShadow: '0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)',
-        padding: '12px 14px 14px',
-        pointerEvents: 'none',
+        padding: '14px 14px 14px',
+        pointerEvents: 'auto',
         animation: 'newchat-fadeup 160ms ease-out',
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <span
-          style={{
-            fontFamily: "'Delight', sans-serif",
-            fontSize: 12,
-            lineHeight: '16px',
-            color: 'rgba(0,0,0,0.5)',
-            letterSpacing: 0.12,
-          }}
-        >
-          Created by
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Avatar name={template.creator} size={22} />
-          <span
-            style={{
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 14,
-              lineHeight: '22px',
-              color: 'rgba(0,0,0,0.9)',
-              letterSpacing: 0.14,
-            }}
-          >
-            {template.creator}
+      {/* 顶部信息区：左右两列
+       *   左：上 caps "Created by"，下 头像+名字
+       *   右：上 "Last updated 1d ago"（单行小字），下 3 个社交媒体按钮
+       */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={capsLabelStyle}>Created by</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar name={template.creator} size={22} />
+            <span
+              style={{
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 14,
+                lineHeight: '22px',
+                color: 'rgba(0,0,0,0.9)',
+                letterSpacing: 0.14,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {template.creator}
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+          <span style={{ ...capsLabelStyle, whiteSpace: 'nowrap' }}>
+            Last updated {relativeTimeForSkill(template.id)}
           </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {socialsForCreator(template.creator).map((s) => (
+              <a
+                key={s.key}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={s.label}
+                style={{
+                  width: 22,
+                  height: 22,
+                  minWidth: 22,
+                  minHeight: 22,
+                  borderRadius: '9999px',
+                  background: 'rgba(0,0,0,0.05)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 120ms ease, transform 120ms ease',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                {s.render()}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
       <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
@@ -639,6 +782,18 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const [debouncedTypedText, setDebouncedTypedText] = useState('');
   const [hover, setHover] = useState<{ id: string; rect: DOMRect; placeAbove: boolean } | null>(null);
   const pillsContainerRef = useRef<HTMLDivElement>(null);
+  const hoverHideTimerRef = useRef<number | null>(null);
+
+  const cancelHoverHide = () => {
+    if (hoverHideTimerRef.current !== null) {
+      window.clearTimeout(hoverHideTimerRef.current);
+      hoverHideTimerRef.current = null;
+    }
+  };
+  const scheduleHoverHide = () => {
+    cancelHoverHide();
+    hoverHideTimerRef.current = window.setTimeout(() => setHover(null), 160);
+  };
 
   const computeHover = (id: string, rect: DOMRect) => {
     // 决定信息卡放在 pill 上方还是下方：若同容器内还有 pill 在它下方（更靠近视口底），就放上方避开
@@ -650,6 +805,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         if (r.top > rect.bottom - 1) placeAbove = true;
       });
     }
+    cancelHoverHide();
     setHover({ id, rect, placeAbove });
   };
   // 加载阶段：选中后由 0 → 1 → 2，分别表示骨架展示 / 真实数据已就绪
@@ -882,7 +1038,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   active={selectedId === t.id}
                   onClick={() => handlePillClick(t.id)}
                   onHover={(rect) => computeHover(t.id, rect)}
-                  onLeave={() => setHover((h) => (h?.id === t.id ? null : h))}
+                  onLeave={scheduleHoverHide}
                 />
               ))}
               <div
@@ -992,7 +1148,15 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         )}
       </div>
 
-      {hover && hoveredTemplate && <SkillInfoCard template={hoveredTemplate} anchor={hover.rect} placeAbove={hover.placeAbove} />}
+      {hover && hoveredTemplate && (
+        <SkillInfoCard
+          template={hoveredTemplate}
+          anchor={hover.rect}
+          placeAbove={hover.placeAbove}
+          onMouseEnter={cancelHoverHide}
+          onMouseLeave={scheduleHoverHide}
+        />
+      )}
     </AppShell>
   );
 }
