@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "cover-demo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "../../../../../../Desktop/alva-cover-generation", "run", "dev", "--", "--port", "5188", "--strictPort"],
+      "port": 5188
     }
   ]
 }
