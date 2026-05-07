@@ -11,7 +11,7 @@ import { ChatInput } from '@/app/components/shared/ChatInput';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDropdown';
-import { PRIMARY_TEMPLATES, OTHERS_TEMPLATES, type NewChatTemplate, type NewChatPlaybook } from '@/data/new-chat-mock';
+import { COMMUNITY_TEMPLATES, PRIMARY_TEMPLATES, OTHERS_TEMPLATES, type CommunitySkillTemplate, type NewChatTemplate, type NewChatPlaybook } from '@/data/new-chat-mock';
 import { generateTypedSuggestions } from '@/data/typed-suggestions';
 import { PlaybookCover } from '@/lib/playbook-cover/PlaybookCover';
 import type { CoverInput, Template as CoverTemplateName, DomainKey } from '@/lib/playbook-cover/types';
@@ -771,6 +771,202 @@ function PlaybookCardSkeleton() {
   );
 }
 
+function CommunitySkillsPopover({
+  skills,
+  onSelect,
+  onClose,
+}: {
+  skills: CommunitySkillTemplate[];
+  onSelect: (id: string) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="community-skills-popover" role="dialog" aria-label="Community skills">
+      <div className="community-skills-caret" />
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 14 }}>
+        <div style={{ minWidth: 0 }}>
+          <p
+            style={{
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 18,
+              lineHeight: '28px',
+              fontWeight: 500,
+              color: 'rgba(0,0,0,0.9)',
+              letterSpacing: 0.18,
+              margin: 0,
+            }}
+          >
+            Community skills
+          </p>
+          <p
+            style={{
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 12,
+              lineHeight: '20px',
+              color: 'rgba(0,0,0,0.5)',
+              letterSpacing: 0.12,
+              margin: '2px 0 0',
+            }}
+          >
+            More skill starters contributed by investors, analysts, and builders.
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label="Close community skills"
+          onClick={onClose}
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 7,
+            border: 'none',
+            background: 'rgba(0,0,0,0.04)',
+            color: 'rgba(0,0,0,0.55)',
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="community-skills-grid">
+        {skills.map((skill) => (
+          <button
+            key={skill.id}
+            type="button"
+            onClick={() => onSelect(skill.id)}
+            className="community-skill-card"
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                <span
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: '50%',
+                    padding: 2,
+                    background: 'linear-gradient(135deg, rgba(73,163,166,0.22), rgba(0,0,0,0.04))',
+                    border: '0.5px solid rgba(0,0,0,0.08)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Avatar name={skill.creator} size={30} />
+                </span>
+                <div style={{ minWidth: 0 }}>
+                  <p
+                    style={{
+                      fontFamily: "'Delight', sans-serif",
+                      fontSize: 14,
+                      lineHeight: '20px',
+                      fontWeight: 500,
+                      color: 'rgba(0,0,0,0.9)',
+                      letterSpacing: 0.14,
+                      margin: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {skill.label}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'Delight', sans-serif",
+                      fontSize: 12,
+                      lineHeight: '18px',
+                      color: 'rgba(0,0,0,0.48)',
+                      letterSpacing: 0.12,
+                      margin: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    by {skill.creator}
+                  </p>
+                </div>
+              </div>
+              <span
+                style={{
+                  fontFamily: "'Delight', sans-serif",
+                  fontSize: 11,
+                  lineHeight: '18px',
+                  color: 'rgba(0,0,0,0.42)',
+                  letterSpacing: 0.11,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                {skill.updatedAt}
+              </span>
+            </div>
+
+            <p
+              style={{
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 12,
+                lineHeight: '18px',
+                color: 'rgba(0,0,0,0.62)',
+                letterSpacing: 0.12,
+                margin: 0,
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                textAlign: 'left',
+              }}
+            >
+              {skill.description}
+            </p>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, overflow: 'hidden' }}>
+                {skill.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={tag}
+                    style={{
+                      height: 20,
+                      padding: '0 6px',
+                      borderRadius: 5,
+                      background: 'rgba(0,0,0,0.05)',
+                      color: 'rgba(0,0,0,0.58)',
+                      fontFamily: "'Delight', sans-serif",
+                      fontSize: 11,
+                      lineHeight: '20px',
+                      letterSpacing: 0.11,
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <span
+                style={{
+                  fontFamily: "'Delight', sans-serif",
+                  fontSize: 11,
+                  lineHeight: '18px',
+                  color: 'rgba(0,0,0,0.45)',
+                  letterSpacing: 0.11,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                {skill.uses}
+              </span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ══════ MAIN COMPONENT ══════ */
 
 const HERO_WIDTH = 960;
@@ -781,7 +977,9 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const [typedText, setTypedText] = useState('');
   const [debouncedTypedText, setDebouncedTypedText] = useState('');
   const [hover, setHover] = useState<{ id: string; rect: DOMRect; placeAbove: boolean } | null>(null);
+  const [communityOpen, setCommunityOpen] = useState(false);
   const pillsContainerRef = useRef<HTMLDivElement>(null);
+  const communityRef = useRef<HTMLDivElement>(null);
   const hoverHideTimerRef = useRef<number | null>(null);
 
   const cancelHoverHide = () => {
@@ -818,6 +1016,24 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     return () => clearTimeout(t);
   }, [typedText]);
 
+  useEffect(() => {
+    if (!communityOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!communityRef.current?.contains(event.target as Node)) setCommunityOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setCommunityOpen(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [communityOpen]);
+
   // 选中变化时重置加载阶段，并按节奏让真实内容入场
   useEffect(() => {
     if (!selectedId) {
@@ -843,6 +1059,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     return (
       PRIMARY_TEMPLATES.find((t) => t.id === selectedId) ||
       OTHERS_TEMPLATES.find((t) => t.id === selectedId) ||
+      COMMUNITY_TEMPLATES.find((t) => t.id === selectedId) ||
       null
     );
   }, [selectedId]);
@@ -853,6 +1070,12 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const handlePillClick = (id: string) => {
     setSelectedId((prev) => (prev === id ? null : id));
     setHover(null);
+    setCommunityOpen(false);
+  };
+  const handleCommunitySelect = (id: string) => {
+    setSelectedId(id);
+    setHover(null);
+    setCommunityOpen(false);
   };
   const handleRemoveChip = () => setSelectedId(null);
   const handlePromptClick = (text: string) => setInjectSignal({ text, seq: Date.now() });
@@ -861,7 +1084,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     else onNavigate(`thread/${id}` as Page);
   };
 
-  const hoveredTemplate = hover ? PRIMARY_TEMPLATES.find((t) => t.id === hover.id) || OTHERS_TEMPLATES.find((t) => t.id === hover.id) : null;
+  const hoveredTemplate = hover ? PRIMARY_TEMPLATES.find((t) => t.id === hover.id) || OTHERS_TEMPLATES.find((t) => t.id === hover.id) || COMMUNITY_TEMPLATES.find((t) => t.id === hover.id) : null;
 
   return (
     <AppShell activePage={'new-chat' as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
@@ -877,6 +1100,68 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           0%{opacity:.55}50%{opacity:.85}100%{opacity:.55}
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
+        .community-skills-popover{
+          position:absolute;
+          top:52px;
+          right:0;
+          width:min(720px, calc(100vw - 48px));
+          overflow:visible;
+          background:#fff;
+          border:0.5px solid rgba(0,0,0,0.12);
+          border-radius:12px;
+          box-shadow:0 24px 70px rgba(0,0,0,0.15),0 4px 12px rgba(0,0,0,0.08);
+          padding:18px;
+          z-index:20;
+          animation:newchat-fadeup 180ms ease-out;
+        }
+        .community-skills-caret{
+          position:absolute;
+          top:-8px;
+          right:28px;
+          width:16px;
+          height:16px;
+          background:#fff;
+          border-left:0.5px solid rgba(0,0,0,0.12);
+          border-top:0.5px solid rgba(0,0,0,0.12);
+          transform:rotate(45deg);
+        }
+        .community-skills-grid{
+          display:grid;
+          grid-template-columns:repeat(2, minmax(0, 1fr));
+          gap:10px;
+        }
+        .community-skill-card{
+          min-height:128px;
+          padding:12px;
+          border:0.5px solid rgba(0,0,0,0.12);
+          border-radius:8px;
+          background:#fff;
+          display:flex;
+          flex-direction:column;
+          gap:9px;
+          text-align:left;
+          cursor:pointer;
+          transition:border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+        }
+        .community-skill-card:hover{
+          border-color:rgba(73,163,166,0.45);
+          box-shadow:0 8px 20px rgba(73,163,166,0.1);
+          transform:translateY(-1px);
+        }
+        @media (max-width: 900px){
+          .community-skills-popover{
+            position:fixed;
+            left:12px;
+            right:12px;
+            top:auto;
+            bottom:12px;
+            width:auto;
+            max-height:calc(100vh - 24px);
+            overflow-y:auto;
+          }
+          .community-skills-caret{display:none}
+          .community-skills-grid{grid-template-columns:1fr}
+        }
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
         {/* ══════ Topbar ══════ */}
@@ -1041,19 +1326,40 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   onLeave={scheduleHoverHide}
                 />
               ))}
-              <div
-                style={{ ...chipBaseStyle, cursor: 'pointer', background: 'white' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                Explore more skills
-                <CdnIcon name="arrow-right-l2" size={14} color="rgba(0,0,0,0.5)" />
+              <div ref={communityRef} style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  aria-expanded={communityOpen}
+                  aria-label="Explore more community skills"
+                  style={{
+                    ...chipBaseStyle,
+                    cursor: 'pointer',
+                    background: communityOpen ? '#e5eeee' : 'white',
+                    border: communityOpen ? '0.5px solid rgba(73,163,166,0.45)' : chipBaseStyle.border,
+                  }}
+                  onClick={() => {
+                    setCommunityOpen((open) => !open);
+                    setHover(null);
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Explore more skills
+                  <CdnIcon name="arrow-right-l2" size={14} color="rgba(0,0,0,0.5)" />
+                </button>
+                {communityOpen && (
+                  <CommunitySkillsPopover
+                    skills={COMMUNITY_TEMPLATES}
+                    onSelect={handleCommunitySelect}
+                    onClose={() => setCommunityOpen(false)}
+                  />
+                )}
               </div>
             </div>
           )}

@@ -35,6 +35,12 @@ export interface NewChatTemplate {
   playbooks: NewChatPlaybook[];
 }
 
+export interface CommunitySkillTemplate extends NewChatTemplate {
+  tags: string[];
+  uses: string;
+  updatedAt: string;
+}
+
 /* ========== 通用 playbook 池（用来给 skill 凑齐 6 张） ========== */
 
 const EXTRA_POOL: NewChatPlaybook[] = [
@@ -302,6 +308,131 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     playbooks: padTo6([
       { id: 'mag7-relval', title: 'MAG7 Relative Valuation', creator: 'Alva Intern', desc: 'Live EV/Sales, P/E NTM, and FCF yield table for MAG7 with z-score vs 5-year median. Highlights outliers automatically.', tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA'], color: C.primary, stars: 142, remixes: 23 },
       { id: 'amzn-sotp', title: 'AMZN SOTP', creator: 'Sheer YLL YGG', desc: 'Sum-of-the-parts on Amazon — AWS, Retail, Ads, Prime, Logistics. Adjustable multiples per segment and scenario toggles.', tickers: ['AMZN'], color: C.orange, stars: 96, remixes: 11 },
+    ]),
+  },
+];
+
+/* ========== 社区用户贡献的 skills ========== */
+
+export const COMMUNITY_TEMPLATES: CommunitySkillTemplate[] = [
+  {
+    id: 'community-insider-buy-radar',
+    label: 'Insider Buy Radar',
+    kol: true,
+    creator: 'Deep Ledger',
+    description: 'Tracks clustered insider buys, 10b5-1 changes, and post-filing drift across US equities.',
+    tags: ['Filings', 'Insider Cluster', 'Event Drift'],
+    uses: '1.8k uses',
+    updatedAt: '23m ago',
+    prompts: [
+      'Build an insider-buy radar for US mid-caps, filtering for clustered purchases above $250k',
+      'Track 10b5-1 changes and open-market buys for software stocks with positive earnings revisions',
+      'Flag insider purchases that happen within 30 days of guidance updates or activist filings',
+    ],
+    playbooks: padTo6([
+      { id: 'insider-cluster-us', title: 'Clustered Insider Buy Monitor', creator: 'Deep Ledger', desc: 'Finds companies with multiple open-market insider purchases over a 14-day window and ranks them by purchase size, role seniority, and post-filing drift.', tickers: ['SPX', 'R2K'], color: C.primary, stars: 318, remixes: 46 },
+      { id: 'ceo-cfo-buys', title: 'CEO / CFO Buy Signal', creator: 'Deep Ledger', desc: 'Filters insider buys to CEO and CFO activity, removes low-signal option exercises, and scores names against valuation and estimate revisions.', tickers: ['IWM', 'QQQ'], color: C.blue, stars: 204, remixes: 28 },
+      { id: 'activist-plus-insider', title: 'Activist + Insider Overlap', creator: 'Alva Intern', desc: 'Watches activist filings and insider buying overlap, then builds a candidate list for event-driven deep dives.', tickers: ['SPY', 'IWM'], color: C.orange, stars: 147, remixes: 19 },
+    ]),
+  },
+  {
+    id: 'community-whale-wallet-watch',
+    label: 'Whale Wallet Watch',
+    kol: true,
+    creator: 'WalletWatcher',
+    description: 'Flags large wallet movements, exchange inflows, stablecoin rotations, and funding stress.',
+    tags: ['On-chain Flow', 'Exchange Flow', 'Liquidity'],
+    uses: '2.4k uses',
+    updatedAt: '1h ago',
+    prompts: [
+      'Track BTC whale movements above 1,000 BTC and alert when transfers move toward major exchanges',
+      'Build a stablecoin rotation monitor across USDT, USDC, and DAI with exchange inflow context',
+      'Watch SOL and ETH large-wallet activity alongside funding rates and spot volume',
+    ],
+    playbooks: padTo6([
+      { id: 'btc-whale-exchange-flow', title: 'BTC Whale Exchange Flow', creator: 'WalletWatcher', desc: 'Tracks dormant-wallet movements, large exchange deposits, and spot volume confirmation to flag potential sell-pressure windows.', tickers: ['BTC'], color: C.orange, stars: 402, remixes: 64 },
+      { id: 'stablecoin-rotation', title: 'Stablecoin Rotation Map', creator: 'YGGYLL', desc: 'Maps USDT / USDC flows by venue and chain, then scores whether liquidity is moving into or out of risk assets.', tickers: ['USDT', 'USDC', 'BTC'], color: C.green, stars: 288, remixes: 41 },
+      { id: 'sol-whale-pulse', title: 'SOL Whale Pulse', creator: 'Harry Zzz', desc: 'Combines SOL whale transfers, perp funding, and DEX volume to surface early risk-on and risk-off rotations.', tickers: ['SOL', 'ETH'], color: C.deepBlue, stars: 166, remixes: 24 },
+    ]),
+  },
+  {
+    id: 'community-options-flow-scanner',
+    label: 'Options Flow Scanner',
+    kol: true,
+    creator: 'Options Club',
+    description: 'Ranks unusual option flow by premium, sweep quality, open interest, and post-flow move.',
+    tags: ['Derivatives', 'Vol Surface', 'Positioning'],
+    uses: '1.1k uses',
+    updatedAt: '5h ago',
+    prompts: [
+      'Scan unusual call buying in liquid US equities, filtering for premium above $1m and OI expansion',
+      'Build a weekly options-flow dashboard for MAG7 with sweep quality and implied-vol change',
+      'Flag bearish put flow that appears before earnings or guidance revisions',
+    ],
+    playbooks: padTo6([
+      { id: 'unusual-call-flow', title: 'Unusual Call Flow Ranker', creator: 'Options Club', desc: 'Scores call sweeps by premium, liquidity, OI confirmation, and follow-through to reduce noisy single-print alerts.', tickers: ['AAPL', 'NVDA', 'TSLA'], color: C.primary, stars: 265, remixes: 39 },
+      { id: 'mag7-vol-flow', title: 'MAG7 Vol Flow Board', creator: 'Smart Jing', desc: 'Combines options premium, IV change, and post-flow price action across MAG7 for a daily directional board.', tickers: ['AAPL', 'MSFT', 'NVDA'], color: C.blue, stars: 221, remixes: 31 },
+      { id: 'earnings-put-flow', title: 'Pre-Earnings Put Flow', creator: 'Macro Scope X', desc: 'Watches put buying ahead of earnings and filters for flows that historically precede downside gaps.', tickers: ['QQQ', 'SPY'], color: C.red, stars: 119, remixes: 15 },
+    ]),
+  },
+  {
+    id: 'community-semis-supply-chain',
+    label: 'Semis Supply Chain',
+    kol: true,
+    creator: 'Silicon Cycle',
+    description: 'Connects TSM, ASML, HBM vendors, and hyperscaler capex into one signal map.',
+    tags: ['Supply Chain', 'Capacity', 'Read-through'],
+    uses: '3.2k uses',
+    updatedAt: '1d ago',
+    prompts: [
+      'Build a semis supply-chain tracker across NVDA, TSM, ASML, SK hynix, MU, and hyperscaler capex',
+      'Track HBM supply commentary and map read-through to GPU system shipments',
+      'Monitor TSM capacity, CoWoS packaging, and AI server demand signals in one weekly brief',
+    ],
+    playbooks: padTo6([
+      { id: 'hbm-bottleneck-map', title: 'HBM Bottleneck Map', creator: 'Silicon Cycle', desc: 'Tracks HBM supply, packaging capacity, and memory-vendor commentary to explain bottlenecks in AI accelerator shipments.', tickers: ['NVDA', 'MU', 'TSM'], color: C.deepBlue, stars: 534, remixes: 82 },
+      { id: 'cowos-capacity-watch', title: 'CoWoS Capacity Watch', creator: 'Macro Scope X', desc: 'Watches TSM advanced packaging updates, supplier lead times, and hyperscaler demand commentary.', tickers: ['TSM', 'ASML'], color: C.primary, stars: 346, remixes: 47 },
+      { id: 'ai-server-readthrough', title: 'AI Server Read-Through', creator: 'Alva Intern', desc: 'Maps Dell, Super Micro, ODM, and component commentary back to AI infrastructure beneficiaries.', tickers: ['DELL', 'SMCI', 'NVDA'], color: C.orange, stars: 271, remixes: 33 },
+    ]),
+  },
+  {
+    id: 'community-dividend-cut-guard',
+    label: 'Dividend Cut Guard',
+    kol: true,
+    creator: 'Cashflow Club',
+    description: 'Screens payout risk, FCF coverage, leverage, and management language before dividend cuts.',
+    tags: ['Payout Risk', 'FCF Coverage', 'Leverage'],
+    uses: '760 uses',
+    updatedAt: '2d ago',
+    prompts: [
+      'Screen dividend stocks for payout risk using FCF coverage, leverage, and negative guidance language',
+      'Build a dividend cut watchlist for REITs and utilities with debt maturity pressure',
+      'Flag companies where dividend yield is high but free cash flow coverage is deteriorating',
+    ],
+    playbooks: padTo6([
+      { id: 'dividend-cut-watchlist', title: 'Dividend Cut Watchlist', creator: 'Cashflow Club', desc: 'Ranks dividend stocks by FCF coverage, leverage trend, maturity wall, and management language risk.', tickers: ['NOBL', 'SPX'], color: C.green, stars: 186, remixes: 23 },
+      { id: 'reit-payout-risk', title: 'REIT Payout Risk Monitor', creator: 'Lily Lou', desc: 'Combines payout ratios, debt maturities, and cap-rate pressure for REIT dividend sustainability scoring.', tickers: ['VNQ', 'SPY'], color: C.blue, stars: 128, remixes: 14 },
+      { id: 'yield-trap-screen', title: 'Yield Trap Screen', creator: 'Smart Jing', desc: 'Screens high-yield names for deteriorating FCF, falling estimates, and leverage pressure.', tickers: ['HYG', 'LQD'], color: C.red, stars: 97, remixes: 11 },
+    ]),
+  },
+  {
+    id: 'community-macro-brief-builder',
+    label: 'Macro Brief Builder',
+    kol: true,
+    creator: 'Market Bento',
+    description: 'Turns rates, FX, oil, credit, and equity futures into a concise daily macro brief.',
+    tags: ['Cross-asset', 'Rates & FX', 'Risk Regime'],
+    uses: '920 uses',
+    updatedAt: '3h ago',
+    prompts: [
+      'Create a daily macro brief from rates, DXY, oil, credit spreads, and equity futures',
+      'Summarize today’s cross-asset risk regime and explain what changed since yesterday',
+      'Build a morning brief for Asia to US market handoff with rates, FX, and commodity context',
+    ],
+    playbooks: padTo6([
+      { id: 'cross-asset-morning-brief', title: 'Cross-Asset Morning Brief', creator: 'Market Bento', desc: 'Summarizes rates, FX, oil, credit, and equity futures into a concise macro regime note before the US open.', tickers: ['DXY', 'TLT', 'SPY'], color: C.deepBlue, stars: 214, remixes: 31 },
+      { id: 'risk-regime-score', title: 'Risk Regime Score', creator: 'Macro Scope X', desc: 'Combines VIX, credit spreads, DXY, and rates momentum into a daily risk-on / risk-off score.', tickers: ['VIX', 'HYG', 'DXY'], color: C.red, stars: 172, remixes: 21 },
+      { id: 'asia-us-handoff', title: 'Asia to US Handoff', creator: 'Harry Zzz', desc: 'Turns Asia and Europe market moves into a US premarket brief with ETF and futures context.', tickers: ['EFA', 'EEM', 'SPY'], color: C.orange, stars: 143, remixes: 18 },
     ]),
   },
 ];
