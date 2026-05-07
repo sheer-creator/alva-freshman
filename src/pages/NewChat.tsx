@@ -809,7 +809,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     setHover({ id, rect, placeAbove });
   };
   // 加载阶段：选中后由 0 → 1 → 2，分别表示骨架展示 / 真实数据已就绪
-  // promptsReady ~ 360ms, cardsReady ~ 580ms 后置位
+  // promptsReady ~ 900ms, cardsReady ~ 1500ms 后置位（骨架展示更久，给真实内容入场更明显的对比）
   const [promptsReady, setPromptsReady] = useState(false);
   const [cardsReady, setCardsReady] = useState(false);
 
@@ -827,8 +827,8 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     }
     setPromptsReady(false);
     setCardsReady(false);
-    const t1 = setTimeout(() => setPromptsReady(true), 360);
-    const t2 = setTimeout(() => setCardsReady(true), 620);
+    const t1 = setTimeout(() => setPromptsReady(true), 900);
+    const t2 = setTimeout(() => setCardsReady(true), 1500);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
