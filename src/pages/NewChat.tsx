@@ -1509,8 +1509,8 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   };
   const handleCommunitySelect = (id: string) => {
     if (isMobile) {
+      // 移动端：从抽屉里点击 → 仅展开详情弹窗，保持抽屉打开方便用户再选
       setMobileDetailId(id);
-      setCommunityOpen(false);
       setHover(null);
       return;
     }
@@ -1522,6 +1522,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     if (mobileDetailId) {
       setSelectedId(mobileDetailId);
       setMobileDetailId(null);
+      setCommunityOpen(false);
     }
   };
   const handleRemoveChip = () => setSelectedId(null);
