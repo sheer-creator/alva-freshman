@@ -13,6 +13,7 @@ import UserInfo from '../UserInfo';
 import { ChatProvider, useChatContext } from '../chat/ChatContext';
 import { ChatPanel } from '../chat/ChatPanel';
 import { FloatingChatFAB } from '../chat/FloatingChatFAB';
+import { CdnIcon } from '../shared/CdnIcon';
 
 interface AppShellProps {
   activePage?: Page;
@@ -78,6 +79,8 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
     };
   }, [isUserInfoOpen, onUserMouseLeave]);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const onDragStart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -103,39 +106,90 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
 
   return (
     <div className="bg-[#2a2a38] flex h-screen overflow-hidden relative w-full">
-      <Sidebar
-        activePage={activePage}
-        onNavigate={onNavigate}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onUserMouseEnter={handleUserEnter}
-        onOpenReferral={() => setIsReferralOpen(true)}
-      />
+      {/* Desktop sidebar — hidden below lg */}
+      <div className="hidden lg:block">
+        <Sidebar
+          activePage={activePage}
+          onNavigate={onNavigate}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onUserMouseEnter={handleUserEnter}
+          onOpenReferral={() => setIsReferralOpen(true)}
+        />
+      </div>
+
+      {/* Mobile sidebar overlay — shown below lg when open */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] lg:hidden">
+          <div
+            className="absolute inset-0"
+            style={{ background: 'rgba(0,0,0,0.4)' }}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="relative z-10 h-full" style={{ width: 264 }}>
+            <Sidebar
+              activePage={activePage}
+              onNavigate={(page) => { setMobileMenuOpen(false); onNavigate(page); }}
+              onOpenSearch={() => { setMobileMenuOpen(false); setIsSearchOpen(true); }}
+              onUserMouseEnter={handleUserEnter}
+              onOpenReferral={() => { setMobileMenuOpen(false); setIsReferralOpen(true); }}
+            />
+          </div>
+        </div>
+      )}
+
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <ReferralModal isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} onNavigate={onNavigate} />
-      <main className="relative flex min-w-0 flex-1 overflow-hidden rounded-bl-[8px] rounded-tl-[8px] bg-white ml-[228px]">
-        <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-          {children}
-        </div>
-        {contextTag !== null && (
-          <div
-            className="relative shrink-0"
-            style={{
-              width: showChat ? panelWidth : 0,
-              minWidth: showChat ? panelWidth : 0,
-              transition: dragging.current
-                ? 'none'
-                : 'width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)',
-              overflow: 'hidden',
-            }}
+      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-bl-[8px] rounded-tl-[8px] bg-white lg:ml-[228px]">
+        {/* Mobile topbar — shown below lg */}
+        <div
+          className="flex lg:hidden items-center shrink-0"
+          style={{
+            height: 56,
+            padding: '18px 16px',
+            gap: 12,
+            background: '#fff',
+          }}
+        >
+          <button
+            type="button"
+            className="cursor-pointer bg-transparent border-none p-0 flex items-center justify-center"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
           >
-            <div
-              className="absolute bottom-0 left-0 top-0 z-10"
-              style={{ width: 6, cursor: 'col-resize' }}
-              onMouseDown={onDragStart}
-            />
-            <ChatPanel onClose={closeChat} contextTag={contextTag} />
+            <CdnIcon name="menu-l" size={20} color="var(--text-n7, rgba(0,0,0,0.7))" />
+          </button>
+          <img
+            src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`}
+            alt="Alva"
+            style={{ height: 14 }}
+          />
+        </div>
+
+        <div className="min-w-0 flex-1 overflow-hidden lg:flex lg:flex-row">
+          <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+            {children}
           </div>
-        )}
+          {contextTag !== null && (
+            <div
+              className="relative shrink-0"
+              style={{
+                width: showChat ? panelWidth : 0,
+                minWidth: showChat ? panelWidth : 0,
+                transition: dragging.current
+                  ? 'none'
+                  : 'width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                className="absolute bottom-0 left-0 top-0 z-10"
+                style={{ width: 6, cursor: 'col-resize' }}
+                onMouseDown={onDragStart}
+              />
+              <ChatPanel onClose={closeChat} contextTag={contextTag} />
+            </div>
+          )}
+        </div>
       </main>
 
       {/* 方案C: FAB trigger */}

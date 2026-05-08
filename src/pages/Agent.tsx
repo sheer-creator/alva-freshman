@@ -186,7 +186,7 @@ export function AgentEmptyState({
 
       <div className="relative z-10 flex-1 min-h-0 overflow-y-auto">
        <div className="min-h-full flex items-center justify-center">
-        <div className="flex flex-col items-center gap-[24px] w-full max-w-[1280px] px-[24px] py-[48px]">
+        <div className="flex flex-col items-center gap-[24px] w-full max-w-[1336px] px-[28px] py-[48px]">
         {/* Hero illustration */}
         <div className="flex flex-col items-center">
           <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva Agent" className="rounded-full" style={{ width: 48, height: 48, marginBottom: 20 }} />
@@ -199,7 +199,7 @@ export function AgentEmptyState({
         </div>
 
         {/* Feature cards */}
-        <div className="grid grid-cols-4 gap-[var(--spacing-m,16px)] w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--spacing-m,16px)] w-full">
           {FEATURES.map(f => (
             <div
               key={f.title}
@@ -220,10 +220,10 @@ export function AgentEmptyState({
         </div>
 
         {/* Connect buttons — Telegram primary, Discord secondary */}
-        <div className="flex flex-row items-center justify-center gap-[var(--spacing-m,16px)] w-full">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-[var(--spacing-m,16px)] w-full">
           <button
-            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90`}
-            style={{ height: 48, width: 280, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
+            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90 w-full lg:w-[280px]`}
+            style={{ height: 48, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
             onClick={onTelegramConnect}
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -233,10 +233,9 @@ export function AgentEmptyState({
           </button>
 
           <button
-            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium cursor-pointer transition-colors`}
+            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium cursor-pointer transition-colors w-full lg:w-[280px]`}
             style={{
               height: 48,
-              width: 280,
               padding: '11px 20px',
               borderRadius: 6,
               background: 'transparent',
@@ -298,12 +297,13 @@ export function AgentEmptyState({
             </div>
           </div>
 
-          <div className="flex gap-[var(--spacing-m,16px)] w-full">
-            {/* Left: Playbook cards — 1/4 */}
-            <div className="flex flex-col gap-[var(--spacing-m,16px)] w-1/4 shrink-0">
+          <div className="flex flex-col lg:flex-row gap-[var(--spacing-m,16px)] w-full">
+            {/* Left: Playbook cards — horizontal scroll on mobile, 1/4 col on desktop */}
+            <div className="flex lg:flex-col gap-[var(--spacing-m,16px)] overflow-x-auto lg:overflow-x-visible lg:w-1/4 shrink-0">
               {PUSH_PLAYBOOKS.map(p => (
                 <div
                   key={p.id}
+                  className="min-w-[220px] lg:min-w-0"
                   onClick={() => setActivePlaybook(p.id)}
                 >
                   <PlaybookCard p={p} noCover selected={p.id === activePlaybook} />
