@@ -923,8 +923,8 @@ function MoreSkillsDropdown({
       <div
         className="more-skills-dropdown"
         role="menu"
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
+        onMouseEnter={isMobileViewport ? undefined : onMouseEnter}
+        onMouseLeave={isMobileViewport ? undefined : onMouseLeave}
       >
         {/* 移动端标题行：More skills + 关闭按钮，桌面下 CSS 隐藏 */}
         <div className="more-skills-header">
@@ -946,8 +946,8 @@ function MoreSkillsDropdown({
               role="menuitem"
               className="more-skill-row"
               onClick={() => onSelect(skill.id)}
-              onMouseEnter={(e) => onRowHover?.(skill.id, e.currentTarget.getBoundingClientRect())}
-              onMouseLeave={() => onRowLeave?.()}
+              onMouseEnter={isMobileViewport ? undefined : (e) => onRowHover?.(skill.id, e.currentTarget.getBoundingClientRect())}
+              onMouseLeave={isMobileViewport ? undefined : () => onRowLeave?.()}
             >
               {skill.kol ? (
                 <Avatar name={skill.creator} size={20} />
@@ -1478,7 +1478,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
       moreWrap.style.display = '';
       const hidden: string[] = [];
       // 移动端允许 3 行，桌面 2 行
-      const maxRows = window.innerWidth < 640 ? 3 : 2;
+      const maxRows = window.innerWidth < 640 ? 4 : 2;
       const fitsRows = () => {
         const tops = [
           ...new Set([
@@ -1605,19 +1605,19 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           .newchat-page-topbar{display:none}
           /* mobile pill：尺寸更小，单行能放更多 */
           .nc-pill{
-            height:32px !important;
-            padding:0 10px !important;
-            font-size:12px !important;
-            line-height:18px !important;
+            height:34px !important;
+            padding:0 12px !important;
+            font-size:13px !important;
+            line-height:20px !important;
             gap:6px !important;
-            letter-spacing:0.12px !important;
+            letter-spacing:0.13px !important;
           }
           .nc-pill > img,
           .nc-pill > div[class*="rounded-full"]{
-            width:16px !important;
-            height:16px !important;
-            min-width:16px !important;
-            min-height:16px !important;
+            width:18px !important;
+            height:18px !important;
+            min-width:18px !important;
+            min-height:18px !important;
           }
           .nc-pill > div[role="img"],
           .nc-pill .block{
@@ -1736,17 +1736,16 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             letter-spacing:0.16px;
           }
           .more-skills-close{
-            width:32px;
-            height:32px;
+            width:24px;
+            height:24px;
             border:none;
-            background:rgba(0,0,0,0.04);
-            border-radius:8px;
+            background:transparent;
+            padding:0;
             display:inline-flex;
             align-items:center;
             justify-content:center;
             cursor:pointer;
           }
-          .more-skills-close:active{background:rgba(0,0,0,0.08)}
           .more-skills-dropdown-scroll{
             max-height:60vh !important;
             padding:4px 12px 32px !important;
