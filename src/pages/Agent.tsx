@@ -11,6 +11,7 @@ import { CONVERSATIONS } from '@/lib/chat-config';
 import DotMatrixWave from '@/app/components/shared/DotMatrixWave';
 import { Tooltip } from '@/app/components/shared/Tooltip';
 import { DiscordConnectModal } from '@/app/components/shared/DiscordConnectModal';
+import { AlertsPopover } from '@/app/components/shared/AlertsPopover';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
 import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
 
@@ -20,9 +21,9 @@ const FONT = "font-['Delight',sans-serif]";
 
 /* ── Feature cards for empty state ── */
 const FEATURES = [
+  { icon: 'clock-l', title: 'Proactive push', desc: 'Playbooks reach you when signals move, not when you check.' },
   { icon: 'bot-l', title: 'Messenger-native', desc: 'Telegram and Discord become your market feed inbox.' },
   { icon: 'memory-l', title: 'Context memory', desc: 'Your agent remembers portfolios, themes, and preferences.' },
-  { icon: 'clock-l', title: 'Proactive push', desc: 'Playbooks reach you when signals move, not when you check.' },
   { icon: 'update-l', title: 'Always-on runtime', desc: 'Feeds keep running in Alva while you are away.' },
 ];
 
@@ -171,6 +172,7 @@ export function AgentEmptyState({
   const [discordFlowOpen, setDiscordFlowOpen] = useState(false);
   const [activePlaybook, setActivePlaybook] = useState(PUSH_PLAYBOOKS[0].id);
   const [feedHovered, setFeedHovered] = useState(false);
+  const [alertsPopoverOpen, setAlertsPopoverOpen] = useState(false);
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative" style={{ background: '#F6F6F6' }}>
@@ -316,8 +318,8 @@ export function AgentEmptyState({
               onMouseEnter={() => setFeedHovered(true)}
               onMouseLeave={() => setFeedHovered(false)}
             >
-              {feedHovered && (
-                <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 1, display: 'flex', gap: 8 }}>
+              {(feedHovered || alertsPopoverOpen) && (
+                <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 2, display: 'flex', gap: 8 }}>
                   <button
                     className="btn btn-primary-reverse btn-small"
                     style={{ boxShadow: 'var(--shadow-s)' }}
@@ -325,12 +327,27 @@ export function AgentEmptyState({
                   >
                     View Playbook
                   </button>
-                  <button
-                    className="btn btn-primary btn-small"
-                    style={{ boxShadow: 'var(--shadow-s)' }}
-                  >
-                    Get Alerts
-                  </button>
+                  <div style={{ position: 'relative' }}>
+                    <button
+                      className="btn btn-primary btn-small"
+                      style={{ boxShadow: 'var(--shadow-s)' }}
+                      onClick={() => setAlertsPopoverOpen(o => !o)}
+                    >
+                      Get Alerts
+                    </button>
+                    <AlertsPopover
+                      open={alertsPopoverOpen}
+                      onClose={() => setAlertsPopoverOpen(false)}
+                      onTelegram={() => {
+                        setAlertsPopoverOpen(false);
+                        onTelegramConnect();
+                      }}
+                      onDiscord={() => {
+                        setAlertsPopoverOpen(false);
+                        setDiscordFlowOpen(true);
+                      }}
+                    />
+                  </div>
                 </div>
               )}
               {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.feeds.map((feed, i, arr) => (
