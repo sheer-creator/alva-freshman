@@ -867,194 +867,44 @@ function PlaybookCardSkeleton() {
   );
 }
 
-function CommunitySkillsPopover({
+/* ========== More skills dropdown（替代旧 CommunitySkillsPopover） ========== */
+
+function MoreSkillsDropdown({
   skills,
   onSelect,
-  onClose,
+  onMouseEnter,
+  onMouseLeave,
 }: {
-  skills: CommunitySkillTemplate[];
+  skills: NewChatTemplate[];
   onSelect: (id: string) => void;
-  onClose: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }) {
   return (
-    <div className="community-skills-popover" role="dialog" aria-label="Community skills">
-      <div className="community-skills-caret" />
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 14 }}>
-        <div style={{ minWidth: 0 }}>
-          <p
-            style={{
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 18,
-              lineHeight: '28px',
-              fontWeight: 500,
-              color: 'rgba(0,0,0,0.9)',
-              letterSpacing: 0.18,
-              margin: 0,
-            }}
-          >
-            Community skills
-          </p>
-          <p
-            style={{
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 12,
-              lineHeight: '20px',
-              color: 'rgba(0,0,0,0.5)',
-              letterSpacing: 0.12,
-              margin: '2px 0 0',
-            }}
-          >
-            More skill starters contributed by investors, analysts, and builders.
-          </p>
-        </div>
-        <button
-          type="button"
-          aria-label="Close community skills"
-          onClick={onClose}
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 7,
-            border: 'none',
-            background: 'rgba(0,0,0,0.04)',
-            color: 'rgba(0,0,0,0.55)',
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-        >
-          ×
-        </button>
-      </div>
-
-      <div className="community-skills-grid">
+    <div
+      className="more-skills-dropdown"
+      role="menu"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div className="more-skills-dropdown-scroll">
         {skills.map((skill) => (
           <button
             key={skill.id}
             type="button"
+            role="menuitem"
+            className="more-skill-row"
             onClick={() => onSelect(skill.id)}
-            className="community-skill-card"
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                <span
-                  style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: '50%',
-                    padding: 2,
-                    background: 'linear-gradient(135deg, rgba(73,163,166,0.22), rgba(0,0,0,0.04))',
-                    border: '0.5px solid rgba(0,0,0,0.08)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  <Avatar name={skill.creator} size={30} />
-                </span>
-                <div style={{ minWidth: 0 }}>
-                  <p
-                    style={{
-                      fontFamily: "'Delight', sans-serif",
-                      fontSize: 14,
-                      lineHeight: '20px',
-                      fontWeight: 500,
-                      color: 'rgba(0,0,0,0.9)',
-                      letterSpacing: 0.14,
-                      margin: 0,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {skill.label}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: "'Delight', sans-serif",
-                      fontSize: 12,
-                      lineHeight: '18px',
-                      color: 'rgba(0,0,0,0.48)',
-                      letterSpacing: 0.12,
-                      margin: 0,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    by {skill.creator}
-                  </p>
-                </div>
-              </div>
-              <span
-                style={{
-                  fontFamily: "'Delight', sans-serif",
-                  fontSize: 11,
-                  lineHeight: '18px',
-                  color: 'rgba(0,0,0,0.42)',
-                  letterSpacing: 0.11,
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                }}
-              >
-                {skill.updatedAt}
-              </span>
+            <div className="more-skill-row-head">
+              <Avatar name={skill.creator} size={20} />
+              <span className="more-skill-name">{skill.label}</span>
             </div>
-
-            <p
-              style={{
-                fontFamily: "'Delight', sans-serif",
-                fontSize: 12,
-                lineHeight: '18px',
-                color: 'rgba(0,0,0,0.62)',
-                letterSpacing: 0.12,
-                margin: 0,
-                overflow: 'hidden',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                textAlign: 'left',
-              }}
-            >
-              {skill.description}
-            </p>
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 'auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, overflow: 'hidden' }}>
-                {skill.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    style={{
-                      height: 20,
-                      padding: '0 6px',
-                      borderRadius: 5,
-                      background: 'rgba(0,0,0,0.05)',
-                      color: 'rgba(0,0,0,0.58)',
-                      fontFamily: "'Delight', sans-serif",
-                      fontSize: 11,
-                      lineHeight: '20px',
-                      letterSpacing: 0.11,
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <span
-                style={{
-                  fontFamily: "'Delight', sans-serif",
-                  fontSize: 11,
-                  lineHeight: '18px',
-                  color: 'rgba(0,0,0,0.45)',
-                  letterSpacing: 0.11,
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                }}
-              >
-                {skill.uses}
-              </span>
+            <p className="more-skill-desc">{skill.description}</p>
+            <div className="more-skill-meta">
+              <span>by {skill.creator}</span>
+              <span className="more-skill-meta-dot">·</span>
+              <span>{relativeTimeForSkill(skill.id)}</span>
             </div>
           </button>
         ))}
@@ -1074,6 +924,17 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const [debouncedTypedText, setDebouncedTypedText] = useState('');
   const [hover, setHover] = useState<{ id: string; rect: DOMRect; placeAbove: boolean } | null>(null);
   const [communityOpen, setCommunityOpen] = useState(false);
+  const moreHideTimerRef = useRef<number | null>(null);
+  const cancelMoreHide = () => {
+    if (moreHideTimerRef.current !== null) {
+      window.clearTimeout(moreHideTimerRef.current);
+      moreHideTimerRef.current = null;
+    }
+  };
+  const scheduleMoreHide = () => {
+    cancelMoreHide();
+    moreHideTimerRef.current = window.setTimeout(() => setCommunityOpen(false), 180);
+  };
   const pillsContainerRef = useRef<HTMLDivElement>(null);
   const communityRef = useRef<HTMLDivElement>(null);
   const hoverHideTimerRef = useRef<number | null>(null);
@@ -1160,8 +1021,66 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     );
   }, [selectedId]);
 
-  const inlineExtra = OTHERS_TEMPLATES.slice(0, 4);
-  const inlinePills = [...PRIMARY_TEMPLATES, ...inlineExtra];
+  // 所有 skills 合并到一个池子；2 行内能放下的进 inline，其他塞进 More 下拉
+  const allSkills: NewChatTemplate[] = useMemo(
+    () => [...PRIMARY_TEMPLATES, ...OTHERS_TEMPLATES, ...COMMUNITY_TEMPLATES],
+    [],
+  );
+  const pillItemRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
+  const morePillRef = useRef<HTMLButtonElement>(null);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [moreCount, setMoreCount] = useState<number>(0);
+
+  // 每次窗口尺寸或 skills 集合变化时，重新计算第 3 行及之后要塞进 More 下拉的 pill
+  useLayoutEffect(() => {
+    const recompute = () => {
+      const container = pillsContainerRef.current;
+      if (!container) return;
+      // 先把所有 pill 设回可见（同步 DOM 操作，避免循环 setState）
+      const buttons = allSkills
+        .map((s) => pillItemRefs.current.get(s.id))
+        .filter((el): el is HTMLButtonElement => !!el);
+      const morePill = morePillRef.current;
+      buttons.forEach((b) => (b.style.display = ''));
+      if (morePill) morePill.style.display = '';
+      // 测 offsetTop，确定前两行
+      const tops = [...new Set([...buttons.map((b) => b.offsetTop), morePill?.offsetTop ?? -1].filter((n) => n >= 0))].sort(
+        (a, b) => a - b,
+      );
+      if (tops.length <= 2) {
+        if (hiddenIds.size > 0) setHiddenIds(new Set());
+        if (moreCount !== 0) setMoreCount(0);
+        if (morePill) morePill.style.display = 'none';
+        return;
+      }
+      const row2Top = tops[1];
+      const next = new Set<string>();
+      buttons.forEach((b, i) => {
+        if (b.offsetTop > row2Top) next.add(allSkills[i].id);
+      });
+      // 隐藏被分到第 3 行及之后的 pill
+      buttons.forEach((b, i) => {
+        if (next.has(allSkills[i].id)) b.style.display = 'none';
+      });
+      // 同步 state（仅在变化时）
+      const same = next.size === hiddenIds.size && [...next].every((id) => hiddenIds.has(id));
+      if (!same) setHiddenIds(next);
+      if (moreCount !== next.size) setMoreCount(next.size);
+    };
+    recompute();
+    const ro = new ResizeObserver(recompute);
+    if (pillsContainerRef.current) ro.observe(pillsContainerRef.current);
+    window.addEventListener('resize', recompute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', recompute);
+    };
+  }, [allSkills, hiddenIds, moreCount]);
+
+  const moreSkills: NewChatTemplate[] = useMemo(
+    () => allSkills.filter((s) => hiddenIds.has(s.id)),
+    [allSkills, hiddenIds],
+  );
 
   const handlePillClick = (id: string) => {
     setSelectedId((prev) => (prev === id ? null : id));
@@ -1196,68 +1115,87 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           0%{opacity:.55}50%{opacity:.85}100%{opacity:.55}
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
-        .community-skills-popover{
+        .more-skills-dropdown{
           position:absolute;
-          top:52px;
+          top:calc(100% + 8px);
           right:0;
-          width:min(720px, calc(100vw - 48px));
-          overflow:visible;
+          width:320px;
           background:#fff;
-          border:0.5px solid rgba(0,0,0,0.12);
+          border:0.5px solid rgba(0,0,0,0.1);
           border-radius:12px;
-          box-shadow:0 24px 70px rgba(0,0,0,0.15),0 4px 12px rgba(0,0,0,0.08);
-          padding:18px;
+          box-shadow:0 12px 32px rgba(0,0,0,0.10),0 2px 6px rgba(0,0,0,0.04);
           z-index:20;
-          animation:newchat-fadeup 180ms ease-out;
+          animation:newchat-fadeup 160ms ease-out;
+          overflow:hidden;
         }
-        .community-skills-caret{
-          position:absolute;
-          top:-8px;
-          right:28px;
-          width:16px;
-          height:16px;
-          background:#fff;
-          border-left:0.5px solid rgba(0,0,0,0.12);
-          border-top:0.5px solid rgba(0,0,0,0.12);
-          transform:rotate(45deg);
+        .more-skills-dropdown-scroll{
+          max-height:360px;
+          overflow-y:auto;
+          padding:6px;
         }
-        .community-skills-grid{
-          display:grid;
-          grid-template-columns:repeat(2, minmax(0, 1fr));
-          gap:10px;
-        }
-        .community-skill-card{
-          min-height:128px;
-          padding:12px;
-          border:0.5px solid rgba(0,0,0,0.12);
-          border-radius:8px;
-          background:#fff;
+        .more-skill-row{
           display:flex;
           flex-direction:column;
-          gap:9px;
+          gap:4px;
+          width:100%;
+          padding:10px 12px;
+          border:none;
+          background:transparent;
           text-align:left;
           cursor:pointer;
-          transition:border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+          border-radius:8px;
+          transition:background 140ms ease;
         }
-        .community-skill-card:hover{
-          border-color:rgba(73,163,166,0.45);
-          box-shadow:0 8px 20px rgba(73,163,166,0.1);
-          transform:translateY(-1px);
+        .more-skill-row:hover{
+          background:rgba(0,0,0,0.04);
         }
-        @media (max-width: 900px){
-          .community-skills-popover{
-            position:fixed;
-            left:12px;
-            right:12px;
-            top:auto;
-            bottom:12px;
-            width:auto;
-            max-height:calc(100vh - 24px);
-            overflow-y:auto;
-          }
-          .community-skills-caret{display:none}
-          .community-skills-grid{grid-template-columns:1fr}
+        .more-skill-row-head{
+          display:flex;
+          align-items:center;
+          gap:8px;
         }
+        .more-skill-name{
+          font-family:'Delight',sans-serif;
+          font-size:13px;
+          line-height:18px;
+          font-weight:500;
+          color:rgba(0,0,0,0.9);
+          letter-spacing:0.13px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .more-skill-desc{
+          font-family:'Delight',sans-serif;
+          font-size:12px;
+          line-height:18px;
+          color:rgba(0,0,0,0.55);
+          letter-spacing:0.12px;
+          margin:0;
+          overflow:hidden;
+          display:-webkit-box;
+          -webkit-line-clamp:1;
+          -webkit-box-orient:vertical;
+          word-break:break-word;
+        }
+        .more-skill-row:hover .more-skill-desc{
+          -webkit-line-clamp:unset;
+          display:block;
+          white-space:normal;
+        }
+        .more-skill-meta{
+          display:none;
+          align-items:center;
+          gap:4px;
+          font-family:'Delight',sans-serif;
+          font-size:11px;
+          line-height:16px;
+          color:rgba(0,0,0,0.4);
+          letter-spacing:0.11px;
+          margin-top:2px;
+        }
+        .more-skill-meta-dot{opacity:0.6}
+        .more-skill-row:hover .more-skill-meta{display:flex}
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
         {/* ══════ Topbar ══════ */}
@@ -1412,48 +1350,68 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                 maxWidth: 900,
               }}
             >
-              {inlinePills.map((t) => (
-                <SkillPill
+              {allSkills.map((t) => (
+                <button
                   key={t.id}
-                  template={t}
-                  active={selectedId === t.id}
+                  ref={(el) => {
+                    pillItemRefs.current.set(t.id, el);
+                  }}
+                  data-skill-id={t.id}
                   onClick={() => handlePillClick(t.id)}
-                  onHover={(rect) => computeHover(t.id, rect)}
-                  onLeave={scheduleHoverHide}
-                />
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    computeHover(t.id, e.currentTarget.getBoundingClientRect());
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    scheduleHoverHide();
+                  }}
+                  style={{ ...chipBaseStyle, background: selectedId === t.id ? '#e5eeee' : 'white' }}
+                >
+                  {t.kol ? (
+                    <Avatar name={t.creator} size={22} />
+                  ) : (
+                    t.icon && <CdnIcon name={t.icon} size={16} color="rgba(0,0,0,0.7)" />
+                  )}
+                  {t.label}
+                </button>
               ))}
               <div ref={communityRef} style={{ position: 'relative' }}>
                 <button
+                  ref={morePillRef}
                   type="button"
                   aria-expanded={communityOpen}
-                  aria-label="Explore more community skills"
+                  aria-label="More skills"
                   style={{
                     ...chipBaseStyle,
                     cursor: 'pointer',
                     background: communityOpen ? '#e5eeee' : 'white',
                     border: communityOpen ? '0.5px solid rgba(73,163,166,0.45)' : chipBaseStyle.border,
                   }}
-                  onClick={() => {
-                    setCommunityOpen((open) => !open);
-                    setHover(null);
-                  }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
+                    cancelMoreHide();
+                    setCommunityOpen(true);
+                    setHover(null);
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.transform = 'translateY(0)';
+                    scheduleMoreHide();
                   }}
                 >
-                  Explore more skills
-                  <CdnIcon name="arrow-right-l2" size={14} color="rgba(0,0,0,0.5)" />
+                  More
+                  <CdnIcon name="arrow-down-l2" size={14} color="rgba(0,0,0,0.5)" />
                 </button>
-                {communityOpen && (
-                  <CommunitySkillsPopover
-                    skills={COMMUNITY_TEMPLATES}
+                {communityOpen && moreSkills.length > 0 && (
+                  <MoreSkillsDropdown
+                    skills={moreSkills}
                     onSelect={handleCommunitySelect}
-                    onClose={() => setCommunityOpen(false)}
+                    onMouseEnter={cancelMoreHide}
+                    onMouseLeave={scheduleMoreHide}
                   />
                 )}
               </div>
