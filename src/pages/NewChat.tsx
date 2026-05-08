@@ -1638,6 +1638,11 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             padding:56px 16px 12px !important;
             gap:24px !important;
           }
+          /* 移动端输入框内边距收紧 */
+          .chat-input-wrapper{
+            padding:12px !important;
+            gap:8px !important;
+          }
           .nc-prompts-container{
             margin-top:0 !important;
             max-width:none !important;
