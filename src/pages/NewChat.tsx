@@ -4,7 +4,7 @@
  * [POS]: 与 Home 并列的入口页面（Sidebar 最顶）
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { ChatInput } from '@/app/components/shared/ChatInput';
@@ -243,12 +243,32 @@ function SkillInfoCard({
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }) {
-  const cardWidth = 300;
+  const cardMinWidth = 300;
+  const cardMaxWidth = typeof window !== 'undefined' ? Math.min(480, window.innerWidth - 24) : 480;
   const cardHeight = 175;
   const gap = 10;
-  let left = anchor.left + anchor.width / 2 - cardWidth / 2;
+
+  const tagsListRef = useRef<HTMLDivElement>(null);
+  const usesRef = useRef<HTMLSpanElement>(null);
+  const [computedWidth, setComputedWidth] = useState<number>(cardMinWidth);
+
+  // 测量 tags + uses 的自然宽度，需要时撑开卡片
+  useLayoutEffect(() => {
+    const list = tagsListRef.current;
+    const uses = usesRef.current;
+    if (!list || !uses) return;
+    const tagsW = list.scrollWidth;
+    const usesW = uses.scrollWidth;
+    const padding = 28; // 14 * 2
+    const innerGap = 12;
+    const needed = tagsW + innerGap + usesW + padding;
+    setComputedWidth(Math.max(cardMinWidth, Math.min(cardMaxWidth, needed)));
+  }, [template.id, cardMaxWidth]);
+
+  // 以实际宽度居中估算 left；clamp 到视口右边
+  let left = anchor.left + anchor.width / 2 - computedWidth / 2;
   if (typeof window !== 'undefined') {
-    left = Math.max(12, Math.min(left, window.innerWidth - cardWidth - 12));
+    left = Math.max(12, Math.min(left, window.innerWidth - computedWidth - 12));
   }
   const top = placeAbove ? anchor.top - cardHeight - gap : anchor.bottom + gap;
 
@@ -269,7 +289,7 @@ function SkillInfoCard({
         position: 'fixed',
         top,
         left,
-        width: cardWidth,
+        width: computedWidth,
         zIndex: 50,
         background: '#ffffff',
         borderRadius: 12,
@@ -358,9 +378,9 @@ function SkillInfoCard({
       >
         {template.description}
       </p>
-      {/* 底部 tags + uses */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, overflow: 'hidden' }}>
+      {/* 底部 tags + uses — 标签不允许被裁，撑开卡片宽度 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 12 }}>
+        <div ref={tagsListRef} style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
           {((template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id)).slice(0, 3).map((tag) => (
             <span
               key={tag}
@@ -383,6 +403,7 @@ function SkillInfoCard({
           ))}
         </div>
         <span
+          ref={usesRef}
           style={{
             fontFamily: "'Delight', sans-serif",
             fontSize: 11,
