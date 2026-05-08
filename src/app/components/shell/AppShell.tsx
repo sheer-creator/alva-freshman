@@ -6,7 +6,9 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Page } from '@/app/App';
-import { Sidebar } from './Sidebar';
+import { Sidebar, SIDEBAR_W_COLLAPSED, SIDEBAR_W_EXPANDED } from './Sidebar';
+
+const NARROW_THRESHOLD = 1024;
 import SearchModal from '../SearchModal';
 import ReferralModal from '../ReferralModal';
 import UserInfo from '../UserInfo';
@@ -36,6 +38,25 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
 
   const { chatOpen, closeChat, contextTag } = useChatContext();
   const showChat = chatOpen && contextTag !== null;
+
+  // 侧边栏折叠：窗口窄时自动折叠，按钮可手动切换
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < NARROW_THRESHOLD : false,
+  );
+  useEffect(() => {
+    let lastWasNarrow = window.innerWidth < NARROW_THRESHOLD;
+    const handler = () => {
+      const isNarrow = window.innerWidth < NARROW_THRESHOLD;
+      if (isNarrow !== lastWasNarrow) {
+        // 跨过阈值时强制刷新折叠态（窄→折叠，宽→展开）
+        setSidebarCollapsed(isNarrow);
+        lastWasNarrow = isNarrow;
+      }
+    };
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  const sidebarWidth = sidebarCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
   const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_W);
   const dragging = useRef(false);
   const startX = useRef(0);
@@ -109,10 +130,15 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
         onOpenSearch={() => setIsSearchOpen(true)}
         onUserMouseEnter={handleUserEnter}
         onOpenReferral={() => setIsReferralOpen(true)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => setSidebarCollapsed((c) => !c)}
       />
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <ReferralModal isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} onNavigate={onNavigate} />
-      <main className="relative flex min-w-0 flex-1 overflow-hidden rounded-bl-[8px] rounded-tl-[8px] bg-white ml-[228px]">
+      <main
+        className="relative flex min-w-0 flex-1 overflow-hidden rounded-bl-[8px] rounded-tl-[8px] bg-white"
+        style={{ marginLeft: sidebarWidth, transition: 'margin-left 200ms ease' }}
+      >
         <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
           {children}
         </div>
