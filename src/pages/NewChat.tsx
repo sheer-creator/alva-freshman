@@ -984,13 +984,10 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
       const containerW = container.clientWidth;
       const bubble = bubbleRef.current;
       const bubbleW = showBubble && bubble ? bubble.scrollWidth : 0;
-      // 允许气泡与标题略微重叠（最多 OVERLAP_TOLERANCE px），换取更大字号 / 更少折行
-      const OVERLAP_TOLERANCE = 28;
-      // 标题居中布局时 H1.right = (containerW + H1.width)/2
-      // 允许 overlap：H1.right ≤ containerW - bubbleW + OVERLAP_TOLERANCE
-      // 推得 H1.width ≤ containerW - 2*(bubbleW - OVERLAP_TOLERANCE)
+      // 标题最大宽度 = 容器宽度 - 气泡宽度（不对称预留），让标题尽可能宽。
+      // 居中后真实文字会居中在 H1 内，气泡按规则贴在第一行右上角；只在第一行很宽时才会触发右对齐。
       const titleMaxW = showBubble && bubble
-        ? Math.max(200, containerW - 2 * (bubbleW - OVERLAP_TOLERANCE))
+        ? Math.max(220, containerW - bubbleW)
         : containerW;
       title.style.maxWidth = `${titleMaxW}px`;
 
@@ -1014,7 +1011,10 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
         const desiredLeft = firstLineRight + gap;
         const wouldOverflow = desiredLeft + bubbleW > containerW;
         const finalLeft = wouldOverflow ? Math.max(0, containerW - bubbleW) : desiredLeft;
-        setBubblePos({ top: Math.max(0, firstLineTop - 14), left: finalLeft });
+        // 气泡垂直定位：bottom 比 firstLineTop 略低 6px（"错位一点"），整体显得在第一行的上方
+        const bubbleH = bubble.offsetHeight || 32;
+        const top = Math.max(0, firstLineTop + 6 - bubbleH);
+        setBubblePos({ top, left: finalLeft });
       } else {
         setBubblePos(null);
       }
