@@ -1266,11 +1266,12 @@ function SkillDetailModal({
           </div>
         </div>
         {/* Select 按钮 */}
+        {/* 分割线（按钮之上） */}
+        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0' }} />
         <button
           type="button"
           onClick={onSelect}
           style={{
-            marginTop: 20,
             width: '100%',
             height: 44,
             border: 'none',
