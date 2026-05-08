@@ -41,6 +41,7 @@
   --radius-ct-m: 8px;
   --radius-ct-l: 8px;
   --radius-pop-popover: 8px;
+  --radius-btn-xs: 4px;
   --radius-btn-s: 6px;
   --radius-btn-m: 8px;
   --b-common-white: #ffffff;
@@ -332,4 +333,27 @@
 html {
   font-size: var(--font-size);
   font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Alva Markdown bullet list */
+.alva-md-bullets {
+  margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 4px;
+  list-style: none;
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+  color: var(--text-n9);
+}
+.alva-md-bullets li {
+  position: relative;
+  margin: 0;
+  padding-left: 20px;
+}
+.alva-md-bullets li::before {
+  content: '';
+  position: absolute;
+  left: 7.5px; top: 8.5px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--text-n9);
 }

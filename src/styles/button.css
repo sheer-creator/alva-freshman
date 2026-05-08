@@ -38,6 +38,19 @@
   border: 0.5px solid var(--line-l3);
 }
 
+.btn-primary-reverse {
+  background-color: var(--b-common-white);
+  color: var(--text-n9);
+  border: 0.5px solid var(--line-l3);
+}
+.btn-primary-reverse:hover:not(.btn-disabled) {
+  border-color: var(--text-n9);
+}
+.btn-primary-reverse:active:not(.btn-disabled) {
+  border-color: var(--line-l3);
+  background-color: var(--b-r02);
+}
+
 .btn-secondary {
   background-color: transparent;
   color: var(--text-n9);
@@ -78,7 +91,7 @@
   height: 32px;
   padding: 6px var(--spacing-m);
   gap: 6px;
-  border-radius: var(--radius-btn-s);
+  border-radius: var(--radius-btn-xs, 4px);
   font-size: 12px;
   line-height: 20px;
   letter-spacing: 0.12px;

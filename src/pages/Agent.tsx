@@ -10,7 +10,7 @@ import { Dropdown } from '@/app/components/shared/Dropdown';
 import { CONVERSATIONS } from '@/lib/chat-config';
 import DotMatrixWave from '@/app/components/shared/DotMatrixWave';
 import { Tooltip } from '@/app/components/shared/Tooltip';
-import { DiscordConnectFlow } from '@/app/components/shared/DiscordConnectFlow';
+import { DiscordConnectModal } from '@/app/components/shared/DiscordConnectModal';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
 import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
 
@@ -20,73 +20,135 @@ const FONT = "font-['Delight',sans-serif]";
 
 /* ── Feature cards for empty state ── */
 const FEATURES = [
-  { icon: 'bot-l', title: 'Full Alva in your messenger', desc: 'Run analysis, build Playbooks, tweak strategies — right inside Telegram or Discord.' },
-  { icon: 'memory-l', title: 'Memory that compounds', desc: 'Your positions, your thesis, your preferences — every conversation builds on the last.' },
-  { icon: 'clock-l', title: 'Reaches you first', desc: 'Schedule any alert or report — your agent also knows when to reach out on its own.' },
-  { icon: 'update-l', title: 'Runs while you don\u2019t', desc: 'Live 24/7 in a secure cloud sandbox. Never drops, never sleeps.' },
+  { icon: 'bot-l', title: 'Messenger-native', desc: 'Telegram and Discord become your market feed inbox.' },
+  { icon: 'memory-l', title: 'Context memory', desc: 'Your agent remembers portfolios, themes, and preferences.' },
+  { icon: 'clock-l', title: 'Proactive push', desc: 'Playbooks reach you when signals move, not when you check.' },
+  { icon: 'update-l', title: 'Always-on runtime', desc: 'Feeds keep running in Alva while you are away.' },
 ];
 
-/* \u2500\u2500 Push-ready Notification playbooks \u2500\u2500 */
-const PUSH_PLAYBOOKS: ExplorePlaybook[] = [
+/* \u2500\u2500 Push-ready playbooks with feed items \u2500\u2500 */
+interface FeedItem {
+  time: string;
+  title: string;
+  bullets?: string[];
+}
+
+interface PushPlaybook extends ExplorePlaybook {
+  feeds: FeedItem[];
+}
+
+const PUSH_PLAYBOOKS: PushPlaybook[] = [
   {
     id: 'ai-chip-supply-chain',
-    creator: 'ivan',
     title: 'AI Chip Supply Chain',
-    description: 'TSMC capacity, HBM supply, and foundry signals \u2014 distilled into a daily push digest.',
+    creator: 'ivan',
+    description: 'TSMC capacity, HBM supply, and foundry signals — distilled into a daily push digest.',
     tickers: ['NVDA', 'TSM', 'AMD'],
     pulse: 'active',
     stars: 4200,
     remixes: 12,
-    cover: {
-      template: 'general',
-      title: 'AI Chip Supply Chain',
-      author: 'ivan',
-      tickers: ['NVDA', 'TSM', 'AMD'],
-      domain: 'alerts',
-      kind: 'NOTIFICATIONS \u00b7 DAILY',
-      anchor: '7 today',
-      series: 'NEWS \u00b7 SOCIAL \u00b7 PODCAST',
-    },
+    cover: { template: 'general', title: 'AI Chip Supply Chain', author: 'ivan', tickers: ['NVDA', 'TSM', 'AMD'], domain: 'alerts', kind: 'NOTIFICATIONS · DAILY', anchor: '7 today', series: 'NEWS · SOCIAL · PODCAST' },
+    feeds: [
+      {
+        time: 'May 8, 12:00 PM',
+        title: 'AMD to Entrust 2nm Production to Samsung Foundry',
+        bullets: [
+          'Samsung Electronics has entered into substantive discussions with AMD to secure 2nm chip production orders.',
+          'TSMC remains the dominant foundry partner for NVDA and Apple, but capacity constraints at N3E are pushing second-tier clients to explore alternatives.',
+        ],
+      },
+      {
+        time: 'May 7, 12:00 PM',
+        title: 'HBM3E Supply Tightens as NVDA Ramps B200',
+        bullets: [
+          'SK Hynix HBM3E allocation for Q3 is 95% spoken for; Samsung HBM3E yield reportedly improved to 60%.',
+          'NVDA B200 board-level assembly now pulling 40% more HBM per unit vs H100.',
+        ],
+      },
+      {
+        time: 'May 6, 12:00 PM',
+        title: 'Intel Foundry Secures MSFT Custom Chip Deal',
+        bullets: [
+          "Intel 18A process locked in for Microsoft's next-gen custom AI accelerator, slated for 2026 volume.",
+          "Deal reportedly worth $3B+ over 3 years; Intel Foundry's first major external win at 18A node.",
+        ],
+      },
+    ],
   },
   {
     id: 'fed-macro-pulse',
-    creator: 'steven',
     title: 'Fed & Macro Pulse',
-    description: 'FOMC, CPI, NFP \u2014 every key release with Alva\u2019s read pushed the moment it lands.',
+    creator: 'steven',
+    description: 'FOMC, CPI, NFP — every key release with Alva’s read pushed the moment it lands.',
     tickers: ['SPY', 'TLT', 'DXY'],
     pulse: 'active',
     stars: 3700,
     remixes: 8,
-    cover: {
-      template: 'general',
-      title: 'Fed & Macro Pulse',
-      author: 'steven',
-      tickers: ['SPY', 'TLT', 'DXY'],
-      domain: 'macro',
-      kind: 'NOTIFICATIONS \u00b7 ON RELEASE',
-      anchor: 'Next: CPI',
-      series: '12 RELEASES TRACKED',
-    },
+    cover: { template: 'general', title: 'Fed & Macro Pulse', author: 'steven', tickers: ['SPY', 'TLT', 'DXY'], domain: 'macro', kind: 'NOTIFICATIONS · ON RELEASE', anchor: 'Next: CPI', series: '12 RELEASES TRACKED' },
+    feeds: [
+      {
+        time: 'May 7, 8:30 AM',
+        title: 'April NFP: +177K vs +138K est.',
+        bullets: [
+          'Payrolls beat consensus by 39K; prior month revised down from +228K to +185K.',
+          'Unemployment rate held at 4.2%. Average hourly earnings +0.2% MoM, cooling from +0.3%.',
+          'Market reaction: 2Y yield -4bps, SPY +0.6% in first 30 min. Rate cut odds for Sep rose to 62%.',
+        ],
+      },
+      {
+        time: 'May 2, 2:00 PM',
+        title: 'FOMC Holds at 4.25\u20134.50%',
+        bullets: [
+          'Fed kept rates unchanged as expected. Statement language largely unchanged.',
+          'Powell press conference: "We need to see more data before adjusting policy." No explicit timeline for cuts.',
+        ],
+      },
+      {
+        time: 'Apr 30, 8:30 AM',
+        title: 'Q1 GDP Misses: +1.1% vs +2.0% est.',
+        bullets: [
+          'First-quarter GDP growth slowed sharply; consumer spending decelerated to +2.0% from +3.4%.',
+          'Core PCE within the report ran hot at +3.7% annualized, complicating the rate-cut narrative.',
+        ],
+      },
+    ],
   },
   {
     id: 'whale-wallet-tracker',
-    creator: 'deepstonks',
     title: 'Whale Wallet Tracker',
+    creator: 'deepstonks',
     description: 'Large wallet moves and exchange-flow shifts, alerted in real time.',
     tickers: ['BTC', 'ETH', 'SOL'],
     pulse: 'active',
     stars: 6100,
     remixes: 21,
-    cover: {
-      template: 'general',
-      title: 'Whale Wallet Tracker',
-      author: 'deepstonks',
-      tickers: ['BTC', 'ETH', 'SOL'],
-      domain: 'alerts',
-      kind: 'NOTIFICATIONS \u00b7 LIVE',
-      anchor: '24 today',
-      series: '120+ WALLETS \u00b7 60S',
-    },
+    cover: { template: 'general', title: 'Whale Wallet Tracker', author: 'deepstonks', tickers: ['BTC', 'ETH', 'SOL'], domain: 'alerts', kind: 'NOTIFICATIONS · LIVE', anchor: '24 today', series: '120+ WALLETS · 60S' },
+    feeds: [
+      {
+        time: 'May 8, 11:42 AM',
+        title: '2,400 BTC moved from unknown wallet to Coinbase',
+        bullets: [
+          'Wallet 1A1zP1... transferred 2,400 BTC ($234M) to Coinbase Prime in a single transaction.',
+          'This wallet has been dormant for 14 months. Last activity was a 1,800 BTC withdrawal from Binance.',
+        ],
+      },
+      {
+        time: 'May 8, 9:15 AM',
+        title: 'Ethereum Foundation sells 15,000 ETH',
+        bullets: [
+          'EF multi-sig executed a 15,000 ETH ($38.7M) transfer to Kraken over two transactions.',
+          'Follows a pattern of quarterly treasury management; similar sale occurred Feb 12.',
+        ],
+      },
+      {
+        time: 'May 7, 6:03 PM',
+        title: 'Jump Trading moves 50M USDC to Binance',
+        bullets: [
+          'Jump-linked wallet deposited 50M USDC to Binance in a single transfer; on-chain labels confirmed.',
+          'Coincides with elevated SOL perp open interest — possible positioning ahead of the Solana upgrade.',
+        ],
+      },
+    ],
   },
 ];
 
@@ -107,6 +169,8 @@ export function AgentEmptyState({
   onNavigate?: (page: Page) => void;
 }) {
   const [discordFlowOpen, setDiscordFlowOpen] = useState(false);
+  const [activePlaybook, setActivePlaybook] = useState(PUSH_PLAYBOOKS[0].id);
+  const [feedHovered, setFeedHovered] = useState(false);
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative" style={{ background: '#F6F6F6' }}>
@@ -125,25 +189,27 @@ export function AgentEmptyState({
         <div className="flex flex-col items-center">
           <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva Agent" className="rounded-full" style={{ width: 48, height: 48, marginBottom: 20 }} />
           <h1 className={`${FONT} text-[28px] leading-[38px] tracking-[0.28px] text-center text-[var(--text-n9)] font-normal`} style={{ marginBottom: 8 }}>
-            Your Alva Agent is ready
+            Connect Alva Agent to receive live Playbook feeds
           </h1>
-          <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-center text-[var(--text-n5)] whitespace-nowrap`}>
-            Connect Telegram or Discord and let your agent work for you around the clock.
+          <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-center text-[var(--text-n5)]`}>
+            Link Telegram or Discord once. Every subscribed Playbook can push real-time signals, digests, and skipped-event context straight to your messenger.
           </p>
         </div>
 
         {/* Feature cards */}
-        <div className="grid grid-cols-4 gap-[12px] w-full">
+        <div className="grid grid-cols-4 gap-[var(--spacing-m,16px)] w-full">
           {FEATURES.map(f => (
             <div
               key={f.title}
-              className="flex flex-col gap-[8px] p-[14px] rounded-[var(--radius-ct-l,8px)]"
+              className="flex flex-col gap-[var(--spacing-xxs,4px)] p-[var(--spacing-s,12px)] rounded-[var(--radius-ct-l,8px)]"
               style={{ background: 'var(--b0-container, #ffffff)' }}
             >
-              <CdnIcon name={f.icon} size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
-              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-                {f.title}
-              </p>
+              <div className="flex items-center gap-[6px]">
+                <CdnIcon name={f.icon} size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
+                <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+                  {f.title}
+                </p>
+              </div>
               <p className={`${FONT} text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]`}>
                 {f.desc}
               </p>
@@ -152,7 +218,7 @@ export function AgentEmptyState({
         </div>
 
         {/* Connect buttons — Telegram primary, Discord secondary */}
-        <div className="flex flex-row items-center justify-center gap-[12px] w-full">
+        <div className="flex flex-row items-center justify-center gap-[var(--spacing-m,16px)] w-full">
           <button
             className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90`}
             style={{ height: 48, width: 280, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
@@ -171,22 +237,18 @@ export function AgentEmptyState({
               width: 280,
               padding: '11px 20px',
               borderRadius: 6,
-              background: discordFlowOpen ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent',
+              background: 'transparent',
               color: 'var(--text-n9)',
-              border: `0.5px solid ${discordFlowOpen ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--line-l3, rgba(0,0,0,0.3))'}`,
+              border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--b-r03, rgba(0,0,0,0.03))'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = discordFlowOpen ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent'; }}
-            onClick={() => setDiscordFlowOpen(v => !v)}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+            onClick={() => setDiscordFlowOpen(true)}
           >
             <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" style={{ width: 20, height: 20 }} />
             Connect Discord
           </button>
         </div>
-
-        {discordFlowOpen && (
-          <DiscordConnectFlow tone="empty" onPaired={onDiscordPaired} />
-        )}
 
         {/* More channels — Slack/WhatsApp/Line coming soon */}
         <div className="flex flex-col items-center gap-[12px]">
@@ -204,15 +266,14 @@ export function AgentEmptyState({
                   aria-disabled="true"
                   className="flex items-center gap-[6px] rounded-full border-none cursor-not-allowed"
                   style={{
-                    background: 'var(--b-r05)',
+                    background: 'var(--b-r03, rgba(0,0,0,0.03))',
                     padding: '4px 12px 4px 6px',
-                    opacity: 0.7,
                   }}
                 >
                   <img src={`${import.meta.env.BASE_URL}${p.file}`} alt={p.name} style={{ width: 18, height: 18 }} />
                   <span
                     className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px]`}
-                    style={{ color: 'var(--text-n5)' }}
+                    style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}
                   >
                     {p.name}
                   </span>
@@ -222,34 +283,93 @@ export function AgentEmptyState({
           </div>
         </div>
 
-        {/* Push-ready Notification playbooks */}
+        {/* Live feeds from Playbooks */}
         <div className="flex flex-col gap-[12px] w-full">
           <div className="flex items-end justify-between gap-[12px]">
             <div className="flex flex-col gap-[2px]">
               <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]`}>
-                Subscribe to push-ready Playbooks
+                Live feeds from Playbooks
               </p>
               <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-                Hand-picked Playbooks that deliver as updates land — straight to your messenger.
+                Preview only. Connect Alva Agent to receive these pushes in Telegram or Discord.
               </p>
             </div>
-            <span
-              className={`${FONT} flex items-center gap-[4px] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] cursor-pointer hover:text-[var(--text-n9)] transition-colors shrink-0`}
-              onClick={() => onNavigate?.('explore-2')}
-            >
-              Browse all
-              <CdnIcon name="arrow-right-l1" size={12} color="currentColor" />
-            </span>
           </div>
-          <div className="grid grid-cols-3 gap-[16px] w-full">
-            {PUSH_PLAYBOOKS.map(p => (
-              <PlaybookCard key={p.id} p={p} simple />
-            ))}
+
+          <div className="flex gap-[var(--spacing-m,16px)] w-full">
+            {/* Left: Playbook cards — 1/4 */}
+            <div className="flex flex-col gap-[var(--spacing-m,16px)] w-1/4 shrink-0">
+              {PUSH_PLAYBOOKS.map(p => (
+                <div
+                  key={p.id}
+                  onClick={() => setActivePlaybook(p.id)}
+                >
+                  <PlaybookCard p={p} noCover selected={p.id === activePlaybook} />
+                </div>
+              ))}
+            </div>
+
+            {/* Right: Feed items */}
+            <div
+              className="flex flex-col flex-1 min-w-0 rounded-[var(--radius-ct-l,8px)] relative"
+              style={{ background: 'var(--b0-container, #fff)' }}
+              onMouseEnter={() => setFeedHovered(true)}
+              onMouseLeave={() => setFeedHovered(false)}
+            >
+              {feedHovered && (
+                <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 1, display: 'flex', gap: 8 }}>
+                  <button
+                    className="btn btn-primary-reverse btn-small"
+                    style={{ boxShadow: 'var(--shadow-s)' }}
+                    onClick={() => onNavigate?.('template-notification')}
+                  >
+                    View Playbook
+                  </button>
+                  <button
+                    className="btn btn-primary btn-small"
+                    style={{ boxShadow: 'var(--shadow-s)' }}
+                  >
+                    Get Alerts
+                  </button>
+                </div>
+              )}
+              {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.feeds.map((feed, i, arr) => (
+                <div key={i}>
+                  <div className="flex flex-col gap-[var(--spacing-xs,8px)] p-[var(--spacing-m,16px)]">
+                    <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+                      {feed.time} <span className="text-[var(--text-n3)]">·</span> {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.id}
+                    </p>
+                    <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] font-medium`}>
+                      {feed.title}
+                    </p>
+                    {feed.bullets && (
+                      <ul className="alva-md-bullets">
+                        {feed.bullets.map((b, j) => (
+                          <li key={j}>{b}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div className="mx-[var(--spacing-m,16px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         </div>
        </div>
       </div>
+
+      <DiscordConnectModal
+        isOpen={discordFlowOpen}
+        onClose={() => setDiscordFlowOpen(false)}
+        onPaired={() => {
+          setDiscordFlowOpen(false);
+          onDiscordPaired();
+        }}
+      />
     </div>
   );
 }
