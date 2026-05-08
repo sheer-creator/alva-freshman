@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { ChatInput } from '@/app/components/shared/ChatInput';
@@ -899,7 +900,8 @@ function MoreSkillsDropdown({
   onRowLeave?: () => void;
   onBackdrop?: () => void;
 }) {
-  return (
+  const isMobileViewport = typeof window !== 'undefined' && window.innerWidth < 640;
+  const content = (
     <>
       {/* mobile-only 半透明遮罩，桌面下被 CSS display:none 隐藏 */}
       <div className="more-skills-backdrop" onClick={onBackdrop} />
@@ -936,6 +938,11 @@ function MoreSkillsDropdown({
       </div>
     </>
   );
+  // 移动端用 portal 渲染到 body，避免 stacking context 把遮罩压在顶部栏下面
+  if (isMobileViewport && typeof document !== 'undefined') {
+    return createPortal(content, document.body);
+  }
+  return content;
 }
 
 /* ========== Title hero — 标题 + 创建者气泡，允许折行，纵向居中，固定高度 ========== */
@@ -1105,22 +1112,17 @@ function SkillDetailModal({
   onClose: () => void;
   onSelect: () => void;
 }) {
-  const capsLabelStyle: React.CSSProperties = {
-    fontFamily: "'Delight', sans-serif",
-    fontSize: 11,
-    lineHeight: '14px',
-    color: 'rgba(0,0,0,0.4)',
-    letterSpacing: 0.11,
-    fontWeight: 500,
-  };
-  return (
+  const tags = (template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id);
+  const uses = (template as CommunitySkillTemplate).uses ?? usesForSkill(template.id);
+  if (typeof document === 'undefined') return null;
+  return createPortal(
     <div
       onClick={onClose}
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.4)',
-        zIndex: 100,
+        background: 'rgba(0,0,0,0.45)',
+        zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -1135,63 +1137,45 @@ function SkillDetailModal({
           maxWidth: 360,
           background: '#ffffff',
           borderRadius: 14,
-          padding: '16px 16px 12px',
+          padding: '20px 20px 16px',
           boxShadow: '0 20px 48px rgba(0,0,0,0.18), 0 6px 14px rgba(0,0,0,0.08)',
           animation: 'newchat-fadeup 220ms ease-out',
         }}
       >
-        {/* 顶部：左 creator / 右 last updated + socials */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <span style={capsLabelStyle}>Created by</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Avatar name={template.creator} size={22} />
-              <span
-                style={{
-                  fontFamily: "'Delight', sans-serif",
-                  fontSize: 14,
-                  lineHeight: '22px',
-                  color: 'rgba(0,0,0,0.9)',
-                  letterSpacing: 0.14,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {template.creator}
-              </span>
-            </div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-            <span style={{ ...capsLabelStyle, whiteSpace: 'nowrap' }}>
-              Last updated {relativeTimeForSkill(template.id)}
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              {socialsForCreator(template.creator).map((s) => (
-                <a
-                  key={s.key}
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  aria-label={s.label}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: '9999px',
-                    background: 'rgba(0,0,0,0.05)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  {s.render()}
-                </a>
-              ))}
-            </div>
-          </div>
+        {/* 顶部：左 skill 名 / 右上 last updated · uses */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+          <h2
+            style={{
+              flex: 1,
+              minWidth: 0,
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 18,
+              lineHeight: '24px',
+              fontWeight: 600,
+              color: 'rgba(0,0,0,0.9)',
+              letterSpacing: 0.18,
+              margin: 0,
+            }}
+          >
+            {template.label}
+          </h2>
+          <span
+            style={{
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 11,
+              lineHeight: '16px',
+              color: 'rgba(0,0,0,0.4)',
+              letterSpacing: 0.11,
+              fontWeight: 500,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              paddingTop: 4,
+            }}
+          >
+            {relativeTimeForSkill(template.id)} · {uses}
+          </span>
         </div>
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
+        {/* 描述 */}
         <p
           style={{
             fontFamily: "'Delight', sans-serif",
@@ -1199,48 +1183,92 @@ function SkillDetailModal({
             lineHeight: '20px',
             color: 'rgba(0,0,0,0.7)',
             letterSpacing: 0.13,
-            margin: 0,
+            margin: '8px 0 0',
           }}
         >
           {template.description}
         </p>
-        {/* tags + uses */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', flexShrink: 0 }}>
-            {((template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id)).slice(0, 3).map((tag) => (
-              <span
-                key={tag}
+        {/* tags */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', marginTop: 10 }}>
+          {tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              style={{
+                height: 20,
+                padding: '0 6px',
+                borderRadius: 5,
+                background: 'rgba(0,0,0,0.05)',
+                color: 'rgba(0,0,0,0.58)',
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 11,
+                lineHeight: '20px',
+                letterSpacing: 0.11,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+        {/* 分割线 */}
+        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0' }} />
+        {/* 创建者信息行：左 avatar + 名字 / 右 socials */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar name={template.creator} size={24} />
+            <div style={{ minWidth: 0 }}>
+              <div
                 style={{
-                  height: 20,
-                  padding: '0 6px',
-                  borderRadius: 5,
-                  background: 'rgba(0,0,0,0.05)',
-                  color: 'rgba(0,0,0,0.58)',
                   fontFamily: "'Delight', sans-serif",
                   fontSize: 11,
-                  lineHeight: '20px',
+                  lineHeight: '14px',
+                  color: 'rgba(0,0,0,0.4)',
                   letterSpacing: 0.11,
+                  fontWeight: 500,
+                }}
+              >
+                Created by
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Delight', sans-serif",
+                  fontSize: 14,
+                  lineHeight: '20px',
+                  color: 'rgba(0,0,0,0.9)',
+                  letterSpacing: 0.14,
+                  fontWeight: 500,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                }}
+              >
+                {template.creator}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            {socialsForCreator(template.creator).map((s) => (
+              <a
+                key={s.key}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={s.label}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: '9999px',
+                  background: 'rgba(0,0,0,0.05)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   flexShrink: 0,
                 }}
               >
-                {tag}
-              </span>
+                {s.render()}
+              </a>
             ))}
           </div>
-          <span
-            style={{
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 11,
-              lineHeight: '18px',
-              color: 'rgba(0,0,0,0.45)',
-              letterSpacing: 0.11,
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            {(template as CommunitySkillTemplate).uses ?? usesForSkill(template.id)}
-          </span>
         </div>
         {/* Select 按钮 */}
         <button
@@ -1264,7 +1292,8 @@ function SkillDetailModal({
           Select this skill
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -1281,6 +1310,15 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const [communityOpen, setCommunityOpen] = useState(false);
   // 移动端：点击药丸 / 列表项展示详情弹窗
   const [mobileDetailId, setMobileDetailId] = useState<string | null>(null);
+  // 当移动端弹窗 / 抽屉打开时，给 body 加 class 用 CSS 把顶部栏让路
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const overlayOpen = !!mobileDetailId || communityOpen;
+    document.body.classList.toggle('nc-overlay-open', overlayOpen);
+    return () => {
+      document.body.classList.remove('nc-overlay-open');
+    };
+  }, [mobileDetailId, communityOpen]);
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth < 640 : false,
   );
@@ -1515,6 +1553,17 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
         button.nc-pill{display:flex}
+        /* 移动端弹窗/抽屉打开时，覆盖顶部栏区域以匹配遮罩 */
+        body.nc-overlay-open::before{
+          content:"";
+          position:fixed;
+          top:0;left:0;right:0;
+          height:48px;
+          background:rgba(0,0,0,0.45);
+          z-index:10000;
+          pointer-events:none;
+          animation:newchat-fade 200ms ease-out;
+        }
         .nc-prompt-row{
           display:flex;
           align-items:center;
@@ -1630,13 +1679,13 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             display:block;
             position:fixed;
             inset:0;
-            background:rgba(0,0,0,0.4);
-            z-index:99;
+            background:rgba(0,0,0,0.45);
+            z-index:9998;
             animation:newchat-fade 200ms ease-out;
           }
           .more-skills-dropdown{
             position:fixed !important;
-            z-index:100 !important;
+            z-index:9999 !important;
             top:auto !important;
             right:0 !important;
             left:0 !important;
@@ -1656,10 +1705,18 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           }
           .more-skills-dropdown-scroll{
             max-height:60vh !important;
-            padding:8px 8px 24px !important;
+            padding:12px 12px 32px !important;
+            display:flex !important;
+            flex-direction:column;
+            gap:8px;
           }
           .more-skill-row{
-            padding:12px;
+            padding:12px 14px !important;
+            background:rgba(0,0,0,0.04) !important;
+            border-radius:10px !important;
+          }
+          .more-skill-row:active{
+            background:rgba(0,0,0,0.08) !important;
           }
           .more-skill-name{
             font-size:15px;
