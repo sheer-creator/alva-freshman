@@ -1026,46 +1026,52 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     () => [...PRIMARY_TEMPLATES, ...OTHERS_TEMPLATES, ...COMMUNITY_TEMPLATES],
     [],
   );
-  const pillItemRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
   const morePillRef = useRef<HTMLButtonElement>(null);
+  const mirrorRef = useRef<HTMLDivElement>(null);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
-  const [moreCount, setMoreCount] = useState<number>(0);
 
-  // 每次窗口尺寸或 skills 集合变化时，重新计算第 3 行及之后要塞进 More 下拉的 pill
+  // 直接对真实 pill 容器测量：先把所有 pill 设回可见，从尾部迭代隐藏直到 More 在第 1 或第 2 行。
+  // 隐藏通过 DOM 直接 mutation；hiddenIds state 仅供 More 下拉读取。
   useLayoutEffect(() => {
     const recompute = () => {
       const container = pillsContainerRef.current;
       if (!container) return;
-      // 先把所有 pill 设回可见（同步 DOM 操作，避免循环 setState）
-      const buttons = allSkills
-        .map((s) => pillItemRefs.current.get(s.id))
-        .filter((el): el is HTMLButtonElement => !!el);
-      const morePill = morePillRef.current;
-      buttons.forEach((b) => (b.style.display = ''));
-      if (morePill) morePill.style.display = '';
-      // 测 offsetTop，确定前两行
-      const tops = [...new Set([...buttons.map((b) => b.offsetTop), morePill?.offsetTop ?? -1].filter((n) => n >= 0))].sort(
-        (a, b) => a - b,
-      );
-      if (tops.length <= 2) {
-        if (hiddenIds.size > 0) setHiddenIds(new Set());
-        if (moreCount !== 0) setMoreCount(0);
-        if (morePill) morePill.style.display = 'none';
-        return;
+      const allItems = Array.from(container.querySelectorAll<HTMLElement>('button[data-skill-id]'));
+      const moreWrap = container.querySelector<HTMLElement>('[data-more-wrap]');
+      if (!moreWrap) return;
+      // 重置
+      allItems.forEach((el) => {
+        el.style.display = '';
+      });
+      moreWrap.style.display = '';
+      const hidden: string[] = [];
+      const fitsTwoRows = () => {
+        const tops = [
+          ...new Set([
+            ...allItems.filter((el) => el.style.display !== 'none').map((el) => el.offsetTop),
+            moreWrap.offsetTop,
+          ]),
+        ].sort((a, b) => a - b);
+        const moreRowIndex = tops.indexOf(moreWrap.offsetTop);
+        return moreRowIndex >= 0 && moreRowIndex <= 1;
+      };
+      let safety = allItems.length;
+      while (safety-- > 0 && !fitsTwoRows()) {
+        const visible = allItems.filter((el) => el.style.display !== 'none');
+        if (visible.length === 0) break;
+        const last = visible[visible.length - 1];
+        const id = last.dataset.skillId;
+        if (id) hidden.push(id);
+        last.style.display = 'none';
+        void container.offsetWidth;
       }
-      const row2Top = tops[1];
-      const next = new Set<string>();
-      buttons.forEach((b, i) => {
-        if (b.offsetTop > row2Top) next.add(allSkills[i].id);
-      });
-      // 隐藏被分到第 3 行及之后的 pill
-      buttons.forEach((b, i) => {
-        if (next.has(allSkills[i].id)) b.style.display = 'none';
-      });
-      // 同步 state（仅在变化时）
+      // 全部能放下 + More 也没必要时，把 More 隐藏
+      if (hidden.length === 0) {
+        moreWrap.style.display = 'none';
+      }
+      const next = new Set(hidden);
       const same = next.size === hiddenIds.size && [...next].every((id) => hiddenIds.has(id));
       if (!same) setHiddenIds(next);
-      if (moreCount !== next.size) setMoreCount(next.size);
     };
     recompute();
     const ro = new ResizeObserver(recompute);
@@ -1075,12 +1081,13 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
       ro.disconnect();
       window.removeEventListener('resize', recompute);
     };
-  }, [allSkills, hiddenIds, moreCount]);
+  }, [allSkills, hiddenIds]);
 
   const moreSkills: NewChatTemplate[] = useMemo(
     () => allSkills.filter((s) => hiddenIds.has(s.id)),
     [allSkills, hiddenIds],
   );
+  const showMorePill = moreSkills.length > 0;
 
   const handlePillClick = (id: string) => {
     setSelectedId((prev) => (prev === id ? null : id));
@@ -1115,6 +1122,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           0%{opacity:.55}50%{opacity:.85}100%{opacity:.55}
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
+        button.nc-pill{display:flex}
         .more-skills-dropdown{
           position:absolute;
           top:calc(100% + 8px);
@@ -1336,7 +1344,8 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             </div>
           )}
 
-          {/* skill pills — 未选中时展示 */}
+          {/* skill pills — 未选中时展示。所有 pill + More 始终渲染在同一个容器；
+            布局测量时直接 mutate display:none 把溢出的 pill 隐藏（state 仅供 More 下拉用） */}
           {!selected && !showTypedSuggestions && (
             <div
               ref={pillsContainerRef}
@@ -1347,16 +1356,15 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                 justifyContent: 'center',
                 position: 'relative',
                 zIndex: 1,
+                width: '100%',
                 maxWidth: 900,
               }}
             >
               {allSkills.map((t) => (
                 <button
                   key={t.id}
-                  ref={(el) => {
-                    pillItemRefs.current.set(t.id, el);
-                  }}
                   data-skill-id={t.id}
+                  className="nc-pill"
                   onClick={() => handlePillClick(t.id)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
@@ -1368,7 +1376,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     e.currentTarget.style.transform = 'translateY(0)';
                     scheduleHoverHide();
                   }}
-                  style={{ ...chipBaseStyle, background: selectedId === t.id ? '#e5eeee' : 'white' }}
+                  style={{
+                    ...chipBaseStyle,
+                    background: selectedId === t.id ? '#e5eeee' : 'white',
+                  }}
                 >
                   {t.kol ? (
                     <Avatar name={t.creator} size={22} />
@@ -1378,10 +1389,11 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   {t.label}
                 </button>
               ))}
-              <div ref={communityRef} style={{ position: 'relative' }}>
+              <div ref={communityRef} data-more-wrap style={{ position: 'relative' }}>
                 <button
                   ref={morePillRef}
                   type="button"
+                  className="nc-pill"
                   aria-expanded={communityOpen}
                   aria-label="More skills"
                   style={{
@@ -1394,7 +1406,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                     cancelMoreHide();
-                    setCommunityOpen(true);
+                    if (moreSkills.length > 0) setCommunityOpen(true);
                     setHover(null);
                   }}
                   onMouseLeave={(e) => {
