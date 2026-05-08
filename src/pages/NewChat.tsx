@@ -926,6 +926,18 @@ function MoreSkillsDropdown({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
+        {/* 移动端标题行：More skills + 关闭按钮，桌面下 CSS 隐藏 */}
+        <div className="more-skills-header">
+          <span className="more-skills-title">More skills</span>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onBackdrop}
+            className="more-skills-close"
+          >
+            <CdnIcon name="close-l1" size={16} color="rgba(0,0,0,0.7)" />
+          </button>
+        </div>
         <div className="more-skills-dropdown-scroll">
           {skills.map((skill) => (
             <button
@@ -1565,17 +1577,6 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
         button.nc-pill{display:flex}
-        /* 移动端弹窗/抽屉打开时，覆盖顶部栏区域以匹配遮罩 */
-        body.nc-overlay-open::before{
-          content:"";
-          position:fixed;
-          top:0;left:0;right:0;
-          height:48px;
-          background:rgba(0,0,0,0.45);
-          z-index:10000;
-          pointer-events:none;
-          animation:newchat-fade 200ms ease-out;
-        }
         .nc-prompt-row{
           display:flex;
           align-items:center;
@@ -1690,6 +1691,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           }
         }
         .more-skills-backdrop{display:none}
+        .more-skills-header{display:none}
         @media (max-width: 639px){
           .more-skills-backdrop{
             display:block;
@@ -1719,9 +1721,35 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             background:rgba(0,0,0,0.18);
             margin:8px auto 4px;
           }
+          .more-skills-header{
+            display:flex !important;
+            align-items:center;
+            justify-content:space-between;
+            padding:14px 16px 8px;
+          }
+          .more-skills-title{
+            font-family:'Delight',sans-serif;
+            font-size:16px;
+            line-height:22px;
+            font-weight:600;
+            color:rgba(0,0,0,0.9);
+            letter-spacing:0.16px;
+          }
+          .more-skills-close{
+            width:32px;
+            height:32px;
+            border:none;
+            background:rgba(0,0,0,0.04);
+            border-radius:8px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+          }
+          .more-skills-close:active{background:rgba(0,0,0,0.08)}
           .more-skills-dropdown-scroll{
             max-height:60vh !important;
-            padding:12px 12px 32px !important;
+            padding:4px 12px 32px !important;
             display:flex !important;
             flex-direction:column;
             gap:8px;
