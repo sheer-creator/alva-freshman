@@ -1643,10 +1643,15 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             max-width:none !important;
           }
           .nc-prompt-row{
-            padding:8px 4px;
+            padding:12px 4px;
             background:transparent;
             border-radius:0;
             margin-bottom:0;
+          }
+          /* 每个 prompt 被包了一层 div 用于动画，所以 :last-child 总是匹配。
+             改为给非最后一个的"包装层"加底边（向下挂分割线）。 */
+          .nc-prompts-container > div > div:not(:last-child){
+            border-bottom:0.5px solid rgba(0,0,0,0.08);
           }
           .nc-prompt-text{
             font-size:13px;
