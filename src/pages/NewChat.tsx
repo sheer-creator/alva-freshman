@@ -1612,24 +1612,24 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           .newchat-page-topbar{display:none}
           /* mobile pill：尺寸更小，单行能放更多 */
           .nc-pill{
-            height:34px !important;
-            padding:0 12px !important;
-            font-size:13px !important;
-            line-height:20px !important;
-            gap:6px !important;
-            letter-spacing:0.13px !important;
+            height:40px !important;
+            padding:0 14px !important;
+            font-size:14px !important;
+            line-height:22px !important;
+            gap:8px !important;
+            letter-spacing:0.14px !important;
           }
           .nc-pill > img,
           .nc-pill > div[class*="rounded-full"]{
-            width:18px !important;
-            height:18px !important;
-            min-width:18px !important;
-            min-height:18px !important;
+            width:22px !important;
+            height:22px !important;
+            min-width:22px !important;
+            min-height:22px !important;
           }
           .nc-pill > div[role="img"],
           .nc-pill .block{
-            width:14px !important;
-            height:14px !important;
+            width:16px !important;
+            height:16px !important;
           }
           .nc-hero-section{
             padding:24px 16px 12px !important;
