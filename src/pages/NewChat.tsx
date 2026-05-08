@@ -1131,7 +1131,8 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
       ro.disconnect();
       window.removeEventListener('resize', recompute);
     };
-  }, [allSkills, hiddenIds]);
+    // 注意：把 selectedId 加入依赖，确保从「选中态」回到「pill 行可见」时重新测量
+  }, [allSkills, hiddenIds, selectedId]);
 
   const moreSkills: NewChatTemplate[] = useMemo(
     () => allSkills.filter((s) => hiddenIds.has(s.id)),
