@@ -98,7 +98,7 @@ function SkillPill({
         }
         onLeave?.();
       }}
-      style={{ ...chipBaseStyle, background: active ? '#e5eeee' : 'white' }}
+      style={{ ...chipBaseStyle, background: active ? '#f3f8f8' : 'white' }}
     >
       {template.kol ? (
         <Avatar name={template.creator} size={22} />
@@ -1137,17 +1137,15 @@ function SkillDetailModal({
           maxWidth: 360,
           background: '#ffffff',
           borderRadius: 14,
-          padding: '20px 20px 16px',
+          padding: 20,
           boxShadow: '0 20px 48px rgba(0,0,0,0.18), 0 6px 14px rgba(0,0,0,0.08)',
           animation: 'newchat-fadeup 220ms ease-out',
         }}
       >
-        {/* 顶部：左 skill 名 / 右上 last updated · uses */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+        {/* 顶部：skill 名 + 副标题（小字直接放在大字下方，避免长标题挤压） */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <h2
             style={{
-              flex: 1,
-              minWidth: 0,
               fontFamily: "'Delight', sans-serif",
               fontSize: 18,
               lineHeight: '24px',
@@ -1167,9 +1165,6 @@ function SkillDetailModal({
               color: 'rgba(0,0,0,0.4)',
               letterSpacing: 0.11,
               fontWeight: 500,
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              paddingTop: 4,
             }}
           >
             {relativeTimeForSkill(template.id)} · {uses}
@@ -1183,7 +1178,7 @@ function SkillDetailModal({
             lineHeight: '20px',
             color: 'rgba(0,0,0,0.7)',
             letterSpacing: 0.13,
-            margin: '8px 0 0',
+            margin: '10px 0 0',
           }}
         >
           {template.description}
@@ -1210,8 +1205,8 @@ function SkillDetailModal({
             </span>
           ))}
         </div>
-        {/* 分割线 */}
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0' }} />
+        {/* 分割线（上下间距加大） */}
+        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0' }} />
         {/* 创建者信息行：左 avatar + 名字 / 右 socials */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1275,7 +1270,7 @@ function SkillDetailModal({
           type="button"
           onClick={onSelect}
           style={{
-            marginTop: 16,
+            marginTop: 20,
             width: '100%',
             height: 44,
             border: 'none',
@@ -1711,16 +1706,29 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             gap:8px;
           }
           .more-skill-row{
-            padding:12px 14px !important;
+            padding:18px 16px !important;
             background:rgba(0,0,0,0.04) !important;
-            border-radius:10px !important;
+            border-radius:12px !important;
+            gap:14px !important;
           }
           .more-skill-row:active{
             background:rgba(0,0,0,0.08) !important;
           }
+          .more-skill-row > img,
+          .more-skill-row > div[class*="rounded-full"]{
+            width:28px !important;
+            height:28px !important;
+            min-width:28px !important;
+            min-height:28px !important;
+          }
+          .more-skill-row > div[role="img"],
+          .more-skill-row .block{
+            width:20px !important;
+            height:20px !important;
+          }
           .more-skill-name{
-            font-size:15px;
-            line-height:22px;
+            font-size:16px !important;
+            line-height:22px !important;
           }
         }
         @keyframes newchat-sheet-up{
@@ -1862,7 +1870,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   }}
                   style={{
                     ...chipBaseStyle,
-                    background: selectedId === t.id ? '#e5eeee' : 'white',
+                    background: selectedId === t.id ? '#f3f8f8' : 'white',
                   }}
                 >
                   {t.kol ? (
@@ -1883,7 +1891,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   style={{
                     ...chipBaseStyle,
                     cursor: 'pointer',
-                    background: communityOpen ? '#e5eeee' : 'white',
+                    background: communityOpen ? '#f3f8f8' : 'white',
                     border: communityOpen ? '0.5px solid rgba(73,163,166,0.45)' : chipBaseStyle.border,
                   }}
                   onMouseEnter={(e) => {
