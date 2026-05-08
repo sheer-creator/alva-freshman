@@ -1330,10 +1330,22 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         @media (max-width: 639px){
           .newchat-page-topbar{display:none}
+          .nc-hero-section{
+            padding:24px 16px 12px !important;
+            gap:24px !important;
+          }
+          .nc-prompts-container{
+            margin-top:0 !important;
+            margin-left:-16px;
+            margin-right:-16px;
+            width:calc(100% + 32px) !important;
+            max-width:none !important;
+          }
           .nc-prompt-row{
-            padding:10px 12px;
-            background:rgba(0,0,0,0.04);
-            margin-bottom:8px;
+            padding:14px 16px;
+            background:transparent;
+            border-radius:0;
+            margin-bottom:0;
           }
           .nc-prompt-text{
             font-size:13px;
@@ -1342,6 +1354,9 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             display:-webkit-box;
             -webkit-line-clamp:2;
             -webkit-box-orient:vertical;
+          }
+          .nc-cards-section{
+            padding:12px 16px 80px !important;
           }
         }
         .nc-creator-link:hover{background:rgba(0,0,0,0.05)}
@@ -1418,6 +1433,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
 
         {/* ══════ HERO ══════ */}
         <section
+          className="nc-hero-section"
           style={{
             width: '100%',
             display: 'flex',
@@ -1455,6 +1471,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           {showTypedSuggestions && (
             <div
               key={debouncedTypedText}
+              className="nc-prompts-container"
               style={{
                 width: '100%',
                 maxWidth: HERO_WIDTH,
@@ -1570,6 +1587,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           {/* 选中后输入框下方的 prompts —— 先骨架，再淡入真实 */}
           {selected && (
             <div
+              className="nc-prompts-container"
               style={{
                 width: '100%',
                 maxWidth: HERO_WIDTH,
@@ -1609,6 +1627,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         {selected && (
           <section
             key={selected.id}
+            className="nc-cards-section"
             style={{
               width: '100%',
               maxWidth: HERO_WIDTH + 48,
