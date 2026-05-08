@@ -998,15 +998,23 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
       const nextScale = naturalH > TITLE_BOX_HEIGHT ? TITLE_BOX_HEIGHT / naturalH : 1;
       setScale(nextScale);
 
-      // 气泡：绝对定位贴右侧（right: 0）；top 对齐到 title 第一行的视觉上沿
+      // 气泡定位规则：
+      //   1) 默认贴在标题第一行的右上角（firstLine.right + gap）
+      //   2) 若上述位置会让气泡右侧超出容器右侧（= 输入框右侧），则改为右对齐（right: 0）
       if (showBubble && bubble) {
         const range = document.createRange();
         range.selectNodeContents(title);
         const lineRects = range.getClientRects();
         range.detach?.();
         const containerRect = container.getBoundingClientRect();
-        const firstLineTop = lineRects.length > 0 ? lineRects[0].top - containerRect.top : 0;
-        setBubblePos({ top: Math.max(0, firstLineTop - 14), left: 0 });
+        const firstLine = lineRects.length > 0 ? lineRects[0] : null;
+        const firstLineTop = firstLine ? firstLine.top - containerRect.top : 0;
+        const firstLineRight = firstLine ? firstLine.right - containerRect.left : 0;
+        const gap = 8;
+        const desiredLeft = firstLineRight + gap;
+        const wouldOverflow = desiredLeft + bubbleW > containerW;
+        const finalLeft = wouldOverflow ? Math.max(0, containerW - bubbleW) : desiredLeft;
+        setBubblePos({ top: Math.max(0, firstLineTop - 14), left: finalLeft });
       } else {
         setBubblePos(null);
       }
@@ -1057,9 +1065,9 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
           style={{
             position: 'absolute',
             top: bubblePos ? bubblePos.top : 0,
-            right: 0,
+            left: bubblePos ? bubblePos.left : 0,
             visibility: bubblePos ? 'visible' : 'hidden',
-            transformOrigin: 'right center',
+            transformOrigin: 'left center',
             animation: 'newchat-bubble-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms backwards',
             display: 'flex',
             alignItems: 'center',
