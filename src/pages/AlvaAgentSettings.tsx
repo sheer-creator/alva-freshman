@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Page } from '@/app/App';
 import { SettingsLayout } from '@/app/components/shell/SettingsLayout';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
-import { DiscordConnectFlow } from '@/app/components/shared/DiscordConnectFlow';
+import { DiscordConnectModal } from '@/app/components/shared/DiscordConnectModal';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
 
 const FONT = "'Delight', sans-serif";
@@ -305,11 +305,10 @@ Read .claude/skills/frontend-monorepo-conventions/SKILL.md and AGENTS.md for pro
                     onClick={() => {
                       if (isBound) {
                         disconnect(p.id);
-                        if (p.id === 'discord') setDiscordFlowOpen(false);
                         return;
                       }
                       if (p.id === 'discord') {
-                        setDiscordFlowOpen(v => !v);
+                        setDiscordFlowOpen(true);
                         return;
                       }
                       connect(p.id);
@@ -320,14 +319,6 @@ Read .claude/skills/frontend-monorepo-conventions/SKILL.md and AGENTS.md for pro
                     {isBound ? 'Disconnect' : 'Connect'}
                   </button>
                 </div>
-                {p.id === 'discord' && !isBound && discordFlowOpen && (
-                  <DiscordConnectFlow
-                    onPaired={() => {
-                      connect('discord');
-                      setDiscordFlowOpen(false);
-                    }}
-                  />
-                )}
               </div>
             );
           })}
@@ -362,6 +353,15 @@ Read .claude/skills/frontend-monorepo-conventions/SKILL.md and AGENTS.md for pro
       >
         Save
       </button>
+
+      <DiscordConnectModal
+        isOpen={discordFlowOpen}
+        onClose={() => setDiscordFlowOpen(false)}
+        onPaired={() => {
+          connect('discord');
+          setDiscordFlowOpen(false);
+        }}
+      />
     </SettingsLayout>
   );
 }

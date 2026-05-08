@@ -834,7 +834,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     color: var(--text-n9);
     white-space: nowrap;
 }
-.star-popover-chip.is-disabled { opacity: 0.5; color: var(--text-n5); }
+.star-popover-chip.is-disabled { background: var(--b-r03); color: var(--text-n3); }
 .star-popover-chip img { width: 18px; height: 18px; display: block; flex-shrink: 0; }
 .star-popover-footer {
     display: inline-flex; align-items: center; justify-content: center;
@@ -1017,7 +1017,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     color: var(--text-n9);
     white-space: nowrap;
 }
-.alerts-popover-chip.is-disabled { opacity: 0.5; color: var(--text-n5); }
+.alerts-popover-chip.is-disabled { background: var(--b-r03); color: var(--text-n3); }
 .alerts-popover-chip img { width: 18px; height: 18px; display: block; flex-shrink: 0; border-radius: 960px; }
 
 /* CTA loading spinner + disabled state */
