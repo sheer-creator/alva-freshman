@@ -960,12 +960,24 @@ function MoreSkillsDropdown({
 
 /* ========== Title hero — 标题 + 创建者气泡，允许折行，纵向居中，固定高度 ========== */
 
-const TITLE_BASE_FONT = 45;
+const TITLE_DESKTOP_FONT = 45;
+const TITLE_MOBILE_FONT = 28;
 const TITLE_LH = 1.2;
-const TITLE_LINE = Math.ceil(TITLE_BASE_FONT * TITLE_LH); // 54
-const TITLE_BOX_HEIGHT = TITLE_LINE * 2; // 预留 2 行高度（108），保证下方内容不会跳
+const MOBILE_THRESHOLD_PX = 640;
 
 function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; maxWidth: number }) {
+  const [isMobileTitle, setIsMobileTitle] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_THRESHOLD_PX : false,
+  );
+  useEffect(() => {
+    const h = () => setIsMobileTitle(window.innerWidth < MOBILE_THRESHOLD_PX);
+    h();
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, []);
+  const TITLE_BASE_FONT = isMobileTitle ? TITLE_MOBILE_FONT : TITLE_DESKTOP_FONT;
+  const TITLE_LINE = Math.ceil(TITLE_BASE_FONT * TITLE_LH);
+  const TITLE_BOX_HEIGHT = TITLE_LINE * 2;
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -1011,9 +1023,9 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
         const desiredLeft = firstLineRight + gap;
         const wouldOverflow = desiredLeft + bubbleW > containerW;
         const finalLeft = wouldOverflow ? Math.max(0, containerW - bubbleW) : desiredLeft;
-        // 气泡垂直定位：bottom 比 firstLineTop 略低 6px（"错位一点"），整体显得在第一行的上方
+        // 气泡垂直定位：bottom 比 firstLineTop 略低 4px（"错位一点"），整体在第一行上方；允许溢出标题区域
         const bubbleH = bubble.offsetHeight || 32;
-        const top = Math.max(0, firstLineTop + 6 - bubbleH);
+        const top = firstLineTop + 4 - bubbleH;
         setBubblePos({ top, left: finalLeft });
       } else {
         setBubblePos(null);
@@ -1038,6 +1050,8 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        // overflow visible 允许气泡 y 轴超出标题区域
+        overflow: 'visible',
       }}
     >
       <h1
@@ -1316,6 +1330,9 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
         button.nc-pill{display:flex}
+        @media (max-width: 639px){
+          .newchat-page-topbar{display:none}
+        }
         .nc-creator-link:hover{background:rgba(0,0,0,0.05)}
         .nc-creator-link:hover .nc-creator-link-name{color:#49A3A6;text-decoration:underline;text-underline-offset:2px}
         .more-skills-dropdown{
@@ -1367,9 +1384,9 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
-        {/* ══════ Topbar ══════ */}
+        {/* ══════ Topbar — 在移动端由 AppShell 的 mobile topbar 接管，这里隐藏 ══════ */}
         <div
-          className="flex items-center gap-[16px] h-[56px] px-[28px] shrink-0"
+          className="flex items-center gap-[16px] h-[56px] px-[28px] shrink-0 newchat-page-topbar"
           style={{ position: 'sticky', top: 0, zIndex: 5, background: 'transparent' }}
         >
           <div className="flex-1 min-w-0">

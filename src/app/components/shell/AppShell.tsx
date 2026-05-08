@@ -7,8 +7,33 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Page } from '@/app/App';
 import { Sidebar, SIDEBAR_W_COLLAPSED, SIDEBAR_W_EXPANDED } from './Sidebar';
+import { CdnIcon } from '../shared/CdnIcon';
 
 const NARROW_THRESHOLD = 1024;
+const MOBILE_THRESHOLD = 640;
+const MOBILE_TOPBAR_H = 48;
+const PAGE_TITLES: Record<string, string> = {
+  'new-chat': 'New chat',
+  'explore-2': 'Explore',
+  portfolio: 'Portfolio',
+  agent: 'Agent',
+  'alva-skills': 'Alva Skill',
+  account: 'Account',
+  'user-profile': 'Profile',
+  pricing: 'Pricing',
+  'api-keys': 'API Keys',
+  notifications: 'Notifications',
+  automations: 'Automations',
+  billing: 'Billing',
+  'alva-agent': 'Alva Agent',
+  'portfolio-settings': 'Portfolio',
+  'screener': 'Feed Test',
+  'trade-notification-test': 'Trade Notification Test',
+  'template-screener': 'Template-Screener',
+  'template-thesis': 'Template-Thesis',
+  'template-whatif': 'Template-Whatif',
+  'template-notification': 'Template-Notification',
+};
 import SearchModal from '../SearchModal';
 import ReferralModal from '../ReferralModal';
 import UserInfo from '../UserInfo';
@@ -39,24 +64,29 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
   const { chatOpen, closeChat, contextTag } = useChatContext();
   const showChat = chatOpen && contextTag !== null;
 
-  // 侧边栏折叠：窗口窄时自动折叠，按钮可手动切换
+  // 侧边栏折叠：窗口窄时自动折叠，按钮可手动切换；< MOBILE_THRESHOLD 时整体隐藏
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth < NARROW_THRESHOLD : false,
+  );
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_THRESHOLD : false,
   );
   useEffect(() => {
     let lastWasNarrow = window.innerWidth < NARROW_THRESHOLD;
     const handler = () => {
-      const isNarrow = window.innerWidth < NARROW_THRESHOLD;
+      const w = window.innerWidth;
+      const isNarrow = w < NARROW_THRESHOLD;
       if (isNarrow !== lastWasNarrow) {
-        // 跨过阈值时强制刷新折叠态（窄→折叠，宽→展开）
         setSidebarCollapsed(isNarrow);
         lastWasNarrow = isNarrow;
       }
+      setIsMobile(w < MOBILE_THRESHOLD);
     };
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
   const sidebarWidth = sidebarCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
+  const effectiveSidebarWidth = isMobile ? 0 : sidebarWidth;
   const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_W);
   const dragging = useRef(false);
   const startX = useRef(0);
@@ -124,20 +154,67 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
 
   return (
     <div className="bg-[#2a2a38] flex h-screen overflow-hidden relative w-full">
-      <Sidebar
-        activePage={activePage}
-        onNavigate={onNavigate}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onUserMouseEnter={handleUserEnter}
-        onOpenReferral={() => setIsReferralOpen(true)}
-        collapsed={sidebarCollapsed}
-        onToggleCollapsed={() => setSidebarCollapsed((c) => !c)}
-      />
+      {!isMobile && (
+        <Sidebar
+          activePage={activePage}
+          onNavigate={onNavigate}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onUserMouseEnter={handleUserEnter}
+          onOpenReferral={() => setIsReferralOpen(true)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => setSidebarCollapsed((c) => !c)}
+        />
+      )}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <ReferralModal isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} onNavigate={onNavigate} />
+      {/* Mobile top bar：返回 + 当前页标题 */}
+      {isMobile && (
+        <div
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center bg-white"
+          style={{
+            height: MOBILE_TOPBAR_H,
+            padding: '0 12px',
+            borderBottom: '0.5px solid rgba(0,0,0,0.08)',
+            gap: 8,
+          }}
+        >
+          <button
+            type="button"
+            aria-label="Back"
+            onClick={() => {
+              if (window.history.length > 1) window.history.back();
+              else onNavigate('explore-2');
+            }}
+            className="shrink-0 flex items-center justify-center rounded-[8px] cursor-pointer hover:bg-black/5 transition-colors"
+            style={{ width: 32, height: 32 }}
+          >
+            <CdnIcon name="arrow-left-l2" size={16} color="rgba(0,0,0,0.85)" />
+          </button>
+          <p
+            className="flex-1 text-center font-['Delight',sans-serif] truncate"
+            style={{
+              fontSize: 15,
+              lineHeight: '20px',
+              fontWeight: 500,
+              color: 'rgba(0,0,0,0.9)',
+              letterSpacing: 0.15,
+            }}
+          >
+            {PAGE_TITLES[activePage ?? ''] ?? 'Alva'}
+          </p>
+          {/* 占位让标题真正居中 */}
+          <div className="shrink-0" style={{ width: 32, height: 32 }} />
+        </div>
+      )}
       <main
-        className="relative flex min-w-0 flex-1 overflow-hidden rounded-bl-[8px] rounded-tl-[8px] bg-white"
-        style={{ marginLeft: sidebarWidth, transition: 'margin-left 200ms ease' }}
+        className="relative flex min-w-0 flex-1 overflow-hidden bg-white"
+        style={{
+          marginLeft: effectiveSidebarWidth,
+          marginTop: isMobile ? MOBILE_TOPBAR_H : 0,
+          borderTopLeftRadius: isMobile ? 0 : 8,
+          borderBottomLeftRadius: isMobile ? 0 : 8,
+          transition: 'margin-left 200ms ease',
+        }}
       >
         <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
           {children}
