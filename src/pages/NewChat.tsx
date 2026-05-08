@@ -889,6 +889,7 @@ function MoreSkillsDropdown({
   onMouseLeave,
   onRowHover,
   onRowLeave,
+  onBackdrop,
 }: {
   skills: NewChatTemplate[];
   onSelect: (id: string) => void;
@@ -896,39 +897,44 @@ function MoreSkillsDropdown({
   onMouseLeave?: () => void;
   onRowHover?: (id: string, rect: DOMRect) => void;
   onRowLeave?: () => void;
+  onBackdrop?: () => void;
 }) {
   return (
-    <div
-      className="more-skills-dropdown"
-      role="menu"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <div className="more-skills-dropdown-scroll">
-        {skills.map((skill) => (
-          <button
-            key={skill.id}
-            type="button"
-            role="menuitem"
-            className="more-skill-row"
-            onClick={() => onSelect(skill.id)}
-            onMouseEnter={(e) => onRowHover?.(skill.id, e.currentTarget.getBoundingClientRect())}
-            onMouseLeave={() => onRowLeave?.()}
-          >
-            {skill.kol ? (
-              <Avatar name={skill.creator} size={20} />
-            ) : (
-              skill.icon ? (
-                <CdnIcon name={skill.icon} size={16} color="rgba(0,0,0,0.7)" />
-              ) : (
+    <>
+      {/* mobile-only 半透明遮罩，桌面下被 CSS display:none 隐藏 */}
+      <div className="more-skills-backdrop" onClick={onBackdrop} />
+      <div
+        className="more-skills-dropdown"
+        role="menu"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <div className="more-skills-dropdown-scroll">
+          {skills.map((skill) => (
+            <button
+              key={skill.id}
+              type="button"
+              role="menuitem"
+              className="more-skill-row"
+              onClick={() => onSelect(skill.id)}
+              onMouseEnter={(e) => onRowHover?.(skill.id, e.currentTarget.getBoundingClientRect())}
+              onMouseLeave={() => onRowLeave?.()}
+            >
+              {skill.kol ? (
                 <Avatar name={skill.creator} size={20} />
-              )
-            )}
-            <span className="more-skill-name">{skill.label}</span>
-          </button>
-        ))}
+              ) : (
+                skill.icon ? (
+                  <CdnIcon name={skill.icon} size={16} color="rgba(0,0,0,0.7)" />
+                ) : (
+                  <Avatar name={skill.creator} size={20} />
+                )
+              )}
+              <span className="more-skill-name">{skill.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -1088,6 +1094,180 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
   );
 }
 
+/* ========== Mobile skill detail modal ========== */
+
+function SkillDetailModal({
+  template,
+  onClose,
+  onSelect,
+}: {
+  template: NewChatTemplate;
+  onClose: () => void;
+  onSelect: () => void;
+}) {
+  const capsLabelStyle: React.CSSProperties = {
+    fontFamily: "'Delight', sans-serif",
+    fontSize: 11,
+    lineHeight: '14px',
+    color: 'rgba(0,0,0,0.4)',
+    letterSpacing: 0.11,
+    fontWeight: 500,
+  };
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        animation: 'newchat-fade 160ms ease-out',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: 360,
+          background: '#ffffff',
+          borderRadius: 14,
+          padding: '16px 16px 12px',
+          boxShadow: '0 20px 48px rgba(0,0,0,0.18), 0 6px 14px rgba(0,0,0,0.08)',
+          animation: 'newchat-fadeup 220ms ease-out',
+        }}
+      >
+        {/* 顶部：左 creator / 右 last updated + socials */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span style={capsLabelStyle}>Created by</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Avatar name={template.creator} size={22} />
+              <span
+                style={{
+                  fontFamily: "'Delight', sans-serif",
+                  fontSize: 14,
+                  lineHeight: '22px',
+                  color: 'rgba(0,0,0,0.9)',
+                  letterSpacing: 0.14,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {template.creator}
+              </span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+            <span style={{ ...capsLabelStyle, whiteSpace: 'nowrap' }}>
+              Last updated {relativeTimeForSkill(template.id)}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {socialsForCreator(template.creator).map((s) => (
+                <a
+                  key={s.key}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={s.label}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: '9999px',
+                    background: 'rgba(0,0,0,0.05)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  {s.render()}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
+        <p
+          style={{
+            fontFamily: "'Delight', sans-serif",
+            fontSize: 13,
+            lineHeight: '20px',
+            color: 'rgba(0,0,0,0.7)',
+            letterSpacing: 0.13,
+            margin: 0,
+          }}
+        >
+          {template.description}
+        </p>
+        {/* tags + uses */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', flexShrink: 0 }}>
+            {((template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id)).slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                style={{
+                  height: 20,
+                  padding: '0 6px',
+                  borderRadius: 5,
+                  background: 'rgba(0,0,0,0.05)',
+                  color: 'rgba(0,0,0,0.58)',
+                  fontFamily: "'Delight', sans-serif",
+                  fontSize: 11,
+                  lineHeight: '20px',
+                  letterSpacing: 0.11,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <span
+            style={{
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 11,
+              lineHeight: '18px',
+              color: 'rgba(0,0,0,0.45)',
+              letterSpacing: 0.11,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            {(template as CommunitySkillTemplate).uses ?? usesForSkill(template.id)}
+          </span>
+        </div>
+        {/* Select 按钮 */}
+        <button
+          type="button"
+          onClick={onSelect}
+          style={{
+            marginTop: 16,
+            width: '100%',
+            height: 44,
+            border: 'none',
+            borderRadius: 10,
+            background: '#49A3A6',
+            color: '#fff',
+            fontFamily: "'Delight', sans-serif",
+            fontSize: 14,
+            fontWeight: 500,
+            letterSpacing: 0.14,
+            cursor: 'pointer',
+          }}
+        >
+          Select this skill
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ══════ MAIN COMPONENT ══════ */
 
 const HERO_WIDTH = 960;
@@ -1099,6 +1279,17 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const [debouncedTypedText, setDebouncedTypedText] = useState('');
   const [hover, setHover] = useState<{ id: string; rect: DOMRect; placeAbove: boolean; side: 'auto' | 'left' } | null>(null);
   const [communityOpen, setCommunityOpen] = useState(false);
+  // 移动端：点击药丸 / 列表项展示详情弹窗
+  const [mobileDetailId, setMobileDetailId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false,
+  );
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < 640);
+    h();
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, []);
   const moreHideTimerRef = useRef<number | null>(null);
   const cancelMoreHide = () => {
     if (moreHideTimerRef.current !== null) {
@@ -1225,7 +1416,9 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
       });
       moreWrap.style.display = '';
       const hidden: string[] = [];
-      const fitsTwoRows = () => {
+      // 移动端允许 3 行，桌面 2 行
+      const maxRows = window.innerWidth < 640 ? 3 : 2;
+      const fitsRows = () => {
         const tops = [
           ...new Set([
             ...allItems.filter((el) => el.style.display !== 'none').map((el) => el.offsetTop),
@@ -1233,10 +1426,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           ]),
         ].sort((a, b) => a - b);
         const moreRowIndex = tops.indexOf(moreWrap.offsetTop);
-        return moreRowIndex >= 0 && moreRowIndex <= 1;
+        return moreRowIndex >= 0 && moreRowIndex <= maxRows - 1;
       };
       let safety = allItems.length;
-      while (safety-- > 0 && !fitsTwoRows()) {
+      while (safety-- > 0 && !fitsRows()) {
         const visible = allItems.filter((el) => el.style.display !== 'none');
         if (visible.length === 0) break;
         const last = visible[visible.length - 1];
@@ -1271,14 +1464,32 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const showMorePill = moreSkills.length > 0;
 
   const handlePillClick = (id: string) => {
+    if (isMobile) {
+      setMobileDetailId(id);
+      setCommunityOpen(false);
+      setHover(null);
+      return;
+    }
     setSelectedId((prev) => (prev === id ? null : id));
     setHover(null);
     setCommunityOpen(false);
   };
   const handleCommunitySelect = (id: string) => {
+    if (isMobile) {
+      setMobileDetailId(id);
+      setCommunityOpen(false);
+      setHover(null);
+      return;
+    }
     setSelectedId(id);
     setHover(null);
     setCommunityOpen(false);
+  };
+  const handleConfirmMobileSelect = () => {
+    if (mobileDetailId) {
+      setSelectedId(mobileDetailId);
+      setMobileDetailId(null);
+    }
   };
   const handleRemoveChip = () => setSelectedId(null);
   const handlePromptClick = (text: string) => setInjectSignal({ text, seq: Date.now() });
@@ -1330,6 +1541,27 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         @media (max-width: 639px){
           .newchat-page-topbar{display:none}
+          /* mobile pill：尺寸更小，单行能放更多 */
+          .nc-pill{
+            height:32px !important;
+            padding:0 10px !important;
+            font-size:12px !important;
+            line-height:18px !important;
+            gap:6px !important;
+            letter-spacing:0.12px !important;
+          }
+          .nc-pill > img,
+          .nc-pill > div[class*="rounded-full"]{
+            width:16px !important;
+            height:16px !important;
+            min-width:16px !important;
+            min-height:16px !important;
+          }
+          .nc-pill > div[role="img"],
+          .nc-pill .block{
+            width:14px !important;
+            height:14px !important;
+          }
           .nc-hero-section{
             padding:24px 16px 12px !important;
             gap:24px !important;
@@ -1391,6 +1623,52 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         .more-skill-row:hover{
           background:rgba(0,0,0,0.04);
+        }
+        .more-skills-backdrop{display:none}
+        @media (max-width: 639px){
+          .more-skills-backdrop{
+            display:block;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.4);
+            z-index:99;
+            animation:newchat-fade 200ms ease-out;
+          }
+          .more-skills-dropdown{
+            position:fixed !important;
+            z-index:100 !important;
+            top:auto !important;
+            right:0 !important;
+            left:0 !important;
+            bottom:0 !important;
+            width:100% !important;
+            border-radius:14px 14px 0 0 !important;
+            animation:newchat-sheet-up 220ms cubic-bezier(0.2,0.8,0.2,1);
+          }
+          .more-skills-dropdown::before{
+            content:"";
+            display:block;
+            width:36px;
+            height:4px;
+            border-radius:2px;
+            background:rgba(0,0,0,0.18);
+            margin:8px auto 4px;
+          }
+          .more-skills-dropdown-scroll{
+            max-height:60vh !important;
+            padding:8px 8px 24px !important;
+          }
+          .more-skill-row{
+            padding:12px;
+          }
+          .more-skill-name{
+            font-size:15px;
+            line-height:22px;
+          }
+        }
+        @keyframes newchat-sheet-up{
+          from{transform:translateY(100%)}
+          to{transform:translateY(0)}
         }
         .more-skill-name{
           font-family:'Delight',sans-serif;
@@ -1552,6 +1830,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     border: communityOpen ? '0.5px solid rgba(73,163,166,0.45)' : chipBaseStyle.border,
                   }}
                   onMouseEnter={(e) => {
+                    if (isMobile) return;
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                     cancelMoreHide();
@@ -1559,9 +1838,14 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     setHover(null);
                   }}
                   onMouseLeave={(e) => {
+                    if (isMobile) return;
                     e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.transform = 'translateY(0)';
                     scheduleMoreHide();
+                  }}
+                  onClick={() => {
+                    if (!isMobile) return;
+                    if (moreSkills.length > 0) setCommunityOpen((v) => !v);
                   }}
                 >
                   More
@@ -1575,6 +1859,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     onMouseLeave={scheduleMoreHide}
                     onRowHover={(id, rect) => computeHover(id, rect, 'left')}
                     onRowLeave={scheduleHoverHide}
+                    onBackdrop={() => setCommunityOpen(false)}
                   />
                 )}
               </div>
@@ -1683,6 +1968,17 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           onMouseLeave={scheduleHoverHide}
         />
       )}
+      {mobileDetailId && (() => {
+        const tmpl = allSkills.find((s) => s.id === mobileDetailId);
+        if (!tmpl) return null;
+        return (
+          <SkillDetailModal
+            template={tmpl}
+            onClose={() => setMobileDetailId(null)}
+            onSelect={handleConfirmMobileSelect}
+          />
+        );
+      })()}
     </AppShell>
   );
 }
