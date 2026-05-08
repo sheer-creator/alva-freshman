@@ -1336,13 +1336,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           }
           .nc-prompts-container{
             margin-top:0 !important;
-            margin-left:-16px;
-            margin-right:-16px;
-            width:calc(100% + 32px) !important;
             max-width:none !important;
           }
           .nc-prompt-row{
-            padding:14px 16px;
+            padding:8px 4px;
             background:transparent;
             border-radius:0;
             margin-bottom:0;
