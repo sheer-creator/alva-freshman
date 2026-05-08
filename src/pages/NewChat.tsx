@@ -465,20 +465,8 @@ function SkillInfoCard({
 function InlineSuggestionRow({ text, onClick }: { text: string; onClick?: () => void }) {
   return (
     <button
+      className="nc-prompt-row"
       onClick={onClick}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '12px',
-        background: 'transparent',
-        border: 'none',
-        borderRadius: 8,
-        textAlign: 'left',
-        cursor: 'pointer',
-        width: '100%',
-        transition: 'background 0.15s, transform 0.15s',
-      }}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = 'rgba(0,0,0,0.03)';
         e.currentTarget.style.transform = 'translateY(-1px)';
@@ -488,21 +476,7 @@ function InlineSuggestionRow({ text, onClick }: { text: string; onClick?: () => 
         e.currentTarget.style.transform = 'translateY(0)';
       }}
     >
-      <span
-        style={{
-          flex: 1,
-          fontFamily: "'Delight', sans-serif",
-          fontSize: 14,
-          lineHeight: '22px',
-          color: 'rgba(0,0,0,0.9)',
-          letterSpacing: 0.14,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {text}
-      </span>
+      <span className="nc-prompt-text">{text}</span>
       <CdnIcon name="enter-l" size={20} color="rgba(0,0,0,0.4)" />
     </button>
   );
@@ -1330,8 +1304,45 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
         button.nc-pill{display:flex}
+        .nc-prompt-row{
+          display:flex;
+          align-items:center;
+          gap:12px;
+          padding:12px;
+          background:transparent;
+          border:none;
+          border-radius:8px;
+          text-align:left;
+          cursor:pointer;
+          width:100%;
+          transition:background 0.15s, transform 0.15s;
+        }
+        .nc-prompt-text{
+          flex:1;
+          font-family:'Delight',sans-serif;
+          font-size:14px;
+          line-height:22px;
+          color:rgba(0,0,0,0.9);
+          letter-spacing:0.14px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
         @media (max-width: 639px){
           .newchat-page-topbar{display:none}
+          .nc-prompt-row{
+            padding:10px 12px;
+            background:rgba(0,0,0,0.04);
+            margin-bottom:8px;
+          }
+          .nc-prompt-text{
+            font-size:13px;
+            line-height:20px;
+            white-space:normal;
+            display:-webkit-box;
+            -webkit-line-clamp:2;
+            -webkit-box-orient:vertical;
+          }
         }
         .nc-creator-link:hover{background:rgba(0,0,0,0.05)}
         .nc-creator-link:hover .nc-creator-link-name{color:#49A3A6;text-decoration:underline;text-underline-offset:2px}

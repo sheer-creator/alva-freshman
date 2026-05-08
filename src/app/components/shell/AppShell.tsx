@@ -8,6 +8,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Page } from '@/app/App';
 import { Sidebar, SIDEBAR_W_COLLAPSED, SIDEBAR_W_EXPANDED } from './Sidebar';
 import { CdnIcon } from '../shared/CdnIcon';
+import { ThreadSwitcherDropdown } from '../shared/ThreadSwitcherDropdown';
 
 const NARROW_THRESHOLD = 1024;
 const MOBILE_THRESHOLD = 640;
@@ -167,14 +168,14 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
       )}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <ReferralModal isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} onNavigate={onNavigate} />
-      {/* Mobile top bar：返回 + 当前页标题 */}
+      {/* Mobile top bar：返回 + 当前页标题（带 thread 切换） */}
       {isMobile && (
         <div
-          className="fixed top-0 left-0 right-0 z-[60] flex items-center bg-white"
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center"
           style={{
             height: MOBILE_TOPBAR_H,
             padding: '0 12px',
-            borderBottom: '0.5px solid rgba(0,0,0,0.08)',
+            background: '#fafafa',
             gap: 8,
           }}
         >
@@ -190,18 +191,33 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
           >
             <CdnIcon name="arrow-left-l2" size={16} color="rgba(0,0,0,0.85)" />
           </button>
-          <p
-            className="flex-1 text-center font-['Delight',sans-serif] truncate"
-            style={{
-              fontSize: 15,
-              lineHeight: '20px',
-              fontWeight: 500,
-              color: 'rgba(0,0,0,0.9)',
-              letterSpacing: 0.15,
-            }}
-          >
-            {PAGE_TITLES[activePage ?? ''] ?? 'Alva'}
-          </p>
+          <div className="flex-1 min-w-0 flex justify-center">
+            <ThreadSwitcherDropdown
+              activeId={activePage === 'agent' ? '__agent__' : 'new'}
+              onSelect={(id) => {
+                if (id === '__agent__') onNavigate('agent');
+                else if (id) onNavigate(`thread/${id}` as Page);
+              }}
+              align="left"
+              trigger={
+                <div className="flex items-center gap-[4px] cursor-pointer max-w-full">
+                  <p
+                    className="font-['Delight',sans-serif] truncate"
+                    style={{
+                      fontSize: 15,
+                      lineHeight: '20px',
+                      fontWeight: 500,
+                      color: 'rgba(0,0,0,0.9)',
+                      letterSpacing: 0.15,
+                    }}
+                  >
+                    {PAGE_TITLES[activePage ?? ''] ?? 'Alva'}
+                  </p>
+                  <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.45)" />
+                </div>
+              }
+            />
+          </div>
           {/* 占位让标题真正居中 */}
           <div className="shrink-0" style={{ width: 32, height: 32 }} />
         </div>
