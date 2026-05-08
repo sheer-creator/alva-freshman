@@ -111,21 +111,58 @@ function SkillPill({
 
 /* ========== Skill hover info card ========== */
 
+function fnv1aSkill(seed: string): number {
+  let x = 0x811c9dc5;
+  for (let i = 0; i < seed.length; i++) {
+    x ^= seed.charCodeAt(i);
+    x = Math.imul(x, 0x01000193);
+  }
+  return x >>> 0;
+}
+
 function relativeTimeForSkill(skillId: string): string {
-  // 用 skill id 派生稳定的「最近更新」相对时间 — 0 ~ 7200 分钟（~5 天）
-  const h = (() => {
-    let x = 0x811c9dc5;
-    for (let i = 0; i < skillId.length; i++) {
-      x ^= skillId.charCodeAt(i);
-      x = Math.imul(x, 0x01000193);
-    }
-    return x >>> 0;
-  })();
+  const h = fnv1aSkill(skillId);
   const minutes = h % 7200;
   if (minutes < 1) return 'just now';
   if (minutes < 60) return `${minutes}m ago`;
   if (minutes < 24 * 60) return `${Math.floor(minutes / 60)}h ago`;
   return `${Math.floor(minutes / (24 * 60))}d ago`;
+}
+
+/* 派生 skill 信息卡底部的 tags + uses（CommunitySkill 直接用自带字段，其它走哈希派生） */
+const TAG_POOL = [
+  'Filings', 'Insider Cluster', 'Event Drift', 'Earnings Drift', 'Whisper Numbers',
+  'Macro Flow', 'FX Cross', 'Rates Curve', 'Credit Spread', 'Sentiment',
+  'Theme Tracker', 'Catalyst', 'Risk Off', 'Backtest', 'Yield Curve',
+  'Dividend', 'On-Chain', 'ETF Flow', 'MAG7', 'AI Capex',
+  'Hyperscaler', 'Volatility', 'Carry', 'Drawdown', 'Sharpe',
+  'Quintile', 'Read-Across', 'Sector Rotation', 'Pair Trade', 'Theme',
+];
+
+function tagsForSkill(skillId: string): string[] {
+  const h = fnv1aSkill(skillId);
+  const count = ((h >>> 12) % 2) + 2; // 2 或 3 个
+  const used = new Set<number>();
+  const picks: string[] = [];
+  for (let i = 0; picks.length < count && i < 32; i++) {
+    const stretch = fnv1aSkill(`${skillId}|tag|${i}`);
+    const idx = stretch % TAG_POOL.length;
+    if (used.has(idx)) continue;
+    used.add(idx);
+    picks.push(TAG_POOL[idx]);
+  }
+  return picks;
+}
+
+function usesForSkill(skillId: string): string {
+  const h = fnv1aSkill(skillId + '|uses');
+  // 50 ~ 49,999 之间
+  const n = (h % 49950) + 50;
+  if (n >= 1000) {
+    const k = n / 1000;
+    return `${k.toFixed(k < 10 ? 1 : 0)}k uses`;
+  }
+  return `${n} uses`;
 }
 
 /* ========== Social media icons ========== */
@@ -321,6 +358,44 @@ function SkillInfoCard({
       >
         {template.description}
       </p>
+      {/* 底部 tags + uses */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, overflow: 'hidden' }}>
+          {((template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id)).slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              style={{
+                height: 20,
+                padding: '0 6px',
+                borderRadius: 5,
+                background: 'rgba(0,0,0,0.05)',
+                color: 'rgba(0,0,0,0.58)',
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 11,
+                lineHeight: '20px',
+                letterSpacing: 0.11,
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+        <span
+          style={{
+            fontFamily: "'Delight', sans-serif",
+            fontSize: 11,
+            lineHeight: '18px',
+            color: 'rgba(0,0,0,0.45)',
+            letterSpacing: 0.11,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}
+        >
+          {(template as CommunitySkillTemplate).uses ?? usesForSkill(template.id)}
+        </span>
+      </div>
     </div>
   );
 }
