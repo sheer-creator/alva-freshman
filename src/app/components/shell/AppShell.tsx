@@ -6,7 +6,35 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Page } from '@/app/App';
-import { Sidebar } from './Sidebar';
+import { Sidebar, SIDEBAR_W_COLLAPSED, SIDEBAR_W_EXPANDED } from './Sidebar';
+import { CdnIcon } from '../shared/CdnIcon';
+import { ThreadSwitcherDropdown } from '../shared/ThreadSwitcherDropdown';
+
+const NARROW_THRESHOLD = 1024;
+const MOBILE_THRESHOLD = 640;
+const MOBILE_TOPBAR_H = 48;
+const PAGE_TITLES: Record<string, string> = {
+  'new-chat': 'New chat',
+  'explore-2': 'Explore',
+  portfolio: 'Portfolio',
+  agent: 'Agent',
+  'alva-skills': 'Alva Skill',
+  account: 'Account',
+  'user-profile': 'Profile',
+  pricing: 'Pricing',
+  'api-keys': 'API Keys',
+  notifications: 'Notifications',
+  automations: 'Automations',
+  billing: 'Billing',
+  'alva-agent': 'Alva Agent',
+  'portfolio-settings': 'Portfolio',
+  'screener': 'Feed Test',
+  'trade-notification-test': 'Trade Notification Test',
+  'template-screener': 'Template-Screener',
+  'template-thesis': 'Template-Thesis',
+  'template-whatif': 'Template-Whatif',
+  'template-notification': 'Template-Notification',
+};
 import SearchModal from '../SearchModal';
 import ReferralModal from '../ReferralModal';
 import UserInfo from '../UserInfo';
@@ -37,6 +65,30 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
 
   const { chatOpen, closeChat, contextTag } = useChatContext();
   const showChat = chatOpen && contextTag !== null;
+
+  // 侧边栏折叠：窗口窄时自动折叠，按钮可手动切换；< MOBILE_THRESHOLD 时整体隐藏
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < NARROW_THRESHOLD : false,
+  );
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_THRESHOLD : false,
+  );
+  useEffect(() => {
+    let lastWasNarrow = window.innerWidth < NARROW_THRESHOLD;
+    const handler = () => {
+      const w = window.innerWidth;
+      const isNarrow = w < NARROW_THRESHOLD;
+      if (isNarrow !== lastWasNarrow) {
+        setSidebarCollapsed(isNarrow);
+        lastWasNarrow = isNarrow;
+      }
+      setIsMobile(w < MOBILE_THRESHOLD);
+    };
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  const sidebarWidth = sidebarCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
+  const effectiveSidebarWidth = isMobile ? 0 : sidebarWidth;
   const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_W);
   const dragging = useRef(false);
   const startX = useRef(0);

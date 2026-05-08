@@ -170,8 +170,8 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
         </button>
         {bottomChip && (
           <div
-            className="shrink-0 flex items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
-            style={{ background: 'rgba(0,0,0,0.05)' }}
+            className="flex min-w-0 flex-1 items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
+            style={{ background: 'rgba(0,0,0,0.05)', maxWidth: 'fit-content' }}
           >
             {bottomChip.avatar ? (
               <Avatar name={bottomChip.avatar} size={16} />
@@ -179,8 +179,8 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
               bottomChip.icon && <CdnIcon name={bottomChip.icon} size={14} color="rgba(0,0,0,0.9)" />
             )}
             <span
-              className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]"
-              style={{ color: 'rgba(0,0,0,0.9)' }}
+              className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
+              style={{ color: 'rgba(0,0,0,0.9)', minWidth: 0 }}
             >
               {bottomChip.label}
             </span>
@@ -193,8 +193,8 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             </button>
           </div>
         )}
-        <div className="flex-1 flex items-center justify-end gap-[4px]">
-          <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]">
+        <div className="flex shrink-0 items-center justify-end gap-[4px] ml-auto">
+          <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap">
             Sonnet 4.6
           </span>
           <CdnIcon name="arrow-down-f2" size={12} color="rgba(0,0,0,0.2)" />
