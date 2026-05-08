@@ -324,9 +324,30 @@ function SkillInfoCard({
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <span style={capsLabelStyle}>Created by</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            type="button"
+            className="nc-creator-link"
+            onClick={(e) => {
+              e.stopPropagation();
+              // TODO: 接入 profile 页跳转（暂时占位）
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '4px 6px',
+              margin: '-4px -6px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              borderRadius: 6,
+              transition: 'background 140ms ease',
+              minWidth: 0,
+            }}
+          >
             <Avatar name={template.creator} size={22} />
             <span
+              className="nc-creator-link-name"
               style={{
                 fontFamily: "'Delight', sans-serif",
                 fontSize: 14,
@@ -336,11 +357,12 @@ function SkillInfoCard({
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
+                transition: 'color 140ms ease',
               }}
             >
               {template.creator}
             </span>
-          </div>
+          </button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
           <span style={{ ...capsLabelStyle, whiteSpace: 'nowrap' }}>
@@ -1151,6 +1173,8 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
         button.nc-pill{display:flex}
+        .nc-creator-link:hover{background:rgba(0,0,0,0.05)}
+        .nc-creator-link:hover .nc-creator-link-name{color:#49A3A6;text-decoration:underline;text-underline-offset:2px}
         .more-skills-dropdown{
           position:absolute;
           top:calc(100% + 8px);
