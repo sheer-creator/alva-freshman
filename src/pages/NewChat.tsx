@@ -958,6 +958,141 @@ function MoreSkillsDropdown({
   );
 }
 
+/* ========== Title hero — 标题 + 创建者气泡，自适应缩放，固定高度 ========== */
+
+const TITLE_BASE_FONT = 45;
+const TITLE_LH = 1.2;
+const TITLE_BOX_HEIGHT = Math.ceil(TITLE_BASE_FONT * TITLE_LH); // 54
+
+function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; maxWidth: number }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [bubbleLeft, setBubbleLeft] = useState<number | null>(null);
+
+  const text = selected ? `Build your ${selected.label}` : 'Pick a skill and start building';
+  const showBubble = !!selected?.kol;
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const title = titleRef.current;
+    if (!container || !title) return;
+
+    const compute = () => {
+      // 重置 scale 测量原始宽度
+      title.style.transform = 'translateX(-50%)';
+      const naturalW = title.scrollWidth;
+      const containerW = container.clientWidth;
+      // 气泡（如果有）需要预留位置：title.scaledRight + gap + bubbleW 不能超过 container 右
+      const bubble = bubbleRef.current;
+      const bubbleW = bubble ? bubble.scrollWidth : 0;
+      const gap = 8;
+      // 先按 100% 容器宽度计算允许的 title 宽度
+      // 留出气泡空间：title scaledW <= containerW - bubbleSpace
+      // bubbleSpace = bubbleW + gap, 但只在右侧延伸时受限
+      // 使用对称布局：标题居中。气泡放在标题右侧时占用空间 = (bubbleW + gap) * 2（左右各预留）以维持居中
+      const reservedForBubble = showBubble ? (bubbleW + gap) * 2 : 0;
+      const availableW = Math.max(40, containerW - reservedForBubble);
+      const nextScale = naturalW > availableW ? availableW / naturalW : 1;
+      setScale(nextScale);
+
+      // 计算气泡 left = 标题缩放后右边 + gap，clamp 不超过 container 右边
+      if (showBubble && bubble) {
+        const scaledTitleW = naturalW * nextScale;
+        const titleRightFromCenter = scaledTitleW / 2;
+        const containerCenter = containerW / 2;
+        const desiredLeft = containerCenter + titleRightFromCenter + gap;
+        // 留 2px 安全余量，避免 subpixel 渲染溢出
+        const maxLeft = Math.floor(containerW - bubbleW - 2);
+        const finalLeft = Math.max(0, Math.min(desiredLeft, maxLeft));
+        setBubbleLeft(finalLeft);
+      } else {
+        setBubbleLeft(null);
+      }
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(container);
+    if (bubbleRef.current) ro.observe(bubbleRef.current);
+    return () => ro.disconnect();
+  }, [text, showBubble]);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth,
+        height: TITLE_BOX_HEIGHT,
+      }}
+    >
+      <h1
+        ref={titleRef}
+        key={selected?.id ?? 'default'}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          transform: `translateX(-50%) scale(${scale})`,
+          transformOrigin: 'top center',
+          fontSize: TITLE_BASE_FONT,
+          lineHeight: TITLE_LH,
+          fontWeight: 400,
+          color: 'rgba(0,0,0,0.9)',
+          textAlign: 'center',
+          letterSpacing: 0.45,
+          margin: 0,
+          animation: 'newchat-fadeup 240ms ease-out',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {text}
+      </h1>
+      {showBubble && selected && (
+        <div
+          ref={bubbleRef}
+          key={`bubble-${selected.id}`}
+          style={{
+            position: 'absolute',
+            top: -14,
+            left: bubbleLeft ?? 0,
+            visibility: bubbleLeft === null ? 'hidden' : 'visible',
+            transformOrigin: 'left center',
+            animation: 'newchat-bubble-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms backwards',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            height: 32,
+            padding: '0 12px 0 4px',
+            background: 'white',
+            borderRadius: 999,
+            border: '0.5px solid rgba(0,0,0,0.1)',
+            boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <Avatar name={selected.creator} size={24} />
+          <span
+            style={{
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 14,
+              lineHeight: '22px',
+              fontWeight: 500,
+              color: 'rgba(0,0,0,0.9)',
+              letterSpacing: 0.14,
+            }}
+          >
+            {selected.creator}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ══════ MAIN COMPONENT ══════ */
 
 const HERO_WIDTH = 960;
@@ -1260,61 +1395,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             zIndex: 2,
           }}
         >
-          {/* 标题 + 创建者气泡 */}
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            <h1
-              key={selected?.id ?? 'default'}
-              style={{
-                fontSize: 45,
-                lineHeight: 1.2,
-                fontWeight: 400,
-                color: 'rgba(0,0,0,0.9)',
-                textAlign: 'center',
-                letterSpacing: 0.45,
-                margin: 0,
-                animation: 'newchat-fadeup 240ms ease-out',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {selected ? `Build your ${selected.label}` : 'Pick a skill and start building'}
-            </h1>
-            {selected?.kol && (
-              <div
-                key={`bubble-${selected.id}`}
-                style={{
-                  position: 'absolute',
-                  top: -14,
-                  left: 'calc(100% + 8px)',
-                  transformOrigin: 'left center',
-                  animation: 'newchat-bubble-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms backwards',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  height: 32,
-                  padding: '0 12px 0 4px',
-                  background: 'white',
-                  borderRadius: 999,
-                  border: '0.5px solid rgba(0,0,0,0.1)',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <Avatar name={selected.creator} size={24} />
-                <span
-                  style={{
-                    fontFamily: "'Delight', sans-serif",
-                    fontSize: 14,
-                    lineHeight: '22px',
-                    fontWeight: 500,
-                    color: 'rgba(0,0,0,0.9)',
-                    letterSpacing: 0.14,
-                  }}
-                >
-                  {selected.creator}
-                </span>
-              </div>
-            )}
-          </div>
+          <TitleHero selected={selected} maxWidth={HERO_WIDTH} />
 
           {/* 输入框 */}
           <div style={{ width: '100%', maxWidth: HERO_WIDTH, position: 'relative', zIndex: 1 }}>
