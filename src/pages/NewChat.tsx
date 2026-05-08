@@ -1232,12 +1232,12 @@ function SkillDetailModal({
             </span>
           ))}
         </div>
-        {/* 分割线（上下间距加大） */}
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0' }} />
+        {/* 分割线（创作者行紧贴上下两条分隔线） */}
+        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0 12px' }} />
         {/* 创建者信息行：左 avatar + 名字 / 右 socials */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Avatar name={template.creator} size={24} />
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Avatar name={template.creator} size={36} />
             <div style={{ minWidth: 0 }}>
               <div
                 style={{
@@ -1292,9 +1292,9 @@ function SkillDetailModal({
             ))}
           </div>
         </div>
-        {/* Select 按钮 */}
+        {/* Pick 按钮 */}
         {/* 分割线（按钮之上） */}
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0' }} />
+        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 20px' }} />
         <button
           type="button"
           onClick={onSelect}
@@ -1312,7 +1312,7 @@ function SkillDetailModal({
             cursor: 'pointer',
           }}
         >
-          Select this skill
+          Pick this skill
         </button>
       </div>
     </div>,
@@ -1409,7 +1409,14 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     if (!communityOpen) return;
 
     const handlePointerDown = (event: MouseEvent) => {
-      if (!communityRef.current?.contains(event.target as Node)) setCommunityOpen(false);
+      const t = event.target as Node;
+      if (communityRef.current?.contains(t)) return;
+      // 弹层是 portal 到 body 的，需要单独豁免内部点击
+      const el = t as Element | null;
+      if (el?.closest?.('.more-skills-dropdown')) return;
+      // 背景遮罩点击有自己的 onBackdrop handler 处理关闭逻辑，不要重复
+      if (el?.closest?.('.more-skills-backdrop')) return;
+      setCommunityOpen(false);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setCommunityOpen(false);
