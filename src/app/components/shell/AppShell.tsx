@@ -41,7 +41,6 @@ import UserInfo from '../UserInfo';
 import { ChatProvider, useChatContext } from '../chat/ChatContext';
 import { ChatPanel } from '../chat/ChatPanel';
 import { FloatingChatFAB } from '../chat/FloatingChatFAB';
-import { CdnIcon } from '../shared/CdnIcon';
 
 interface AppShellProps {
   activePage?: Page;
