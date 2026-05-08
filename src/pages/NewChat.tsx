@@ -234,12 +234,15 @@ function SkillInfoCard({
   template,
   anchor,
   placeAbove,
+  side = 'auto',
   onMouseEnter,
   onMouseLeave,
 }: {
   template: NewChatTemplate;
   anchor: DOMRect;
   placeAbove: boolean;
+  /** 'auto' = 默认上下放（pill）；'left' = 锚点左侧（dropdown row） */
+  side?: 'auto' | 'left';
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }) {
@@ -265,12 +268,26 @@ function SkillInfoCard({
     setComputedWidth(Math.max(cardMinWidth, Math.min(cardMaxWidth, needed)));
   }, [template.id, cardMaxWidth]);
 
-  // 以实际宽度居中估算 left；clamp 到视口右边
-  let left = anchor.left + anchor.width / 2 - computedWidth / 2;
-  if (typeof window !== 'undefined') {
-    left = Math.max(12, Math.min(left, window.innerWidth - computedWidth - 12));
+  // 默认（'auto'）：左右居中于锚点，上下根据 placeAbove
+  // 'left'：放在锚点左侧，垂直居中于锚点
+  let left: number;
+  let top: number;
+  if (side === 'left') {
+    left = anchor.left - computedWidth - gap;
+    if (typeof window !== 'undefined') {
+      left = Math.max(12, left);
+    }
+    top = anchor.top + anchor.height / 2 - cardHeight / 2;
+    if (typeof window !== 'undefined') {
+      top = Math.max(12, Math.min(top, window.innerHeight - cardHeight - 12));
+    }
+  } else {
+    left = anchor.left + anchor.width / 2 - computedWidth / 2;
+    if (typeof window !== 'undefined') {
+      left = Math.max(12, Math.min(left, window.innerWidth - computedWidth - 12));
+    }
+    top = placeAbove ? anchor.top - cardHeight - gap : anchor.bottom + gap;
   }
-  const top = placeAbove ? anchor.top - cardHeight - gap : anchor.bottom + gap;
 
   const capsLabelStyle: React.CSSProperties = {
     fontFamily: "'Delight', sans-serif",
@@ -874,11 +891,15 @@ function MoreSkillsDropdown({
   onSelect,
   onMouseEnter,
   onMouseLeave,
+  onRowHover,
+  onRowLeave,
 }: {
   skills: NewChatTemplate[];
   onSelect: (id: string) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  onRowHover?: (id: string, rect: DOMRect) => void;
+  onRowLeave?: () => void;
 }) {
   return (
     <div
@@ -895,17 +916,19 @@ function MoreSkillsDropdown({
             role="menuitem"
             className="more-skill-row"
             onClick={() => onSelect(skill.id)}
+            onMouseEnter={(e) => onRowHover?.(skill.id, e.currentTarget.getBoundingClientRect())}
+            onMouseLeave={() => onRowLeave?.()}
           >
-            <div className="more-skill-row-head">
+            {skill.kol ? (
               <Avatar name={skill.creator} size={20} />
-              <span className="more-skill-name">{skill.label}</span>
-            </div>
-            <p className="more-skill-desc">{skill.description}</p>
-            <div className="more-skill-meta">
-              <span>by {skill.creator}</span>
-              <span className="more-skill-meta-dot">·</span>
-              <span>{relativeTimeForSkill(skill.id)}</span>
-            </div>
+            ) : (
+              skill.icon ? (
+                <CdnIcon name={skill.icon} size={16} color="rgba(0,0,0,0.7)" />
+              ) : (
+                <Avatar name={skill.creator} size={20} />
+              )
+            )}
+            <span className="more-skill-name">{skill.label}</span>
           </button>
         ))}
       </div>
@@ -922,7 +945,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const [injectSignal, setInjectSignal] = useState<{ text: string; seq: number } | null>(null);
   const [typedText, setTypedText] = useState('');
   const [debouncedTypedText, setDebouncedTypedText] = useState('');
-  const [hover, setHover] = useState<{ id: string; rect: DOMRect; placeAbove: boolean } | null>(null);
+  const [hover, setHover] = useState<{ id: string; rect: DOMRect; placeAbove: boolean; side: 'auto' | 'left' } | null>(null);
   const [communityOpen, setCommunityOpen] = useState(false);
   const moreHideTimerRef = useRef<number | null>(null);
   const cancelMoreHide = () => {
@@ -950,7 +973,12 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
     hoverHideTimerRef.current = window.setTimeout(() => setHover(null), 160);
   };
 
-  const computeHover = (id: string, rect: DOMRect) => {
+  const computeHover = (id: string, rect: DOMRect, side: 'auto' | 'left' = 'auto') => {
+    if (side === 'left') {
+      cancelHoverHide();
+      setHover({ id, rect, placeAbove: false, side: 'left' });
+      return;
+    }
     // 决定信息卡放在 pill 上方还是下方：若同容器内还有 pill 在它下方（更靠近视口底），就放上方避开
     let placeAbove = false;
     if (pillsContainerRef.current) {
@@ -961,7 +989,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
       });
     }
     cancelHoverHide();
-    setHover({ id, rect, placeAbove });
+    setHover({ id, rect, placeAbove, side: 'auto' });
   };
   // 加载阶段：选中后由 0 → 1 → 2，分别表示骨架展示 / 真实数据已就绪
   // promptsReady ~ 900ms, cardsReady ~ 1500ms 后置位（骨架展示更久，给真实内容入场更明显的对比）
@@ -1143,10 +1171,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         }
         .more-skill-row{
           display:flex;
-          flex-direction:column;
-          gap:4px;
+          align-items:center;
+          gap:10px;
           width:100%;
-          padding:10px 12px;
+          padding:8px 12px;
           border:none;
           background:transparent;
           text-align:left;
@@ -1157,53 +1185,19 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         .more-skill-row:hover{
           background:rgba(0,0,0,0.04);
         }
-        .more-skill-row-head{
-          display:flex;
-          align-items:center;
-          gap:8px;
-        }
         .more-skill-name{
           font-family:'Delight',sans-serif;
-          font-size:13px;
-          line-height:18px;
+          font-size:14px;
+          line-height:22px;
           font-weight:500;
           color:rgba(0,0,0,0.9);
-          letter-spacing:0.13px;
+          letter-spacing:0.14px;
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
+          flex:1;
+          min-width:0;
         }
-        .more-skill-desc{
-          font-family:'Delight',sans-serif;
-          font-size:12px;
-          line-height:18px;
-          color:rgba(0,0,0,0.55);
-          letter-spacing:0.12px;
-          margin:0;
-          overflow:hidden;
-          display:-webkit-box;
-          -webkit-line-clamp:1;
-          -webkit-box-orient:vertical;
-          word-break:break-word;
-        }
-        .more-skill-row:hover .more-skill-desc{
-          -webkit-line-clamp:unset;
-          display:block;
-          white-space:normal;
-        }
-        .more-skill-meta{
-          display:none;
-          align-items:center;
-          gap:4px;
-          font-family:'Delight',sans-serif;
-          font-size:11px;
-          line-height:16px;
-          color:rgba(0,0,0,0.4);
-          letter-spacing:0.11px;
-          margin-top:2px;
-        }
-        .more-skill-meta-dot{opacity:0.6}
-        .more-skill-row:hover .more-skill-meta{display:flex}
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
         {/* ══════ Topbar ══════ */}
@@ -1424,6 +1418,8 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     onSelect={handleCommunitySelect}
                     onMouseEnter={cancelMoreHide}
                     onMouseLeave={scheduleMoreHide}
+                    onRowHover={(id, rect) => computeHover(id, rect, 'left')}
+                    onRowLeave={scheduleHoverHide}
                   />
                 )}
               </div>
@@ -1525,6 +1521,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           template={hoveredTemplate}
           anchor={hover.rect}
           placeAbove={hover.placeAbove}
+          side={hover.side}
           onMouseEnter={cancelHoverHide}
           onMouseLeave={scheduleHoverHide}
         />
