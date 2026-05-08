@@ -19,6 +19,13 @@ import type { CoverInput, Template as CoverTemplateName, DomainKey } from '@/lib
 
 const CHIP_ICON = 'researcher-l1';
 
+/** 返回 true 仅当设备支持 hover（即非触屏） */
+function supportsHover(): boolean {
+  if (typeof window === 'undefined') return true;
+  if (typeof window.matchMedia !== 'function') return true;
+  return window.matchMedia('(hover: hover)').matches;
+}
+
 /* ========== Skill 标签颜色 — 对应 Figma 的 m1/m2/m5 ========== */
 
 interface SkillColor {
@@ -85,6 +92,7 @@ function SkillPill({
       ref={ref}
       onClick={onClick}
       onMouseEnter={() => {
+        if (!supportsHover()) return;
         if (ref.current) {
           ref.current.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
           ref.current.style.transform = 'translateY(-2px)';
@@ -92,6 +100,7 @@ function SkillPill({
         }
       }}
       onMouseLeave={() => {
+        if (!supportsHover()) return;
         if (ref.current) {
           ref.current.style.boxShadow = 'none';
           ref.current.style.transform = 'translateY(0)';
@@ -391,10 +400,12 @@ function SkillInfoCard({
                   flexShrink: 0,
                 }}
                 onMouseEnter={(e) => {
+                  if (!supportsHover()) return;
                   e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
                   e.currentTarget.style.transform = 'translateY(-1px)';
                 }}
                 onMouseLeave={(e) => {
+                  if (!supportsHover()) return;
                   e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
@@ -469,10 +480,12 @@ function InlineSuggestionRow({ text, onClick }: { text: string; onClick?: () => 
       className="nc-prompt-row"
       onClick={onClick}
       onMouseEnter={(e) => {
+        if (!supportsHover()) return;
         e.currentTarget.style.background = 'rgba(0,0,0,0.03)';
         e.currentTarget.style.transform = 'translateY(-1px)';
       }}
       onMouseLeave={(e) => {
+        if (!supportsHover()) return;
         e.currentTarget.style.background = 'transparent';
         e.currentTarget.style.transform = 'translateY(0)';
       }}
@@ -722,10 +735,12 @@ function PlaybookCard({
         transition: 'box-shadow 180ms ease, transform 180ms ease',
       }}
       onMouseEnter={(e) => {
+        if (!supportsHover()) return;
         e.currentTarget.style.boxShadow = '0 8px 22px rgba(0,0,0,0.06)';
         e.currentTarget.style.transform = 'translateY(-2px)';
       }}
       onMouseLeave={(e) => {
+        if (!supportsHover()) return;
         e.currentTarget.style.boxShadow = 'none';
         e.currentTarget.style.transform = 'translateY(0)';
       }}
@@ -1634,8 +1649,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             padding:12px 16px 80px !important;
           }
         }
-        .nc-creator-link:hover{background:rgba(0,0,0,0.05)}
-        .nc-creator-link:hover .nc-creator-link-name{color:#49A3A6;text-decoration:underline;text-underline-offset:2px}
+        @media (hover: hover){
+          .nc-creator-link:hover{background:rgba(0,0,0,0.05)}
+          .nc-creator-link:hover .nc-creator-link-name{color:#49A3A6;text-decoration:underline;text-underline-offset:2px}
+        }
         .more-skills-dropdown{
           position:absolute;
           top:calc(100% + 8px);
@@ -1667,8 +1684,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           border-radius:8px;
           transition:background 140ms ease;
         }
-        .more-skill-row:hover{
-          background:rgba(0,0,0,0.04);
+        @media (hover: hover){
+          .more-skill-row:hover{
+            background:rgba(0,0,0,0.04);
+          }
         }
         .more-skills-backdrop{display:none}
         @media (max-width: 639px){
@@ -1861,11 +1880,13 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   className="nc-pill"
                   onClick={() => handlePillClick(t.id)}
                   onMouseEnter={(e) => {
+                    if (!supportsHover()) return;
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                     computeHover(t.id, e.currentTarget.getBoundingClientRect());
                   }}
                   onMouseLeave={(e) => {
+                    if (!supportsHover()) return;
                     e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.transform = 'translateY(0)';
                     scheduleHoverHide();
@@ -1897,6 +1918,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     border: communityOpen ? '0.5px solid rgba(73,163,166,0.45)' : chipBaseStyle.border,
                   }}
                   onMouseEnter={(e) => {
+                    if (!supportsHover()) return;
                     if (isMobile) return;
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
@@ -1905,6 +1927,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     setHover(null);
                   }}
                   onMouseLeave={(e) => {
+                    if (!supportsHover()) return;
                     if (isMobile) return;
                     e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.transform = 'translateY(0)';
