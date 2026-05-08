@@ -958,18 +958,19 @@ function MoreSkillsDropdown({
   );
 }
 
-/* ========== Title hero — 标题 + 创建者气泡，自适应缩放，固定高度 ========== */
+/* ========== Title hero — 标题 + 创建者气泡，允许折行，纵向居中，固定高度 ========== */
 
 const TITLE_BASE_FONT = 45;
 const TITLE_LH = 1.2;
-const TITLE_BOX_HEIGHT = Math.ceil(TITLE_BASE_FONT * TITLE_LH); // 54
+const TITLE_LINE = Math.ceil(TITLE_BASE_FONT * TITLE_LH); // 54
+const TITLE_BOX_HEIGHT = TITLE_LINE * 2; // 预留 2 行高度（108），保证下方内容不会跳
 
 function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; maxWidth: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-  const [bubbleLeft, setBubbleLeft] = useState<number | null>(null);
+  const [bubblePos, setBubblePos] = useState<{ top: number; left: number } | null>(null);
 
   const text = selected ? `Build your ${selected.label}` : 'Pick a skill and start building';
   const showBubble = !!selected?.kol;
@@ -980,35 +981,23 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
     if (!container || !title) return;
 
     const compute = () => {
-      // 重置 scale 测量原始宽度
-      title.style.transform = 'translateX(-50%)';
-      const naturalW = title.scrollWidth;
-      const containerW = container.clientWidth;
-      // 气泡（如果有）需要预留位置：title.scaledRight + gap + bubbleW 不能超过 container 右
-      const bubble = bubbleRef.current;
-      const bubbleW = bubble ? bubble.scrollWidth : 0;
-      const gap = 8;
-      // 先按 100% 容器宽度计算允许的 title 宽度
-      // 留出气泡空间：title scaledW <= containerW - bubbleSpace
-      // bubbleSpace = bubbleW + gap, 但只在右侧延伸时受限
-      // 使用对称布局：标题居中。气泡放在标题右侧时占用空间 = (bubbleW + gap) * 2（左右各预留）以维持居中
-      const reservedForBubble = showBubble ? (bubbleW + gap) * 2 : 0;
-      const availableW = Math.max(40, containerW - reservedForBubble);
-      const nextScale = naturalW > availableW ? availableW / naturalW : 1;
+      // Grid 布局会自动给 title 留出 (containerW - bubbleW - gap) 的空间，无需在 title 上手动设 maxWidth
+      const naturalH = title.scrollHeight;
+      // 折行后仍然超出 2 行高度时，按比例缩放确保完整展示
+      const nextScale = naturalH > TITLE_BOX_HEIGHT ? TITLE_BOX_HEIGHT / naturalH : 1;
       setScale(nextScale);
 
-      // 计算气泡 left = 标题缩放后右边 + gap，clamp 不超过 container 右边
-      if (showBubble && bubble) {
-        const scaledTitleW = naturalW * nextScale;
-        const titleRightFromCenter = scaledTitleW / 2;
-        const containerCenter = containerW / 2;
-        const desiredLeft = containerCenter + titleRightFromCenter + gap;
-        // 留 2px 安全余量，避免 subpixel 渲染溢出
-        const maxLeft = Math.floor(containerW - bubbleW - 2);
-        const finalLeft = Math.max(0, Math.min(desiredLeft, maxLeft));
-        setBubbleLeft(finalLeft);
+      // 气泡 top 对齐到 title 第一行的视觉上沿（左/右位置由 grid 控制）
+      if (showBubble && bubbleRef.current) {
+        const range = document.createRange();
+        range.selectNodeContents(title);
+        const lineRects = range.getClientRects();
+        range.detach?.();
+        const containerRect = container.getBoundingClientRect();
+        const firstLineTop = lineRects.length > 0 ? lineRects[0].top - containerRect.top : 0;
+        setBubblePos({ top: Math.max(0, firstLineTop - 14), left: 0 });
       } else {
-        setBubbleLeft(null);
+        setBubblePos(null);
       }
     };
 
@@ -1027,17 +1016,17 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
         width: '100%',
         maxWidth,
         height: TITLE_BOX_HEIGHT,
+        display: 'grid',
+        gridTemplateColumns: showBubble ? '1fr auto' : '1fr',
+        alignItems: 'center',
+        columnGap: 8,
       }}
     >
       <h1
         ref={titleRef}
         key={selected?.id ?? 'default'}
         style={{
-          position: 'absolute',
-          top: 0,
-          left: '50%',
-          transform: `translateX(-50%) scale(${scale})`,
-          transformOrigin: 'top center',
+          minWidth: 0,
           fontSize: TITLE_BASE_FONT,
           lineHeight: TITLE_LH,
           fontWeight: 400,
@@ -1046,7 +1035,8 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
           letterSpacing: 0.45,
           margin: 0,
           animation: 'newchat-fadeup 240ms ease-out',
-          whiteSpace: 'nowrap',
+          transform: `scale(${scale})`,
+          transformOrigin: 'center',
         }}
       >
         {text}
@@ -1056,11 +1046,12 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
           ref={bubbleRef}
           key={`bubble-${selected.id}`}
           style={{
-            position: 'absolute',
-            top: -14,
-            left: bubbleLeft ?? 0,
-            visibility: bubbleLeft === null ? 'hidden' : 'visible',
-            transformOrigin: 'left center',
+            // 用 grid 控制水平位置（贴右），但用 transform 把它垂直对齐到 title 第一行上沿
+            justifySelf: 'end',
+            alignSelf: 'start',
+            marginTop: bubblePos ? bubblePos.top : 0,
+            visibility: bubblePos ? 'visible' : 'hidden',
+            transformOrigin: 'right center',
             animation: 'newchat-bubble-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms backwards',
             display: 'flex',
             alignItems: 'center',
