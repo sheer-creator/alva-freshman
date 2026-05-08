@@ -981,14 +981,25 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
     if (!container || !title) return;
 
     const compute = () => {
-      // Grid 布局会自动给 title 留出 (containerW - bubbleW - gap) 的空间，无需在 title 上手动设 maxWidth
+      const containerW = container.clientWidth;
+      const bubble = bubbleRef.current;
+      const bubbleW = showBubble && bubble ? bubble.scrollWidth : 0;
+      // 允许气泡与标题略微重叠（最多 OVERLAP_TOLERANCE px），换取更大字号 / 更少折行
+      const OVERLAP_TOLERANCE = 28;
+      // 标题居中布局时 H1.right = (containerW + H1.width)/2
+      // 允许 overlap：H1.right ≤ containerW - bubbleW + OVERLAP_TOLERANCE
+      // 推得 H1.width ≤ containerW - 2*(bubbleW - OVERLAP_TOLERANCE)
+      const titleMaxW = showBubble && bubble
+        ? Math.max(200, containerW - 2 * (bubbleW - OVERLAP_TOLERANCE))
+        : containerW;
+      title.style.maxWidth = `${titleMaxW}px`;
+
       const naturalH = title.scrollHeight;
-      // 折行后仍然超出 2 行高度时，按比例缩放确保完整展示
       const nextScale = naturalH > TITLE_BOX_HEIGHT ? TITLE_BOX_HEIGHT / naturalH : 1;
       setScale(nextScale);
 
-      // 气泡 top 对齐到 title 第一行的视觉上沿（左/右位置由 grid 控制）
-      if (showBubble && bubbleRef.current) {
+      // 气泡：绝对定位贴右侧（right: 0）；top 对齐到 title 第一行的视觉上沿
+      if (showBubble && bubble) {
         const range = document.createRange();
         range.selectNodeContents(title);
         const lineRects = range.getClientRects();
@@ -1016,17 +1027,15 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
         width: '100%',
         maxWidth,
         height: TITLE_BOX_HEIGHT,
-        display: 'grid',
-        gridTemplateColumns: showBubble ? '1fr auto' : '1fr',
+        display: 'flex',
         alignItems: 'center',
-        columnGap: 8,
+        justifyContent: 'center',
       }}
     >
       <h1
         ref={titleRef}
         key={selected?.id ?? 'default'}
         style={{
-          minWidth: 0,
           fontSize: TITLE_BASE_FONT,
           lineHeight: TITLE_LH,
           fontWeight: 400,
@@ -1046,10 +1055,9 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
           ref={bubbleRef}
           key={`bubble-${selected.id}`}
           style={{
-            // 用 grid 控制水平位置（贴右），但用 transform 把它垂直对齐到 title 第一行上沿
-            justifySelf: 'end',
-            alignSelf: 'start',
-            marginTop: bubblePos ? bubblePos.top : 0,
+            position: 'absolute',
+            top: bubblePos ? bubblePos.top : 0,
+            right: 0,
             visibility: bubblePos ? 'visible' : 'hidden',
             transformOrigin: 'right center',
             animation: 'newchat-bubble-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms backwards',
