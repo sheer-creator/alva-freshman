@@ -1010,9 +1010,10 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
       const containerW = container.clientWidth;
       const bubble = bubbleRef.current;
       const bubbleW = showBubble && bubble ? bubble.scrollWidth : 0;
-      // 标题最大宽度 = 容器宽度 - 气泡宽度（不对称预留），让标题尽可能宽。
-      // 居中后真实文字会居中在 H1 内，气泡按规则贴在第一行右上角；只在第一行很宽时才会触发右对齐。
-      const titleMaxW = showBubble && bubble
+      const isMobile = window.innerWidth < MOBILE_THRESHOLD_PX;
+      // 移动端：气泡放在标题上方独立一行，标题占用容器全宽，避免被挤成 3 行。
+      // 桌面：气泡贴第一行右上角，与标题共享一行宽度。
+      const titleMaxW = !isMobile && showBubble && bubble
         ? Math.max(220, containerW - bubbleW)
         : containerW;
       title.style.maxWidth = `${titleMaxW}px`;
@@ -1021,26 +1022,28 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
       const nextScale = naturalH > TITLE_BOX_HEIGHT ? TITLE_BOX_HEIGHT / naturalH : 1;
       setScale(nextScale);
 
-      // 气泡定位规则：
-      //   1) 默认贴在标题第一行的右上角（firstLine.right + gap）
-      //   2) 若上述位置会让气泡右侧超出容器右侧（= 输入框右侧），则改为右对齐（right: 0）
       if (showBubble && bubble) {
-        const range = document.createRange();
-        range.selectNodeContents(title);
-        const lineRects = range.getClientRects();
-        range.detach?.();
-        const containerRect = container.getBoundingClientRect();
-        const firstLine = lineRects.length > 0 ? lineRects[0] : null;
-        const firstLineTop = firstLine ? firstLine.top - containerRect.top : 0;
-        const firstLineRight = firstLine ? firstLine.right - containerRect.left : 0;
-        const gap = 8;
-        const desiredLeft = firstLineRight + gap;
-        const wouldOverflow = desiredLeft + bubbleW > containerW;
-        const finalLeft = wouldOverflow ? Math.max(0, containerW - bubbleW) : desiredLeft;
-        // 气泡垂直定位：bottom 比 firstLineTop 略低 4px（"错位一点"），整体在第一行上方；允许溢出标题区域
         const bubbleH = bubble.offsetHeight || 32;
-        const top = firstLineTop + 4 - bubbleH;
-        setBubblePos({ top, left: finalLeft });
+        if (isMobile) {
+          // 移动端：气泡置于容器右上方，整体位于标题上方（容器有 paddingTop 留出空间）
+          setBubblePos({ top: -bubbleH - 6, left: Math.max(0, containerW - bubbleW) });
+        } else {
+          // 桌面：气泡贴标题第一行右上角；溢出时改右对齐
+          const range = document.createRange();
+          range.selectNodeContents(title);
+          const lineRects = range.getClientRects();
+          range.detach?.();
+          const containerRect = container.getBoundingClientRect();
+          const firstLine = lineRects.length > 0 ? lineRects[0] : null;
+          const firstLineTop = firstLine ? firstLine.top - containerRect.top : 0;
+          const firstLineRight = firstLine ? firstLine.right - containerRect.left : 0;
+          const gap = 8;
+          const desiredLeft = firstLineRight + gap;
+          const wouldOverflow = desiredLeft + bubbleW > containerW;
+          const finalLeft = wouldOverflow ? Math.max(0, containerW - bubbleW) : desiredLeft;
+          const top = firstLineTop + 4 - bubbleH;
+          setBubblePos({ top, left: finalLeft });
+        }
       } else {
         setBubblePos(null);
       }
@@ -1632,7 +1635,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             height:16px !important;
           }
           .nc-hero-section{
-            padding:24px 16px 12px !important;
+            padding:56px 16px 12px !important;
             gap:24px !important;
           }
           .nc-prompts-container{
