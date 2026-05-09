@@ -139,7 +139,7 @@ function relativeTimeForSkill(skillId: string): string {
   return `${Math.floor(minutes / (24 * 60))}d ago`;
 }
 
-/* 派生 skill 信息卡底部的 tags + uses（CommunitySkill 直接用自带字段，其它走哈希派生） */
+/* 派生 skill 信息卡的 tags（CommunitySkill 直接用自带字段，其它走哈希派生） */
 const TAG_POOL = [
   'Filings', 'Insider Cluster', 'Event Drift', 'Earnings Drift', 'Whisper Numbers',
   'Macro Flow', 'FX Cross', 'Rates Curve', 'Credit Spread', 'Sentiment',
@@ -162,17 +162,6 @@ function tagsForSkill(skillId: string): string[] {
     picks.push(TAG_POOL[idx]);
   }
   return picks;
-}
-
-function usesForSkill(skillId: string): string {
-  const h = fnv1aSkill(skillId + '|uses');
-  // 50 ~ 49,999 之间
-  const n = (h % 49950) + 50;
-  if (n >= 1000) {
-    const k = n / 1000;
-    return `${k.toFixed(k < 10 ? 1 : 0)}k uses`;
-  }
-  return `${n} uses`;
 }
 
 /* ========== Social media icons ========== */
@@ -256,167 +245,89 @@ function SkillInfoCard({
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }) {
-  const cardMinWidth = 300;
-  const cardMaxWidth = typeof window !== 'undefined' ? Math.min(480, window.innerWidth - 24) : 480;
-  const cardHeight = 175;
+  // 卡片复用移动端 SkillDetailModal 的内容结构（标题→副标题→描述→tags→分隔线→creator 行），
+  // 但桌面 hover 卡不展示底部按钮和按钮上方的分隔线。
+  const cardWidth = 360;
   const gap = 10;
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [measuredHeight, setMeasuredHeight] = useState<number>(220);
 
-  const tagsListRef = useRef<HTMLDivElement>(null);
-  const usesRef = useRef<HTMLSpanElement>(null);
-  const [computedWidth, setComputedWidth] = useState<number>(cardMinWidth);
-
-  // 测量 tags + uses 的自然宽度，需要时撑开卡片
   useLayoutEffect(() => {
-    const list = tagsListRef.current;
-    const uses = usesRef.current;
-    if (!list || !uses) return;
-    const tagsW = list.scrollWidth;
-    const usesW = uses.scrollWidth;
-    const padding = 28; // 14 * 2
-    const innerGap = 12;
-    const needed = tagsW + innerGap + usesW + padding;
-    setComputedWidth(Math.max(cardMinWidth, Math.min(cardMaxWidth, needed)));
-  }, [template.id, cardMaxWidth]);
+    if (cardRef.current) {
+      setMeasuredHeight(cardRef.current.offsetHeight);
+    }
+  }, [template.id]);
 
-  // 默认（'auto'）：左右居中于锚点，上下根据 placeAbove
-  // 'left'：放在锚点左侧，垂直居中于锚点
+  const tags = (template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id);
+
   let left: number;
   let top: number;
   if (side === 'left') {
-    left = anchor.left - computedWidth - gap;
+    left = anchor.left - cardWidth - gap;
     if (typeof window !== 'undefined') {
       left = Math.max(12, left);
     }
-    top = anchor.top + anchor.height / 2 - cardHeight / 2;
+    top = anchor.top + anchor.height / 2 - measuredHeight / 2;
     if (typeof window !== 'undefined') {
-      top = Math.max(12, Math.min(top, window.innerHeight - cardHeight - 12));
+      top = Math.max(12, Math.min(top, window.innerHeight - measuredHeight - 12));
     }
   } else {
-    left = anchor.left + anchor.width / 2 - computedWidth / 2;
+    left = anchor.left + anchor.width / 2 - cardWidth / 2;
     if (typeof window !== 'undefined') {
-      left = Math.max(12, Math.min(left, window.innerWidth - computedWidth - 12));
+      left = Math.max(12, Math.min(left, window.innerWidth - cardWidth - 12));
     }
-    top = placeAbove ? anchor.top - cardHeight - gap : anchor.bottom + gap;
+    top = placeAbove ? anchor.top - measuredHeight - gap : anchor.bottom + gap;
   }
-
-  const capsLabelStyle: React.CSSProperties = {
-    fontFamily: "'Delight', sans-serif",
-    fontSize: 11,
-    lineHeight: '14px',
-    color: 'rgba(0,0,0,0.4)',
-    letterSpacing: 0.11,
-    fontWeight: 500,
-  };
 
   return (
     <div
+      ref={cardRef}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
         position: 'fixed',
         top,
         left,
-        width: computedWidth,
+        width: cardWidth,
         zIndex: 50,
         background: '#ffffff',
-        borderRadius: 12,
+        borderRadius: 14,
         border: '0.5px solid rgba(0,0,0,0.1)',
         boxShadow: '0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)',
-        padding: '14px 14px 14px',
+        padding: 20,
         pointerEvents: 'auto',
         animation: 'newchat-fadeup 160ms ease-out',
       }}
     >
-      {/* 顶部信息区：左右两列
-       *   左：上 caps "Created by"，下 头像+名字
-       *   右：上 "Last updated 1d ago"（单行小字），下 3 个社交媒体按钮
-       */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <span style={capsLabelStyle}>Created by</span>
-          <button
-            type="button"
-            className="nc-creator-link"
-            onClick={(e) => {
-              e.stopPropagation();
-              // TODO: 接入 profile 页跳转（暂时占位）
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '4px 6px',
-              margin: '-4px -6px',
-              border: 'none',
-              background: 'transparent',
-              cursor: 'pointer',
-              borderRadius: 6,
-              transition: 'background 140ms ease',
-              minWidth: 0,
-            }}
-          >
-            <Avatar name={template.creator} size={22} />
-            <span
-              className="nc-creator-link-name"
-              style={{
-                fontFamily: "'Delight', sans-serif",
-                fontSize: 14,
-                lineHeight: '22px',
-                color: 'rgba(0,0,0,0.9)',
-                letterSpacing: 0.14,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                transition: 'color 140ms ease',
-              }}
-            >
-              {template.creator}
-            </span>
-          </button>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-          <span style={{ ...capsLabelStyle, whiteSpace: 'nowrap' }}>
-            Last updated {relativeTimeForSkill(template.id)}
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {socialsForCreator(template.creator).map((s) => (
-              <a
-                key={s.key}
-                href={s.href}
-                target="_blank"
-                rel="noreferrer noopener"
-                aria-label={s.label}
-                style={{
-                  width: 22,
-                  height: 22,
-                  minWidth: 22,
-                  minHeight: 22,
-                  borderRadius: '9999px',
-                  background: 'rgba(0,0,0,0.05)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'background 120ms ease, transform 120ms ease',
-                  flexShrink: 0,
-                }}
-                onMouseEnter={(e) => {
-                  if (!supportsHover()) return;
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseLeave={(e) => {
-                  if (!supportsHover()) return;
-                  e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                {s.render()}
-              </a>
-            ))}
-          </div>
-        </div>
+      {/* 顶部：skill 名 + 副标题 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <h2
+          style={{
+            fontFamily: "'Delight', sans-serif",
+            fontSize: 18,
+            lineHeight: '24px',
+            fontWeight: 600,
+            color: 'rgba(0,0,0,0.9)',
+            letterSpacing: 0.18,
+            margin: 0,
+          }}
+        >
+          {template.label}
+        </h2>
+        <span
+          style={{
+            fontFamily: "'Delight', sans-serif",
+            fontSize: 11,
+            lineHeight: '16px',
+            color: 'rgba(0,0,0,0.4)',
+            letterSpacing: 0.11,
+            fontWeight: 500,
+          }}
+        >
+          {relativeTimeForSkill(template.id)}
+        </span>
       </div>
-      <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 11px' }} />
+      {/* 描述 */}
       <p
         style={{
           fontFamily: "'Delight', sans-serif",
@@ -424,49 +335,124 @@ function SkillInfoCard({
           lineHeight: '20px',
           color: 'rgba(0,0,0,0.7)',
           letterSpacing: 0.13,
-          margin: 0,
+          margin: '10px 0 0',
         }}
       >
         {template.description}
       </p>
-      {/* 底部 tags + uses — 标签不允许被裁，撑开卡片宽度 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 12 }}>
-        <div ref={tagsListRef} style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
-          {((template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id)).slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              style={{
-                height: 20,
-                padding: '0 6px',
-                borderRadius: 5,
-                background: 'rgba(0,0,0,0.05)',
-                color: 'rgba(0,0,0,0.58)',
-                fontFamily: "'Delight', sans-serif",
-                fontSize: 11,
-                lineHeight: '20px',
-                letterSpacing: 0.11,
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-        <span
-          ref={usesRef}
+      {/* tags */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', marginTop: 10 }}>
+        {tags.slice(0, 3).map((tag) => (
+          <span
+            key={tag}
+            style={{
+              height: 20,
+              padding: '0 6px',
+              borderRadius: 5,
+              background: 'rgba(0,0,0,0.05)',
+              color: 'rgba(0,0,0,0.58)',
+              fontFamily: "'Delight', sans-serif",
+              fontSize: 11,
+              lineHeight: '20px',
+              letterSpacing: 0.11,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+      {/* 分割线（创作者行紧贴上方分隔线） */}
+      <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0 12px' }} />
+      {/* 创建者信息行 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button
+          type="button"
+          className="nc-creator-link"
+          onClick={(e) => e.stopPropagation()}
           style={{
-            fontFamily: "'Delight', sans-serif",
-            fontSize: 11,
-            lineHeight: '18px',
-            color: 'rgba(0,0,0,0.45)',
-            letterSpacing: 0.11,
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '4px 6px',
+            margin: '-4px -6px',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            borderRadius: 6,
+            transition: 'background 140ms ease',
+            textAlign: 'left',
           }}
         >
-          {(template as CommunitySkillTemplate).uses ?? usesForSkill(template.id)}
-        </span>
+          <Avatar name={template.creator} size={36} />
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 11,
+                lineHeight: '14px',
+                color: 'rgba(0,0,0,0.4)',
+                letterSpacing: 0.11,
+                fontWeight: 500,
+              }}
+            >
+              Created by
+            </div>
+            <div
+              className="nc-creator-link-name"
+              style={{
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 14,
+                lineHeight: '20px',
+                color: 'rgba(0,0,0,0.9)',
+                letterSpacing: 0.14,
+                fontWeight: 500,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                transition: 'color 140ms ease',
+              }}
+            >
+              {template.creator}
+            </div>
+          </div>
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {socialsForCreator(template.creator).map((s) => (
+            <a
+              key={s.key}
+              href={s.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label={s.label}
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: '9999px',
+                background: 'rgba(0,0,0,0.05)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transition: 'background 120ms ease, transform 120ms ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!supportsHover()) return;
+                e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                if (!supportsHover()) return;
+                e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              {s.render()}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1143,7 +1129,6 @@ function SkillDetailModal({
   onSelect: () => void;
 }) {
   const tags = (template as CommunitySkillTemplate).tags ?? tagsForSkill(template.id);
-  const uses = (template as CommunitySkillTemplate).uses ?? usesForSkill(template.id);
   if (typeof document === 'undefined') return null;
   return createPortal(
     <div
@@ -1197,7 +1182,7 @@ function SkillDetailModal({
               fontWeight: 500,
             }}
           >
-            {relativeTimeForSkill(template.id)} · {uses}
+            {relativeTimeForSkill(template.id)}
           </span>
         </div>
         {/* 描述 */}
