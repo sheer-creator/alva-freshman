@@ -144,6 +144,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
+        <NavItem label="Create New (Opt2)" icon="sidebar-skills-normal" active={activePage === 'new-chat-opt2'} collapsed={collapsed} onClick={() => onNavigate('new-chat-opt2')} />
         <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore-2'} collapsed={collapsed} onClick={() => onNavigate('explore-2')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Agent" icon="sidebar-agent-normal" active={activePage === 'agent'} collapsed={collapsed} onClick={() => onNavigate('agent')} />

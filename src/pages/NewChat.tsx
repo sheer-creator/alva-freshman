@@ -1317,7 +1317,8 @@ function SkillDetailModal({
 
 const HERO_WIDTH = 960;
 
-export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (page: Page) => void; onOpenSearch?: () => void }) {
+export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' }: { onNavigate: (page: Page) => void; onOpenSearch?: () => void; variant?: 'default' | 'opt2' }) {
+  const isOpt2 = variant === 'opt2';
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [injectSignal, setInjectSignal] = useState<{ text: string; seq: number } | null>(null);
   const [typedText, setTypedText] = useState('');
@@ -1563,7 +1564,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
   const hoveredTemplate = hover ? PRIMARY_TEMPLATES.find((t) => t.id === hover.id) || OTHERS_TEMPLATES.find((t) => t.id === hover.id) || COMMUNITY_TEMPLATES.find((t) => t.id === hover.id) : null;
 
   return (
-    <AppShell activePage={'new-chat' as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
+    <AppShell activePage={(isOpt2 ? 'new-chat-opt2' : 'new-chat') as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
       <style>{`
         @keyframes newchat-fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes newchat-fade{from{opacity:0}to{opacity:1}}
@@ -1841,6 +1842,194 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
           border-radius:9999px;
         }
+
+        /* ══════ Opt2 page skill cards (masonry / hover-reveal) ══════ */
+        .nc-skill-masonry{
+          column-count:3;
+          column-gap:12px;
+        }
+        @media (max-width: 1023px){
+          .nc-skill-masonry{ column-count:2; }
+        }
+        @media (max-width: 639px){
+          .nc-skill-masonry{ column-count:1; }
+        }
+        .nc-skill-card{
+          display:block;
+          width:100%;
+          background:#fff;
+          border:0.5px solid rgba(0,0,0,0.08);
+          border-radius:12px;
+          padding:16px;
+          margin:0 0 12px;
+          break-inside:avoid;
+          font-family:inherit;
+          transition:box-shadow 160ms ease, border-color 160ms ease;
+        }
+        @media (hover: hover){
+          .nc-skill-card:hover{
+            box-shadow:0 6px 18px rgba(0,0,0,0.06);
+            border-color:rgba(0,0,0,0.14);
+          }
+        }
+        .nc-skill-card-header{
+          display:flex;
+          align-items:center;
+          gap:12px;
+        }
+        .nc-skill-card-header > div[class*="rounded-full"],
+        .nc-skill-card-header > img{
+          box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
+          border-radius:9999px;
+          flex-shrink:0;
+        }
+        .nc-skill-card-icon-wrap{
+          width:36px;
+          height:36px;
+          flex-shrink:0;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          border-radius:9999px;
+          background:rgba(0,0,0,0.05);
+          border:1px solid rgba(0,0,0,0.12);
+        }
+        .nc-skill-card-text{
+          flex:1;
+          min-width:0;
+          display:flex;
+          flex-direction:column;
+          gap:2px;
+        }
+        .nc-skill-card-name{
+          font-family:'Delight',sans-serif;
+          font-size:15px;
+          line-height:20px;
+          font-weight:600;
+          color:rgba(0,0,0,0.9);
+          letter-spacing:0.15px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .nc-skill-card-author{
+          font-family:'Delight',sans-serif;
+          font-size:12px;
+          line-height:16px;
+          color:rgba(0,0,0,0.45);
+          letter-spacing:0.12px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .nc-skill-card-desc{
+          font-family:'Delight',sans-serif;
+          font-size:13px;
+          line-height:20px;
+          color:rgba(0,0,0,0.7);
+          letter-spacing:0.13px;
+          margin:12px 0 0;
+        }
+        /* hover 之前隐藏，hover 时挤出 */
+        .nc-skill-card-extra{
+          overflow:hidden;
+          max-height:0;
+          opacity:0;
+          transition:max-height 220ms ease, opacity 180ms ease, margin-top 220ms ease;
+        }
+        @media (hover: hover){
+          .nc-skill-card:hover .nc-skill-card-extra{
+            max-height:360px;
+            opacity:1;
+            margin-top:14px;
+          }
+        }
+        /* 触屏：始终显示 */
+        @media (hover: none){
+          .nc-skill-card-extra{
+            max-height:none;
+            opacity:1;
+            margin-top:14px;
+          }
+        }
+        .nc-skill-card-tags{
+          display:flex;
+          flex-wrap:wrap;
+          gap:5px;
+        }
+        .nc-skill-card-tag{
+          height:20px;
+          padding:0 6px;
+          border-radius:5px;
+          background:rgba(0,0,0,0.05);
+          color:rgba(0,0,0,0.58);
+          font-family:'Delight',sans-serif;
+          font-size:11px;
+          line-height:20px;
+          letter-spacing:0.11px;
+          white-space:nowrap;
+        }
+        .nc-skill-card-divider{
+          height:1px;
+          background:rgba(0,0,0,0.08);
+          margin:12px 0;
+        }
+        .nc-skill-card-creator{
+          display:flex;
+          align-items:center;
+          gap:10px;
+        }
+        .nc-skill-card-creator > div[class*="rounded-full"],
+        .nc-skill-card-creator > img{
+          box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
+          border-radius:9999px;
+          flex-shrink:0;
+        }
+        .nc-skill-card-creator-text{
+          display:flex;
+          flex-direction:column;
+          min-width:0;
+        }
+        .nc-skill-card-creator-caps{
+          font-family:'Delight',sans-serif;
+          font-size:11px;
+          line-height:14px;
+          color:rgba(0,0,0,0.4);
+          letter-spacing:0.11px;
+          font-weight:500;
+        }
+        .nc-skill-card-creator-name{
+          font-family:'Delight',sans-serif;
+          font-size:13px;
+          line-height:18px;
+          color:rgba(0,0,0,0.9);
+          letter-spacing:0.13px;
+          font-weight:500;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .nc-skill-card-pick{
+          margin-top:12px;
+          width:100%;
+          height:38px;
+          border:none;
+          border-radius:8px;
+          background:#49A3A6;
+          color:#fff;
+          font-family:'Delight',sans-serif;
+          font-size:13px;
+          font-weight:500;
+          letter-spacing:0.13px;
+          cursor:pointer;
+          transition:background 140ms ease;
+        }
+        .nc-skill-card-pick:hover{
+          background:#3e9295;
+        }
+        @media (max-width: 639px){
+          .nc-skill-card{ padding:14px; }
+        }
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
         {/* ══════ Topbar — 在移动端由 AppShell 的 mobile topbar 接管，这里隐藏 ══════ */}
@@ -1930,8 +2119,9 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           )}
 
           {/* skill pills — 未选中时展示。所有 pill + More 始终渲染在同一个容器；
-            布局测量时直接 mutate display:none 把溢出的 pill 隐藏（state 仅供 More 下拉用） */}
-          {!selected && !showTypedSuggestions && (
+            布局测量时直接 mutate display:none 把溢出的 pill 隐藏（state 仅供 More 下拉用）。
+            Opt2 用瀑布流卡片代替药丸 → 这一行只在默认变体下渲染。 */}
+          {!isOpt2 && !selected && !showTypedSuggestions && (
             <div
               ref={pillsContainerRef}
               style={{
@@ -1976,7 +2166,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                   {t.label}
                 </button>
               ))}
-              <div ref={communityRef} data-more-wrap style={{ position: 'relative' }}>
+              {!isOpt2 && <div ref={communityRef} data-more-wrap style={{ position: 'relative' }}>
                 <button
                   ref={morePillRef}
                   type="button"
@@ -2024,7 +2214,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
                     onBackdrop={() => setCommunityOpen(false)}
                   />
                 )}
-              </div>
+              </div>}
             </div>
           )}
 
@@ -2066,6 +2256,82 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             </div>
           )}
         </section>
+
+        {/* ══════ Opt2 默认态：瀑布流卡片，hover 时露出 tags / creator / Pick ══════ */}
+        {isOpt2 && !selected && (
+          <section
+            className="nc-skills-grid-section"
+            style={{
+              width: '100%',
+              maxWidth: HERO_WIDTH + 48,
+              margin: '0 auto',
+              padding: '0 24px 80px',
+              position: 'relative',
+              zIndex: 2,
+            }}
+          >
+            <div className="nc-skill-masonry">
+              {allSkills.map((s, i) => {
+                const tags = (s as CommunitySkillTemplate).tags ?? tagsForSkill(s.id);
+                return (
+                  <article
+                    key={s.id}
+                    className="nc-skill-card"
+                    style={{
+                      animation: 'newchat-fadeup 360ms ease-out both',
+                      animationDelay: `${Math.min(i, 12) * 30}ms`,
+                    }}
+                  >
+                    <header className="nc-skill-card-header">
+                      {s.kol ? (
+                        <Avatar name={s.creator} size={36} />
+                      ) : (
+                        <span className="nc-skill-card-icon-wrap">
+                          {s.icon ? (
+                            <CdnIcon name={s.icon} size={20} color="rgba(0,0,0,0.7)" />
+                          ) : (
+                            <Avatar name={s.creator} size={36} />
+                          )}
+                        </span>
+                      )}
+                      <span className="nc-skill-card-text">
+                        <span className="nc-skill-card-name">{s.label}</span>
+                        <span className="nc-skill-card-author">by {s.creator}</span>
+                      </span>
+                    </header>
+                    <p className="nc-skill-card-desc">{s.description}</p>
+                    <div className="nc-skill-card-extra">
+                      <div className="nc-skill-card-tags">
+                        {tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="nc-skill-card-tag">{tag}</span>
+                        ))}
+                      </div>
+                      <div className="nc-skill-card-divider" />
+                      <div className="nc-skill-card-creator">
+                        <Avatar name={s.creator} size={28} />
+                        <div className="nc-skill-card-creator-text">
+                          <span className="nc-skill-card-creator-caps">Created by</span>
+                          <span className="nc-skill-card-creator-name">{s.creator}</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="nc-skill-card-pick"
+                        onClick={() => {
+                          setSelectedId(s.id);
+                          setHover(null);
+                          setCommunityOpen(false);
+                        }}
+                      >
+                        Pick this skill
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* ══════ 选中态：6 张 playbook（3×2）—— 先骨架，再淡入真实 ══════ */}
         {selected && (
