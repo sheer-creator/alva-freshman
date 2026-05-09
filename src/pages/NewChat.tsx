@@ -1971,7 +1971,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           overflow:hidden;
           max-height:0;
           opacity:0;
-          transition:max-height 220ms cubic-bezier(0.4, 0, 1, 1), opacity 160ms ease-in;
+          /* 收缩用 ease-out（起手就最快），保证鼠标一离开立刻看到卡片往回缩 */
+          transition:max-height 180ms ease-out, opacity 140ms ease-out;
         }
         @media (hover: hover){
           .nc-skill-card:hover .nc-skill-card-extra{
