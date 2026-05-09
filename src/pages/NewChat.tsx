@@ -1941,26 +1941,22 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
-          position:relative;
-          min-height:16px;
         }
-        .nc-skill-card-author-default,
-        .nc-skill-card-author-hover{
-          display:block;
-          overflow:hidden;
-          text-overflow:ellipsis;
-          white-space:nowrap;
-          transition:opacity 140ms ease;
-        }
-        .nc-skill-card-author-hover{
-          position:absolute;
-          inset:0;
-          opacity:0;
-          pointer-events:none;
+        .nc-skill-card-author-creator,
+        .nc-skill-card-author-sep,
+        .nc-skill-card-author-time{
+          transition:opacity 140ms ease, max-width 220ms ease;
         }
         @media (hover: hover){
-          .nc-skill-card:hover .nc-skill-card-author-default{ opacity:0; }
-          .nc-skill-card:hover .nc-skill-card-author-hover{ opacity:1; }
+          /* hover 时折叠 "by creator · " 部分，只保留更新时间 */
+          .nc-skill-card:hover .nc-skill-card-author-creator,
+          .nc-skill-card:hover .nc-skill-card-author-sep{
+            opacity:0;
+            max-width:0;
+            display:inline-block;
+            overflow:hidden;
+            white-space:nowrap;
+          }
           /* 头像跟下面 creator 行重复，hover 时隐掉留白让上面的 name+meta 整体左移 */
           .nc-skill-card:hover .nc-skill-card-creator-thumb{ display:none; }
         }
@@ -1998,6 +1994,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           display:flex;
           flex-wrap:wrap;
           gap:5px;
+          margin-top:12px;
         }
         .nc-skill-card-tag{
           height:20px;
@@ -2370,18 +2367,19 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                             <span className="nc-skill-card-text">
                               <span className="nc-skill-card-name">{s.label}</span>
                               <span className="nc-skill-card-author">
-                                <span className="nc-skill-card-author-default">by {s.creator}</span>
-                                <span className="nc-skill-card-author-hover">Last updated {relativeTimeForSkill(s.id)}</span>
+                                <span className="nc-skill-card-author-creator">by {s.creator}</span>
+                                <span className="nc-skill-card-author-sep"> · </span>
+                                <span className="nc-skill-card-author-time">{relativeTimeForSkill(s.id)}</span>
                               </span>
                             </span>
                           </header>
                           <p className="nc-skill-card-desc">{s.description}</p>
+                          <div className="nc-skill-card-tags">
+                            {tags.slice(0, 3).map((tag) => (
+                              <span key={tag} className="nc-skill-card-tag">{tag}</span>
+                            ))}
+                          </div>
                           <div className="nc-skill-card-extra">
-                            <div className="nc-skill-card-tags">
-                              {tags.slice(0, 3).map((tag) => (
-                                <span key={tag} className="nc-skill-card-tag">{tag}</span>
-                              ))}
-                            </div>
                             <div className="nc-skill-card-divider" />
                             <div className="nc-skill-card-creator">
                               <Avatar name={s.creator} size={28} />
