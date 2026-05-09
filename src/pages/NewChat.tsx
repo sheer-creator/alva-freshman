@@ -1967,18 +1967,34 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         /* hover 之前隐藏，hover 时挤出。
            - 默认（鼠标移走时生效）：起手就收，曲线偏 ease-in，让卡片立刻往回缩。
            - hover（展开时生效）：Material 标准曲线，整段均匀流速能看到在涨高。 */
+        /* 用 grid-template-rows 0fr → 1fr 的技巧把高度直接动画到 content 真实高度，
+           避免 max-height 从 360px 先无效地缩回到 content 实际高度的"前置无视觉空走"。 */
+        .nc-skill-card-extra-wrap{
+          display:grid;
+          grid-template-rows:0fr;
+          /* 默认（收回）：起手即最快，鼠标一离开就开始缩 */
+          transition:grid-template-rows 200ms ease-out;
+        }
         .nc-skill-card-extra{
           overflow:hidden;
-          max-height:0;
           opacity:0;
-          /* 收缩用 ease-out（起手就最快），保证鼠标一离开立刻看到卡片往回缩 */
-          transition:max-height 180ms ease-out, opacity 140ms ease-out;
+          transition:opacity 160ms ease-out;
         }
         @media (hover: hover){
+          .nc-skill-card:hover .nc-skill-card-extra-wrap{
+            grid-template-rows:1fr;
+            transition:grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1);
+          }
           .nc-skill-card:hover .nc-skill-card-extra{
-            max-height:360px;
             opacity:1;
-            transition:max-height 360ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease-out;
+          }
+        }
+        @media (hover: none){
+          .nc-skill-card-extra-wrap{
+            grid-template-rows:1fr;
+          }
+          .nc-skill-card-extra{
+            opacity:1;
           }
         }
         /* 触屏：始终显示 */
@@ -2370,6 +2386,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                               <span key={tag} className="nc-skill-card-tag">{tag}</span>
                             ))}
                           </div>
+                          <div className="nc-skill-card-extra-wrap">
                           <div className="nc-skill-card-extra">
                             <div className="nc-skill-card-divider" />
                             <div className="nc-skill-card-creator">
@@ -2394,6 +2411,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                                 ))}
                               </div>
                             </div>
+                          </div>
                           </div>
                         </article>
                       );
