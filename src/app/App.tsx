@@ -94,6 +94,7 @@ export default function App() {
     <>
       <Suspense>
         {currentPage === "new-chat" && <NewChat onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "new-chat-opt2" && <NewChat onNavigate={navigate} onOpenSearch={openSearch} variant="opt2" />}
         {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}

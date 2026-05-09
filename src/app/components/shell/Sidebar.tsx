@@ -102,20 +102,20 @@ function Logo({ collapsed, onToggleCollapsed }: { collapsed?: boolean; onToggleC
 
 /* ========== "+ New Playbook" CTA ========== */
 
-function NewPlaybookButton({ onClick, collapsed }: { active?: boolean; onClick?: () => void; collapsed?: boolean }) {
+function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?: boolean; onClick?: () => void; collapsed?: boolean; label?: string }) {
   return (
     <div className={`content-stretch flex flex-col items-start relative shrink-0 w-full ${collapsed ? 'py-[4px]' : 'py-[4px]'}`}>
       <button
         onClick={onClick}
-        title={collapsed ? 'New Chat' : undefined}
+        title={collapsed ? label : undefined}
         className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/5 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
           <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
         {!collapsed && (
-          <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
-            New Chat
+          <span className="font-['Delight',sans-serif] font-semibold leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
+            {label}
           </span>
         )}
       </button>
@@ -141,6 +141,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* New Playbook CTA — own group per Figma 2951:34936 */}
       <NewPlaybookButton collapsed={collapsed} onClick={() => onNavigate('new-chat')} />
+      <NewPlaybookButton collapsed={collapsed} label="New Chat (Opt2)" onClick={() => onNavigate('new-chat-opt2')} />
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
