@@ -936,16 +936,20 @@ function MoreSkillsDropdown({
               onMouseLeave={isMobileViewport ? undefined : () => onRowLeave?.()}
             >
               {skill.kol ? (
-                <Avatar name={skill.creator} size={20} />
+                <Avatar name={skill.creator} size={32} />
               ) : (
                 skill.icon ? (
-                  <CdnIcon name={skill.icon} size={16} color="rgba(0,0,0,0.7)" />
+                  <span className="more-skill-icon-wrap">
+                    <CdnIcon name={skill.icon} size={20} color="rgba(0,0,0,0.7)" />
+                  </span>
                 ) : (
-                  <Avatar name={skill.creator} size={20} />
+                  <Avatar name={skill.creator} size={32} />
                 )
               )}
-              <span className="more-skill-name">{skill.label}</span>
-              <span className="more-skill-author">{skill.creator}</span>
+              <span className="more-skill-text">
+                <span className="more-skill-name">{skill.label}</span>
+                <span className="more-skill-author">{skill.creator}</span>
+              </span>
             </button>
           ))}
         </div>
@@ -1768,52 +1772,56 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           .more-skill-row:active{
             background:rgba(0,0,0,0.08) !important;
           }
-          .more-skill-row > img,
-          .more-skill-row > div[class*="rounded-full"]{
-            width:28px !important;
-            height:28px !important;
-            min-width:28px !important;
-            min-height:28px !important;
-          }
-          .more-skill-row > div[role="img"],
-          .more-skill-row .block{
-            width:20px !important;
-            height:20px !important;
-          }
           .more-skill-name{
-            font-size:16px !important;
-            line-height:22px !important;
+            font-size:15px !important;
+            line-height:20px !important;
+          }
+          .more-skill-author{
+            font-size:13px !important;
+            line-height:18px !important;
           }
         }
         @keyframes newchat-sheet-up{
           from{transform:translateY(100%)}
           to{transform:translateY(0)}
         }
+        .more-skill-text{
+          flex:1;
+          min-width:0;
+          display:flex;
+          flex-direction:column;
+          gap:2px;
+        }
         .more-skill-name{
           font-family:'Delight',sans-serif;
           font-size:14px;
-          line-height:22px;
+          line-height:20px;
           font-weight:500;
           color:rgba(0,0,0,0.9);
           letter-spacing:0.14px;
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
-          flex:1;
-          min-width:0;
         }
         .more-skill-author{
           font-family:'Delight',sans-serif;
           font-size:12px;
-          line-height:18px;
+          line-height:16px;
           color:rgba(0,0,0,0.45);
           letter-spacing:0.12px;
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
+        }
+        .more-skill-icon-wrap{
+          width:32px;
+          height:32px;
           flex-shrink:0;
-          max-width:140px;
-          margin-left:8px;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          border-radius:8px;
+          background:rgba(0,0,0,0.04);
         }
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
