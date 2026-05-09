@@ -1,0 +1,730 @@
+import{j as n}from"./index-Co1F26qo.js";import{A as t}from"./AppShell-sekh-0pB.js";import{i as e}from"./inlinePlaybookHeader-CI0AndIK.js";import"./referral-mock-DKJhP-m3.js";const s=`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trade Notification Test — Alva</title>
+<link rel="stylesheet" href="./styles/tokens.css" />
+<link rel="stylesheet" href="./components/playbook-header.css" />
+<script src="./components/playbook-header.js" defer><\/script>
+<style>
+  @font-face { font-family:'Delight'; src:url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'Delight'; src:url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight:500; font-display:swap; }
+
+  *, *::before, *::after { box-sizing: border-box; -ms-overflow-style: none; scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
+
+  html { height: 100%; overflow: hidden; }
+  body {
+    height: 100%; overflow-y: auto; overflow-x: hidden; margin: 0;
+    background: var(--b0-page); color: var(--text-n9);
+    font-family: 'Delight', -apple-system, 'OPPO Sans 4.0', BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
+  }
+
+  .playbook-container {
+    width: 100%; max-width: 2048px; margin: 0 auto;
+    padding: var(--sp-xl) var(--sp-xxl) var(--sp-xxxl);
+  }
+
+  /* ── Demo layout ── */
+  .demo-row {
+    display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;
+  }
+  .demo-col {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .demo-label {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .demo-badge {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px;
+    background: var(--main-m1-10);
+    color: var(--main-m1);
+    border-radius: 4px;
+    font-size: 11px; font-weight: 500;
+    line-height: 18px; letter-spacing: 0.11px;
+  }
+  .demo-caption {
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n5);
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     Unified Popup — Get Alerts + Trade
+     ══════════════════════════════════════════════════════════ */
+  .up {
+    width: 520px; max-width: 100%;
+    display: flex; flex-direction: column;
+    background: var(--b0-container, #fff);
+    border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2));
+    border-radius: var(--radius-pop-popover, 8px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+
+  /* ── Sections ── */
+  .up-section {
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 20px;
+  }
+
+  .up-divider {
+    height: 0.5px;
+    background: var(--line-l1, rgba(0,0,0,0.1));
+    margin: 0 20px;
+  }
+
+  /* ── Section titles ── */
+  .up-title {
+    margin: 0;
+    font-size: 16px; font-weight: 500;
+    line-height: 26px; letter-spacing: 0.16px;
+    color: var(--text-n9);
+  }
+  .up-head {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .up-close {
+    width: 16px; height: 16px; cursor: pointer;
+    background-color: var(--text-n5);
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/close-l1.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/close-l1.svg') center / contain no-repeat;
+  }
+
+  /* ── Switch (reuse from playbook-header) ── */
+  .up-switch {
+    position: relative; display: inline-block; cursor: pointer; overflow: hidden; flex-shrink: 0;
+    transition: background-color 0.2s ease;
+    background-color: var(--b-r1, rgba(0,0,0,0.1));
+    width: 32px; height: 16px; border-radius: 1000px; border: none; padding: 0;
+  }
+  .up-switch.on { background-color: var(--main-m1, #49A3A6); }
+  .up-switch-thumb {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: #fff; border-radius: 50%; transition: left 0.2s ease;
+    width: 10.67px; height: 10.67px; left: 2.67px;
+  }
+  .up-switch.on .up-switch-thumb { left: calc(100% - 10.67px - 2.67px); }
+
+  /* ── Label helper ── */
+  .up-label {
+    margin: 0;
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    color: var(--text-n7);
+  }
+  .up-sublabel {
+    margin: 0;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n5);
+  }
+
+  /* ═══ GET ALERTS — Unconnected ═══ */
+  .up-connect-card {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 24px 20px;
+    background: var(--b-r02, rgba(0,0,0,0.02));
+    border-radius: 8px;
+  }
+  .up-connect-logo {
+    width: 48px; height: 48px;
+    background: var(--b0-sidebar, #2A2A38);
+    border-radius: 960px;
+    display: inline-flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+  }
+  .up-connect-logo img { width: 48px; height: 48px; display: block; }
+  .up-connect-subtitle {
+    margin: 0; font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
+    color: var(--text-n9); text-align: center;
+  }
+  .up-connect-ctas { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+  .up-connect-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 40px; width: 280px; padding: 9px 16px; border-radius: 6px;
+    font-family: inherit; font-size: 14px; font-weight: 500; line-height: 22px; letter-spacing: 0.14px;
+    cursor: pointer; white-space: nowrap; transition: opacity .15s, background .15s;
+  }
+  .up-connect-btn--tg { background: #24a1de; color: #fff; border: none; }
+  .up-connect-btn--tg:hover { opacity: 0.9; }
+  .up-connect-btn--dc { background: transparent; color: var(--text-n9); border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3)); }
+  .up-connect-btn--dc:hover { background: var(--b-r03, rgba(0,0,0,0.03)); }
+  .up-connect-btn img { width: 18px; height: 18px; flex-shrink: 0; }
+  .up-connect-extra { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 12px; width: 100%; }
+  .up-connect-extra-label { margin: 0; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5); text-align: center; }
+  .up-connect-chips { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .up-connect-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px 4px 6px; background: var(--b-r03, rgba(0,0,0,0.03));
+    border-radius: 960px; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n3); white-space: nowrap;
+  }
+  .up-connect-chip img { width: 18px; height: 18px; display: block; border-radius: 960px; }
+
+  /* ═══ GET ALERTS — Connected ═══ */
+  .up-connected-head {
+    display: flex; align-items: center; justify-content: space-between; width: 100%;
+  }
+  .up-manage {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent; border: none; padding: 0; cursor: pointer;
+    font-family: inherit; font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n5); transition: color .15s;
+  }
+  .up-manage:hover { color: var(--text-n9); }
+  .up-manage-chev {
+    width: 12px; height: 12px; display: inline-block; background-color: currentColor;
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg') center / contain no-repeat;
+  }
+  .up-account {
+    display: flex; align-items: center; gap: 8px;
+    padding: 16px;
+    background: rgba(73, 163, 166, 0.08);
+    border-radius: 8px; width: 100%;
+  }
+  .up-account-avatar { width: 32px; height: 32px; flex-shrink: 0; object-fit: contain; border-radius: 50%; }
+  .up-account-name {
+    flex: 1 1 auto; font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
+    color: var(--text-n9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .up-account-toggle { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .up-account-toggle-label { font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5); }
+
+  /* ── Automations ── */
+  .up-auto-section { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .up-auto-title { margin: 0; font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n7); }
+  .up-auto-list {
+    display: flex; flex-direction: column;
+    background: var(--grey-g01, #fafafa); border-radius: 8px; overflow: hidden;
+  }
+  .up-auto-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+  }
+  .up-auto-item + .up-auto-item { border-top: 0.5px solid var(--line-l07, rgba(0,0,0,0.07)); }
+  .up-auto-name {
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n9);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ── Recent Alerts ── */
+  .up-recent-section { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .up-recent-title { margin: 0; font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n7); }
+  .up-recent-card {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 16px; background: var(--grey-g01, #fafafa); border-radius: 6px;
+  }
+  .up-recent-date {
+    margin: 0; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5);
+  }
+  .up-recent-headline {
+    margin: 0; font-size: 14px; font-weight: 500; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n9);
+  }
+  .up-recent-bullets {
+    margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; list-style: none;
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n9);
+  }
+  .up-recent-bullets li { position: relative; padding-left: 20px; }
+  .up-recent-bullets li::before {
+    content: ''; position: absolute; left: 7.5px; top: 8.5px;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--text-n9);
+  }
+  .up-recent-bullets li strong { font-weight: 500; }
+
+  /* ═══ TRADE SECTION ═══ */
+  .up-trade-label {
+    margin: 0; font-size: 11px; font-weight: 500; line-height: 18px; letter-spacing: 0.04em;
+    color: var(--text-n3); text-transform: uppercase;
+  }
+  .up-trade-group { display: flex; flex-direction: column; gap: 8px; }
+
+  /* Account pills */
+  .up-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .up-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 6px;
+    font-family: inherit; font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n9); background: var(--grey-g01); border: 0.5px solid var(--line-l1, rgba(0,0,0,0.1));
+    cursor: pointer; transition: border-color .15s, background .15s; white-space: nowrap;
+  }
+  .up-pill:hover { border-color: var(--line-l3); }
+  .up-pill.selected { border-color: var(--main-m1); background: rgba(73,163,166,0.06); }
+  .up-pill-tag {
+    display: inline-flex; align-items: center;
+    padding: 0 4px; border-radius: 2px;
+    font-size: 10px; font-weight: 500; line-height: 16px;
+    background: var(--main-m1-10); color: var(--main-m1);
+  }
+  .up-pill-tag.demo { background: var(--main-m3-10, rgba(255,171,0,0.1)); color: var(--main-m3, #FFAB00); }
+  .up-pill-tag.spot { background: var(--b-r05, rgba(0,0,0,0.05)); color: var(--text-n5); }
+  .up-pill-tag.bound { background: rgba(73,163,166,0.15); color: var(--main-m1); }
+
+  /* Strategy select */
+  .up-select {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; border-radius: 6px;
+    background: var(--grey-g01); border: 0.5px solid var(--line-l1);
+    font-family: inherit; font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    color: var(--text-n9); cursor: pointer;
+  }
+  .up-select-chev {
+    width: 14px; height: 14px; background-color: var(--text-n3);
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-down-l2.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-down-l2.svg') center / contain no-repeat;
+  }
+
+  /* Signal card */
+  .up-signal {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 12px 14px; border-radius: 6px;
+    background: rgba(73,163,166,0.04); border: 0.5px solid rgba(73,163,166,0.12);
+  }
+  .up-signal-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5);
+  }
+  .up-signal-row {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+  }
+  .up-signal-dot {
+    flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500;
+  }
+  .up-signal-dot.buy { background: rgba(73,163,166,0.2); color: var(--main-m1); }
+  .up-signal-dot.sell { background: rgba(224,83,87,0.2); color: #E05357; }
+  .up-signal-action { color: var(--text-n9); }
+  .up-signal-action.buy { color: var(--main-m1); }
+  .up-signal-action.sell { color: #E05357; }
+  .up-signal-ticker { font-weight: 500; color: var(--main-m1); }
+  .up-signal-detail { color: var(--text-n9); }
+  .up-signal-trend {
+    width: 20px; height: 20px; flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask-position: center; mask-position: center;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-size: contain; mask-size: contain;
+  }
+  .up-signal-trend.up {
+    color: #2A9B7D;
+    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/bullish-l.svg');
+            mask-image: url('https://alva-ai-static.b-cdn.net/icons/bullish-l.svg');
+  }
+  .up-signal-trend.down {
+    color: #E05357;
+    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/bearish-l.svg');
+            mask-image: url('https://alva-ai-static.b-cdn.net/icons/bearish-l.svg');
+  }
+  .up-signal-summary {
+    margin: 0; font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n5);
+  }
+  .up-signal-sep { height: 0.5px; background: rgba(73,163,166,0.12); }
+
+  /* CTA buttons */
+  .up-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 40px; border-radius: 6px; border: none;
+    font-family: inherit; font-size: 14px; font-weight: 500; line-height: 22px; letter-spacing: 0.14px;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .up-btn:hover { opacity: 0.9; }
+  .up-btn--primary { background: var(--main-m1, #49A3A6); color: #fff; }
+  .up-btn--secondary {
+    background: transparent; color: var(--text-n9);
+    border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
+  }
+  .up-btn--secondary:hover { background: var(--b-r03); }
+
+  /* ── No account empty state ── */
+  .up-empty {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 24px 20px;
+    background: var(--b-r02, rgba(0,0,0,0.02));
+    border-radius: 8px;
+  }
+  .up-empty-icon {
+    width: 48px; height: 48px;
+    background-color: var(--main-m1);
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/wallet-l.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/wallet-l.svg') center / contain no-repeat;
+    opacity: 0.3;
+  }
+  .up-empty-title { margin: 0; font-size: 16px; line-height: 26px; letter-spacing: 0.16px; color: var(--text-n9); text-align: center; }
+  .up-empty-desc { margin: 0; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5); text-align: center; }
+
+  /* Bound badge next to title */
+  .up-bound-badge {
+    display: inline-flex; align-items: center;
+    padding: 1px 6px; border-radius: 2px;
+    font-size: 11px; font-weight: 500; line-height: 18px; letter-spacing: 0.11px;
+    background: rgba(73,163,166,0.1); color: var(--main-m1);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PLAYBOOK HEADER ═══════════════ -->
+<playbook-header
+    title="Trade Notification Test"
+    creator
+    freq="15m"
+    last-updated="15 minutes ago"
+    owner="YGGYLL"
+    owner-seed="YGGYLL"
+    built-on="@leo/BTC Ultimate…"
+    built-on-seed="leo"
+    star="12" remix="56" comments="6"
+    get-alerts
+    alerts-label="Trade"
+    description="Tracks the AI infrastructure investment thesis across silicon, networking, hyperscalers, power, and data centers. 17-stock basket with daily quant analysis and ADK-driven narrative.">
+    <script type="application/json" class="pb-feeds-data">
+[
+  {"id":"capacity-monitor","name":"Capacity-Monitor","interval":"20 Minutes","lastRun":"15 minutes ago"},
+  {"id":"oem-tracker","name":"OEM-Tracker","interval":"1 hour","lastRun":"2 hours ago"},
+  {"id":"supply-chain","name":"Supply-Chain","interval":"6 hours","lastRun":"2 hours ago"}
+]
+    <\/script>
+</playbook-header>
+
+<div class="playbook-container">
+  <div class="demo-row">
+
+    <!-- ════════ Column 1: Unconnected ════════ -->
+    <div class="demo-col">
+      <div class="demo-label">
+        <span class="demo-badge">Popup/Unconnected</span>
+        <span class="demo-caption">No agent connected, no trading account</span>
+      </div>
+
+      <div class="up">
+        <!-- GET ALERTS — unconnected -->
+        <div class="up-section">
+          <p class="up-title">Get Alerts</p>
+          <div class="up-connect-card">
+            <div class="up-connect-logo">
+              <img src="/alva-infant/logo-portrait.svg" alt="" />
+            </div>
+            <p class="up-connect-subtitle">Connect Agents to Get Notified</p>
+            <div class="up-connect-ctas">
+              <button type="button" class="up-connect-btn up-connect-btn--tg">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M17.87 2.23s1.76-.68 1.61.98c-.05.69-.49 3.08-.83 5.67l-1.17 7.68s-.1 1.13-.97 1.32c-.88.2-2.2-.68-2.44-.88-.2-.15-3.66-2.35-4.88-3.42-.34-.29-.73-.88.05-1.57l5.12-4.89c.59-.59 1.17-1.96-1.27-.29l-6.83 4.65s-.78.49-2.24.05l-3.17-.98S-.32 9.81 1.68 9.08c4.88-2.3 10.87-4.65 16.19-6.85Z" fill="#fff"/></svg>
+                Connect Telegram
+              </button>
+              <button type="button" class="up-connect-btn up-connect-btn--dc">
+                <img src="/alva-infant/logo-social-discord.svg" alt="" />
+                Connect Discord
+              </button>
+            </div>
+            <div class="up-connect-extra">
+              <p class="up-connect-extra-label">Same agent, more channels</p>
+              <div class="up-connect-chips">
+                <span class="up-connect-chip"><img src="/alva-infant/logo-social-slack.svg" alt="" /><span>Slack</span></span>
+                <span class="up-connect-chip"><img src="/alva-infant/logo-social-whatsapp.svg" alt="" /><span>WhatsApp</span></span>
+                <span class="up-connect-chip"><img src="/alva-infant/logo-social-line.svg" alt="" /><span>Line</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="up-divider"></div>
+
+        <!-- TRADE — no account -->
+        <div class="up-section">
+          <div class="up-head">
+            <p class="up-title">Trade with Playbook</p>
+            <span class="up-close"></span>
+          </div>
+          <div class="up-empty">
+            <div class="up-empty-icon"></div>
+            <p class="up-empty-title">Connect Your First Trading Account</p>
+            <p class="up-empty-desc">Link your brokerage or exchange account to track positions, bind playbooks, and automate your trading.</p>
+          </div>
+          <button type="button" class="up-btn up-btn--primary">Connect Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ Column 2: Connected — Not Bound ════════ -->
+    <div class="demo-col">
+      <div class="demo-label">
+        <span class="demo-badge">Popup/Connected</span>
+        <span class="demo-caption">Agent connected, accounts available, not yet bound</span>
+      </div>
+
+      <div class="up">
+        <!-- GET ALERTS — connected -->
+        <div class="up-section">
+          <p class="up-title">Get Alerts</p>
+
+          <!-- Connected header -->
+          <div class="up-connected-head">
+            <p class="up-label">Connected</p>
+            <button type="button" class="up-manage">
+              <span>Manage Accounts</span>
+              <span class="up-manage-chev"></span>
+            </button>
+          </div>
+
+          <!-- Account row -->
+          <div class="up-account">
+            <img class="up-account-avatar" src="/alva-infant/logo-social-discord.svg" alt="" />
+            <span class="up-account-name">Sheer Ruan</span>
+            <div class="up-account-toggle">
+              <span class="up-account-toggle-label">Receive Alerts</span>
+              <button type="button" class="up-switch on" data-toggle><span class="up-switch-thumb"></span></button>
+            </div>
+          </div>
+
+          <!-- Automations -->
+          <div class="up-auto-section">
+            <p class="up-auto-title">Automations</p>
+            <div class="up-auto-list">
+              <div class="up-auto-item">
+                <span class="up-auto-name">ai-chip-supply-chain</span>
+                <button type="button" class="up-switch on" data-toggle><span class="up-switch-thumb"></span></button>
+              </div>
+              <div class="up-auto-item">
+                <span class="up-auto-name">space-rotation-prices</span>
+                <button type="button" class="up-switch on" data-toggle><span class="up-switch-thumb"></span></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Alerts -->
+          <div class="up-recent-section">
+            <p class="up-recent-title">Recent Alerts</p>
+            <div class="up-recent-card">
+              <p class="up-recent-date">May 8, 12:00 PM · ai-chip-supply-chain</p>
+              <p class="up-recent-headline">AMD to Entrust 2nm Production to Samsung Foundry Samsung Electronics has entered into substantive discussions with AMD</p>
+              <ul class="up-recent-bullets">
+                <li><strong>Top of basket:</strong> ALL (Allstate) holds #1 at Score 95 — ROE 39.5%, P/E 5.64; leadership in Insurance — Property &amp; Casualty continues.</li>
+                <li><strong>New entries:</strong> BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.</li>
+                <li><strong>Dropouts:</strong> TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="up-divider"></div>
+
+        <!-- TRADE — has accounts, not bound -->
+        <div class="up-section">
+          <div class="up-head">
+            <p class="up-title">Trade with Playbook</p>
+            <span class="up-close"></span>
+          </div>
+
+          <!-- Portfolio Account -->
+          <div class="up-trade-group">
+            <p class="up-trade-label">Portfolio Account</p>
+            <div class="up-pills">
+              <button type="button" class="up-pill selected">IBKR U***6789 <span class="up-pill-tag">Live</span></button>
+              <button type="button" class="up-pill">Binance U***6789 <span class="up-pill-tag demo">Demo</span> <span class="up-pill-tag spot">Spot</span></button>
+            </div>
+          </div>
+
+          <!-- Strategy -->
+          <div class="up-trade-group">
+            <p class="up-trade-label">Strategy</p>
+            <div class="up-select">
+              <span>space-rotation</span>
+              <span class="up-select-chev"></span>
+            </div>
+          </div>
+
+          <!-- Latest Signal -->
+          <div class="up-trade-group">
+            <p class="up-trade-label">Latest Signal</p>
+            <div class="up-signal">
+              <p class="up-signal-meta">
+                <span>May 8, 12:00 PM · space rotation</span>
+              </p>
+              <div class="up-signal-row">
+                <span class="up-signal-dot buy">A</span>
+                <span class="up-signal-action buy">Buy</span>
+                <span class="up-signal-ticker">AAPL</span>
+                <span class="up-signal-detail">weight 33.3%</span>
+                <span class="up-signal-trend up"></span>
+              </div>
+              <div class="up-signal-row">
+                <span class="up-signal-dot buy">R</span>
+                <span class="up-signal-action buy">Buy</span>
+                <span class="up-signal-ticker">RKLB</span>
+                <span class="up-signal-detail">weight 33.3%</span>
+                <span class="up-signal-trend up"></span>
+              </div>
+              <div class="up-signal-row">
+                <span class="up-signal-dot buy">N</span>
+                <span class="up-signal-action buy">Buy</span>
+                <span class="up-signal-ticker">NVDA</span>
+                <span class="up-signal-detail">weight 33.3%</span>
+                <span class="up-signal-trend up"></span>
+              </div>
+              <div class="up-signal-row">
+                <span class="up-signal-dot sell">T</span>
+                <span class="up-signal-action sell">Sell</span>
+                <span class="up-signal-ticker" style="color:#E05357">TSLA</span>
+                <span class="up-signal-detail">exit position</span>
+                <span class="up-signal-trend down"></span>
+              </div>
+              <div class="up-signal-sep"></div>
+              <p class="up-signal-summary">Rebalance: Top 3 by 63d momentum: AAPL(78.2%), RKLB(35.1%), NVDA(34.0%)</p>
+            </div>
+          </div>
+
+          <button type="button" class="up-btn up-btn--primary">Bind</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ Column 3: Bound ════════ -->
+    <div class="demo-col">
+      <div class="demo-label">
+        <span class="demo-badge">Popup/Bound</span>
+        <span class="demo-caption">Agent connected, account bound to playbook</span>
+      </div>
+
+      <div class="up">
+        <!-- GET ALERTS — connected (compact) -->
+        <div class="up-section">
+          <p class="up-title">Get Alerts</p>
+          <div class="up-connected-head">
+            <p class="up-label">Connected</p>
+            <button type="button" class="up-manage">
+              <span>Manage Accounts</span>
+              <span class="up-manage-chev"></span>
+            </button>
+          </div>
+          <div class="up-account">
+            <img class="up-account-avatar" src="/alva-infant/logo-social-discord.svg" alt="" />
+            <span class="up-account-name">Sheer Ruan</span>
+            <div class="up-account-toggle">
+              <span class="up-account-toggle-label">Receive Alerts</span>
+              <button type="button" class="up-switch on" data-toggle><span class="up-switch-thumb"></span></button>
+            </div>
+          </div>
+
+          <div class="up-auto-section">
+            <p class="up-auto-title">Automations</p>
+            <div class="up-auto-list">
+              <div class="up-auto-item">
+                <span class="up-auto-name">ai-chip-supply-chain</span>
+                <button type="button" class="up-switch on" data-toggle><span class="up-switch-thumb"></span></button>
+              </div>
+              <div class="up-auto-item">
+                <span class="up-auto-name">space-rotation-prices</span>
+                <button type="button" class="up-switch on" data-toggle><span class="up-switch-thumb"></span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="up-recent-section">
+            <p class="up-recent-title">Recent Alerts</p>
+            <div class="up-recent-card">
+              <p class="up-recent-date">May 8, 12:00 PM · ai-chip-supply-chain</p>
+              <p class="up-recent-headline">AMD to Entrust 2nm Production to Samsung Foundry</p>
+              <ul class="up-recent-bullets">
+                <li><strong>Top of basket:</strong> ALL holds #1 at Score 95 — ROE 39.5%, P/E 5.64.</li>
+                <li><strong>New entries:</strong> BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="up-divider"></div>
+
+        <!-- TRADE — bound -->
+        <div class="up-section">
+          <div class="up-head">
+            <div style="display:flex;align-items:center;gap:8px">
+              <p class="up-title">Trade with Playbook</p>
+              <span class="up-bound-badge">Bound</span>
+            </div>
+            <span class="up-close"></span>
+          </div>
+
+          <div class="up-trade-group">
+            <p class="up-trade-label">Portfolio Account</p>
+            <div class="up-pills">
+              <button type="button" class="up-pill selected">IBKR U***6789 <span class="up-pill-tag">Live</span> <span class="up-pill-tag bound">Bound</span></button>
+              <button type="button" class="up-pill">Binance U***6789 <span class="up-pill-tag demo">Demo</span> <span class="up-pill-tag spot">Spot</span></button>
+              <button type="button" class="up-pill">Alpaca U***6789 <span class="up-pill-tag">Live</span></button>
+            </div>
+          </div>
+
+          <div class="up-trade-group">
+            <p class="up-trade-label">Strategy</p>
+            <div class="up-select">
+              <span>space-rotation</span>
+              <span class="up-select-chev"></span>
+            </div>
+          </div>
+
+          <div class="up-trade-group">
+            <p class="up-trade-label">Latest Signal</p>
+            <div class="up-signal">
+              <p class="up-signal-meta">
+                <span>May 8, 12:00 PM · space rotation</span>
+              </p>
+              <div class="up-signal-row">
+                <span class="up-signal-dot buy">A</span>
+                <span class="up-signal-action buy">Buy</span>
+                <span class="up-signal-ticker">AAPL</span>
+                <span class="up-signal-detail">weight 33.3%</span>
+                <span class="up-signal-trend up"></span>
+              </div>
+              <div class="up-signal-row">
+                <span class="up-signal-dot buy">R</span>
+                <span class="up-signal-action buy">Buy</span>
+                <span class="up-signal-ticker">RKLB</span>
+                <span class="up-signal-detail">weight 33.3%</span>
+                <span class="up-signal-trend up"></span>
+              </div>
+              <div class="up-signal-row">
+                <span class="up-signal-dot buy">N</span>
+                <span class="up-signal-action buy">Buy</span>
+                <span class="up-signal-ticker">NVDA</span>
+                <span class="up-signal-detail">weight 33.3%</span>
+                <span class="up-signal-trend up"></span>
+              </div>
+              <div class="up-signal-row">
+                <span class="up-signal-dot sell">T</span>
+                <span class="up-signal-action sell">Sell</span>
+                <span class="up-signal-ticker" style="color:#E05357">TSLA</span>
+                <span class="up-signal-detail">exit position</span>
+                <span class="up-signal-trend down"></span>
+              </div>
+              <div class="up-signal-sep"></div>
+              <p class="up-signal-summary">Rebalance: Top 3 by 63d momentum: AAPL(78.2%), RKLB(35.1%), NVDA(34.0%)</p>
+            </div>
+          </div>
+
+          <button type="button" class="up-btn up-btn--secondary">View in Portfolio</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /demo-row -->
+</div>
+
+<script>
+  document.querySelectorAll('[data-toggle]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      btn.classList.toggle('on');
+    });
+  });
+  document.querySelectorAll('.up-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var parent = pill.closest('.up-pills');
+      parent.querySelectorAll('.up-pill').forEach(function(p) { p.classList.remove('selected'); });
+      pill.classList.add('selected');
+    });
+  });
+<\/script>
+
+</body>
+</html>
+`,i=e(s);function p(){return n.jsx("div",{className:"h-screen flex flex-col",style:{background:"var(--b0-page)"},children:n.jsx("div",{className:"flex-1 overflow-hidden",children:n.jsx("iframe",{srcDoc:i,title:"Trade Notification Test",className:"block h-full w-full border-0"})})})}function u({onNavigate:a}){return n.jsx(t,{activePage:"trade-notification-test",onNavigate:a,children:n.jsx(p,{})})}export{u as default};
