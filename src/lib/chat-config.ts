@@ -37,6 +37,7 @@ export const PAGE_CONTEXT_MAP: Record<string, ContextTagData | null> = {
   'explore-2': { label: 'Explore', icon: 'sidebar-discover-normal' },
   agent: null,
   'new-chat': null,
+  'new-chat-opt2': null,
 };
 
 export interface ConversationItem {

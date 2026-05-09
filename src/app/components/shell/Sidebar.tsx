@@ -114,7 +114,7 @@ function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?
           <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
         {!collapsed && (
-          <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
+          <span className="font-['Delight',sans-serif] font-semibold leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
             {label}
           </span>
         )}
@@ -141,7 +141,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* New Playbook CTA — own group per Figma 2951:34936 */}
       <NewPlaybookButton collapsed={collapsed} onClick={() => onNavigate('new-chat')} />
-      <NewPlaybookButton collapsed={collapsed} label="Create New (Opt2)" onClick={() => onNavigate('new-chat-opt2')} />
+      <NewPlaybookButton collapsed={collapsed} label="New Chat (Opt2)" onClick={() => onNavigate('new-chat-opt2')} />
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
