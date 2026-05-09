@@ -14,6 +14,7 @@ import { DiscordConnectModal } from '@/app/components/shared/DiscordConnectModal
 import { AlertsPopover } from '@/app/components/shared/AlertsPopover';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
 import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
+import { BRAND_REGISTRY } from '@/lib/playbook-cover/brand-registry';
 
 type AgentState = 'empty' | 'connecting' | 'connected';
 
@@ -28,10 +29,77 @@ const FEATURES = [
 ];
 
 /* \u2500\u2500 Push-ready playbooks with feed items \u2500\u2500 */
+interface TradeAction {
+  action: 'buy' | 'sell';
+  ticker: string;
+  detail: string;
+  trend: 'up' | 'down';
+}
+
+/* \u2500\u2500 Stock logo: Figma assets \u2192 brand registry CDN \u2192 letter fallback \u2500\u2500 */
+const STOCK_LOGO_ASSETS: Record<string, string> = {
+  AAPL: 'logo-stock-aapl.svg',
+  RKLB: 'logo-stock-rklb.svg',
+  NVDA: 'logo-stock-nvda.png',
+  TSLA: 'logo-stock-tsla.svg',
+};
+
+function StockLogo({ ticker }: { ticker: string }) {
+  const file = STOCK_LOGO_ASSETS[ticker];
+  if (file) {
+    return (
+      <img
+        src={`${import.meta.env.BASE_URL}${file}`}
+        alt={ticker}
+        className="size-[20px] rounded-full shrink-0 object-cover"
+      />
+    );
+  }
+  /* Brand registry: colored circle + white brand icon via mask-image */
+  const brand = BRAND_REGISTRY[ticker] || BRAND_REGISTRY[ticker + 'L']; /* GOOG \u2192 GOOGL */
+  if (brand) {
+    const logoUrl = `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${brand.logoSlug}.svg`;
+    return (
+      <div
+        className="relative size-[20px] rounded-full shrink-0 overflow-hidden"
+        style={{ background: brand.mono ? '#1A1E21' : brand.color }}
+      >
+        <div
+          className="absolute"
+          style={{
+            inset: '20%',
+            backgroundColor: '#fff',
+            WebkitMaskImage: `url(${logoUrl})`,
+            maskImage: `url(${logoUrl})`,
+            WebkitMaskSize: 'contain',
+            maskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            maskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskPosition: 'center',
+          }}
+        />
+      </div>
+    );
+  }
+  /* Final fallback: teal circle with first letter */
+  return (
+    <div
+      className={`${FONT} flex items-center justify-center size-[20px] rounded-full shrink-0 text-[10px] font-medium`}
+      style={{ background: 'rgba(73,163,166,0.15)', color: '#49A3A6' }}
+    >
+      {ticker.charAt(0)}
+    </div>
+  );
+}
+
 interface FeedItem {
   time: string;
   title: string;
-  bullets?: string[];
+  content?: string;
+  trades?: TradeAction[];
+  summary?: string;
+  feedName?: string;
 }
 
 interface PushPlaybook extends ExplorePlaybook {
@@ -40,114 +108,107 @@ interface PushPlaybook extends ExplorePlaybook {
 
 const PUSH_PLAYBOOKS: PushPlaybook[] = [
   {
-    id: 'ai-chip-supply-chain',
-    title: 'AI Chip Supply Chain',
-    creator: 'ivan',
-    description: 'TSMC capacity, HBM supply, and foundry signals — distilled into a daily push digest.',
-    tickers: ['NVDA', 'TSM', 'AMD'],
+    id: 'ai-diaspora-tracker',
+    title: 'AI Diaspora Tracker',
+    creator: 'leoz',
+    description: 'Track departures from OpenAI, Anthropic, DeepMind, xAI — startups, fundraising, and major moves.',
+    tickers: ['GOOG', 'MSFT', 'META'],
     pulse: 'active',
     stars: 4200,
     remixes: 12,
-    cover: { template: 'general', title: 'AI Chip Supply Chain', author: 'ivan', tickers: ['NVDA', 'TSM', 'AMD'], domain: 'alerts', kind: 'NOTIFICATIONS · DAILY', anchor: '7 today', series: 'NEWS · SOCIAL · PODCAST' },
+    cover: { template: 'general', title: 'AI Diaspora Tracker', author: 'leoz', tickers: ['GOOG', 'MSFT', 'META'], domain: 'alerts', kind: 'NOTIFICATIONS · DAILY', anchor: '7 today', series: 'NEWS · SOCIAL · PODCAST' },
     feeds: [
       {
-        time: 'May 8, 12:00 PM',
-        title: 'AMD to Entrust 2nm Production to Samsung Foundry',
-        bullets: [
-          'Samsung Electronics has entered into substantive discussions with AMD to secure 2nm chip production orders.',
-          'TSMC remains the dominant foundry partner for NVDA and Apple, but capacity constraints at N3E are pushing second-tier clients to explore alternatives.',
-        ],
+        time: 'May 8, 9:00 AM',
+        title: 'DeepMind RL pioneer David Silver\'s Ineffable Intelligence closes largest-ever European Seed at $1.1B / $5.1B valuation; same week Recursive Super exits Stealth \u{2014} DeepMind alumni startup wave explodes',
+        content: '\u{1F3AF} Today\'s highlights (3 most trackable targets)\n\n**\u{3010}Ineffable Intelligence\u{3011}\u{00B7} Fmr DeepMind RL chief, $1.1B Seed out of Stealth**\n- \u{1F9D1} Founder: David Silver (fmr Google DeepMind RL team lead / UCL professor, inventor of AlphaGo)\n- \u{1F3E2} New company: Ineffable Intelligence (Goal: human-data-free Superlearner, pure RL self-learning approach)\n- \u{1F4B0} Round: Seed ($1.1B / $5.1B valuation)\n- \u{1F91D} Lead: Sequoia, Lightspeed | Follow: Nvidia, Google, DST Global, Index, UK Sovereign AI Fund\n- \u{1F4C5} Date: 2026-04-27\n- \u{1F517} Sources: [1](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker) [2](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker)\n\n**Judgment:** Silver is the most credible name in RL. Pure RL self-supervised approach directly challenges the human-data moat of OpenAI/Anthropic. Nvidia and Google co-investing implies custom compute partnerships and acquisition optionality. Valuation at $5.1B but still Seed \u{2014} no secondary entry window, only path is chasing Series A pro-rata. Risk: no-human-data approach has no public OOD generalization validation yet; deployment window may be longer than peers. Conclusion: top-tier founder, aggressively chase A round.',
       },
       {
-        time: 'May 7, 12:00 PM',
-        title: 'HBM3E Supply Tightens as NVDA Ramps B200',
-        bullets: [
-          'SK Hynix HBM3E allocation for Q3 is 95% spoken for; Samsung HBM3E yield reportedly improved to 60%.',
-          'NVDA B200 board-level assembly now pulling 40% more HBM per unit vs H100.',
-        ],
+        time: 'May 8, 9:00 AM',
+        title: '\u{3010}Recursive Superintelligence\u{3011}\u{00B7} DeepMind + OpenAI + Salesforce alliance, exits Stealth mid-May',
+        content: '- \u{1F9D1} Founders: Tim Rockt\u{00E4}schel (fmr DeepMind Principal Scientist / UCL), Richard Socher (fmr Salesforce Chief Scientist), Josh Tobin & Jeff Clune (both fmr OpenAI)\n- \u{1F3E2} New company: Recursive Superintelligence (Automate the full frontier AI R&D pipeline: eval / data / training / post-training)\n- \u{1F4B0} Round: $500M / $4B pre-money; round expected to close above $1B\n- \u{1F91D} Lead: GV | Follow: Nvidia\n- \u{1F4C5} Date: 2026-04-17 fundraise surfaced; public launch ~2026-05-mid\n- \u{1F517} Sources: [3](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker) [4](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker)\n\n**Judgment:** Socher brings productization chops, Rockt\u{00E4}schel brings deep research background \u{2014} strongest academic + product combo in the “self-improving AI pipeline” track to date. GV leading means Google is doubling down, forming dual hedge with Thinking Machines. Direct track overlap with SSI (Ilya) but more deployment-oriented. Public launch this month is the optimal entry window.',
       },
       {
-        time: 'May 6, 12:00 PM',
-        title: 'Intel Foundry Secures MSFT Custom Chip Deal',
-        bullets: [
-          "Intel 18A process locked in for Microsoft's next-gen custom AI accelerator, slated for 2026 volume.",
-          "Deal reportedly worth $3B+ over 3 years; Intel Foundry's first major external win at 18A node.",
-        ],
+        time: 'May 7, 9:00 AM',
+        title: 'Gemini co-lead Oriol Vinyals departs Google DeepMind for xAI',
+        content: '- \u{1F9D1} Oriol Vinyals, co-lead of the Gemini project at Google DeepMind, confirmed his move to xAI effective next month.\n- Vinyals spent 8 years at DeepMind. Fourth senior Gemini researcher to leave in Q1 \u{2014} pattern suggests internal friction over roadmap priorities and compute allocation.',
       },
     ],
   },
   {
-    id: 'fed-macro-pulse',
-    title: 'Fed & Macro Pulse',
-    creator: 'steven',
-    description: 'FOMC, CPI, NFP — every key release with Alva’s read pushed the moment it lands.',
-    tickers: ['SPY', 'TLT', 'DXY'],
+    id: 'momentum-rebalance',
+    title: 'Momentum Rebalance',
+    creator: 'ivan',
+    description: 'Auto-rebalance portfolio by momentum score \u{2014} rotates top names across sectors every two weeks.',
+    tickers: ['AAPL', 'NVDA', 'RKLB'],
     pulse: 'active',
     stars: 3700,
     remixes: 8,
-    cover: { template: 'general', title: 'Fed & Macro Pulse', author: 'steven', tickers: ['SPY', 'TLT', 'DXY'], domain: 'macro', kind: 'NOTIFICATIONS · ON RELEASE', anchor: 'Next: CPI', series: '12 RELEASES TRACKED' },
+    cover: { template: 'general', title: 'Momentum Rebalance', author: 'ivan', tickers: ['AAPL', 'NVDA', 'RKLB'], domain: 'strategy', kind: 'STRATEGY \u{00B7} BI-WEEKLY', anchor: 'Last: May 8', series: 'MOMENTUM \u{00B7} TOP 3' },
     feeds: [
       {
-        time: 'May 7, 8:30 AM',
-        title: 'April NFP: +177K vs +138K est.',
-        bullets: [
-          'Payrolls beat consensus by 39K; prior month revised down from +228K to +185K.',
-          'Unemployment rate held at 4.2%. Average hourly earnings +0.2% MoM, cooling from +0.3%.',
-          'Market reaction: 2Y yield -4bps, SPY +0.6% in first 30 min. Rate cut odds for Sep rose to 62%.',
+        time: 'May 8, 12:00 PM',
+        title: '',
+        feedName: 'bi-weekly rebalance',
+        trades: [
+          { action: 'buy', ticker: 'AAPL', detail: 'weight 33.3%', trend: 'up' },
+          { action: 'buy', ticker: 'RKLB', detail: 'weight 33.3%', trend: 'up' },
+          { action: 'buy', ticker: 'NVDA', detail: 'weight 33.3%', trend: 'up' },
+          { action: 'sell', ticker: 'TSLA', detail: 'exit position', trend: 'down' },
         ],
+        summary: 'Rebalance: Top 3 by 63d momentum: AAPL(78.2%), RKLB(35.1%), NVDA(34.0%)',
       },
       {
-        time: 'May 2, 2:00 PM',
-        title: 'FOMC Holds at 4.25\u20134.50%',
-        bullets: [
-          'Fed kept rates unchanged as expected. Statement language largely unchanged.',
-          'Powell press conference: "We need to see more data before adjusting policy." No explicit timeline for cuts.',
+        time: 'May 1, 12:00 PM',
+        title: '',
+        feedName: 'sector rotation',
+        trades: [
+          { action: 'buy', ticker: 'MSFT', detail: 'weight 40%', trend: 'up' },
+          { action: 'buy', ticker: 'AMZN', detail: 'weight 30%', trend: 'up' },
+          { action: 'buy', ticker: 'GOOG', detail: 'weight 30%', trend: 'up' },
+          { action: 'sell', ticker: 'META', detail: 'exit position', trend: 'down' },
         ],
+        summary: 'Rebalance: Top 3 by 63d momentum: MSFT(65.3%), AMZN(42.1%), GOOG(38.7%)',
       },
       {
-        time: 'Apr 30, 8:30 AM',
-        title: 'Q1 GDP Misses: +1.1% vs +2.0% est.',
-        bullets: [
-          'First-quarter GDP growth slowed sharply; consumer spending decelerated to +2.0% from +3.4%.',
-          'Core PCE within the report ran hot at +3.7% annualized, complicating the rate-cut narrative.',
+        time: 'Apr 24, 12:00 PM',
+        title: '',
+        feedName: 'momentum scan',
+        trades: [
+          { action: 'buy', ticker: 'TSLA', detail: 'weight 35%', trend: 'up' },
+          { action: 'buy', ticker: 'PLTR', detail: 'weight 35%', trend: 'up' },
+          { action: 'buy', ticker: 'SMCI', detail: 'weight 30%', trend: 'up' },
+          { action: 'sell', ticker: 'AAPL', detail: 'exit position', trend: 'down' },
         ],
+        summary: 'Rebalance: Top 3 by 63d momentum: TSLA(89.4%), PLTR(67.2%), SMCI(55.8%)',
       },
     ],
   },
   {
-    id: 'whale-wallet-tracker',
-    title: 'Whale Wallet Tracker',
-    creator: 'deepstonks',
-    description: 'Large wallet moves and exchange-flow shifts, alerted in real time.',
-    tickers: ['BTC', 'ETH', 'SOL'],
+    id: 'three-masters-digest',
+    title: 'Three Masters Digest',
+    creator: 'leoz',
+    description: 'Track Buffett, Duan Yongping, and Musk \u{2014} original statements, key moves, and contradictions.',
+    tickers: ['TSLA', 'BRK.B', 'INTC'],
     pulse: 'active',
     stars: 6100,
     remixes: 21,
-    cover: { template: 'general', title: 'Whale Wallet Tracker', author: 'deepstonks', tickers: ['BTC', 'ETH', 'SOL'], domain: 'alerts', kind: 'NOTIFICATIONS · LIVE', anchor: '24 today', series: '120+ WALLETS · 60S' },
+    cover: { template: 'general', title: 'Three Masters Digest', author: 'leoz', tickers: ['TSLA', 'BRK.B', 'INTC'], domain: 'alerts', kind: 'NOTIFICATIONS \u{00B7} DAILY', anchor: '3 today', series: 'NEWS \u{00B7} SOCIAL \u{00B7} FILINGS' },
     feeds: [
       {
-        time: 'May 8, 11:42 AM',
-        title: '2,400 BTC moved from unknown wallet to Coinbase',
-        bullets: [
-          'Wallet 1A1zP1... transferred 2,400 BTC ($234M) to Coinbase Prime in a single transaction.',
-          'This wallet has been dormant for 14 months. Last activity was a 1,800 BTC withdrawal from Binance.',
-        ],
+        time: 'May 8, 10:20 AM',
+        title: 'Musk toured Intel\'s Oregon fab signaling a chip partnership with SpaceX and Tesla; Tesla AI Vision pre-impact airbag deployment now standard on all new cars',
+        content: '**Musk**\n- Visited Intel Oregon fab this week, publicly stated “looking forward to building a great partnership with @SpaceX and @Tesla” \u{2014} first clear signal of Intel fab-level relationship with his companies. **Judgment:** if materialized, this is Intel\'s most significant foundry customer signal to date; INTC valuation repair upside is significant.\n- Tesla AI Vision new feature: pre-collision prediction and early airbag deployment, standard on all new cars at zero extra cost. **Judgment:** pure-vision AI safety capability continues to exceed expectations, further strengthening competitive edge over Lidar-based approaches.\n- Visited Redmond Starlink production line, publicly praised engineering and production team. **Judgment:** founder personally visiting production facilities marks a key capacity milestone; Starlink expansion certainty rising, providing sustained valuation support for SpaceX.',
       },
       {
-        time: 'May 8, 9:15 AM',
-        title: 'Ethereum Foundation sells 15,000 ETH',
-        bullets: [
-          'EF multi-sig executed a 15,000 ETH ($38.7M) transfer to Kraken over two transactions.',
-          'Follows a pattern of quarterly treasury management; similar sale occurred Feb 12.',
-        ],
+        time: 'May 8, 10:00 AM',
+        title: 'Quiet day \u{2014} No new original statements from Buffett, Duan Yongping, or Musk in the past 36h',
+        content: 'No new developments today (Quiet day)\n\nNo new original statements from any of the three masters in the last 36 hours.',
       },
       {
-        time: 'May 7, 6:03 PM',
-        title: 'Jump Trading moves 50M USDC to Binance',
-        bullets: [
-          'Jump-linked wallet deposited 50M USDC to Binance in a single transfer; on-chain labels confirmed.',
-          'Coincides with elevated SOL perp open interest — possible positioning ahead of the Solana upgrade.',
-        ],
+        time: 'May 7, 10:00 AM',
+        title: 'Duan Yongping exits Shenhua for Pop Mart on 25-year compounding thesis; Musk under oath denied Tesla has concrete AGI plans, contradicting his own March 2026 tweet',
+        content: '**Duan Yongping**\n- Posted on Xueqiu: “I\'ve swapped all my Shenhua for Pop Mart,” moving entire China Shenhua (01088.HK) position into Pop Mart (09992.HK).\n- On CEO Wang Ning: “I can see how impressive he is. He\'s still so young \u{2014} he can compound for at least 25 more years. The compounding here is frightening.”\n- Managing positions from an entrepreneur\'s perspective; started building via selling puts in April, completed full swap by May \u{2014} from coal to trendy toys.\n\n**Judgment:** 25-year compounding framework + entrepreneur mutual recognition is a classic high-conviction position sizing pattern, not thematic rotation. The farewell to Shenhua \u{2014} “there will be chances to meet again” \u{2014} shows zero emotional attachment.\n\n**Musk**\n- In the OpenAI trial (May 2026), asked under oath whether Tesla has concrete AGI plans, Musk answered “No.”\n- This directly contradicts his March 4, 2026 public tweet: “Tesla will be one of the companies to make AGI and probably the first to make it in humanoid/atom-shaping form.”\n- After SpaceX acquired xAI for $250B, all 11 co-founders departed by March 2026; company needs to “rebuild from scratch.”\n\n**Judgment:** the direct contradiction between public narrative and sworn testimony is the core risk for Tesla\'s AI valuation \u{2014} investors buying into the AGI story, but the founder himself won\'t confirm it under oath.',
       },
     ],
   },
@@ -336,7 +397,6 @@ export function AgentEmptyState({
 }) {
   const [discordFlowOpen, setDiscordFlowOpen] = useState(false);
   const [activePlaybook, setActivePlaybook] = useState(PUSH_PLAYBOOKS[0].id);
-  const [feedHovered, setFeedHovered] = useState(false);
   const [alertsPopoverOpen, setAlertsPopoverOpen] = useState(false);
 
   return (
@@ -368,7 +428,7 @@ export function AgentEmptyState({
           {FEATURES.map(f => (
             <div
               key={f.title}
-              className="flex flex-col gap-[var(--spacing-xxs,4px)] p-[var(--spacing-s,12px)] rounded-[var(--radius-ct-l,8px)]"
+              className="flex flex-col gap-[var(--spacing-xxs,4px)] p-[var(--spacing-m,16px)] rounded-[var(--radius-ct-l,8px)]"
               style={{ background: 'var(--b0-container, #ffffff)' }}
             >
               <div className="flex items-center gap-[6px]">
@@ -478,16 +538,17 @@ export function AgentEmptyState({
 
             {/* Right: Feed items */}
             <div
-              className="flex flex-col flex-1 min-w-0 rounded-[var(--radius-ct-l,8px)] relative"
+              className="flex flex-col flex-1 min-w-0 rounded-[var(--radius-ct-l,8px)]"
               style={{ background: 'var(--b0-container, #fff)' }}
-              onMouseEnter={() => setFeedHovered(true)}
-              onMouseLeave={() => setFeedHovered(false)}
             >
-              {(feedHovered || alertsPopoverOpen) && (
-                <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 2, display: 'flex', gap: 8 }}>
+              {/* Persistent header: playbook title + action buttons */}
+              <div className="flex items-center justify-between gap-[8px] px-[var(--spacing-xl,24px)] py-[var(--spacing-m,16px)]">
+                <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] truncate min-w-0`}>
+                  {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.title}
+                </p>
+                <div className="flex items-center gap-[8px] shrink-0">
                   <button
                     className="btn btn-primary-reverse btn-small"
-                    style={{ boxShadow: 'var(--shadow-s)' }}
                     onClick={() => onNavigate?.('template-notification')}
                   >
                     View Playbook
@@ -495,7 +556,6 @@ export function AgentEmptyState({
                   <div style={{ position: 'relative' }}>
                     <button
                       className="btn btn-primary btn-small"
-                      style={{ boxShadow: 'var(--shadow-s)' }}
                       onClick={() => setAlertsPopoverOpen(o => !o)}
                     >
                       Get Alerts
@@ -514,29 +574,111 @@ export function AgentEmptyState({
                     />
                   </div>
                 </div>
-              )}
-              {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.feeds.map((feed, i, arr) => (
+              </div>
+              <div className="mx-[var(--spacing-xl,24px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
+              {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.feeds.map((feed, i, arr) => {
+                const isTrade = !!feed.trades;
+                const playbookTitle = PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.title;
+                return (
                 <div key={i}>
-                  <div className="flex flex-col gap-[var(--spacing-xs,8px)] p-[var(--spacing-m,16px)]">
-                    <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-                      {feed.time} <span className="text-[var(--text-n3)]">·</span> {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.id}
-                    </p>
-                    <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] font-medium`}>
-                      {feed.title}
-                    </p>
-                    {feed.bullets && (
-                      <ul className="alva-md-bullets">
-                        {feed.bullets.map((b, j) => (
-                          <li key={j}>{b}</li>
+                  {isTrade ? (
+                    /* ── Trade card per Figma 6411:205650 ── */
+                    <div
+                      className="flex flex-col gap-[var(--spacing-xs,8px)] overflow-clip rounded-[var(--radius-ct-l,8px)] px-[var(--spacing-xl,24px)] py-[var(--spacing-l,20px)]"
+                      style={{ background: 'var(--b0-container, #fff)' }}
+                    >
+                      <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px]`} style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                        {feed.time} · {feed.feedName || playbookTitle}
+                      </p>
+                      <div className="flex flex-col gap-[var(--spacing-xs,8px)] w-full">
+                        {feed.trades!.map((t, j) => (
+                          <div key={j} className="flex flex-wrap items-center gap-[var(--spacing-xxs,4px)] w-full">
+                            <StockLogo ticker={t.ticker} />
+                            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap`} style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                              {t.action === 'buy' ? 'Buy' : 'Sell'}
+                            </span>
+                            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] font-medium whitespace-nowrap`} style={{ color: 'var(--main-m1, #49A3A6)' }}>
+                              {t.ticker}
+                            </span>
+                            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap`} style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                              {t.detail}
+                            </span>
+                            <CdnIcon
+                              name={t.trend === 'up' ? 'bullish-l' : 'bearish-l'}
+                              size={20}
+                              color={t.trend === 'up' ? '#2A9B7D' : '#E05357'}
+                            />
+                          </div>
                         ))}
-                      </ul>
-                    )}
-                  </div>
-                  {i < arr.length - 1 && (
-                    <div className="mx-[var(--spacing-m,16px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
+                      </div>
+                      {feed.summary && (
+                        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px]`} style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                          {feed.summary}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    /* ── Regular feed item ── */
+                    <>
+                      <div className="flex flex-col gap-[var(--spacing-xs,8px)] px-[var(--spacing-xl,24px)] py-[var(--spacing-l,20px)]">
+                        <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+                          {feed.time} <span className="text-[var(--text-n3)]">·</span> {feed.feedName || playbookTitle}
+                        </p>
+                        {feed.title && (
+                          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] font-medium`}>
+                            {feed.title}
+                          </p>
+                        )}
+                        {feed.content && (() => {
+                          const renderInline = (text: string) =>
+                            text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/).map((seg, si) => {
+                              if (seg.startsWith('**') && seg.endsWith('**')) return <span key={si} className="font-medium">{seg.slice(2, -2)}</span>;
+                              const linkMatch = seg.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+                              if (linkMatch) return <a key={si} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" className="text-[var(--main-m1,#49A3A6)] underline">{linkMatch[1]}</a>;
+                              return seg;
+                            });
+                          const elements: React.ReactNode[] = [];
+                          const lines = feed.content.split('\n');
+                          let idx = 0;
+                          let key = 0;
+                          while (idx < lines.length) {
+                            const line = lines[idx];
+                            if (line === '') { idx++; continue; }
+                            if (line.startsWith('- ')) {
+                              const items: string[] = [];
+                              while (idx < lines.length && lines[idx].startsWith('- ')) {
+                                items.push(lines[idx].slice(2));
+                                idx++;
+                              }
+                              elements.push(
+                                <ul key={key++} className="alva-md-bullets">
+                                  {items.map((t, ti) => <li key={ti}>{renderInline(t)}</li>)}
+                                </ul>
+                              );
+                            } else {
+                              elements.push(
+                                <p key={key++} className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] m-0`}>
+                                  {renderInline(line)}
+                                </p>
+                              );
+                              idx++;
+                            }
+                          }
+                          return <div className="flex flex-col gap-[4px]">{elements}</div>;
+                        })()}
+                      </div>
+                      {i < arr.length - 1 && (
+                        <div className="mx-[var(--spacing-xl,24px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
+                      )}
+                    </>
+                  )}
+                  {/* Divider between trade cards */}
+                  {isTrade && i < arr.length - 1 && (
+                    <div className="mx-[var(--spacing-xl,24px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

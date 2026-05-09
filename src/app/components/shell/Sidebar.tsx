@@ -164,7 +164,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       <div className="content-stretch flex flex-col flex-[1_0_0] gap-0 items-start min-h-px py-[4px] relative w-full z-[5]">
         <SectionHeader label="My Playbooks" collapsed={collapsed} />
         <NavItem label="Feed Test" icon="sidebar-dashboard-normal" active={activePage === 'screener'} collapsed={collapsed} onClick={() => onNavigate('screener')} />
-        <NavItem label="Trade Notification Test" icon="sidebar-dashboard-normal" active={activePage === 'trade-notification-test'} collapsed={collapsed} onClick={() => onNavigate('trade-notification-test')} />
       </div>
 
       {/* 用户行 */}

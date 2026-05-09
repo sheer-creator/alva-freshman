@@ -29,7 +29,6 @@ const PAGE_TITLES: Record<string, string> = {
   'alva-agent': 'Alva Agent',
   'portfolio-settings': 'Portfolio',
   'screener': 'Feed Test',
-  'trade-notification-test': 'Trade Notification Test',
   'template-screener': 'Template-Screener',
   'template-thesis': 'Template-Thesis',
   'template-whatif': 'Template-Whatif',

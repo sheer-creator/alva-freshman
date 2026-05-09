@@ -21,9 +21,25 @@ function figmaAssetPlugin() {
   }
 }
 
+function demoDirectoryIndexPlugin() {
+  return {
+    name: 'vite-plugin-demo-directory-index',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (req.url === '/demo' || req.url === '/demo/') {
+          req.url = '/demo/index.html'
+        }
+
+        next()
+      })
+    },
+  }
+}
+
 export default defineConfig({
   base: '/',
   plugins: [
+    demoDirectoryIndexPlugin(),
     figmaAssetPlugin(),
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
