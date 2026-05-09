@@ -1892,11 +1892,16 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           align-items:center;
           gap:12px;
         }
-        .nc-skill-card-header > div[class*="rounded-full"],
-        .nc-skill-card-header > img{
+        .nc-skill-card-creator-thumb{
+          flex-shrink:0;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+        }
+        .nc-skill-card-creator-thumb > div[class*="rounded-full"],
+        .nc-skill-card-creator-thumb > img{
           box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
           border-radius:9999px;
-          flex-shrink:0;
         }
         .nc-skill-card-icon-wrap{
           width:36px;
@@ -1936,6 +1941,28 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
+          position:relative;
+          min-height:16px;
+        }
+        .nc-skill-card-author-default,
+        .nc-skill-card-author-hover{
+          display:block;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+          transition:opacity 140ms ease;
+        }
+        .nc-skill-card-author-hover{
+          position:absolute;
+          inset:0;
+          opacity:0;
+          pointer-events:none;
+        }
+        @media (hover: hover){
+          .nc-skill-card:hover .nc-skill-card-author-default{ opacity:0; }
+          .nc-skill-card:hover .nc-skill-card-author-hover{ opacity:1; }
+          /* 头像跟下面 creator 行重复，hover 时隐掉留白让上面的 name+meta 整体左移 */
+          .nc-skill-card:hover .nc-skill-card-creator-thumb{ display:none; }
         }
         .nc-skill-card-desc{
           font-family:'Delight',sans-serif;
@@ -2003,15 +2030,35 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         .nc-skill-card-creator-text{
           display:flex;
           flex-direction:column;
+          flex:1 1 auto;
           min-width:0;
         }
+        .nc-skill-card-creator-socials{
+          display:flex;
+          align-items:center;
+          gap:6px;
+          flex-shrink:0;
+          margin-left:auto;
+        }
+        .nc-skill-card-creator-social{
+          width:24px;
+          height:24px;
+          border-radius:9999px;
+          background:rgba(0,0,0,0.05);
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          flex-shrink:0;
+          transition:background 120ms ease;
+        }
+        .nc-skill-card-creator-social:hover{ background:rgba(0,0,0,0.1); }
         .nc-skill-card-creator-caps{
           font-family:'Delight',sans-serif;
           font-size:11px;
           line-height:14px;
           color:rgba(0,0,0,0.4);
           letter-spacing:0.11px;
-          font-weight:500;
+          font-weight:400;
         }
         .nc-skill-card-creator-name{
           font-family:'Delight',sans-serif;
@@ -2308,19 +2355,24 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                         >
                           <header className="nc-skill-card-header">
                             {s.kol ? (
-                              <Avatar name={s.creator} size={36} />
-                            ) : (
+                              <span className="nc-skill-card-creator-thumb">
+                                <Avatar name={s.creator} size={36} />
+                              </span>
+                            ) : s.icon ? (
                               <span className="nc-skill-card-icon-wrap">
-                                {s.icon ? (
-                                  <CdnIcon name={s.icon} size={20} color="rgba(0,0,0,0.7)" />
-                                ) : (
-                                  <Avatar name={s.creator} size={36} />
-                                )}
+                                <CdnIcon name={s.icon} size={20} color="rgba(0,0,0,0.7)" />
+                              </span>
+                            ) : (
+                              <span className="nc-skill-card-creator-thumb">
+                                <Avatar name={s.creator} size={36} />
                               </span>
                             )}
                             <span className="nc-skill-card-text">
                               <span className="nc-skill-card-name">{s.label}</span>
-                              <span className="nc-skill-card-author">by {s.creator}</span>
+                              <span className="nc-skill-card-author">
+                                <span className="nc-skill-card-author-default">by {s.creator}</span>
+                                <span className="nc-skill-card-author-hover">Last updated {relativeTimeForSkill(s.id)}</span>
+                              </span>
                             </span>
                           </header>
                           <p className="nc-skill-card-desc">{s.description}</p>
@@ -2336,6 +2388,21 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                               <div className="nc-skill-card-creator-text">
                                 <span className="nc-skill-card-creator-caps">Created by</span>
                                 <span className="nc-skill-card-creator-name">{s.creator}</span>
+                              </div>
+                              <div className="nc-skill-card-creator-socials">
+                                {socialsForCreator(s.creator).map((soc) => (
+                                  <a
+                                    key={soc.key}
+                                    href={soc.href}
+                                    target="_blank"
+                                    rel="noreferrer noopener"
+                                    aria-label={soc.label}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="nc-skill-card-creator-social"
+                                  >
+                                    {soc.render()}
+                                  </a>
+                                ))}
                               </div>
                             </div>
                             <button
