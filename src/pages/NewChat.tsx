@@ -1827,7 +1827,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           border-radius:9999px;
           /* 桌面默认灰底，hover 时变白让 icon 浮起 */
           background:rgba(0,0,0,0.05);
-          border:0.5px solid rgba(0,0,0,0.08);
+          border:1px solid rgba(0,0,0,0.12);
           transition:background 140ms ease;
         }
         @media (hover: hover){
@@ -1838,7 +1838,7 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
         /* 圆头像加弱边框，避免在灰底上融掉 */
         .more-skill-row > div[class*="rounded-full"],
         .more-skill-row > img{
-          box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.08);
+          box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
           border-radius:9999px;
         }
       `}</style>
