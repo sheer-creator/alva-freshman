@@ -1904,6 +1904,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           align-items:center;
           justify-content:center;
           margin-right:12px;
+          /* hover 时 visibility:hidden 让头像瞬间消失但仍占位，让旁边的文字
+             用 transform 平滑滑到左侧（headline + meta 一起平移）。 */
         }
         .nc-skill-card-creator-thumb > div[class*="rounded-full"],
         .nc-skill-card-creator-thumb > img{
@@ -1950,10 +1952,18 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           text-overflow:ellipsis;
           white-space:nowrap;
         }
+        .nc-skill-card-text{
+          transition:transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
         @media (hover: hover){
-          /* 顶部头像跟 creator 行重复 → hover 时直接消失，不做滑出动画。 */
+          /* 顶部头像直接 invisible（瞬间消失但保留占位），name+subtitle 用 transform
+             平滑左移 48px（头像 36 + margin-right 12）滑到左侧。 */
           .nc-skill-card:hover .nc-skill-card-creator-thumb{
-            display:none;
+            visibility:hidden;
+          }
+          /* 用相邻兄弟选择器：只对头像类卡片的 text 平移；icon 类卡片（图标不消失）不动。 */
+          .nc-skill-card:hover .nc-skill-card-creator-thumb + .nc-skill-card-text{
+            transform:translateX(-48px);
           }
         }
         .nc-skill-card-desc{
