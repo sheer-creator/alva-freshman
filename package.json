@@ -4,6 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "demo:index": "node scripts/generate-demo-index.mjs",
+    "prebuild": "npm run demo:index",
+    "predev": "npm run demo:index",
     "build": "vite build",
     "dev": "vite"
   },
