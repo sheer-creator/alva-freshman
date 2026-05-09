@@ -1780,6 +1780,10 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
             font-size:13px !important;
             line-height:18px !important;
           }
+          /* 移动端 sheet 行底色已是灰，icon tile 用白色避免叠灰 */
+          .more-skill-icon-wrap{
+            background:#fff !important;
+          }
         }
         @keyframes newchat-sheet-up{
           from{transform:translateY(100%)}
@@ -1821,7 +1825,21 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           align-items:center;
           justify-content:center;
           border-radius:9999px;
-          background:#fff;
+          /* 桌面默认灰底，hover 时变白让 icon 浮起 */
+          background:rgba(0,0,0,0.05);
+          border:0.5px solid rgba(0,0,0,0.08);
+          transition:background 140ms ease;
+        }
+        @media (hover: hover){
+          .more-skill-row:hover .more-skill-icon-wrap{
+            background:#fff;
+          }
+        }
+        /* 圆头像加弱边框，避免在灰底上融掉 */
+        .more-skill-row > div[class*="rounded-full"],
+        .more-skill-row > img{
+          box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.08);
+          border-radius:9999px;
         }
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
