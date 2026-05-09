@@ -1904,10 +1904,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           align-items:center;
           justify-content:center;
           margin-right:12px;
-          max-width:36px;
-          overflow:hidden;
-          opacity:1;
-          transition:max-width 220ms ease, opacity 180ms ease, margin-right 220ms ease;
         }
         .nc-skill-card-creator-thumb > div[class*="rounded-full"],
         .nc-skill-card-creator-thumb > img{
@@ -1955,12 +1951,9 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           white-space:nowrap;
         }
         @media (hover: hover){
-          /* 顶部头像跟 creator 行重复 → hover 时平滑收起，name+subtitle 自然滑到左侧。
-             icon 类型（Alva skills）保持不动。 */
+          /* 顶部头像跟 creator 行重复 → hover 时直接消失，不做滑出动画。 */
           .nc-skill-card:hover .nc-skill-card-creator-thumb{
-            max-width:0;
-            opacity:0;
-            margin-right:0;
+            display:none;
           }
         }
         .nc-skill-card-desc{
@@ -1971,12 +1964,12 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           letter-spacing:0.13px;
           margin:12px 0 0;
         }
-        /* hover 之前隐藏，hover 时挤出 */
+        /* hover 之前隐藏，hover 时挤出。高度变化使用 ease-in-out（慢→快→慢）。 */
         .nc-skill-card-extra{
           overflow:hidden;
           max-height:0;
           opacity:0;
-          transition:max-height 220ms ease, opacity 180ms ease, margin-top 220ms ease;
+          transition:max-height 280ms cubic-bezier(0.45, 0, 0.55, 1), opacity 180ms ease;
         }
         @media (hover: hover){
           .nc-skill-card:hover .nc-skill-card-extra{
