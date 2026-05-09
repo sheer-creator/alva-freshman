@@ -1345,6 +1345,19 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
     window.addEventListener('resize', h);
     return () => window.removeEventListener('resize', h);
   }, []);
+  // Opt2 瀑布流的列数：<640 → 1, <1024 → 2, 否则 3。
+  const [opt2ColCount, setOpt2ColCount] = useState<number>(() =>
+    typeof window === 'undefined' ? 3 : window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : 3,
+  );
+  useEffect(() => {
+    const h = () => {
+      const w = window.innerWidth;
+      setOpt2ColCount(w < 640 ? 1 : w < 1024 ? 2 : 3);
+    };
+    h();
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, []);
   const moreHideTimerRef = useRef<number | null>(null);
   const cancelMoreHide = () => {
     if (moreHideTimerRef.current !== null) {
@@ -1843,16 +1856,20 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           border-radius:9999px;
         }
 
-        /* ══════ Opt2 page skill cards (masonry / hover-reveal) ══════ */
+        /* ══════ Opt2 page skill cards (manual columns / hover-reveal) ══════
+           列数由 JS 根据视口算好；每列是独立 flex column，列之间不会互相影响。
+           Round-robin 分布让高优 skill 落在每一列的顶部。 */
         .nc-skill-masonry{
-          column-count:3;
-          column-gap:12px;
+          display:flex;
+          gap:12px;
+          align-items:flex-start;
         }
-        @media (max-width: 1023px){
-          .nc-skill-masonry{ column-count:2; }
-        }
-        @media (max-width: 639px){
-          .nc-skill-masonry{ column-count:1; }
+        .nc-skill-col{
+          flex:1 1 0;
+          min-width:0;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
         }
         .nc-skill-card{
           display:block;
@@ -1861,8 +1878,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           border:0.5px solid rgba(0,0,0,0.08);
           border-radius:12px;
           padding:16px;
-          margin:0 0 12px;
-          break-inside:avoid;
           font-family:inherit;
           transition:box-shadow 160ms ease, border-color 160ms ease;
         }
@@ -2257,81 +2272,93 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           )}
         </section>
 
-        {/* ══════ Opt2 默认态：瀑布流卡片，hover 时露出 tags / creator / Pick ══════ */}
-        {isOpt2 && !selected && (
-          <section
-            className="nc-skills-grid-section"
-            style={{
-              width: '100%',
-              maxWidth: HERO_WIDTH + 48,
-              margin: '0 auto',
-              padding: '0 24px 80px',
-              position: 'relative',
-              zIndex: 2,
-            }}
-          >
-            <div className="nc-skill-masonry">
-              {allSkills.map((s, i) => {
-                const tags = (s as CommunitySkillTemplate).tags ?? tagsForSkill(s.id);
-                return (
-                  <article
-                    key={s.id}
-                    className="nc-skill-card"
-                    style={{
-                      animation: 'newchat-fadeup 360ms ease-out both',
-                      animationDelay: `${Math.min(i, 12) * 30}ms`,
-                    }}
-                  >
-                    <header className="nc-skill-card-header">
-                      {s.kol ? (
-                        <Avatar name={s.creator} size={36} />
-                      ) : (
-                        <span className="nc-skill-card-icon-wrap">
-                          {s.icon ? (
-                            <CdnIcon name={s.icon} size={20} color="rgba(0,0,0,0.7)" />
-                          ) : (
-                            <Avatar name={s.creator} size={36} />
-                          )}
-                        </span>
-                      )}
-                      <span className="nc-skill-card-text">
-                        <span className="nc-skill-card-name">{s.label}</span>
-                        <span className="nc-skill-card-author">by {s.creator}</span>
-                      </span>
-                    </header>
-                    <p className="nc-skill-card-desc">{s.description}</p>
-                    <div className="nc-skill-card-extra">
-                      <div className="nc-skill-card-tags">
-                        {tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="nc-skill-card-tag">{tag}</span>
-                        ))}
-                      </div>
-                      <div className="nc-skill-card-divider" />
-                      <div className="nc-skill-card-creator">
-                        <Avatar name={s.creator} size={28} />
-                        <div className="nc-skill-card-creator-text">
-                          <span className="nc-skill-card-creator-caps">Created by</span>
-                          <span className="nc-skill-card-creator-name">{s.creator}</span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className="nc-skill-card-pick"
-                        onClick={() => {
-                          setSelectedId(s.id);
-                          setHover(null);
-                          setCommunityOpen(false);
-                        }}
-                      >
-                        Pick this skill
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        {/* ══════ Opt2 默认态：手动分列的瀑布流，hover 时本列下方卡片下推、其它列不动 ══════ */}
+        {isOpt2 && !selected && (() => {
+          // 列数响应式：JS 根据视口决定列数，把 skills round-robin 分到独立列容器里。
+          // 每列是独立的 flex column —— 一列里某张卡片 hover 撑高，只会把同列的下方卡片往下推，
+          // 不会把卡片"挤"到别的列，从根上避免闪烁。
+          const cols = Math.max(1, opt2ColCount);
+          const columns: NewChatTemplate[][] = Array.from({ length: cols }, () => []);
+          allSkills.forEach((s, i) => columns[i % cols].push(s));
+          return (
+            <section
+              className="nc-skills-grid-section"
+              style={{
+                width: '100%',
+                maxWidth: HERO_WIDTH + 48,
+                margin: '0 auto',
+                padding: '0 24px 80px',
+                position: 'relative',
+                zIndex: 2,
+              }}
+            >
+              <div className="nc-skill-masonry">
+                {columns.map((col, ci) => (
+                  <div className="nc-skill-col" key={ci}>
+                    {col.map((s, i) => {
+                      const tags = (s as CommunitySkillTemplate).tags ?? tagsForSkill(s.id);
+                      return (
+                        <article
+                          key={s.id}
+                          className="nc-skill-card"
+                          style={{
+                            animation: 'newchat-fadeup 360ms ease-out both',
+                            animationDelay: `${Math.min(ci + i * cols, 12) * 30}ms`,
+                          }}
+                        >
+                          <header className="nc-skill-card-header">
+                            {s.kol ? (
+                              <Avatar name={s.creator} size={36} />
+                            ) : (
+                              <span className="nc-skill-card-icon-wrap">
+                                {s.icon ? (
+                                  <CdnIcon name={s.icon} size={20} color="rgba(0,0,0,0.7)" />
+                                ) : (
+                                  <Avatar name={s.creator} size={36} />
+                                )}
+                              </span>
+                            )}
+                            <span className="nc-skill-card-text">
+                              <span className="nc-skill-card-name">{s.label}</span>
+                              <span className="nc-skill-card-author">by {s.creator}</span>
+                            </span>
+                          </header>
+                          <p className="nc-skill-card-desc">{s.description}</p>
+                          <div className="nc-skill-card-extra">
+                            <div className="nc-skill-card-tags">
+                              {tags.slice(0, 3).map((tag) => (
+                                <span key={tag} className="nc-skill-card-tag">{tag}</span>
+                              ))}
+                            </div>
+                            <div className="nc-skill-card-divider" />
+                            <div className="nc-skill-card-creator">
+                              <Avatar name={s.creator} size={28} />
+                              <div className="nc-skill-card-creator-text">
+                                <span className="nc-skill-card-creator-caps">Created by</span>
+                                <span className="nc-skill-card-creator-name">{s.creator}</span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              className="nc-skill-card-pick"
+                              onClick={() => {
+                                setSelectedId(s.id);
+                                setHover(null);
+                                setCommunityOpen(false);
+                              }}
+                            >
+                              Pick this skill
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })()}
 
         {/* ══════ 选中态：6 张 playbook（3×2）—— 先骨架，再淡入真实 ══════ */}
         {selected && (
