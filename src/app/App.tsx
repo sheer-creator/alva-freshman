@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "new-chat" | "docs" | "api-keys" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | "trade-notification-test" | `thread/${string}`;
+export type Page = "new-chat" | "docs" | "api-keys" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
@@ -30,11 +30,10 @@ const TemplateThesis = lazy(() => import("@/pages/TemplateThesis"));
 const TemplateWhatif = lazy(() => import("@/pages/TemplateWhatif"));
 const TemplateNotification = lazy(() => import("@/pages/TemplateNotification"));
 const Screener = lazy(() => import("@/pages/Screener"));
-const TradeNotificationTest = lazy(() => import("@/pages/TradeNotificationTest"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "notifications", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener", "trade-notification-test"];
+const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "automations", "notifications", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -117,7 +116,6 @@ export default function App() {
         {currentPage === "template-whatif" && <TemplateWhatif onNavigate={navigate} />}
         {currentPage === "template-notification" && <TemplateNotification onNavigate={navigate} />}
         {currentPage === "screener" && <Screener onNavigate={navigate} />}
-        {currentPage === "trade-notification-test" && <TradeNotificationTest onNavigate={navigate} />}
         {threadId && <Thread threadId={threadId} onNavigate={navigate} />}
       </Suspense>
       <SearchModal
