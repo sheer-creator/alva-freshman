@@ -945,6 +945,7 @@ function MoreSkillsDropdown({
                 )
               )}
               <span className="more-skill-name">{skill.label}</span>
+              <span className="more-skill-author">{skill.creator}</span>
             </button>
           ))}
         </div>
@@ -1800,6 +1801,19 @@ export default function NewChat({ onNavigate, onOpenSearch }: { onNavigate: (pag
           white-space:nowrap;
           flex:1;
           min-width:0;
+        }
+        .more-skill-author{
+          font-family:'Delight',sans-serif;
+          font-size:12px;
+          line-height:18px;
+          color:rgba(0,0,0,0.45);
+          letter-spacing:0.12px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+          flex-shrink:0;
+          max-width:140px;
+          margin-left:8px;
         }
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
