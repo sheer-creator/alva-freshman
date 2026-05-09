@@ -1879,7 +1879,13 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           border-radius:12px;
           padding:16px;
           font-family:inherit;
+          cursor:pointer;
+          text-align:left;
           transition:box-shadow 160ms ease, border-color 160ms ease;
+        }
+        .nc-skill-card:focus-visible{
+          outline:2px solid rgba(73,163,166,0.6);
+          outline-offset:2px;
         }
         @media (hover: hover){
           .nc-skill-card:hover{
@@ -1890,13 +1896,18 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         .nc-skill-card-header{
           display:flex;
           align-items:center;
-          gap:12px;
+          /* gap 改为 thumb / icon 自带 margin-right，方便 hover 时一起平滑收起 */
         }
         .nc-skill-card-creator-thumb{
           flex-shrink:0;
           display:inline-flex;
           align-items:center;
           justify-content:center;
+          margin-right:12px;
+          max-width:36px;
+          overflow:hidden;
+          opacity:1;
+          transition:max-width 220ms ease, opacity 180ms ease, margin-right 220ms ease;
         }
         .nc-skill-card-creator-thumb > div[class*="rounded-full"],
         .nc-skill-card-creator-thumb > img{
@@ -1913,6 +1924,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           border-radius:9999px;
           background:rgba(0,0,0,0.05);
           border:1px solid rgba(0,0,0,0.12);
+          margin-right:12px;
         }
         .nc-skill-card-text{
           flex:1;
@@ -1942,23 +1954,14 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           text-overflow:ellipsis;
           white-space:nowrap;
         }
-        .nc-skill-card-author-creator,
-        .nc-skill-card-author-sep,
-        .nc-skill-card-author-time{
-          transition:opacity 140ms ease, max-width 220ms ease;
-        }
         @media (hover: hover){
-          /* hover 时折叠 "by creator · " 部分，只保留更新时间 */
-          .nc-skill-card:hover .nc-skill-card-author-creator,
-          .nc-skill-card:hover .nc-skill-card-author-sep{
-            opacity:0;
+          /* 顶部头像跟 creator 行重复 → hover 时平滑收起，name+subtitle 自然滑到左侧。
+             icon 类型（Alva skills）保持不动。 */
+          .nc-skill-card:hover .nc-skill-card-creator-thumb{
             max-width:0;
-            display:inline-block;
-            overflow:hidden;
-            white-space:nowrap;
+            opacity:0;
+            margin-right:0;
           }
-          /* 头像跟下面 creator 行重复，hover 时隐掉留白让上面的 name+meta 整体左移 */
-          .nc-skill-card:hover .nc-skill-card-creator-thumb{ display:none; }
         }
         .nc-skill-card-desc{
           font-family:'Delight',sans-serif;
@@ -1979,7 +1982,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           .nc-skill-card:hover .nc-skill-card-extra{
             max-height:360px;
             opacity:1;
-            margin-top:14px;
           }
         }
         /* 触屏：始终显示 */
@@ -1987,7 +1989,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           .nc-skill-card-extra{
             max-height:none;
             opacity:1;
-            margin-top:14px;
           }
         }
         .nc-skill-card-tags{
@@ -2067,24 +2068,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
-        }
-        .nc-skill-card-pick{
-          margin-top:12px;
-          width:100%;
-          height:38px;
-          border:none;
-          border-radius:8px;
-          background:#49A3A6;
-          color:#fff;
-          font-family:'Delight',sans-serif;
-          font-size:13px;
-          font-weight:500;
-          letter-spacing:0.13px;
-          cursor:pointer;
-          transition:background 140ms ease;
-        }
-        .nc-skill-card-pick:hover{
-          background:#3e9295;
         }
         @media (max-width: 639px){
           .nc-skill-card{ padding:14px; }
@@ -2344,7 +2327,22 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                       return (
                         <article
                           key={s.id}
+                          role="button"
+                          tabIndex={0}
                           className="nc-skill-card"
+                          onClick={() => {
+                            setSelectedId(s.id);
+                            setHover(null);
+                            setCommunityOpen(false);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedId(s.id);
+                              setHover(null);
+                              setCommunityOpen(false);
+                            }
+                          }}
                           style={{
                             animation: 'newchat-fadeup 360ms ease-out both',
                             animationDelay: `${Math.min(ci + i * cols, 12) * 30}ms`,
@@ -2366,11 +2364,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                             )}
                             <span className="nc-skill-card-text">
                               <span className="nc-skill-card-name">{s.label}</span>
-                              <span className="nc-skill-card-author">
-                                <span className="nc-skill-card-author-creator">by {s.creator}</span>
-                                <span className="nc-skill-card-author-sep"> · </span>
-                                <span className="nc-skill-card-author-time">{relativeTimeForSkill(s.id)}</span>
-                              </span>
+                              <span className="nc-skill-card-author">by {s.creator} · {relativeTimeForSkill(s.id)}</span>
                             </span>
                           </header>
                           <p className="nc-skill-card-desc">{s.description}</p>
@@ -2403,17 +2397,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                                 ))}
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              className="nc-skill-card-pick"
-                              onClick={() => {
-                                setSelectedId(s.id);
-                                setHover(null);
-                                setCommunityOpen(false);
-                              }}
-                            >
-                              Pick this skill
-                            </button>
                           </div>
                         </article>
                       );
