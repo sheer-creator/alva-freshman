@@ -1955,14 +1955,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         .nc-skill-card-text{
           transition:transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .nc-skill-card-author-creator{
-          display:inline-block;
-          max-width:240px;
-          overflow:hidden;
-          white-space:nowrap;
-          vertical-align:bottom;
-          transition:max-width 240ms cubic-bezier(0.4, 0, 0.2, 1), opacity 180ms ease-out;
-        }
         @media (hover: hover){
           /* 顶部头像直接 invisible（瞬间消失但保留占位），name+subtitle 用 transform
              平滑左移 48px（头像 36 + margin-right 12）滑到左侧。 */
@@ -1972,11 +1964,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           /* 用相邻兄弟选择器：只对头像类卡片的 text 平移；icon 类卡片（图标不消失）不动。 */
           .nc-skill-card:hover .nc-skill-card-creator-thumb + .nc-skill-card-text{
             transform:translateX(-48px);
-          }
-          /* hover 时副标题里的 "by creator · " 折叠掉，只留更新时间 */
-          .nc-skill-card:hover .nc-skill-card-author-creator{
-            max-width:0;
-            opacity:0;
           }
         }
         .nc-skill-card-desc{
@@ -2400,10 +2387,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                             )}
                             <span className="nc-skill-card-text">
                               <span className="nc-skill-card-name">{s.label}</span>
-                              <span className="nc-skill-card-author">
-                                <span className="nc-skill-card-author-creator">by {s.creator} · </span>
-                                <span className="nc-skill-card-author-time">{relativeTimeForSkill(s.id)}</span>
-                              </span>
+                              <span className="nc-skill-card-author">by {s.creator} · {relativeTimeForSkill(s.id)}</span>
                             </span>
                           </header>
                           <p className="nc-skill-card-desc">{s.description}</p>
