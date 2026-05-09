@@ -1964,18 +1964,20 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           letter-spacing:0.13px;
           margin:12px 0 0;
         }
-        /* hover 之前隐藏，hover 时挤出。Material 标准曲线，整段保持均匀流速，
-           hover 一发生就开始动，但全程能看到在涨高。 */
+        /* hover 之前隐藏，hover 时挤出。
+           - 默认（鼠标移走时生效）：起手就收，曲线偏 ease-in，让卡片立刻往回缩。
+           - hover（展开时生效）：Material 标准曲线，整段均匀流速能看到在涨高。 */
         .nc-skill-card-extra{
           overflow:hidden;
           max-height:0;
           opacity:0;
-          transition:max-height 360ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease-out;
+          transition:max-height 220ms cubic-bezier(0.4, 0, 1, 1), opacity 160ms ease-in;
         }
         @media (hover: hover){
           .nc-skill-card:hover .nc-skill-card-extra{
             max-height:360px;
             opacity:1;
+            transition:max-height 360ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease-out;
           }
         }
         /* 触屏：始终显示 */
