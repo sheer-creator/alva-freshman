@@ -1964,12 +1964,13 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           letter-spacing:0.13px;
           margin:12px 0 0;
         }
-        /* hover 之前隐藏，hover 时挤出。高度变化使用 ease-in-out（慢→快→慢）。 */
+        /* hover 之前隐藏，hover 时挤出。高度用"expo-out"风格曲线：起手快、收尾缓，
+           保证 hover 立刻有动作而不是 ease-in-out 的慢启动。 */
         .nc-skill-card-extra{
           overflow:hidden;
           max-height:0;
           opacity:0;
-          transition:max-height 280ms cubic-bezier(0.45, 0, 0.55, 1), opacity 180ms ease;
+          transition:max-height 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms ease-out;
         }
         @media (hover: hover){
           .nc-skill-card:hover .nc-skill-card-extra{
