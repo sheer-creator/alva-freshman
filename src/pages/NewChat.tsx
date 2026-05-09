@@ -362,8 +362,8 @@ function SkillInfoCard({
           </span>
         ))}
       </div>
-      {/* 分割线（创作者行紧贴上方分隔线） */}
-      <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0 12px' }} />
+      {/* 分割线（上下间距对称，给创作者行更舒展的呼吸） */}
+      <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0' }} />
       {/* 创建者信息行 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <button
