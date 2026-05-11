@@ -223,7 +223,7 @@ export default function Notifications({ onNavigate }: { onNavigate: (page: Page)
           className="leading-[20px] text-[12px] tracking-[0.12px]"
           style={{ color: 'var(--text-n5)', fontFamily: FONT }}
         >
-          Push notifications are delivered through your Alva Agent.{' '}
+          Alerts are delivered through your Alva Agent.{' '}
           <button
             type="button"
             onClick={() => onNavigate('alva-agent')}
