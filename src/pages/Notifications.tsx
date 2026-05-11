@@ -14,178 +14,166 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 
 const FONT = "'Delight', sans-serif";
 
-/* ========== 类型 ========== */
+/* ========== Status Dot ========== */
 
-type SubscriptionType = 'alerts' | 'trade-bound';
+function StatusDot({ status = 'green', size = 12 }: { status?: 'green' | 'grey'; size?: number }) {
+  const ringColor = status === 'green' ? '#DBEDED' : 'rgba(0,0,0,0.06)';
+  const dotColor = status === 'green' ? '#49A3A6' : 'rgba(0,0,0,0.3)';
+  return (
+    <div className="flex items-center shrink-0" style={{ width: size, height: size }}>
+      <div className="flex-1 h-full min-h-px min-w-px overflow-clip relative">
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2">
+          <svg className="block size-full" fill="none" viewBox="0 0 12 12">
+            <circle cx="6" cy="6" fill={ringColor} r="6" />
+          </svg>
+        </div>
+        <div className="absolute bottom-[28.6%] left-1/2 top-[28.6%] -translate-x-1/2">
+          <svg className="block size-full" fill="none" viewBox="0 0 5.136 5.136">
+            <circle cx="2.568" cy="2.568" fill={dotColor} r="2.568" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========== From Chip ========== */
+
+interface FromPlaybook { author: string; name: string; target: Page; }
+
+function FromChip({ playbook, onClick }: { playbook: FromPlaybook; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+      className="flex items-center gap-[2px] justify-center px-[4px] py-px rounded-[2px] shrink-0 cursor-pointer border-none outline-none transition-colors hover:brightness-95"
+      style={{ background: 'rgba(0,0,0,0.03)' }}
+    >
+      <div className="shrink-0 size-[14px] rounded-[2px] overflow-hidden">
+        <Avatar name={playbook.author} size={14} />
+      </div>
+      <p
+        className="leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap overflow-hidden text-ellipsis"
+        style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT, maxWidth: 120 }}
+      >
+        @{playbook.author}/{playbook.name}
+      </p>
+    </button>
+  );
+}
+
+/* ========== 类型 ========== */
 
 interface Subscription {
   id: string;
-  author: string;
-  playbookName: string;          // url-safe slug
-  displayName: string;           // human readable
-  type: SubscriptionType;
+  name: string;                  // feed / automation name (一级)
+  author: string;                // 来源作者
   lastPushAgo: string;           // "5m" / "1h" / "—"
   weekCount: number;             // pushes received this week
   target: Page;                  // 点击跳转
+  from?: FromPlaybook[];         // 来源 playbook
 }
 
 /* ========== Mock ========== */
 
 const SUBSCRIPTIONS: Subscription[] = [
   {
-    id: '1',
-    author: 'leo',
-    playbookName: 'btc-momentum-1h',
-    displayName: 'BTC Momentum 1h',
-    type: 'trade-bound',
-    lastPushAgo: '5m',
-    weekCount: 24,
-    target: 'screener' as Page,
-  },
-  {
     id: '2',
+    name: 'ai-infra-digest',
     author: 'maya',
-    playbookName: 'ai-infra-digest',
-    displayName: 'AI Infra Daily Digest',
-    type: 'alerts',
     lastPushAgo: '1h',
     weekCount: 6,
     target: 'screener' as Page,
+    from: [{ author: 'maya', name: 'ai-infra-screener', target: 'screener' as Page }],
   },
   {
     id: '3',
+    name: 'whale-flow-tracker',
     author: 'satoshi',
-    playbookName: 'whale-flow-tracker',
-    displayName: 'Whale Flow Tracker',
-    type: 'alerts',
     lastPushAgo: '30m',
     weekCount: 18,
     target: 'screener' as Page,
+    from: [{ author: 'satoshi', name: 'whale-alert-monitor', target: 'screener' as Page }],
   },
   {
     id: '4',
+    name: 'macro-pulse',
     author: 'alva',
-    playbookName: 'macro-pulse',
-    displayName: 'Macro Pulse',
-    type: 'alerts',
     lastPushAgo: '4h',
     weekCount: 3,
     target: 'screener' as Page,
+    from: [{ author: 'alva', name: 'macro-dashboard', target: 'screener' as Page }],
   },
   {
     id: '5',
+    name: 'defi-yield-scanner',
     author: 'quantus',
-    playbookName: 'defi-yield-scanner',
-    displayName: 'DeFi Yield Scanner',
-    type: 'alerts',
     lastPushAgo: '2d',
     weekCount: 0,
     target: 'screener' as Page,
   },
 ];
 
-/* ========== Type Badge ========== */
+/* ========== Cancel 文字按钮 ========== */
 
-function TypeBadge({ type }: { type: SubscriptionType }) {
-  const isTrade = type === 'trade-bound';
-  return (
-    <span
-      className="inline-flex items-center px-[6px] py-[1px] rounded-[2px] text-[11px] leading-[18px] tracking-[0.11px] shrink-0"
-      style={{
-        background: isTrade ? 'var(--main-m3-10)' : 'var(--main-m1-10)',
-        color: isTrade ? 'var(--main-m3)' : 'var(--main-m1)',
-        fontFamily: FONT,
-        fontWeight: 500,
-      }}
-    >
-      {isTrade ? 'Trade-bound' : 'Alerts'}
-    </span>
-  );
-}
-
-/* ========== Row Action（与 Automations 同款 16px 图标） ========== */
-
-function RowAction({
-  icon,
-  label,
-  onClick,
-  color = 'var(--text-n9)',
-}: {
-  icon: string;
-  label: string;
-  onClick: () => void;
-  color?: string;
-}) {
+function CancelButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
-      aria-label={label}
-      title={label}
       onClick={(e) => { e.stopPropagation(); onClick(); }}
-      className="flex items-center justify-center size-[16px] shrink-0 cursor-pointer bg-transparent border-none outline-none p-0 transition-opacity hover:opacity-60"
+      className="shrink-0 cursor-pointer bg-transparent border-none outline-none p-0 transition-opacity hover:opacity-60"
+      style={{
+        fontFamily: FONT,
+        fontSize: 12,
+        lineHeight: '20px',
+        letterSpacing: '0.12px',
+        color: 'var(--text-n5)',
+      }}
     >
-      <CdnIcon name={icon} size={16} color={color} />
+      Cancel
     </button>
   );
 }
 
-/* ========== Subscription Card ========== */
+/* ========== Subscription Card (Automations 风格) ========== */
 
 function SubscriptionCard({
   sub,
-  onOpenPlaybook,
-  onUnsubscribe,
-  onManageInPortfolio,
+  onOpen,
+  onCancel,
+  onNavigate,
 }: {
   sub: Subscription;
-  onOpenPlaybook: () => void;
-  onUnsubscribe: () => void;
-  onManageInPortfolio: () => void;
+  onOpen: () => void;
+  onCancel: () => void;
+  onNavigate: (page: Page) => void;
 }) {
-  const isTrade = sub.type === 'trade-bound';
-
+  const hasFrom = !!sub.from?.length;
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={onOpenPlaybook}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenPlaybook(); } }}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
       className="flex flex-col gap-[8px] items-center justify-center p-[20px] rounded-[8px] w-full cursor-pointer transition-colors hover:brightness-[0.98]"
       style={{ background: 'var(--grey-g01)' }}
     >
-      {/* Row 1: avatar + name + type badge ··· action */}
+      {/* Row 1: dot + name + Cancel */}
       <div className="flex gap-[12px] items-center w-full">
         <div className="flex flex-1 min-w-0 gap-[8px] items-center">
-          <div className="shrink-0 size-[20px] rounded-full overflow-hidden">
-            <Avatar name={sub.author} size={20} />
-          </div>
+          <StatusDot status="green" size={14} />
           <p
-            className="min-w-0 leading-[26px] text-[16px] tracking-[0.16px] whitespace-nowrap overflow-hidden text-ellipsis"
+            className="flex-1 min-w-0 leading-[26px] text-[16px] tracking-[0.16px] whitespace-nowrap overflow-hidden text-ellipsis"
             style={{ color: 'var(--text-n9)', fontFamily: FONT }}
           >
-            <span style={{ color: 'var(--text-n7)' }}>@{sub.author}/</span>
-            <span>{sub.playbookName}</span>
+            {sub.name}
           </p>
-          <TypeBadge type={sub.type} />
         </div>
-
-        {isTrade ? (
-          <RowAction
-            icon="settings-l"
-            label="Manage in Portfolio"
-            onClick={onManageInPortfolio}
-          />
-        ) : (
-          <RowAction
-            icon="delete-l"
-            label="Unsubscribe"
-            onClick={onUnsubscribe}
-          />
-        )}
+        <CancelButton onClick={onCancel} />
       </div>
 
-      {/* Row 2: meta */}
-      <div className="flex flex-wrap gap-[8px] items-center w-full pl-[28px]">
+      {/* Row 2: meta + From */}
+      <div className="flex flex-wrap gap-[8px] items-center w-full">
         <div
           className="flex gap-[8px] items-center leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap shrink-0"
           style={{ color: 'var(--text-n5)', fontFamily: FONT }}
@@ -193,9 +181,16 @@ function SubscriptionCard({
           <p>Last push: {sub.lastPushAgo}</p>
           <p style={{ color: 'var(--text-n2)' }}>|</p>
           <p>{sub.weekCount} this week</p>
-          <p style={{ color: 'var(--text-n2)' }}>|</p>
-          <p>{sub.displayName}</p>
+          {hasFrom && (
+            <>
+              <p style={{ color: 'var(--text-n2)' }}>|</p>
+              <p>From</p>
+            </>
+          )}
         </div>
+        {hasFrom && sub.from!.map((p, i) => (
+          <FromChip key={i} playbook={p} onClick={() => onNavigate(p.target)} />
+        ))}
       </div>
     </div>
   );
@@ -220,7 +215,7 @@ export default function Notifications({ onNavigate }: { onNavigate: (page: Page)
           className="leading-[38px] text-[28px] tracking-[0.28px] w-full"
           style={{ color: 'var(--text-n9)', fontFamily: FONT }}
         >
-          Notifications
+          Alerts
         </p>
 
         {/* Hint: receiver lives in Alva Agent */}
@@ -247,9 +242,9 @@ export default function Notifications({ onNavigate }: { onNavigate: (page: Page)
           <SubscriptionCard
             key={s.id}
             sub={s}
-            onOpenPlaybook={() => onNavigate(s.target)}
-            onUnsubscribe={() => setConfirmUnsub(s)}
-            onManageInPortfolio={() => onNavigate('portfolio')}
+            onOpen={() => onNavigate(s.target)}
+            onCancel={() => setConfirmUnsub(s)}
+            onNavigate={onNavigate}
           />
         ))}
         {subs.length === 0 && (
@@ -257,7 +252,7 @@ export default function Notifications({ onNavigate }: { onNavigate: (page: Page)
             className="py-[40px] text-[14px] leading-[22px] tracking-[0.14px]"
             style={{ color: 'var(--text-n5)', fontFamily: FONT }}
           >
-            No subscriptions yet. Visit a playbook and enable Get Alerts.
+            No alerts yet. Visit a playbook and enable Get Alerts.
           </p>
         )}
       </div>
@@ -275,10 +270,10 @@ export default function Notifications({ onNavigate }: { onNavigate: (page: Page)
             onClick={e => e.stopPropagation()}
           >
             <p className="leading-[26px] text-[16px] tracking-[0.16px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>
-              Unsubscribe from “@{confirmUnsub.author}/{confirmUnsub.playbookName}”?
+              Cancel &ldquo;{confirmUnsub.name}&rdquo;?
             </p>
             <p className="leading-[20px] text-[12px] tracking-[0.12px]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>
-              You will stop receiving pushes from this playbook. You can re-subscribe from the playbook page anytime.
+              You will stop receiving alerts from this subscription. You can re-subscribe anytime.
             </p>
             <div className="flex gap-[8px] justify-end">
               <button
@@ -295,7 +290,7 @@ export default function Notifications({ onNavigate }: { onNavigate: (page: Page)
                 className="px-[14px] py-[6px] rounded-[6px] text-[14px] leading-[22px] tracking-[0.14px] cursor-pointer border-none outline-none hover:brightness-110"
                 style={{ color: '#fff', background: 'var(--destructive)', fontFamily: FONT }}
               >
-                Unsubscribe
+                Cancel
               </button>
             </div>
           </div>

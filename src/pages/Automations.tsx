@@ -185,8 +185,8 @@ function FeedCard({
         <RowAction icon="delete-l" label="Delete" onClick={onDelete} />
       </div>
 
-      {/* Row 2: meta (left) + Used By chips (right) */}
-      <div className="flex flex-wrap gap-[8px] items-center justify-between w-full">
+      {/* Row 2: meta + Used By */}
+      <div className="flex flex-wrap gap-[8px] items-center w-full">
         <div
           className="flex gap-[8px] items-center leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap shrink-0"
           style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
@@ -196,20 +196,16 @@ function FeedCard({
           <p>{feed.runEvery ?? 'Every 5 minutes'}</p>
           <p style={{ color: 'var(--text-n2)' }}>|</p>
           <p>{feed.totalRuns} Runs</p>
+          {hasUsedBy && (
+            <>
+              <p style={{ color: 'var(--text-n2)' }}>|</p>
+              <p>Used By</p>
+            </>
+          )}
         </div>
-        {hasUsedBy && (
-          <div className="flex gap-[8px] items-center shrink-0">
-            <p
-              className="leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap shrink-0"
-              style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
-            >
-              Used By
-            </p>
-            {feed.usedBy!.map((p, i) => (
-              <PlaybookChip key={i} playbook={p} onClick={() => onNavigate(p.target)} />
-            ))}
-          </div>
-        )}
+        {hasUsedBy && feed.usedBy!.map((p, i) => (
+          <PlaybookChip key={i} playbook={p} onClick={() => onNavigate(p.target)} />
+        ))}
       </div>
     </div>
   );
