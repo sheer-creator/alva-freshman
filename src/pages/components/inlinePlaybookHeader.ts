@@ -2,6 +2,8 @@ import headerCss from './playbook-header.css?raw';
 import headerJs from './playbook-header.js?raw';
 import panelCss from './discussion-panel.css?raw';
 import panelJs from './discussion-panel.js?raw';
+import inspectorCss from './playbook-inspector.css?raw';
+import inspectorJs from './playbook-inspector.js?raw';
 import tokensCss from '../../styles/tokens.css?raw';
 
 const TOKENS_LINK = '<link rel="stylesheet" href="./styles/tokens.css" />';
@@ -33,5 +35,8 @@ export function inlinePlaybookHeader(html: string): string {
     .replace(CSS_LINK, `<style>${headerCss}</style>`)
     .replace(JS_SCRIPT, `<script>${escapeScript(rebaseAssets(headerJs))}</script>`)
     .replace(PANEL_CSS_LINK, `<style>${panelCss}</style>`)
-    .replace(PANEL_JS_SCRIPT, `<script>${escapeScript(rebaseAssets(panelJs))}</script>`);
+    .replace(PANEL_JS_SCRIPT, `<script>${escapeScript(rebaseAssets(panelJs))}</script>`)
+    // Inspector: inject CSS before </head>, JS before </body>
+    .replace('</head>', `<style>${inspectorCss}</style>\n</head>`)
+    .replace('</body>', `<script>${escapeScript(inspectorJs)}</script>\n</body>`);
 }

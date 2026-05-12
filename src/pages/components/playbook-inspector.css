@@ -1,0 +1,198 @@
+/* ══════════════════════════════════════════════════════════════
+   Playbook Inspector — element picker overlay + edit dialog
+   Activated via postMessage from the React parent.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Cursor overrides when inspector is active ── */
+body.alva-inspector-active {
+  cursor: default !important;
+}
+body.alva-inspector-active * {
+  cursor: default !important;
+}
+/* editable zone: crosshair cursor */
+body.alva-inspector-active .playbook-container,
+body.alva-inspector-active .playbook-container * {
+  cursor: crosshair !important;
+}
+/* dialog keeps normal cursor */
+body.alva-inspector-active .alva-inspector-dialog,
+body.alva-inspector-active .alva-inspector-dialog * {
+  cursor: default !important;
+}
+
+/* ── Hover / selected overlay box ── */
+.alva-inspector-overlay {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  z-index: 99990;
+  border: 1.5px dashed rgba(73,163,166,0.7);
+  background: rgba(73,163,166,0.06);
+  border-radius: 3px;
+  transition: top 0.08s ease, left 0.08s ease, width 0.08s ease, height 0.08s ease;
+}
+.alva-inspector-overlay.is-selected {
+  border-style: solid;
+  border-color: #49A3A6;
+  background: rgba(73,163,166,0.10);
+}
+
+/* ── Tag label pill (shows on hover) ── */
+.alva-inspector-label {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  z-index: 99991;
+  padding: 1px 6px;
+  background: #2a2a38;
+  color: #fff;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+  border-radius: 3px;
+  white-space: nowrap;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Edit dialog (ChatBox style) ── */
+.alva-inspector-dialog {
+  position: absolute;
+  z-index: 99995;
+  width: 480px;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.2);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  padding: 16px;
+  animation: aidSlideIn 0.15s ease-out;
+}
+@keyframes aidSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Toolbar row: instruction input + send button ── */
+.aid-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 28px;
+}
+.aid-instruction-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.14px;
+  color: rgba(0,0,0,0.9);
+  background: transparent;
+}
+.aid-instruction-input::placeholder {
+  color: rgba(0,0,0,0.3);
+}
+
+/* send button */
+.aid-send {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.05);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+.aid-send.is-active {
+  background: #49A3A6;
+}
+.aid-send.is-active:hover {
+  background: #3d8e91;
+}
+.aid-send img {
+  opacity: 0.3;
+  transition: opacity 0.15s, filter 0.15s;
+}
+.aid-send.is-active img {
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
+
+/* ── Divider between toolbar and text field ── */
+.aid-divider {
+  height: 0;
+  border: none;
+  border-top: 0.5px solid rgba(0,0,0,0.1);
+  margin: 16px 0;
+}
+
+/* ── Text content field (only shown for text elements) ── */
+.aid-text-field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aid-field-label {
+  display: block;
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.14px;
+  color: rgba(0,0,0,0.7);
+}
+.aid-text-input {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 0.5px solid rgba(0,0,0,0.3);
+  border-radius: 8px;
+  outline: none;
+  resize: none;
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.14px;
+  color: rgba(0,0,0,0.9);
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.aid-text-input::-webkit-scrollbar { display: none; }
+.aid-text-input:focus {
+  border-color: rgba(0,0,0,0.5);
+}
+
+/* ── Numbered badge pinned on selected elements ── */
+.alva-inspector-badge {
+  position: absolute;
+  z-index: 5;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #49A3A6;
+  border: 0.5px solid rgba(0,0,0,0.2);
+  color: #fff;
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}

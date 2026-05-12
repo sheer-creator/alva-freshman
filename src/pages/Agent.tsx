@@ -451,9 +451,7 @@ export function AgentEmptyState({
             style={{ height: 48, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
             onClick={onTelegramConnect}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M17.8693 2.23048C17.8693 2.23048 19.6246 1.54575 19.4783 3.20864C19.4295 3.89337 18.9907 6.28986 18.6494 8.88202L17.4793 16.5606C17.4793 16.5606 17.3818 17.6855 16.5042 17.8812C15.6266 18.0768 14.3102 17.1964 14.0664 17.0008C13.8713 16.8541 10.4097 14.6532 9.19079 13.5772C8.84948 13.2838 8.45944 12.6968 9.23954 12.0121L14.3589 7.12132C14.944 6.53442 15.5291 5.16499 13.0913 6.82788L6.26545 11.4742C6.26545 11.4742 5.48535 11.9632 4.02269 11.5231L0.85355 10.5449C0.85355 10.5449 -0.316596 9.81129 1.68238 9.07762C6.558 6.77892 12.5549 4.43132 17.8693 2.23048Z" fill="#ffffff"/>
-            </svg>
+            <img src={"https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg"} alt="" style={{ width: 20, height: 20 }} />
             Connect Telegram
           </button>
 
@@ -474,39 +472,6 @@ export function AgentEmptyState({
             <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" style={{ width: 20, height: 20 }} />
             Connect Discord
           </button>
-        </div>
-
-        {/* More channels — Slack/WhatsApp/Line coming soon */}
-        <div className="flex flex-col items-center gap-[12px]">
-          <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-            Same agent, more channels
-          </span>
-          <div className="flex items-center gap-[8px]">
-            {[
-              { name: 'Slack', file: 'logo-social-slack.svg' },
-              { name: 'WhatsApp', file: 'logo-social-whatsapp.svg' },
-              { name: 'Line', file: 'logo-social-line.svg' },
-            ].map(p => (
-              <Tooltip key={p.name} text="Coming Soon">
-                <span
-                  aria-disabled="true"
-                  className="flex items-center gap-[6px] rounded-full border-none cursor-not-allowed"
-                  style={{
-                    background: 'var(--b-r03, rgba(0,0,0,0.03))',
-                    padding: '4px 12px 4px 6px',
-                  }}
-                >
-                  <img src={`${import.meta.env.BASE_URL}${p.file}`} alt={p.name} style={{ width: 18, height: 18 }} />
-                  <span
-                    className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px]`}
-                    style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}
-                  >
-                    {p.name}
-                  </span>
-                </span>
-              </Tooltip>
-            ))}
-          </div>
         </div>
 
         {/* Live feeds from Playbooks */}
@@ -556,8 +521,10 @@ export function AgentEmptyState({
                   <div style={{ position: 'relative' }}>
                     <button
                       className="btn btn-primary btn-small"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
                       onClick={() => setAlertsPopoverOpen(o => !o)}
                     >
+                      <img src={"https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg"} alt="" style={{ width: 16, height: 16 }} />
                       Get Alerts
                     </button>
                     <AlertsPopover
