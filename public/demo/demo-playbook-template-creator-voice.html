@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Playbook Template Creator Voice Surfaces</title>
+<style>
+  * { box-sizing: border-box; }
+
+  :root {
+    --page: #f6f5f1;
+    --paper: #ffffff;
+    --ink: #1d2428;
+    --muted: #68737a;
+    --soft: #929ba1;
+    --line: #dadbd5;
+    --line-strong: #bfc4bd;
+    --surface: #f9f8f4;
+    --surface-2: #efeee8;
+    --accent: #0f766e;
+    --accent-soft: #e2f0ed;
+    --blue: #355f8e;
+    --blue-soft: #e6edf5;
+    --method: #5f683d;
+    --method-soft: #eaeddd;
+    --gold: #956f1c;
+    --gold-soft: #f6ead0;
+    --green: #39745a;
+    --green-soft: #e3eee6;
+    --red: #a64a42;
+    --red-soft: #f4e3df;
+    --shadow: 0 28px 70px rgba(29, 36, 40, 0.12);
+    --shadow-soft: 0 14px 36px rgba(29, 36, 40, 0.08);
+    --radius: 8px;
+  }
+
+  html { min-height: 100%; background: var(--page); }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(15, 118, 110, 0.08), transparent 28%),
+      linear-gradient(180deg, #fbfaf6 0%, var(--page) 46%, #f1f0ea 100%);
+    color: var(--ink);
+    font-family: Delight, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  button {
+    color: inherit;
+    font: inherit;
+  }
+
+  .page {
+    width: min(1360px, 100%);
+    margin: 0 auto;
+    padding: 22px 28px 36px;
+  }
+
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 4px 0 18px;
+  }
+
+  .title-kicker {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--accent);
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(26px, 3vw, 42px);
+    line-height: 1.06;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .header-copy {
+    max-width: 430px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 21px;
+  }
+
+  .principles {
+    display: grid;
+    grid-template-columns: 1.05fr repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--line);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .principle {
+    min-height: 108px;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.82);
+  }
+
+  .principle.primary {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .principle-label {
+    color: var(--soft);
+    font-size: 10px;
+    line-height: 15px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .primary .principle-label { color: rgba(255, 255, 255, 0.58); }
+
+  .principle-title {
+    margin-top: 8px;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 400;
+  }
+
+  .principle-text {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 19px;
+  }
+
+  .primary .principle-text { color: rgba(255, 255, 255, 0.70); }
+
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .product {
+    position: relative;
+    min-height: 738px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .product::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(29, 36, 40, 0.026) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(29, 36, 40, 0.026) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(12px);
+  }
+
+  .shell-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .shell-title {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .back {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--soft);
+    cursor: pointer;
+  }
+
+  .back:hover { background: var(--surface); color: var(--ink); }
+
+  .name {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 17px;
+    line-height: 24px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .version {
+    flex: 0 0 auto;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 8px;
+    background: var(--surface);
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .automation-meta {
+    flex: 0 1 auto;
+    min-width: 0;
+    color: var(--soft);
+    font-size: 11px;
+    line-height: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .shell-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .icon-btn,
+  .readme,
+  .control,
+  .info-dot,
+  .modal-close {
+    transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+  }
+
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--soft);
+    cursor: pointer;
+  }
+
+  .icon-btn:hover {
+    border-color: var(--line);
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .icon-btn svg,
+  .readme svg,
+  .back svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+
+  .readme {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--blue);
+    font-size: 12px;
+    line-height: 18px;
+    cursor: pointer;
+  }
+
+  .readme:hover {
+    border-color: rgba(53, 95, 142, 0.42);
+    background: var(--blue-soft);
+  }
+
+  .description {
+    width: min(720px, calc(100% - 42px));
+    margin: 10px 0 0 38px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 19px;
+  }
+
+  .voice-label {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    margin-right: 8px;
+    padding: 0 7px;
+    border: 1px solid rgba(15, 118, 110, 0.25);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 10px;
+    line-height: 14px;
+    vertical-align: 1px;
+  }
+
+  .iframe-wrap {
+    position: relative;
+    z-index: 1;
+    padding: 18px;
+  }
+
+  .iframe {
+    min-height: 654px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fbfbf8;
+    overflow: hidden;
+  }
+
+  .tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.74);
+    overflow-x: auto;
+  }
+
+  .tab {
+    flex: 0 0 auto;
+    height: 28px;
+    padding: 0 11px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 18px;
+    cursor: pointer;
+  }
+
+  .tab.active {
+    border-color: var(--line);
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .tab[data-tab="methodology"].active {
+    border-color: rgba(95, 104, 61, 0.32);
+    background: var(--method-soft);
+    color: var(--method);
+  }
+
+  .canvas {
+    display: grid;
+    grid-template-columns: minmax(0, 1.06fr) minmax(280px, 0.94fr);
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .tab-page {
+    display: none;
+  }
+
+  .tab-page.active {
+    display: block;
+  }
+
+  .thesis-card {
+    min-height: 294px;
+    padding: 18px;
+    border: 1px solid rgba(149, 111, 28, 0.32);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #fff9ea 0%, #fffdf7 100%);
+  }
+
+  .card-kicker {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    margin-bottom: 14px;
+    padding: 0 8px;
+    border: 1px solid rgba(149, 111, 28, 0.24);
+    border-radius: 999px;
+    background: var(--gold-soft);
+    color: var(--gold);
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .thesis-card h2 {
+    margin: 0;
+    max-width: 620px;
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .thesis-card p {
+    max-width: 620px;
+    margin: 14px 0 0;
+    color: #6b5621;
+    font-size: 14px;
+    line-height: 23px;
+  }
+
+  .thesis-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 9px;
+    border: 1px solid rgba(149, 111, 28, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--gold);
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .metric-card {
+    min-height: 294px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+  }
+
+  .methodology-tab {
+    min-height: 514px;
+    margin: 16px;
+    padding: 16px;
+    border: 1px solid rgba(95, 104, 61, 0.32);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #fbfcf5 0%, #ffffff 100%);
+  }
+
+  .methodology-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: start;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(95, 104, 61, 0.18);
+  }
+
+  .methodology-head h2 {
+    margin: 0;
+    color: var(--method);
+    font-size: 18px;
+    line-height: 25px;
+    font-weight: 400;
+  }
+
+  .methodology-head p {
+    max-width: 640px;
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 19px;
+  }
+
+  .methodology-pill {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 9px;
+    border: 1px solid rgba(95, 104, 61, 0.26);
+    border-radius: 999px;
+    background: var(--method-soft);
+    color: var(--method);
+    font-size: 11px;
+    line-height: 16px;
+    white-space: nowrap;
+  }
+
+  .methodology-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .methodology-block {
+    min-height: 92px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .methodology-block h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 400;
+  }
+
+  .methodology-block p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 17px;
+  }
+
+  .metric-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .metric-title-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .metric-head h2,
+  .explain h2,
+  .local h2 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 400;
+  }
+
+  .metric-sub {
+    color: var(--soft);
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .metric-info-popover {
+    position: absolute;
+    top: 34px;
+    left: 0;
+    z-index: 3;
+    width: min(278px, calc(100vw - 96px));
+    padding: 12px;
+    border: 1px solid rgba(57, 116, 90, 0.28);
+    border-radius: 8px;
+    background: var(--paper);
+    box-shadow: var(--shadow-soft);
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  .metric-info-popover.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .metric-info-popover::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 55px;
+    width: 10px;
+    height: 10px;
+    border-top: 1px solid rgba(57, 116, 90, 0.28);
+    border-left: 1px solid rgba(57, 116, 90, 0.28);
+    background: var(--paper);
+    transform: rotate(45deg);
+  }
+
+  .metric-info-popover h3 {
+    margin: 0;
+    color: var(--green);
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 400;
+  }
+
+  .metric-info-popover p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 17px;
+  }
+
+  .bars {
+    display: grid;
+    gap: 13px;
+    margin-top: 22px;
+  }
+
+  .metric-card.tooltip-open .bars {
+    margin-top: 98px;
+  }
+
+  .bar {
+    display: grid;
+    grid-template-columns: 76px 1fr 48px;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .track {
+    height: 6px;
+    border-radius: 999px;
+    background: #e6e8e5;
+    overflow: hidden;
+  }
+
+  .fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+  }
+
+  .lower {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 14px;
+    padding: 0 16px 16px;
+  }
+
+  .explain,
+  .local {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+  }
+
+  .explain {
+    min-height: 210px;
+    padding: 18px;
+  }
+
+  .explain p {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 22px;
+  }
+
+  .warn {
+    margin-top: 14px;
+    padding: 11px 12px;
+    border: 1px solid rgba(166, 74, 66, 0.24);
+    border-radius: 8px;
+    background: var(--red-soft);
+    color: var(--red);
+    font-size: 12px;
+    line-height: 19px;
+  }
+
+  .local {
+    padding: 16px;
+  }
+
+  .rows {
+    display: grid;
+    margin-top: 12px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row:last-child { border-bottom: 0; }
+
+  .row b {
+    display: block;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 400;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .row span {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    color: var(--soft);
+    font-size: 11px;
+    line-height: 16px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .info-dot {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--green);
+    cursor: pointer;
+  }
+
+  .info-dot:hover {
+    border-color: rgba(57, 116, 90, 0.38);
+    background: var(--green-soft);
+  }
+
+  .info-dot[aria-expanded="true"] {
+    border-color: rgba(57, 116, 90, 0.52);
+    background: var(--green-soft);
+  }
+
+  .tooltip {
+    position: absolute;
+    right: 36px;
+    bottom: 96px;
+    z-index: 4;
+    width: 286px;
+    padding: 14px;
+    border: 1px solid rgba(57, 116, 90, 0.28);
+    border-radius: 10px;
+    background: var(--paper);
+    box-shadow: var(--shadow-soft);
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  .tooltip.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .tooltip h3 {
+    margin: 0;
+    color: var(--green);
+    font-size: 13px;
+    line-height: 19px;
+    font-weight: 400;
+  }
+
+  .tooltip p {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 19px;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .controls {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+  }
+
+  .control {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .control:last-child { border-bottom: 0; }
+
+  .control:hover { background: rgba(255,255,255,0.72); }
+
+  .control.active {
+    background: var(--active-soft);
+  }
+
+  .control-num {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--active);
+    border-radius: 50%;
+    color: var(--active);
+    background: var(--paper);
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .control-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 19px;
+  }
+
+  .control-tag {
+    color: var(--active);
+    font-size: 10px;
+    line-height: 15px;
+    white-space: nowrap;
+  }
+
+  .control-text {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .one-rule {
+    padding: 14px;
+    border: 1px solid rgba(166, 74, 66, 0.22);
+    border-radius: 12px;
+    background: rgba(244, 227, 223, 0.80);
+    color: var(--red);
+    font-size: 12px;
+    line-height: 19px;
+  }
+
+  .one-rule b {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 400;
+  }
+
+  .highlight {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .highlight::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    z-index: -1;
+    border: 2px solid var(--highlight-color, var(--accent));
+    border-radius: 11px;
+    opacity: 0;
+    transform: scale(0.994);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    pointer-events: none;
+  }
+
+  .highlight.on::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .modal-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    background: rgba(29, 36, 40, 0.36);
+  }
+
+  .modal-layer.open { display: flex; }
+
+  .modal {
+    width: min(730px, 100%);
+    max-height: min(720px, calc(100vh - 56px));
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .modal-head h2 {
+    margin: 0;
+    font-size: 19px;
+    line-height: 25px;
+    font-weight: 400;
+  }
+
+  .modal-head p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .modal-close {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .modal-close:hover { border-color: var(--line-strong); color: var(--ink); }
+
+  .modal-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 18px 20px 20px;
+  }
+
+  .readme-block {
+    padding: 13px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+  }
+
+  .readme-block h3 {
+    margin: 0;
+    color: var(--blue);
+    font-size: 13px;
+    line-height: 20px;
+    font-weight: 400;
+  }
+
+  .readme-block p {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 19px;
+  }
+
+  @media (max-width: 1120px) {
+    .header,
+    .stage {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .principles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .page { padding: 16px 12px 26px; }
+    .principles,
+    .canvas,
+    .methodology-head,
+    .methodology-grid,
+    .lower,
+    .modal-body {
+      grid-template-columns: 1fr;
+    }
+
+    .header { gap: 10px; }
+    .header-copy { max-width: none; }
+    .product { min-height: 0; }
+    .shell { padding: 12px; }
+    .shell-row {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .shell-title {
+      flex-wrap: wrap;
+    }
+    .shell-actions { flex-wrap: wrap; }
+    .automation-meta {
+      flex-basis: 100%;
+      margin-left: 38px;
+    }
+    .description {
+      width: 100%;
+      margin-left: 0;
+    }
+    .iframe-wrap { padding: 12px; }
+    .iframe { min-height: 0; }
+    .thesis-card h2 {
+      font-size: 20px;
+      line-height: 28px;
+    }
+    .bar { grid-template-columns: 68px 1fr 42px; }
+    .tooltip {
+      left: 22px;
+      right: 22px;
+      bottom: 70px;
+      width: auto;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <span class="title-kicker">Creator Voice Surfaces</span>
+        <h1>Playbook Template 的说明信息分层</h1>
+      </div>
+      <p class="header-copy">
+        极简示意：把 Creator 的主观解释放到不同可见度的产品表面，避免所有话都挤进 iframe 或每个 widget。
+      </p>
+    </header>
+
+    <section class="principles" aria-label="Principles">
+      <div class="principle primary">
+        <div class="principle-label">Core rule</div>
+        <div class="principle-title">越显眼，越短；越复杂，越折叠。</div>
+        <div class="principle-text">默认阅读路径必须清楚，长解释不能成为理解 Playbook 的前置条件。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-label">Container - desc&readme</div>
+        <div class="principle-title">容器说清楚“这是什么”。</div>
+        <div class="principle-text">Description 给 3 秒理解，README 给完整机制和作者意图。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-label">iFrame - tab</div>
+        <div class="principle-title">整页方法论可以成为独立 Tab。</div>
+        <div class="principle-text">最重的 how / why / source 说明，放在和 Thesis、Basket 平级的 Methodology。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-label">iFrame - widget</div>
+        <div class="principle-title">页面内只强调必须看到的判断。</div>
+        <div class="principle-text">Widget 大块说明只用于关键论点、反常识结论或风险提示。</div>
+      </div>
+      <div class="principle">
+        <div class="principle-label">iFrame - tooltip</div>
+        <div class="principle-title">复杂口径放在就近折叠层。</div>
+        <div class="principle-text">指标定义、数据来源、引用 claim、盲点，用 tooltip / popup 随点随看。</div>
+      </div>
+    </section>
+
+    <section class="stage">
+      <div class="product">
+        <div class="shell">
+          <div class="shell-row">
+            <div class="shell-title">
+              <button class="back" type="button" aria-label="Back">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+              <div class="name">AI Bottleneck Thesis Tracker</div>
+              <span class="version">v1.6.0</span>
+              <span class="automation-meta">2 automations, last updated at 4h ago</span>
+            </div>
+            <div class="shell-actions">
+              <button class="readme highlight" data-target="readme" id="readmeButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h9a3 3 0 0 1 3 3v11H8a2 2 0 0 1-2-2V5z" /><path d="M8 8h7M8 11h7M8 14h5" /></svg>
+                README
+              </button>
+              <button class="icon-btn" type="button" aria-label="Share">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8M14 8l4 4-4 4" /><path d="M5 5h7M5 19h7" /></svg>
+              </button>
+              <button class="icon-btn" type="button" aria-label="Discussion">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14v9H9l-4 3V6z" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="description highlight" data-target="description">
+            <span class="voice-label">auto</span>
+            Tracks whether power, compute, and deployment constraints are strengthening or weakening the AI infrastructure thesis, with daily narrative updates and grounded market context.
+          </div>
+        </div>
+
+        <div class="iframe-wrap">
+          <div class="iframe">
+            <div class="tabs">
+              <button class="tab active" data-tab="thesis" type="button">Thesis</button>
+              <button class="tab" type="button">Basket</button>
+              <button class="tab" type="button">Catalysts</button>
+              <button class="tab" type="button">Risks</button>
+              <button class="tab" type="button">News</button>
+              <button class="tab highlight" data-target="methodology" data-tab="methodology" type="button">Methodology</button>
+            </div>
+
+            <div class="tab-page active" data-page="thesis">
+              <div class="canvas">
+                <section class="thesis-card highlight" data-target="widget">
+                  <span class="card-kicker">Tab / Widget narrative block</span>
+                  <h2>瓶颈仍在从 GPU 采购，转向电力和交付周期。</h2>
+                  <p>
+                    这类文字代表作者希望用户一定看到的解释：结论先行、短而明确，并和推送、图表、表格读取同一份 narrative record。
+                  </p>
+                  <div class="thesis-meta">
+                    <span class="pill">must-see</span>
+                    <span class="pill">one shared narrative</span>
+                    <span class="pill">use sparingly</span>
+                  </div>
+                </section>
+
+                <section class="metric-card tooltip-open" id="constraintMetricCard">
+                  <div class="metric-head">
+                    <div class="metric-title-wrap">
+                      <h2>Constraint mix</h2>
+                      <button class="info-dot highlight" data-target="tooltip" id="metricInfoButton" type="button" aria-label="Open constraint mix explanation" aria-expanded="true" aria-controls="metricInfoPop">i</button>
+                      <div class="metric-info-popover open" id="metricInfoPop" role="dialog" aria-label="Constraint mix tooltip">
+                        <h3>Tooltip beside the chart title</h3>
+                        <p>适合解释这张图的评分口径、数据刷新、以及用户读图时最容易误解的限制；默认展开一次作为示意。</p>
+                      </div>
+                    </div>
+                    <span class="metric-sub">latest snapshot</span>
+                  </div>
+                  <div class="bars">
+                    <div class="bar"><span>Power</span><div class="track"><span class="fill" style="width: 78%;"></span></div><span>High</span></div>
+                    <div class="bar"><span>Compute</span><div class="track"><span class="fill" style="width: 54%; background: var(--blue);"></span></div><span>Mid</span></div>
+                    <div class="bar"><span>Delivery</span><div class="track"><span class="fill" style="width: 66%; background: var(--gold);"></span></div><span>Rising</span></div>
+                    <div class="bar"><span>Demand</span><div class="track"><span class="fill" style="width: 42%; background: var(--green);"></span></div><span>Stable</span></div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="lower">
+                <section class="explain">
+                  <h2>Default reading path stays clean</h2>
+                  <p>
+                    模板默认页面应该靠标题、第一屏、图表和短说明让用户直接读懂。长方法论、数据细节和 caveat 不该塞满主路径。
+                  </p>
+                  <div class="warn">原则：如果没有强烈理由，不要把每个 widget 都变成说明文。</div>
+                </section>
+
+                <section class="local">
+                  <h2>Local explanations</h2>
+                  <div class="rows">
+                    <div class="row">
+                      <div><b>Constraint score</b><span>weighted narrative and market inputs</span></div>
+                      <button class="info-dot" id="infoButton" data-local-tooltip data-tooltip-title="Constraint score" data-tooltip-body="加权 narrative、市场输入和变化方向，不应该在主路径里展开成完整方法论。" type="button" aria-label="Open constraint score" aria-expanded="false" aria-controls="infoPop">i</button>
+                    </div>
+                    <div class="row">
+                      <div><b>Data freshness</b><span>feed release and cron cadence</span></div>
+                      <button class="info-dot" data-local-tooltip data-tooltip-title="Data freshness" data-tooltip-body="解释 feed release、cron cadence、失败重试和最新快照的时间边界。" type="button" aria-label="Open freshness" aria-expanded="false" aria-controls="infoPop">i</button>
+                    </div>
+                    <div class="row">
+                      <div><b>Blind spots</b><span>private contracts and revised datasets</span></div>
+                      <button class="info-dot" data-local-tooltip data-tooltip-title="Blind spots" data-tooltip-body="私有合同、修订数据和样本偏差这类 caveat 可以折叠到就近 tooltip。" type="button" aria-label="Open blind spots" aria-expanded="false" aria-controls="infoPop">i</button>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            <div class="tab-page" data-page="methodology">
+              <section class="methodology-tab highlight" data-target="methodology">
+                <div class="methodology-head">
+                  <div>
+                    <h2>Methodology tab: when the explanation is the product surface.</h2>
+                    <p>
+                      这是最重的 iframe 内说明方式：和 Thesis、Basket 平级，承载完整方法论、数据来源、限制和使用说明。适合用户必须能系统阅读，但不应该默认塞进每个 widget 的内容。
+                    </p>
+                  </div>
+                  <span class="methodology-pill">full-tab explanation</span>
+                </div>
+                <div class="methodology-grid">
+                  <div class="methodology-block">
+                    <h3>Mechanism</h3>
+                    <p>解释 feed、ADK narrative、评分链路，以及哪些内容由同一记录生成。</p>
+                  </div>
+                  <div class="methodology-block">
+                    <h3>Data sources</h3>
+                    <p>列真实调用的数据源、刷新频率、失败时的降级或空态策略。</p>
+                  </div>
+                  <div class="methodology-block">
+                    <h3>How to use</h3>
+                    <p>说明适合看什么信号、如何解读变化、何时只看推送即可。</p>
+                  </div>
+                  <div class="methodology-block">
+                    <h3>Blind spots</h3>
+                    <p>把修订数据、私有合同、样本偏差等限制放在完整语境里。</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+        <div class="tooltip" id="infoPop" role="dialog" aria-label="Tooltip popup">
+          <h3 data-tooltip-title>Info tooltip / popup</h3>
+          <p data-tooltip-body>复杂指标、表格列、引用 claim、数据刷新口径和局部 caveat 放在这里。默认折叠，不打断主阅读路径。</p>
+        </div>
+      </div>
+
+      <div class="modal-layer" id="readmeModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="readmeTitle">
+          <div class="modal-head">
+            <div>
+              <h2 id="readmeTitle">README: How this Playbook works</h2>
+              <p>外层深阅读入口。默认由 Alva skill 生成，未来可以支持 Creator editor。</p>
+            </div>
+            <button class="modal-close" id="closeReadme" type="button" aria-label="Close README">x</button>
+          </div>
+          <div class="modal-body">
+            <section class="readme-block">
+              <h3>Why</h3>
+              <p>说明作者为什么认为这个主题值得持续追踪，以及它和机会、风险、价格之间的关系。</p>
+            </section>
+            <section class="readme-block">
+              <h3>What</h3>
+              <p>列出 Playbook 的主要产出：核心结论、指标、图表、来源、推送和使用场景。</p>
+            </section>
+            <section class="readme-block">
+              <h3>How</h3>
+              <p>解释 feed、数据源、ADK narrative、计算口径和更新链路；只声明真实调用的数据源。</p>
+            </section>
+            <section class="readme-block">
+              <h3>When</h3>
+              <p>说明刷新频率、适合什么阶段、何时看推送，何时打开页面深读。</p>
+            </section>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <aside class="panel" aria-label="Surface controls">
+        <div class="controls">
+          <button class="control active" style="--active: var(--accent); --active-soft: var(--accent-soft);" data-surface="description" type="button">
+            <span class="control-num">1</span>
+            <span>
+              <span class="control-title">Container Description <span class="control-tag">scan</span></span>
+              <span class="control-text">一小段话：Playbook 是什么、有什么用。Alva skill 自动生成。</span>
+            </span>
+          </button>
+          <button class="control" style="--active: var(--blue); --active-soft: var(--blue-soft);" data-surface="readme" type="button">
+            <span class="control-num">2</span>
+            <span>
+              <span class="control-title">Container README <span class="control-tag">deep</span></span>
+              <span class="control-text">机制、数据源、典型用法、why / what / how / when。后续可人工编辑。</span>
+            </span>
+          </button>
+          <button class="control" style="--active: var(--gold); --active-soft: var(--gold-soft);" data-surface="widget" type="button">
+            <span class="control-num">3</span>
+            <span>
+              <span class="control-title">Iframe Widget Block <span class="control-tag">must-see</span></span>
+              <span class="control-text">给关键作者判断整块空间，但只用于最需要被看到的表述。</span>
+            </span>
+          </button>
+          <button class="control" style="--active: var(--method); --active-soft: var(--method-soft);" data-surface="methodology" type="button">
+            <span class="control-num">4</span>
+            <span>
+              <span class="control-title">Iframe Methodology Tab <span class="control-tag">heaviest</span></span>
+              <span class="control-text">和 Thesis / Basket 平级，承载最完整的说明、来源、用法和边界。</span>
+            </span>
+          </button>
+          <button class="control" style="--active: var(--green); --active-soft: var(--green-soft);" data-surface="tooltip" type="button">
+            <span class="control-num">5</span>
+            <span>
+              <span class="control-title">Iframe Tooltip / Popup <span class="control-tag">nearby</span></span>
+              <span class="control-text">复杂解释就近折叠，用户有兴趣再展开。</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="one-rule">
+          <b>Information hierarchy</b>
+          Description 负责识别；README 负责外层完整解释；Methodology Tab 负责 iframe 内最重说明；Widget 负责必须看到的观点；Tooltip 负责局部复杂口径。
+        </div>
+      </aside>
+    </section>
+  </main>
+
+<script>
+  const colors = {
+    description: 'var(--accent)',
+    readme: 'var(--blue)',
+    widget: 'var(--gold)',
+    methodology: 'var(--method)',
+    tooltip: 'var(--green)'
+  };
+
+  const controls = Array.from(document.querySelectorAll('.control'));
+  const targets = Array.from(document.querySelectorAll('[data-target]'));
+  const tabButtons = Array.from(document.querySelectorAll('[data-tab]'));
+  const tabPages = Array.from(document.querySelectorAll('[data-page]'));
+  const readmeButton = document.getElementById('readmeButton');
+  const readmeModal = document.getElementById('readmeModal');
+  const closeReadme = document.getElementById('closeReadme');
+  const infoButton = document.getElementById('infoButton');
+  const infoPop = document.getElementById('infoPop');
+  const metricCard = document.getElementById('constraintMetricCard');
+  const metricInfoButton = document.getElementById('metricInfoButton');
+  const metricInfoPop = document.getElementById('metricInfoPop');
+  const localInfoButtons = Array.from(document.querySelectorAll('[data-local-tooltip]'));
+  const localInfoTitle = infoPop.querySelector('[data-tooltip-title]');
+  const localInfoBody = infoPop.querySelector('[data-tooltip-body]');
+
+  function openReadme() {
+    readmeModal.classList.add('open');
+    readmeModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeReadmeModal() {
+    readmeModal.classList.remove('open');
+    readmeModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function closeMetricInfo() {
+    metricInfoPop.classList.remove('open');
+    metricInfoButton.setAttribute('aria-expanded', 'false');
+    metricCard.classList.remove('tooltip-open');
+  }
+
+  function closeLocalInfo() {
+    infoPop.classList.remove('open');
+    localInfoButtons.forEach((button) => button.setAttribute('aria-expanded', 'false'));
+  }
+
+  function openMetricInfo() {
+    closeLocalInfo();
+    metricInfoPop.classList.add('open');
+    metricInfoButton.setAttribute('aria-expanded', 'true');
+    metricCard.classList.add('tooltip-open');
+  }
+
+  function openLocalInfo(button = infoButton) {
+    closeMetricInfo();
+    if (button?.dataset.tooltipTitle) localInfoTitle.textContent = button.dataset.tooltipTitle;
+    if (button?.dataset.tooltipBody) localInfoBody.textContent = button.dataset.tooltipBody;
+    localInfoButtons.forEach((item) => {
+      item.setAttribute('aria-expanded', item === button ? 'true' : 'false');
+    });
+    infoPop.classList.add('open');
+  }
+
+  function closeInfo() {
+    closeMetricInfo();
+    closeLocalInfo();
+  }
+
+  function setSurface(surface, opts = {}) {
+    controls.forEach((control) => {
+      control.classList.toggle('active', control.dataset.surface === surface);
+    });
+
+    targets.forEach((target) => {
+      const active = target.dataset.target === surface;
+      target.classList.toggle('on', active);
+      if (active) target.style.setProperty('--highlight-color', colors[surface]);
+    });
+
+    tabButtons.forEach((tab) => {
+      const shouldUseMethodology = surface === 'methodology';
+      const active = shouldUseMethodology
+        ? tab.dataset.tab === 'methodology'
+        : tab.dataset.tab === 'thesis';
+      tab.classList.toggle('active', active);
+    });
+
+    tabPages.forEach((page) => {
+      const activePage = surface === 'methodology' ? 'methodology' : 'thesis';
+      page.classList.toggle('active', page.dataset.page === activePage);
+    });
+
+    if (surface === 'readme' && opts.open !== false) openReadme();
+    if (surface !== 'readme') closeReadmeModal();
+
+    if (surface === 'tooltip' && opts.open !== false) {
+      opts.source === 'local' ? openLocalInfo(opts.button) : openMetricInfo();
+    }
+    if (surface !== 'tooltip') closeInfo();
+  }
+
+  controls.forEach((control) => {
+    control.addEventListener('click', () => setSurface(control.dataset.surface));
+  });
+
+  tabButtons.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      setSurface(tab.dataset.tab === 'methodology' ? 'methodology' : 'widget');
+    });
+  });
+
+  readmeButton.addEventListener('click', () => setSurface('readme'));
+  metricInfoButton.addEventListener('click', () => setSurface('tooltip', { source: 'metric' }));
+  localInfoButtons.forEach((button) => {
+    button.addEventListener('click', () => setSurface('tooltip', { source: 'local', button }));
+  });
+  closeReadme.addEventListener('click', closeReadmeModal);
+  readmeModal.addEventListener('click', (event) => {
+    if (event.target === readmeModal) closeReadmeModal();
+  });
+  document.addEventListener('click', (event) => {
+    if (!infoPop.classList.contains('open') && !metricInfoPop.classList.contains('open')) return;
+    const target = event.target;
+    const clickedTooltip = infoPop.contains(target) || metricInfoPop.contains(target);
+    const clickedInfoTrigger =
+      metricInfoButton.contains(target) ||
+      localInfoButtons.some((button) => button.contains(target));
+    const clickedTooltipControl = target.closest?.('[data-surface="tooltip"]');
+    if (!clickedTooltip && !clickedInfoTrigger && !clickedTooltipControl) {
+      closeInfo();
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeReadmeModal();
+      closeInfo();
+    }
+  });
+
+  const initialSurface = window.location.hash.slice(1);
+  const resolvedInitialSurface = ['description', 'readme', 'widget', 'methodology', 'tooltip'].includes(initialSurface)
+    ? initialSurface
+    : 'tooltip';
+  setSurface(
+    resolvedInitialSurface,
+    { open: resolvedInitialSurface === 'readme' || resolvedInitialSurface === 'tooltip' }
+  );
+</script>
+</body>
+</html>

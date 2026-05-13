@@ -18,7 +18,7 @@ const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'portfolio-settings', label: 'Portfolio'     },
   { key: 'alva-agent',         label: 'Alva Agent'    },
   { key: 'automations',        label: 'Automations'   },
-  { key: 'notifications',      label: 'Notifications' },
+  { key: 'notifications',      label: 'Alerts'        },
   { key: 'api-keys',           label: 'API Key'       },
 ];
 

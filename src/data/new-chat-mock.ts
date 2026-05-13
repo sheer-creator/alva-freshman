@@ -144,7 +144,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
     label: 'Smart Screener',
     icon: 'target-l2',
     creator: 'Alva',
-    description: 'Screen the market by any factor combination — momentum, valuation, growth — and rank candidates daily.',
+    description: 'Rank stocks by any factor combo, daily.',
     prompts: [
       'Screen for US large-caps with rising earnings estimates and positive 20-day price momentum',
       'Find cash-rich small-caps trading below 10x forward earnings with expanding gross margins',
@@ -161,7 +161,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
     label: 'Deep Dive',
     icon: 'search-l',
     creator: 'Alva',
-    description: 'End-to-end ticker research — segmentation, peer valuation, supply chain, and bull/bear thesis in one report.',
+    description: 'A complete research package on any ticker. Pulls revenue segmentation from filings, builds a peer comparable set, traces the supply chain up and downstream, then drafts a bull and bear thesis with scenario-weighted price targets. Output is a single read-once briefing — no skimming required, no follow-up questions left dangling.',
     prompts: [
       'Give me a deep-dive on NVDA — revenue segmentation, peer valuation, supply chain, and bull/bear thesis',
       'Deep-dive TSMC: capacity, customer mix, geopolitical risk, and long-term margin trajectory',
@@ -195,7 +195,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
     label: 'Earnings Edge',
     kol: true,
     creator: 'Smart Jing',
-    description: 'Earnings whisper numbers, post-print drift signals, and supply-chain read-across for the week ahead.',
+    description: 'Whisper numbers and post-print drift, weekly.',
     prompts: [
       'Summarize the latest NVDA earnings call and compare guidance to consensus',
       'Whisper numbers + post-earnings drift scanner for next week’s MAG7 reports',
@@ -217,7 +217,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     label: 'Crypto Pulse',
     kol: true,
     creator: 'Harry Zzz',
-    description: 'A daily breakdown of macro flows — rates, FX, and cross-asset signals — distilled into a 5-minute brief.',
+    description: 'Spot tradable signal in noisy crypto. Aggregates news flow, on-chain activity, ETF flows, exchange balances, and stablecoin issuance into a single morning pulse — flags the names with statistically meaningful deviations and explains *why* in plain English so you can move before the desk does.',
     prompts: [
       'Summarize the last 24h of news on Bitcoin and flag anything that moved price >2%',
       'Scan top-50 tokens for 30D breakouts and rising active addresses',
@@ -233,7 +233,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     label: 'What If',
     icon: 'remix-l',
     creator: 'Alva',
-    description: 'Model any market scenario — Fed paths, earnings misses, oil spikes — and see how your portfolio reprices.',
+    description: 'Run scenarios. See your portfolio reprice.',
     prompts: [
       'What if the Fed delivers 3 more cuts in 2026 — how should a balanced 60/40 portfolio reposition?',
       'What if NVDA earnings miss consensus by 5% next quarter — which AI beneficiaries still outperform?',
@@ -250,7 +250,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     label: 'Yield Hunter',
     kol: true,
     creator: 'Sheer YLL YGG',
-    description: 'Surface the best risk-adjusted yield across treasuries, credit, MLPs, and digital-asset stables.',
+    description: 'Hunts the highest risk-adjusted yield wherever it lives — Treasuries, IG and HY credit, preferreds, MLPs, REITs, and on-chain stablecoin lending. Normalizes spreads to common units, attaches default-probability and smart-contract-risk overlays where relevant, and ladders the result so you can rotate up or down the curve as regimes shift. Includes a tax-equivalent comparison across muni / corporate / pass-through structures.',
     prompts: [
       'Compare 10Y Treasury yield vs IG/HY credit spreads with regime-shift highlights',
       'Find dividend-growth names with 10+ years of growth and sub-60% payout ratio',
@@ -282,7 +282,7 @@ export const OTHERS_TEMPLATES: NewChatTemplate[] = [
     label: 'Backtest',
     icon: 'history-l',
     creator: 'Alva',
-    description: 'Backtest any rule-based strategy with full P&L attribution, parameter sweeps, and drawdown stats.',
+    description: 'Rule-based strategies, fully attributed.',
     prompts: [
       'Backtest a monthly-rebalanced equal-weight MAG7 basket over the last 10 years',
       'Backtest a BTC/ETH 70/30 portfolio rebalanced weekly with 15% max drawdown stop',

@@ -94,7 +94,7 @@ export function PlaybookCard({
       )}
 
       {/* Info */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: noCover ? 8 : 12, padding: noCover ? '12px 14px' : '16px 16px 12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: noCover ? 8 : 12, padding: noCover ? '16px' : '16px 16px 12px' }}>
         {!simple && !noCover && <PlaybookTags tags={tags} />}
 
         {noCover ? (

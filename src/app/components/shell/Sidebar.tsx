@@ -17,19 +17,12 @@ interface SidebarProps {
   onUserMouseEnter?: () => void;
   onUserMouseLeave?: () => void;
   onOpenReferral?: () => void;
-  /**
-   * When true the sidebar renders in icon-only mode (56px wide). Used
-   * by AppShell at viewports between 640–1023px to keep nav reachable
-   * without consuming a quarter of the content width.
-   */
   collapsed?: boolean;
-  /**
-   * When true the sidebar drops its own `position: fixed` and renders as
-   * a normal block element so an outer wrapper can position/animate it
-   * (e.g. mobile slide-in drawer in AppShell).
-   */
-  inDrawer?: boolean;
+  onToggleCollapsed?: () => void;
 }
+
+export const SIDEBAR_W_EXPANDED = 228;
+export const SIDEBAR_W_COLLAPSED = 56;
 
 /* ========== 导航项组件 ========== */
 
@@ -42,9 +35,9 @@ function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }:
   const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? '#49A3A6' : '#ffffff';
   return (
     <div
-      className={`content-stretch flex gap-[8px] h-[36px] items-center overflow-clip py-[4px] relative rounded-[6px] shrink-0 w-full transition-colors ${textClass} ${onClick ? 'cursor-pointer' : ''} ${collapsed ? 'justify-center px-0' : 'px-[8px]'}`}
+      className={`content-stretch flex h-[36px] items-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors ${collapsed ? 'justify-center px-0' : 'gap-[8px] px-[8px] py-[4px]'} ${textClass} ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
-      title={deprecated ? 'Deprecated — use New Chat' : (collapsed ? label : undefined)}
+      title={collapsed ? label : deprecated ? 'Deprecated — use New Chat' : undefined}
     >
       {icon && (
         <div className="overflow-clip relative shrink-0 size-[16px]">
@@ -52,25 +45,30 @@ function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }:
         </div>
       )}
       {!collapsed && (
-        <p className={`font-['Delight',sans-serif] leading-[22px] overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${badge != null ? 'shrink-0' : 'flex-[1_0_0] min-w-px'}`}>
-          {label}
-        </p>
-      )}
-      {!collapsed && badge != null && (
-        <div
-          className="shrink-0 flex flex-col items-start justify-center min-w-[16px] px-[4px] rounded-[12px]"
-          style={{ background: 'var(--main-m1, #49A3A6)' }}
-        >
-          <p className="font-['Delight',sans-serif] text-[10px] leading-[16px] font-medium text-white text-center tracking-[0.1px] whitespace-nowrap">
-            {badge}
+        <>
+          <p className={`font-['Delight',sans-serif] leading-[22px] overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${badge != null ? 'shrink-0' : 'flex-[1_0_0] min-w-px'}`}>
+            {label}
           </p>
-        </div>
+          {badge != null && (
+            <div
+              className="shrink-0 flex flex-col items-start justify-center min-w-[16px] px-[4px] rounded-[12px]"
+              style={{ background: 'var(--main-m1, #49A3A6)' }}
+            >
+              <p className="font-['Delight',sans-serif] text-[10px] leading-[16px] font-medium text-white text-center tracking-[0.1px] whitespace-nowrap">
+                {badge}
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function SectionHeader({ label }: { label: string }) {
+function SectionHeader({ label, collapsed }: { label: string; collapsed?: boolean }) {
+  if (collapsed) {
+    return <div className="h-[12px] shrink-0 w-full" aria-hidden />;
+  }
   return (
     <div className="content-stretch flex gap-0 h-[36px] items-center overflow-clip px-[8px] py-[4px] relative rounded-[6px] shrink-0 w-full">
       <p className="font-['Delight',sans-serif] font-normal leading-[20px] opacity-50 overflow-hidden relative shrink-0 text-[12px] text-ellipsis text-white tracking-[0.12px] whitespace-nowrap">
@@ -82,34 +80,44 @@ function SectionHeader({ label }: { label: string }) {
 
 /* ========== Logo ========== */
 
-function Logo() {
+function Logo({ collapsed, onToggleCollapsed }: { collapsed?: boolean; onToggleCollapsed?: () => void }) {
   return (
-    <div className="content-stretch flex h-[48px] items-center justify-between px-[8px] py-[16px] relative shrink-0 w-full z-[9]">
-      <div className="h-[14px] relative shrink-0 w-[81px]">
-        <img src={`${import.meta.env.BASE_URL}logo-alva-beta.svg`} alt="Alva" className="absolute inset-0 block size-full object-contain object-left" />
-      </div>
-      <div className="relative shrink-0 size-[16px]">
-        <img src={`${import.meta.env.BASE_URL}sidebar-onoff.svg`} alt="" className="absolute inset-0 block size-full" />
-      </div>
+    <div className={`content-stretch flex h-[48px] items-center relative shrink-0 w-full z-[9] ${collapsed ? 'justify-center py-[16px]' : 'justify-between px-[8px] py-[16px]'}`}>
+      {!collapsed && (
+        <div className="h-[14px] relative shrink-0 w-[81px]">
+          <img src={`${import.meta.env.BASE_URL}logo-alva-beta.svg`} alt="Alva" className="absolute inset-0 block size-full object-contain object-left" />
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={onToggleCollapsed}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        className="relative shrink-0 size-[24px] rounded-[4px] flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors"
+      >
+        <img src={`${import.meta.env.BASE_URL}sidebar-onoff.svg`} alt="" className="block size-[16px]" />
+      </button>
     </div>
   );
 }
 
 /* ========== "+ New Playbook" CTA ========== */
 
-function NewPlaybookButton({ onClick }: { active?: boolean; onClick?: () => void }) {
+function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?: boolean; onClick?: () => void; collapsed?: boolean; label?: string }) {
   return (
-    <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full">
+    <div className={`content-stretch flex flex-col items-start relative shrink-0 w-full ${collapsed ? 'py-[4px]' : 'py-[4px]'}`}>
       <button
         onClick={onClick}
-        className="bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex gap-[6px] h-[32px] items-center justify-center overflow-clip px-[16px] py-[6px] relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/5"
+        title={collapsed ? label : undefined}
+        className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/5 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
           <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
-          New Chat
-        </span>
+        {!collapsed && (
+          <span className="font-['Delight',sans-serif] font-semibold leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
+            {label}
+          </span>
+        )}
       </button>
     </div>
   );
@@ -117,39 +125,23 @@ function NewPlaybookButton({ onClick }: { active?: boolean; onClick?: () => void
 
 /* ========== 主组件 ========== */
 
-export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, onOpenReferral, collapsed = false, inDrawer = false }: SidebarProps) {
-  // Hide section headers + section structure shrinks to icon stack when
-  // collapsed. Width 228 → 56 with smooth transition. When `inDrawer` is
-  // set, the sidebar renders as a static block (the outer wrapper handles
-  // positioning + slide animation).
+export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, onOpenReferral, collapsed = false, onToggleCollapsed }: SidebarProps) {
+  void onOpenSearch; void onOpenReferral; // 保持已有签名
   return (
     <div
-      className={`antialiased bg-[#2a2a38] flex flex-col gap-0 h-screen ${inDrawer ? 'relative' : 'fixed left-0 top-0'} isolate items-start shrink-0 z-[2] overflow-y-auto overflow-x-hidden`}
+      className="antialiased bg-[#2a2a38] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 z-[2] overflow-y-auto overflow-x-hidden"
       style={{
         backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)',
         backgroundSize: '3px 3px',
-        width: collapsed ? 56 : 228,
-        padding: collapsed ? '8px 4px' : 8,
-        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1), padding 0.25s cubic-bezier(0.4,0,0.2,1)',
+        width: collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED,
+        transition: 'width 200ms ease',
       }}
     >
-      {!collapsed && <Logo />}
+      <Logo collapsed={collapsed} onToggleCollapsed={onToggleCollapsed} />
 
       {/* New Playbook CTA — own group per Figma 2951:34936 */}
-      {!collapsed && <NewPlaybookButton onClick={() => onNavigate('new-chat')} />}
-      {collapsed && (
-        <div className="flex flex-col items-center w-full pt-[12px] pb-[8px]">
-          <button
-            onClick={() => onNavigate('new-chat')}
-            className="flex items-center justify-center w-[36px] h-[36px] rounded-[8px] border-[0.5px] border-[rgba(255,255,255,0.3)] bg-transparent hover:bg-white/5 cursor-pointer transition-colors"
-            title="New Chat"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-      )}
+      <NewPlaybookButton collapsed={collapsed} onClick={() => onNavigate('new-chat')} />
+      <NewPlaybookButton collapsed={collapsed} label="New Chat (Opt2)" onClick={() => onNavigate('new-chat-opt2')} />
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
@@ -161,7 +153,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* Starred */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[6]">
-        {!collapsed && <SectionHeader label="Starred" />}
+        <SectionHeader label="Starred" collapsed={collapsed} />
         <NavItem label="Template-Screener" icon="sidebar-dashboard-normal" active={activePage === 'template-screener'} collapsed={collapsed} onClick={() => onNavigate('template-screener')} />
         <NavItem label="Template-Thesis" icon="sidebar-dashboard-normal" active={activePage === 'template-thesis'} collapsed={collapsed} onClick={() => onNavigate('template-thesis')} />
         <NavItem label="Template-Whatif" icon="sidebar-dashboard-normal" active={activePage === 'template-whatif'} collapsed={collapsed} onClick={() => onNavigate('template-whatif')} />
@@ -170,14 +162,13 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* My Playbooks */}
       <div className="content-stretch flex flex-col flex-[1_0_0] gap-0 items-start min-h-px py-[4px] relative w-full z-[5]">
-        {!collapsed && <SectionHeader label="My Playbooks" />}
+        <SectionHeader label="My Playbooks" collapsed={collapsed} />
         <NavItem label="Feed Test" icon="sidebar-dashboard-normal" active={activePage === 'screener'} collapsed={collapsed} onClick={() => onNavigate('screener')} />
-        <NavItem label="Trade Notification Test" icon="sidebar-dashboard-normal" active={activePage === 'trade-notification-test'} collapsed={collapsed} onClick={() => onNavigate('trade-notification-test')} />
       </div>
 
       {/* 用户行 */}
       <div
-        className={`content-stretch flex gap-[8px] items-center p-[8px] relative rounded-[6px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/5 transition-colors ${collapsed ? 'justify-center' : ''}`}
+        className={`content-stretch flex items-center relative rounded-[6px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/5 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
         onClick={() => onNavigate('user-profile')}

@@ -6,7 +6,34 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Page } from '@/app/App';
-import { Sidebar } from './Sidebar';
+import { Sidebar, SIDEBAR_W_COLLAPSED, SIDEBAR_W_EXPANDED } from './Sidebar';
+import { CdnIcon } from '../shared/CdnIcon';
+import { ThreadSwitcherDropdown } from '../shared/ThreadSwitcherDropdown';
+
+const NARROW_THRESHOLD = 1024;
+const MOBILE_THRESHOLD = 640;
+const MOBILE_TOPBAR_H = 48;
+const PAGE_TITLES: Record<string, string> = {
+  'new-chat': 'New chat',
+  'explore-2': 'Explore',
+  portfolio: 'Portfolio',
+  agent: 'Agent',
+  'alva-skills': 'Alva Skill',
+  account: 'Account',
+  'user-profile': 'Profile',
+  pricing: 'Pricing',
+  'api-keys': 'API Keys',
+  notifications: 'Notifications',
+  automations: 'Automations',
+  billing: 'Billing',
+  'alva-agent': 'Alva Agent',
+  'portfolio-settings': 'Portfolio',
+  'screener': 'Feed Test',
+  'template-screener': 'Template-Screener',
+  'template-thesis': 'Template-Thesis',
+  'template-whatif': 'Template-Whatif',
+  'template-notification': 'Template-Notification',
+};
 import SearchModal from '../SearchModal';
 import ReferralModal from '../ReferralModal';
 import UserInfo from '../UserInfo';
@@ -59,13 +86,91 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
-  const { chatOpen, closeChat, contextTag } = useChatContext();
+  const { chatOpen, closeChat, openChatWithPrefill, contextTag, inspectorActive, addElementQuote } = useChatContext();
   const showChat = chatOpen && contextTag !== null;
-  const { sidebarMode, sidebarW } = useShellLayout();
+  const inspectorActiveRef = useRef(inspectorActive);
+  inspectorActiveRef.current = inspectorActive;
+
+  // 侧边栏折叠：窗口窄时自动折叠，按钮可手动切换；< MOBILE_THRESHOLD 时整体隐藏
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < NARROW_THRESHOLD : false,
+  );
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_THRESHOLD : false,
+  );
+  useEffect(() => {
+    let lastWasNarrow = window.innerWidth < NARROW_THRESHOLD;
+    const handler = () => {
+      const w = window.innerWidth;
+      const isNarrow = w < NARROW_THRESHOLD;
+      if (isNarrow !== lastWasNarrow) {
+        setSidebarCollapsed(isNarrow);
+        lastWasNarrow = isNarrow;
+      }
+      setIsMobile(w < MOBILE_THRESHOLD);
+    };
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  const sidebarWidth = sidebarCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
+  const effectiveSidebarWidth = isMobile ? 0 : sidebarWidth;
   const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_W);
   const dragging = useRef(false);
   const startX = useRef(0);
   const startW = useRef(DEFAULT_PANEL_W);
+
+  /* ── postMessage bridge: inspector quotes, remix, drawer ── */
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      const data = e.data;
+      if (!data || typeof data !== 'object') return;
+      if (data.type === 'alva:drawer-open' && data.drawer !== 'chat') closeChat();
+      if (data.type === 'alva:remix' && typeof data.prompt === 'string') {
+        openChatWithPrefill(data.prompt);
+      }
+      if (data.type === 'alva:navigate' && typeof data.page === 'string') {
+        onNavigate(data.page as Page);
+      }
+      /* inspector → quote */
+      if (data.type === 'alva:inspector-quote') {
+        addElementQuote({
+          index: data.index ?? 0,
+          selector: data.selector,
+          tagName: data.tagName,
+          newText: data.newText ?? null,
+          originalText: data.originalText ?? null,
+          instruction: data.instruction ?? null,
+        });
+      }
+      /* iframe (re)loaded — re-send current inspector state */
+      if (data.type === 'alva:inspector-ready') {
+        const src = e.source as Window | null;
+        if (src && inspectorActiveRef.current) {
+          try { src.postMessage({ type: 'alva:inspector-activate' }, '*'); } catch (_) {}
+        }
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [closeChat, openChatWithPrefill, onNavigate, addElementQuote]);
+
+  /* notify iframes when chat panel opens */
+  useEffect(() => {
+    if (!chatOpen) return;
+    document.querySelectorAll('iframe').forEach((f) => {
+      try { f.contentWindow?.postMessage({ type: 'alva:drawer-open', drawer: 'chat' }, '*'); } catch (_) {}
+    });
+  }, [chatOpen]);
+
+  /* notify iframes when inspector mode toggles or chat panel opens/closes */
+  useEffect(() => {
+    const msg = inspectorActive
+      ? { type: 'alva:inspector-activate' }
+      : { type: 'alva:inspector-deactivate' };
+    document.querySelectorAll('iframe').forEach((f) => {
+      try { f.contentWindow?.postMessage(msg, '*'); } catch (_) {}
+    });
+  }, [inspectorActive, chatOpen]);
 
   const handleUserEnter = useCallback(() => {
     if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
@@ -104,6 +209,8 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
     };
   }, [isUserInfoOpen, onUserMouseLeave]);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const onDragStart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -135,84 +242,91 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
   const isMobile = sidebarMode === 'hidden';
 
   return (
-    <div className={`flex h-screen overflow-hidden relative w-full ${isMobile ? 'bg-white' : 'bg-[#2a2a38]'}`}>
-      {sidebarMode !== 'hidden' && (
+    <div className="bg-[#2a2a38] flex h-screen overflow-hidden relative w-full">
+      {/* Desktop sidebar — hidden below lg */}
+      <div className="hidden lg:block">
         <Sidebar
           activePage={activePage}
           onNavigate={onNavigate}
           onOpenSearch={() => setIsSearchOpen(true)}
           onUserMouseEnter={handleUserEnter}
           onOpenReferral={() => setIsReferralOpen(true)}
-          collapsed={sidebarMode === 'compact'}
         />
-      )}
-      {/* Mobile drawer — always mounted so the CSS transition fires in
-          both open and close directions. Slides in from the left over a
-          fade-in scrim (rgba(0,0,0,0) → 0.45). 280ms cubic-bezier ease. */}
-      {isMobile && (
-        <>
+      </div>
+
+      {/* Mobile sidebar overlay — shown below lg when open */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] lg:hidden">
           <div
-            className="fixed inset-0 z-[40]"
-            onClick={() => setDrawerOpen(false)}
-            style={{
-              background: drawerOpen ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0)',
-              pointerEvents: drawerOpen ? 'auto' : 'none',
-              transition: 'background 280ms cubic-bezier(0.4,0,0.2,1)',
-            }}
+            className="absolute inset-0"
+            style={{ background: 'rgba(0,0,0,0.4)' }}
+            onClick={() => setMobileMenuOpen(false)}
           />
-          <div
-            className="fixed left-0 top-0 z-[50] h-screen"
-            style={{
-              width: 228,
-              transform: drawerOpen ? 'translateX(0)' : 'translateX(-228px)',
-              transition: 'transform 280ms cubic-bezier(0.4,0,0.2,1)',
-              willChange: 'transform',
-              pointerEvents: drawerOpen ? 'auto' : 'none',
-            }}
-          >
+          <div className="relative z-10 h-full" style={{ width: 264 }}>
             <Sidebar
               activePage={activePage}
-              onNavigate={(p) => { setDrawerOpen(false); onNavigate(p); }}
-              onOpenSearch={() => { setDrawerOpen(false); setIsSearchOpen(true); }}
+              onNavigate={(page) => { setMobileMenuOpen(false); onNavigate(page); }}
+              onOpenSearch={() => { setMobileMenuOpen(false); setIsSearchOpen(true); }}
               onUserMouseEnter={handleUserEnter}
-              onOpenReferral={() => { setDrawerOpen(false); setIsReferralOpen(true); }}
-              inDrawer
+              onOpenReferral={() => { setMobileMenuOpen(false); setIsReferralOpen(true); }}
             />
           </div>
-        </>
+        </div>
       )}
+
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <ReferralModal isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} onNavigate={onNavigate} />
-      <main
-        className={`relative flex min-w-0 flex-1 overflow-hidden bg-white ${isMobile ? '' : 'rounded-bl-[8px] rounded-tl-[8px]'}`}
-        style={{ marginLeft: sidebarW, transition: 'margin-left 0.25s cubic-bezier(0.4,0,0.2,1)' }}
-      >
-        <div className="min-w-0 flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
-          {isMobile && (
-            <MobileTopBar onOpenDrawer={() => setDrawerOpen(true)} />
-          )}
-          {children}
-        </div>
-        {contextTag !== null && (
-          <div
-            className="relative shrink-0"
-            style={{
-              width: showChat ? panelWidth : 0,
-              minWidth: showChat ? panelWidth : 0,
-              transition: dragging.current
-                ? 'none'
-                : 'width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)',
-              overflow: 'hidden',
-            }}
+      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-white lg:ml-[228px] lg:rounded-bl-[8px] lg:rounded-tl-[8px]">
+        {/* Mobile topbar — shown below lg */}
+        <div
+          className="flex lg:hidden items-center shrink-0"
+          style={{
+            height: 56,
+            padding: '18px 16px',
+            gap: 12,
+            background: '#fff',
+          }}
+        >
+          <button
+            type="button"
+            className="cursor-pointer bg-transparent border-none p-0 flex items-center justify-center"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
           >
-            <div
-              className="absolute bottom-0 left-0 top-0 z-10"
-              style={{ width: 6, cursor: 'col-resize' }}
-              onMouseDown={onDragStart}
-            />
-            <ChatPanel onClose={closeChat} contextTag={contextTag} />
+            <CdnIcon name="menu-l" size={20} color="var(--text-n7, rgba(0,0,0,0.7))" />
+          </button>
+          <img
+            src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`}
+            alt="Alva"
+            style={{ height: 14 }}
+          />
+        </div>
+
+        <div className="min-w-0 flex-1 overflow-hidden lg:flex lg:flex-row">
+          <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+            {children}
           </div>
-        )}
+          {contextTag !== null && (
+            <div
+              className="relative shrink-0"
+              style={{
+                width: showChat ? panelWidth : 0,
+                minWidth: showChat ? panelWidth : 0,
+                transition: dragging.current
+                  ? 'none'
+                  : 'width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                className="absolute bottom-0 left-0 top-0 z-10"
+                style={{ width: 6, cursor: 'col-resize' }}
+                onMouseDown={onDragStart}
+              />
+              <ChatPanel onClose={closeChat} contextTag={contextTag} />
+            </div>
+          )}
+        </div>
       </main>
 
       {/* 方案C: FAB trigger */}
