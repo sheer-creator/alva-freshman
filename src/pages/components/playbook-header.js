@@ -445,52 +445,48 @@
                             '<span class="alerts-popover-cta-spinner" aria-hidden="true"></span>' +
                           '</button>' +
                         '</div>' +
-                        '<div class="alerts-popover-extra">' +
-                          '<p class="alerts-popover-extra-label">Same agent, more channels</p>' +
-                          '<div class="alerts-popover-chips">' +
-                            '<span class="alerts-popover-chip is-disabled"><img src="/alva-infant/logo-social-slack.svg" alt="" /><span>Slack</span></span>' +
-                            '<span class="alerts-popover-chip is-disabled"><img src="/alva-infant/logo-social-whatsapp.svg" alt="" /><span>WhatsApp</span></span>' +
-                            '<span class="alerts-popover-chip is-disabled"><img src="/alva-infant/logo-social-line.svg" alt="" /><span>Line</span></span>' +
-                          '</div>' +
-                        '</div>' +
                       '</div>' +
                     '</div>' +
                     '<div class="alerts-popover-connected" data-alerts-connected>' +
                       '<p class="alerts-popover-title">Get Alerts</p>' +
                       '<div class="alerts-connected-section">' +
                         '<div class="alerts-connected-head">' +
-                          '<span class="alerts-connected-head-label">Connected</span>' +
-                          '<button class="alerts-connected-manage" type="button" data-alerts-manage>' +
-                            '<span>Manage Accounts</span>' +
-                            '<span class="alerts-connected-manage-chev" aria-hidden="true"></span>' +
-                          '</button>' +
-                        '</div>' +
-                        '<div class="alerts-connected-account" data-alerts-account>' +
-                          '<img class="alerts-connected-avatar" data-alerts-avatar data-platform="' + (alertsStartConnected ? 'discord' : 'telegram') + '" src="' + (alertsStartConnected ? '/alva-infant/logo-social-discord.svg' : 'https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg') + '" alt="" />' +
-                          '<span class="alerts-connected-name" data-alerts-name>Sheer Ruan</span>' +
+                          '<span class="alerts-connected-head-label">Automations</span>' +
                           '<div class="alerts-connected-toggle">' +
                             '<span class="alerts-connected-toggle-label">Receive Alerts</span>' +
                             '<button type="button" class="switch" data-alerts-switch role="switch" aria-checked="false"><span class="switch-thumb"></span></button>' +
                           '</div>' +
                         '</div>' +
+                        '<div class="alerts-automations-list" data-alerts-automations>' +
+                          '<div class="alerts-automation-row">' +
+                            '<span class="alerts-automation-name">ai-chip-supply-chain</span>' +
+                            '<button type="button" class="switch is-on" role="switch" aria-checked="true"><span class="switch-thumb"></span></button>' +
+                          '</div>' +
+                          '<div class="alerts-automation-row">' +
+                            '<span class="alerts-automation-name">space-rotation-prices</span>' +
+                            '<button type="button" class="switch is-on" role="switch" aria-checked="true"><span class="switch-thumb"></span></button>' +
+                          '</div>' +
+                        '</div>' +
+                        '<div class="alerts-connected-account" data-alerts-account>' +
+                          '<img class="alerts-connected-avatar" data-alerts-avatar src="https://alva-ai-static.b-cdn.net/icons/logo-social-telegram.svg" alt="" />' +
+                          '<span class="alerts-connected-name-label">Connected:</span>' +
+                          '<span class="alerts-connected-name" data-alerts-name>Sheer Ruan</span>' +
+                          '<button class="alerts-connected-manage" type="button" data-alerts-manage>' +
+                            '<span>Manage</span>' +
+                            '<span class="alerts-connected-manage-chev" aria-hidden="true"></span>' +
+                          '</button>' +
+                        '</div>' +
                       '</div>' +
                       '<div class="alerts-signals-section">' +
-                        '<p class="alerts-signals-title">Latest Signals</p>' +
+                        '<p class="alerts-signals-title">Recent Alerts</p>' +
                         '<div class="alerts-signals-list">' +
                           '<div class="alerts-signal-card">' +
-                            '<p class="alerts-signal-date">Apr 16, 2026 · Market Close Digest</p>' +
+                            '<p class="alerts-signal-date">May 8, 12:00 PM &middot; ai-chip-supply-chain</p>' +
+                            '<p class="alerts-signal-headline"><strong>AMD to Entrust 2nm Production to Samsung Foundry Samsung Electronics has entered into substantive discussions with AMD</strong></p>' +
                             '<ul class="alerts-signal-bullets">' +
-                              '<li><strong>Top of basket:</strong> ALL (Allstate) holds #1 at Score 95 — ROE 39.5%, P/E 5.64; leadership in Insurance — Property &amp; Casualty continues.</li>' +
-                              '<li><strong>New entries:</strong> BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.</li>' +
-                              '<li><strong>Dropouts:</strong> TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.</li>' +
-                            '</ul>' +
-                          '</div>' +
-                          '<div class="alerts-signal-card">' +
-                            '<p class="alerts-signal-date">Apr 15, 2026 · Market Close Digest</p>' +
-                            '<ul class="alerts-signal-bullets">' +
-                              '<li><strong>Momentum:</strong> NVDA, META extend leadership on improving estimates; Score moves +2 avg.</li>' +
-                              '<li><strong>Re-rating:</strong> Energy basket re-rates higher on improving ROE and lower leverage.</li>' +
-                              '<li><strong>Watch:</strong> DIS, NKE drift lower — guidance risks heading into Q2 prints.</li>' +
+                              '<li>Top of basket: ALL (Allstate) holds #1 at Score 95 &mdash; ROE 39.5%, P/E 5.64; leadership in Insurance &mdash; Property &amp; Casualty continues.</li>' +
+                              '<li>New entries: BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.</li>' +
+                              '<li>Dropouts: TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.</li>' +
                             '</ul>' +
                           '</div>' +
                         '</div>' +

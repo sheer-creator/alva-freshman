@@ -538,6 +538,7 @@ export function AgentEmptyState({
                         setAlertsPopoverOpen(false);
                         setDiscordFlowOpen(true);
                       }}
+                      onManage={() => onNavigate('alva-agent')}
                     />
                   </div>
                 </div>

@@ -1,15 +1,74 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { CdnIcon } from '@/app/components/shared/CdnIcon';
 
 const FONT = "font-['Delight',sans-serif]";
+
+/* ========== Switch Toggle ========== */
+
+function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={(e) => { e.stopPropagation(); onToggle(); }}
+      className="shrink-0 cursor-pointer border-none outline-none p-0 overflow-hidden transition-colors"
+      style={{
+        width: 32,
+        height: 16,
+        borderRadius: 1000,
+        background: on ? 'var(--main-m1, #49A3A6)' : 'rgba(0,0,0,0.15)',
+      }}
+    >
+      <div
+        className="transition-all"
+        style={{
+          width: 10.667,
+          height: 10.667,
+          borderRadius: 133.333,
+          background: '#fff',
+          marginTop: 2.667,
+          marginLeft: on ? 'auto' : 2.667,
+          marginRight: on ? 2.667 : 'auto',
+        }}
+      />
+    </button>
+  );
+}
+
+/* ========== Types ========== */
 
 interface AlertsPopoverProps {
   open: boolean;
   onClose: () => void;
   onTelegram: () => void;
   onDiscord: () => void;
+  onManage?: () => void;
   /** Anchor side: where the popover opens relative to the trigger. */
   align?: 'right' | 'left';
+  /** Whether the agent is connected */
+  connected?: boolean;
 }
+
+/* ========== Mock data for connected state ========== */
+
+const MOCK_AUTOMATIONS = [
+  { id: 'ai-chip', name: 'ai-chip-supply-chain', enabled: true },
+  { id: 'space', name: 'space-rotation-prices', enabled: true },
+];
+
+const MOCK_SIGNAL = {
+  date: 'May 8, 12:00 PM',
+  source: 'ai-chip-supply-chain',
+  title: 'AMD to Entrust 2nm Production to Samsung Foundry Samsung Electronics has entered into substantive discussions with AMD',
+  bullets: [
+    'Top of basket: ALL (Allstate) holds #1 at Score 95 — ROE 39.5%, P/E 5.64; leadership in Insurance — Property & Casualty continues.',
+    'New entries: BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.',
+    'Dropouts: TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.',
+  ],
+};
+
+/* ========== Telegram Icon ========== */
 
 const TELEGRAM_ICON = (
   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,7 +76,196 @@ const TELEGRAM_ICON = (
   </svg>
 );
 
-export function AlertsPopover({ open, onClose, onTelegram, onDiscord, align = 'right' }: AlertsPopoverProps) {
+/* ========== Unconnected Content ========== */
+
+function UnconnectedContent({ onTelegram, onDiscord }: { onTelegram: () => void; onDiscord: () => void }) {
+  return (
+    <div
+      className="flex flex-col items-center gap-[var(--spacing-s,12px)] w-full"
+      style={{
+        padding: 'var(--spacing-xl,24px) var(--spacing-l,20px)',
+        background: 'var(--b-r02, rgba(0,0,0,0.02))',
+        borderRadius: 'var(--radius-ct-l,8px)',
+      }}
+    >
+      <div
+        className="inline-flex items-center justify-center shrink-0 overflow-hidden"
+        style={{ width: 48, height: 48, borderRadius: 960, background: 'var(--b0-sidebar, #2A2A38)' }}
+      >
+        <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="" style={{ width: 48, height: 48, display: 'block' }} />
+      </div>
+
+      <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] text-center w-full m-0`}>
+        Connect Agents to Get Notified
+      </p>
+
+      <div className="flex flex-col items-center gap-[var(--spacing-s,12px)] w-full">
+        <button
+          type="button"
+          onClick={onTelegram}
+          className={`${FONT} inline-flex items-center justify-center gap-[var(--spacing-xs,8px)] cursor-pointer transition-opacity hover:opacity-90`}
+          style={{
+            height: 40,
+            width: 280,
+            padding: '9px var(--spacing-m,16px)',
+            borderRadius: 'var(--radius-btn-m,8px)',
+            background: '#24a1de',
+            color: '#fff',
+            border: 'none',
+            fontSize: 14,
+            fontWeight: 500,
+            lineHeight: '22px',
+            letterSpacing: '0.14px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {TELEGRAM_ICON}
+          Connect Telegram
+        </button>
+
+        <button
+          type="button"
+          onClick={onDiscord}
+          className={`${FONT} inline-flex items-center justify-center gap-[var(--spacing-xs,8px)] cursor-pointer transition-colors`}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--b-r03, rgba(0,0,0,0.03))'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+          style={{
+            height: 40,
+            width: 280,
+            padding: '9px var(--spacing-m,16px)',
+            borderRadius: 'var(--radius-btn-m,8px)',
+            background: 'transparent',
+            color: 'var(--text-n9)',
+            border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
+            fontSize: 14,
+            fontWeight: 500,
+            lineHeight: '22px',
+            letterSpacing: '0.14px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" style={{ width: 18, height: 18 }} />
+          Connect Discord
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ========== Connected Content ========== */
+
+function ConnectedContent({ onManage }: { onManage?: () => void }) {
+  const [receiveAlerts, setReceiveAlerts] = useState(true);
+  const [automations, setAutomations] = useState(MOCK_AUTOMATIONS);
+
+  const toggleAutomation = (id: string) => {
+    setAutomations(prev => prev.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a));
+  };
+
+  return (
+    <>
+      {/* Automations section */}
+      <div className="flex flex-col gap-[var(--spacing-s,12px)] items-start overflow-hidden w-full">
+        {/* Header: Automations + Receive Alerts toggle */}
+        <div className="flex gap-[var(--spacing-xs,8px)] items-center w-full">
+          <p className={`${FONT} flex-1 min-w-0 text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)] m-0`}>
+            Automations
+          </p>
+          <p className={`${FONT} shrink-0 text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] text-right whitespace-nowrap m-0`}>
+            Receive Alerts
+          </p>
+          <Switch on={receiveAlerts} onToggle={() => setReceiveAlerts(!receiveAlerts)} />
+        </div>
+
+        {/* Automation list */}
+        <div
+          className="flex flex-col gap-[var(--spacing-xs,8px)] items-start justify-center w-full"
+          style={{
+            padding: 'var(--spacing-m,16px)',
+            background: 'rgba(73,163,166,0.08)',
+            borderRadius: 'var(--radius-ct-l,8px)',
+          }}
+        >
+          {automations.map(a => (
+            <div key={a.id} className="flex items-center justify-between w-full">
+              <p className={`${FONT} flex-1 min-w-0 text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] m-0`}>
+                {a.name}
+              </p>
+              <Switch on={a.enabled} onToggle={() => toggleAutomation(a.id)} />
+            </div>
+          ))}
+        </div>
+
+        {/* Connected account */}
+        <div className="flex gap-[var(--spacing-xs,8px)] items-center w-full" style={{ borderRadius: 'var(--radius-ct-l,8px)' }}>
+          <div className="flex flex-1 min-w-0 gap-[var(--spacing-xxs,4px)] items-center">
+            <img src="https://alva-ai-static.b-cdn.net/icons/logo-social-telegram.svg" alt="" style={{ width: 16, height: 16, flexShrink: 0 }} />
+            <p className={`${FONT} shrink-0 text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap m-0`}>
+              Connected:
+            </p>
+            <p className={`${FONT} shrink-0 text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap m-0`}>
+              Sheer Ruan
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onManage?.(); }}
+            className={`${FONT} inline-flex gap-[var(--spacing-xxs,4px)] items-center justify-end shrink-0 cursor-pointer bg-transparent border-none outline-none p-0 transition-opacity hover:opacity-70`}
+          >
+            <span
+              className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-right whitespace-nowrap`}
+              style={{ color: 'var(--text-n5)' }}
+            >
+              Manage
+            </span>
+            <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5)" />
+          </button>
+        </div>
+      </div>
+
+      {/* Recent Alerts */}
+      <div className="flex flex-col gap-[var(--spacing-s,12px)] items-start w-full">
+        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)] w-full m-0`}>
+          Recent Alerts
+        </p>
+        <div
+          className="flex flex-col gap-[var(--spacing-xs,8px)] items-start overflow-hidden w-full"
+          style={{
+            padding: 'var(--spacing-m,16px)',
+            background: 'var(--grey-g01, #fafafa)',
+            borderRadius: 'var(--radius-ct-l,8px)',
+          }}
+        >
+          <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] m-0`}>
+            {MOCK_SIGNAL.date} &middot; {MOCK_SIGNAL.source}
+          </p>
+          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] font-medium m-0`}>
+            {MOCK_SIGNAL.title}
+          </p>
+          <div className="flex flex-col gap-[var(--spacing-xxs,4px)] w-full">
+            {MOCK_SIGNAL.bullets.map((b, i) => (
+              <div key={i} className="flex items-start w-full">
+                <span
+                  className="shrink-0 flex items-center justify-center"
+                  style={{ width: 20, height: 22, color: 'var(--text-n9)', fontSize: 14 }}
+                >
+                  &bull;
+                </span>
+                <p className={`${FONT} flex-1 min-w-0 text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] m-0`}>
+                  {b}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ========== Main Popover ========== */
+
+export function AlertsPopover({ open, onClose, onTelegram, onDiscord, onManage, align = 'right', connected = false }: AlertsPopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<'bottom' | 'top'>('bottom');
 
@@ -91,106 +339,10 @@ export function AlertsPopover({ open, onClose, onTelegram, onDiscord, align = 'r
         Get Alerts
       </p>
 
-      <div
-        className="flex flex-col items-center gap-[var(--spacing-s,12px)] w-full"
-        style={{
-          padding: 'var(--spacing-xl,24px) var(--spacing-l,20px)',
-          background: 'var(--b-r02, rgba(0,0,0,0.02))',
-          borderRadius: 'var(--radius-ct-l,8px)',
-        }}
-      >
-        <div
-          className="inline-flex items-center justify-center shrink-0 overflow-hidden"
-          style={{ width: 48, height: 48, borderRadius: 960, background: 'var(--b0-sidebar, #2A2A38)' }}
-        >
-          <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="" style={{ width: 48, height: 48, display: 'block' }} />
-        </div>
-
-        <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] text-center w-full m-0`}>
-          Connect Agents to Get Notified
-        </p>
-
-        <div className="flex flex-col items-center gap-[var(--spacing-s,12px)] w-full">
-          <button
-            type="button"
-            onClick={onTelegram}
-            className={`${FONT} inline-flex items-center justify-center gap-[var(--spacing-xs,8px)] cursor-pointer transition-opacity hover:opacity-90`}
-            style={{
-              height: 40,
-              width: 280,
-              padding: '9px var(--spacing-m,16px)',
-              borderRadius: 'var(--radius-ct-m,6px)',
-              background: '#24a1de',
-              color: '#fff',
-              border: 'none',
-              fontSize: 14,
-              fontWeight: 500,
-              lineHeight: '22px',
-              letterSpacing: '0.14px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {TELEGRAM_ICON}
-            Connect Telegram
-          </button>
-
-          <button
-            type="button"
-            onClick={onDiscord}
-            className={`${FONT} inline-flex items-center justify-center gap-[var(--spacing-xs,8px)] cursor-pointer transition-colors`}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--b-r03, rgba(0,0,0,0.03))'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-            style={{
-              height: 40,
-              width: 280,
-              padding: '9px var(--spacing-m,16px)',
-              borderRadius: 'var(--radius-ct-m,6px)',
-              background: 'transparent',
-              color: 'var(--text-n9)',
-              border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
-              fontSize: 14,
-              fontWeight: 500,
-              lineHeight: '22px',
-              letterSpacing: '0.14px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" style={{ width: 18, height: 18 }} />
-            Connect Discord
-          </button>
-        </div>
-
-        <div className="flex flex-col items-center gap-[var(--spacing-xs,8px)] w-full" style={{ paddingTop: 'var(--spacing-s,12px)' }}>
-          <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] text-center w-full m-0`}>
-            Same agent, more channels
-          </p>
-          <div className="flex items-center justify-center gap-[var(--spacing-xs,8px)]">
-            {[
-              { name: 'Slack', file: 'logo-social-slack.svg' },
-              { name: 'WhatsApp', file: 'logo-social-whatsapp.svg' },
-              { name: 'Line', file: 'logo-social-line.svg' },
-            ].map(p => (
-              <span
-                key={p.name}
-                className={`${FONT} inline-flex items-center gap-[6px]`}
-                style={{
-                  padding: '4px 12px 4px 6px',
-                  background: 'var(--b-r03, rgba(0,0,0,0.03))',
-                  borderRadius: 960,
-                  fontSize: 12,
-                  lineHeight: '20px',
-                  letterSpacing: '0.12px',
-                  color: 'var(--text-n3, rgba(0,0,0,0.3))',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <img src={`${import.meta.env.BASE_URL}${p.file}`} alt="" style={{ width: 18, height: 18, borderRadius: 960, display: 'block' }} />
-                {p.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+      {connected
+        ? <ConnectedContent onManage={onManage} />
+        : <UnconnectedContent onTelegram={onTelegram} onDiscord={onDiscord} />
+      }
     </div>
   );
 }
