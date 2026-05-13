@@ -143,7 +143,8 @@ const PLAYBOOKS: ExplorePlaybook[] = [
         // changes, per skill PERSON_REGISTRY convention. Source is 4:3
         // (1.33); we declare 1.5 to match the validator's threshold and
         // the renderer's effective top-anchored slice on the wide cover.
-        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Warren_Buffett_with_Fisher_College_of_Business_Student.jpg?width=640',
+        imageHash: 'https://commons.wikimedia.org/wiki/Special:FilePath/Warren_Buffett_with_Fisher_College_of_Business_Student.jpg?width=640',
+        source: 'https://commons.wikimedia.org/wiki/File:Warren_Buffett_with_Fisher_College_of_Business_Student.jpg',
         portraitH: 30,
         imageAspectRatio: 1.5,
         subjectName: 'Warren Buffett',
@@ -525,7 +526,8 @@ const PLAYBOOKS: ExplorePlaybook[] = [
       anchor: '8 holdings',
       series: '$15B AUM · PERSHING SQUARE',
       portrait: {
-        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Bill_Ackman_(26410186110)_(cropped).jpg?width=640',
+        imageHash: 'https://commons.wikimedia.org/wiki/Special:FilePath/Bill_Ackman_(26410186110)_(cropped).jpg?width=640',
+        source: 'https://commons.wikimedia.org/wiki/File:Bill_Ackman_(26410186110)_(cropped).jpg',
         portraitH: 28,
         imageAspectRatio: 1.5,
         subjectName: 'Bill Ackman',
@@ -551,7 +553,8 @@ const PLAYBOOKS: ExplorePlaybook[] = [
       kind: 'Late long-term debt cycle · risk-off bias',
       portrait: {
         // Real 16:9 landscape source from Wikimedia (500×281 → 1.78 aspect).
-        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ray_Dalio_Sept_23_2017_NYC.jpg?width=640',
+        imageHash: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ray_Dalio_Sept_23_2017_NYC.jpg?width=640',
+        source: 'https://commons.wikimedia.org/wiki/File:Ray_Dalio_Sept_23_2017_NYC.jpg',
         portraitH: 25,
         imageAspectRatio: 1.78,
         subjectName: 'Ray Dalio',
@@ -1244,195 +1247,228 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
 /** Template filter values used by the dropdown next to the segmented tabs. */
 const TEMPLATE_FILTER_OPTIONS = [
-  'All Templates', 'Screener', 'Thesis', 'What-If', 'General', 'Others',
+  'Trendings', 'Screener', 'Thesis', 'What-If', 'Others',
 ] as const;
 type TemplateFilter = typeof TEMPLATE_FILTER_OPTIONS[number];
 
 function TrendingsHeader({
-  active, onChange, templateFilter, onTemplateChange,
+  active, onChange, templateFilter, onTemplateChange, isMobile = false,
 }: {
   active: string; onChange: (cat: string) => void;
   templateFilter: TemplateFilter; onTemplateChange: (v: TemplateFilter) => void;
+  isMobile?: boolean;
 }) {
-  // Per Figma node 3068:21781 — Regular 24/34 title left, segmented pill +
-  // template dropdown on right.
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-      <h3 style={{
-        fontFamily: "'Delight', sans-serif",
-        fontWeight: 400,
-        fontSize: 24,
-        lineHeight: '34px',
-        letterSpacing: 0.24,
-        color: 'rgba(0,0,0,0.9)',
-        margin: 0,
-      }}>
-        Trendings
-      </h3>
+  // Desktop: single row — title tabs on the left, segmented Popular/Newest
+  // pill on the right, 1px divider underneath.
+  // Mobile: two rows — row 1 is the title-tab strip (full-bleed scroll, the
+  //   page's 16px side padding is cancelled so the strip extends to the
+  //   viewport edges and is naturally clipped on overflow); the divider
+  //   under it spans the full viewport width. Row 2 holds the segmented
+  //   Popular/Newest pill, aligned right.
+  //
+  // Active-tab visibility: when the selected tab changes (or the active
+  // pill on desktop), smooth-scroll the strip so the chosen button has
+  // ≥16px breathing room from both viewport edges.
+  const stripRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        {/* Segmented pill: light-grey container with white active item */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0,
-            padding: 2,
-            borderRadius: 8,
-            background: 'rgba(0,0,0,0.05)',
-          }}
-        >
-          {CATEGORIES.map((cat) => {
-            const isActive = cat === active;
-            return (
-              <button
-                key={cat}
-                onClick={() => onChange(cat)}
-                style={{
-                  padding: '4px 12px',
-                  borderRadius: 6,
-                  border: 'none',
-                  background: isActive ? '#ffffff' : 'transparent',
-                  fontFamily: "'Delight', sans-serif",
-                  fontSize: 12,
-                  lineHeight: '20px',
-                  letterSpacing: 0.12,
-                  fontWeight: isActive ? 500 : 400,
-                  color: isActive ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
+  // Smooth-scroll the active tab so it sits with ≥16px breathing room
+  // from both viewport edges. We compute the target manually (because
+  // `scrollIntoView({inline: 'nearest'})` doesn't honor the safe zone
+  // when a tab is even 1px on screen) and animate it with a hand-rolled
+  // easing tween instead of `behavior: 'smooth'` — the latter kept
+  // getting silently canceled by something in this stack (React
+  // strict-mode double-invocation? auto-cycle re-render?). The tween
+  // works around that by writing scrollLeft each frame ourselves.
+  useEffect(() => {
+    const strip = stripRef.current;
+    const btn = tabRefs.current[templateFilter];
+    if (!strip || !btn) return;
+    const SAFE = 16;
+    const stripLeft = strip.scrollLeft;
+    const visRight = stripLeft + strip.clientWidth;
+    const btnLeft = btn.offsetLeft;
+    const btnRight = btnLeft + btn.offsetWidth;
+    const maxScroll = Math.max(0, strip.scrollWidth - strip.clientWidth);
+    let target: number | null = null;
+    if (btnLeft < stripLeft + SAFE) {
+      target = Math.max(0, btnLeft - SAFE);
+    } else if (btnRight > visRight - SAFE) {
+      target = Math.min(maxScroll, btnRight - strip.clientWidth + SAFE);
+    }
+    if (target === null || Math.abs(target - stripLeft) <= 1) return;
 
-        {/* Template filter dropdown — default "All Templates" */}
-        <TemplateDropdown value={templateFilter} onChange={onTemplateChange} />
-      </div>
+    const from = stripLeft;
+    const to = target;
+    const dur = 280;            // ms
+    const start = performance.now();
+    let raf = 0;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // cubic-out
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / dur);
+      strip.scrollLeft = from + (to - from) * ease(t);
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [templateFilter]);
+
+  const titleTabs = (
+    <div
+      ref={stripRef}
+      className="flex items-stretch gap-[20px]"
+      style={{
+        height: 52,
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        scrollbarWidth: 'none',
+        WebkitOverflowScrolling: 'touch',
+        flex: isMobile ? undefined : 1,
+        // Mobile: page padding is 16 — undo it on the strip and re-add as
+        // inner padding so tab labels start where they would on desktop
+        // but content can scroll past the viewport edges.
+        marginLeft: isMobile ? -16 : 0,
+        marginRight: isMobile ? -16 : 0,
+        paddingLeft: isMobile ? 16 : 0,
+        paddingRight: isMobile ? 16 : 0,
+        // Reserve a 16px safe zone on both sides — useful even with the
+        // manual tween below, in case anyone touches the strip via touch
+        // panning + scroll-snap later.
+        scrollPaddingInline: 16,
+      }}
+    >
+      {TEMPLATE_FILTER_OPTIONS.map((opt) => {
+        const isActive = opt === templateFilter;
+        return (
+          <button
+            key={opt}
+            ref={(el) => { tabRefs.current[opt] = el; }}
+            onClick={() => onTemplateChange(opt)}
+            className="cursor-pointer flex flex-col items-start shrink-0"
+            style={{ background: 'transparent', border: 'none', padding: '12px 0 0', gap: 10 }}
+          >
+            <span
+              className="text-[18px] leading-[28px] tracking-[0.18px] whitespace-nowrap"
+              style={{
+                color: isActive ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)',
+                fontFamily: "'Delight', sans-serif",
+                fontWeight: isActive ? 500 : 400,
+              }}
+            >
+              {opt}
+            </span>
+            <span
+              className="h-[2px] w-full"
+              style={{ background: isActive ? 'var(--main-m1, #49a3a6)' : 'transparent' }}
+            />
+          </button>
+        );
+      })}
     </div>
   );
-}
 
-function TemplateDropdown({
-  value, onChange,
-}: { value: TemplateFilter; onChange: (v: TemplateFilter) => void }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const filterPill = (
+    <div
+      className="flex gap-0 items-center p-[2px] rounded-[6px] shrink-0"
+      style={{ background: 'rgba(0,0,0,0.05)' }}
+    >
+      {CATEGORIES.map((cat) => {
+        const isActive = cat === active;
+        return (
+          <button
+            key={cat}
+            onClick={() => onChange(cat)}
+            className="h-[28px] px-[10px] rounded-[4px] cursor-pointer transition-colors flex items-center justify-center"
+            style={{ background: isActive ? 'white' : 'transparent', border: 'none', padding: '0 10px' }}
+          >
+            <span
+              className="text-[12px] leading-[20px] tracking-[0.12px]"
+              style={{
+                color: isActive ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)',
+                fontFamily: "'Delight', sans-serif",
+                fontWeight: isActive ? 500 : 400,
+              }}
+            >
+              {cat}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
 
-  // Close on outside click
-  useEffect(() => {
-    if (!open) return;
-    const onClick = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
-  }, [open]);
-
-  return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '4px 10px 4px 12px',
-          borderRadius: 8,
-          border: '1px solid rgba(0,0,0,0.08)',
-          background: open ? 'rgba(0,0,0,0.04)' : '#ffffff',
-          fontFamily: "'Delight', sans-serif",
-          fontSize: 12,
-          lineHeight: '20px',
-          fontWeight: 500,
-          letterSpacing: 0.12,
-          color: 'rgba(0,0,0,0.85)',
-          cursor: 'pointer',
-          transition: 'background 0.15s ease',
-          height: 32,
-        }}
-      >
-        {value}
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M2 4l3 3 3-3" />
-        </svg>
-      </button>
-      {open && (
+  if (isMobile) {
+    return (
+      <div className="flex flex-col" style={{ gap: 12 }}>
         <div
+          // Full-bleed wrapper: undo page padding so the divider stretches
+          // edge-to-edge of the viewport.
           style={{
-            position: 'absolute',
-            top: 'calc(100% + 4px)',
-            right: 0,
-            minWidth: 160,
-            background: '#ffffff',
-            border: '1px solid rgba(0,0,0,0.08)',
-            borderRadius: 8,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-            padding: 4,
-            zIndex: 10,
+            marginLeft: -16,
+            marginRight: -16,
+            paddingLeft: 16,
+            paddingRight: 16,
+            borderBottom: '1px solid rgba(0,0,0,0.07)',
           }}
         >
-          {TEMPLATE_FILTER_OPTIONS.map((opt) => {
-            const isActive = opt === value;
-            return (
-              <button
-                key={opt}
-                onClick={() => { onChange(opt); setOpen(false); }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  padding: '6px 10px',
-                  borderRadius: 6,
-                  border: 'none',
-                  background: isActive ? 'rgba(73,163,166,0.08)' : 'transparent',
-                  fontFamily: "'Delight', sans-serif",
-                  fontSize: 13,
-                  lineHeight: '20px',
-                  fontWeight: isActive ? 500 : 400,
-                  color: isActive ? '#49A3A6' : 'rgba(0,0,0,0.85)',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                }}
-                onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.04)'; }}
-                onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-              >
-                <span>{opt}</span>
-                {isActive && (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#49A3A6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2.5 6.5L5 9l4.5-5" />
-                  </svg>
-                )}
-              </button>
-            );
-          })}
+          {titleTabs}
         </div>
-      )}
+        <div className="flex justify-end">{filterPill}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative flex items-end gap-[16px] h-[52px]"
+      style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+    >
+      {titleTabs}
+      <div style={{ marginBottom: 10 }}>{filterPill}</div>
     </div>
   );
 }
 
 /* ========== 页面 ========== */
 
+/**
+ * Mobile breakpoint mirrors NewChat's (`MOBILE_THRESHOLD_PX = 640`). Below
+ * 640px the page collapses to a single-column experience: smaller paddings,
+ * 2-column playbook grid, horizontally-scrollable tabs, and a stacked hero.
+ */
+const MOBILE_THRESHOLD_PX = 640;
+
+function useIsMobile(threshold = MOBILE_THRESHOLD_PX): boolean {
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < threshold : false,
+  );
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < threshold);
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, [threshold]);
+  return isMobile;
+}
+
 export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
   const [activeTab, setActiveTab] = useState('Popular');
-  const [templateFilter, setTemplateFilter] = useState<TemplateFilter>('All Templates');
+  const [templateFilter, setTemplateFilter] = useState<TemplateFilter>('Trendings');
+  const isMobile = useIsMobile();
 
   // Filter the ordered playbook list by the selected template. "Others" is
   // a UI category for future / non-defined templates and currently matches
   // no playbooks (empty list); "All Templates" disables filtering.
   const filteredPlaybooks = useMemo(() => {
-    if (templateFilter === 'All Templates') return PLAYBOOKS_ORDERED;
-    if (templateFilter === 'Others') return [];
+    if (templateFilter === 'Trendings') return PLAYBOOKS_ORDERED;
+    // 'Others' now subsumes the previous 'General' bucket — anything that's
+    // not a screener/thesis/what-if maps here.
+    if (templateFilter === 'Others') {
+      return PLAYBOOKS_ORDERED.filter((p) => p.cover.template === 'general');
+    }
     const target =
       templateFilter === 'Screener' ? 'screener' :
       templateFilter === 'Thesis'   ? 'thesis'   :
-      templateFilter === 'What-If'  ? 'what-if'  :
-      'general';
+      'what-if';
     return PLAYBOOKS_ORDERED.filter((p) => p.cover.template === target);
   }, [templateFilter]);
 
@@ -1474,33 +1510,59 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
           minus 100px×2 side padding). Top padding 72px lands "Explore"
           header at the design's y=72.
         */}
-        <div className="bg-[#f6f6f6] flex flex-col items-center min-h-full pb-[60px] pt-[72px] px-[40px] w-full">
-          <div className="w-full flex flex-col gap-[24px]">
-            <h2 className="text-[28px] leading-[38px] tracking-[0.28px] text-[rgba(0,0,0,0.9)]" style={{ fontFamily: "'Delight', sans-serif", fontWeight: 400 }}>Explore</h2>
-            <HeroCarousel playbooks={heroPlaybooks} />
+        <div
+          className="bg-[#f6f6f6] flex flex-col items-center min-h-full w-full"
+          style={{
+            paddingTop: isMobile ? 32 : 72,
+            paddingBottom: isMobile ? 32 : 60,
+            paddingLeft: isMobile ? 16 : 40,
+            paddingRight: isMobile ? 16 : 40,
+          }}
+        >
+          <div className="w-full flex flex-col" style={{ gap: isMobile ? 16 : 24 }}>
+            <h2
+              className="tracking-[0.28px] text-[rgba(0,0,0,0.9)]"
+              style={{
+                fontFamily: "'Delight', sans-serif",
+                fontWeight: 400,
+                fontSize: isMobile ? 24 : 28,
+                lineHeight: isMobile ? '32px' : '38px',
+              }}
+            >
+              Explore
+            </h2>
+            <HeroCarousel playbooks={heroPlaybooks} isMobile={isMobile} />
             <TrendingsHeader
               active={activeTab}
               onChange={setActiveTab}
               templateFilter={templateFilter}
               onTemplateChange={setTemplateFilter}
+              isMobile={isMobile}
             />
             <div
               style={{
                 display: 'grid',
-                // Responsive grid per Figma node 3251:19020 (updated 2026-04-27):
-                //   N = ⌊(W + 12) ÷ 272⌋ where 272 = 260 (min card) + 12 (gap).
-                //   cardW = min(340, (W − 12·(N−1)) / N).
-                // CSS auto-fill computes N; the per-card max-width caps growth
-                // at 340 so transition zones absorb leftover as container space.
-                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                gap: 12,
+                // Width logic per Figma Alva-Library node 29305:11868: cards
+                // have a 328px floor and otherwise FILL the row. `auto-fill +
+                // minmax(328px, 1fr)` is the CSS equivalent of the spec's
+                // `N = ⌊(W + 12) / 340⌋` formula — column count steps purely
+                // from container width with no JS needed; near each
+                // breakpoint cards swell to ~440 then snap back to 328 once
+                // the next column fits.
+                // `min(100%, 328px)` keeps the floor from overflowing on
+                // narrow phones (<328 viewport): the column shrinks to fit
+                // when there's only 1 column anyway, and snaps back to the
+                // 328 floor as soon as the container can hold it.
+                gridTemplateColumns:
+                  'repeat(auto-fill, minmax(min(100%, 328px), 1fr))',
+                gap: isMobile ? 8 : 12,
                 width: '100%',
               }}
             >
               {filteredPlaybooks.map((pb, i) => (
                 <div
                   key={pb.id}
-                  style={{ animationDelay: `${i * 60}ms`, maxWidth: 340 }}
+                  style={{ animationDelay: `${i * 60}ms` }}
                   className="w-full animate-[fadeInUp_0.4s_ease-out_both]"
                 >
                   <PlaybookCard p={pb} staggerMs={(i % 10) * 1000} />

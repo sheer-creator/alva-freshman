@@ -7,23 +7,18 @@
  * we can't `fetch()` an SVG and inspect its body without CORS friction, so
  * we instead pre-load via `Image()` and walk a source list on error.
  *
- *   Primary  : jsDelivr `simple-icons@latest` (works for ALL slugs including
- *              the trademark-restricted brands — microsoft, amazon, oracle,
- *              adobe, salesforce — which simpleicons.org's curated CDN
- *              omits)
- *   Secondary: cdn.simpleicons.org (faster, brand-color baked in, but blocks
- *              ~5 brands)
- *   Final    : a Material Symbol per brand (e.g. NVDA → "memory", BTC →
- *              "currency_bitcoin") so the cover never renders empty
+ *   Primary  : jsDelivr `simple-icons@latest`
+ *   Secondary: cdn.simpleicons.org (black variant)
+ *   Final    : a Material Symbol per brand (BrandLogo only — BrandLogoMark
+ *              renders nothing on full failure to avoid the wrong icon
+ *              appearing inside a tag pill)
  *
  * Render technique: CSS `mask-image` over a brand-color `background-color`
- * div inside a `foreignObject`. This is the same pattern the Material Symbol
- * path uses — it lets us re-color the SVG on the fly (the CDN SVGs are
- * black) and keeps the rendering consistent across all 4 templates.
+ * div inside a `foreignObject`.
  */
 
-import { useEffect, useRef, useState } from "react";
-import { materialSymbolUrl } from "./icon-mapping";
+import { useEffect, useRef, useState } from 'react';
+import { materialSymbolUrl } from './icon-mapping';
 
 const JSDELIVR = (slug: string) =>
   `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${slug}.svg`;
@@ -54,39 +49,28 @@ export function BrandLogo({
 }: Props) {
   const sources = [JSDELIVR(slug), SIMPLEICONS_BLACK(slug)];
   const [attempt, setAttempt] = useState(0);
-
-  // Pre-load the current source via Image(); on error, advance to next source.
-  // Important: a 200 response with empty body (some CDNs do this for missing
-  // slugs) still triggers `naturalWidth === 0`, so we check after `onload` too.
-  // Stabilize sources reference so the effect doesn't re-fire every render.
   const sourcesRef = useRef(sources);
   sourcesRef.current = sources;
 
   useEffect(() => {
     const list = sourcesRef.current;
-    if (attempt >= list.length) return; // already on Material Symbol fallback
+    if (attempt >= list.length) return;
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    img.crossOrigin = 'anonymous';
     let cancelled = false;
     img.onload = () => {
       if (cancelled) return;
-      if (img.naturalWidth === 0) setAttempt((a) => a + 1); // empty SVG body
+      if (img.naturalWidth === 0) setAttempt(a => a + 1);
     };
-    img.onerror = () => {
-      if (!cancelled) setAttempt((a) => a + 1);
-    };
-    img.src = list[attempt];
+    img.onerror = () => { if (!cancelled) setAttempt(a => a + 1); };
+    img.src = list[attempt]!;
     return () => { cancelled = true; };
-  }, [attempt, slug]); // re-arm when ticker changes (slug → new sources)
+  }, [attempt, slug]);
 
   const inset = size * innerInset;
   const innerSize = size * (1 - innerInset * 2);
-  const colorCss = color.startsWith("#") ? color : `#${color}`;
-
-  // Final fallback: Material Symbol via CSS mask, brand color
-  const url = attempt < sources.length
-    ? sources[attempt]
-    : materialSymbolUrl(fallbackSymbol);
+  const colorCss = color.startsWith('#') ? color : `#${color}`;
+  const url = attempt < sources.length ? sources[attempt]! : materialSymbolUrl(fallbackSymbol);
 
   return (
     <foreignObject x={x + inset} y={y + inset} width={innerSize} height={innerSize}>
@@ -94,20 +78,14 @@ export function BrandLogo({
         // @ts-expect-error xmlns required for foreignObject children
         xmlns="http://www.w3.org/1999/xhtml"
         style={{
-          width: "100%",
-          height: "100%",
-          margin: 0,
-          boxSizing: "border-box",
+          width: '100%', height: '100%',
           backgroundColor: colorCss,
           opacity,
           WebkitMaskImage: `url(${url})`,
           maskImage: `url(${url})`,
-          WebkitMaskSize: "contain",
-          maskSize: "contain",
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          WebkitMaskPosition: "center",
-          maskPosition: "center",
+          WebkitMaskSize: 'contain', maskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center', maskPosition: 'center',
         }}
       />
     </foreignObject>
@@ -115,57 +93,55 @@ export function BrandLogo({
 }
 
 /**
- * Tag-pill variant — a very small (10×10) HTML rendering of the brand logo,
- * used inline in the metadata `TagPill` next to a ticker label. Returns a
- * `<span>` instead of `<foreignObject>` (HTML context, not SVG). Same
- * fallback chain, smaller geometry.
+ * Inline 10×10 brand mark for tag pills. Renders ONLY when a real brand
+ * logo loads from one of the simpleicons CDNs. If both sources fail, the
+ * tag shows only the ticker text (no Material Symbol fallback — that
+ * produced wrong "chip" icons on LMT / RTX / etc).
+ *
+ * `fallbackSymbol` is accepted for API compatibility with the BrandLogo
+ * cover-icon variant but is intentionally ignored here.
  */
 export function BrandLogoMark({
-  slug, color, fallbackSymbol, size = 10,
+  slug, color, size = 10,
 }: {
   slug: string;
   color: string;
-  fallbackSymbol: string;
+  fallbackSymbol?: string;
   size?: number;
 }) {
   const sources = [JSDELIVR(slug), SIMPLEICONS_BLACK(slug)];
   const [attempt, setAttempt] = useState(0);
+  const sourcesRef = useRef(sources);
+  sourcesRef.current = sources;
 
   useEffect(() => {
-    if (attempt >= sources.length) return;
+    const list = sourcesRef.current;
+    if (attempt >= list.length) return;
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    img.crossOrigin = 'anonymous';
     let cancelled = false;
-    img.onload = () => {
-      if (cancelled) return;
-      if (img.naturalWidth === 0) setAttempt((a) => a + 1);
-    };
-    img.onerror = () => { if (!cancelled) setAttempt((a) => a + 1); };
-    img.src = sources[attempt];
+    img.onload = () => { if (!cancelled && img.naturalWidth === 0) setAttempt(a => a + 1); };
+    img.onerror = () => { if (!cancelled) setAttempt(a => a + 1); };
+    img.src = list[attempt]!;
     return () => { cancelled = true; };
-  }, [attempt, sources]);
+  }, [attempt, slug]);
 
-  const colorCss = color.startsWith("#") ? color : `#${color}`;
-  const url = attempt < sources.length
-    ? sources[attempt]
-    : materialSymbolUrl(fallbackSymbol);
+  if (attempt >= sources.length) return null;
+
+  const colorCss = color.startsWith('#') ? color : `#${color}`;
+  const url = sources[attempt]!;
 
   return (
     <span
       style={{
-        display: "inline-block",
-        width: size,
-        height: size,
+        display: 'inline-block',
+        width: size, height: size,
         flexShrink: 0,
         backgroundColor: colorCss,
-        WebkitMaskImage: `url(${url})`,
-        maskImage: `url(${url})`,
-        WebkitMaskSize: "contain",
-        maskSize: "contain",
-        WebkitMaskRepeat: "no-repeat",
-        maskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-        maskPosition: "center",
+        WebkitMaskImage: `url(${url})`, maskImage: `url(${url})`,
+        WebkitMaskSize: 'contain', maskSize: 'contain',
+        WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+        WebkitMaskPosition: 'center', maskPosition: 'center',
       }}
     />
   );
