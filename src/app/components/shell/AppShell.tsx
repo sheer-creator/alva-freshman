@@ -40,7 +40,6 @@ import UserInfo from '../UserInfo';
 import { ChatProvider, useChatContext } from '../chat/ChatContext';
 import { ChatPanel } from '../chat/ChatPanel';
 import { FloatingChatFAB } from '../chat/FloatingChatFAB';
-import { CdnIcon } from '../shared/CdnIcon';
 
 interface AppShellProps {
   activePage?: Page;
@@ -54,30 +53,6 @@ interface AppShellProps {
 const DEFAULT_PANEL_W = 496;
 const MIN_PANEL_W = 380;
 const MAX_PANEL_W = 720;
-
-/**
- * Responsive shell breakpoints — mirror NewChat's 640px mobile threshold and
- * add a 1024px "compact" breakpoint where the sidebar collapses to icons.
- *   <640      : sidebar hidden entirely (mobile)
- *   640–1023  : sidebar collapsed (56px, icons only)
- *   ≥1024     : sidebar expanded (228px)
- */
-const SIDEBAR_W_FULL = 228;
-const SIDEBAR_W_COMPACT = 56;
-const BP_COMPACT = 1024;
-const BP_MOBILE = 640;
-
-function useShellLayout() {
-  const [w, setW] = useState<number>(() => (typeof window !== 'undefined' ? window.innerWidth : 1280));
-  useEffect(() => {
-    const h = () => setW(window.innerWidth);
-    window.addEventListener('resize', h);
-    return () => window.removeEventListener('resize', h);
-  }, []);
-  if (w < BP_MOBILE) return { sidebarMode: 'hidden' as const, sidebarW: 0 };
-  if (w < BP_COMPACT) return { sidebarMode: 'compact' as const, sidebarW: SIDEBAR_W_COMPACT };
-  return { sidebarMode: 'full' as const, sidebarW: SIDEBAR_W_FULL };
-}
 
 function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLeave, children }: AppShellProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -233,13 +208,6 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
     },
     [panelWidth],
   );
-
-  // On mobile (sidebar hidden) we surface a slide-in drawer reachable from
-  // the hamburger button in the mobile top bar. The drawer is always
-  // mounted (just translated off-screen) so the CSS transition fires in
-  // both directions without rAF priming gymnastics.
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const isMobile = sidebarMode === 'hidden';
 
   return (
     <div className="bg-[#2a2a38] flex h-screen overflow-hidden relative w-full">
