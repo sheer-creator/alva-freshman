@@ -31,7 +31,7 @@ import { CdnIcon } from "@/app/components/shared/CdnIcon";
 
 const CYCLE_MS = 5000;
 
-export function HeroCarousel({ playbooks }: { playbooks: ExplorePlaybook[] }) {
+export function HeroCarousel({ playbooks, isMobile = false }: { playbooks: ExplorePlaybook[]; isMobile?: boolean }) {
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -48,8 +48,15 @@ export function HeroCarousel({ playbooks }: { playbooks: ExplorePlaybook[] }) {
   }, []);
 
   // N = ⌊W ÷ 812⌋ per Figma 3297:18875 spec — but never more than the
-  // playbook list length.
-  const cardsPerRow = containerWidth >= 812 ? Math.min(playbooks.length, Math.floor(containerWidth / 812)) : 0;
+  // playbook list length. The original spec hid the hero entirely below 812
+  // (so a viewport that left ~800px of content would lose it); now we fall
+  // back to 1-up at any width ≥ 320 so the hero stays visible across the
+  // 640–812 transition zone (sidebar-compact territory).
+  const cardsPerRow = containerWidth <= 0
+    ? 0
+    : containerWidth < 812
+      ? 1
+      : Math.min(playbooks.length, Math.floor(containerWidth / 812));
 
   // Cap idx so the visible row is ALWAYS full — never partial-N with empty
   // slots. With L playbooks and N visible, valid idx range is [0, L-N], so
@@ -140,7 +147,7 @@ export function HeroCarousel({ playbooks }: { playbooks: ExplorePlaybook[] }) {
                     flex: `0 0 ${slotW}px`,
                   }}
                 >
-                  <HeroCarouselCard playbook={pb} />
+                  <HeroCarouselCard playbook={pb} isMobile={isMobile} />
                 </div>
               ))}
             </div>
@@ -184,7 +191,7 @@ export function HeroCarousel({ playbooks }: { playbooks: ExplorePlaybook[] }) {
 
 /* ---------- single hero card ---------- */
 
-function HeroCarouselCard({ playbook: p }: { playbook: ExplorePlaybook }) {
+function HeroCarouselCard({ playbook: p, isMobile = false }: { playbook: ExplorePlaybook; isMobile?: boolean }) {
   // Derive the card gradient from the playbook's cover bg using the same
   // logic as the cover itself (alpha-on-white for brand, hashed HSL otherwise).
   const cover = generateCover(p.cover);
@@ -214,26 +221,32 @@ function HeroCarouselCard({ playbook: p }: { playbook: ExplorePlaybook }) {
     <div
       style={{
         position: "relative",
-        height: 220,
+        height: isMobile ? "auto" : 220,
+        minHeight: isMobile ? 200 : undefined,
         borderRadius: 16,
         border: "1px solid rgba(0,0,0,0.07)",
-        background: `linear-gradient(to right, ${gradStops[0]} 0%, ${gradStops[1]} 55%, ${gradStops[2]} 100%)`,
+        background: isMobile
+          ? `linear-gradient(135deg, ${gradStops[0]} 0%, ${gradStops[1]} 60%, ${gradStops[2]} 100%)`
+          : `linear-gradient(to right, ${gradStops[0]} 0%, ${gradStops[1]} 55%, ${gradStops[2]} 100%)`,
         display: "flex",
-        alignItems: "center",
-        gap: 48,
-        paddingLeft: 40,
-        paddingRight: 24,
-        paddingTop: 24,
+        flexDirection: isMobile ? "column" : "row",
+        alignItems: isMobile ? "stretch" : "center",
+        gap: isMobile ? 16 : 48,
+        paddingLeft: isMobile ? 20 : 40,
+        paddingRight: isMobile ? 20 : 24,
+        paddingTop: isMobile ? 20 : 24,
+        paddingBottom: isMobile ? 20 : 0,
         overflow: "hidden",
         boxSizing: "border-box",
       }}
     >
-      {/* Left — text column */}
+      {/* Left — text column. Spacing widened (10→16) per visual review so
+          byline / headline / chips don't feel crammed. */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 10,
+          gap: 16,
           flex: 1,
           minWidth: 200,
           overflow: "hidden",
@@ -256,7 +269,7 @@ function HeroCarouselCard({ playbook: p }: { playbook: ExplorePlaybook }) {
         </div>
 
         {/* Headline */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <h3
             style={{
               fontFamily: "'Delight', sans-serif",
@@ -292,9 +305,15 @@ function HeroCarouselCard({ playbook: p }: { playbook: ExplorePlaybook }) {
           </p>
         </div>
 
-        {/* Chips + counters */}
+        {/* Chips + counters. Template chip carries the corresponding icon
+            (or KOL avatar) — mapping mirrors the new-chat skill chips. */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <Chip label={templateLabel(p.cover.template)} bg={chipBg} fg={chipFg} />
+          <TemplateChip
+            template={p.cover.template}
+            creator={p.creator}
+            bg={chipBg}
+            fg={chipFg}
+          />
           {p.tickers.slice(0, 1).map((t) => (
             <Chip key={t} label={t} bg={chipBg} fg={chipFg} />
           ))}
@@ -303,27 +322,34 @@ function HeroCarouselCard({ playbook: p }: { playbook: ExplorePlaybook }) {
         </div>
       </div>
 
-      {/* Right — cover preview. Both bottom corners are sharp (per design
-          intent); the parent card's `overflow: hidden` + 16px outer radius
-          shapes the bottom-right curve naturally via clipping mask. */}
-      <div
-        style={{
-          flex: 1,
-          maxWidth: 468,
-          minWidth: 240,
-          height: "100%",
-          background: "white",
-          border: "0.5px solid rgba(0,0,0,0.07)",
-          borderBottom: "none",
-          borderRadius: "14px 14px 0 0",
-          overflow: "hidden",
-          alignSelf: "flex-end",
-        }}
-      >
-        <div style={{ width: "100%", aspectRatio: "320 / 140" }}>
-          <PlaybookCover input={p.cover} />
+      {/* Right — cover preview. Hidden on mobile (text-only hero); on desktop
+          the panel sits flush at the bottom-right of the card. Top corners
+          (16) so the inner panel reads as concentric with the card; bottom
+          corners stay sharp because the panel sits flush on the card's
+          inner bottom edge (`overflow: hidden` on the parent clips the
+          bottom-right). A soft drop shadow + slightly stronger border
+          lift the panel off the gradient bg. */}
+      {!isMobile && (
+        <div
+          style={{
+            flex: 1,
+            maxWidth: 468,
+            minWidth: 240,
+            height: "100%",
+            background: "white",
+            borderRadius: "16px 16px 0 0",
+            overflow: "hidden",
+            alignSelf: "flex-end",
+            // Drop shadow + soft inset highlight do all the lift-off work; the
+            // border was redundant and visually noisy.
+            boxShadow: "0 -2px 0 rgba(255,255,255,0.6) inset, 0 8px 24px -8px rgba(0,0,0,0.18), 0 2px 6px -2px rgba(0,0,0,0.08)",
+          }}
+        >
+          <div style={{ width: "100%", aspectRatio: "320 / 140" }}>
+            <PlaybookCover input={p.cover} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -415,6 +441,61 @@ function templateLabel(t: ExplorePlaybook["cover"]["template"]): string {
   if (t === "thesis") return "Theme Tracker";
   if (t === "what-if") return "What If";
   return "Others";
+}
+
+/**
+ * Map cover template → CdnIcon name. Mirrors the new-chat skill-chip mapping
+ * (`new-chat-mock.ts` PRIMARY_TEMPLATES.icon).
+ *   screener → Smart Screener  → target-l2
+ *   thesis   → Theme Tracker   → buld-l
+ *   what-if  → What If         → remix-l
+ *   general  → Others          → researcher-l1 (generic)
+ */
+function templateIcon(t: ExplorePlaybook["cover"]["template"]): string {
+  if (t === "screener") return "target-l2";
+  if (t === "thesis")   return "buld-l";
+  if (t === "what-if")  return "remix-l";
+  return "researcher-l1";
+}
+
+function TemplateChip({
+  template, creator, bg, fg,
+}: {
+  template: ExplorePlaybook["cover"]["template"];
+  creator: string;
+  bg: string;
+  fg: string;
+}) {
+  // KOL-authored thesis cards lead with the creator's avatar (matches
+  // new-chat where `kol: true` templates show an Avatar instead of an icon).
+  // Other templates show the corresponding skill icon.
+  const isKol = template === "thesis" && /scope|jing|harry|yggyll/i.test(creator);
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "3px 9px 3px 5px",
+        borderRadius: 999,
+        background: bg,
+        color: fg,
+        fontFamily: "Inter, sans-serif",
+        fontWeight: 500,
+        fontSize: 11,
+        lineHeight: "14px",
+        letterSpacing: 0.05,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {isKol ? (
+        <Avatar name={creator} size={14} />
+      ) : (
+        <CdnIcon name={templateIcon(template)} size={12} color={fg} />
+      )}
+      {templateLabel(template)}
+    </span>
+  );
 }
 
 function fmtCount(n: number): string {

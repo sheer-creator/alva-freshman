@@ -58,12 +58,12 @@ export function PlaybookCard({
       onMouseLeave={() => setHovered(false)}
       className="cursor-pointer"
       style={{
-        borderRadius: noCover ? 'var(--radius-ct-l, 8px)' : 12,
+        borderRadius: 8,
         overflow: 'hidden',
         background: 'var(--b0-page, #fff)',
         border: selected
           ? '1px solid var(--line-l9, rgba(0,0,0,0.9))'
-          : '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
+          : '0.5px solid var(--line-l1, rgba(0,0,0,0.08))',
         padding: selected ? 0 : 0.5,
         display: 'flex',
         flexDirection: 'column',
@@ -78,7 +78,7 @@ export function PlaybookCard({
             margin: '4px 4px 0 4px',
             width: 'calc(100% - 8px)',
             aspectRatio: simple ? '472 / 265.5' : '320 / 140',
-            borderRadius: 8,
+            borderRadius: 4,
             overflow: 'hidden',
             background: simple
               ? 'linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%)'

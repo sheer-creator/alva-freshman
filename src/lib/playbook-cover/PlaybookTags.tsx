@@ -142,10 +142,10 @@ function TagPill({ tag }: { tag: Tag }) {
         flexShrink: 0,
       }}
     >
-      {brand && (
+      {brand && brand.logoSlug && (
         <BrandLogoMark
           slug={brand.logoSlug}
-          color={brand.color}
+          color={typeof brand.color === "string" ? brand.color : "#000"}
           fallbackSymbol={brand.fallbackSymbol}
           size={10}
         />
