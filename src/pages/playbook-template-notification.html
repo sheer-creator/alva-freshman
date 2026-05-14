@@ -54,13 +54,6 @@
     .playbook-container { padding: var(--spacing-m); }
   }
 
-  /* ── Topic meta row (single header bar) ── */
-  .topic-meta-row {
-    display:flex; flex-wrap:wrap; gap:var(--spacing-xs);
-    align-items:center; margin-bottom:var(--spacing-l);
-  }
-  .topic-meta-spacer { flex: 1 1 auto; min-width: 0; }
-
   /* README chip — secondary, tab-bar style */
   .readme-btn {
     display: inline-flex; align-items: center; gap: var(--spacing-xxs);
@@ -504,18 +497,6 @@
 </playbook-header>
 
 <div class="playbook-container">
-
-  <div class="topic-meta-row">
-    <button class="readme-btn" type="button" id="open-readme" aria-label="Open README">
-      <span class="readme-btn-icon" aria-hidden="true"></span>
-      <span class="readme-btn-label">README</span>
-    </button>
-    <span class="pill source">news</span>
-    <span class="pill source">social</span>
-    <span class="pill source">podcast</span>
-    <span class="topic-meta-spacer"></span>
-    <a class="subscribe-cta" href="https://alva.ai/settings" target="_blank" rel="noopener noreferrer">Follow on Telegram</a>
-  </div>
 
   <div id="timeline">
     <div class="loading">Loading timeline...</div>

@@ -404,11 +404,11 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     top: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%) translateY(-4px);
-    width: 300px;
-    background: #fff;
-    border-radius: 12px;
-    border: 0.5px solid rgba(0,0,0,0.1);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    width: 360px;
+    background: var(--b0-container, #fff);
+    border-radius: 8px;
+    border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2));
+    box-shadow: var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04));
     padding: 14px;
     z-index: 50;
     opacity: 0;
@@ -424,46 +424,45 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     transform: translateX(-50%) translateY(0);
 }
 .pb-bw-row { display: flex; align-items: flex-start; gap: 12px; }
-.pb-bw-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.pb-bw-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--spacing-xs);
+}
 .pb-bw-col-right { flex: 0 0 auto; align-items: flex-end; }
 .pb-bw-caps {
-    font-size: 11px;
-    line-height: 14px;
-    color: rgba(0,0,0,0.4);
-    letter-spacing: 0.11px;
-    font-weight: 500;
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--text-n5, rgba(0,0,0,0.5));
+    letter-spacing: 0.12px;
+    font-weight: 400;
     white-space: nowrap;
 }
-.pb-bw-creator { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.pb-bw-creator { display: flex; align-items: center; gap: var(--spacing-xs); min-width: 0; }
 .pb-bw-avatar {
     width: 22px; height: 22px;
     border-radius: 50%; object-fit: cover;
-    background: #f0f0f0; flex-shrink: 0; display: block;
+    background: var(--grey-g03, #f0f0f0); flex-shrink: 0; display: block;
 }
 .pb-bw-creator-name {
     font-size: 14px; line-height: 22px;
-    color: rgba(0,0,0,0.9);
+    color: var(--text-n9, rgba(0,0,0,0.9));
     letter-spacing: 0.14px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.pb-bw-socials { display: flex; align-items: center; gap: 6px; }
+.pb-bw-socials { display: flex; align-items: center; gap: 8px; }
 .pb-bw-social {
-    width: 22px; height: 22px;
-    border-radius: 9999px;
-    background: rgba(0,0,0,0.05);
     display: inline-flex;
     align-items: center; justify-content: center;
-    transition: background 120ms ease, transform 120ms ease;
+    cursor: pointer;
+    transition: opacity 120ms ease;
     flex-shrink: 0;
 }
-.pb-bw-social:hover { background: rgba(0,0,0,0.1); transform: translateY(-1px); }
+.pb-bw-social:hover { opacity: 0.7; }
 .pb-bw-social img,
-.pb-bw-social svg { display: block; width: 13px; height: 13px; }
-.pb-bw-divider { height: 1px; background: rgba(0,0,0,0.08); margin: 12px 0 11px; }
+.pb-bw-social svg { display: block; width: 16px; height: 16px; }
+.pb-bw-divider { height: 0.5px; background: var(--line-l07, rgba(0,0,0,0.07)); margin: 12px 0 11px; }
 .pb-bw-desc {
-    font-size: 13px; line-height: 20px;
-    color: rgba(0,0,0,0.7);
-    letter-spacing: 0.13px;
+    font-size: 12px; line-height: 20px;
+    color: var(--text-n7, rgba(0,0,0,0.7));
+    letter-spacing: 0.12px;
     margin: 0;
 }
 /* Status pill: dot + automations + • + freq */
