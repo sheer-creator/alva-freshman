@@ -235,7 +235,7 @@
     var CDN = 'https://alva-ai-static.b-cdn.net/icons';
     var socialIcons = {
       discord: '<img src="' + CDN + '/logo-social-discord.svg" alt="" />',
-      telegram: '<img src="' + CDN + '/logo-social-telegram.svg" alt="" />',
+      telegram: '<img src="/alva-infant/logo-social-telegram.svg" alt="" />',
       x: '<img src="' + CDN + '/logo-feed-x.svg" alt="" />',
       instagram: '<img src="' + CDN + '/logo-social-instagram.svg" alt="" />'
     };
@@ -246,22 +246,22 @@
     }).join('');
     var builtWithCard = (builtWithCreator || builtWithDesc)
       ? '<div class="pb-built-with-popover" data-built-with-popover role="tooltip" aria-hidden="true">' +
-          '<div class="pb-bw-row">' +
-            '<div class="pb-bw-col">' +
-              '<span class="pb-bw-caps">Created by</span>' +
-              '<div class="pb-bw-creator">' +
-                '<img class="pb-bw-avatar" src="' + esc(builtWithCreatorAvatar) + '" alt="" />' +
-                '<span class="pb-bw-creator-name">' + esc(builtWithCreator || builtWith) + '</span>' +
+          '<div class="pb-bw-header">' +
+            '<h2 class="pb-bw-title">' + esc(builtWith) + '</h2>' +
+            (builtWithUpdated ? '<span class="pb-bw-time">' + esc(builtWithUpdated) + '</span>' : '') +
+          '</div>' +
+          (builtWithDesc ? '<p class="pb-bw-desc">' + esc(builtWithDesc) + '</p>' : '') +
+          '<div class="pb-bw-divider"></div>' +
+          '<div class="pb-bw-creator-row">' +
+            '<div class="pb-bw-creator">' +
+              '<img class="pb-bw-creator-avatar" src="' + esc(builtWithCreatorAvatar) + '" alt="" />' +
+              '<div class="pb-bw-creator-text">' +
+                '<div class="pb-bw-caps">Created by</div>' +
+                '<div class="pb-bw-creator-name">' + esc(builtWithCreator || builtWith) + '</div>' +
               '</div>' +
             '</div>' +
-            (builtWithUpdated || builtWithSocialsHtml
-              ? '<div class="pb-bw-col pb-bw-col-right">' +
-                  (builtWithUpdated ? '<span class="pb-bw-caps">Last updated ' + esc(builtWithUpdated) + '</span>' : '') +
-                  (builtWithSocialsHtml ? '<div class="pb-bw-socials">' + builtWithSocialsHtml + '</div>' : '') +
-                '</div>'
-              : '') +
+            (builtWithSocialsHtml ? '<div class="pb-bw-socials">' + builtWithSocialsHtml + '</div>' : '') +
           '</div>' +
-          (builtWithDesc ? '<div class="pb-bw-divider"></div><p class="pb-bw-desc">' + esc(builtWithDesc) + '</p>' : '') +
         '</div>'
       : '';
     var builtWithBlock = builtWith

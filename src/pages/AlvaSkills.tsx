@@ -646,19 +646,6 @@ export default function AlvaSkills({ onNavigate, onOpenSearch }: AlvaSkillsProps
                 </svg>
                 <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[var(--text-n7)] group-hover:text-[var(--text-n9)] transition-colors">Get API Key</span>
               </button>
-              <span className="w-[1px] h-[12px] bg-[var(--b-r07)]" />
-              <button
-                onClick={() => onNavigate('skills')}
-                className="flex items-center gap-[5px] bg-transparent border-none cursor-pointer group p-0"
-              >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-[var(--text-n5)] group-hover:text-[var(--text-n7)] transition-colors">
-                  <rect x="1.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
-                  <rect x="9.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
-                  <rect x="1.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
-                  <rect x="9.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
-                </svg>
-                <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[var(--text-n5)] group-hover:text-[var(--text-n7)] transition-colors">Browse Skills</span>
-              </button>
             </div>
 
             {/* Feature 横条 */}

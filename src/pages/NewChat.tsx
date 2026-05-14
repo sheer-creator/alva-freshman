@@ -291,9 +291,9 @@ function SkillInfoCard({
         width: cardWidth,
         zIndex: 50,
         background: '#ffffff',
-        borderRadius: 14,
-        border: '0.5px solid var(--line-l07)',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)',
+        borderRadius: 8,
+        border: '0.5px solid var(--line-l2)',
+        boxShadow: 'var(--shadow-s)',
         padding: 20,
         pointerEvents: 'auto',
         animation: 'newchat-fadeup 160ms ease-out',
@@ -306,7 +306,7 @@ function SkillInfoCard({
             fontFamily: "'Delight', sans-serif",
             fontSize: 18,
             lineHeight: '24px',
-            fontWeight: 600,
+            fontWeight: 400,
             color: 'var(--text-n9)',
             letterSpacing: 0.18,
             margin: 0,
@@ -321,7 +321,7 @@ function SkillInfoCard({
             lineHeight: '16px',
             color: 'rgba(0,0,0,0.4)',
             letterSpacing: 0.11,
-            fontWeight: 500,
+            fontWeight: 400,
           }}
         >
           {relativeTimeForSkill(template.id)}
@@ -395,7 +395,7 @@ function SkillInfoCard({
                 lineHeight: '14px',
                 color: 'rgba(0,0,0,0.4)',
                 letterSpacing: 0.11,
-                fontWeight: 500,
+                fontWeight: 400,
               }}
             >
               Created by
@@ -408,7 +408,7 @@ function SkillInfoCard({
                 lineHeight: '20px',
                 color: 'var(--text-n9)',
                 letterSpacing: 0.14,
-                fontWeight: 500,
+                fontWeight: 400,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -419,7 +419,7 @@ function SkillInfoCard({
             </div>
           </div>
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           {socialsForCreator(template.creator).map((s) => (
             <a
               key={s.key}
@@ -935,17 +935,7 @@ function MoreSkillsDropdown({
               onMouseEnter={isMobileViewport ? undefined : (e) => onRowHover?.(skill.id, e.currentTarget.getBoundingClientRect())}
               onMouseLeave={isMobileViewport ? undefined : () => onRowLeave?.()}
             >
-              {skill.kol ? (
-                <Avatar name={skill.creator} size={32} />
-              ) : (
-                skill.icon ? (
-                  <span className="more-skill-icon-wrap">
-                    <CdnIcon name={skill.icon} size={20} color="var(--text-n7)" />
-                  </span>
-                ) : (
-                  <Avatar name={skill.creator} size={32} />
-                )
-              )}
+              <Avatar name={skill.creator} size={32} />
               <span className="more-skill-text">
                 <span className="more-skill-name">{skill.label}</span>
                 <span className="more-skill-author">{skill.creator}</span>
@@ -1684,9 +1674,9 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           right:0;
           width:320px;
           background:#fff;
-          border:0.5px solid var(--line-l07);
-          border-radius:12px;
-          box-shadow:0 12px 32px rgba(0,0,0,0.10),0 2px 6px rgba(0,0,0,0.04);
+          border:0.5px solid var(--line-l2);
+          border-radius:8px;
+          box-shadow:var(--shadow-s);
           z-index:20;
           animation:newchat-fadeup 160ms ease-out;
           overflow:hidden;
@@ -1814,7 +1804,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-family:'Delight',sans-serif;
           font-size:14px;
           line-height:20px;
-          font-weight:500;
+          font-weight:400;
           color:var(--text-n9);
           letter-spacing:0.14px;
           overflow:hidden;
