@@ -33,8 +33,9 @@
     if (!el || el === document.body || el === document.documentElement) return true;
     if (el.closest && el.closest('.alva-inspector-ui')) return true;
     if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || el.tagName === 'LINK' || el.tagName === 'META') return true;
-    /* only allow elements inside .playbook-container */
+    /* only allow elements inside .playbook-container, but not the container itself */
     if (!el.closest || !el.closest('.playbook-container')) return true;
+    if (el.classList && el.classList.contains('playbook-container')) return true;
     return false;
   }
 
