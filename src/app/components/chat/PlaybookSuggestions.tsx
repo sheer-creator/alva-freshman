@@ -83,7 +83,7 @@ function SuggestionRow({
         padding: '12px 14px',
         background: 'transparent',
         border: 'none',
-        borderBottom: isLast ? 'none' : '0.5px solid rgba(0,0,0,0.08)',
+        borderBottom: isLast ? 'none' : '0.5px solid var(--line-l07)',
         textAlign: 'left',
         cursor: 'pointer',
         width: '100%',
@@ -92,12 +92,12 @@ function SuggestionRow({
       onMouseEnter={(e) => {
         e.currentTarget.style.background = 'rgba(73,163,166,0.04)';
         const label = e.currentTarget.querySelector('span.nc-suggestion-label') as HTMLSpanElement | null;
-        if (label) label.style.color = '#49A3A6';
+        if (label) label.style.color = 'var(--main-m1)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = 'transparent';
         const label = e.currentTarget.querySelector('span.nc-suggestion-label') as HTMLSpanElement | null;
-        if (label) label.style.color = 'rgba(0,0,0,0.85)';
+        if (label) label.style.color = 'var(--text-n9)';
       }}
     >
       <CdnIcon name={icon} size={14} color="rgba(0,0,0,0.6)" />
@@ -108,14 +108,14 @@ function SuggestionRow({
           fontFamily: "'Delight', sans-serif",
           fontSize: 13,
           lineHeight: '20px',
-          color: 'rgba(0,0,0,0.85)',
+          color: 'var(--text-n9)',
           letterSpacing: 0.13,
           transition: 'color 0.15s',
         }}
       >
         {text}
       </span>
-      <CdnIcon name="enter-l" size={12} color="rgba(0,0,0,0.3)" />
+      <CdnIcon name="enter-l" size={12} color="var(--text-n3)" />
     </button>
   );
 }
@@ -162,7 +162,7 @@ export function PlaybookSuggestions({ page, onPromptClick }: { page: string; onP
             fontSize: 18,
             lineHeight: '26px',
             fontWeight: 500,
-            color: 'rgba(0,0,0,0.9)',
+            color: 'var(--text-n9)',
             letterSpacing: 0.18,
           }}
         >

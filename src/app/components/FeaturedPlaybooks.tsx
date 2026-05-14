@@ -16,7 +16,7 @@ function UserAvatar({ name, size = 22 }: { name: string; size?: number }) {
 function ViewAll() {
   return (
     <div className="content-stretch flex items-center justify-end relative shrink-0" data-name="View All">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px]">View All</p>
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[var(--text-n5)] tracking-[0.14px]">View All</p>
     </div>
   );
 }
@@ -24,7 +24,7 @@ function ViewAll() {
 function HomeSectionTitle() {
   return (
     <div className="content-stretch flex gap-[12px] items-center relative shrink-0 w-full" data-name="Home/Section Title">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-pre-wrap">Featured Playbooks</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[26px] min-h-px min-w-px not-italic relative text-[16px] text-[var(--text-n9)] tracking-[0.16px] whitespace-pre-wrap">Featured Playbooks</p>
       <ViewAll />
     </div>
   );
@@ -33,15 +33,15 @@ function HomeSectionTitle() {
 function TabItemActive() {
   return (
     <div className="bg-[rgba(73,163,166,0.2)] content-stretch flex flex-col items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] font-medium leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] text-center tracking-[0.14px]">Smart Screener</p>
+      <p className="font-['Delight',sans-serif] font-medium leading-[22px] not-italic relative shrink-0 text-[14px] text-[var(--text-n9)] text-center tracking-[0.14px]">Smart Screener</p>
     </div>
   );
 }
 
 function TabItem({ label }: { label: string }) {
   return (
-    <div className="bg-[rgba(0,0,0,0.03)] content-stretch flex items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
-      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.7)] tracking-[0.14px]">{label}</p>
+    <div className="bg-[var(--b-r03)] content-stretch flex items-center justify-center px-[16px] py-[6px] relative rounded-[4px] shrink-0" data-name="Tab Item">
+      <p className="font-['Delight',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-[var(--text-n7)] tracking-[0.14px]">{label}</p>
     </div>
   );
 }
@@ -63,7 +63,7 @@ function PlaybookCreatorInfo({ name }: { name: string }) {
   return (
     <div className="content-stretch flex gap-[6px] items-center relative shrink-0 w-full" data-name="Playbook/Creator Info">
       <UserAvatar name={name} size={22} />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">{name}</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">{name}</p>
     </div>
   );
 }
@@ -71,8 +71,8 @@ function PlaybookCreatorInfo({ name }: { name: string }) {
 function PlaybookMetric({ value }: { value: string }) {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col font-['Delight',sans-serif] items-start min-h-px min-w-px not-italic relative whitespace-pre-wrap" data-name="Left">
-      <p className="leading-[38px] relative shrink-0 text-[#49a3a6] text-[28px] tracking-[0.28px] w-full">{value}</p>
-      <p className="leading-[20px] relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">Annualized Return</p>
+      <p className="leading-[38px] relative shrink-0 text-[var(--main-m1)] text-[28px] tracking-[0.28px] w-full">{value}</p>
+      <p className="leading-[20px] relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px] w-full">Annualized Return</p>
     </div>
   );
 }
@@ -98,11 +98,11 @@ function PlaybookCard({
           <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full" data-name="Frame">
             <div className="content-stretch flex gap-[6px] items-center justify-center relative shrink-0 w-full" data-name="Name">
               {icon}
-              <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">
+              <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[28px] min-h-px min-w-px not-italic overflow-hidden relative text-[18px] text-[var(--text-n9)] text-ellipsis tracking-[0.18px] whitespace-nowrap">
                 {title}
               </p>
             </div>
-            <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[rgba(0,0,0,0.7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">
+            <p className="font-['Delight',sans-serif] h-[44px] leading-[22px] not-italic overflow-hidden relative shrink-0 text-[13px] text-[var(--text-n7)] text-ellipsis tracking-[0.13px] w-full whitespace-pre-wrap">
               {description}
             </p>
           </div>
@@ -111,7 +111,7 @@ function PlaybookCard({
           </div>
         </div>
       </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
+      <div aria-hidden="true" className="absolute border border-[var(--line-l12)] border-solid inset-0 pointer-events-none rounded-[6px]" />
     </div>
   );
 }

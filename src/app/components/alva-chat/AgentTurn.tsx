@@ -43,7 +43,7 @@ function InlineResult({ summary, action, object, detail }: { summary: string; ac
       </div>
       {/* 展开：树线 + action 加粗 + 对象 pill + detail */}
       <Collapse open={expanded}>
-        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid rgba(0,0,0,0.08)' }}>
+        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid var(--line-l07)' }}>
           <div style={{ padding: '6px 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
               <span style={{
@@ -55,7 +55,7 @@ function InlineResult({ summary, action, object, detail }: { summary: string; ac
               <span style={{
                 display: 'inline-flex', alignItems: 'center',
                 padding: '2px 8px', borderRadius: 4,
-                background: 'rgba(0,0,0,0.06)',
+                background: 'var(--b-r07)',
                 fontSize: 11, fontFamily: "'Delight', sans-serif", color: 'var(--text-n7, rgba(0,0,0,0.7))',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 maxWidth: '70%',
@@ -65,7 +65,7 @@ function InlineResult({ summary, action, object, detail }: { summary: string; ac
             </div>
             <div style={{
               fontSize: 11, lineHeight: '17px',
-              color: 'rgba(0,0,0,0.4)', whiteSpace: 'pre-wrap',
+              color: 'var(--text-n4)', whiteSpace: 'pre-wrap',
               fontFamily: "'Delight', sans-serif",
             }}>
               {detail}
@@ -96,7 +96,7 @@ function FinishedIndicator({ durationSec, tokenCount }: { durationSec: number; t
         Finished
       </span>
       <span style={{
-        fontSize: 11, color: 'rgba(0,0,0,0.25)',
+        fontSize: 11, color: 'var(--text-n3)',
         fontFamily: "'JetBrains Mono', monospace",
       }}>
         {durationSec.toFixed(1)}s &middot; {tokenCount.toLocaleString()} tokens
@@ -188,7 +188,7 @@ function ToolCallGroup({ tools, activeToolId }: { tools: ToolCallData[]; activeT
 
       {/* Child tools with tree line */}
       <Collapse open={expanded}>
-        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid rgba(0,0,0,0.08)' }}>
+        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid var(--line-l07)' }}>
           {visible.map(t => (
             <ToolCallBlock key={t.id} data={t} isActive={t.id === activeToolId} nested />
           ))}

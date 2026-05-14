@@ -322,7 +322,7 @@ export function AlertsPopover({ open, onClose, onTelegram, onDiscord, onManage, 
         background: '#fff',
         border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
         borderRadius: 'var(--radius-pop-popover,8px)',
-        boxShadow: '0 6px 20px rgba(0,0,0,0.04)',
+        boxShadow: 'var(--shadow-s)',
         opacity: open ? 1 : 0,
         visibility: open ? 'visible' : 'hidden',
         transform: open

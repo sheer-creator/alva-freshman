@@ -1122,7 +1122,7 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
     <div className="w-full flex flex-col gap-[0px]">
     <div
       className="relative rounded-[12px] overflow-hidden cursor-pointer group/hero"
-      style={{ height: 340, border: '0.5px solid rgba(0,0,0,0.3)' }}
+      style={{ height: 340, border: '0.5px solid var(--line-l3)' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -1151,7 +1151,7 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
       <div className="relative z-[1] flex items-stretch h-full">
         <div className="flex-[4] min-w-0 flex flex-col justify-center pl-[40px] pr-[20px] py-[32px]" style={{ fontFamily: "'Delight', sans-serif" }}>
           <div className="flex items-center gap-[8px] mb-[14px]">
-            <span className="text-[11px] px-[8px] py-[3px] rounded-full font-medium" style={{ background: 'rgba(73,163,166,0.15)', color: '#49a3a6', border: '1px solid rgba(73,163,166,0.2)' }}>Featured</span>
+            <span className="text-[11px] px-[8px] py-[3px] rounded-full font-medium" style={{ background: 'rgba(73,163,166,0.15)', color: 'var(--main-m1)', border: '1px solid rgba(73,163,166,0.2)' }}>Featured</span>
             <span className="text-[11px] tracking-[0.05em]" style={{ color: 'rgba(255,255,255,0.3)' }}>Playbook of the Week</span>
           </div>
 
@@ -1163,7 +1163,7 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
             <HeroAvatar name={slide.creator} size={20} />
             <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{slide.creator}</span>
             <PulseIndicator status={slide.pulse} />
-            <span className="ml-[4px] text-[12px] px-[8px] py-[2px] rounded-[4px] font-medium" style={{ background: 'rgba(73,163,166,0.12)', color: '#49a3a6' }}>{slide.annualizedReturn}</span>
+            <span className="ml-[4px] text-[12px] px-[8px] py-[2px] rounded-[4px] font-medium" style={{ background: 'rgba(73,163,166,0.12)', color: 'var(--main-m1)' }}>{slide.annualizedReturn}</span>
           </div>
 
           <p className="text-[13px] leading-[21px] tracking-[0.01em] mt-[12px] overflow-hidden" style={{ color: 'rgba(255,255,255,0.4)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
@@ -1234,7 +1234,7 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
               width: i === idx ? 16 : 4,
               height: 4,
               borderRadius: 2,
-              background: i === idx ? 'rgba(73,163,166,0.5)' : 'rgba(0,0,0,0.10)',
+              background: i === idx ? 'rgba(73,163,166,0.5)' : 'var(--b-r1)',
             }}
           />
         ))}
@@ -1350,7 +1350,7 @@ function TrendingsHeader({
             <span
               className="text-[18px] leading-[28px] tracking-[0.18px] whitespace-nowrap"
               style={{
-                color: isActive ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)',
+                color: isActive ? 'var(--text-n9)' : 'var(--text-n7)',
                 fontFamily: "'Delight', sans-serif",
                 fontWeight: isActive ? 500 : 400,
               }}
@@ -1370,7 +1370,7 @@ function TrendingsHeader({
   const filterPill = (
     <div
       className="flex gap-0 items-center p-[2px] rounded-[6px] shrink-0"
-      style={{ background: 'rgba(0,0,0,0.05)' }}
+      style={{ background: 'var(--b-r05)' }}
     >
       {CATEGORIES.map((cat) => {
         const isActive = cat === active;
@@ -1384,7 +1384,7 @@ function TrendingsHeader({
             <span
               className="text-[12px] leading-[20px] tracking-[0.12px]"
               style={{
-                color: isActive ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)',
+                color: isActive ? 'var(--text-n9)' : 'var(--text-n7)',
                 fontFamily: "'Delight', sans-serif",
                 fontWeight: isActive ? 500 : 400,
               }}
@@ -1408,7 +1408,7 @@ function TrendingsHeader({
             marginRight: -16,
             paddingLeft: 16,
             paddingRight: 16,
-            borderBottom: '1px solid rgba(0,0,0,0.07)',
+            borderBottom: '1px solid var(--line-l07)',
           }}
         >
           {titleTabs}
@@ -1421,7 +1421,7 @@ function TrendingsHeader({
   return (
     <div
       className="relative flex items-end gap-[16px] h-[52px]"
-      style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+      style={{ borderBottom: '1px solid var(--line-l07)' }}
     >
       {titleTabs}
       <div style={{ marginBottom: 10 }}>{filterPill}</div>
@@ -1521,7 +1521,7 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
         >
           <div className="w-full flex flex-col" style={{ gap: isMobile ? 16 : 24 }}>
             <h2
-              className="tracking-[0.28px] text-[rgba(0,0,0,0.9)]"
+              className="tracking-[0.28px] text-[var(--text-n9)]"
               style={{
                 fontFamily: "'Delight', sans-serif",
                 fontWeight: 400,

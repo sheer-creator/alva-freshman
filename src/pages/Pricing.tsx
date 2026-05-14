@@ -110,14 +110,14 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
             }}
           >
             <div
-              className="w-[12px] h-[12px] transition-colors bg-[rgba(0,0,0,0.5)] group-hover:bg-[rgba(0,0,0,0.9)]"
+              className="w-[12px] h-[12px] transition-colors bg-[var(--text-n5)] group-hover:bg-[var(--text-n9)]"
               style={{
                 WebkitMask:
                   'url(https://alva-ai-static.b-cdn.net/icons/arrow-left-l2.svg) center / contain no-repeat',
                 mask: 'url(https://alva-ai-static.b-cdn.net/icons/arrow-left-l2.svg) center / contain no-repeat',
               }}
             />
-            <span className="text-[12px] leading-[20px] tracking-[0.12px] font-normal transition-colors text-[rgba(0,0,0,0.5)] group-hover:text-[rgba(0,0,0,0.9)]">
+            <span className="text-[12px] leading-[20px] tracking-[0.12px] font-normal transition-colors text-[var(--text-n5)] group-hover:text-[var(--text-n9)]">
               Back
             </span>
           </div>
@@ -169,7 +169,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
                 style={{
                   color: 'var(--text-n7)',
                   background: 'transparent',
-                  border: '0.5px solid rgba(0,0,0,0.2)',
+                  border: '0.5px solid var(--line-l2)',
                   fontFamily: "'Delight', sans-serif",
                 }}
                 onClick={() => onNavigate('new-chat')}
@@ -296,7 +296,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
                     <CheckIcon />
                     <strong className="font-medium">{f.bold}</strong>
                     {f.tag && (
-                      <span className="ml-[6px] text-[10px] leading-[14px] px-[4px] py-[1px] rounded-[3px] font-medium align-middle" style={{ color: '#E6A91A', background: 'rgba(230,169,26,0.12)' }}>
+                      <span className="ml-[6px] text-[10px] leading-[14px] px-[4px] py-[1px] rounded-[3px] font-medium align-middle" style={{ color: 'var(--main-m5)', background: 'rgba(230,169,26,0.12)' }}>
                         {f.tag}
                       </span>
                     )}

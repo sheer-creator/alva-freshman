@@ -14,9 +14,9 @@ export function PlanCard({ data }: PlanCardProps) {
   return (
     <div style={{
       margin: '8px 0', borderRadius: 10, overflow: 'hidden',
-      border: '1px solid rgba(0,0,0,0.06)',
+      border: '1px solid var(--line-l07)',
       borderLeft: '3px solid var(--main-m1)',
-      background: '#fff',
+      background: 'var(--b0-container)',
     }}>
       <div style={{ padding: '16px 20px' }}>
         {/* Header */}

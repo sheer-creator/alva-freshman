@@ -5,13 +5,6 @@ import { Tooltip } from './Tooltip';
 import type { ContextTagData } from '@/lib/chat-config';
 import { useChatContext } from '../chat/ChatContext';
 
-const CDN = 'https://alva-ai-static.b-cdn.net/icons';
-
-function buildTagHTML(tag: ContextTagData): string {
-  const iconUrl = `${CDN}/${tag.icon || 'sidebar-discover-normal'}.svg`;
-  return `<span data-context-tag="" contenteditable="false" style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:2px 6px 2px 3px;max-width:216px;border-radius:2px;background:rgba(73,163,166,0.05);vertical-align:middle;margin-right:6px;user-select:none;cursor:default"><span style="display:flex;align-items:center;justify-content:center;flex-shrink:0;width:18px;height:18px;border-radius:2px;background:#49A3A6"><span style="display:block;width:14px;height:14px;background-color:#fff;-webkit-mask-image:url(${iconUrl});-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;mask-image:url(${iconUrl});mask-size:contain;mask-repeat:no-repeat;mask-position:center"></span></span><span style="font-family:'Delight',sans-serif;font-size:12px;line-height:20px;letter-spacing:0.12px;color:#49A3A6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@${tag.label}</span></span>`;
-}
-
 export interface BottomChipData {
   label: string;
   icon?: string;
@@ -41,12 +34,12 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
   const [quoteHover, setQuoteHover] = useState(false);
   const [popoverBottom, setPopoverBottom] = useState(0);
   const [chipPulse, setChipPulse] = useState(false);
+  const [tagDismissed, setTagDismissed] = useState(false);
   const prevQuoteCount = useRef(0);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const initializedRef = useRef(false);
 
   useEffect(() => {
     if (elementQuotes.length > prevQuoteCount.current) {
@@ -80,10 +73,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
 
   const getTextContent = useCallback(() => {
     if (!editorRef.current) return '';
-    const clone = editorRef.current.cloneNode(true) as HTMLElement;
-    const tags = clone.querySelectorAll('[data-context-tag]');
-    tags.forEach(t => t.remove());
-    return clone.textContent?.replace(/\u200B/g, '').trim() || '';
+    return editorRef.current.textContent?.replace(/\u200B/g, '').trim() || '';
   }, []);
 
   const handleInput = useCallback(() => {
@@ -104,19 +94,12 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     sel.addRange(range);
   }, []);
 
-  // Insert tag as HTML on mount / contextTag change
+  // Reset dismissal & clear editor when contextTag changes
   useEffect(() => {
     const el = editorRef.current;
-    if (!el) return;
-    initializedRef.current = false;
-
-    if (contextTag) {
-      el.innerHTML = buildTagHTML(contextTag) + '\u200B';
-    } else {
-      el.innerHTML = '';
-    }
-    initializedRef.current = true;
+    if (el) el.textContent = '';
     setHasText(false);
+    setTagDismissed(false);
   }, [contextTag]);
 
   // Inject text programmatically (e.g. from a clicked Suggested Prompt)
@@ -124,11 +107,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     if (!injectText) return;
     const el = editorRef.current;
     if (!el) return;
-    const escaped = injectText.text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    el.innerHTML = (contextTag ? buildTagHTML(contextTag) : '') + escaped + '\u200B';
+    el.textContent = injectText.text;
     setHasText(injectText.text.trim().length > 0);
     onInputChange?.(injectText.text);
     el.focus();
@@ -145,45 +124,27 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     if (text && onSend) {
       onSend(text);
       const el = editorRef.current;
-      if (el && contextTag) {
-        el.innerHTML = buildTagHTML(contextTag) + '\u200B';
-      } else if (el) {
-        el.innerHTML = '';
-      }
+      if (el) el.textContent = '';
       setHasText(false);
       onInputChange?.('');
     }
-  }, [getTextContent, onSend, contextTag, onInputChange]);
+  }, [getTextContent, onSend, onInputChange]);
 
-  // Prevent deleting the tag with backspace when cursor is right after it
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendClick();
-      return;
-    }
-    if (e.key === 'Backspace') {
-      const el = editorRef.current;
-      if (!el) return;
-      const sel = window.getSelection();
-      if (!sel || !sel.rangeCount) return;
-      const range = sel.getRangeAt(0);
-      if (range.collapsed && range.startOffset === 0) {
-        const prev = range.startContainer.previousSibling || range.startContainer.parentElement?.previousSibling;
-        if (prev && (prev as Element).hasAttribute?.('data-context-tag')) {
-          e.preventDefault();
-        }
-      }
     }
   }, [handleSendClick]);
 
-  const showPlaceholder = !hasText && !contextTag;
+  const showContextTag = !!contextTag && !tagDismissed;
+  const showPlaceholder = !hasText;
 
   return (
     <div
       ref={wrapperRef}
       className="relative w-full shrink-0 flex flex-col gap-[12px] p-[16px] chat-input-wrapper"
-      style={{ background: 'white', border: '0.5px solid rgba(0,0,0,0.2)', borderRadius: 12, boxShadow: shadow ? 'var(--shadow-s)' : undefined }}
+      style={{ background: 'var(--b0-container, #fff)', border: '0.5px solid var(--line-l2)', borderRadius: 'var(--radius-ct-m)', boxShadow: shadow ? 'var(--shadow-s)' : undefined }}
     >
       {/* ── Annotation hover popover ── */}
       {quoteHover && elementQuotes.length > 0 && (
@@ -195,8 +156,8 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             right: 0,
             maxHeight: 320,
             overflowY: 'auto',
-            background: '#fff',
-            border: '0.5px solid rgba(0,0,0,0.3)',
+            background: 'var(--b0-container, #fff)',
+            border: '0.5px solid var(--line-l3)',
             boxShadow: 'var(--shadow-xs)',
           }}
           onMouseEnter={keepHover}
@@ -206,25 +167,25 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             const content = q.originalText || q.selector;
             return (
               <div key={i}>
-                {i > 0 && <div style={{ height: 0, borderTop: '0.5px solid rgba(0,0,0,0.08)', margin: '0 16px' }} />}
+                {i > 0 && <div style={{ height: 0, borderTop: '1px solid var(--line-l07)' }} />}
                 <div className="flex items-start gap-[10px] p-[16px]">
                   <span
                     className="flex items-center justify-center shrink-0 rounded-full size-[20px] font-['Delight',sans-serif] text-[11px] font-semibold leading-[20px]"
-                    style={{ background: '#49A3A6', border: '0.5px solid rgba(0,0,0,0.2)', color: '#fff' }}
+                    style={{ background: 'var(--main-m1)', border: '0.5px solid var(--line-l2)', color: '#fff' }}
                   >
                     {q.index}
                   </span>
                   <div className="flex flex-col gap-[2px] min-w-0 flex-1">
                     <span
                       className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]"
-                      style={{ color: 'rgba(0,0,0,0.4)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                      style={{ color: 'var(--text-n5)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
                     >
                       {content}
                     </span>
                     {q.newText && (
                       <span
                         className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
-                        style={{ color: 'rgba(0,0,0,0.85)' }}
+                        style={{ color: 'var(--text-n9)' }}
                       >
                         {q.originalText ? `${q.originalText} → ${q.newText}` : q.newText}
                       </span>
@@ -232,7 +193,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
                     {q.instruction && (
                       <span
                         className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
-                        style={{ color: 'rgba(0,0,0,0.85)' }}
+                        style={{ color: 'var(--text-n9)' }}
                       >
                         {q.instruction}
                       </span>
@@ -240,7 +201,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
                     {!q.newText && !q.instruction && (
                       <span
                         className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
-                        style={{ color: 'rgba(0,0,0,0.85)' }}
+                        style={{ color: 'var(--text-n9)' }}
                       >
                         Edit element
                       </span>
@@ -252,7 +213,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
                     className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity mt-[2px]"
                     onClick={() => removeElementQuote(q.index)}
                   >
-                    <CdnIcon name="close-l1" size={14} color="rgba(0,0,0,0.85)" />
+                    <CdnIcon name="close-l1" size={14} color="var(--text-n9)" />
                   </button>
                 </div>
               </div>
@@ -260,40 +221,69 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
           })}
         </div>
       )}
-      {elementQuotes.length > 0 && (
+      {(showContextTag || elementQuotes.length > 0) && (
         <div className="flex flex-wrap gap-[8px] items-start w-full">
-          <div
-            ref={chipRef}
-            className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0 cursor-pointer"
-            style={{
-              border: '0.5px solid rgba(0,0,0,0.2)',
-              transition: 'box-shadow 0.3s, transform 0.3s',
-              ...(chipPulse ? { boxShadow: '0 0 0 3px rgba(73,163,166,0.25)', transform: 'scale(1.04)' } : {}),
-            }}
-            onMouseEnter={handleChipEnter}
-            onMouseLeave={scheduleHide}
-          >
-            <span
-              className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
-              style={{ background: '#49A3A6' }}
+          {showContextTag && (
+            <div
+              className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
+              style={{ border: '0.5px solid var(--line-l2)' }}
             >
-              <CdnIcon name="pointer-l" size={16} color="#fff" />
-            </span>
-            <span
-              className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
-              style={{ color: 'var(--text-n9)' }}
+              <span
+                className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
+                style={{ background: 'var(--main-m1)' }}
+              >
+                <CdnIcon name={contextTag!.icon || 'sidebar-discover-normal'} size={16} color="#fff" />
+              </span>
+              <span
+                className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
+                style={{ color: 'var(--text-n9)', maxWidth: 184 }}
+              >
+                {contextTag!.label}
+              </span>
+              <button
+                type="button"
+                aria-label="Remove context tag"
+                className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={(e) => { e.stopPropagation(); setTagDismissed(true); }}
+              >
+                <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
+              </button>
+            </div>
+          )}
+          {elementQuotes.length > 0 && (
+            <div
+              ref={chipRef}
+              className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0 cursor-pointer"
+              style={{
+                border: '0.5px solid var(--line-l2)',
+                transition: 'box-shadow 0.3s, transform 0.3s',
+                ...(chipPulse ? { boxShadow: '0 0 0 3px rgba(73,163,166,0.25)', transform: 'scale(1.04)' } : {}),
+              }}
+              onMouseEnter={handleChipEnter}
+              onMouseLeave={scheduleHide}
             >
-              {elementQuotes.length} annotation
-            </span>
-            <button
-              type="button"
-              aria-label="Remove annotations"
-              className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-              onClick={(e) => { e.stopPropagation(); clearElementQuotes(); }}
-            >
-              <CdnIcon name="close-l1" size={12} color="rgba(0,0,0,0.5)" />
-            </button>
-          </div>
+              <span
+                className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
+                style={{ background: 'var(--main-m1)' }}
+              >
+                <CdnIcon name="pointer-l" size={16} color="#fff" />
+              </span>
+              <span
+                className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+                style={{ color: 'var(--text-n9)' }}
+              >
+                {elementQuotes.length} annotation
+              </span>
+              <button
+                type="button"
+                aria-label="Remove annotations"
+                className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={(e) => { e.stopPropagation(); clearElementQuotes(); }}
+              >
+                <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
+              </button>
+            </div>
+          )}
         </div>
       )}
       <div className="relative min-h-[44px]" style={{ maxHeight: 240, overflowY: 'auto' }}>
@@ -329,23 +319,23 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             <CdnIcon
               name={inspectorActive ? 'pointer-f' : 'pointer-l'}
               size={16}
-              color={inspectorActive ? '#49A3A6' : undefined}
+              color={inspectorActive ? 'var(--main-m1)' : undefined}
             />
           </button>
         </Tooltip>
         {bottomChip && (
           <div
             className="flex min-w-0 flex-1 items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
-            style={{ background: 'rgba(0,0,0,0.05)', maxWidth: 'fit-content' }}
+            style={{ background: 'var(--b-r05)', maxWidth: 'fit-content' }}
           >
             {bottomChip.avatar ? (
               <Avatar name={bottomChip.avatar} size={16} />
             ) : (
-              bottomChip.icon && <CdnIcon name={bottomChip.icon} size={14} color="rgba(0,0,0,0.9)" />
+              bottomChip.icon && <CdnIcon name={bottomChip.icon} size={14} color="var(--text-n9)" />
             )}
             <span
               className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
-              style={{ color: 'rgba(0,0,0,0.9)', minWidth: 0 }}
+              style={{ color: 'var(--text-n9)', minWidth: 0 }}
             >
               {bottomChip.label}
             </span>
@@ -354,7 +344,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
               onClick={(e) => { e.stopPropagation(); bottomChip.onRemove?.(); }}
               aria-label="Remove chip"
             >
-              <CdnIcon name="close-l1" size={12} color="rgba(0,0,0,0.6)" />
+              <CdnIcon name="close-l1" size={12} color="var(--text-n7)" />
             </button>
           </div>
         )}
@@ -362,19 +352,19 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
           <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap">
             Sonnet 4.6
           </span>
-          <CdnIcon name="arrow-down-f2" size={12} color="rgba(0,0,0,0.2)" />
+          <CdnIcon name="arrow-down-f2" size={12} color="var(--text-n2)" />
         </div>
         <button
           className="flex items-center justify-center shrink-0 size-[28px] rounded-[6px] cursor-pointer transition-colors"
           style={{
-            background: hasText ? '#49A3A6' : 'rgba(0,0,0,0.05)',
+            background: hasText ? 'var(--main-m1)' : 'var(--b-r05)',
           }}
           onClick={handleSendClick}
         >
           <CdnIcon
             name="arrow-up-l1"
             size={14}
-            color={hasText ? '#ffffff' : 'rgba(0,0,0,0.3)'}
+            color={hasText ? '#ffffff' : 'var(--text-n3)'}
           />
         </button>
       </div>

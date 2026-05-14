@@ -119,7 +119,7 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
         {/* Topbar */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 12,
-          padding: '14px 24px', borderBottom: '1px solid rgba(0,0,0,0.06)',
+          padding: '14px 24px', borderBottom: '1px solid var(--line-l07)',
           flexShrink: 0,
         }}>
           <span style={{

@@ -54,7 +54,7 @@ export function AgentStepGroup({ data }: AgentStepGroupProps) {
 
       {/* 展开：树线 + 嵌套 blocks */}
       <Collapse open={expanded}>
-        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid rgba(0,0,0,0.08)' }}>
+        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid var(--line-l07)' }}>
           {data.blocks.map((block, idx) => renderNestedBlock(block, idx))}
         </div>
       </Collapse>

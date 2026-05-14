@@ -111,22 +111,22 @@ function FeedRow({ feed, onClick }: { feed: PlaybookInfoFeed; onClick?: () => vo
     >
       <div
         className="flex gap-[8px] items-center py-[10px] w-full"
-        style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+        style={{ borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
       >
       <div className="flex flex-1 min-w-0 gap-[4px] items-center">
         <StatusDot size={12} />
-        <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+        <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px]">
           {feed.name}
         </p>
       </div>
-      <p className="w-[100px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+      <p className="w-[100px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px]">
         {feed.interval}
       </p>
-      <p className="w-[120px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+      <p className="w-[120px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px]">
         {feed.lastRun}
       </p>
       <div className="size-[12px] shrink-0 flex items-center justify-center">
-        <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />
+        <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
       </div>
       </div>
     </div>
@@ -151,33 +151,33 @@ export function PlaybookInfoPopup({
       <div
         className="flex flex-col gap-[20px] items-start p-[20px] rounded-[8px] w-full"
         style={{
-          background: '#fff',
-          border: '0.5px solid rgba(0,0,0,0.2)',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.04)',
+          background: 'var(--b0-container, #fff)',
+          border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+          boxShadow: 'var(--shadow-s, 0 6px 20px rgba(0,0,0,0.04))',
         }}
       >
         {/* Header */}
         <div className="flex flex-col gap-[4px] items-start w-full">
           <div className="flex gap-[4px] items-center w-full">
-            <p className="font-['Delight',sans-serif] leading-[26px] text-[16px] text-[rgba(0,0,0,0.9)] tracking-[0.16px] whitespace-nowrap">
+            <p className="font-['Delight',sans-serif] leading-[26px] text-[16px] text-[var(--text-n9)] tracking-[0.16px] whitespace-nowrap">
               {title}
             </p>
             <div
               className="flex items-center justify-center gap-[2px] px-[6px] py-px rounded-full shrink-0"
-              style={{ border: '1px solid rgba(0,0,0,0.07)' }}
+              style={{ border: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
             >
               <StatusDot size={12} />
-              <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
+              <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px] whitespace-nowrap">
                 {intervalLabel}
               </p>
             </div>
           </div>
-          <div className="flex gap-[8px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full whitespace-nowrap">
+          <div className="flex gap-[8px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px] w-full whitespace-nowrap">
             <p>{runEvery}</p>
             <p style={{ color: 'var(--text-n2)' }}>|</p>
             <p>{feeds.length} Feeds</p>
           </div>
-          <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.7)] tracking-[0.12px] w-full">
+          <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n7)] tracking-[0.12px] w-full">
             {description}
           </p>
         </div>
@@ -189,15 +189,15 @@ export function PlaybookInfoPopup({
           <div className="px-[20px]">
             <div
               className="flex gap-[8px] items-center py-[10px] w-full"
-              style={{ borderTop: '1px solid rgba(0,0,0,0.07)', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+              style={{ borderTop: '1px solid var(--line-l07, rgba(0,0,0,0.07))', borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
             >
-              <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+              <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
                 Feed
               </p>
-              <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+              <p className="w-[100px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
                 Interval
               </p>
-              <p className="w-[120px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+              <p className="w-[120px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
                 Last Run
               </p>
               <div className="size-[12px] opacity-0 shrink-0" />
@@ -227,13 +227,13 @@ export function PlaybookInfoPopup({
             >
               <div
                 className="flex gap-[8px] items-center py-[10px] w-full"
-                style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+                style={{ borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
               >
-                <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
                   View all feeds in Settings
                 </p>
                 <div className="size-[12px] shrink-0 flex items-center justify-center">
-                  <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />
+                  <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
                 </div>
               </div>
             </div>
@@ -246,7 +246,7 @@ export function PlaybookInfoPopup({
             <div className="shrink-0 size-[22px]">
               <Avatar name={authorName} size={22} />
             </div>
-            <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+            <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px]">
               {authorName}
             </p>
           </div>

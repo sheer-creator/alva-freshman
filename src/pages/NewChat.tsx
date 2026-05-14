@@ -34,21 +34,21 @@ interface SkillColor {
 }
 const SKILL_COLOR_MAP: Record<string, SkillColor> = {
   // m1 teal
-  'theme-tracker': { bg: 'rgba(73,163,166,0.1)', fg: '#49a3a6' },
-  'smart-screener': { bg: 'rgba(73,163,166,0.1)', fg: '#49a3a6' },
-  backtest: { bg: 'rgba(73,163,166,0.1)', fg: '#49a3a6' },
-  'crypto-pulse': { bg: 'rgba(73,163,166,0.1)', fg: '#49a3a6' },
-  'yield-hunter': { bg: 'rgba(73,163,166,0.1)', fg: '#49a3a6' },
-  'dividend-diary': { bg: 'rgba(73,163,166,0.1)', fg: '#49a3a6' },
+  'theme-tracker': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
+  'smart-screener': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
+  backtest: { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
+  'crypto-pulse': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
+  'yield-hunter': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
+  'dividend-diary': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
   // m2 blue
-  'what-if': { bg: 'rgba(33,150,243,0.1)', fg: '#2196f3' },
-  'deep-dive': { bg: 'rgba(33,150,243,0.1)', fg: '#2196f3' },
+  'what-if': { bg: 'var(--main-m2-10)', fg: 'var(--main-m2)' },
+  'deep-dive': { bg: 'var(--main-m2-10)', fg: 'var(--main-m2)' },
   // m5 yellow
-  valuation: { bg: 'rgba(230,169,26,0.1)', fg: '#e6a91a' },
-  'daily-macro-brief': { bg: 'rgba(230,169,26,0.1)', fg: '#e6a91a' },
-  'earnings-edge': { bg: 'rgba(230,169,26,0.1)', fg: '#e6a91a' },
+  valuation: { bg: 'var(--main-m5-10)', fg: 'var(--main-m5)' },
+  'daily-macro-brief': { bg: 'var(--main-m5-10)', fg: 'var(--main-m5)' },
+  'earnings-edge': { bg: 'var(--main-m5-10)', fg: 'var(--main-m5)' },
 };
-const skillColor = (id: string): SkillColor => SKILL_COLOR_MAP[id] ?? { bg: 'rgba(73,163,166,0.1)', fg: '#49a3a6' };
+const skillColor = (id: string): SkillColor => SKILL_COLOR_MAP[id] ?? { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' };
 
 /* ========== Skill pill ========== */
 
@@ -59,12 +59,12 @@ const chipBaseStyle: React.CSSProperties = {
   height: 40,
   padding: '0 16px',
   borderRadius: 999,
-  border: '0.5px solid rgba(0,0,0,0.12)',
+  border: '0.5px solid var(--line-l12)',
   fontFamily: "'Delight', sans-serif",
   fontSize: 14,
   lineHeight: '22px',
   fontWeight: 500,
-  color: 'rgba(0,0,0,0.7)',
+  color: 'var(--text-n7)',
   whiteSpace: 'nowrap',
   cursor: 'pointer',
   letterSpacing: 0.14,
@@ -112,7 +112,7 @@ function SkillPill({
       {template.kol ? (
         <Avatar name={template.creator} size={22} />
       ) : (
-        template.icon && <CdnIcon name={template.icon} size={16} color="rgba(0,0,0,0.7)" />
+        template.icon && <CdnIcon name={template.icon} size={16} color="var(--text-n7)" />
       )}
       {template.label}
     </button>
@@ -292,7 +292,7 @@ function SkillInfoCard({
         zIndex: 50,
         background: '#ffffff',
         borderRadius: 14,
-        border: '0.5px solid rgba(0,0,0,0.1)',
+        border: '0.5px solid var(--line-l07)',
         boxShadow: '0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)',
         padding: 20,
         pointerEvents: 'auto',
@@ -307,7 +307,7 @@ function SkillInfoCard({
             fontSize: 18,
             lineHeight: '24px',
             fontWeight: 600,
-            color: 'rgba(0,0,0,0.9)',
+            color: 'var(--text-n9)',
             letterSpacing: 0.18,
             margin: 0,
           }}
@@ -333,7 +333,7 @@ function SkillInfoCard({
           fontFamily: "'Delight', sans-serif",
           fontSize: 13,
           lineHeight: '20px',
-          color: 'rgba(0,0,0,0.7)',
+          color: 'var(--text-n7)',
           letterSpacing: 0.13,
           margin: '10px 0 0',
         }}
@@ -349,7 +349,7 @@ function SkillInfoCard({
               height: 20,
               padding: '0 6px',
               borderRadius: 5,
-              background: 'rgba(0,0,0,0.05)',
+              background: 'var(--b-r05)',
               color: 'rgba(0,0,0,0.58)',
               fontFamily: "'Delight', sans-serif",
               fontSize: 11,
@@ -363,7 +363,7 @@ function SkillInfoCard({
         ))}
       </div>
       {/* 分割线（上下间距对称，给创作者行更舒展的呼吸） */}
-      <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0' }} />
+      <div style={{ height: 1, background: 'var(--line-l07)', margin: '20px 0' }} />
       {/* 创建者信息行 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <button
@@ -406,7 +406,7 @@ function SkillInfoCard({
                 fontFamily: "'Delight', sans-serif",
                 fontSize: 14,
                 lineHeight: '20px',
-                color: 'rgba(0,0,0,0.9)',
+                color: 'var(--text-n9)',
                 letterSpacing: 0.14,
                 fontWeight: 500,
                 overflow: 'hidden',
@@ -431,7 +431,7 @@ function SkillInfoCard({
                 width: 24,
                 height: 24,
                 borderRadius: '9999px',
-                background: 'rgba(0,0,0,0.05)',
+                background: 'var(--b-r05)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -440,12 +440,12 @@ function SkillInfoCard({
               }}
               onMouseEnter={(e) => {
                 if (!supportsHover()) return;
-                e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+                e.currentTarget.style.background = 'var(--b-r1)';
                 e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 if (!supportsHover()) return;
-                e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+                e.currentTarget.style.background = 'var(--b-r05)';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
@@ -467,7 +467,7 @@ function InlineSuggestionRow({ text, onClick }: { text: string; onClick?: () => 
       onClick={onClick}
       onMouseEnter={(e) => {
         if (!supportsHover()) return;
-        e.currentTarget.style.background = 'rgba(0,0,0,0.03)';
+        e.currentTarget.style.background = 'var(--b-r03)';
         e.currentTarget.style.transform = 'translateY(-1px)';
       }}
       onMouseLeave={(e) => {
@@ -497,7 +497,7 @@ function PromptRowSkeleton({ widthPct }: { widthPct: number }) {
         style={{
           flex: 1,
           height: 14,
-          background: 'rgba(0,0,0,0.06)',
+          background: 'var(--b-r07)',
           borderRadius: 4,
           maxWidth: `${widthPct}%`,
         }}
@@ -711,7 +711,7 @@ function PlaybookCard({
       className="cursor-pointer"
       style={{
         background: '#ffffff',
-        border: '0.5px solid rgba(0,0,0,0.3)',
+        border: '0.5px solid var(--line-l3)',
         borderRadius: 12,
         padding: 4,
         display: 'flex',
@@ -790,8 +790,8 @@ function PlaybookCard({
                 height: 20,
                 padding: '2px 8px',
                 borderRadius: 4,
-                background: 'rgba(0,0,0,0.05)',
-                color: 'rgba(0,0,0,0.7)',
+                background: 'var(--b-r05)',
+                color: 'var(--text-n7)',
                 fontFamily: "'Delight', sans-serif",
                 fontSize: 12,
                 lineHeight: '20px',
@@ -813,7 +813,7 @@ function PlaybookCard({
               fontSize: 16,
               lineHeight: '26px',
               fontWeight: 400,
-              color: 'rgba(0,0,0,0.9)',
+              color: 'var(--text-n9)',
               letterSpacing: 0.16,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -828,7 +828,7 @@ function PlaybookCard({
             style={{
               fontSize: 12,
               lineHeight: '20px',
-              color: 'rgba(0,0,0,0.5)',
+              color: 'var(--text-n5)',
               letterSpacing: 0.12,
               overflow: 'hidden',
               display: '-webkit-box',
@@ -851,7 +851,7 @@ function PlaybookCardSkeleton() {
     <div
       style={{
         background: '#ffffff',
-        border: '0.5px solid rgba(0,0,0,0.12)',
+        border: '0.5px solid var(--line-l12)',
         borderRadius: 8,
         padding: 4,
         display: 'flex',
@@ -870,7 +870,7 @@ function PlaybookCardSkeleton() {
       <div style={{ padding: '16px 12px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div style={{ display: 'flex', gap: 6 }}>
           <div style={{ width: 70, height: 20, background: 'rgba(0,0,0,0.06)', borderRadius: 4 }} />
-          <div style={{ width: 40, height: 20, background: 'rgba(0,0,0,0.05)', borderRadius: 4 }} />
+          <div style={{ width: 40, height: 20, background: 'var(--b-r05)', borderRadius: 4 }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ height: 18, background: 'rgba(0,0,0,0.06)', borderRadius: 4, maxWidth: '60%' }} />
@@ -921,7 +921,7 @@ function MoreSkillsDropdown({
             onClick={onBackdrop}
             className="more-skills-close"
           >
-            <CdnIcon name="close-l1" size={16} color="rgba(0,0,0,0.7)" />
+            <CdnIcon name="close-l1" size={16} color="var(--text-n7)" />
           </button>
         </div>
         <div className="more-skills-dropdown-scroll">
@@ -940,7 +940,7 @@ function MoreSkillsDropdown({
               ) : (
                 skill.icon ? (
                   <span className="more-skill-icon-wrap">
-                    <CdnIcon name={skill.icon} size={20} color="rgba(0,0,0,0.7)" />
+                    <CdnIcon name={skill.icon} size={20} color="var(--text-n7)" />
                   </span>
                 ) : (
                   <Avatar name={skill.creator} size={32} />
@@ -1069,7 +1069,7 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
           fontSize: TITLE_BASE_FONT,
           lineHeight: TITLE_LH,
           fontWeight: 400,
-          color: 'rgba(0,0,0,0.9)',
+          color: 'var(--text-n9)',
           textAlign: 'center',
           letterSpacing: 0.45,
           margin: 0,
@@ -1110,7 +1110,7 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
               fontSize: 14,
               lineHeight: '22px',
               fontWeight: 500,
-              color: 'rgba(0,0,0,0.9)',
+              color: 'var(--text-n9)',
               letterSpacing: 0.14,
             }}
           >
@@ -1170,7 +1170,7 @@ function SkillDetailModal({
               fontSize: 18,
               lineHeight: '24px',
               fontWeight: 600,
-              color: 'rgba(0,0,0,0.9)',
+              color: 'var(--text-n9)',
               letterSpacing: 0.18,
               margin: 0,
             }}
@@ -1196,7 +1196,7 @@ function SkillDetailModal({
             fontFamily: "'Delight', sans-serif",
             fontSize: 13,
             lineHeight: '20px',
-            color: 'rgba(0,0,0,0.7)',
+            color: 'var(--text-n7)',
             letterSpacing: 0.13,
             margin: '10px 0 0',
           }}
@@ -1212,7 +1212,7 @@ function SkillDetailModal({
                 height: 20,
                 padding: '0 6px',
                 borderRadius: 5,
-                background: 'rgba(0,0,0,0.05)',
+                background: 'var(--b-r05)',
                 color: 'rgba(0,0,0,0.58)',
                 fontFamily: "'Delight', sans-serif",
                 fontSize: 11,
@@ -1249,7 +1249,7 @@ function SkillDetailModal({
                   fontFamily: "'Delight', sans-serif",
                   fontSize: 14,
                   lineHeight: '20px',
-                  color: 'rgba(0,0,0,0.9)',
+                  color: 'var(--text-n9)',
                   letterSpacing: 0.14,
                   fontWeight: 500,
                   overflow: 'hidden',
@@ -1273,7 +1273,7 @@ function SkillDetailModal({
                   width: 24,
                   height: 24,
                   borderRadius: '9999px',
-                  background: 'rgba(0,0,0,0.05)',
+                  background: 'var(--b-r05)',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1296,7 +1296,7 @@ function SkillDetailModal({
             height: 44,
             border: 'none',
             borderRadius: 10,
-            background: '#49A3A6',
+            background: 'var(--main-m1)',
             color: '#fff',
             fontFamily: "'Delight', sans-serif",
             fontSize: 14,
@@ -1609,7 +1609,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-family:'Delight',sans-serif;
           font-size:14px;
           line-height:22px;
-          color:rgba(0,0,0,0.9);
+          color:var(--text-n9);
           letter-spacing:0.14px;
           overflow:hidden;
           text-overflow:ellipsis;
@@ -1675,8 +1675,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           }
         }
         @media (hover: hover){
-          .nc-creator-link:hover{background:rgba(0,0,0,0.05)}
-          .nc-creator-link:hover .nc-creator-link-name{color:#49A3A6;text-decoration:underline;text-underline-offset:2px}
+          .nc-creator-link:hover{background:var(--b-r05)}
+          .nc-creator-link:hover .nc-creator-link-name{color:var(--main-m1);text-decoration:underline;text-underline-offset:2px}
         }
         .more-skills-dropdown{
           position:absolute;
@@ -1756,7 +1756,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
             font-size:16px;
             line-height:22px;
             font-weight:600;
-            color:rgba(0,0,0,0.9);
+            color:var(--text-n9);
             letter-spacing:0.16px;
           }
           .more-skills-close{
@@ -1815,7 +1815,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-size:14px;
           line-height:20px;
           font-weight:500;
-          color:rgba(0,0,0,0.9);
+          color:var(--text-n9);
           letter-spacing:0.14px;
           overflow:hidden;
           text-overflow:ellipsis;
@@ -1840,8 +1840,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           justify-content:center;
           border-radius:9999px;
           /* 桌面默认灰底，hover 时变白让 icon 浮起 */
-          background:rgba(0,0,0,0.05);
-          border:1px solid rgba(0,0,0,0.12);
+          background:var(--b-r05);
+          border:1px solid var(--line-l12);
           transition:background 140ms ease;
         }
         @media (hover: hover){
@@ -1852,7 +1852,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         /* 圆头像加弱边框，避免在灰底上融掉 */
         .more-skill-row > div[class*="rounded-full"],
         .more-skill-row > img{
-          box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
+          box-shadow:inset 0 0 0 1px var(--line-l12);
           border-radius:9999px;
         }
 
@@ -1909,7 +1909,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         }
         .nc-skill-card-creator-thumb > div[class*="rounded-full"],
         .nc-skill-card-creator-thumb > img{
-          box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
+          box-shadow:inset 0 0 0 1px var(--line-l12);
           border-radius:9999px;
         }
         .nc-skill-card-icon-wrap{
@@ -1920,8 +1920,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           align-items:center;
           justify-content:center;
           border-radius:9999px;
-          background:rgba(0,0,0,0.05);
-          border:1px solid rgba(0,0,0,0.12);
+          background:var(--b-r05);
+          border:1px solid var(--line-l12);
           margin-right:12px;
         }
         .nc-skill-card-text{
@@ -1936,7 +1936,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-size:15px;
           line-height:20px;
           font-weight:600;
-          color:rgba(0,0,0,0.9);
+          color:var(--text-n9);
           letter-spacing:0.15px;
           overflow:hidden;
           text-overflow:ellipsis;
@@ -1970,7 +1970,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-family:'Delight',sans-serif;
           font-size:13px;
           line-height:20px;
-          color:rgba(0,0,0,0.7);
+          color:var(--text-n7);
           letter-spacing:0.13px;
           margin:12px 0 0;
         }
@@ -2024,7 +2024,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           height:20px;
           padding:0 6px;
           border-radius:5px;
-          background:rgba(0,0,0,0.05);
+          background:var(--b-r05);
           color:rgba(0,0,0,0.58);
           font-family:'Delight',sans-serif;
           font-size:11px;
@@ -2044,7 +2044,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         }
         .nc-skill-card-creator > div[class*="rounded-full"],
         .nc-skill-card-creator > img{
-          box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
+          box-shadow:inset 0 0 0 1px var(--line-l12);
           border-radius:9999px;
           flex-shrink:0;
         }
@@ -2065,7 +2065,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           width:24px;
           height:24px;
           border-radius:9999px;
-          background:rgba(0,0,0,0.05);
+          background:var(--b-r05);
           display:inline-flex;
           align-items:center;
           justify-content:center;
@@ -2085,7 +2085,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-family:'Delight',sans-serif;
           font-size:13px;
           line-height:18px;
-          color:rgba(0,0,0,0.9);
+          color:var(--text-n9);
           letter-spacing:0.13px;
           font-weight:500;
           overflow:hidden;
@@ -2096,7 +2096,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           .nc-skill-card{ padding:14px; }
         }
       `}</style>
-      <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: '#fafafa' }}>
+      <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: 'var(--grey-g01)' }}>
         {/* ══════ Topbar — 在移动端由 AppShell 的 mobile topbar 接管，这里隐藏 ══════ */}
         <div
           className="flex items-center gap-[16px] h-[56px] px-[28px] shrink-0 newchat-page-topbar"
@@ -2108,10 +2108,10 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
               onSelect={handleThreadSelect}
               trigger={
                 <div className="flex gap-[4px] items-center min-w-0 cursor-pointer">
-                  <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] truncate">
+                  <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate">
                     New Chat
                   </p>
-                  <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                  <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                 </div>
               }
             />
@@ -2226,7 +2226,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                   {t.kol ? (
                     <Avatar name={t.creator} size={22} />
                   ) : (
-                    t.icon && <CdnIcon name={t.icon} size={16} color="rgba(0,0,0,0.7)" />
+                    t.icon && <CdnIcon name={t.icon} size={16} color="var(--text-n7)" />
                   )}
                   {t.label}
                 </button>
@@ -2266,7 +2266,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                   }}
                 >
                   More
-                  <CdnIcon name="arrow-down-l2" size={14} color="rgba(0,0,0,0.5)" />
+                  <CdnIcon name="arrow-down-l2" size={14} color="var(--text-n5)" />
                 </button>
                 {communityOpen && moreSkills.length > 0 && (
                   <MoreSkillsDropdown
@@ -2378,7 +2378,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                               </span>
                             ) : s.icon ? (
                               <span className="nc-skill-card-icon-wrap">
-                                <CdnIcon name={s.icon} size={20} color="rgba(0,0,0,0.7)" />
+                                <CdnIcon name={s.icon} size={20} color="var(--text-n7)" />
                               </span>
                             ) : (
                               <span className="nc-skill-card-creator-thumb">

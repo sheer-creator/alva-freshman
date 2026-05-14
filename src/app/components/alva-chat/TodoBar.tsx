@@ -23,7 +23,7 @@ export function TodoBar({ label, items }: TodoBarProps) {
     <div style={{
       maxWidth: 720, margin: '0 auto', width: '100%',
       borderRadius: 16, overflow: 'hidden',
-      border: '1px solid rgba(0,0,0,0.08)', background: '#fff',
+      border: '1px solid var(--line-l07)', background: 'var(--b0-container)',
       boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
       padding: '10px 20px 12px',
     }}>
@@ -53,7 +53,7 @@ export function TodoBar({ label, items }: TodoBarProps) {
                 animation: 'todoSpin .8s linear infinite',
               }} />
             ) : (
-              <div style={{ width: 12, height: 12, borderRadius: '50%', border: '1.5px solid rgba(0,0,0,0.12)', flexShrink: 0 }} />
+              <div style={{ width: 12, height: 12, borderRadius: '50%', border: '1.5px solid var(--line-l12)', flexShrink: 0 }} />
             )}
             <span style={{
               fontSize: 12, fontFamily: "'Delight', sans-serif",

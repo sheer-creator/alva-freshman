@@ -128,7 +128,7 @@ function TocSidebar({ activeId }: { activeId: string }) {
                 s.level === 2 ? 'pl-[12px]' : ''
               } ${
                 activeId === s.id
-                  ? 'text-[#49a3a6] font-medium'
+                  ? 'text-[var(--main-m1)] font-medium'
                   : 'text-black/40 hover:text-black/70'
               }`}
             >
@@ -222,7 +222,7 @@ export default function OpenAlvaDocs({ onNavigate, onOpenSearch }: { onNavigate:
               {/* Hero */}
               <div className="mb-[48px]">
                 <div className="flex items-center gap-[10px] mb-[8px]">
-                  <div className="w-[8px] h-[8px] rounded-full bg-[#49a3a6]" />
+                  <div className="w-[8px] h-[8px] rounded-full bg-[var(--main-m1)]" />
                   <span className="text-[12px] uppercase tracking-[2px] text-black/30 font-['Delight',sans-serif]">Documentation</span>
                 </div>
                 <h1 className="text-[36px] font-medium leading-[44px] text-black/90 mb-[12px] font-['Delight',sans-serif]">Open Alva</h1>
@@ -489,7 +489,7 @@ feed.def('metrics', {
                 {['DataGraph', 'SignalGraph', 'SimGraph', 'PerfGraph'].map((stage, i) => (
                   <div key={stage} className="flex items-center gap-[8px]">
                     <div className="px-[14px] py-[8px] rounded-[6px] bg-[#49a3a6]/10 border border-[#49a3a6]/20">
-                      <span className="text-[13px] font-medium text-[#49a3a6] font-['Delight',sans-serif]">{stage}</span>
+                      <span className="text-[13px] font-medium text-[var(--main-m1)] font-['Delight',sans-serif]">{stage}</span>
                     </div>
                     {i < 3 && <span className="text-black/20">→</span>}
                   </div>
@@ -641,7 +641,7 @@ curl -s -X POST "$ALVA_ENDPOINT/api/v1/deploy/cronjob" \\
                   ['feedPath() needs env.userId', 'Only available inside the jagent runtime.'],
                 ].map(([title, desc], i) => (
                   <div key={i} className="flex gap-[12px] items-start">
-                    <span className="text-[14px] text-[#49a3a6] mt-[2px] shrink-0">•</span>
+                    <span className="text-[14px] text-[var(--main-m1)] mt-[2px] shrink-0">•</span>
                     <div>
                       <span className="text-[14px] font-medium text-black/70 font-['Delight',sans-serif]">{title}</span>
                       <span className="text-[13px] text-black/40 font-['Delight',sans-serif]"> — {desc}</span>

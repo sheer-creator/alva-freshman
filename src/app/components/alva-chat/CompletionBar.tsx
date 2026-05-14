@@ -15,7 +15,7 @@ export function CompletionBar({ data }: CompletionBarProps) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
       padding: '12px 0', marginTop: 8,
-      borderTop: '1px solid rgba(0,0,0,0.06)',
+      borderTop: '1px solid var(--line-l07)',
     }}>
       {/* Check mark */}
       <div style={{

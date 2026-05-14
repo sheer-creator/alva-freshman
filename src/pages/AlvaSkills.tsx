@@ -84,7 +84,7 @@ function PhaseIndicator({ visibleCount, showCard }: { visibleCount: number; show
               <div
                 className="w-[14px] h-[14px] rounded-full flex items-center justify-center transition-all duration-300"
                 style={{
-                  background: completed ? '#49a3a6' : active ? '#49a3a6' : 'rgba(255,255,255,0.06)',
+                  background: completed ? 'var(--main-m1)' : active ? 'var(--main-m1)' : 'rgba(255,255,255,0.06)',
                   boxShadow: active ? '0 0 8px rgba(73,163,166,0.35)' : 'none',
                 }}
               >
@@ -164,7 +164,7 @@ function InlinePlaybookCard() {
       }}
     >
       {/* 卡片头部 */}
-      <div className="flex items-center gap-[6px] px-[10px] pt-[8px] pb-[6px]" style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+      <div className="flex items-center gap-[6px] px-[10px] pt-[8px] pb-[6px]" style={{ borderBottom: '1px solid var(--line-l05)' }}>
         <span className="font-['Delight',sans-serif] text-[12px] leading-[16px] text-[rgba(0,0,0,0.80)]">
           NVDA Dashboard
         </span>
@@ -180,7 +180,7 @@ function InlinePlaybookCard() {
       </div>
 
       {/* Dashboard 预览 */}
-      <div className="p-[8px] flex flex-col gap-[1px]" style={{ background: 'rgba(0,0,0,0.04)' }}>
+      <div className="p-[8px] flex flex-col gap-[1px]" style={{ background: 'var(--b-r05)' }}>
         {/* Row 1: 全宽价格图表 */}
         <div className="p-[8px] bg-white rounded-t-[4px]">
           <div className="flex items-center justify-between mb-[4px]">
@@ -208,7 +208,7 @@ function InlinePlaybookCard() {
             { label: 'Analyst Target', value: '$178', color: C.green },
           ].map(kpi => (
             <div key={kpi.label} className="p-[6px] bg-white text-center">
-              <div className="font-['Delight',sans-serif] text-[7px] text-[rgba(0,0,0,0.25)] mb-[1px]">{kpi.label}</div>
+              <div className="font-['Delight',sans-serif] text-[7px] text-[var(--text-n3)] mb-[1px]">{kpi.label}</div>
               <div className="font-['JetBrains_Mono',monospace] text-[10px] leading-[14px]" style={{ color: kpi.color }}>{kpi.value}</div>
             </div>
           ))}
@@ -219,7 +219,7 @@ function InlinePlaybookCard() {
           {/* RSI */}
           <div className="p-[8px] bg-white rounded-bl-[4px]">
             <div className="flex items-center justify-between mb-[3px]">
-              <span className="font-['Delight',sans-serif] text-[8px] text-[rgba(0,0,0,0.25)]">RSI (14)</span>
+              <span className="font-['Delight',sans-serif] text-[8px] text-[var(--text-n3)]">RSI (14)</span>
               <span className="font-['JetBrains_Mono',monospace] text-[8px] text-[rgba(0,0,0,0.30)]">50.2</span>
             </div>
             <svg viewBox="0 0 100 28" className="w-full" style={{ height: 28 }} preserveAspectRatio="none">
@@ -231,7 +231,7 @@ function InlinePlaybookCard() {
           {/* MACD */}
           <div className="p-[8px] bg-white">
             <div className="flex items-center justify-between mb-[3px]">
-              <span className="font-['Delight',sans-serif] text-[8px] text-[rgba(0,0,0,0.25)]">MACD</span>
+              <span className="font-['Delight',sans-serif] text-[8px] text-[var(--text-n3)]">MACD</span>
               <span className="font-['JetBrains_Mono',monospace] text-[8px]" style={{ color: C.green }}>Bullish</span>
             </div>
             <svg viewBox="0 0 100 28" className="w-full" style={{ height: 28 }} preserveAspectRatio="none">
@@ -242,7 +242,7 @@ function InlinePlaybookCard() {
           </div>
           {/* Insider Volume */}
           <div className="p-[8px] bg-white rounded-br-[4px]">
-            <div className="font-['Delight',sans-serif] text-[8px] text-[rgba(0,0,0,0.25)] mb-[3px]">Insider Vol.</div>
+            <div className="font-['Delight',sans-serif] text-[8px] text-[var(--text-n3)] mb-[3px]">Insider Vol.</div>
             <svg viewBox="0 0 100 28" className="w-full" style={{ height: 28 }} preserveAspectRatio="none">
               {volData.map((v, i) => {
                 const max = Math.max(...volData);
@@ -322,7 +322,7 @@ function AnimatedTerminal() {
       case 'prompt': return 'rgba(255,255,255,0.78)';
       case 'agent': return 'rgba(255,255,255,0.45)';
       case 'success': return '#4ade80';
-      case 'skill': return '#49a3a6';
+      case 'skill': return 'var(--main-m1)';
       case 'dim': return 'rgba(255,255,255,0.32)';
       default: return 'transparent';
     }
@@ -517,7 +517,7 @@ function CopyInstallBtn() {
       <button
         onClick={handleCopy}
         className="flex items-center gap-[5px] px-[14px] py-[5px] rounded-[6px] border-none cursor-pointer transition-all shrink-0"
-        style={{ background: copied ? '#3d8e91' : '#49a3a6' }}
+        style={{ background: copied ? '#3d8e91' : 'var(--main-m1)' }}
       >
         {copied ? (
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -605,7 +605,7 @@ export default function AlvaSkills({ onNavigate, onOpenSearch }: AlvaSkillsProps
       <div
         className="min-h-screen overflow-y-auto"
         style={{
-          background: '#fafafa',
+          background: 'var(--grey-g01)',
           backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.05) 0.5px, transparent 0.5px)',
           backgroundSize: '4px 4px',
         }}
@@ -635,18 +635,18 @@ export default function AlvaSkills({ onNavigate, onOpenSearch }: AlvaSkillsProps
                 </svg>
                 <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[rgba(0,0,0,0.45)] group-hover:text-[rgba(0,0,0,0.75)] transition-colors">GitHub</span>
               </button>
-              <span className="w-[1px] h-[12px] bg-[rgba(0,0,0,0.08)]" />
+              <span className="w-[1px] h-[12px] bg-[var(--b-r07)]" />
               <button
                 onClick={() => onNavigate('api-keys')}
                 className="flex items-center gap-[5px] bg-transparent border-none cursor-pointer group p-0"
               >
-                <div className="w-[5px] h-[5px] rounded-full bg-[#49a3a6] shrink-0" />
+                <div className="w-[5px] h-[5px] rounded-full bg-[var(--main-m1)] shrink-0" />
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-[rgba(0,0,0,0.65)] group-hover:text-[rgba(0,0,0,0.85)] transition-colors">
                   <path d="M10 1.5a3 3 0 00-2.83 4.01L3 9.68V13h3.32l.35-.35A3 3 0 1010 1.5zM10 5a1 1 0 110-2 1 1 0 010 2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
                 </svg>
                 <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[rgba(0,0,0,0.65)] group-hover:text-[rgba(0,0,0,0.85)] transition-colors">Get API Key</span>
               </button>
-              <span className="w-[1px] h-[12px] bg-[rgba(0,0,0,0.08)]" />
+              <span className="w-[1px] h-[12px] bg-[var(--b-r07)]" />
               <button
                 onClick={() => onNavigate('skills')}
                 className="flex items-center gap-[5px] bg-transparent border-none cursor-pointer group p-0"

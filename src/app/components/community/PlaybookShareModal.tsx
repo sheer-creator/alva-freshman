@@ -83,7 +83,7 @@ export function PlaybookShareModal({ isOpen, onClose, playbookName, onNavigate }
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={onClose}>
       <div
         className="w-[400px] rounded-[12px] flex flex-col"
-        style={{ background: '#fff', boxShadow: 'var(--shadow-l, 0 10px 20px rgba(0,0,0,0.08))' }}
+        style={{ background: 'var(--b0-container, #fff)', boxShadow: 'var(--shadow-l, 0 10px 20px rgba(0,0,0,0.08))' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -117,7 +117,7 @@ export function PlaybookShareModal({ isOpen, onClose, playbookName, onNavigate }
                 style={{
                   color: copied ? '#fff' : 'var(--main-m1, #49A3A6)',
                   background: copied ? 'var(--main-m1, #49A3A6)' : 'rgba(73,163,166,0.06)',
-                  borderLeft: '1px solid rgba(0,0,0,0.06)',
+                  borderLeft: '1px solid var(--line-l07)',
                   border: 'none',
                 }}
                 onClick={handleCopy}
@@ -144,8 +144,8 @@ export function PlaybookShareModal({ isOpen, onClose, playbookName, onNavigate }
             {CHANNELS.map((ch) => (
               <button
                 key={ch.label}
-                className="flex-1 h-[36px] rounded-[7px] flex items-center justify-center gap-[5px] cursor-pointer transition-colors hover:bg-[rgba(0,0,0,0.04)]"
-                style={{ border: '1px solid rgba(0,0,0,0.08)', color: 'var(--text-n7)', background: 'transparent', fontSize: 12 }}
+                className="flex-1 h-[36px] rounded-[7px] flex items-center justify-center gap-[5px] cursor-pointer transition-colors hover:bg-[var(--b-r05)]"
+                style={{ border: '1px solid var(--line-l07)', color: 'var(--text-n7)', background: 'transparent', fontSize: 12 }}
                 onClick={() => ch.open(playbookName)}
               >
                 {ch.icon}

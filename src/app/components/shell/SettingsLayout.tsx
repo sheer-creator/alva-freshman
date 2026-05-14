@@ -48,8 +48,8 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
               className="flex items-center gap-[var(--spacing-xxs)] cursor-pointer group"
               style={{ background: 'none', border: 'none', padding: 0 }}
             >
-              <CdnIcon name="arrow-left-l2" size={12} color="rgba(0,0,0,0.5)" />
-              <span className="text-[12px] leading-[20px] tracking-[0.12px] group-hover:text-[rgba(0,0,0,0.9)] transition-colors" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT, fontWeight: 400 }}>Back</span>
+              <CdnIcon name="arrow-left-l2" size={12} color="var(--text-n5)" />
+              <span className="text-[12px] leading-[20px] tracking-[0.12px] group-hover:text-[rgba(0,0,0,0.9)] transition-colors" style={{ color: 'var(--text-n5)', fontFamily: FONT, fontWeight: 400 }}>Back</span>
             </button>
           </div>
 
@@ -67,16 +67,16 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
                     onClick={() => onNavigate(target)}
                     className="flex items-center px-[var(--spacing-m)] py-[10px] rounded-[var(--radius-btn-s)] text-left cursor-pointer transition-colors w-full"
                     style={{
-                      background: isActive ? 'rgba(73,163,166,0.1)' : 'transparent',
+                      background: isActive ? 'var(--main-m1-10)' : 'transparent',
                       border: 'none',
                     }}
-                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.03)'; }}
+                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'var(--b-r03)'; }}
                     onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
                   >
                     <span
                       className="text-[14px] leading-[22px] tracking-[0.14px]"
                       style={{
-                        color: 'rgba(0,0,0,0.9)',
+                        color: 'var(--text-n9)',
                         fontFamily: FONT,
                         fontWeight: isActive ? 500 : 400,
                       }}

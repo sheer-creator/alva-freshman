@@ -26,7 +26,7 @@ function CopyButton({ getText }: { getText: () => string }) {
       style={{
         position: 'absolute', top: 6, right: 6,
         width: 26, height: 26, borderRadius: 5, border: 'none',
-        background: copied ? 'rgba(73,163,166,0.15)' : 'rgba(0,0,0,0.04)',
+        background: copied ? 'rgba(73,163,166,0.15)' : 'var(--b-r05)',
         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
         transition: 'background 0.15s',
         opacity: copied ? 1 : 0.6,
@@ -57,7 +57,7 @@ function CodeBlock(props: Record<string, unknown>) {
         background: 'var(--grey-g01)', color: 'var(--text-n9)', padding: '14px 16px',
         borderRadius: 8, overflow: 'auto',
         fontFamily: MD_MONO, fontSize: 12, lineHeight: '19px',
-        border: '1px solid rgba(0,0,0,0.06)', margin: 0,
+        border: '1px solid var(--line-l07)', margin: 0,
       }}>
         {(props as { children?: React.ReactNode }).children}
       </pre>
@@ -111,8 +111,8 @@ const MD_COMPONENTS: Record<string, React.ComponentType<Record<string, unknown>>
     }
     return (
       <code {...props} style={{
-        background: 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: 4,
-        fontFamily: MD_MONO, fontSize: 12, color: 'rgba(0,0,0,0.7)',
+        background: 'var(--b-r05)', padding: '2px 6px', borderRadius: 4,
+        fontFamily: MD_MONO, fontSize: 12, color: 'var(--text-n7)',
       }} />
     );
   },
@@ -120,11 +120,11 @@ const MD_COMPONENTS: Record<string, React.ComponentType<Record<string, unknown>>
   ul: (props) => <ul {...props} style={{ margin: '6px 0', paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 4, listStyleType: 'disc' }} />,
   ol: (props) => <ol {...props} style={{ margin: '6px 0', paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 4, listStyleType: 'decimal' }} />,
   li: (props) => <li {...props} style={{ fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', color: 'var(--text-n9)', fontFamily: MD_FONT }} />,
-  a: (props) => <a {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)} style={{ color: '#49A3A6', textDecoration: 'underline', textUnderlineOffset: 3 }} target="_blank" rel="noopener noreferrer" />,
+  a: (props) => <a {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)} style={{ color: 'var(--main-m1)', textDecoration: 'underline', textUnderlineOffset: 3 }} target="_blank" rel="noopener noreferrer" />,
   blockquote: (props) => <div {...(props as React.HTMLAttributes<HTMLDivElement>)} style={{ margin: '8px 0', fontSize: 14, lineHeight: '22px', color: 'var(--text-n9)', fontFamily: MD_FONT }} />,
   table: TableBlock,
-  th: (props) => <th {...(props as React.ThHTMLAttributes<HTMLTableCellElement>)} style={{ textAlign: 'left', padding: '6px 12px', borderBottom: '1px solid rgba(0,0,0,0.1)', fontWeight: 600, fontSize: 12, color: 'var(--text-n5)' }} />,
-  td: (props) => <td {...(props as React.TdHTMLAttributes<HTMLTableCellElement>)} style={{ padding: '6px 12px', borderBottom: '1px solid rgba(0,0,0,0.04)', fontSize: 13 }} />,
+  th: (props) => <th {...(props as React.ThHTMLAttributes<HTMLTableCellElement>)} style={{ textAlign: 'left', padding: '6px 12px', borderBottom: '1px solid var(--line-l07)', fontWeight: 600, fontSize: 12, color: 'var(--text-n5)' }} />,
+  td: (props) => <td {...(props as React.TdHTMLAttributes<HTMLTableCellElement>)} style={{ padding: '6px 12px', borderBottom: '1px solid var(--line-l05)', fontSize: 13 }} />,
 };
 
 /* ========== TextBlock ========== */

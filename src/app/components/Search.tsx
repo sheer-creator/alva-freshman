@@ -21,7 +21,7 @@ function CloseL({ onClick }: { onClick?: () => void }) {
 function ModalTitle({ onClose }: { onClose?: () => void }) {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0 w-full" data-name="Modal Title">
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[28px] min-h-px min-w-px not-italic relative text-[18px] text-[rgba(0,0,0,0.9)] tracking-[0.18px] whitespace-pre-wrap">Search</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[28px] min-h-px min-w-px not-italic relative text-[18px] text-[var(--text-n9)] tracking-[0.18px] whitespace-pre-wrap">Search</p>
       <CloseL onClick={onClose} />
     </div>
   );
@@ -29,13 +29,13 @@ function ModalTitle({ onClose }: { onClose?: () => void }) {
 
 function Search1() {
   return (
-    <div className="bg-white h-[48px] relative rounded-[6px] shrink-0 w-full" data-name="Search">
+    <div className="bg-[var(--b0-container)] h-[48px] relative rounded-[6px] shrink-0 w-full" data-name="Search">
       <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.9)] border-solid inset-0 pointer-events-none rounded-[6px]" />
       <div className="flex flex-row items-center size-full">
         <div className="content-stretch flex gap-[8px] items-center px-[16px] py-[11px] relative size-full">
-          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[0] min-h-px min-w-px not-italic overflow-hidden relative text-[16px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.16px] whitespace-nowrap">
+          <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[0] min-h-px min-w-px not-italic overflow-hidden relative text-[16px] text-[var(--text-n9)] text-ellipsis tracking-[0.16px] whitespace-nowrap">
             <span className="leading-[26px]">|</span>
-            <span className="leading-[26px] text-[rgba(0,0,0,0.3)]">Try symbol, e.g. AAPL</span>
+            <span className="leading-[26px] text-[var(--text-n3)]">Try symbol, e.g. AAPL</span>
           </p>
         </div>
       </div>
@@ -66,7 +66,7 @@ function Container() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Container">
       <LogoStock />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">TSLA</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">TSLA</p>
     </div>
   );
 }
@@ -74,8 +74,8 @@ function Container() {
 function StockInfo() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NASDAQ</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NASDAQ</p>
     </div>
   );
 }
@@ -84,7 +84,7 @@ function RecentVisited() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="Recent Visited">
       <Container />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Tesla Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Tesla Inc.</p>
       <StockInfo />
     </div>
   );
@@ -112,7 +112,7 @@ function Container1() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Container">
       <LogoStock1 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">WMT</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">WMT</p>
     </div>
   );
 }
@@ -120,8 +120,8 @@ function Container1() {
 function StockInfo1() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NASDAQ</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NASDAQ</p>
     </div>
   );
 }
@@ -130,7 +130,7 @@ function RecentVisited1() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="Recent Visited">
       <Container1 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Walmart Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Walmart Inc.</p>
       <StockInfo1 />
     </div>
   );
@@ -148,7 +148,7 @@ function Container2() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Container">
       <LogoStock2 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">A</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">A</p>
     </div>
   );
 }
@@ -156,8 +156,8 @@ function Container2() {
 function StockInfo2() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NASDAQ</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NASDAQ</p>
     </div>
   );
 }
@@ -166,7 +166,7 @@ function Component() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="1">
       <Container2 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Agilent Technologies, Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Agilent Technologies, Inc.</p>
       <StockInfo2 />
     </div>
   );
@@ -198,7 +198,7 @@ function Container3() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Container">
       <LogoStock3 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">AMD</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">AMD</p>
     </div>
   );
 }
@@ -206,8 +206,8 @@ function Container3() {
 function Container4() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Container">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NASDAQ</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NASDAQ</p>
     </div>
   );
 }
@@ -216,7 +216,7 @@ function Component1() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="2">
       <Container3 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Advanced Micro Devices, Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Advanced Micro Devices, Inc.</p>
       <Container4 />
     </div>
   );
@@ -248,7 +248,7 @@ function Container5() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Container">
       <LogoStock4 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">AAPL</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">AAPL</p>
     </div>
   );
 }
@@ -256,8 +256,8 @@ function Container5() {
 function StockInfo3() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NASDAQ</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NASDAQ</p>
     </div>
   );
 }
@@ -269,7 +269,7 @@ function Component2() {
       data-name="3"
     >
       <Container5 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Apple Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Apple Inc.</p>
       <StockInfo3 />
     </div>
   );
@@ -287,7 +287,7 @@ function LogoAndText() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Logo and Text">
       <LogoStock5 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">APP</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">APP</p>
     </div>
   );
 }
@@ -295,8 +295,8 @@ function LogoAndText() {
 function Container6() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Container">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NYSE</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NYSE</p>
     </div>
   );
 }
@@ -305,7 +305,7 @@ function Component3() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="4">
       <LogoAndText />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Applovin Corporation</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Applovin Corporation</p>
       <Container6 />
     </div>
   );
@@ -326,7 +326,7 @@ function LogoAndText1() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Logo and Text">
       <LogoStock6 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">ARM</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">ARM</p>
     </div>
   );
 }
@@ -334,8 +334,8 @@ function LogoAndText1() {
 function StockInfo4() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NASDAQ</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NASDAQ</p>
     </div>
   );
 }
@@ -344,7 +344,7 @@ function Component4() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="5">
       <LogoAndText1 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Arm Holdings plc</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Arm Holdings plc</p>
       <StockInfo4 />
     </div>
   );
@@ -372,7 +372,7 @@ function Container7() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Container">
       <LogoStock7 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">AMZN</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">AMZN</p>
     </div>
   );
 }
@@ -380,8 +380,8 @@ function Container7() {
 function Container8() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Container">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NYSE</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NYSE</p>
     </div>
   );
 }
@@ -390,7 +390,7 @@ function Component5() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="6">
       <Container7 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Amazon.com, Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Amazon.com, Inc.</p>
       <Container8 />
     </div>
   );
@@ -408,7 +408,7 @@ function LogoAndText2() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Logo and Text">
       <LogoStock8 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">ACGO</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">ACGO</p>
     </div>
   );
 }
@@ -416,8 +416,8 @@ function LogoAndText2() {
 function StockInfo5() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NYSE</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NYSE</p>
     </div>
   );
 }
@@ -426,7 +426,7 @@ function Component6() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="7">
       <LogoAndText2 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Broadcom Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Broadcom Inc.</p>
       <StockInfo5 />
     </div>
   );
@@ -444,7 +444,7 @@ function LogoAndText3() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Logo and Text">
       <LogoStock9 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">AG</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">AG</p>
     </div>
   );
 }
@@ -452,8 +452,8 @@ function LogoAndText3() {
 function StockInfo6() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NYSE</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NYSE</p>
     </div>
   );
 }
@@ -462,7 +462,7 @@ function Component7() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="8">
       <LogoAndText3 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">First Majestic Silver Corp.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">First Majestic Silver Corp.</p>
       <StockInfo6 />
     </div>
   );
@@ -483,7 +483,7 @@ function LogoAndText4() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Logo and Text">
       <LogoStock10 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">ARM</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">ARM</p>
     </div>
   );
 }
@@ -491,8 +491,8 @@ function LogoAndText4() {
 function StockInfo7() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NASDAQ</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NASDAQ</p>
     </div>
   );
 }
@@ -501,7 +501,7 @@ function Component8() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="9">
       <LogoAndText4 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Arm Holdings plc</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Arm Holdings plc</p>
       <StockInfo7 />
     </div>
   );
@@ -529,7 +529,7 @@ function Container9() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Container">
       <LogoStock11 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">AMZN</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">AMZN</p>
     </div>
   );
 }
@@ -537,8 +537,8 @@ function Container9() {
 function Container10() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Container">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NYSE</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NYSE</p>
     </div>
   );
 }
@@ -547,7 +547,7 @@ function Component9() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="10">
       <Container9 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Amazon.com, Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Amazon.com, Inc.</p>
       <Container10 />
     </div>
   );
@@ -565,7 +565,7 @@ function LogoAndText5() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Logo and Text">
       <LogoStock12 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">ACGO</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">ACGO</p>
     </div>
   );
 }
@@ -573,8 +573,8 @@ function LogoAndText5() {
 function StockInfo8() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NYSE</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NYSE</p>
     </div>
   );
 }
@@ -583,7 +583,7 @@ function Component10() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="11">
       <LogoAndText5 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Broadcom Inc.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">Broadcom Inc.</p>
       <StockInfo8 />
     </div>
   );
@@ -601,7 +601,7 @@ function LogoAndText6() {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0 w-[100px]" data-name="Logo and Text">
       <LogoStock13 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-pre-wrap">AG</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] font-medium leading-[22px] min-h-px min-w-px not-italic relative text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-pre-wrap">AG</p>
     </div>
   );
 }
@@ -609,8 +609,8 @@ function LogoAndText6() {
 function StockInfo9() {
   return (
     <div className="content-stretch flex font-['Delight',sans-serif] gap-[8px] items-center not-italic relative shrink-0 text-ellipsis" data-name="Stock Info">
-      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">Stock</p>
-      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">NYSE</p>
+      <p className="leading-[20px] overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n5)] tracking-[0.12px]">Stock</p>
+      <p className="leading-[22px] overflow-hidden relative shrink-0 text-[14px] text-[var(--text-n9)] tracking-[0.14px]">NYSE</p>
     </div>
   );
 }
@@ -619,7 +619,7 @@ function Component11() {
   return (
     <div className="content-stretch flex gap-[8px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full" data-name="12">
       <LogoAndText6 />
-      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">First Majestic Silver Corp.</p>
+      <p className="flex-[1_0_0] font-['Delight',sans-serif] leading-[22px] min-h-px min-w-px not-italic overflow-hidden relative text-[14px] text-[var(--text-n9)] text-ellipsis tracking-[0.14px] whitespace-nowrap">First Majestic Silver Corp.</p>
       <StockInfo9 />
     </div>
   );
@@ -627,7 +627,7 @@ function Component11() {
 
 function ActionSheet({ onClose }: { onClose?: () => void }) {
   return (
-    <div className="bg-white h-[600px] max-h-[600px] max-w-[800px] relative rounded-[8px] shrink-0 w-[800px]" data-name="Action sheet">
+    <div className="bg-[var(--b0-container)] h-[600px] max-h-[600px] max-w-[800px] relative rounded-[8px] shrink-0 w-[800px]" data-name="Action sheet">
       <div className="content-stretch flex flex-col gap-[20px] items-start max-h-[inherit] max-w-[inherit] overflow-clip p-[28px] relative rounded-[inherit] size-full">
         <ModalTitle onClose={onClose} />
         <Search1 />
@@ -646,7 +646,7 @@ function ActionSheet({ onClose }: { onClose?: () => void }) {
         <Component10 />
         <Component11 />
       </div>
-      <div aria-hidden="true" className="absolute border-[0.5px] border-[rgba(0,0,0,0.2)] border-solid inset-0 pointer-events-none rounded-[8px] shadow-[0px_10px_20px_0px_rgba(0,0,0,0.08)]" />
+      <div aria-hidden="true" className="absolute border-[0.5px] border-[var(--line-l2)] border-solid inset-0 pointer-events-none rounded-[8px] shadow-[var(--shadow-l)]" />
     </div>
   );
 }

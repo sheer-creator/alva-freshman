@@ -15,7 +15,7 @@ const USER = { name: 'YGGYLL', email: 'sheer@alva.xyz', joined: '12/23/2025' };
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>
+    <span className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>
       {children}
     </span>
   );
@@ -30,7 +30,7 @@ export default function Account({ onNavigate }: { onNavigate: (page: Page) => vo
     <SettingsLayout active="account" onNavigate={onNavigate} mapTo={{ account: 'user-profile' }}>
       {/* Header */}
       <div className="flex items-center gap-[var(--spacing-m)] w-full">
-        <h1 className="flex-1 text-[28px] leading-[38px] tracking-[0.28px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT, fontWeight: 400 }}>Account</h1>
+        <h1 className="flex-1 text-[28px] leading-[38px] tracking-[0.28px]" style={{ color: 'var(--text-n9)', fontFamily: FONT, fontWeight: 400 }}>Account</h1>
       </div>
 
       {/* User Info Card */}
@@ -39,20 +39,20 @@ export default function Account({ onNavigate }: { onNavigate: (page: Page) => vo
         <div className="relative shrink-0" style={{ width: 80, height: 80 }}>
           <Avatar name={USER.name} size={80} />
           <div className="absolute bottom-0 right-[-8px] rounded-full flex items-center p-[var(--spacing-xs)] cursor-pointer" style={{ background: '#f6f6f6', border: '2px solid #fff' }}>
-            <CdnIcon name="edit-l1" size={16} color="rgba(0,0,0,0.9)" />
+            <CdnIcon name="edit-l1" size={16} color="var(--text-n9)" />
           </div>
         </div>
 
         {/* Name + Email + Joined */}
         <div className="flex flex-col gap-[var(--spacing-xs)] flex-1 min-w-0 justify-center">
-          <p className="text-[24px] leading-[34px] tracking-[0.24px] truncate" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>{USER.name}</p>
+          <p className="text-[24px] leading-[34px] tracking-[0.24px] truncate" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>{USER.name}</p>
           <div className="flex items-center gap-[var(--spacing-xs)] flex-wrap">
             <div className="flex items-center gap-[var(--spacing-xxs)]">
               <img src="https://alva-ai-static.b-cdn.net/icons/logo-social-google.svg" alt="Google" className="w-[14px] h-[14px]" />
-              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.7)', fontFamily: FONT }}>{USER.email}</span>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n7)', fontFamily: FONT }}>{USER.email}</span>
             </div>
-            <div className="h-[17px] w-0" style={{ borderLeft: '0.5px solid rgba(0,0,0,0.3)' }} />
-            <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.7)', fontFamily: FONT }}>Joined {USER.joined}</span>
+            <div className="h-[17px] w-0" style={{ borderLeft: '0.5px solid var(--line-l3)' }} />
+            <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n7)', fontFamily: FONT }}>Joined {USER.joined}</span>
           </div>
         </div>
 
@@ -62,14 +62,14 @@ export default function Account({ onNavigate }: { onNavigate: (page: Page) => vo
             className="btn btn-secondary btn-extra-small"
             onClick={() => onNavigate('user-profile')}
           >
-            <CdnIcon name="user-profile-l" size={16} color="rgba(0,0,0,0.9)" />
+            <CdnIcon name="user-profile-l" size={16} color="var(--text-n9)" />
             <span style={{ fontFamily: FONT }}>Profile</span>
           </button>
           <button
             className="btn btn-secondary btn-extra-small"
-            style={{ color: '#e05357' }}
+            style={{ color: 'var(--main-m4)' }}
           >
-            <CdnIcon name="logout-l" size={16} color="#e05357" />
+            <CdnIcon name="logout-l" size={16} color="var(--main-m4)" />
             <span style={{ fontFamily: FONT }}>Log out</span>
           </button>
         </div>

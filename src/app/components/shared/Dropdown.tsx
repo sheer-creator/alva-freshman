@@ -51,7 +51,7 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
         key={item.id}
         className="relative w-full cursor-pointer"
         style={{
-          backgroundColor: selected ? 'rgba(0,0,0,0.03)' : 'transparent',
+          backgroundColor: selected ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent',
           transition: 'background-color 0.12s ease',
         }}
         onClick={() => {
@@ -59,7 +59,7 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
           setOpen(false);
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.backgroundColor = 'rgba(0,0,0,0.03)';
+          (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--b-r03, rgba(0,0,0,0.03))';
         }}
         onMouseLeave={(e) => {
           if (!selected) (e.currentTarget as HTMLDivElement).style.backgroundColor = 'transparent';
@@ -67,25 +67,25 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
       >
         <div className="flex items-center gap-[8px]" style={{ padding: '7px 16px' }}>
           {item.icon && (
-            <CdnIcon name={item.icon} size={20} color={item.iconColor ?? 'rgba(0,0,0,0.9)'} />
+            <CdnIcon name={item.icon} size={20} color={item.iconColor ?? 'var(--text-n9, rgba(0,0,0,0.9))'} />
           )}
           <span className="flex-1 min-w-0 flex items-center gap-[8px]">
             <span
-              className="min-w-0 font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] truncate"
+              className="min-w-0 font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate"
             >
               {item.label}
             </span>
             {item.badge != null && item.badge > 0 && (
               <span
                 className="shrink-0 font-['Delight',sans-serif] text-[10px] leading-[16px] font-medium text-white"
-                style={{ background: '#49A3A6', borderRadius: 999, padding: '0 6px' }}
+                style={{ background: 'var(--main-m1, #49A3A6)', borderRadius: 999, padding: '0 6px' }}
               >
                 {item.badge}
               </span>
             )}
           </span>
           {selected && (
-            <CdnIcon name="check-l1" size={16} color="#49A3A6" />
+            <CdnIcon name="check-l1" size={16} color="var(--main-m1, #49A3A6)" />
           )}
         </div>
       </div>
@@ -101,15 +101,15 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
         <div
           className="absolute top-full mt-[4px] z-50 flex flex-col"
           style={{
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--b0-container, #fff)',
             padding: '8px 0',
             borderRadius: 8,
-            boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
+            boxShadow: 'var(--shadow-s, 0 6px 20px rgba(0,0,0,0.06))',
             width: width ?? 'auto',
             minWidth: width ?? 220,
             maxHeight: maxHeight,
             overflowY: maxHeight ? 'auto' : undefined,
-            border: '0.5px solid rgba(0,0,0,0.2)',
+            border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
             ...(align === 'right' ? { right: 0 } : { left: 0 }),
           }}
         >
@@ -117,7 +117,7 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
             <div key={si}>
               {section.title && (
                 <div className="flex items-center" style={{ padding: '8px 16px 4px 16px' }}>
-                  <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[rgba(0,0,0,0.5)]">
+                  <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]">
                     {section.title}
                   </span>
                 </div>

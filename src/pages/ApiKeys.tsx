@@ -157,7 +157,7 @@ export default function ApiKeys({ onNavigate }: { onNavigate: (page: Page) => vo
           </div>
           <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9)', fontFamily: FONT, fontWeight: 400 }}>
             For full setup instructions, configuration details, and examples, see the{' '}
-            <a href="https://github.com/alva-ai" target="_blank" rel="noopener noreferrer" style={{ color: '#2196f3' }}>GitHub repo</a>.
+            <a href="https://github.com/alva-ai" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--main-m2)' }}>GitHub repo</a>.
           </p>
         </div>
         <div className="flex gap-[var(--spacing-m)] items-stretch flex-wrap">

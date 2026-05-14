@@ -86,7 +86,7 @@ function StockLogo({ ticker }: { ticker: string }) {
   return (
     <div
       className={`${FONT} flex items-center justify-center size-[20px] rounded-full shrink-0 text-[10px] font-medium`}
-      style={{ background: 'rgba(73,163,166,0.15)', color: '#49A3A6' }}
+      style={{ background: 'rgba(73,163,166,0.15)', color: 'var(--main-m1)' }}
     >
       {ticker.charAt(0)}
     </div>
@@ -227,7 +227,7 @@ function StatusPill({ status }: { status: FeedPreviewStatus }) {
       className={`${FONT} inline-flex items-center gap-[5px] rounded-full px-[8px] py-[2px] text-[11px] leading-[18px] tracking-[0.11px]`}
       style={{
         color: pushed ? 'var(--main-m1, #49A3A6)' : 'var(--text-n5, rgba(0,0,0,0.5))',
-        background: pushed ? 'rgba(73,163,166,0.1)' : 'rgba(0,0,0,0.04)',
+        background: pushed ? 'var(--main-m1-10)' : 'var(--b-r05)',
       }}
     >
       <span
@@ -284,7 +284,7 @@ function PlaybookFeedPreview({
                 className="flex flex-col gap-[5px] text-left cursor-pointer rounded-[8px] p-[12px] transition-colors"
                 style={{
                   background: active ? 'var(--b0-container, #fff)' : 'rgba(255,255,255,0.58)',
-                  border: `0.5px solid ${active ? feed.accent : 'rgba(0,0,0,0.1)'}`,
+                  border: `0.5px solid ${active ? feed.accent : 'var(--line-l07)'}`,
                   boxShadow: active ? '0 10px 24px rgba(0,0,0,0.06)' : 'none',
                 }}
               >
@@ -307,7 +307,7 @@ function PlaybookFeedPreview({
             className="flex flex-col gap-[4px] rounded-[8px] px-[14px] py-[12px]"
             style={{
               background: 'rgba(255,255,255,0.72)',
-              border: '0.5px solid rgba(0,0,0,0.08)',
+              border: '0.5px solid var(--line-l07)',
             }}
           >
             <div className="flex flex-wrap items-center gap-[8px]">
@@ -331,7 +331,7 @@ function PlaybookFeedPreview({
                 className="grid grid-cols-[28px_minmax(0,1fr)] gap-[10px] rounded-[8px] px-[12px] py-[12px]"
                 style={{
                   background: 'var(--b0-container, #fff)',
-                  border: '0.5px solid rgba(0,0,0,0.08)',
+                  border: '0.5px solid var(--line-l07)',
                   boxShadow: '0 8px 22px rgba(0,0,0,0.045)',
                 }}
               >
@@ -368,7 +368,7 @@ function PlaybookFeedPreview({
                         className={`${FONT} rounded-full px-[7px] py-[1px] text-[11px] leading-[18px] tracking-[0.11px]`}
                         style={{
                           color: 'var(--text-n7)',
-                          background: 'rgba(0,0,0,0.04)',
+                          background: 'var(--b-r05)',
                         }}
                       >
                         {tag}
@@ -574,7 +574,7 @@ export function AgentEmptyState({
                             <CdnIcon
                               name={t.trend === 'up' ? 'bullish-l' : 'bearish-l'}
                               size={20}
-                              color={t.trend === 'up' ? '#2A9B7D' : '#E05357'}
+                              color={t.trend === 'up' ? 'var(--main-m3)' : 'var(--main-m4)'}
                             />
                           </div>
                         ))}
@@ -730,7 +730,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
                     <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate`}>
                       Alva Agent
                     </p>
-                    <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                    <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                   </div>
                 </div>
               ) : (
@@ -738,7 +738,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
                   <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate`}>
                     {threadTitle}
                   </p>
-                  <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                  <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                 </div>
               )
             }
@@ -776,12 +776,12 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
         <div className="flex flex-col flex-1 min-h-0 w-full" style={{ maxWidth: 896 }}>
           {isAgent ? (
             <>
-              <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[64px]">
+              <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[120px]">
                 <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px]">
                   {messages.map((msg, i) =>
                     msg.role === 'user' ? (
                       <div key={i} className="flex flex-col items-end w-full">
-                        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
+                        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
                           <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
                             {msg.text}
                           </p>
@@ -804,7 +804,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
             </>
           ) : hasThreadContent ? (
             <>
-              <div className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[64px]">
+              <div className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[120px]">
                 <ChatMessages conversationId={activeView} />
               </div>
               <div className="px-[28px] pb-[24px] shrink-0">

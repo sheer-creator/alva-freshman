@@ -4,6 +4,7 @@ import {
   HOME_CHAT_CONTEXT,
   PAGE_CONTEXT_MAP,
   PAGE_DEFAULT_THREAD,
+  PAGE_TITLES,
   type ChatTriggerMode,
   type ContextTagData,
   type ThreadsEntryMode,
@@ -370,6 +371,9 @@ export function ChatProvider({
     // agent 和 thread 页面不显示 Chat FAB
     if (activePage in PAGE_CONTEXT_MAP) return PAGE_CONTEXT_MAP[activePage];
     if (activePage.startsWith('thread/')) return null;
+    // Playbook/template 详情页：chip label 用 playbook 名称
+    const pageTitle = PAGE_TITLES[activePage];
+    if (pageTitle) return { label: pageTitle, icon: 'sidebar-discover-normal' };
     // 其余页面都显示 Chat FAB
     return HOME_CHAT_CONTEXT;
   }, [activePage]);

@@ -32,16 +32,16 @@ export function TodoProgress({ items, visible }: TodoProgressProps) {
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '6px 12px', borderRadius: 8,
           background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)',
-          border: '1px solid rgba(0,0,0,0.06)',
+          border: '1px solid var(--line-l07)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           cursor: 'pointer', userSelect: 'none',
         }}
       >
         {/* Mini progress bar */}
-        <div style={{ width: 60, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+        <div style={{ width: 60, height: 4, borderRadius: 2, background: 'var(--b-r07)', overflow: 'hidden' }}>
           <div style={{
             width: `${(done / total) * 100}%`, height: '100%', borderRadius: 2,
-            background: allDone ? '#49A3A6' : 'linear-gradient(90deg, #49A3A6, #3EE4D4)',
+            background: allDone ? 'var(--main-m1)' : 'linear-gradient(90deg, #49A3A6, #3EE4D4)',
             transition: 'width 0.4s ease-out',
           }} />
         </div>
@@ -62,7 +62,7 @@ export function TodoProgress({ items, visible }: TodoProgressProps) {
       position: 'absolute', top: 12, right: 16, zIndex: 10,
       width: 280, borderRadius: 10,
       background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
-      border: '1px solid rgba(0,0,0,0.06)',
+      border: '1px solid var(--line-l07)',
       boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
       opacity: visible ? 1 : 0,
       transition: 'opacity 0.3s ease-out',
@@ -96,11 +96,11 @@ export function TodoProgress({ items, visible }: TodoProgressProps) {
             ) : item.status === 'in_progress' ? (
               <div style={{
                 width: 14, height: 14, borderRadius: '50%', flexShrink: 0,
-                border: '2px solid #49A3A6',
+                border: '2px solid var(--main-m1)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <div style={{
-                  width: 6, height: 6, borderRadius: '50%', background: '#49A3A6',
+                  width: 6, height: 6, borderRadius: '50%', background: 'var(--main-m1)',
                   animation: 'alvaPulse 1.4s ease-in-out infinite',
                 }} />
               </div>
@@ -126,10 +126,10 @@ export function TodoProgress({ items, visible }: TodoProgressProps) {
 
       {/* Progress bar */}
       <div style={{ padding: '4px 14px 10px' }}>
-        <div style={{ height: 3, borderRadius: 2, background: 'rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+        <div style={{ height: 3, borderRadius: 2, background: 'var(--b-r07)', overflow: 'hidden' }}>
           <div style={{
             width: `${(done / total) * 100}%`, height: '100%', borderRadius: 2,
-            background: allDone ? '#49A3A6' : 'linear-gradient(90deg, #49A3A6, #3EE4D4)',
+            background: allDone ? 'var(--main-m1)' : 'linear-gradient(90deg, #49A3A6, #3EE4D4)',
             transition: 'width 0.4s ease-out',
           }} />
         </div>

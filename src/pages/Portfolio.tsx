@@ -31,7 +31,7 @@ const MONO: React.CSSProperties = { fontFamily: FONT_FAMILY, fontVariantNumeric:
 function StatItem({ value, label, accent }: { value: string; label: string; accent?: boolean }) {
   return (
     <div className="flex-1 min-w-0" style={{ ...CARD_BG, padding: '16px 20px' }}>
-      <p className="text-[20px] leading-[28px]" style={{ color: accent ? '#49a3a6' : 'var(--text-n9)', ...MONO, fontWeight: 400 }}>{value}</p>
+      <p className="text-[20px] leading-[28px]" style={{ color: accent ? 'var(--main-m1)' : 'var(--text-n9)', ...MONO, fontWeight: 400 }}>{value}</p>
       <p className="text-[12px] mt-[2px]" style={LABEL}>{label}</p>
     </div>
   );
@@ -50,7 +50,7 @@ function BrokerTabs({ brokers, active, onChange }: { brokers: BrokerPortfolio[];
             onClick={() => onChange(b.brokerId)}
             className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] transition-colors cursor-pointer ${
               isActive
-                ? 'bg-[rgba(73,163,166,0.12)] text-[rgba(0,0,0,0.9)] font-medium'
+                ? 'bg-[rgba(73,163,166,0.12)] text-[var(--text-n9)] font-medium'
                 : 'bg-transparent text-[rgba(0,0,0,0.35)] hover:text-[rgba(0,0,0,0.6)]'
             }`}
           >
@@ -73,7 +73,7 @@ function PortfolioHeader({ broker, onNavigate }: { broker: BrokerPortfolio; onNa
     <div style={{ ...CARD_BG, padding: '20px 24px' }}>
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-[16px]">
-          <span className="text-[32px] leading-[40px]" style={{ color: '#49a3a6', fontFamily: FONT_FAMILY, fontWeight: 500, letterSpacing: '-0.02em' }}>
+          <span className="text-[32px] leading-[40px]" style={{ color: 'var(--main-m1)', fontFamily: FONT_FAMILY, fontWeight: 500, letterSpacing: '-0.02em' }}>
             ${broker.totalEquity.toLocaleString()}
           </span>
           <span className="text-[14px]" style={{ color: pnlColor, fontFamily: FONT_FAMILY, ...MONO }}>
@@ -266,7 +266,7 @@ function WeightBarRow({ w }: { w: WeightBar }) {
   return (
     <div className="flex items-center gap-[10px] py-[5px]">
       <span className="text-[11px] w-[36px] shrink-0" style={{ color: 'var(--text-n9)', fontWeight: 500, fontFamily: FONT_FAMILY }}>{w.symbol}</span>
-      <div className="flex-1 h-[12px] relative" style={{ background: 'rgba(0,0,0,0.03)', borderRadius: 6 }}>
+      <div className="flex-1 h-[12px] relative" style={{ background: 'var(--b-r03)', borderRadius: 6 }}>
         <div className="absolute top-0 bottom-0 left-0 rounded-[6px]" style={{
           width: `${w.targetWeight * barScale * 100}%`,
           border: '1px dashed rgba(73,163,166,0.3)',
@@ -305,7 +305,7 @@ function StrategySection({ strategy, onNavigate }: { strategy: StrategyBinding; 
             <PulseIndicator status="active" />
             <span className="text-[11px] px-[8px] py-[2px] rounded-full" style={{
               background: strategy.mode === 'auto' ? 'rgba(64,165,68,0.08)' : 'rgba(73,163,166,0.08)',
-              color: strategy.mode === 'auto' ? 'var(--main-m3)' : '#49a3a6',
+              color: strategy.mode === 'auto' ? 'var(--main-m3)' : 'var(--main-m1)',
             }}>{strategy.mode === 'auto' ? 'Auto' : 'Approval'}</span>
           </div>
           <span className="text-[12px]" style={{ color: 'var(--text-n5)', ...MONO }}>Rebalanced {strategy.lastRebalance}</span>
@@ -323,10 +323,10 @@ function StrategySection({ strategy, onNavigate }: { strategy: StrategyBinding; 
           <div className="flex items-center gap-[6px]">
             <button
               className="transition-colors hover:opacity-90"
-              style={{ padding: '6px 16px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500, background: '#49a3a6', color: '#fff', border: 'none' }}
+              style={{ padding: '6px 16px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500, background: 'var(--main-m1)', color: '#fff', border: 'none' }}
             >Rebalance Now</button>
             {strategy.pendingOrders > 0 && (
-              <span className="text-[11px] px-[8px] py-[3px] rounded-full" style={{ background: 'rgba(230,169,26,0.1)', color: '#E6A91A' }}>
+              <span className="text-[11px] px-[8px] py-[3px] rounded-full" style={{ background: 'rgba(230,169,26,0.1)', color: 'var(--main-m5)' }}>
                 {strategy.pendingOrders} awaiting approval
               </span>
             )}
@@ -348,9 +348,9 @@ function ActivityTab({ orders, journal }: { orders: Order[]; journal: JournalEnt
       {pendingOrders.length > 0 && (
         <div className="flex flex-col gap-[10px]">
           <div className="flex items-center gap-[8px]">
-            <div className="w-[6px] h-[6px] rounded-full" style={{ background: '#E6A91A' }} />
+            <div className="w-[6px] h-[6px] rounded-full" style={{ background: 'var(--main-m5)' }} />
             <p className="text-[13px]" style={{ color: 'var(--text-n9)', fontWeight: 500 }}>Pending Approval</p>
-            <span className="text-[11px] px-[6px] py-[1px] rounded-full" style={{ background: 'rgba(230,169,26,0.1)', color: '#E6A91A' }}>{pendingOrders.length}</span>
+            <span className="text-[11px] px-[6px] py-[1px] rounded-full" style={{ background: 'rgba(230,169,26,0.1)', color: 'var(--main-m5)' }}>{pendingOrders.length}</span>
           </div>
           <div style={{ ...CARD_BG, overflow: 'hidden', border: '1px solid rgba(230,169,26,0.15)' }}>
             {pendingOrders.map((o, i) => (
@@ -361,9 +361,9 @@ function ActivityTab({ orders, journal }: { orders: Order[]; journal: JournalEnt
                   <span className="text-[12px]" style={{ color: 'var(--text-n7)', ...MONO }}>
                     {o.qty} x ${o.price.toLocaleString()} <span style={{ color: 'var(--text-n3)' }}>{o.type}</span>
                   </span>
-                  <span className="text-[11px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: '#49a3a6' }}>{o.sourceStrategy}</span>
+                  <span className="text-[11px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: 'var(--main-m1)' }}>{o.sourceStrategy}</span>
                   <div className="flex items-center gap-[4px] ml-auto">
-                    <button className="transition-colors hover:opacity-90" style={{ background: '#49a3a6', color: '#fff', border: 'none', padding: '4px 14px', borderRadius: 4, fontSize: 11, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500 }}>Approve</button>
+                    <button className="transition-colors hover:opacity-90" style={{ background: 'var(--main-m1)', color: '#fff', border: 'none', padding: '4px 14px', borderRadius: 4, fontSize: 11, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500 }}>Approve</button>
                     <button className="transition-colors" style={{ background: 'transparent', color: 'var(--main-m4)', border: '0.5px solid rgba(224,83,87,0.25)', padding: '4px 14px', borderRadius: 4, fontSize: 11, cursor: 'pointer', fontFamily: FONT_FAMILY }}>Reject</button>
                   </div>
                 </div>
@@ -388,7 +388,7 @@ function ActivityTab({ orders, journal }: { orders: Order[]; journal: JournalEnt
               const statusStyle = t.status === 'filled'
                 ? { background: 'rgba(64,165,68,0.08)', color: 'var(--main-m3)' }
                 : t.status === 'skipped'
-                  ? { background: 'rgba(230,169,26,0.08)', color: '#E6A91A' }
+                  ? { background: 'rgba(230,169,26,0.08)', color: 'var(--main-m5)' }
                   : { background: 'rgba(224,83,87,0.08)', color: 'var(--main-m4)' };
               const statusLabel = t.status === 'filled' ? 'Filled' : t.status === 'skipped' ? 'Skipped' : 'Failed';
               return (
@@ -407,7 +407,7 @@ function ActivityTab({ orders, journal }: { orders: Order[]; journal: JournalEnt
                     {t.source === 'manual' ? (
                       <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(0,0,0,0.04)', color: 'var(--text-n5)' }}>Manual</span>
                     ) : (
-                      <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: '#49a3a6' }}>{t.source}</span>
+                      <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: 'var(--main-m1)' }}>{t.source}</span>
                     )}
                     {t.note && <span className="text-[11px] ml-auto truncate max-w-[200px]" style={{ color: 'var(--text-n3)' }}>{t.note}</span>}
                   </div>
@@ -487,7 +487,7 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
       <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
         <div className="content-stretch flex flex-col gap-[20px] px-[28px] pt-[24px] relative w-full">
 
-          <h2 className="text-[22px] tracking-[0.22px] text-[rgba(0,0,0,0.9)]" style={{ fontFamily: FONT_FAMILY, fontWeight: 500 }}>Portfolio</h2>
+          <h2 className="text-[22px] tracking-[0.22px] text-[var(--text-n9)]" style={{ fontFamily: FONT_FAMILY, fontWeight: 500 }}>Portfolio</h2>
 
           <BrokerTabs brokers={BROKER_PORTFOLIOS} active={activeBrokerId} onChange={setActiveBrokerId} />
 
@@ -508,13 +508,13 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
                 onClick={() => setTab(t.key)}
                 className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] transition-colors cursor-pointer ${
                   tab === t.key
-                    ? 'bg-[rgba(73,163,166,0.12)] text-[rgba(0,0,0,0.9)] font-medium'
+                    ? 'bg-[rgba(73,163,166,0.12)] text-[var(--text-n9)] font-medium'
                     : 'bg-transparent text-[rgba(0,0,0,0.35)] hover:text-[rgba(0,0,0,0.6)]'
                 }`}
               >
                 {t.label}
                 {t.badge && (
-                  <span className="ml-[6px] text-[10px] px-[6px] py-[1px] rounded-full" style={{ background: 'rgba(230,169,26,0.12)', color: '#E6A91A' }}>{t.badge}</span>
+                  <span className="ml-[6px] text-[10px] px-[6px] py-[1px] rounded-full" style={{ background: 'rgba(230,169,26,0.12)', color: 'var(--main-m5)' }}>{t.badge}</span>
                 )}
               </button>
             ))}

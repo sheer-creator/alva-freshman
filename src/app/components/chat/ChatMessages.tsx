@@ -89,7 +89,7 @@ function PlaybookCard({ sourceThreadId }: { sourceThreadId?: string }) {
   return (
     <div
       className="flex flex-col items-start overflow-clip w-[360px] shrink-0 cursor-pointer hover:shadow-l transition-shadow"
-      style={{ border: '0.5px solid rgba(0,0,0,0.3)', borderRadius: 12, padding: 4, background: 'white' }}
+      style={{ border: '0.5px solid var(--line-l3)', borderRadius: 12, padding: 4, background: 'white' }}
       onClick={handleClick}
     >
       <div className="relative shrink-0 w-full" style={{ aspectRatio: '472 / 265.5' }}>
@@ -121,7 +121,7 @@ function ReasonedStepsDivider() {
         className="flex items-center gap-[8px] w-full cursor-pointer"
         onClick={() => setExpanded(v => !v)}
       >
-        <div className="flex-1 h-0" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }} />
+        <div className="flex-1 h-0" style={{ borderTop: '1px solid var(--line-l05)' }} />
         <div className="flex items-center gap-[4px]">
           <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
             Reasoned · {MOCK_REASON_STEPS.length} steps
@@ -129,10 +129,10 @@ function ReasonedStepsDivider() {
           <CdnIcon
             name={expanded ? 'arrow-down-l2' : 'arrow-right-l2'}
             size={12}
-            color="rgba(0,0,0,0.5)"
+            color="var(--text-n5)"
           />
         </div>
-        <div className="flex-1 h-0" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }} />
+        <div className="flex-1 h-0" style={{ borderTop: '1px solid var(--line-l05)' }} />
       </div>
       {expanded && (
         <>
@@ -141,7 +141,7 @@ function ReasonedStepsDivider() {
               <div key={i} className="flex gap-[8px] items-start w-full">
                 <div className="relative shrink-0 w-[12px] self-stretch">
                   <div className="absolute left-1/2 top-[2px] bottom-[2px] w-0 -translate-x-1/2"
-                    style={{ borderLeft: '1px dashed rgba(0,0,0,0.12)' }} />
+                    style={{ borderLeft: '1px dashed var(--line-l12)' }} />
                 </div>
                 <div className="flex flex-col gap-[8px] items-start flex-1 min-w-0">
                   <div className="flex items-center gap-[8px] w-full">
@@ -150,7 +150,7 @@ function ReasonedStepsDivider() {
                     </span>
                     {step.meta && (
                       <div className="flex items-center justify-center max-w-[640px] px-[6px] py-[1px] rounded-[2px] min-w-0"
-                        style={{ background: 'rgba(0,0,0,0.03)' }}>
+                        style={{ background: 'var(--b-r03)' }}>
                         <span className={`${MONO} text-[10px] leading-[16px] text-[var(--text-n5)] truncate`}>
                           {step.meta}
                         </span>
@@ -169,7 +169,7 @@ function ReasonedStepsDivider() {
             ))}
           </div>
           <div className="w-full" style={{ paddingTop: 16, paddingBottom: 4 }}>
-            <div className="w-full h-0" style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }} />
+            <div className="w-full h-0" style={{ borderTop: '1px solid var(--line-l07)' }} />
           </div>
         </>
       )}
@@ -216,7 +216,7 @@ function SourceLink({ sourceThreadId }: { sourceThreadId?: string }) {
       <div className="flex items-center gap-[2px]">
         <span
           className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] underline decoration-dotted cursor-pointer"
-          style={{ textDecorationColor: 'rgba(0,0,0,0.5)' }}
+          style={{ textDecorationColor: 'var(--text-n5)' }}
           onClick={() => { if (sourceThreadId) sessionStorage.setItem('openChatWithThread', sourceThreadId); window.location.hash = 'trends'; }}
         >
           BTC Ultimate AI Trader
@@ -233,7 +233,7 @@ function MockConversation({ sourceThreadId }: { sourceThreadId?: string }) {
     <>
       {/* ── Round 1 ── */}
       <div className="flex flex-col items-end w-full">
-        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
+        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
           <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>{MOCK_USER_MSG}</p>
         </div>
       </div>
@@ -251,7 +251,7 @@ function MockConversation({ sourceThreadId }: { sourceThreadId?: string }) {
               <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)] truncate`}>{header}</p>
             </div>
             {MOCK_TABLE.rows.map((row) => (
-              <div key={row[0]} className="py-[10px] pr-[8px]" style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}>
+              <div key={row[0]} className="py-[10px] pr-[8px]" style={{ borderTop: '1px solid var(--line-l07)' }}>
                 <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate`}>{row[ci]}</p>
               </div>
             ))}
@@ -265,7 +265,7 @@ function MockConversation({ sourceThreadId }: { sourceThreadId?: string }) {
       <div className="flex flex-col items-end w-full">
         <div
           className={`${FONT} flex flex-col max-w-[560px] px-[16px] py-[12px] text-[14px] leading-[22px] tracking-[0.14px]`}
-          style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8, gap: 12 }}
+          style={{ background: 'var(--main-m1-10)', borderRadius: 8, gap: 12 }}
         >
           {MOCK_QA_PAIRS.map((pair, i) => (
             <div key={i} className="flex flex-col gap-[2px]">
@@ -321,7 +321,7 @@ export function ChatMessages({ conversationId, hasContent }: ChatMessagesProps) 
         {/* User prompt bubble */}
         {pendingPrompt && (
           <div className="flex flex-col items-end w-full">
-            <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
+            <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
               <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]">{pendingPrompt}</p>
             </div>
           </div>

@@ -28,13 +28,13 @@ export function FloatingChatFAB() {
           height: 40,
           padding: '0 12px 0 6px',
           borderRadius: 8,
-          background: '#49A3A6',
+          background: 'var(--main-m1)',
           border: '0.5px solid rgba(0,0,0,0.7)',
           animation: 'fabBreathe 3s ease-in-out infinite',
           transition: 'background 0.2s ease',
         }}
-        onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(rgba(0,0,0,0.05),rgba(0,0,0,0.05)),#49A3A6'}
-        onMouseLeave={e => e.currentTarget.style.background = '#49A3A6'}
+        onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(rgba(0,0,0,0.05),rgba(0,0,0,0.05)),var(--main-m1)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'var(--main-m1)'}
         onClick={() => openChat(false)}
       >
         <div

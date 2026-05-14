@@ -24,7 +24,7 @@ const AVAILABLE = 12000;
 /* ========== Icons ========== */
 
 function ArrowRight() {
-  return <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />;
+  return <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5)" />;
 }
 
 function GoogleLogo() {
@@ -117,10 +117,10 @@ function MenuItem({
     >
       <div className="flex items-center gap-[8px]">
         {icon}
-        <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>{label}</span>
+        <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>{label}</span>
       </div>
       <div className="flex items-center gap-[6px]">
-        {dot && <span className="w-[6px] h-[6px] rounded-full" style={{ background: '#49a3a6' }} />}
+        {dot && <span className="w-[6px] h-[6px] rounded-full" style={{ background: 'var(--main-m1)' }} />}
         <ArrowRight />
       </div>
     </button>
@@ -148,30 +148,30 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
           <Avatar name={USER.name} size={48} />
           <div className="flex flex-col gap-[2px] min-w-0 flex-1">
             <div className="flex items-center gap-[6px] min-w-0">
-              <span className="text-[18px] font-medium leading-[28px] tracking-[0.18px] truncate" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>{USER.name}</span>
+              <span className="text-[18px] font-medium leading-[28px] tracking-[0.18px] truncate" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>{USER.name}</span>
               <span
                 className="text-[11px] font-medium leading-[18px] tracking-[0.11px] px-[6px] rounded-full shrink-0"
-                style={{ color: '#ffffff', background: '#49a3a6', fontFamily: FONT }}
+                style={{ color: '#ffffff', background: 'var(--main-m1)', fontFamily: FONT }}
               >
                 Pro
               </span>
               <span
                 className="text-[11px] leading-[18px] tracking-[0.11px] px-[6px] rounded-full shrink-0"
-                style={{ color: '#49a3a6', background: 'rgba(73,163,166,0.1)', fontFamily: FONT }}
+                style={{ color: 'var(--main-m1)', background: 'var(--main-m1-10)', fontFamily: FONT }}
               >
                 Annual
               </span>
             </div>
             <div className="flex items-center gap-[4px] min-w-0">
               <GoogleLogo />
-              <span className="text-[12px] leading-[20px] tracking-[0.12px] truncate" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>{USER.email}</span>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px] truncate" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>{USER.email}</span>
             </div>
           </div>
           <ArrowRight />
         </div>
 
         {/* divider — 不通栏 */}
-        <div className="h-[0.5px] w-full" style={{ background: 'rgba(0,0,0,0.07)' }} />
+        <div className="h-[0.5px] w-full" style={{ background: 'var(--line-l07)' }} />
 
         {/* Usage — 标题 + 数据卡片共享一个点击区域，hover 通栏 */}
         <button
@@ -181,8 +181,8 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
         >
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-[8px]">
-              <CdnIcon name="credit-l" size={20} color="rgba(0,0,0,0.9)" />
-              <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>Usage</span>
+              <CdnIcon name="credit-l" size={20} color="var(--text-n9)" />
+              <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>Usage</span>
             </div>
             <ArrowRight />
           </div>
@@ -190,31 +190,31 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
             className="flex items-end justify-between gap-[12px] rounded-[8px] px-[12px] py-[12px] w-full bg-black/[0.03] transition-colors group-hover:bg-black/[0.06]"
           >
             <div className="flex flex-col gap-[6px] min-w-0 flex-1">
-              <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Available</span>
+              <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>Available</span>
               <AutoFitValue
                 value={AVAILABLE.toLocaleString()}
                 maxSize={24}
                 minSize={14}
                 className="leading-none tracking-[0.24px]"
-                style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}
+                style={{ color: 'var(--text-n9)', fontFamily: FONT }}
               />
             </div>
             <div className="flex flex-col gap-[4px] shrink-0 items-end">
               <div className="flex items-center gap-[8px]">
-                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Daily</span>
-                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>
+                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>Daily</span>
+                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>
                   {CREDITS.daily.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center gap-[8px]">
-                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Monthly</span>
-                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>
+                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>Monthly</span>
+                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>
                   {CREDITS.monthly.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center gap-[8px]">
-                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>Pack</span>
-                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>
+                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>Pack</span>
+                <span className="text-[10px] leading-none tracking-[0.1px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>
                   {CREDITS.pack.toLocaleString()}
                 </span>
               </div>
@@ -225,32 +225,32 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
         {/* Menu items — 与 Usage hover 区无间距 */}
         <div className="pb-[8px] flex flex-col">
           <MenuItem
-            icon={<CdnIcon name="gift-l" size={20} color="rgba(0,0,0,0.9)" />}
+            icon={<CdnIcon name="gift-l" size={20} color="var(--text-n9)" />}
             label="Referral"
             onClick={() => go('referral-landing')}
           />
           <MenuItem
-            icon={<CdnIcon name="wallet-l" size={20} color="rgba(0,0,0,0.9)" />}
+            icon={<CdnIcon name="wallet-l" size={20} color="var(--text-n9)" />}
             label="Creator Earnings"
             dot
           />
           <MenuItem
-            icon={<CdnIcon name="language-l" size={20} color="rgba(0,0,0,0.9)" />}
+            icon={<CdnIcon name="language-l" size={20} color="var(--text-n9)" />}
             label="Language"
           />
           <MenuItem
-            icon={<CdnIcon name="settings-l" size={20} color="rgba(0,0,0,0.9)" />}
+            icon={<CdnIcon name="settings-l" size={20} color="var(--text-n9)" />}
             label="Settings"
             onClick={() => go('account')}
           />
           <MenuItem
-            icon={<CdnIcon name="logout-l" size={20} color="rgba(0,0,0,0.9)" />}
+            icon={<CdnIcon name="logout-l" size={20} color="var(--text-n9)" />}
             label="Log Out"
           />
         </div>
 
         {/* divider — 不通栏 */}
-        <div className="h-[0.5px] w-full" style={{ background: 'rgba(0,0,0,0.07)' }} />
+        <div className="h-[0.5px] w-full" style={{ background: 'var(--line-l07)' }} />
 
         {/* Social — 四个按钮 hover 不通栏，只高亮按钮本身 */}
         <div className="flex gap-[8px] py-[20px]">
@@ -259,7 +259,7 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
               key={i}
               type="button"
               className="flex-1 h-[32px] rounded-[6px] flex items-center justify-center cursor-pointer transition-colors hover:bg-black/5 bg-transparent"
-              style={{ border: '0.5px solid rgba(0,0,0,0.3)' }}
+              style={{ border: '0.5px solid var(--line-l3)' }}
               onClick={() => { if (i === 3) go('docs'); }}
             >
               <svg className="w-[16px] h-[16px]" viewBox="0 0 16 16" fill="none">

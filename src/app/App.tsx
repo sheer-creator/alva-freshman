@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
+import { ChatProvider } from "@/app/components/chat/ChatContext";
 
 export type Page = "new-chat" | "docs" | "api-keys" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "automations" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
 
@@ -91,7 +92,7 @@ export default function App() {
   const threadId = getThreadId(currentPage);
 
   return (
-    <>
+    <ChatProvider activePage={currentPage}>
       <Suspense>
         {currentPage === "new-chat" && <NewChat onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "new-chat-opt2" && <NewChat onNavigate={navigate} onOpenSearch={openSearch} variant="opt2" />}
@@ -123,6 +124,6 @@ export default function App() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
       />
-    </>
+    </ChatProvider>
   );
 }

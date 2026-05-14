@@ -53,7 +53,7 @@ export default function PlaybookReferral({ onNavigate }: { onNavigate: (page: Pa
             <AlvaMark size={26} />
             <span
               className="text-[11px] leading-[16px] tracking-[0.44px] uppercase px-[8px] py-[3px] rounded-[4px]"
-              style={{ color: '#49A3A6', background: 'rgba(73,163,166,0.08)', letterSpacing: '0.08em' }}
+              style={{ color: 'var(--main-m1)', background: 'rgba(73,163,166,0.08)', letterSpacing: '0.08em' }}
             >
               Invite
             </span>
@@ -68,7 +68,7 @@ export default function PlaybookReferral({ onNavigate }: { onNavigate: (page: Pa
 
             {/* 核心数字 */}
             <div className="mt-[20px] flex items-baseline gap-[6px]">
-              <span className="text-[48px] leading-[1] tracking-[-2px]" style={{ color: '#49A3A6', fontWeight: 400 }}>
+              <span className="text-[48px] leading-[1] tracking-[-2px]" style={{ color: 'var(--main-m1)', fontWeight: 400 }}>
                 {creditsPerReferral.toLocaleString()}
               </span>
               <span className="text-[15px] leading-[20px]" style={{ color: 'rgba(0,0,0,0.3)' }}>credits each</span>
@@ -115,7 +115,7 @@ export default function PlaybookReferral({ onNavigate }: { onNavigate: (page: Pa
 
             <p className="mt-[16px] text-[11px] leading-[16px] text-center" style={{ color: 'rgba(0,0,0,0.2)' }}>
               Already on Alva?{' '}
-              <span className="cursor-pointer" style={{ color: '#49A3A6' }} onClick={() => onNavigate('new-chat')}>Sign in</span>
+              <span className="cursor-pointer" style={{ color: 'var(--main-m1)' }} onClick={() => onNavigate('new-chat')}>Sign in</span>
             </p>
           </div>
         </div>

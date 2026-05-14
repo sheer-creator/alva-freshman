@@ -68,15 +68,15 @@ function PlaybookCard({ pb, onClick }: { pb: PlaybookSummary; onClick: () => voi
       <div className="flex flex-col gap-[16px] p-[16px]">
         <div className="flex items-center gap-[6px]">
           <UserAvatar name={MOCK_USER.name} size={20} />
-          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[rgba(0,0,0,0.7)]">{MOCK_USER.name}</span>
+          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n7)]">{MOCK_USER.name}</span>
           <PulseIndicator status={pb.status} />
         </div>
         <div className="flex flex-col gap-[6px]">
-          <p className="font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[rgba(0,0,0,0.9)] truncate">{pb.name}</p>
-          <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[rgba(0,0,0,0.5)] line-clamp-2 h-[40px]">{pb.description}</p>
+          <p className="font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[var(--text-n9)] truncate">{pb.name}</p>
+          <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n5)] line-clamp-2 h-[40px]">{pb.description}</p>
         </div>
         <div>
-          <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[#49a3a6]">{pb.annualizedReturn}</p>
+          <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[var(--main-m1)]">{pb.annualizedReturn}</p>
           <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[rgba(0,0,0,0.4)]">Annualized Return</p>
         </div>
       </div>
@@ -100,7 +100,7 @@ function CommentActivityItem({ c }: { c: CommentActivity }) {
               {c.replyTo && (
                 <>
                   <span className="text-[12px]" style={{ color: 'var(--text-n5)' }}>replied to</span>
-                  <span className="text-[12px] font-medium" style={{ color: '#49A3A6' }}>@{c.replyTo}</span>
+                  <span className="text-[12px] font-medium" style={{ color: 'var(--main-m1)' }}>@{c.replyTo}</span>
                 </>
               )}
             </div>
@@ -160,17 +160,17 @@ function SkillCard({ sk }: { sk: SkillSummary }) {
       <div className="flex flex-col gap-[16px] p-[16px]">
         <div className="flex items-center gap-[6px]">
           <UserAvatar name={sk.author} size={20} />
-          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[rgba(0,0,0,0.7)]">{sk.author}</span>
-          <span className="text-[11px] px-[6px] py-[1px] rounded-[3px]" style={{ background: sk.category === 'alva' ? 'rgba(73,163,166,0.12)' : 'rgba(0,0,0,0.05)', color: sk.category === 'alva' ? '#49a3a6' : 'rgba(0,0,0,0.5)' }}>
+          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n7)]">{sk.author}</span>
+          <span className="text-[11px] px-[6px] py-[1px] rounded-[3px]" style={{ background: sk.category === 'alva' ? 'rgba(73,163,166,0.12)' : 'var(--b-r05)', color: sk.category === 'alva' ? 'var(--main-m1)' : 'var(--text-n5)' }}>
             {sk.category === 'alva' ? 'Alva' : 'Custom'}
           </span>
         </div>
         <div className="flex flex-col gap-[6px]">
-          <p className="font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[rgba(0,0,0,0.9)] truncate">{sk.name}</p>
-          <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[rgba(0,0,0,0.5)] line-clamp-2 h-[40px]">{sk.description}</p>
+          <p className="font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[var(--text-n9)] truncate">{sk.name}</p>
+          <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n5)] line-clamp-2 h-[40px]">{sk.description}</p>
         </div>
         <div>
-          <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[#49a3a6]">{sk.weeklyInstalls}</p>
+          <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[var(--main-m1)]">{sk.weeklyInstalls}</p>
           <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[rgba(0,0,0,0.4)]">Weekly Installs</p>
         </div>
       </div>
@@ -249,8 +249,8 @@ export default function UserProfile({ onNavigate }: { onNavigate: (page: Page) =
                     onClick={() => setTab(t)}
                     className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] transition-colors cursor-pointer ${
                       tab === t
-                        ? 'bg-[rgba(73,163,166,0.15)] text-[rgba(0,0,0,0.9)] font-medium'
-                        : 'bg-[rgba(0,0,0,0.03)] text-[rgba(0,0,0,0.5)] hover:text-[rgba(0,0,0,0.7)]'
+                        ? 'bg-[rgba(73,163,166,0.15)] text-[var(--text-n9)] font-medium'
+                        : 'bg-[var(--b-r03)] text-[var(--text-n5)] hover:text-[var(--text-n7)]'
                     }`}
                   >
                     {tabMeta[t].label} ({tabMeta[t].count})

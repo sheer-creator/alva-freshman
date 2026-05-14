@@ -37,7 +37,7 @@ function ToolbarButton({ icon, label }: { icon: React.ReactNode; label: string }
   return (
     <div className="content-stretch flex gap-[6px] h-[32px] items-center justify-center overflow-clip px-[12px] py-[4px] relative rounded-[4px] shrink-0">
       {icon}
-      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[rgba(0,0,0,0.9)] text-ellipsis tracking-[0.12px]">{label}</p>
+      <p className="font-['Delight',sans-serif] leading-[20px] not-italic overflow-hidden relative shrink-0 text-[12px] text-[var(--text-n9)] text-ellipsis tracking-[0.12px]">{label}</p>
     </div>
   );
 }
@@ -51,7 +51,7 @@ interface BottomToolbarProps {
 
 export function BottomToolbar({ variant = 'floating', addLabel = 'Add New' }: BottomToolbarProps) {
   const border = (
-    <div aria-hidden="true" className="absolute border-[0.5px] border-[rgba(0,0,0,0.2)] border-solid inset-0 pointer-events-none rounded-[8px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.05)]" />
+    <div aria-hidden="true" className="absolute border-[0.5px] border-[var(--line-l2)] border-solid inset-0 pointer-events-none rounded-[8px] shadow-[var(--shadow-xs)]" />
   );
 
   if (variant === 'sticky') {

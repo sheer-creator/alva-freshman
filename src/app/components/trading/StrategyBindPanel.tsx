@@ -46,7 +46,7 @@ const MOCK_ORDER_PLAN: OrderRow[] = [
 
 function PillSelector<T extends string>({ options, value, onChange }: { options: T[]; value: T; onChange: (v: T) => void }) {
   return (
-    <div className="flex gap-[4px]" style={{ background: 'rgba(0,0,0,0.03)', borderRadius: 8, padding: 3 }}>
+    <div className="flex gap-[4px]" style={{ background: 'var(--b-r03, rgba(0,0,0,0.03))', borderRadius: 8, padding: 3 }}>
       {options.map(o => (
         <button
           key={o}
@@ -121,7 +121,7 @@ function ComputingSpinner() {
   return (
     <div className="flex flex-col items-center gap-[12px] py-[24px]">
       <style>{`@keyframes spin-bind { to { transform: rotate(360deg); } }`}</style>
-      <div style={{ width: 28, height: 28, border: '2.5px solid rgba(73,163,166,0.15)', borderTopColor: '#49a3a6', borderRadius: '50%', animation: 'spin-bind 0.8s linear infinite' }} />
+      <div style={{ width: 28, height: 28, border: '2.5px solid rgba(73,163,166,0.15)', borderTopColor: 'var(--main-m1, #49a3a6)', borderRadius: '50%', animation: 'spin-bind 0.8s linear infinite' }} />
       <span className="text-[12px]" style={{ color: 'var(--text-n5)', fontFamily: FONT_FAMILY }}>Computing order plan…</span>
     </div>
   );
@@ -195,14 +195,14 @@ export function StrategyBindPanel({ onNavigate }: { onNavigate?: (page: Page) =>
                 <button
                   onClick={handleBind}
                   className="w-full transition-colors hover:opacity-90"
-                  style={{ padding: '10px 0', borderRadius: 6, border: 'none', background: '#49a3a6', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: FONT_FAMILY }}
+                  style={{ padding: '10px 0', borderRadius: 6, border: 'none', background: 'var(--main-m1, #49a3a6)', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: FONT_FAMILY }}
                 >Bind</button>
               )}
               {phase === 'preview' && (
                 <button
                   onClick={handleExecute}
                   className="w-full transition-colors hover:opacity-90"
-                  style={{ padding: '10px 0', borderRadius: 6, border: 'none', background: '#49a3a6', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: FONT_FAMILY }}
+                  style={{ padding: '10px 0', borderRadius: 6, border: 'none', background: 'var(--main-m1, #49a3a6)', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: FONT_FAMILY }}
                 >Execute</button>
               )}
             </div>

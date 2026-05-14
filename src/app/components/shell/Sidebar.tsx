@@ -30,9 +30,9 @@ function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }:
   const textClass = deprecated
     ? 'text-white/35'
     : active
-      ? 'text-[#49A3A6]'
+      ? 'text-[var(--main-m1)]'
       : 'text-white hover:bg-white/5';
-  const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? '#49A3A6' : '#ffffff';
+  const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? 'var(--main-m1)' : '#ffffff';
   return (
     <div
       className={`content-stretch flex h-[36px] items-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors ${collapsed ? 'justify-center px-0' : 'gap-[8px] px-[8px] py-[4px]'} ${textClass} ${onClick ? 'cursor-pointer' : ''}`}
@@ -129,7 +129,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
   void onOpenSearch; void onOpenReferral; // 保持已有签名
   return (
     <div
-      className="antialiased bg-[#2a2a38] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 z-[2] overflow-y-auto overflow-x-hidden"
+      className="antialiased bg-[var(--b0-sidebar)] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 z-[2] overflow-y-auto overflow-x-hidden"
       style={{
         backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)',
         backgroundSize: '3px 3px',

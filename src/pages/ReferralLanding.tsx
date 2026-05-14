@@ -42,7 +42,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
   return (
     <div
       className="min-h-screen flex items-center justify-center font-['Delight',sans-serif] relative overflow-hidden"
-      style={{ background: '#f5f5f3' }}
+      style={{ background: 'var(--grey-g02)' }}
     >
       {/* 背景装饰 — 大面积淡 teal 光晕 */}
       <div className="absolute inset-0 pointer-events-none">
@@ -77,7 +77,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
           <AlvaMark size={26} />
           <span
             className="text-[11px] leading-[16px] tracking-[0.44px] uppercase px-[8px] py-[3px] rounded-[4px]"
-            style={{ color: '#49A3A6', background: 'rgba(73,163,166,0.08)', letterSpacing: '0.08em' }}
+            style={{ color: 'var(--main-m1)', background: 'rgba(73,163,166,0.08)', letterSpacing: '0.08em' }}
           >
             Invite
           </span>
@@ -96,7 +96,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
           <div className="mt-[20px] flex items-baseline gap-[6px]">
             <span
               className="text-[48px] leading-[1] tracking-[-2px]"
-              style={{ color: '#49A3A6', fontWeight: 400 }}
+              style={{ color: 'var(--main-m1)', fontWeight: 400 }}
             >
               {creditsPerReferral.toLocaleString()}
             </span>
@@ -148,7 +148,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
 
           <p className="mt-[16px] text-[11px] leading-[16px] text-center" style={{ color: 'rgba(0,0,0,0.2)' }}>
             Already on Alva?{' '}
-            <span className="cursor-pointer" style={{ color: '#49A3A6' }} onClick={() => onNavigate('new-chat')}>
+            <span className="cursor-pointer" style={{ color: 'var(--main-m1)' }} onClick={() => onNavigate('new-chat')}>
               Sign in
             </span>
           </p>

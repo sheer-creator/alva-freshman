@@ -40,6 +40,30 @@ export const PAGE_CONTEXT_MAP: Record<string, ContextTagData | null> = {
   'new-chat-opt2': null,
 };
 
+/** Page → chrome/topbar title. Used by AppShell for the topbar and by chat
+ *  contextTag to label the playbook chip with the actual playbook name. */
+export const PAGE_TITLES: Record<string, string> = {
+  'new-chat': 'New chat',
+  'explore-2': 'Explore',
+  portfolio: 'Portfolio',
+  agent: 'Agent',
+  'alva-skills': 'Alva Skill',
+  account: 'Account',
+  'user-profile': 'Profile',
+  pricing: 'Pricing',
+  'api-keys': 'API Keys',
+  notifications: 'Notifications',
+  automations: 'Automations',
+  billing: 'Billing',
+  'alva-agent': 'Alva Agent',
+  'portfolio-settings': 'Portfolio',
+  screener: 'Feed Test',
+  'template-screener': 'Template-Screener',
+  'template-thesis': 'Template-Thesis',
+  'template-whatif': 'Template-Whatif',
+  'template-notification': 'Template-Notification',
+};
+
 export interface ConversationItem {
   id: string;
   label: string;
@@ -62,3 +86,15 @@ export const CONVERSATIONS: ConversationItem[] = [
 
 /** Default thread to load when opening chat on a specific page */
 export const PAGE_DEFAULT_THREAD: Record<string, string> = {};
+
+/** Pages where the current user is the playbook owner (主态).
+ *  Starred / template pages are visitor (客态). */
+const OWNER_PLAYBOOK_PAGES = new Set(['screener']);
+
+export function isPlaybookOwnerPage(page: string): boolean {
+  return OWNER_PLAYBOOK_PAGES.has(page);
+}
+
+export function isPlaybookPage(page: string): boolean {
+  return OWNER_PLAYBOOK_PAGES.has(page) || page.startsWith('template-');
+}

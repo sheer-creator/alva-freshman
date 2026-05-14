@@ -19,7 +19,7 @@ function StepNumber({ value }: { value: number }) {
         width: 26,
         height: 26,
         borderRadius: 9999,
-        background: 'rgba(0,0,0,0.05)',
+        background: 'var(--b-r05)',
         color: 'var(--text-n5, rgba(0,0,0,0.5))',
         fontFamily: FONT,
       }}
@@ -55,7 +55,7 @@ export function DiscordConnectFlow({ onPaired, onClose, className = '' }: Discor
         borderRadius: 'var(--radius-pop-dialog, 12px)',
         padding: 'var(--spacing-xxl, 28px)',
         gap: 'var(--spacing-l, 20px)',
-        boxShadow: '0 10px 20px 0 rgba(0,0,0,0.08)',
+        boxShadow: 'var(--shadow-l)',
         fontFamily: FONT,
       }}
     >
@@ -106,7 +106,7 @@ export function DiscordConnectFlow({ onPaired, onClose, className = '' }: Discor
             color: 'var(--text-n7, rgba(0,0,0,0.7))',
             fontFamily: FONT,
             textDecoration: 'underline dotted',
-            textDecorationColor: 'rgba(0,0,0,0.5)',
+            textDecorationColor: 'var(--text-n5)',
             textUnderlineOffset: 3,
           }}
         >

@@ -36,12 +36,12 @@ export function QuestionCard({ data, onAnswer }: QuestionCardProps) {
   return (
     <div style={{
       margin: '8px 0', padding: '16px', borderRadius: 8,
-      border: '1px solid rgba(0,0,0,0.08)', background: 'var(--grey-g01)',
+      border: '1px solid var(--line-l07)', background: 'var(--grey-g01)',
     }}>
       {/* Header chip */}
       <span style={{
         display: 'inline-block', padding: '2px 8px', borderRadius: 4,
-        background: 'rgba(73,163,166,0.1)', color: 'var(--main-m1)',
+        background: 'var(--main-m1-10)', color: 'var(--main-m1)',
         fontSize: 11, fontWeight: 600, fontFamily: "'Delight', sans-serif",
         marginBottom: 8,
       }}>
@@ -67,7 +67,7 @@ export function QuestionCard({ data, onAnswer }: QuestionCardProps) {
               style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
                 padding: '8px 12px', borderRadius: 6, cursor: submitted ? 'default' : 'pointer',
-                border: `1px solid ${isSelected ? 'var(--main-m1)' : 'rgba(0,0,0,0.08)'}`,
+                border: `1px solid ${isSelected ? 'var(--main-m1)' : 'var(--line-l07)'}`,
                 background: isSelected ? 'rgba(73,163,166,0.06)' : 'transparent',
                 transition: 'all 0.15s',
               }}
@@ -75,7 +75,7 @@ export function QuestionCard({ data, onAnswer }: QuestionCardProps) {
               {/* Radio / Checkbox indicator */}
               <div style={{
                 width: 16, height: 16, borderRadius: data.multiSelect ? 3 : '50%',
-                border: `1.5px solid ${isSelected ? 'var(--main-m1)' : 'rgba(0,0,0,0.2)'}`,
+                border: `1.5px solid ${isSelected ? 'var(--main-m1)' : 'var(--line-l2)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0, marginTop: 2,
                 background: isSelected ? 'var(--main-m1)' : 'transparent',
@@ -109,7 +109,7 @@ export function QuestionCard({ data, onAnswer }: QuestionCardProps) {
           style={{
             marginTop: 12, padding: '6px 16px', borderRadius: 6,
             border: 'none', cursor: selected.length > 0 ? 'pointer' : 'default',
-            background: selected.length > 0 ? 'var(--main-m1)' : 'rgba(0,0,0,0.08)',
+            background: selected.length > 0 ? 'var(--main-m1)' : 'var(--b-r07)',
             color: selected.length > 0 ? '#fff' : 'var(--text-n5)',
             fontSize: 13, fontWeight: 500, fontFamily: "'Delight', sans-serif",
             transition: 'all 0.15s',

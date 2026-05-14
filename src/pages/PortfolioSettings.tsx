@@ -115,7 +115,7 @@ function RiskRow({ label, value, editable = true }: { label: string; value: stri
       {on && (
         <div className="flex items-center gap-[var(--spacing-xxs)]">
           <span className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'var(--text-n9)', fontFamily: FONT, fontWeight: 400, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
-          <CdnIcon name="edit-l1" size={18} color="rgba(0,0,0,0.5)" />
+          <CdnIcon name="edit-l1" size={18} color="var(--text-n5)" />
         </div>
       )}
       <Switch on={on} onChange={setOn} />
@@ -139,7 +139,7 @@ export default function PortfolioSettings({ onNavigate }: { onNavigate: (page: P
         subtitle="Connect your brokerage accounts to enable trading."
         right={
           <button className="btn btn-secondary btn-medium" style={{ paddingLeft: 'var(--spacing-m)', paddingRight: 'var(--spacing-m)', gap: 'var(--spacing-xxs)' }}>
-            <CdnIcon name="add-l2" size={18} color="rgba(0,0,0,0.9)" />
+            <CdnIcon name="add-l2" size={18} color="var(--text-n9)" />
             <span style={{ fontFamily: FONT }}>Add</span>
           </button>
         }

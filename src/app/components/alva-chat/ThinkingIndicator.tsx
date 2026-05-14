@@ -107,7 +107,7 @@ export function ThinkingIndicator({ activeText }: ThinkingIndicatorProps) {
 
       {/* Elapsed + tokens — inline after text */}
       <span style={{
-        fontSize: 11, color: 'rgba(0,0,0,0.2)',
+        fontSize: 11, color: 'var(--text-n2)',
         fontFamily: "'JetBrains Mono', monospace",
       }}>
         {elapsed.toFixed(1)}s &middot; {tokens.toLocaleString()} tokens

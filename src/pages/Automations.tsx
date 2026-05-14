@@ -16,7 +16,7 @@ const FONT = "'Delight', sans-serif";
 /* ========== Status Dot ========== */
 
 function StatusDot({ status = 'green', size = 12 }: { status?: 'green' | 'grey'; size?: number }) {
-  const ringColor = status === 'green' ? '#DBEDED' : 'rgba(0,0,0,0.06)';
+  const ringColor = status === 'green' ? '#DBEDED' : 'var(--b-r07)';
   const dotColor = status === 'green' ? '#49A3A6' : 'rgba(0,0,0,0.3)';
   return (
     <div className="flex items-center shrink-0" style={{ width: size, height: size }}>
@@ -111,14 +111,14 @@ function PlaybookChip({ playbook, onClick }: { playbook: UsedByPlaybook; onClick
       type="button"
       onClick={(e) => { e.stopPropagation(); onClick?.(); }}
       className="flex items-center gap-[2px] justify-center px-[4px] py-px rounded-[2px] shrink-0 cursor-pointer border-none outline-none transition-colors hover:brightness-95"
-      style={{ background: 'rgba(0,0,0,0.03)' }}
+      style={{ background: 'var(--b-r03)' }}
     >
       <div className="shrink-0 size-[14px] rounded-[2px] overflow-hidden">
         <Avatar name={playbook.author} size={14} />
       </div>
       <p
         className="leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap overflow-hidden text-ellipsis"
-        style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT, maxWidth: 120 }}
+        style={{ color: 'var(--text-n5)', fontFamily: FONT, maxWidth: 120 }}
       >
         @{playbook.author}/{playbook.name}
       </p>
@@ -172,7 +172,7 @@ function FeedCard({
           <StatusDot status={isActive ? 'green' : 'grey'} size={14} />
           <p
             className="flex-1 min-w-0 leading-[26px] text-[16px] tracking-[0.16px] whitespace-nowrap overflow-hidden text-ellipsis"
-            style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}
+            style={{ color: 'var(--text-n9)', fontFamily: FONT }}
           >
             {feed.name}
           </p>
@@ -189,7 +189,7 @@ function FeedCard({
       <div className="flex flex-wrap gap-[8px] items-center w-full">
         <div
           className="flex gap-[8px] items-center leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap shrink-0"
-          style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
+          style={{ color: 'var(--text-n5)', fontFamily: FONT }}
         >
           <p>Last Run: {feed.lastRun ?? '—'}</p>
           <p style={{ color: 'var(--text-n2)' }}>|</p>
@@ -248,7 +248,7 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
       {/* Title */}
       <p
         className="leading-[38px] text-[28px] tracking-[0.28px] w-full"
-        style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}
+        style={{ color: 'var(--text-n9)', fontFamily: FONT }}
       >
         Automations
       </p>
@@ -256,7 +256,7 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
       {/* Tabs */}
       <div
         className="flex gap-[16px] items-start w-full"
-        style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+        style={{ borderBottom: '1px solid var(--line-l07)' }}
       >
         {TABS.map(t => {
           const active = t.key === tab;
@@ -270,7 +270,7 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
               <span
                 className="leading-[22px] text-[14px] tracking-[0.14px] whitespace-nowrap"
                 style={{
-                  color: active ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)',
+                  color: active ? 'var(--text-n9)' : 'var(--text-n7)',
                   fontFamily: FONT,
                   fontWeight: active ? 500 : 400,
                 }}
@@ -279,7 +279,7 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
               </span>
               <div
                 className="h-[2px] w-full"
-                style={{ background: active ? '#49A3A6' : 'transparent' }}
+                style={{ background: active ? 'var(--main-m1)' : 'transparent' }}
               />
             </button>
           );
@@ -301,7 +301,7 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
         {filtered.length === 0 && (
           <p
             className="py-[40px] text-[14px] leading-[22px] tracking-[0.14px]"
-            style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}
+            style={{ color: 'var(--text-n5)', fontFamily: FONT }}
           >
             No feeds in this tab.
           </p>
@@ -317,13 +317,13 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
         >
           <div
             className="flex flex-col gap-[16px] w-[400px] max-w-full p-[24px] rounded-[12px]"
-            style={{ background: '#fff', border: '0.5px solid rgba(0,0,0,0.2)', boxShadow: '0 10px 20px rgba(0,0,0,0.08)' }}
+            style={{ background: '#fff', border: '0.5px solid var(--line-l2)', boxShadow: 'var(--shadow-l)' }}
             onClick={e => e.stopPropagation()}
           >
-            <p className="leading-[26px] text-[16px] tracking-[0.16px]" style={{ color: 'rgba(0,0,0,0.9)', fontFamily: FONT }}>
+            <p className="leading-[26px] text-[16px] tracking-[0.16px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>
               Delete “{confirmDelete.name}”?
             </p>
-            <p className="leading-[20px] text-[12px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)', fontFamily: FONT }}>
+            <p className="leading-[20px] text-[12px] tracking-[0.12px]" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>
               This automation will be permanently removed. Playbooks using it will stop receiving data.
             </p>
             <div className="flex gap-[8px] justify-end">
@@ -331,7 +331,7 @@ export default function Automations({ onNavigate }: { onNavigate: (page: Page) =
                 type="button"
                 onClick={() => setConfirmDelete(null)}
                 className="px-[14px] py-[6px] rounded-[6px] text-[14px] leading-[22px] tracking-[0.14px] cursor-pointer bg-transparent border-none outline-none hover:bg-[rgba(0,0,0,0.05)]"
-                style={{ color: 'rgba(0,0,0,0.7)', fontFamily: FONT }}
+                style={{ color: 'var(--text-n7)', fontFamily: FONT }}
               >
                 Cancel
               </button>

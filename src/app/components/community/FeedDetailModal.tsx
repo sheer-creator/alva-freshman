@@ -93,14 +93,14 @@ function StatCard({ label, value, valueColor }: { label: string; value: string |
   return (
     <div
       className="flex flex-1 min-w-0 flex-col gap-[2px] justify-center items-start px-[16px] py-[12px] rounded-[8px]"
-      style={{ background: '#fafafa' }}
+      style={{ background: 'var(--grey-g01, #fafafa)' }}
     >
-      <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
+      <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px] w-full">
         {label}
       </p>
       <p
         className="font-['Delight',sans-serif] leading-[30px] text-[20px] tracking-[0.2px] w-full"
-        style={{ color: valueColor ?? 'rgba(0,0,0,0.9)' }}
+        style={{ color: valueColor ?? 'var(--text-n9, rgba(0,0,0,0.9))' }}
       >
         {value}
       </p>
@@ -156,9 +156,9 @@ export function FeedDetailModal({
       <div
         className="relative flex w-[600px] max-w-[720px] max-h-full flex-col rounded-[12px]"
         style={{
-          background: '#fff',
-          border: '0.5px solid rgba(0,0,0,0.2)',
-          boxShadow: '0 10px 20px rgba(0,0,0,0.08)',
+          background: 'var(--b0-container, #fff)',
+          border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+          boxShadow: 'var(--shadow-l, 0 10px 20px rgba(0,0,0,0.08))',
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -178,12 +178,12 @@ export function FeedDetailModal({
         <div className="shrink-0 flex flex-col gap-[4px] items-start w-full">
           <div className="flex items-center gap-[8px] w-full">
             <StatusDot size={14} />
-            <p className="font-['Delight',sans-serif] leading-[30px] text-[20px] text-[rgba(0,0,0,0.9)] tracking-[0.2px] whitespace-nowrap">
+            <p className="font-['Delight',sans-serif] leading-[30px] text-[20px] text-[var(--text-n9)] tracking-[0.2px] whitespace-nowrap">
               {feedName}
             </p>
           </div>
           <div className="flex gap-[8px] items-center w-full whitespace-nowrap">
-            <div className="flex gap-[8px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+            <div className="flex gap-[8px] items-start font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
               <p>Last Run: {lastRun}</p>
               <p style={{ color: 'var(--text-n2)' }}>|</p>
               <p>{runEvery}</p>
@@ -198,10 +198,10 @@ export function FeedDetailModal({
                   onClick={onManage}
                   className="flex items-center gap-[2px] cursor-pointer bg-transparent border-none outline-none p-0 hover:opacity-70 transition-opacity"
                 >
-                  <span className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                  <span className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
                     Manage feed
                   </span>
-                  <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />
+                  <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
                 </button>
               </>
             )}
@@ -218,7 +218,7 @@ export function FeedDetailModal({
             transition: 'max-height 0.3s ease-out',
           }}
         >
-          <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] w-full">
+          <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px] w-full">
             What This Feed Does
           </p>
           {/* Markdown/M — split paragraphs on blank lines, render **bold** as headings */}
@@ -227,11 +227,11 @@ export function FeedDetailModal({
             if (boldMatch) {
               return (
                 <div key={i} className="flex flex-col gap-[4px] w-full">
-                  <p className="font-['Delight',sans-serif] font-medium leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] w-full">
+                  <p className="font-['Delight',sans-serif] font-medium leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px] w-full">
                     {boldMatch[1]}
                   </p>
                   {boldMatch[2] && (
-                    <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] w-full">
+                    <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px] w-full">
                       {boldMatch[2]}
                     </p>
                   )}
@@ -239,7 +239,7 @@ export function FeedDetailModal({
               );
             }
             return (
-              <p key={i} className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] w-full">
+              <p key={i} className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px] w-full">
                 {block}
               </p>
             );
@@ -254,13 +254,13 @@ export function FeedDetailModal({
                 type="button"
                 onClick={() => setDescExpanded(prev => !prev)}
                 className="w-full flex items-start justify-center h-[19px] cursor-pointer border-none outline-none p-0"
-                style={{ background: '#fafafa' }}
+                style={{ background: 'var(--grey-g01, #fafafa)' }}
               >
                 <div
                   className="transition-transform duration-200 ease-out"
                   style={{ transform: descExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
                 >
-                  <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                  <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2, rgba(0,0,0,0.2))" />
                 </div>
               </button>
             </div>
@@ -270,8 +270,8 @@ export function FeedDetailModal({
         {/* Stats (3 cards) */}
         <div className="shrink-0 flex gap-[16px] items-center w-full">
           <StatCard label={stats.totalLabel} value={stats.totalValue} />
-          <StatCard label="Success" value={stats.successCount} valueColor="#2a9b7d" />
-          <StatCard label="Failed" value={stats.failedCount} valueColor="#e6a91a" />
+          <StatCard label="Success" value={stats.successCount} valueColor="var(--main-m3, #2a9b7d)" />
+          <StatCard label="Failed" value={stats.failedCount} valueColor="var(--main-m5, #e6a91a)" />
         </div>
 
         {/* Run History */}
@@ -279,9 +279,9 @@ export function FeedDetailModal({
           {/* 表头 */}
           <div
             className="flex gap-[8px] items-center pb-[10px] w-full"
-            style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+            style={{ borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
           >
-            <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+            <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
               Recent 10 Runs
             </p>
             <div className="size-[12px] opacity-0 shrink-0" />
@@ -299,7 +299,7 @@ export function FeedDetailModal({
                 <div
                   key={run.id}
                   className="flex flex-col w-full"
-                  style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+                  style={{ borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
                 >
                   <div
                     role="button"
@@ -313,23 +313,23 @@ export function FeedDetailModal({
                       className="size-[12px] shrink-0 flex items-center justify-center transition-transform duration-200 ease-out"
                       style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
                     >
-                      <CdnIcon name="arrow-right-l2" size={12} color="rgba(0,0,0,0.5)" />
+                      <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
                     </div>
-                    <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+                    <p className="flex-1 min-w-0 font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px]">
                       {run.id}
                     </p>
-                    <p className="w-[120px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px]">
+                    <p className="w-[120px] font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px]">
                       {run.duration}
                     </p>
-                    <p className="w-[120px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px]">
+                    <p className="w-[120px] font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">
                       {run.timestamp}
                     </p>
                     {/* 状态图标 — check-f2 成功 / alert-f2 失败 */}
                     <div className="size-[16px] shrink-0 flex items-center justify-center">
                       {run.status === 'failed' ? (
-                        <CdnIcon name="alert-f2" size={16} color="#e6a91a" />
+                        <CdnIcon name="alert-f2" size={16} color="var(--main-m5, #e6a91a)" />
                       ) : (
-                        <CdnIcon name="check-f2" size={16} color="#2a9b7d" />
+                        <CdnIcon name="check-f2" size={16} color="var(--main-m3, #2a9b7d)" />
                       )}
                     </div>
                   </div>
@@ -341,10 +341,10 @@ export function FeedDetailModal({
                       <div className="min-h-0 overflow-hidden">
                         <div
                           className="rounded-[8px] p-[16px] w-full"
-                          style={{ background: 'rgba(0,0,0,0.02)' }}
+                          style={{ background: 'var(--b-r02, rgba(0,0,0,0.02))' }}
                         >
                           <pre
-                            className="font-mono text-[12px] leading-[20px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-pre-wrap m-0"
+                            className="font-mono text-[12px] leading-[20px] text-[var(--text-n5)] tracking-[0.12px] whitespace-pre-wrap m-0"
                             style={{ fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" }}
                           >
                             {run.log}

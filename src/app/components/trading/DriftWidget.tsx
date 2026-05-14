@@ -28,7 +28,7 @@ function WeightRow({ w }: { w: DriftWidgetProps['weights'][0] }) {
   return (
     <div className="flex items-center gap-[10px] py-[7px]">
       <span className="text-[12px] w-[36px] shrink-0" style={{ color: 'var(--text-n9)', fontWeight: 500, fontFamily: FONT_FAMILY }}>{w.symbol}</span>
-      <div className="flex-1 h-[14px] relative" style={{ background: 'rgba(0,0,0,0.03)', borderRadius: 7 }}>
+      <div className="flex-1 h-[14px] relative" style={{ background: 'var(--b-r03, rgba(0,0,0,0.03))', borderRadius: 7 }}>
         {/* Target dashed */}
         <div className="absolute top-0 bottom-0 left-0 rounded-[7px]" style={{
           width: `${w.targetWeight * scale * 100}%`,
@@ -95,7 +95,7 @@ export function DriftWidget({ weights, totalDrift = 3.2, lastRebalance = '3 days
         <div className="flex items-center gap-[6px] pb-[4px]">
           <button
             className="transition-colors hover:opacity-90"
-            style={{ background: '#49a3a6', color: '#fff', border: 'none', padding: '5px 14px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500 }}
+            style={{ background: 'var(--main-m1, #49a3a6)', color: '#fff', border: 'none', padding: '5px 14px', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontFamily: FONT_FAMILY, fontWeight: 500 }}
           >Rebalance Now</button>
           {['Schedule', 'History'].map(label => (
             <button

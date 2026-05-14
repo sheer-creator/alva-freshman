@@ -78,7 +78,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
                       <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate`}>
                         Alva Agent
                       </p>
-                      <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                      <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                     </div>
                   </div>
                 ) : (
@@ -86,7 +86,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
                     <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate`}>
                       {title}
                     </p>
-                    <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                    <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                   </div>
                 )
               }
@@ -126,12 +126,12 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
           <div className="flex flex-col flex-1 min-h-0 w-full" style={{ maxWidth: 896 }}>
             {isAgent ? (
               <>
-                <div ref={agentScrollRef} className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[64px]">
+                <div ref={agentScrollRef} className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[120px]">
                   <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px]">
                     {agentMessages.map((msg, i) =>
                       msg.role === 'user' ? (
                         <div key={i} className="flex flex-col items-end w-full">
-                          <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
+                          <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
                             <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
                               {msg.text}
                             </p>
@@ -154,7 +154,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
               </>
             ) : hasContent ? (
               <>
-                <div className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[64px]">
+                <div className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[120px]">
                   <ChatMessages conversationId={currentThreadId} />
                 </div>
                 <div className="px-[28px] pb-[24px] shrink-0">

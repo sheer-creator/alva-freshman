@@ -65,10 +65,10 @@ function StatusPill({ text = '15m' }: { text?: string }) {
   return (
     <div
       className="flex items-center justify-center gap-[2px] px-[6px] py-px rounded-full shrink-0"
-      style={{ border: '1px solid rgba(0,0,0,0.07)' }}
+      style={{ border: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
     >
       <StatusDot size={12} />
-      <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[rgba(0,0,0,0.5)] tracking-[0.12px] whitespace-nowrap">
+      <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px] whitespace-nowrap">
         {text}
       </p>
     </div>
@@ -101,7 +101,7 @@ function IconButton({
       {label !== undefined && (
         <p
           className={`font-['Delight',sans-serif] leading-[20px] text-[12px] tracking-[0.12px] whitespace-nowrap ${
-            active ? 'text-[#49A3A6]' : 'text-[rgba(0,0,0,0.9)]'
+            active ? 'text-[var(--main-m1)]' : 'text-[var(--text-n9)]'
           }`}
         >
           {label}
@@ -129,7 +129,7 @@ Then:
 
 function RemixPromptBody() {
   return (
-    <div className="w-full font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.7)]">
+    <div className="w-full font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)]">
       <p className="mb-0">Remix Playbook({PLAYBOOK_REF}):</p>
       <p className="mb-0">&nbsp;</p>
       <p className="mb-0">If you have the Alva skill → use it to build my own version.</p>
@@ -204,11 +204,11 @@ export function PlaybookTopbar({
             <div className="shrink-0 size-[20px]">
               <Avatar name={authorName} size={20} />
             </div>
-            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap shrink-0">
+            <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-nowrap shrink-0">
               {authorName}
             </p>
           </div>
-          <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.5)] tracking-[0.14px] shrink-0">
+          <p className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n5)] tracking-[0.14px] shrink-0">
             &bull;
           </p>
           {/* Title + status — 整块作为 hover 触发区(icon + title + pill) */}
@@ -218,10 +218,10 @@ export function PlaybookTopbar({
             onMouseLeave={closeHeader}
           >
             <div className="shrink-0 size-[18px] flex items-center justify-center">
-              <CdnIcon name="sidebar-dashboard-normal" size={18} color="rgba(0,0,0,0.9)" />
+              <CdnIcon name="sidebar-dashboard-normal" size={18} color="var(--text-n9, rgba(0,0,0,0.9))" />
             </div>
             <p
-              className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[rgba(0,0,0,0.9)] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis shrink-0 group-hover:underline group-hover:decoration-dotted group-hover:decoration-[rgba(0,0,0,0.5)] group-hover:underline-offset-[3px]"
+              className="font-['Delight',sans-serif] leading-[22px] text-[14px] text-[var(--text-n9)] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis shrink-0 group-hover:underline group-hover:decoration-dotted group-hover:decoration-[rgba(0,0,0,0.5)] group-hover:underline-offset-[3px]"
             >
               {title}
             </p>
@@ -278,20 +278,20 @@ export function PlaybookTopbar({
               aria-haspopup="dialog"
             >
               <IconButton label={stats.forks} active={remixOpen}>
-                <CdnIcon name="remix-l" color={remixOpen ? '#49A3A6' : undefined} />
+                <CdnIcon name="remix-l" color={remixOpen ? 'var(--main-m1, #49A3A6)' : undefined} />
               </IconButton>
             </div>
             {remixOpen && (
               <div
                 className="absolute right-0 top-full mt-[6px] z-50 flex w-[480px] flex-col gap-[16px] overflow-hidden rounded-[12px] p-[20px]"
-                style={{ backgroundColor: '#fff', border: '0.5px solid rgba(0,0,0,0.2)', boxShadow: '0 6px 20px rgba(0,0,0,0.04)' }}
+                style={{ backgroundColor: 'var(--b0-container, #fff)', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: 'var(--shadow-s, 0 6px 20px rgba(0,0,0,0.04))' }}
                 role="dialog"
                 aria-label="Remix this Playbook"
               >
-                <h2 className="font-['Delight',sans-serif] font-medium text-[16px] leading-[26px] tracking-[0.16px] text-[rgba(0,0,0,0.9)]">
+                <h2 className="font-['Delight',sans-serif] font-medium text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]">
                   Remix this Playbook
                 </h2>
-                <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)]">
+                <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]">
                   Create your own version — customize the data, layout, and style to fit your needs. Your remix will be published under your account.
                 </p>
                 <a
@@ -299,7 +299,7 @@ export function PlaybookTopbar({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-[40px] w-full items-center justify-center gap-[8px] rounded-[8px] px-[20px] py-[9px] font-['Delight',sans-serif] font-medium text-[14px] leading-[22px] tracking-[0.14px] text-white no-underline transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: '#49A3A6' }}
+                  style={{ backgroundColor: 'var(--main-m1, #49A3A6)' }}
                   onClick={() => setRemixOpen(false)}
                 >
                   <CdnIcon name="remix-l" size={18} color="#ffffff" />
@@ -310,7 +310,7 @@ export function PlaybookTopbar({
                     <div className="h-px min-w-0 flex-1 bg-[rgba(0,0,0,0.05)]" />
                     <button
                       type="button"
-                      className="flex items-center gap-[4px] bg-transparent cursor-pointer font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[rgba(0,0,0,0.5)] border-none outline-none hover:opacity-80"
+                      className="flex items-center gap-[4px] bg-transparent cursor-pointer font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] border-none outline-none hover:opacity-80"
                       onClick={() => setOwnAgentOpen(o => !o)}
                       aria-expanded={ownAgentOpen}
                     >
@@ -319,7 +319,7 @@ export function PlaybookTopbar({
                         className="flex size-[12px] items-center justify-center transition-transform duration-300 ease-out"
                         style={{ transform: ownAgentOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
                       >
-                        <CdnIcon name="arrow-down-l2" size={12} color="rgba(0,0,0,0.5)" />
+                        <CdnIcon name="arrow-down-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
                       </span>
                     </button>
                     <div className="h-px min-w-0 flex-1 bg-[rgba(0,0,0,0.05)]" />
@@ -328,21 +328,21 @@ export function PlaybookTopbar({
                     <div className="min-h-0 overflow-hidden">
                       <div
                         className={`flex flex-col gap-[16px] rounded-[6px] px-[20px] py-[16px] transition-opacity duration-300 ease-out ${ownAgentOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
-                        style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}
+                        style={{ backgroundColor: 'var(--b-r03, rgba(0,0,0,0.03))' }}
                       >
                         <div className="max-h-[240px] overflow-y-auto">
                           <RemixPromptBody />
                         </div>
                         <button
                           type="button"
-                          className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[8px] rounded-[8px] bg-transparent px-[20px] py-[9px] font-['Delight',sans-serif] text-[14px] font-medium leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] transition-all hover:border-[rgba(0,0,0,0.9)]"
-                          style={{ border: '0.5px solid rgba(0,0,0,0.2)' }}
+                          className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[8px] rounded-[8px] bg-transparent px-[20px] py-[9px] font-['Delight',sans-serif] text-[14px] font-medium leading-[22px] tracking-[0.14px] text-[var(--text-n9)] transition-all hover:border-[rgba(0,0,0,0.9)]"
+                          style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
                           onClick={copyPrompt}
                         >
                           {copied ? (
-                            <CdnIcon name="check-l1" size={18} color="#49A3A6" />
+                            <CdnIcon name="check-l1" size={18} color="var(--main-m1, #49A3A6)" />
                           ) : (
-                            <CdnIcon name="copy-l" size={18} color="rgba(0,0,0,0.9)" />
+                            <CdnIcon name="copy-l" size={18} color="var(--text-n9, rgba(0,0,0,0.9))" />
                           )}
                           {copied ? 'Copied' : 'Copy'}
                         </button>
@@ -360,7 +360,7 @@ export function PlaybookTopbar({
             active={discussionOpen}
             onClick={onToggleDiscussion}
           >
-            <CdnIcon name="chat-l1" color={discussionOpen ? '#49A3A6' : undefined} />
+            <CdnIcon name="chat-l1" color={discussionOpen ? 'var(--main-m1, #49A3A6)' : undefined} />
           </IconButton>
         </div>
 

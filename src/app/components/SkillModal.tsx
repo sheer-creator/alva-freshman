@@ -11,7 +11,7 @@ export const SCROLL_STYLE = `
 .skill-modal-scroll ::-webkit-scrollbar-track { background: transparent; }
 .skill-modal-scroll ::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; }
 .skill-modal-scroll *:hover::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
-.skill-modal-scroll *::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+.skill-modal-scroll *::-webkit-scrollbar-thumb:hover { background: var(--text-n3); }
 .skill-modal-scroll { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 .skill-modal-scroll * { font-weight: 400 !important; }
 .skill-modal-scroll [data-fw500] { font-weight: 500 !important; }
@@ -619,7 +619,7 @@ function SkillEnableToggle({ enabled, onToggle, size = 'sm' }: { enabled: boolea
         width: cfg.w,
         height: cfg.h,
         borderRadius: 1000,
-        background: enabled ? '#49a3a6' : 'rgba(0,0,0,0.1)',
+        background: enabled ? 'var(--main-m1, #49a3a6)' : 'var(--b-r1, rgba(0,0,0,0.1))',
       }}
       onClick={(e) => { e.stopPropagation(); onToggle(); }}
     >
@@ -706,7 +706,7 @@ function SimpleMarkdown({ content }: { content: string }) {
       }
       i++;
       elements.push(
-        <pre key={key} style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, padding: '8px', fontSize: 12, lineHeight: '20px', letterSpacing: '0.12px', color: 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: "'JetBrains Mono', monospace", overflowX: 'auto', margin: 0, whiteSpace: 'pre' }}>
+        <pre key={key} style={{ background: 'var(--b-r02, rgba(0,0,0,0.02))', border: '1px solid var(--line-l07, rgba(0,0,0,0.07))', borderRadius: 2, padding: '8px', fontSize: 12, lineHeight: '20px', letterSpacing: '0.12px', color: 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: "'JetBrains Mono', monospace", overflowX: 'auto', margin: 0, whiteSpace: 'pre' }}>
           {codeLines.join('\n')}
         </pre>
       );
@@ -718,11 +718,11 @@ function SimpleMarkdown({ content }: { content: string }) {
       }
       const dataRows = tableLines.filter(l => !/^\|[\s\-|:]+\|/.test(l));
       elements.push(
-        <div key={key} style={{ border: '1px solid rgba(0,0,0,0.07)', borderRadius: 4, overflow: 'hidden' }}>
+        <div key={key} style={{ border: '1px solid var(--line-l07, rgba(0,0,0,0.07))', borderRadius: 4, overflow: 'hidden' }}>
           {dataRows.map((row, ri) => {
             const cells = row.split('|').filter(c => c.trim() !== '').map(c => c.trim());
             return (
-              <div key={ri} style={{ display: 'flex', borderBottom: ri < dataRows.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none', background: ri === 0 ? 'rgba(0,0,0,0.02)' : 'transparent' }}>
+              <div key={ri} style={{ display: 'flex', borderBottom: ri < dataRows.length - 1 ? '1px solid var(--line-l07, rgba(0,0,0,0.07))' : 'none', background: ri === 0 ? 'var(--b-r02, rgba(0,0,0,0.02))' : 'transparent' }}>
                 {cells.map((cell, ci) => (
                   <div key={ci} style={{ flex: 1, padding: '8px', fontSize: 12, lineHeight: '20px', letterSpacing: '0.12px', fontFamily: 'Delight, sans-serif', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontWeight: ri === 0 ? 500 : 400 }}>
                     {renderInline(cell)}
@@ -815,7 +815,7 @@ function SectionHeader({ label, action, noUppercase }: { label: string; action?:
     <div className="flex items-center justify-between px-[8px] py-[5px]">
       <span
         className={`font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.55px] select-none${noUppercase ? '' : ' uppercase'}`}
-        style={{ color: 'rgba(0,0,0,0.5)' }}
+        style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}
       >
         {label}
       </span>
@@ -864,7 +864,7 @@ function SkillListItem({
       <span
         className="flex-1 min-w-0 font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
         data-fw500={isSelected || undefined}
-        style={{ color: 'rgba(0,0,0,0.9)' }}
+        style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
       >
         {skill.name}
       </span>
@@ -982,7 +982,7 @@ function TreeItem({
 // ─── Right Panel Components ───────────────────────────────────────────────────
 
 function Divider() {
-  return <div className="shrink-0 w-full" style={{ height: '1px', background: 'rgba(0,0,0,0.07)' }} />;
+  return <div className="shrink-0 w-full" style={{ height: '1px', background: 'var(--line-l07, rgba(0,0,0,0.07))' }} />;
 }
 
 function findFirstContent(apps: SkillApp[]): string | null {
@@ -999,10 +999,10 @@ function findFirstContent(apps: SkillApp[]): string | null {
 function AuthorTag({ author }: { author: 'Arrays' | 'Alva' | 'My Skill' }) {
   const style =
     author === 'Arrays'
-      ? { background: 'rgba(33,150,243,0.1)', color: '#2196F3' }
+      ? { background: 'rgba(33,150,243,0.1)', color: 'var(--main-m2, #2196F3)' }
       : author === 'Alva'
-      ? { background: 'rgba(73,163,166,0.12)', color: '#49a3a6' }
-      : { background: 'rgba(0,0,0,0.05)', color: 'rgba(0,0,0,0.5)' };
+      ? { background: 'rgba(73,163,166,0.12)', color: 'var(--main-m1, #49a3a6)' }
+      : { background: 'var(--b-r05, rgba(0,0,0,0.05))', color: 'var(--text-n5, rgba(0,0,0,0.5))' };
   return (
     <span
       className="font-['Delight',sans-serif] text-[11px] leading-[18px] tracking-[0.11px] px-[6px] py-[1px] rounded-[3px] shrink-0"
@@ -1022,7 +1022,7 @@ function SkillDetail({ skill, enabled, onToggleEnabled, isPage }: { skill: Skill
         <div className="flex items-center gap-[10px]">
           <h2
             className="font-['Delight',sans-serif] text-[20px] leading-[30px] tracking-[0.2px]"
-            style={{ color: 'rgba(0,0,0,0.9)' }}
+            style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
           >
             {skill.name}
           </h2>
@@ -1031,15 +1031,15 @@ function SkillDetail({ skill, enabled, onToggleEnabled, isPage }: { skill: Skill
           {(skill.version || skill.lastUpdated) && (
             <div className="flex items-center gap-[6px] shrink-0">
               {skill.version && (
-                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
+                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
                   Version: {skill.version}
                 </span>
               )}
               {skill.version && skill.lastUpdated && (
-                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px]" style={{ color: 'rgba(0,0,0,0.3)' }}>•</span>
+                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px]" style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>•</span>
               )}
               {skill.lastUpdated && (
-                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
+                <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
                   Last Updated: {skill.lastUpdated}
                 </span>
               )}
@@ -1047,7 +1047,7 @@ function SkillDetail({ skill, enabled, onToggleEnabled, isPage }: { skill: Skill
           )}
           {!isPage && <SkillEnableToggle enabled={enabled} onToggle={onToggleEnabled} size="md" />}
         </div>
-        <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'rgba(0,0,0,0.7)' }}>
+        <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>
           {skill.description}
         </p>
       </div>
@@ -1056,7 +1056,7 @@ function SkillDetail({ skill, enabled, onToggleEnabled, isPage }: { skill: Skill
       {skillContent && (
         <div
           style={{
-            background: 'rgba(0,0,0,0.02)',
+            background: 'var(--b-r02, rgba(0,0,0,0.02))',
             borderRadius: 6,
             padding: 20,
           }}
@@ -1075,11 +1075,11 @@ function FileContentView({ app }: { app: SkillApp }) {
       <div className="flex flex-col gap-[6px]">
         <h2
           className="font-['Delight',sans-serif] text-[20px] leading-[30px] tracking-[0.2px]"
-          style={{ color: 'rgba(0,0,0,0.9)' }}
+          style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
         >
           {app.name}
         </h2>
-        <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'rgba(0,0,0,0.5)' }}>
+        <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
           {app.description}
         </p>
       </div>
@@ -1087,7 +1087,7 @@ function FileContentView({ app }: { app: SkillApp }) {
       {app.content ? (
         <SimpleMarkdown content={app.content} />
       ) : (
-        <p className="font-['Delight',sans-serif] text-[13px] leading-[20px]" style={{ color: 'rgba(0,0,0,0.3)' }}>
+        <p className="font-['Delight',sans-serif] text-[13px] leading-[20px]" style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
           No preview available.
         </p>
       )}
@@ -1100,7 +1100,7 @@ function EmptyDetail() {
     <div className="flex flex-col items-center justify-center h-full gap-[10px]">
       <div
         className="w-[40px] h-[40px] rounded-[8px] flex items-center justify-center"
-        style={{ background: 'rgba(0,0,0,0.04)' }}
+        style={{ background: 'var(--b-r05)' }}
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
           <rect x="2" y="7" width="16" height="11" rx="1.5" stroke="rgba(0,0,0,0.2)" strokeWidth="1.2" />
@@ -1110,7 +1110,7 @@ function EmptyDetail() {
       </div>
       <p
         className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px]"
-        style={{ color: 'rgba(0,0,0,0.3)' }}
+        style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}
       >
         Select a skill to view details
       </p>
@@ -1261,19 +1261,19 @@ export function SkillModalContent({ onClose }: { onClose?: () => void }) {
       {!isPage && <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none rounded-[8px]"
-        style={{ border: '1px solid rgba(0,0,0,0.2)', boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.1)' }}
+        style={{ border: '1px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.1)' }}
       />}
 
       {/* Header (modal only) */}
       {!isPage && (
         <div
           className="flex items-center gap-[12px] shrink-0"
-          style={{ padding: '20px 24px 18px', borderBottom: '1px solid rgba(0,0,0,0.07)' }}
+          style={{ padding: '20px 24px 18px', borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
         >
           <p
             className="flex-1 font-['Delight',sans-serif] text-[18px] leading-[28px] tracking-[0.18px]"
             data-fw500
-            style={{ color: 'rgba(0,0,0,0.9)' }}
+            style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
           >
             Skills
           </p>
@@ -1287,7 +1287,7 @@ export function SkillModalContent({ onClose }: { onClose?: () => void }) {
         {/* Left Panel */}
         <div
           className="shrink-0 flex flex-col overflow-y-auto"
-          style={{ width: 280, borderRight: '1px solid rgba(0,0,0,0.07)', padding: '8px 8px 8px' }}
+          style={{ width: 280, borderRight: '1px solid var(--line-l07, rgba(0,0,0,0.07))', padding: '8px 8px 8px' }}
         >
           {isPage ? (
             <>
@@ -1307,7 +1307,7 @@ export function SkillModalContent({ onClose }: { onClose?: () => void }) {
                 action={
                   <button
                     className="flex items-center gap-[3px] font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] hover:opacity-70 transition-opacity"
-                    style={{ color: '#49a3a6', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    style={{ color: 'var(--main-m1, #49a3a6)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <AddL2Icon />
@@ -1330,7 +1330,7 @@ export function SkillModalContent({ onClose }: { onClose?: () => void }) {
               <div className="flex flex-col mt-[4px]">
                 {renderSkillList(customSkills)}
               </div>
-              <div style={{ margin: '12px 0', borderTop: '1px solid rgba(0,0,0,0.07)' }} />
+              <div style={{ margin: '12px 0', borderTop: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }} />
               <SectionHeader label="Alva Built-In" />
               <div className="flex flex-col mt-[4px]">
                 {renderSkillList(alvaSkills)}

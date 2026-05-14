@@ -102,7 +102,7 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
        <div style={{
          maxWidth: 720, margin: '0 auto', width: '100%',
          borderRadius: 16, overflow: 'hidden',
-         border: '1px solid rgba(0,0,0,0.08)', background: '#fff',
+         border: '1px solid var(--line-l07)', background: 'var(--b0-container)',
          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
        }}>
         {/* Plan 内容区（可滚动） */}
@@ -150,7 +150,7 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
         )}
 
         {/* 分隔线 */}
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.05)', margin: '0 20px' }} />
+        <div style={{ height: 1, background: 'var(--b-r05)', margin: '0 20px' }} />
 
         {/* Accept 行 */}
         <div
@@ -174,7 +174,7 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
             Approve Alva's plan and start coding
           </span>
           <span style={{
-            fontSize: 10, color: 'var(--text-n3)', background: 'rgba(0,0,0,0.04)',
+            fontSize: 10, color: 'var(--text-n3)', background: 'var(--b-r05)',
             padding: '1px 5px', borderRadius: 3, fontFamily: "'JetBrains Mono', monospace",
             flexShrink: 0,
           }}>
@@ -228,14 +228,14 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
        <div style={{
          maxWidth: 720, margin: '0 auto', width: '100%',
          borderRadius: 16, overflow: 'hidden',
-         border: '1px solid rgba(0,0,0,0.08)', background: '#fff',
+         border: '1px solid var(--line-l07)', background: 'var(--b0-container)',
          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
        }}>
         {/* Question 内容 */}
         <div style={{ padding: '14px 20px 10px' }}>
           <span style={{
             display: 'inline-block', padding: '2px 8px', borderRadius: 4,
-            background: 'rgba(73,163,166,0.1)', color: 'var(--main-m1)',
+            background: 'var(--main-m1-10)', color: 'var(--main-m1)',
             fontSize: 11, fontWeight: 600, fontFamily: "'Delight', sans-serif",
             marginBottom: 8,
           }}>
@@ -259,14 +259,14 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
                   style={{
                     display: 'flex', alignItems: 'flex-start', gap: 10,
                     padding: '7px 10px', borderRadius: 6, cursor: 'pointer',
-                    border: `1px solid ${sel ? 'var(--main-m1)' : 'rgba(0,0,0,0.08)'}`,
+                    border: `1px solid ${sel ? 'var(--main-m1)' : 'var(--line-l07)'}`,
                     background: sel ? 'rgba(73,163,166,0.06)' : 'transparent',
                     transition: 'all 0.15s',
                   }}
                 >
                   <div style={{
                     width: 15, height: 15, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                    border: `1.5px solid ${sel ? 'var(--main-m1)' : 'rgba(0,0,0,0.2)'}`,
+                    border: `1.5px solid ${sel ? 'var(--main-m1)' : 'var(--line-l2)'}`,
                     background: sel ? 'var(--main-m1)' : 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'all 0.15s',
@@ -292,7 +292,7 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
         </div>
 
         {/* 分隔线 */}
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.05)', margin: '0 20px' }} />
+        <div style={{ height: 1, background: 'var(--b-r05)', margin: '0 20px' }} />
 
         {/* Submit 行 */}
         <div
@@ -317,7 +317,7 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
           </span>
           {selectedOption != null && (
             <span style={{
-              fontSize: 10, color: 'var(--text-n3)', background: 'rgba(0,0,0,0.04)',
+              fontSize: 10, color: 'var(--text-n3)', background: 'var(--b-r05)',
               padding: '1px 5px', borderRadius: 3, fontFamily: "'JetBrains Mono', monospace",
               flexShrink: 0,
             }}>
@@ -369,8 +369,8 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
       <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
       <div style={{
         borderRadius: 16, overflow: 'visible', position: 'relative',
-        border: focused ? '1px solid var(--main-m1)' : '1px solid rgba(0,0,0,0.08)',
-        background: '#fff',
+        border: focused ? '1px solid var(--main-m1)' : '1px solid var(--line-l07)',
+        background: 'var(--b0-container)',
         boxShadow: focused ? '0 0 0 2px rgba(73,163,166,0.1)' : '0 1px 3px rgba(0,0,0,0.04)',
         transition: 'border-color 0.15s, box-shadow 0.15s',
       }}>
@@ -426,7 +426,7 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
               background: 'none', border: 'none', padding: '4px 2px',
               cursor: 'pointer', transition: 'color 0.15s',
               fontFamily: "'Delight', sans-serif", fontSize: 16, fontWeight: 600,
-              color: mentionOpen ? 'var(--main-m1, #49a3a6)' : 'rgba(0,0,0,0.25)',
+              color: mentionOpen ? 'var(--main-m1, #49a3a6)' : 'var(--text-n3)',
             }}
           >
             @
@@ -437,7 +437,7 @@ export function InputBar({ onSend, streaming, placeholder = 'Ask anything...', w
             onClick={handleSend}
             style={{
               width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-              background: canSend ? 'var(--main-m1)' : 'rgba(0,0,0,0.08)',
+              background: canSend ? 'var(--main-m1)' : 'var(--b-r07)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: canSend ? 'pointer' : 'default',
               transition: 'background 0.15s',

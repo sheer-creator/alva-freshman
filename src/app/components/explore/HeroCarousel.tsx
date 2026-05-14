@@ -224,7 +224,7 @@ function HeroCarouselCard({ playbook: p, isMobile = false }: { playbook: Explore
         height: isMobile ? "auto" : 220,
         minHeight: isMobile ? 200 : undefined,
         borderRadius: 16,
-        border: "1px solid rgba(0,0,0,0.07)",
+        border: "1px solid var(--line-l07, rgba(0,0,0,0.07))",
         background: isMobile
           ? `linear-gradient(135deg, ${gradStops[0]} 0%, ${gradStops[1]} 60%, ${gradStops[2]} 100%)`
           : `linear-gradient(to right, ${gradStops[0]} 0%, ${gradStops[1]} 55%, ${gradStops[2]} 100%)`,
@@ -261,7 +261,7 @@ function HeroCarouselCard({ playbook: p, isMobile = false }: { playbook: Explore
               fontWeight: 500,
               fontSize: 12,
               lineHeight: "16px",
-              color: "rgba(0,0,0,0.9)",
+              color: "var(--text-n9, rgba(0,0,0,0.9))",
             }}
           >
             {p.creator}
@@ -277,7 +277,7 @@ function HeroCarouselCard({ playbook: p, isMobile = false }: { playbook: Explore
               fontSize: 20,
               lineHeight: "26px",
               letterSpacing: -0.2,
-              color: "rgba(0,0,0,0.9)",
+              color: "var(--text-n9, rgba(0,0,0,0.9))",
               margin: 0,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -293,7 +293,7 @@ function HeroCarouselCard({ playbook: p, isMobile = false }: { playbook: Explore
               fontFamily: "'Delight', sans-serif",
               fontSize: 13,
               lineHeight: "20px",
-              color: "rgba(0,0,0,0.7)",
+              color: "var(--text-n7, rgba(0,0,0,0.7))",
               margin: 0,
               overflow: "hidden",
               display: "-webkit-box",
@@ -385,13 +385,13 @@ function Counter({ icon, value }: { icon: string; value: string }) {
         display: "inline-flex",
         alignItems: "center",
         gap: 4,
-        color: "rgba(0,0,0,0.7)",
+        color: "var(--text-n7, rgba(0,0,0,0.7))",
         fontFamily: "Inter, sans-serif",
         fontSize: 12,
         lineHeight: "16px",
       }}
     >
-      <CdnIcon name={icon} size={14} color="rgba(0,0,0,0.7)" />
+      <CdnIcon name={icon} size={14} color="var(--text-n7, rgba(0,0,0,0.7))" />
       {value}
     </span>
   );
@@ -416,7 +416,7 @@ function ArrowButton({
         height: 40,
         borderRadius: 20,
         background: "white",
-        border: "1px solid rgba(0,0,0,0.3)",
+        border: "1px solid var(--line-l3, rgba(0,0,0,0.3))",
         cursor: "pointer",
         opacity: hovered ? 1 : 0,
         transition: "opacity 200ms ease",

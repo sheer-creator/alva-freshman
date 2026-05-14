@@ -13,6 +13,7 @@
 (function () {
   /* ── state ── */
   var active = false;
+  var viewerMode = false; // visitor (客态): no text editing
   var hoveredEl = null;
   var selectedEl = null;
   var overlay = null;   // highlight rectangle
@@ -171,7 +172,7 @@
     var sy = window.scrollY;
     var sx = window.scrollX;
     var sel = selectorPath(el);
-    var hasText = isTextElement(el);
+    var hasText = viewerMode ? false : isTextElement(el);
     var originalText = hasText ? getVisibleText(el) : '';
 
     /* store for live preview & send-state comparison */
@@ -180,7 +181,7 @@
     _originalText = originalText;
 
     dialog = document.createElement('div');
-    dialog.className = 'alva-inspector-ui alva-inspector-dialog';
+    dialog.className = 'alva-inspector-ui alva-inspector-dialog' + (hasText ? ' has-text' : '');
 
     /* position: prefer below; flip above if not enough room */
     var top = r.bottom + sy + 8;
@@ -196,14 +197,13 @@
     dialog.innerHTML =
       (hasText
         ? '<div class="aid-text-field">' +
-            '<label class="aid-field-label">Text content</label>' +
-            '<textarea class="aid-text-input" rows="3">' + esc(originalText) + '</textarea>' +
-          '</div>' +
-          '<div class="aid-divider"></div>'
+            '<label class="aid-field-label">Text Content</label>' +
+            '<textarea class="aid-text-input" rows="4">' + esc(originalText) + '</textarea>' +
+          '</div>'
         : '') +
       '<div class="aid-toolbar">' +
-        '<input class="aid-instruction-input" type="text" placeholder="Describe a change" />' +
-        '<button class="aid-send" type="button" aria-label="Send">' + cdnIcon('check-l1', 14) + '</button>' +
+        '<input class="aid-instruction-input" type="text" placeholder="' + (viewerMode ? 'Ask anything about this playbook' : 'Describe a change') + '" />' +
+        '<button class="aid-send" type="button" aria-label="Send">' + cdnIcon('arrow-up-l1', 14) + '</button>' +
       '</div>';
 
     document.body.appendChild(dialog);
@@ -269,6 +269,26 @@
     }
   }
 
+  /** Reposition overlay + label + dialog to follow the selected/hovered element on scroll */
+  function repositionOverlay() {
+    var el = selectedEl || hoveredEl;
+    if (!el || !overlay || overlay.style.display === 'none') return;
+    positionOverlay(el);
+    if (dialog && selectedEl) {
+      var r = selectedEl.getBoundingClientRect();
+      var sy = window.scrollY;
+      var sx = window.scrollX;
+      var top = r.bottom + sy + 8;
+      var spaceBelow = window.innerHeight - r.bottom;
+      if (spaceBelow < 220 && r.top > 220) {
+        top = r.top + sy - dialog.offsetHeight - 8;
+      }
+      var left = Math.min(Math.max(10, r.left + sx), window.innerWidth - 490);
+      dialog.style.top  = top + 'px';
+      dialog.style.left = left + 'px';
+    }
+  }
+
   /** Place a numbered badge at the top-left corner of the element */
   function placeBadge(el, num) {
     var badge = document.createElement('div');
@@ -279,9 +299,10 @@
     badges.push({ dom: badge, el: el });
   }
 
-  /* keep badges aligned on scroll (capture phase catches nested containers) & resize */
-  window.addEventListener('scroll', repositionBadges, true);
-  window.addEventListener('resize', repositionBadges);
+  /* keep badges + overlay aligned on scroll (capture phase catches nested containers) & resize */
+  function onScrollOrResize() { repositionBadges(); repositionOverlay(); }
+  window.addEventListener('scroll', onScrollOrResize, true);
+  window.addEventListener('resize', onScrollOrResize);
 
   /** Fly a small dot from the confirm button towards the bottom-right corner */
   function animateFlyDot() {
@@ -404,9 +425,10 @@
   }
 
   /* ── activate / deactivate ── */
-  function activate() {
+  function activate(isViewer) {
     if (active) return;
     active = true;
+    viewerMode = !!isViewer;
     ensureUI();
     document.body.classList.add('alva-inspector-active');
     document.addEventListener('mousemove', onMouseMove, true);
@@ -432,7 +454,7 @@
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (!d || typeof d !== 'object') return;
-    if (d.type === 'alva:inspector-activate')    activate();
+    if (d.type === 'alva:inspector-activate')    activate(d.viewerMode);
     if (d.type === 'alva:inspector-deactivate') deactivate();
     if (d.type === 'alva:inspector-clear-badges') clearBadges();
     if (d.type === 'alva:inspector-remove-badge' && d.index) {

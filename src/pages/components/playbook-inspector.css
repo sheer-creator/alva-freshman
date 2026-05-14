@@ -58,18 +58,17 @@ body.alva-inspector-active .alva-inspector-dialog * {
   text-overflow: ellipsis;
 }
 
-/* ── Edit dialog (ChatBox style) ── */
+/* ── Edit dialog (ChatBox style) ──
+   Two visual modes, controlled by `.has-text`:
+     • default (no text element / viewer): dialog is transparent positioner,
+       the .aid-toolbar inside is the visible dark-bordered chat box.
+     • .has-text (creator + text element): dialog becomes a light-bordered
+       popover wrapping the text field and the (still dark-bordered) chat box. */
 .alva-inspector-dialog {
   position: absolute;
   z-index: 99995;
   width: 480px;
-  background: #fff;
-  border: 0.5px solid rgba(0,0,0,0.2);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow: hidden;
-  padding: 16px;
   animation: aidSlideIn 0.15s ease-out;
 }
 @keyframes aidSlideIn {
@@ -77,15 +76,41 @@ body.alva-inspector-active .alva-inspector-dialog * {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Toolbar row: instruction input + send button ── */
+/* Popover wrapper — text-field + chat box stacked */
+.alva-inspector-dialog.has-text {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* ── Chat box: instruction input + send button (the dark-bordered pill) ── */
 .aid-toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 12px;
-  height: 28px;
+  width: 100%;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.9);
+  border-radius: 8px;
+  padding: 12px 12px 12px 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  overflow: clip;
+  max-height: 160px;
+  box-sizing: border-box;
 }
+.alva-inspector-dialog.has-text .aid-toolbar {
+  /* outer popover already carries the shadow */
+  box-shadow: none;
+  max-height: 240px;
+}
+
 .aid-instruction-input {
-  flex: 1;
+  flex: 1 0 0;
   min-width: 0;
   border: none;
   outline: none;
@@ -95,6 +120,7 @@ body.alva-inspector-active .alva-inspector-dialog * {
   letter-spacing: 0.14px;
   color: rgba(0,0,0,0.9);
   background: transparent;
+  padding: 3px 0;
 }
 .aid-instruction-input::placeholder {
   color: rgba(0,0,0,0.3);
@@ -130,19 +156,12 @@ body.alva-inspector-active .alva-inspector-dialog * {
   filter: brightness(0) invert(1);
 }
 
-/* ── Divider between toolbar and text field ── */
-.aid-divider {
-  height: 0;
-  border: none;
-  border-top: 0.5px solid rgba(0,0,0,0.1);
-  margin: 16px 0;
-}
-
 /* ── Text content field (only shown for text elements) ── */
 .aid-text-field {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 .aid-field-label {
   display: block;
@@ -168,6 +187,7 @@ body.alva-inspector-active .alva-inspector-dialog * {
   color: rgba(0,0,0,0.9);
   background: #fff;
   box-sizing: border-box;
+  min-height: 110px;
   transition: border-color 0.15s;
   -ms-overflow-style: none;
   scrollbar-width: none;

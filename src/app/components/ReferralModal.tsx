@@ -86,7 +86,7 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={onClose}>
       <div
         className="w-[480px] max-h-[90vh] rounded-[12px] flex flex-col overflow-hidden"
-        style={{ background: '#fff', boxShadow: 'var(--shadow-l, 0 10px 20px rgba(0,0,0,0.08))' }}
+        style={{ background: 'var(--b0-container)', boxShadow: 'var(--shadow-l, 0 10px 20px rgba(0,0,0,0.08))' }}
         onClick={(e) => e.stopPropagation()}
       >
 
@@ -129,7 +129,7 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
             <span className="text-[12px] leading-[18px] tracking-[0.12px] font-medium" style={{ color: 'var(--text-n5)' }}>Your referral link</span>
             <div
               className="mt-[6px] h-[44px] rounded-[8px] flex items-center overflow-hidden"
-              style={{ border: '1px solid rgba(0,0,0,0.12)' }}
+              style={{ border: '1px solid var(--line-l12)' }}
             >
               <span
                 className="flex-1 min-w-0 px-[12px] text-[14px] leading-[22px] tracking-[0.14px] truncate select-all"
@@ -142,7 +142,7 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
                 style={{
                   color: copied ? '#fff' : 'var(--main-m1, #49A3A6)',
                   background: copied ? 'var(--main-m1, #49A3A6)' : 'rgba(73,163,166,0.06)',
-                  borderLeft: '1px solid rgba(0,0,0,0.08)',
+                  borderLeft: '1px solid var(--line-l07)',
                 }}
                 onClick={handleCopy}
               >
@@ -171,8 +171,8 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
               {SHARE_CHANNELS.map((ch) => (
                 <button
                   key={ch.label}
-                  className="flex-1 h-[40px] rounded-[8px] flex items-center justify-center gap-[6px] cursor-pointer transition-colors hover:bg-[rgba(0,0,0,0.04)]"
-                  style={{ border: '1px solid rgba(0,0,0,0.10)', color: 'var(--text-n7)', background: 'transparent' }}
+                  className="flex-1 h-[40px] rounded-[8px] flex items-center justify-center gap-[6px] cursor-pointer transition-colors hover:bg-[var(--b-r05)]"
+                  style={{ border: '1px solid var(--line-l07)', color: 'var(--text-n7)', background: 'transparent' }}
                   onClick={ch.open}
                 >
                   {ch.icon}
@@ -185,7 +185,7 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
           {/* 统计卡片 — 点击展开历史 */}
           <div
             className="mt-[20px] rounded-[8px] overflow-hidden cursor-pointer transition-colors hover:bg-[rgba(73,163,166,0.08)]"
-            style={{ background: 'rgba(73,163,166,0.05)', border: '1px solid rgba(73,163,166,0.10)' }}
+            style={{ background: 'rgba(73,163,166,0.05)', border: '1px solid var(--main-m1-10)' }}
             onClick={() => setShowHistory(!showHistory)}
           >
             {/* 统计行 */}
@@ -208,7 +208,7 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
 
             {/* 展开的历史列表 */}
             {showHistory && (
-              <div style={{ borderTop: '1px solid rgba(73,163,166,0.10)' }}>
+              <div style={{ borderTop: '1px solid var(--main-m1-10)' }}>
                 {referrals.map((r, i) => (
                   <div
                     key={r.name}
@@ -221,8 +221,8 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
                     <span
                       className="shrink-0 text-[11px] leading-[16px] tracking-[0.11px] px-[6px] py-[1px] rounded-[3px]"
                       style={r.status === 'activated'
-                        ? { color: '#2a9b7d', background: 'rgba(42,155,125,0.08)' }
-                        : { color: 'var(--text-n3)', background: 'rgba(0,0,0,0.04)' }
+                        ? { color: 'var(--main-m3)', background: 'rgba(42,155,125,0.08)' }
+                        : { color: 'var(--text-n3)', background: 'var(--b-r05)' }
                       }
                     >
                       {r.status === 'activated' ? 'Activated' : 'Pending'}
@@ -240,10 +240,10 @@ export default function ReferralModal({ isOpen, onClose, onNavigate }: { isOpen:
 
           {/* Demo 预览入口 */}
           {onNavigate && (
-            <div className="mt-[16px] pt-[14px] flex items-center justify-center" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+            <div className="mt-[16px] pt-[14px] flex items-center justify-center" style={{ borderTop: '1px solid var(--line-l05)' }}>
               <button
                 className="text-[12px] leading-[18px] cursor-pointer flex items-center gap-[4px] transition-colors hover:opacity-70"
-                style={{ color: 'var(--main-m1, #49A3A6)', background: 'none', border: 'none' }}
+                style={{ color: 'var(--main-m1)', background: 'none', border: 'none' }}
                 onClick={() => { onClose(); onNavigate('referral-landing'); }}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

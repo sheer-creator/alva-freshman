@@ -60,7 +60,7 @@ export function ToolCallDetail({ data }: { data: ToolCallData }) {
         <span style={{
           display: 'inline-flex', alignItems: 'center',
           padding: '2px 8px', borderRadius: 4,
-          background: 'rgba(0,0,0,0.06)',
+          background: 'var(--b-r07)',
           fontSize: 11, fontFamily: MONO, color: 'var(--text-n7, rgba(0,0,0,0.7))',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           maxWidth: '70%',
@@ -68,7 +68,7 @@ export function ToolCallDetail({ data }: { data: ToolCallData }) {
           {toolObject(data.tool, data.input)}
         </span>
         {data.durationMs ? (
-          <span style={{ fontSize: 11, color: 'rgba(0,0,0,0.2)', fontFamily: MONO, flexShrink: 0, marginLeft: 'auto' }}>
+          <span style={{ fontSize: 11, color: 'var(--text-n2)', fontFamily: MONO, flexShrink: 0, marginLeft: 'auto' }}>
             {(data.durationMs / 1000).toFixed(1)}s
           </span>
         ) : data.status === 'running' ? (
@@ -161,14 +161,14 @@ export function ToolCallBlock({ data, isActive, nested }: ToolCallBlockProps) {
             <span style={{ fontSize: 11, color: 'var(--text-n5)', fontFamily: MONO }}>running</span>
           </span>
         ) : data.durationMs ? (
-          <span style={{ fontSize: 11, color: 'rgba(0,0,0,0.2)', fontFamily: MONO }}>
+          <span style={{ fontSize: 11, color: 'var(--text-n2)', fontFamily: MONO }}>
             {(data.durationMs / 1000).toFixed(1)}s
           </span>
         ) : null}
       </div>
 
       <Collapse open={expanded}>
-        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid rgba(0,0,0,0.08)' }}>
+        <div style={{ marginLeft: 5, paddingLeft: 11, borderLeft: '1.5px solid var(--line-l07)' }}>
           <ToolCallDetail data={data} />
         </div>
       </Collapse>

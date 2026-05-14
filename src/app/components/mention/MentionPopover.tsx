@@ -44,12 +44,12 @@ export function MentionChip({ item, onRemove }: { item: MentionItem; onRemove: (
       <span style={{ fontFamily: FONT, fontSize: 13, lineHeight: '18px', color: 'rgba(0,0,0,0.75)' }}>
         {item.title}
       </span>
-      <span style={{ fontFamily: FONT, fontSize: 11, lineHeight: '16px', color: 'rgba(0,0,0,0.25)' }}>
+      <span style={{ fontFamily: FONT, fontSize: 11, lineHeight: '16px', color: 'var(--text-n3)' }}>
         {item.subtitle}
       </span>
       <button
         onClick={onRemove}
-        className="w-[18px] h-[18px] rounded-full flex items-center justify-center cursor-pointer hover:bg-[rgba(0,0,0,0.06)] transition-colors ml-[2px]"
+        className="w-[18px] h-[18px] rounded-full flex items-center justify-center cursor-pointer hover:bg-[var(--b-r07)] transition-colors ml-[2px]"
         style={{ background: 'none', border: 'none' }}
       >
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -68,7 +68,7 @@ function Tag({ label }: { label: string }) {
     Created: 'rgba(123,97,255,0.7)',
     Starred: 'rgba(230,169,26,0.7)',
   };
-  const color = colorMap[label] ?? 'rgba(0,0,0,0.25)';
+  const color = colorMap[label] ?? 'var(--text-n3)';
   return (
     <span
       className="shrink-0 px-[5px] py-[0.5px] rounded-[3px]"
@@ -169,7 +169,7 @@ export function MentionPopover({ query, onSelect, onClose, selectedIds }: Mentio
       ref={ref}
       className="rounded-[10px] overflow-hidden"
       style={{
-        background: '#fff', border: '0.5px solid rgba(0,0,0,0.12)',
+        background: 'var(--b0-container)', border: '0.5px solid var(--line-l12)',
         boxShadow: '0 4px 20px rgba(0,0,0,0.08)', width: 320,
       }}
     >
@@ -191,12 +191,12 @@ export function MentionPopover({ query, onSelect, onClose, selectedIds }: Mentio
           }}
         />
       </div>
-      <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', margin: '0 10px' }} />
+      <div style={{ height: 1, background: 'var(--line-l07)', margin: '0 10px' }} />
 
       {/* 列表 */}
       <div style={{ maxHeight: 280, overflowY: 'auto', padding: '4px 0' }}>
         {flatItems.length === 0 && (
-          <div style={{ padding: '12px 14px', fontFamily: FONT, fontSize: 12, color: 'rgba(0,0,0,0.25)' }}>
+          <div style={{ padding: '12px 14px', fontFamily: FONT, fontSize: 12, color: 'var(--text-n3)' }}>
             No results
           </div>
         )}
@@ -214,7 +214,7 @@ export function MentionPopover({ query, onSelect, onClose, selectedIds }: Mentio
                   onClick={() => onSelect(item)}
                   onMouseEnter={() => setActiveIdx(idx)}
                   className="flex items-center gap-[8px] px-[10px] py-[5px] mx-[4px] rounded-[6px] cursor-pointer transition-colors"
-                  style={{ background: active ? 'rgba(0,0,0,0.04)' : 'transparent' }}
+                  style={{ background: active ? 'var(--b-r05)' : 'transparent' }}
                 >
                   <div
                     className="w-[24px] h-[24px] rounded-[5px] flex items-center justify-center shrink-0"

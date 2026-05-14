@@ -21,7 +21,7 @@ export function ArtifactPreview({ data, onRelease }: ArtifactPreviewProps) {
       onMouseLeave={() => setHovered(false)}
       style={{
         margin: '10px 0', borderRadius: 8, overflow: 'hidden',
-        background: '#fff', position: 'relative',
+        background: 'var(--b0-container)', position: 'relative',
         maxWidth: 380, width: '100%',
         transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
         boxShadow: hovered ? '0 12px 32px rgba(0,0,0,0.08)' : 'none',
@@ -83,7 +83,7 @@ export function ArtifactPreview({ data, onRelease }: ArtifactPreviewProps) {
           </button>
           <button style={{
             padding: '6px 16px', borderRadius: 6,
-            background: 'transparent', border: '1px solid rgba(0,0,0,0.1)',
+            background: 'transparent', border: '1px solid var(--line-l07)',
             color: 'var(--text-n9)', fontSize: 13, fontWeight: 500, cursor: 'pointer',
             fontFamily: "'Delight', sans-serif",
           }}>

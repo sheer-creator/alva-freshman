@@ -44,13 +44,13 @@ const MD_COMPONENTS: Record<string, React.ComponentType<Record<string, unknown>>
   h3: (props) => <h3 {...props} style={{ margin: 0, fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px', fontWeight: 500, paddingTop: 0, color: 'var(--text-n9)', fontFamily: MD_FONT }} />,
   code: (props) => (
     <code {...props} style={{
-      background: 'rgba(0,0,0,0.05)', padding: '1px 8px', borderRadius: 3, fontFamily: MD_MONO,
+      background: 'var(--b-r05, rgba(0,0,0,0.05))', padding: '1px 8px', borderRadius: 3, fontFamily: MD_MONO,
     }} />
   ),
   pre: (props) => (
     <pre {...props} style={{
       margin: 0, fontSize: 12, lineHeight: '20px', letterSpacing: '0.12px',
-      background: 'rgba(0,0,0,0.05)', padding: '12px 16px', borderRadius: 6, overflow: 'auto',
+      background: 'var(--b-r05, rgba(0,0,0,0.05))', padding: '12px 16px', borderRadius: 6, overflow: 'auto',
       fontFamily: MD_MONO,
     }} />
   ),
@@ -74,7 +74,7 @@ function PlaybookRefCard({ item }: { item: PlaybookRef }) {
         borderRadius: 8, padding: 12, cursor: 'pointer',
         transition: 'border-color 150ms',
       }}
-      onMouseEnter={e => (e.currentTarget.style.borderColor = '#49A3A6')}
+      onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--main-m1, #49A3A6)')}
       onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--line-l12, rgba(0,0,0,0.12))')}
     >
       {/* 第一行：作者 + Playbook 图标 + 名称 + Pulse */}
@@ -114,7 +114,7 @@ function CommentItem({ comment, onReply }: { comment: Comment; onReply: (id: str
           </span>
           {comment.isAgent && (
             <span className="ml-[6px]" style={{
-              fontSize: 10, color: AGENT_COLOR, background: 'rgba(73,163,166,0.1)',
+              fontSize: 10, color: AGENT_COLOR, background: 'var(--main-m1-10, rgba(73,163,166,0.1))',
               padding: '1px 6px', borderRadius: 3, lineHeight: '16px',
               fontFamily: "'Delight', sans-serif", fontWeight: 500,
             }}>Agent</span>
@@ -215,7 +215,7 @@ function CommentThread({ comment, depth, onReply }: { comment: Comment; depth: n
 
 function ReplyInput({ replyTo, onCancel }: { replyTo: string; onCancel: () => void }) {
   return (
-    <div className="flex items-start gap-[8px] py-[8px]" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+    <div className="flex items-start gap-[8px] py-[8px]" style={{ borderTop: '1px solid var(--line-l05, rgba(0,0,0,0.05))' }}>
       <div className="flex-1 min-w-0">
         <p className="text-[12px] mb-[4px]" style={{ color: 'var(--text-n5)' }}>Replying to {replyTo}</p>
         <textarea
@@ -224,12 +224,12 @@ function ReplyInput({ replyTo, onCancel }: { replyTo: string; onCancel: () => vo
           className="text-[13px] w-full"
           style={{
             resize: 'vertical', minHeight: 56, padding: '8px 10px',
-            border: '1px solid rgba(0,0,0,0.12)', borderRadius: 6,
+            border: '1px solid var(--line-l12, rgba(0,0,0,0.12))', borderRadius: 6,
             fontFamily: "'Delight', sans-serif", outline: 'none',
             color: 'var(--text-n9)',
           }}
           onFocus={e => (e.currentTarget.style.borderColor = 'var(--main-m1, #49A3A6)')}
-          onBlur={e => (e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--line-l12, rgba(0,0,0,0.12))')}
         />
         <div className="flex items-center gap-[8px] mt-[4px]">
           <button

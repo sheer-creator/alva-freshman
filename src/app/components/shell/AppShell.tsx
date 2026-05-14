@@ -10,34 +10,15 @@ import { Sidebar, SIDEBAR_W_COLLAPSED, SIDEBAR_W_EXPANDED } from './Sidebar';
 import { CdnIcon } from '../shared/CdnIcon';
 import { ThreadSwitcherDropdown } from '../shared/ThreadSwitcherDropdown';
 
+import { PAGE_TITLES, isPlaybookOwnerPage } from '@/lib/chat-config';
+
 const NARROW_THRESHOLD = 1024;
 const MOBILE_THRESHOLD = 640;
 const MOBILE_TOPBAR_H = 48;
-const PAGE_TITLES: Record<string, string> = {
-  'new-chat': 'New chat',
-  'explore-2': 'Explore',
-  portfolio: 'Portfolio',
-  agent: 'Agent',
-  'alva-skills': 'Alva Skill',
-  account: 'Account',
-  'user-profile': 'Profile',
-  pricing: 'Pricing',
-  'api-keys': 'API Keys',
-  notifications: 'Notifications',
-  automations: 'Automations',
-  billing: 'Billing',
-  'alva-agent': 'Alva Agent',
-  'portfolio-settings': 'Portfolio',
-  'screener': 'Feed Test',
-  'template-screener': 'Template-Screener',
-  'template-thesis': 'Template-Thesis',
-  'template-whatif': 'Template-Whatif',
-  'template-notification': 'Template-Notification',
-};
 import SearchModal from '../SearchModal';
 import ReferralModal from '../ReferralModal';
 import UserInfo from '../UserInfo';
-import { ChatProvider, useChatContext } from '../chat/ChatContext';
+import { useChatContext } from '../chat/ChatContext';
 import { ChatPanel } from '../chat/ChatPanel';
 import { FloatingChatFAB } from '../chat/FloatingChatFAB';
 
@@ -121,7 +102,7 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
       if (data.type === 'alva:inspector-ready') {
         const src = e.source as Window | null;
         if (src && inspectorActiveRef.current) {
-          try { src.postMessage({ type: 'alva:inspector-activate' }, '*'); } catch (_) {}
+          try { src.postMessage({ type: 'alva:inspector-activate', viewerMode: !isPlaybookOwnerPage(activePage || '') }, '*'); } catch (_) {}
         }
       }
     };
@@ -140,12 +121,12 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
   /* notify iframes when inspector mode toggles or chat panel opens/closes */
   useEffect(() => {
     const msg = inspectorActive
-      ? { type: 'alva:inspector-activate' }
+      ? { type: 'alva:inspector-activate', viewerMode: !isPlaybookOwnerPage(activePage || '') }
       : { type: 'alva:inspector-deactivate' };
     document.querySelectorAll('iframe').forEach((f) => {
       try { f.contentWindow?.postMessage(msg, '*'); } catch (_) {}
     });
-  }, [inspectorActive, chatOpen]);
+  }, [inspectorActive, chatOpen, activePage]);
 
   const handleUserEnter = useCallback(() => {
     if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
@@ -210,7 +191,7 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
   );
 
   return (
-    <div className="bg-[#2a2a38] flex h-screen overflow-hidden relative w-full">
+    <div className="bg-[var(--b0-sidebar)] flex h-screen overflow-hidden relative w-full">
       {/* Desktop sidebar — hidden below lg */}
       <div className="hidden lg:block">
         <Sidebar
@@ -326,7 +307,7 @@ function MobileTopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
     >
       <button
         onClick={onOpenDrawer}
-        className="flex items-center justify-center w-[36px] h-[36px] rounded-[8px] hover:bg-[rgba(0,0,0,0.04)] cursor-pointer transition-colors"
+        className="flex items-center justify-center w-[36px] h-[36px] rounded-[8px] hover:bg-[var(--b-r05)] cursor-pointer transition-colors"
         aria-label="Open navigation"
       >
         <CdnIcon name="menu-l" size={20} color="rgba(0,0,0,0.85)" />
@@ -337,16 +318,14 @@ function MobileTopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
 
 export function AppShell({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, children }: AppShellProps) {
   return (
-    <ChatProvider activePage={activePage ?? 'new-chat'}>
-      <AppShellInner
-        activePage={activePage}
-        onNavigate={onNavigate}
-        onOpenSearch={onOpenSearch}
-        onUserMouseEnter={onUserMouseEnter}
-        onUserMouseLeave={onUserMouseLeave}
-      >
-        {children}
-      </AppShellInner>
-    </ChatProvider>
+    <AppShellInner
+      activePage={activePage}
+      onNavigate={onNavigate}
+      onOpenSearch={onOpenSearch}
+      onUserMouseEnter={onUserMouseEnter}
+      onUserMouseLeave={onUserMouseLeave}
+    >
+      {children}
+    </AppShellInner>
   );
 }

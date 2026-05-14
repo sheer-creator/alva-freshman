@@ -8,7 +8,7 @@ import { ChatMessages } from './ChatMessages';
 import { PlaybookSuggestions, hasContextSuggestions } from './PlaybookSuggestions';
 import { TodoListCard, ReviewPlanCard, AnswerQuestionCard } from './StreamingMessages';
 import type { ContextTagData } from '@/lib/chat-config';
-import { CONVERSATIONS } from '@/lib/chat-config';
+import { CONVERSATIONS, isPlaybookOwnerPage, isPlaybookPage } from '@/lib/chat-config';
 
 const FONT = "font-['Delight',sans-serif]";
 
@@ -67,9 +67,9 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
         className="flex flex-col h-full w-full overflow-hidden"
         style={{
           background: 'white',
-          border: '0.5px solid rgba(0,0,0,0.2)',
+          border: '0.5px solid var(--line-l2)',
           borderRadius: 12,
-          boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+          boxShadow: 'var(--shadow-xs)',
         }}
       >
         {/* Topbar */}
@@ -92,7 +92,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                       <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] truncate`}>
                         Alva Agent
                       </p>
-                      <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                      <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                     </div>
                   </div>
                 ) : (
@@ -100,7 +100,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                     <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] truncate`}>
                       {CONVERSATIONS.find(c => c.id === activeConversationId)?.label ?? 'New Chat'}
                     </p>
-                    <CdnIcon name="arrow-down-f2" size={14} color="rgba(0,0,0,0.2)" />
+                    <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                   </div>
                 )
               }
@@ -156,12 +156,12 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
         <div className="flex flex-col flex-1 items-center min-h-0 pb-[8px] px-[8px] relative" style={{ zIndex: 1 }}>
           {isAgent ? (
             <>
-              <div ref={agentScrollRef} className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full pb-[64px] px-[16px]">
-                <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px]">
+              <div ref={agentScrollRef} className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px]">
+                <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px] pb-[120px]">
                   {agentMessages.map((msg, i) =>
                     msg.role === 'user' ? (
                       <div key={i} className="flex flex-col items-end w-full">
-                        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'rgba(73,163,166,0.1)', borderRadius: 8 }}>
+                        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
                           <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
                             {msg.text}
                           </p>
@@ -187,8 +187,11 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                   <PlaybookSuggestions page={activePage} onPromptClick={handlePromptClick} />
                 </div>
               ) : (
-                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full pb-[64px] px-[16px]">
-                  <ChatMessages conversationId={activeConversationId} hasContent={hasInitialInput} />
+                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px]">
+                  <div className={hasInitialInput ? "flex flex-col w-full" : "flex flex-col flex-1 min-h-0 w-full"}>
+                    <ChatMessages conversationId={activeConversationId} hasContent={hasInitialInput} />
+                  </div>
+                  <div className="shrink-0 w-full" style={{ height: hasInitialInput ? 120 : 0 }} />
                 </div>
               )}
 
@@ -212,7 +215,12 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                       />
                     </div>
                   )}
-                  <ChatInput contextTag={contextTag} onSend={sendPrompt} injectText={injectSignal} />
+                  <ChatInput
+                    contextTag={contextTag}
+                    onSend={sendPrompt}
+                    injectText={injectSignal}
+                    placeholder={isPlaybookPage(activePage) && !isPlaybookOwnerPage(activePage) ? 'Ask anything about this playbook' : undefined}
+                  />
                 </>
               )}
             </>

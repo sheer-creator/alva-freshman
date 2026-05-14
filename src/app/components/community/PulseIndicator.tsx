@@ -5,7 +5,7 @@
  */
 
 export function PulseIndicator({ status = 'active' }: { status?: 'active' | 'idle' }) {
-  const color = status === 'active' ? '#49A3A6' : '#838383';
+  const color = status === 'active' ? 'var(--main-m1, #49A3A6)' : '#838383';
   return (
     <span className="relative inline-flex items-center justify-center" style={{ width: 12, height: 12 }}>
       <span
