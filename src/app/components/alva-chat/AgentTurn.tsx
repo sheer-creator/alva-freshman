@@ -65,7 +65,7 @@ function InlineResult({ summary, action, object, detail }: { summary: string; ac
             </div>
             <div style={{
               fontSize: 11, lineHeight: '17px',
-              color: 'var(--text-n4)', whiteSpace: 'pre-wrap',
+              color: 'var(--text-n5)', whiteSpace: 'pre-wrap',
               fontFamily: "'Delight', sans-serif",
             }}>
               {detail}

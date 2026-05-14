@@ -41,7 +41,7 @@ export function MentionChip({ item, onRemove }: { item: MentionItem; onRemove: (
       >
         <TypeIcon type={item.type} color={item.themeColor} />
       </div>
-      <span style={{ fontFamily: FONT, fontSize: 13, lineHeight: '18px', color: 'rgba(0,0,0,0.75)' }}>
+      <span style={{ fontFamily: FONT, fontSize: 13, lineHeight: '18px', color: 'var(--text-n7)' }}>
         {item.title}
       </span>
       <span style={{ fontFamily: FONT, fontSize: 11, lineHeight: '16px', color: 'var(--text-n3)' }}>
@@ -222,7 +222,7 @@ export function MentionPopover({ query, onSelect, onClose, selectedIds }: Mentio
                   >
                     <TypeIcon type={item.type} color={item.themeColor} />
                   </div>
-                  <div className="flex-1 min-w-0 truncate" style={{ fontFamily: FONT, fontSize: 13, color: 'rgba(0,0,0,0.75)' }}>
+                  <div className="flex-1 min-w-0 truncate" style={{ fontFamily: FONT, fontSize: 13, color: 'var(--text-n7)' }}>
                     {item.title}
                   </div>
                   {item.tag && <Tag label={item.tag} />}

@@ -350,7 +350,7 @@ function SkillInfoCard({
               padding: '0 6px',
               borderRadius: 5,
               background: 'var(--b-r05)',
-              color: 'rgba(0,0,0,0.58)',
+              color: 'var(--text-n5)',
               fontFamily: "'Delight', sans-serif",
               fontSize: 11,
               lineHeight: '20px',
@@ -502,7 +502,7 @@ function PromptRowSkeleton({ widthPct }: { widthPct: number }) {
           maxWidth: `${widthPct}%`,
         }}
       />
-      <div style={{ width: 20, height: 20, background: 'rgba(0,0,0,0.04)', borderRadius: 4 }} />
+      <div style={{ width: 20, height: 20, background: 'var(--b-r05)', borderRadius: 4 }} />
     </div>
   );
 }
@@ -864,18 +864,18 @@ function PlaybookCardSkeleton() {
           width: '100%',
           aspectRatio: '472 / 265.5',
           borderRadius: 4,
-          background: 'rgba(0,0,0,0.04)',
+          background: 'var(--b-r05)',
         }}
       />
       <div style={{ padding: '16px 12px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div style={{ display: 'flex', gap: 6 }}>
-          <div style={{ width: 70, height: 20, background: 'rgba(0,0,0,0.06)', borderRadius: 4 }} />
+          <div style={{ width: 70, height: 20, background: 'var(--b-r07)', borderRadius: 4 }} />
           <div style={{ width: 40, height: 20, background: 'var(--b-r05)', borderRadius: 4 }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ height: 18, background: 'rgba(0,0,0,0.06)', borderRadius: 4, maxWidth: '60%' }} />
-          <div style={{ height: 12, background: 'rgba(0,0,0,0.04)', borderRadius: 4 }} />
-          <div style={{ height: 12, background: 'rgba(0,0,0,0.04)', borderRadius: 4, maxWidth: '80%' }} />
+          <div style={{ height: 18, background: 'var(--b-r07)', borderRadius: 4, maxWidth: '60%' }} />
+          <div style={{ height: 12, background: 'var(--b-r05)', borderRadius: 4 }} />
+          <div style={{ height: 12, background: 'var(--b-r05)', borderRadius: 4, maxWidth: '80%' }} />
         </div>
       </div>
     </div>
@@ -1098,7 +1098,7 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
             padding: '0 12px 0 4px',
             background: 'white',
             borderRadius: 999,
-            border: '0.5px solid rgba(0,0,0,0.1)',
+            border: '0.5px solid var(--line-l07)',
             boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
             whiteSpace: 'nowrap',
           }}
@@ -1213,7 +1213,7 @@ function SkillDetailModal({
                 padding: '0 6px',
                 borderRadius: 5,
                 background: 'var(--b-r05)',
-                color: 'rgba(0,0,0,0.58)',
+                color: 'var(--text-n5)',
                 fontFamily: "'Delight', sans-serif",
                 fontSize: 11,
                 lineHeight: '20px',
@@ -1226,7 +1226,7 @@ function SkillDetailModal({
           ))}
         </div>
         {/* 分割线（创作者行紧贴上下两条分隔线） */}
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '20px 0 12px' }} />
+        <div style={{ height: 1, background: 'var(--line-l07)', margin: '20px 0 12px' }} />
         {/* 创建者信息行：左 avatar + 名字 / 右 socials */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1237,7 +1237,7 @@ function SkillDetailModal({
                   fontFamily: "'Delight', sans-serif",
                   fontSize: 11,
                   lineHeight: '14px',
-                  color: 'rgba(0,0,0,0.4)',
+                  color: 'var(--text-n5)',
                   letterSpacing: 0.11,
                   fontWeight: 500,
                 }}
@@ -1287,7 +1287,7 @@ function SkillDetailModal({
         </div>
         {/* Pick 按钮 */}
         {/* 分割线（按钮之上） */}
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '12px 0 20px' }} />
+        <div style={{ height: 1, background: 'var(--line-l07)', margin: '12px 0 20px' }} />
         <button
           type="button"
           onClick={onSelect}
@@ -1660,7 +1660,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           /* 每个 prompt 被包了一层 div 用于动画，所以 :last-child 总是匹配。
              改为给非最后一个的"包装层"加底边（向下挂分割线）。 */
           .nc-prompts-container > div > div:not(:last-child){
-            border-bottom:0.5px solid rgba(0,0,0,0.08);
+            border-bottom:0.5px solid var(--line-l07);
           }
           .nc-prompt-text{
             font-size:13px;
@@ -1684,7 +1684,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           right:0;
           width:320px;
           background:#fff;
-          border:0.5px solid rgba(0,0,0,0.1);
+          border:0.5px solid var(--line-l07);
           border-radius:12px;
           box-shadow:0 12px 32px rgba(0,0,0,0.10),0 2px 6px rgba(0,0,0,0.04);
           z-index:20;
@@ -1711,7 +1711,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         }
         @media (hover: hover){
           .more-skill-row:hover{
-            background:rgba(0,0,0,0.04);
+            background:var(--b-r05);
           }
         }
         .more-skills-backdrop{display:none}
@@ -1779,12 +1779,12 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           }
           .more-skill-row{
             padding:18px 16px !important;
-            background:rgba(0,0,0,0.04) !important;
+            background:var(--b-r05) !important;
             border-radius:12px !important;
             gap:14px !important;
           }
           .more-skill-row:active{
-            background:rgba(0,0,0,0.08) !important;
+            background:var(--b-r07) !important;
           }
           .more-skill-name{
             font-size:15px !important;
@@ -1825,7 +1825,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-family:'Delight',sans-serif;
           font-size:12px;
           line-height:16px;
-          color:rgba(0,0,0,0.45);
+          color:var(--text-n5);
           letter-spacing:0.12px;
           overflow:hidden;
           text-overflow:ellipsis;
@@ -1875,7 +1875,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           display:block;
           width:100%;
           background:#fff;
-          border:0.5px solid rgba(0,0,0,0.08);
+          border:0.5px solid var(--line-l07);
           border-radius:12px;
           padding:16px;
           font-family:inherit;
@@ -1946,7 +1946,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-family:'Delight',sans-serif;
           font-size:12px;
           line-height:16px;
-          color:rgba(0,0,0,0.45);
+          color:var(--text-n5);
           letter-spacing:0.12px;
           overflow:hidden;
           text-overflow:ellipsis;
@@ -2025,7 +2025,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           padding:0 6px;
           border-radius:5px;
           background:var(--b-r05);
-          color:rgba(0,0,0,0.58);
+          color:var(--text-n5);
           font-family:'Delight',sans-serif;
           font-size:11px;
           line-height:20px;
@@ -2034,7 +2034,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         }
         .nc-skill-card-divider{
           height:1px;
-          background:rgba(0,0,0,0.08);
+          background:var(--line-l07);
           margin:12px 0;
         }
         .nc-skill-card-creator{

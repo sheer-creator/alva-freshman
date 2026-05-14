@@ -56,7 +56,7 @@ type Broker = typeof MOCK_PORTFOLIO.brokers[number];
 
 function BrokerRow({ broker }: { broker: Broker }) {
   const [connected, setConnected] = useState(broker.status === 'connected');
-  const logo = BROKER_LOGOS[broker.name] ?? { bg: 'rgba(0,0,0,0.06)', color: 'rgba(0,0,0,0.6)', label: broker.name.charAt(0) };
+  const logo = BROKER_LOGOS[broker.name] ?? { bg: 'var(--b-r07)', color: 'rgba(0,0,0,0.6)', label: broker.name.charAt(0) };
   const isLive = broker.name === 'Interactive Brokers' || broker.name === 'Alpaca';
 
   return (

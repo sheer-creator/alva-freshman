@@ -17,7 +17,7 @@ const FONT = "'Delight', sans-serif";
 /* ========== Status Dot ========== */
 
 function StatusDot({ status = 'green', size = 12 }: { status?: 'green' | 'grey'; size?: number }) {
-  const ringColor = status === 'green' ? '#DBEDED' : 'rgba(0,0,0,0.06)';
+  const ringColor = status === 'green' ? '#DBEDED' : 'var(--b-r07)';
   const dotColor = status === 'green' ? '#49A3A6' : 'rgba(0,0,0,0.3)';
   return (
     <div className="flex items-center shrink-0" style={{ width: size, height: size }}>

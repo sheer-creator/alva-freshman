@@ -310,7 +310,7 @@ function MobileTopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
         className="flex items-center justify-center w-[36px] h-[36px] rounded-[8px] hover:bg-[var(--b-r05)] cursor-pointer transition-colors"
         aria-label="Open navigation"
       >
-        <CdnIcon name="menu-l" size={20} color="rgba(0,0,0,0.85)" />
+        <CdnIcon name="menu-l" size={20} color="var(--text-n9)" />
       </button>
     </div>
   );

@@ -42,7 +42,7 @@ function BillingToggle({ annual, onChange }: { annual: boolean; onChange: (v: bo
   return (
     <div
       className="inline-flex rounded-full p-[3px]"
-      style={{ background: 'rgba(0,0,0,0.06)' }}
+      style={{ background: 'var(--b-r07)' }}
     >
       <button
         className="px-[16px] py-[6px] rounded-full text-[13px] leading-[20px] tracking-[0.13px] font-medium cursor-pointer transition-all"
@@ -122,7 +122,7 @@ export default function Pricing({ onNavigate }: { onNavigate: (page: Page) => vo
             </span>
           </div>
 
-          <h1 className="font-['Delight',sans-serif] text-[22px] leading-[30px] font-normal text-[rgba(0,0,0,0.88)] text-center">
+          <h1 className="font-['Delight',sans-serif] text-[22px] leading-[30px] font-normal text-[var(--text-n9)] text-center">
             Upgrade to Alva Pro
           </h1>
         </div>

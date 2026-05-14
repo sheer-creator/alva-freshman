@@ -77,10 +77,10 @@ function PlaybookCard({ pb, onClick }: { pb: PlaybookSummary; onClick: () => voi
         </div>
         <div>
           <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[var(--main-m1)]">{pb.annualizedReturn}</p>
-          <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[rgba(0,0,0,0.4)]">Annualized Return</p>
+          <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]">Annualized Return</p>
         </div>
       </div>
-      <div aria-hidden="true" className="absolute inset-0 rounded-[6px] border border-[rgba(0,0,0,0.08)] pointer-events-none" />
+      <div aria-hidden="true" className="absolute inset-0 rounded-[6px] border border-[var(--line-l07)] pointer-events-none" />
     </div>
   );
 }
@@ -171,10 +171,10 @@ function SkillCard({ sk }: { sk: SkillSummary }) {
         </div>
         <div>
           <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[var(--main-m1)]">{sk.weeklyInstalls}</p>
-          <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[rgba(0,0,0,0.4)]">Weekly Installs</p>
+          <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]">Weekly Installs</p>
         </div>
       </div>
-      <div aria-hidden="true" className="absolute inset-0 rounded-[6px] border border-[rgba(0,0,0,0.08)] pointer-events-none" />
+      <div aria-hidden="true" className="absolute inset-0 rounded-[6px] border border-[var(--line-l07)] pointer-events-none" />
     </div>
   );
 }

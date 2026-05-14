@@ -88,7 +88,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
 
           {/* 邀请人 */}
           <Avatar name={referrer.name} size={48} />
-          <p className="mt-[14px] text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'rgba(0,0,0,0.4)' }}>
+          <p className="mt-[14px] text-[13px] leading-[20px] tracking-[0.13px]" style={{ color: 'var(--text-n5)' }}>
             {referrer.name} invited you to Alva
           </p>
 
@@ -106,10 +106,10 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
           </div>
 
           {/* 分隔线 */}
-          <div className="w-[40px] h-[1px] mt-[24px]" style={{ background: 'rgba(0,0,0,0.08)' }} />
+          <div className="w-[40px] h-[1px] mt-[24px]" style={{ background: 'var(--line-l07)' }} />
 
           {/* 一句话 */}
-          <p className="mt-[24px] text-[14px] leading-[22px] text-center max-w-[300px]" style={{ color: 'rgba(0,0,0,0.45)' }}>
+          <p className="mt-[24px] text-[14px] leading-[22px] text-center max-w-[300px]" style={{ color: 'var(--text-n5)' }}>
             Collaborative investing playbooks.<br />
             From idea to live strategy, no code.
           </p>
@@ -134,7 +134,7 @@ export default function ReferralLanding({ onNavigate }: { onNavigate: (page: Pag
 
             <button
               className="w-full h-[46px] rounded-[10px] text-[14px] font-medium cursor-pointer transition-all flex items-center justify-center gap-[10px]"
-              style={{ color: 'rgba(0,0,0,0.5)', background: 'transparent', border: '1px solid rgba(0,0,0,0.08)' }}
+              style={{ color: 'rgba(0,0,0,0.5)', background: 'transparent', border: '1px solid var(--line-l07)' }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.02)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
               onClick={() => onNavigate('new-chat')}

@@ -30,7 +30,7 @@ const TEMPLATE_STYLE: Record<Template, { bg: string; fg: string }> = {
   general:  { bg: "#f0f0f0", fg: "#1a1a1a" },
 };
 
-const SUBJECT_STYLE = { bg: "#f2f2f2", fg: "rgba(0,0,0,0.65)" };
+const SUBJECT_STYLE = { bg: "#f2f2f2", fg: "var(--text-n7)" };
 
 export function PlaybookTags({ tags, gap = 6 }: { tags: Tag[]; gap?: number }) {
   const ghostRef = useRef<HTMLDivElement>(null);

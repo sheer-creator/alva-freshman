@@ -203,7 +203,7 @@
         : '') +
       '<div class="aid-toolbar">' +
         '<input class="aid-instruction-input" type="text" placeholder="' + (viewerMode ? 'Ask anything about this playbook' : 'Describe a change') + '" />' +
-        '<button class="aid-send" type="button" aria-label="Send">' + cdnIcon('arrow-up-l1', 14) + '</button>' +
+        '<button class="aid-send" type="button" aria-label="Send">' + cdnIcon('check-l1', 14) + '</button>' +
       '</div>';
 
     document.body.appendChild(dialog);

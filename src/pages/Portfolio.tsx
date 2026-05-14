@@ -51,7 +51,7 @@ function BrokerTabs({ brokers, active, onChange }: { brokers: BrokerPortfolio[];
             className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] transition-colors cursor-pointer ${
               isActive
                 ? 'bg-[rgba(73,163,166,0.12)] text-[var(--text-n9)] font-medium'
-                : 'bg-transparent text-[rgba(0,0,0,0.35)] hover:text-[rgba(0,0,0,0.6)]'
+                : 'bg-transparent text-[var(--text-n3)] hover:text-[var(--text-n5)]'
             }`}
           >
             {b.brokerLabel}
@@ -116,7 +116,7 @@ function EquityCurveChart({ equityCurve, costBasis, benchmark }: {
       trigger: 'axis' as const,
       axisPointer: { type: 'cross' as const, label: { show: false } },
       backgroundColor: 'rgba(255,255,255,0.96)',
-      borderColor: 'rgba(0,0,0,0.08)',
+      borderColor: 'var(--line-l07)',
       borderWidth: 0.5,
       textStyle: { fontSize: 11, color: 'rgba(0,0,0,0.7)', fontFamily: FONT },
       formatter: (params: { color: string; seriesName: string; data: [string, number]; seriesType: string }[]) => {
@@ -405,7 +405,7 @@ function ActivityTab({ orders, journal }: { orders: Order[]; journal: JournalEnt
                     )}
                     <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={statusStyle}>{statusLabel}</span>
                     {t.source === 'manual' ? (
-                      <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(0,0,0,0.04)', color: 'var(--text-n5)' }}>Manual</span>
+                      <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'var(--b-r05)', color: 'var(--text-n5)' }}>Manual</span>
                     ) : (
                       <span className="text-[10px] px-[6px] py-[2px] rounded-[3px]" style={{ background: 'rgba(73,163,166,0.08)', color: 'var(--main-m1)' }}>{t.source}</span>
                     )}
@@ -509,7 +509,7 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
                 className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] transition-colors cursor-pointer ${
                   tab === t.key
                     ? 'bg-[rgba(73,163,166,0.12)] text-[var(--text-n9)] font-medium'
-                    : 'bg-transparent text-[rgba(0,0,0,0.35)] hover:text-[rgba(0,0,0,0.6)]'
+                    : 'bg-transparent text-[var(--text-n3)] hover:text-[var(--text-n5)]'
                 }`}
               >
                 {t.label}
