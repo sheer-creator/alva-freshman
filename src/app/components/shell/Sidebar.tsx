@@ -149,7 +149,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Agent" icon="sidebar-agent-normal" active={activePage === 'agent'} collapsed={collapsed} onClick={() => onNavigate('agent')} />
         <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} collapsed={collapsed} onClick={() => onNavigate('alva-skills')} />
-        <NavItem label="Chat × Skill (Workspace)" icon="sidebar-skills-normal" active={activePage === 'chat-skill-demo'} collapsed={collapsed} onClick={() => onNavigate('chat-skill-demo')} />
       </div>
 
       {/* Starred */}

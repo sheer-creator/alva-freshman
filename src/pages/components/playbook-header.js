@@ -174,6 +174,7 @@
     var builtWithCreatorAvatar = host.getAttribute('built-with-creator-avatar') || builtWithAvatar;
     var builtWithUpdated = host.getAttribute('built-with-updated') || '';
     var builtWithDesc = host.getAttribute('built-with-desc') || '';
+    var builtWithTags = (host.getAttribute('built-with-tags') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     var builtWithSocials = (host.getAttribute('built-with-socials') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     var feeds = readFeeds(host);
 
@@ -244,13 +245,19 @@
       if (!icon) return '';
       return '<span class="pb-bw-social" aria-label="' + esc(k) + '">' + icon + '</span>';
     }).join('');
+    var builtWithTagsHtml = builtWithTags.map(function (tag) {
+      return '<span class="pb-bw-tag">' + esc(tag) + '</span>';
+    }).join('');
     var builtWithCard = (builtWithCreator || builtWithDesc)
       ? '<div class="pb-built-with-popover" data-built-with-popover role="tooltip" aria-hidden="true">' +
-          '<div class="pb-bw-header">' +
-            '<h2 class="pb-bw-title">' + esc(builtWith) + '</h2>' +
-            (builtWithUpdated ? '<span class="pb-bw-time">' + esc(builtWithUpdated) + '</span>' : '') +
+          '<div class="pb-bw-info">' +
+            '<div class="pb-bw-header">' +
+              '<h2 class="pb-bw-title">' + esc(builtWith) + '</h2>' +
+              (builtWithUpdated ? '<span class="pb-bw-time">' + esc(builtWithUpdated) + '</span>' : '') +
+            '</div>' +
+            (builtWithDesc ? '<p class="pb-bw-desc">' + esc(builtWithDesc) + '</p>' : '') +
+            (builtWithTagsHtml ? '<div class="pb-bw-tags">' + builtWithTagsHtml + '</div>' : '') +
           '</div>' +
-          (builtWithDesc ? '<p class="pb-bw-desc">' + esc(builtWithDesc) + '</p>' : '') +
           '<div class="pb-bw-divider"></div>' +
           '<div class="pb-bw-creator-row">' +
             '<div class="pb-bw-creator">' +

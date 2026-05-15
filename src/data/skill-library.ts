@@ -1,7 +1,7 @@
 /**
  * [INPUT]: NewChat mock (PRIMARY/OTHERS/COMMUNITY templates)
  * [OUTPUT]: 统一 SkillEntry 数据源，分三组：mine / alva / kol
- * [POS]: ChatSkillDemo / SkillPickerPopover 共用数据层
+ * [POS]: SkillPickerPopover 共用数据层
  */
 
 import {

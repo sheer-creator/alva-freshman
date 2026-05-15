@@ -218,7 +218,8 @@ function SkillInfoCardSide({
               style={{
                 width: 24,
                 height: 24,
-                borderRadius: 6,
+                borderRadius: '9999px',
+                background: 'var(--b-r05)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',

@@ -95,13 +95,17 @@ body.alva-inspector-active .alva-inspector-dialog * {
   gap: 12px;
   width: 100%;
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.9);
+  border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
   border-radius: 8px;
   padding: 12px 12px 12px 16px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   overflow: clip;
   max-height: 160px;
   box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.aid-toolbar:focus-within {
+  border-color: var(--text-n9, rgba(0,0,0,0.9));
 }
 .alva-inspector-dialog.has-text .aid-toolbar {
   /* outer popover already carries the shadow */
@@ -176,7 +180,7 @@ body.alva-inspector-active .alva-inspector-dialog * {
   display: block;
   width: 100%;
   padding: 12px;
-  border: 0.5px solid rgba(0,0,0,0.3);
+  border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
   border-radius: 8px;
   outline: none;
   resize: none;
@@ -184,7 +188,7 @@ body.alva-inspector-active .alva-inspector-dialog * {
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0.14px;
-  color: rgba(0,0,0,0.9);
+  color: var(--text-n9, rgba(0,0,0,0.9));
   background: #fff;
   box-sizing: border-box;
   min-height: 110px;
@@ -194,7 +198,7 @@ body.alva-inspector-active .alva-inspector-dialog * {
 }
 .aid-text-input::-webkit-scrollbar { display: none; }
 .aid-text-input:focus {
-  border-color: rgba(0,0,0,0.5);
+  border-color: var(--text-n9, rgba(0,0,0,0.9));
 }
 
 /* ── Numbered badge pinned on selected elements ── */
