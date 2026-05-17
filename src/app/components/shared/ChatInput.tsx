@@ -370,6 +370,7 @@ function ChatPickerDropdown({
   kind,
   items,
   position,
+  selectedId,
   onSelect,
   onItemHover,
   onLeave,
@@ -378,6 +379,7 @@ function ChatPickerDropdown({
   kind: PickerKind;
   items: ChatPickerItem[];
   position: PickerPosition;
+  selectedId: string | null;
   onSelect: (item: ChatPickerItem) => void;
   onItemHover: (item: ChatPickerItem, rowRect: DOMRect) => void;
   onLeave: () => void;
@@ -398,25 +400,39 @@ function ChatPickerDropdown({
       }}
       onMouseLeave={onLeave}
     >
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className="group flex w-full cursor-pointer items-center gap-[8px] overflow-hidden bg-transparent px-[16px] py-[7px] text-left transition-colors hover:bg-[var(--b-r05)]"
-          style={{ height: 36, border: 'none', cursor: 'pointer' }}
-          onMouseEnter={(event) => onItemHover(item, event.currentTarget.getBoundingClientRect())}
-          onFocus={(event) => onItemHover(item, event.currentTarget.getBoundingClientRect())}
-          onClick={() => onSelect(item)}
-        >
-          <PickerRowIcon item={item} />
-          <span
-            className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
-            style={{ color: 'var(--text-n9)' }}
+      {items.map((item) => {
+        const isSelected = kind === 'skill' && selectedId === item.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            className="group flex w-full cursor-pointer items-center gap-[8px] overflow-hidden px-[16px] py-[7px] text-left transition-colors"
+            style={{
+              height: 36,
+              border: 'none',
+              cursor: 'pointer',
+              background: isSelected ? 'var(--main-m1-10)' : 'transparent',
+            }}
+            onMouseEnter={(event) => {
+              if (!isSelected) (event.currentTarget as HTMLElement).style.background = 'var(--b-r03)';
+              onItemHover(item, event.currentTarget.getBoundingClientRect());
+            }}
+            onMouseLeave={(event) => {
+              if (!isSelected) (event.currentTarget as HTMLElement).style.background = 'transparent';
+            }}
+            onFocus={(event) => onItemHover(item, event.currentTarget.getBoundingClientRect())}
+            onClick={() => onSelect(item)}
           >
-            {item.label}
-          </span>
-        </button>
-      ))}
+            <PickerRowIcon item={item} />
+            <span
+              className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
+              style={{ color: isSelected ? 'var(--main-m1)' : 'var(--text-n9)' }}
+            >
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -653,7 +669,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
       return;
     }
 
-    setSelectedSkillItem(item);
+    setSelectedSkillItem((current) => (current?.id === item.id ? null : item));
     closePicker();
     editorRef.current?.focus();
     requestAnimationFrame(() => placeCursorAtEnd());
@@ -851,6 +867,67 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
       )}
       {(selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0) && (
         <div className="flex flex-wrap gap-[8px] items-start w-full">
+          {showContextTag && (
+            <div
+              className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
+              style={{ border: '0.5px solid var(--line-l2)' }}
+            >
+              <span
+                className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
+                style={{ background: 'var(--main-m1)' }}
+              >
+                <CdnIcon name={contextTag!.icon || 'sidebar-discover-normal'} size={16} color="#fff" />
+              </span>
+              <span
+                className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
+                style={{ color: 'var(--text-n9)', maxWidth: 184 }}
+              >
+                {contextTag!.label}
+              </span>
+              <button
+                type="button"
+                aria-label="Remove context tag"
+                className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={(e) => { e.stopPropagation(); setTagDismissed(true); }}
+              >
+                <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
+              </button>
+            </div>
+          )}
+          {elementQuotes.length > 0 && (
+            <div
+              ref={chipRef}
+              className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0 cursor-pointer"
+              style={{
+                border: '0.5px solid var(--line-l2)',
+                transition: 'box-shadow 0.3s, transform 0.3s',
+                ...(chipPulse ? { boxShadow: '0 0 0 3px rgba(73,163,166,0.25)', transform: 'scale(1.04)' } : {}),
+              }}
+              onMouseEnter={handleChipEnter}
+              onMouseLeave={scheduleHide}
+            >
+              <span
+                className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
+                style={{ background: 'var(--main-m1)' }}
+              >
+                <CdnIcon name="pointer-l" size={16} color="#fff" />
+              </span>
+              <span
+                className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+                style={{ color: 'var(--text-n9)' }}
+              >
+                {elementQuotes.length} annotation
+              </span>
+              <button
+                type="button"
+                aria-label="Remove annotations"
+                className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={(e) => { e.stopPropagation(); clearElementQuotes(); }}
+              >
+                <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
+              </button>
+            </div>
+          )}
           {selectedMentionItems.map((item, index) => (
               <div
                 key={`${item.id}-${index}`}
@@ -920,67 +997,6 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
                   <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
                 </button>
               </div>
-          )}
-          {showContextTag && (
-            <div
-              className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
-              style={{ border: '0.5px solid var(--line-l2)' }}
-            >
-              <span
-                className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
-                style={{ background: 'var(--main-m1)' }}
-              >
-                <CdnIcon name={contextTag!.icon || 'sidebar-discover-normal'} size={16} color="#fff" />
-              </span>
-              <span
-                className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
-                style={{ color: 'var(--text-n9)', maxWidth: 184 }}
-              >
-                {contextTag!.label}
-              </span>
-              <button
-                type="button"
-                aria-label="Remove context tag"
-                className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-                onClick={(e) => { e.stopPropagation(); setTagDismissed(true); }}
-              >
-                <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
-              </button>
-            </div>
-          )}
-          {elementQuotes.length > 0 && (
-            <div
-              ref={chipRef}
-              className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0 cursor-pointer"
-              style={{
-                border: '0.5px solid var(--line-l2)',
-                transition: 'box-shadow 0.3s, transform 0.3s',
-                ...(chipPulse ? { boxShadow: '0 0 0 3px rgba(73,163,166,0.25)', transform: 'scale(1.04)' } : {}),
-              }}
-              onMouseEnter={handleChipEnter}
-              onMouseLeave={scheduleHide}
-            >
-              <span
-                className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
-                style={{ background: 'var(--main-m1)' }}
-              >
-                <CdnIcon name="pointer-l" size={16} color="#fff" />
-              </span>
-              <span
-                className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
-                style={{ color: 'var(--text-n9)' }}
-              >
-                {elementQuotes.length} annotation
-              </span>
-              <button
-                type="button"
-                aria-label="Remove annotations"
-                className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-                onClick={(e) => { e.stopPropagation(); clearElementQuotes(); }}
-              >
-                <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
-              </button>
-            </div>
           )}
         </div>
       )}
@@ -1094,6 +1110,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             kind={activePicker}
             items={pickerItems}
             position={pickerPosition}
+            selectedId={activePicker === 'skill' ? selectedSkillItem?.id ?? null : null}
             onSelect={selectPickerItem}
             onItemHover={handlePickerItemHover}
             onLeave={() => {

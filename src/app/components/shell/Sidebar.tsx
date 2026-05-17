@@ -92,7 +92,7 @@ function Logo({ collapsed, onToggleCollapsed }: { collapsed?: boolean; onToggleC
         type="button"
         onClick={onToggleCollapsed}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="relative shrink-0 size-[24px] rounded-[4px] flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors"
+        className="relative shrink-0 size-[16px] flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity bg-transparent border-none p-0"
       >
         <img src={`${import.meta.env.BASE_URL}sidebar-onoff.svg`} alt="" className="block size-[16px]" />
       </button>
