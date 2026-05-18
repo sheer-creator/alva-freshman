@@ -12,7 +12,12 @@ export interface BottomChipData {
   icon?: string;
   /** Creator name — when set, render an Avatar instead of CdnIcon */
   avatar?: string;
+  /** Optional creator prefix — when set, chip text becomes "{creator}/{label}" */
+  creator?: string;
   onRemove?: () => void;
+  /** Hover preview wiring — parent renders the skill info card */
+  onHover?: (rect: DOMRect) => void;
+  onLeave?: () => void;
 }
 
 export interface InjectTextSignal {
@@ -865,8 +870,41 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
           })}
         </div>
       )}
-      {(selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0) && (
+      {(selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0 || !!bottomChip) && (
         <div className="flex flex-wrap gap-[8px] items-start w-full">
+          {bottomChip && (
+            <div
+              className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
+              style={{ border: '0.5px solid var(--line-l2)' }}
+              onMouseEnter={(e) => bottomChip.onHover?.(e.currentTarget.getBoundingClientRect())}
+              onMouseLeave={() => bottomChip.onLeave?.()}
+            >
+              {bottomChip.avatar ? (
+                <Avatar name={bottomChip.avatar} size={20} />
+              ) : (
+                <span
+                  className="flex items-center justify-center shrink-0 rounded-[2px] size-[20px]"
+                  style={{ background: 'var(--main-m1)' }}
+                >
+                  <CdnIcon name={bottomChip.icon || 'sidebar-discover-normal'} size={16} color="#fff" />
+                </span>
+              )}
+              <span
+                className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
+                style={{ color: 'var(--text-n9)', maxWidth: 240 }}
+              >
+                {bottomChip.creator ? `${bottomChip.creator}/${bottomChip.label}` : bottomChip.label}
+              </span>
+              <button
+                type="button"
+                aria-label="Remove chip"
+                className="flex items-center justify-center shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={(e) => { e.stopPropagation(); bottomChip.onRemove?.(); }}
+              >
+                <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
+              </button>
+            </div>
+          )}
           {showContextTag && (
             <div
               className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
@@ -1055,32 +1093,6 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             />
           </button>
         </Tooltip>
-        {bottomChip && (
-          <div
-            className="flex min-w-0 flex-1 items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
-            style={{ background: 'var(--b-r05)', maxWidth: 'fit-content' }}
-          >
-            {bottomChip.avatar ? (
-              <Avatar name={bottomChip.avatar} size={16} />
-            ) : (
-              bottomChip.icon && <CdnIcon name={bottomChip.icon} size={14} color="var(--text-n9)" />
-            )}
-            <span
-              className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
-              style={{ color: 'var(--text-n9)', minWidth: 0 }}
-            >
-              {bottomChip.label}
-            </span>
-            <button
-              type="button"
-              className="shrink-0 flex items-center justify-center size-[16px] rounded-full cursor-pointer hover:bg-black/10 transition-colors"
-              onClick={(e) => { e.stopPropagation(); bottomChip.onRemove?.(); }}
-              aria-label="Remove chip"
-            >
-              <CdnIcon name="close-l1" size={12} color="var(--text-n7)" />
-            </button>
-          </div>
-        )}
         <div className="flex shrink-0 items-center justify-end gap-[4px] ml-auto">
           <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap">
             Sonnet 4.6

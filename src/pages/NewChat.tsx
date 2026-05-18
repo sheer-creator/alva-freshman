@@ -12,6 +12,7 @@ import { ChatInput } from '@/app/components/shared/ChatInput';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDropdown';
+import { BURST_ICON_PATHS } from '@/app/components/shared/burst-icon-paths';
 import { COMMUNITY_TEMPLATES, PRIMARY_TEMPLATES, OTHERS_TEMPLATES, type CommunitySkillTemplate, type NewChatTemplate, type NewChatPlaybook } from '@/data/new-chat-mock';
 import { generateTypedSuggestions } from '@/data/typed-suggestions';
 import { PlaybookCover } from '@/lib/playbook-cover/PlaybookCover';
@@ -882,83 +883,213 @@ function PlaybookCardSkeleton() {
   );
 }
 
-/* ========== More skills dropdown（替代旧 CommunitySkillsPopover） ========== */
+/* ========== Skills 浮层（由下到上的全量 skill grid 面板） ========== */
 
-function MoreSkillsDropdown({
+function SkillsLibraryPanel({
   skills,
+  selectedId,
   onSelect,
-  onMouseEnter,
-  onMouseLeave,
-  onRowHover,
-  onRowLeave,
-  onBackdrop,
+  onClose,
 }: {
   skills: NewChatTemplate[];
+  selectedId: string | null;
   onSelect: (id: string) => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onRowHover?: (id: string, rect: DOMRect) => void;
-  onRowLeave?: () => void;
-  onBackdrop?: () => void;
+  onClose: () => void;
 }) {
-  const isMobileViewport = typeof window !== 'undefined' && window.innerWidth < 640;
-  const content = (
+  // 弹窗最大宽度 1200，按视口宽度选 1/2/3 列
+  const pickCols = (w: number) => (w < 640 ? 1 : w < 960 ? 2 : 3);
+  const [colCount, setColCount] = useState<number>(() =>
+    typeof window === 'undefined' ? 3 : pickCols(window.innerWidth),
+  );
+  useEffect(() => {
+    const h = () => setColCount(pickCols(window.innerWidth));
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, []);
+  if (typeof document === 'undefined') return null;
+  // Round-robin 分列：高优 skill 落在每一列的顶部，列内独立堆叠
+  const columns: NewChatTemplate[][] = Array.from({ length: colCount }, () => []);
+  skills.forEach((s, i) => columns[i % colCount].push(s));
+  return createPortal(
     <>
-      {/* mobile-only 半透明遮罩，桌面下被 CSS display:none 隐藏 */}
-      <div className="more-skills-backdrop" onClick={onBackdrop} />
-      <div
-        className="more-skills-dropdown"
-        role="menu"
-        onMouseEnter={isMobileViewport ? undefined : onMouseEnter}
-        onMouseLeave={isMobileViewport ? undefined : onMouseLeave}
-      >
-        {/* 移动端标题行：More skills + 关闭按钮，桌面下 CSS 隐藏 */}
-        <div className="more-skills-header">
-          <span className="more-skills-title">More skills</span>
+      <div className="skills-panel-backdrop" onClick={onClose} />
+      <div className="skills-panel" role="dialog" aria-label="Skills">
+        <div className="skills-panel-header">
+          <span className="skills-panel-title">Skills</span>
           <button
             type="button"
             aria-label="Close"
-            onClick={onBackdrop}
-            className="more-skills-close"
+            className="skills-panel-close"
+            onClick={onClose}
           >
             <CdnIcon name="close-l1" size={16} color="var(--text-n7)" />
           </button>
         </div>
-        <div className="more-skills-dropdown-scroll">
-          {skills.map((skill) => (
-            <button
-              key={skill.id}
-              type="button"
-              role="menuitem"
-              className="more-skill-row"
-              onClick={() => onSelect(skill.id)}
-              onMouseEnter={isMobileViewport ? undefined : (e) => onRowHover?.(skill.id, e.currentTarget.getBoundingClientRect())}
-              onMouseLeave={isMobileViewport ? undefined : () => onRowLeave?.()}
-            >
-              <Avatar name={skill.creator} size={32} />
-              <span className="more-skill-text">
-                <span className="more-skill-name">{skill.label}</span>
-                <span className="more-skill-author">{skill.creator}</span>
-              </span>
-            </button>
-          ))}
+        <div className="skills-panel-scroll">
+          <div className="skills-panel-grid">
+            {columns.map((col, ci) => (
+            <div className="skills-panel-col" key={ci}>
+            {col.map((s) => {
+              const tags = (s as CommunitySkillTemplate).tags ?? tagsForSkill(s.id);
+              const isSelected = selectedId === s.id;
+              const socials = socialsForCreator(s.creator);
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`skills-panel-card${isSelected ? ' is-selected' : ''}`}
+                  onClick={() => onSelect(s.id)}
+                >
+                  <div className="skills-panel-card-content">
+                    <div className="skills-panel-card-header">
+                      {s.creator === 'Alva' && s.icon ? (
+                        <span className="skills-panel-card-icon-wrap">
+                          <CdnIcon name={s.icon} size={20} color="var(--text-n7)" />
+                        </span>
+                      ) : (
+                        <span className="skills-panel-card-creator-thumb">
+                          <Avatar name={s.creator} size={36} />
+                        </span>
+                      )}
+                      <div className="skills-panel-card-titleblock">
+                        <span className="skills-panel-card-name">{s.label}</span>
+                        <span className="skills-panel-card-author">{s.creator}</span>
+                      </div>
+                    </div>
+                    <p className="skills-panel-card-desc">{s.description}</p>
+                    {tags.length > 0 && (
+                      <div className="skills-panel-card-tags">
+                        {tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="skills-panel-card-tag">{tag}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="skills-panel-card-hoverblock">
+                    <div className="skills-panel-card-hoverblock-inner">
+                      <div className="skills-panel-card-divider" />
+                      <div className="skills-panel-card-creator-row">
+                        <Avatar name={s.creator} size={36} />
+                        <div className="skills-panel-card-creator-text">
+                          <span className="skills-panel-card-creator-caps">Created by</span>
+                          <button
+                            type="button"
+                            className="skills-panel-card-creator-name"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <span className="skills-panel-card-creator-name-text">{s.creator}</span>
+                          </button>
+                        </div>
+                        <div className="skills-panel-card-socials">
+                          {socials.map((soc) => (
+                            <a
+                              key={soc.key}
+                              href={soc.href}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              aria-label={soc.label}
+                              onClick={(e) => e.stopPropagation()}
+                              className="skills-panel-card-social"
+                            >
+                              {soc.render()}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+            </div>
+            ))}
+          </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
-  // 移动端用 portal 渲染到 body，避免 stacking context 把遮罩压在顶部栏下面
-  if (isMobileViewport && typeof document !== 'undefined') {
-    return createPortal(content, document.body);
-  }
-  return content;
 }
 
 /* ========== Title hero — 标题 + 创建者气泡，允许折行，纵向居中，固定高度 ========== */
+/* Title transition: dot-burst ellipse port of text-reveal-v4 reference. */
 
 const TITLE_DESKTOP_FONT = 45;
 const TITLE_MOBILE_FONT = 28;
 const TITLE_LH = 1.2;
 const MOBILE_THRESHOLD_PX = 640;
+
+/* ── Dot-burst tunables (text-reveal-v4) ── */
+const TR_CELL = 18;
+const TR_TOTAL_MS = 400;
+const TR_ESCAPE_BAND = 1.06;
+const TR_ESCAPE_PROB = 0.12;
+const TR_SUPERELLIPSE_N = 1.7;
+
+function trEaseInOut(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+function trEaseInOutInverse(y: number): number {
+  if (y <= 0) return 0;
+  if (y >= 1) return 1;
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    if (trEaseInOut(mid) < y) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+function trWrapChars(host: HTMLElement): HTMLSpanElement[] {
+  const out: HTMLSpanElement[] = [];
+  const walk = (node: Node) => {
+    if (node.nodeType === 3) {
+      const text = node.textContent ?? '';
+      const frag = document.createDocumentFragment();
+      for (const ch of text) {
+        if (ch === ' ') { frag.appendChild(document.createTextNode(' ')); continue; }
+        const s = document.createElement('span');
+        s.textContent = ch;
+        s.style.display = 'inline-block';
+        frag.appendChild(s);
+        out.push(s);
+      }
+      node.parentNode?.replaceChild(frag, node);
+    } else if (node.nodeType === 1) {
+      Array.from(node.childNodes).forEach(walk);
+    }
+  };
+  Array.from(host.childNodes).forEach(walk);
+  return out;
+}
+/* Reference uses 5 hand-drawn squircle icons (BURST_ICON_PATHS). Each path
+   already includes its own footprint within a 20×20 viewBox, so we don't
+   need to size or pad — we just stamp the chosen path and dial opacity.
+   Per-burst we shuffle the kind→weight mapping so every text transition
+   shows a visibly different mix of shapes (花色每次随机). */
+function trDotSvg(kind: number, opacity: number): string {
+  const path = BURST_ICON_PATHS[kind] ?? BURST_ICON_PATHS[0];
+  return `<svg width="100%" height="100%" viewBox="0 0 20 20" style="display:block;opacity:${opacity}"><path d="${path}" fill="#000"/></svg>`;
+}
+/* Build a fresh weighted icon pool for one burst: shuffle which kinds are
+   "primary" (full opacity) vs. ghosted, and randomise the dominant kind so
+   each transition has a distinct visual signature. */
+function trBuildBurstPalette(): { kind: number; opacity: number }[] {
+  const N = BURST_ICON_PATHS.length;
+  const order = Array.from({ length: N }, (_, i) => i)
+    .sort(() => Math.random() - 0.5);
+  // 2-3 dominant kinds + 1-2 ghost kinds, weights ≈ 60% / 25% / 10% / 5%
+  const weights = [0.45, 0.25, 0.15, 0.1, 0.05].slice(0, N);
+  const opacities = [1, 1, 1, 0.45, 0.2].slice(0, N).sort(() => Math.random() - 0.5);
+  const pool: { kind: number; opacity: number }[] = [];
+  order.forEach((kind, i) => {
+    const count = Math.max(1, Math.round(weights[i] * 100));
+    for (let j = 0; j < count; j++) pool.push({ kind, opacity: opacities[i] });
+  });
+  return pool;
+}
+function trPickFromPalette(palette: { kind: number; opacity: number }[]): { kind: number; opacity: number } {
+  return palette[Math.floor(Math.random() * palette.length)];
+}
 
 function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; maxWidth: number }) {
   const [isMobileTitle, setIsMobileTitle] = useState<boolean>(() =>
@@ -975,12 +1106,13 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
   const TITLE_BOX_HEIGHT = TITLE_LINE * 2;
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const bubbleRef = useRef<HTMLDivElement>(null);
+  const outgoingRef = useRef<HTMLHeadingElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const prevTextRef = useRef<string>('');
+  const animatingRef = useRef(false);
   const [scale, setScale] = useState(1);
-  const [bubblePos, setBubblePos] = useState<{ top: number; left: number } | null>(null);
 
   const text = selected ? `Build your ${selected.label}` : 'Pick a skill and start building';
-  const showBubble = !!selected?.kol;
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -988,54 +1120,140 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
     if (!container || !title) return;
 
     const compute = () => {
-      const containerW = container.clientWidth;
-      const bubble = bubbleRef.current;
-      const bubbleW = showBubble && bubble ? bubble.scrollWidth : 0;
-      const isMobile = window.innerWidth < MOBILE_THRESHOLD_PX;
-      // 移动端：气泡放在标题上方独立一行，标题占用容器全宽，避免被挤成 3 行。
-      // 桌面：气泡贴第一行右上角，与标题共享一行宽度。
-      const titleMaxW = !isMobile && showBubble && bubble
-        ? Math.max(220, containerW - bubbleW)
-        : containerW;
-      title.style.maxWidth = `${titleMaxW}px`;
-
+      title.style.maxWidth = `${container.clientWidth}px`;
       const naturalH = title.scrollHeight;
-      const nextScale = naturalH > TITLE_BOX_HEIGHT ? TITLE_BOX_HEIGHT / naturalH : 1;
-      setScale(nextScale);
-
-      if (showBubble && bubble) {
-        const bubbleH = bubble.offsetHeight || 32;
-        if (isMobile) {
-          // 移动端：气泡置于容器右上方，整体位于标题上方（容器有 paddingTop 留出空间）
-          setBubblePos({ top: -bubbleH - 6, left: Math.max(0, containerW - bubbleW) });
-        } else {
-          // 桌面：气泡贴标题第一行右上角；溢出时改右对齐
-          const range = document.createRange();
-          range.selectNodeContents(title);
-          const lineRects = range.getClientRects();
-          range.detach?.();
-          const containerRect = container.getBoundingClientRect();
-          const firstLine = lineRects.length > 0 ? lineRects[0] : null;
-          const firstLineTop = firstLine ? firstLine.top - containerRect.top : 0;
-          const firstLineRight = firstLine ? firstLine.right - containerRect.left : 0;
-          const gap = 8;
-          const desiredLeft = firstLineRight + gap;
-          const wouldOverflow = desiredLeft + bubbleW > containerW;
-          const finalLeft = wouldOverflow ? Math.max(0, containerW - bubbleW) : desiredLeft;
-          const top = firstLineTop + 4 - bubbleH;
-          setBubblePos({ top, left: finalLeft });
-        }
-      } else {
-        setBubblePos(null);
-      }
+      setScale(naturalH > TITLE_BOX_HEIGHT ? TITLE_BOX_HEIGHT / naturalH : 1);
     };
 
     compute();
     const ro = new ResizeObserver(compute);
     ro.observe(container);
-    if (bubbleRef.current) ro.observe(bubbleRef.current);
     return () => ro.disconnect();
-  }, [text, showBubble]);
+  }, [text, TITLE_BOX_HEIGHT]);
+
+  // Trigger dot-burst transition whenever `text` changes
+  useEffect(() => {
+    const prev = prevTextRef.current;
+    if (prev === text) {
+      prevTextRef.current = text;
+      return;
+    }
+    prevTextRef.current = text;
+    const stage = containerRef.current;
+    const live = titleRef.current;
+    const outgoing = outgoingRef.current;
+    const overlay = overlayRef.current;
+    if (!stage || !live || !outgoing || !overlay) return;
+
+    // On very first paint (prev was empty), no burst — just show
+    if (!prev) return;
+
+    animatingRef.current = true;
+
+    // Outgoing layer = prev text, live layer = next text (incoming)
+    outgoing.textContent = prev;
+    outgoing.style.opacity = '1';
+
+    const firstSpans = trWrapChars(outgoing);
+    const secondSpans = trWrapChars(live);
+    firstSpans.forEach((s) => { s.style.opacity = '1'; });
+    secondSpans.forEach((s) => { s.style.opacity = '0'; });
+
+    const runBody = () => {
+      const sr = stage.getBoundingClientRect();
+      if (!secondSpans.length) {
+        overlay.innerHTML = '';
+        outgoing.textContent = '';
+        animatingRef.current = false;
+        return;
+      }
+
+      const rects = secondSpans.map((s) => s.getBoundingClientRect());
+      const tTop = Math.min(...rects.map((r) => r.top));
+      const tBottom = Math.max(...rects.map((r) => r.bottom));
+      const tLeft = Math.min(...rects.map((r) => r.left));
+      const tRight = Math.max(...rects.map((r) => r.right));
+      const cx = (tLeft + tRight) / 2 - sr.left;
+      const cy = (tTop + tBottom) / 2 - sr.top;
+      const rx = ((tRight - tLeft) / 2) * 1.35;
+      const ry = ((tBottom - tTop) / 2) * 1.7;
+
+      const ed = (gx: number, gy: number) =>
+        Math.pow(
+          Math.pow(Math.abs(gx / rx), TR_SUPERELLIPSE_N) +
+            Math.pow(Math.abs(gy / ry), TR_SUPERELLIPSE_N),
+          1 / TR_SUPERELLIPSE_N,
+        );
+      const dotDelay = (d: number) => Math.round(trEaseInOutInverse(d) * TR_TOTAL_MS);
+
+      // Fresh palette per burst so consecutive transitions look different
+      const palette = trBuildBurstPalette();
+      const frag = document.createDocumentFragment();
+      const gxMin = -Math.ceil((rx * TR_ESCAPE_BAND) / TR_CELL) * TR_CELL;
+      const gxMax = Math.ceil((rx * TR_ESCAPE_BAND) / TR_CELL) * TR_CELL;
+      const gyMin = -Math.ceil((ry * TR_ESCAPE_BAND) / TR_CELL) * TR_CELL;
+      const gyMax = Math.ceil((ry * TR_ESCAPE_BAND) / TR_CELL) * TR_CELL;
+
+      for (let gy = gyMin; gy <= gyMax; gy += TR_CELL) {
+        for (let gx = gxMin; gx <= gxMax; gx += TR_CELL) {
+          const d = ed(gx, gy);
+          let delay: number, anim: string;
+          if (d <= 1) {
+            delay = dotDelay(d);
+            anim = `tr-dot-flash 200ms ease-out ${delay}ms forwards`;
+          } else if (d <= TR_ESCAPE_BAND) {
+            if (Math.random() > TR_ESCAPE_PROB) continue;
+            const jitter = Math.round(((d - 1) / (TR_ESCAPE_BAND - 1)) * 60 + Math.random() * 30);
+            delay = dotDelay(1) + jitter;
+            anim = `tr-dot-flash 160ms ease-out ${delay}ms forwards`;
+          } else continue;
+          const el = document.createElement('div');
+          el.className = 'tr-cell';
+          el.style.cssText = `left:${cx + gx - TR_CELL / 2}px;top:${cy + gy - TR_CELL / 2}px`;
+          el.style.animation = anim;
+          const pick = trPickFromPalette(palette);
+          el.innerHTML = trDotSvg(pick.kind, pick.opacity);
+          frag.appendChild(el);
+        }
+      }
+      overlay.appendChild(frag);
+
+      const spanDelay = (s: HTMLElement) => {
+        const r = s.getBoundingClientRect();
+        const gx = r.left + r.width / 2 - sr.left - cx;
+        const gy = r.top + r.height / 2 - sr.top - cy;
+        return dotDelay(Math.min(ed(gx, gy), 1));
+      };
+      firstSpans.forEach((s) => {
+        const d = spanDelay(s);
+        s.style.animation = `tr-char-erase 120ms ease-out ${d}ms forwards`;
+      });
+      secondSpans.forEach((s) => {
+        const d = spanDelay(s);
+        s.style.animation = `tr-char-appear 120ms ease-out ${d}ms forwards`;
+      });
+
+      window.setTimeout(() => {
+        overlay.innerHTML = '';
+        outgoing.textContent = '';
+        if (live) live.textContent = text;
+        animatingRef.current = false;
+      }, TR_TOTAL_MS + 260);
+    };
+    // requestAnimationFrame works in active tabs; fall back to setTimeout if
+    // rAF doesn't fire within ~50ms (e.g., headless preview environments).
+    let started = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (started) return;
+      started = true;
+      runBody();
+    }));
+    window.setTimeout(() => {
+      if (started) return;
+      started = true;
+      runBody();
+    }, 50);
+  }, [text]);
 
   return (
     <div
@@ -1052,9 +1270,34 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
         overflow: 'visible',
       }}
     >
+      <style>{`
+        @keyframes tr-dot-flash { 0%{opacity:0} 15%{opacity:1} 100%{opacity:0} }
+        @keyframes tr-char-erase { 0%{opacity:1} 100%{opacity:0} }
+        @keyframes tr-char-appear { 0%{opacity:0} 100%{opacity:1} }
+        .tr-cell{ position:absolute; width:${TR_CELL}px; height:${TR_CELL}px; opacity:0; pointer-events:none; }
+      `}</style>
+      {/* Outgoing text — only filled during a transition */}
+      <h1
+        ref={outgoingRef}
+        aria-hidden
+        style={{
+          position: 'absolute',
+          left: 0, right: 0, top: '50%',
+          transform: `translateY(-50%) scale(${scale})`,
+          transformOrigin: 'center',
+          fontSize: TITLE_BASE_FONT,
+          lineHeight: TITLE_LH,
+          fontWeight: 400,
+          color: 'var(--text-n9)',
+          textAlign: 'center',
+          letterSpacing: 0.45,
+          margin: 0,
+          pointerEvents: 'none',
+          zIndex: 1,
+        }}
+      />
       <h1
         ref={titleRef}
-        key={selected?.id ?? 'default'}
         style={{
           fontSize: TITLE_BASE_FONT,
           lineHeight: TITLE_LH,
@@ -1063,51 +1306,26 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
           textAlign: 'center',
           letterSpacing: 0.45,
           margin: 0,
-          animation: 'newchat-fadeup 240ms ease-out',
           transform: `scale(${scale})`,
           transformOrigin: 'center',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         {text}
       </h1>
-      {showBubble && selected && (
-        <div
-          ref={bubbleRef}
-          key={`bubble-${selected.id}`}
-          style={{
-            position: 'absolute',
-            top: bubblePos ? bubblePos.top : 0,
-            left: bubblePos ? bubblePos.left : 0,
-            visibility: bubblePos ? 'visible' : 'hidden',
-            transformOrigin: 'left center',
-            animation: 'newchat-bubble-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms backwards',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            height: 32,
-            padding: '0 12px 0 4px',
-            background: 'white',
-            borderRadius: 999,
-            border: '0.5px solid var(--line-l07)',
-            boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          <Avatar name={selected.creator} size={24} />
-          <span
-            style={{
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 14,
-              lineHeight: '22px',
-              fontWeight: 500,
-              color: 'var(--text-n9)',
-              letterSpacing: 0.14,
-            }}
-          >
-            {selected.creator}
-          </span>
-        </div>
-      )}
+      {/* Dot-burst overlay */}
+      <div
+        ref={overlayRef}
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 2,
+          overflow: 'visible',
+        }}
+      />
     </div>
   );
 }
@@ -1348,17 +1566,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
     window.addEventListener('resize', h);
     return () => window.removeEventListener('resize', h);
   }, []);
-  const moreHideTimerRef = useRef<number | null>(null);
-  const cancelMoreHide = () => {
-    if (moreHideTimerRef.current !== null) {
-      window.clearTimeout(moreHideTimerRef.current);
-      moreHideTimerRef.current = null;
-    }
-  };
-  const scheduleMoreHide = () => {
-    cancelMoreHide();
-    moreHideTimerRef.current = window.setTimeout(() => setCommunityOpen(false), 180);
-  };
   const pillsContainerRef = useRef<HTMLDivElement>(null);
   const communityRef = useRef<HTMLDivElement>(null);
   const hoverHideTimerRef = useRef<number | null>(null);
@@ -1404,27 +1611,11 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
 
   useEffect(() => {
     if (!communityOpen) return;
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const t = event.target as Node;
-      if (communityRef.current?.contains(t)) return;
-      // 弹层是 portal 到 body 的，需要单独豁免内部点击
-      const el = t as Element | null;
-      if (el?.closest?.('.more-skills-dropdown')) return;
-      // 背景遮罩点击有自己的 onBackdrop handler 处理关闭逻辑，不要重复
-      if (el?.closest?.('.more-skills-backdrop')) return;
-      setCommunityOpen(false);
-    };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setCommunityOpen(false);
     };
-
-    document.addEventListener('mousedown', handlePointerDown);
     document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [communityOpen]);
 
   // 选中变化时重置加载阶段，并按节奏让真实内容入场
@@ -1481,8 +1672,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
       });
       moreWrap.style.display = '';
       const hidden: string[] = [];
-      // 移动端允许 3 行，桌面 2 行
-      const maxRows = window.innerWidth < 640 ? 4 : 2;
+      // 未选中态最多 4 行，选中后收紧为最多 2 行
+      const maxRows = selectedId ? 2 : 4;
       const fitsRows = () => {
         const tops = [
           ...new Set([
@@ -1540,13 +1731,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
     setCommunityOpen(false);
   };
   const handleCommunitySelect = (id: string) => {
-    if (isMobile) {
-      // 移动端：从抽屉里点击 → 仅展开详情弹窗，保持抽屉打开方便用户再选
-      setMobileDetailId(id);
-      setHover(null);
-      return;
-    }
-    setSelectedId(id);
+    setSelectedId((prev) => (prev === id ? null : id));
     setHover(null);
     setCommunityOpen(false);
   };
@@ -1846,6 +2031,337 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           border-radius:9999px;
         }
 
+        /* ══════ Skills library panel (bottom-up, full grid) ══════ */
+        .skills-panel-backdrop{
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,0.45);
+          z-index:9998;
+          animation:newchat-fade 200ms ease-out;
+        }
+        @keyframes skills-panel-modal-in{
+          from{ opacity:0; transform:translate(-50%, -50%) scale(0.96); }
+          to{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+        }
+        .skills-panel{
+          position:fixed;
+          left:50%;
+          top:50%;
+          transform:translate(-50%, -50%);
+          width:calc(100% - 48px);
+          max-width:1200px;
+          max-height:min(800px, calc(100vh - 64px));
+          background:#fff;
+          border-radius:14px;
+          box-shadow:0 24px 64px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.08);
+          z-index:9999;
+          display:flex;
+          flex-direction:column;
+          animation:skills-panel-modal-in 220ms cubic-bezier(0.2,0.8,0.2,1);
+          overflow:hidden;
+        }
+        .skills-panel-header{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:20px 24px 12px;
+          flex-shrink:0;
+        }
+        .skills-panel-title{
+          font-family:'Delight',sans-serif;
+          font-size:18px;
+          line-height:28px;
+          font-weight:600;
+          color:var(--text-n9);
+          letter-spacing:0.18px;
+        }
+        .skills-panel-close{
+          width:28px;
+          height:28px;
+          border:none;
+          background:transparent;
+          border-radius:6px;
+          cursor:pointer;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          transition:background 140ms ease;
+        }
+        @media (hover: hover){
+          .skills-panel-close:hover{ background:var(--b-r05); }
+        }
+        .skills-panel-scroll{
+          flex:1;
+          overflow-y:auto;
+          padding:4px 24px 24px;
+        }
+        /* 手动分列瀑布流：JS 把卡片 round-robin 分到 N 个独立列容器（flex column）
+           每列独立堆叠 → 第一行顶部对齐；某列内 hover 撑高，只影响同列下方卡片，
+           其它列不会跟着重排。 */
+        .skills-panel-grid{
+          display:flex;
+          gap:12px;
+          align-items:flex-start;
+        }
+        .skills-panel-col{
+          flex:1 1 0;
+          min-width:0;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+        }
+        @media (max-width: 639px){
+          .skills-panel{
+            max-height:85vh;
+          }
+          .skills-panel-scroll{ padding:4px 16px 24px; }
+          .skills-panel-header{ padding:16px 16px 8px; }
+        }
+        .skills-panel-card{
+          position:relative;
+          display:flex;
+          flex-direction:column;
+          gap:16px;
+          padding:20px;
+          text-align:left;
+          background:var(--b-r02);
+          border:1px solid var(--line-l07);
+          border-radius:8px;
+          cursor:pointer;
+          /* Same easing + duration for hover-in and hover-out across every prop */
+          transition:background 240ms cubic-bezier(0.4, 0, 0.2, 1),
+                     border-color 240ms cubic-bezier(0.4, 0, 0.2, 1),
+                     box-shadow 240ms cubic-bezier(0.4, 0, 0.2, 1),
+                     padding-bottom 240ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (hover: hover){
+          .skills-panel-card:hover{
+            background:rgba(255,255,255,0.9);
+            border-color:var(--line-l12);
+            box-shadow:0 6px 20px rgba(0,0,0,0.04);
+            /* 用户行下方边距 = 用户行到分割线的距离（16px）*/
+            padding-bottom:16px;
+          }
+        }
+        .skills-panel-card.is-selected{
+          background:var(--b-r02);
+          border-color:var(--main-m1);
+        }
+        @media (hover: hover){
+          .skills-panel-card.is-selected:hover{
+            background:rgba(255,255,255,0.9);
+            border-color:var(--main-m1);
+            box-shadow:0 6px 20px rgba(0,0,0,0.04);
+          }
+        }
+        /* Hover 展开底部 creator + socials 行。
+           所有过渡使用统一的 240ms cubic-bezier(0.4,0,0.2,1)，确保
+           hover-in 和 hover-out 节奏一致。 */
+        .skills-panel-card-hoverblock{
+          display:grid;
+          grid-template-rows:0fr;
+          opacity:0;
+          /* margin-top:-16 抵消 card-level gap:16，使收起态不留间距；
+             展开时 grid-template-rows 撑开，gap:16 通过 row-gap 自然出现。 */
+          margin-top:-16px;
+          transition:grid-template-rows 240ms cubic-bezier(0.4, 0, 0.2, 1),
+                     opacity 240ms cubic-bezier(0.4, 0, 0.2, 1),
+                     margin-top 240ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .skills-panel-card-hoverblock-inner{
+          overflow:hidden;
+          min-height:0;
+        }
+        @media (hover: hover){
+          .skills-panel-card:hover .skills-panel-card-hoverblock{
+            grid-template-rows:1fr;
+            opacity:1;
+            margin-top:0;
+          }
+        }
+        @media (hover: none){
+          .skills-panel-card-hoverblock{
+            grid-template-rows:1fr;
+            opacity:1;
+            margin-top:0;
+          }
+        }
+        /* KOL 卡片（顶部用 Avatar）：hover 时头像隐藏，标题块滑到左侧。
+           Alva 卡片（顶部用 icon-wrap）不参与此动画 —— 图标保留。 */
+        .skills-panel-card-creator-thumb{
+          flex-shrink:0;
+          display:inline-flex;
+          align-items:center;
+        }
+        .skills-panel-card-titleblock{
+          transition:transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (hover: hover){
+          .skills-panel-card:hover .skills-panel-card-creator-thumb{
+            visibility:hidden;
+          }
+          .skills-panel-card:hover .skills-panel-card-creator-thumb + .skills-panel-card-titleblock{
+            transform:translateX(-48px);
+          }
+        }
+        .skills-panel-card-divider{
+          height:1px;
+          background:var(--line-l07);
+          margin:0 0 16px;
+        }
+        .skills-panel-card-creator-row{
+          display:flex;
+          align-items:center;
+          gap:10px;
+        }
+        .skills-panel-card-creator-text{
+          flex:1;
+          min-width:0;
+          display:flex;
+          flex-direction:column;
+        }
+        .skills-panel-card-creator-caps{
+          font-family:'Delight',sans-serif;
+          font-size:11px;
+          line-height:14px;
+          color:rgba(0,0,0,0.4);
+          letter-spacing:0.11px;
+        }
+        .skills-panel-card-creator-name{
+          align-self:flex-start;
+          max-width:100%;
+          padding:0;
+          margin:0;
+          background:transparent;
+          border:none;
+          cursor:pointer;
+          text-align:left;
+          color:var(--text-n9);
+          font:inherit;
+        }
+        .skills-panel-card-creator-name-text{
+          display:inline-block;
+          max-width:100%;
+          font-family:'Delight',sans-serif;
+          font-size:13px;
+          line-height:18px;
+          font-weight:500;
+          color:var(--text-n9);
+          letter-spacing:0.13px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+          text-decoration:underline dashed transparent;
+          text-decoration-thickness:1px;
+          text-underline-offset:3px;
+          transition:text-decoration-color 160ms ease;
+        }
+        @media (hover: hover){
+          .skills-panel-card-creator-name:hover .skills-panel-card-creator-name-text{
+            text-decoration-color:var(--text-n9);
+          }
+        }
+        .skills-panel-card-socials{
+          display:flex;
+          align-items:center;
+          gap:6px;
+          flex-shrink:0;
+        }
+        .skills-panel-card-social{
+          width:24px;
+          height:24px;
+          border-radius:9999px;
+          background:var(--b-r05);
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          transition:background 120ms ease;
+        }
+        .skills-panel-card-social:hover{ background:rgba(0,0,0,0.1); }
+        .skills-panel-card-content{
+          display:flex;
+          flex-direction:column;
+          gap:4px;
+        }
+        .skills-panel-card-header{
+          display:flex;
+          align-items:center;
+          gap:12px;
+          padding-bottom:4px;
+        }
+        .skills-panel-card-icon-wrap{
+          width:36px;
+          height:36px;
+          flex-shrink:0;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          border-radius:9999px;
+          background:#fff;
+          border:1px solid var(--line-l05);
+          transition:background 240ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (hover: hover){
+          .skills-panel-card:hover .skills-panel-card-icon-wrap{
+            background:var(--b-r02);
+          }
+        }
+        .skills-panel-card-titleblock{
+          flex:1;
+          min-width:0;
+          display:flex;
+          flex-direction:column;
+        }
+        .skills-panel-card-name{
+          font-family:'Delight',sans-serif;
+          font-size:18px;
+          line-height:28px;
+          font-weight:500;
+          color:var(--text-n9);
+          letter-spacing:0.18px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .skills-panel-card-author{
+          font-family:'Delight',sans-serif;
+          font-size:10px;
+          line-height:16px;
+          color:var(--text-n5);
+          letter-spacing:0.1px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .skills-panel-card-desc{
+          font-family:'Delight',sans-serif;
+          font-size:12px;
+          line-height:20px;
+          color:var(--text-n5);
+          letter-spacing:0.12px;
+          margin:0;
+        }
+        .skills-panel-card-tags{
+          display:flex;
+          flex-wrap:wrap;
+          gap:4px;
+          padding-top:4px;
+        }
+        .skills-panel-card-tag{
+          height:22px;
+          padding:0 6px;
+          border-radius:4px;
+          background:var(--b-r05);
+          color:var(--text-n5);
+          font-family:'Delight',sans-serif;
+          font-size:12px;
+          line-height:20px;
+          letter-spacing:0.12px;
+          white-space:nowrap;
+          display:inline-flex;
+          align-items:center;
+        }
+
         /* ══════ Opt2 page skill cards (manual columns / hover-reveal) ══════
            列数由 JS 根据视口算好；每列是独立 flex column，列之间不会互相影响。
            Round-robin 分布让高优 skill 落在每一列的顶部。 */
@@ -2135,7 +2651,10 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                       label: selected.label,
                       icon: selected.kol ? undefined : selected.icon ?? CHIP_ICON,
                       avatar: selected.kol ? selected.creator : undefined,
+                      creator: selected.creator,
                       onRemove: handleRemoveChip,
+                      onHover: (rect) => computeHover(selected.id, rect),
+                      onLeave: scheduleHoverHide,
                     }
                   : null
               }
@@ -2176,7 +2695,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           {/* skill pills — 未选中时展示。所有 pill + More 始终渲染在同一个容器；
             布局测量时直接 mutate display:none 把溢出的 pill 隐藏（state 仅供 More 下拉用）。
             Opt2 用瀑布流卡片代替药丸 → 这一行只在默认变体下渲染。 */}
-          {!isOpt2 && !selected && !showTypedSuggestions && (
+          {!isOpt2 && !showTypedSuggestions && (
             <div
               ref={pillsContainerRef}
               style={{
@@ -2190,7 +2709,9 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                 maxWidth: 900,
               }}
             >
-              {allSkills.map((t) => (
+              {allSkills.map((t) => {
+                const isActive = selectedId === t.id;
+                return (
                 <button
                   key={t.id}
                   data-skill-id={t.id}
@@ -2210,17 +2731,20 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                   }}
                   style={{
                     ...chipBaseStyle,
-                    background: selectedId === t.id ? '#f3f8f8' : 'white',
+                    background: isActive ? 'var(--main-m1)' : 'white',
+                    color: isActive ? '#fff' : chipBaseStyle.color,
+                    borderColor: isActive ? 'var(--main-m1)' : (chipBaseStyle.border as string)?.replace('0.5px solid ', '') ?? undefined,
                   }}
                 >
                   {t.kol ? (
                     <Avatar name={t.creator} size={22} />
                   ) : (
-                    t.icon && <CdnIcon name={t.icon} size={16} color="var(--text-n7)" />
+                    t.icon && <CdnIcon name={t.icon} size={16} color={isActive ? '#fff' : 'var(--text-n7)'} />
                   )}
                   {t.label}
                 </button>
-              ))}
+                );
+              })}
               {!isOpt2 && <div ref={communityRef} data-more-wrap style={{ position: 'relative' }}>
                 <button
                   ref={morePillRef}
@@ -2236,39 +2760,22 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                   }}
                   onMouseEnter={(e) => {
                     if (!supportsHover()) return;
-                    if (isMobile) return;
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
-                    cancelMoreHide();
-                    if (moreSkills.length > 0) setCommunityOpen(true);
-                    setHover(null);
                   }}
                   onMouseLeave={(e) => {
                     if (!supportsHover()) return;
-                    if (isMobile) return;
                     e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.transform = 'translateY(0)';
-                    scheduleMoreHide();
                   }}
                   onClick={() => {
-                    if (!isMobile) return;
-                    if (moreSkills.length > 0) setCommunityOpen((v) => !v);
+                    setCommunityOpen((v) => !v);
+                    setHover(null);
                   }}
                 >
                   More
-                  <CdnIcon name="arrow-down-l2" size={14} color="var(--text-n5)" />
+                  <CdnIcon name="arrow-right-l2" size={14} color="var(--text-n5)" />
                 </button>
-                {communityOpen && moreSkills.length > 0 && (
-                  <MoreSkillsDropdown
-                    skills={moreSkills}
-                    onSelect={handleCommunitySelect}
-                    onMouseEnter={cancelMoreHide}
-                    onMouseLeave={scheduleMoreHide}
-                    onRowHover={(id, rect) => computeHover(id, rect, 'left')}
-                    onRowLeave={scheduleHoverHide}
-                    onBackdrop={() => setCommunityOpen(false)}
-                  />
-                )}
               </div>}
             </div>
           )}
@@ -2484,6 +2991,14 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           side={hover.side}
           onMouseEnter={cancelHoverHide}
           onMouseLeave={scheduleHoverHide}
+        />
+      )}
+      {communityOpen && !isOpt2 && (
+        <SkillsLibraryPanel
+          skills={allSkills}
+          selectedId={selectedId}
+          onSelect={handleCommunitySelect}
+          onClose={() => setCommunityOpen(false)}
         />
       )}
       {mobileDetailId && (() => {
