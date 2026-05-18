@@ -468,11 +468,11 @@
                         '<div class="alerts-automations-list" data-alerts-automations>' +
                           '<div class="alerts-automation-row">' +
                             '<span class="alerts-automation-name">ai-chip-supply-chain</span>' +
-                            '<button type="button" class="switch is-on" role="switch" aria-checked="true"><span class="switch-thumb"></span></button>' +
+                            '<button type="button" class="switch" data-alerts-automation-switch role="switch" aria-checked="false" disabled><span class="switch-thumb"></span></button>' +
                           '</div>' +
                           '<div class="alerts-automation-row">' +
                             '<span class="alerts-automation-name">space-rotation-prices</span>' +
-                            '<button type="button" class="switch is-on" role="switch" aria-checked="true"><span class="switch-thumb"></span></button>' +
+                            '<button type="button" class="switch" data-alerts-automation-switch role="switch" aria-checked="false" disabled><span class="switch-thumb"></span></button>' +
                           '</div>' +
                         '</div>' +
                         '<div class="alerts-connected-account" data-alerts-account>' +
@@ -952,7 +952,31 @@
     var popover = host.querySelector('[data-alerts-popover]');
     if (!popover) return;
     var alertsBtn = host.querySelector('[data-alerts-trigger]');
+    var alertsBtnLabel = alertsBtn ? alertsBtn.querySelector('.pb-alerts-label') : null;
     var starBtn = host.querySelector('[data-star-trigger]');
+    var setReceiveAlertsState = function (on) {
+      var receiveSwitch = popover.querySelector('[data-alerts-switch]');
+      var automationSwitches = Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
+      if (alertsBtn) {
+        alertsBtn.classList.toggle('is-on', on);
+        alertsBtn.setAttribute('aria-label', on ? 'Alert On' : 'Get Alerts');
+      }
+      if (alertsBtnLabel) {
+        alertsBtnLabel.textContent = on ? 'Alert On' : 'Get Alerts';
+      }
+      if (receiveSwitch) {
+        receiveSwitch.classList.toggle('on', on);
+        receiveSwitch.classList.toggle('is-on', on);
+        receiveSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+      }
+      automationSwitches.forEach(function (automationSwitch) {
+        automationSwitch.classList.toggle('on', on);
+        automationSwitch.classList.toggle('is-on', on);
+        automationSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+        automationSwitch.disabled = !on;
+        automationSwitch.classList.toggle('is-disabled', !on);
+      });
+    };
 
     function close() {
       popover.classList.remove('open');
@@ -965,6 +989,7 @@
     }
     function open() {
       closeOtherPopovers(host, close);
+      setReceiveAlertsState(true);
       popover.classList.add('open');
       popover.setAttribute('aria-hidden', 'false');
       if (alertsBtn) {
@@ -1050,14 +1075,27 @@
 
     // Receive Alerts toggle switch
     var switchBtn = popover.querySelector('[data-alerts-switch]');
+    var automationSwitches = Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
+
     if (switchBtn) {
       switchBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         var on = !switchBtn.classList.contains('on');
-        switchBtn.classList.toggle('on', on);
-        switchBtn.setAttribute('aria-checked', on ? 'true' : 'false');
+        setReceiveAlertsState(on);
       });
+      setReceiveAlertsState(switchBtn.classList.contains('on') || switchBtn.classList.contains('is-on'));
     }
+
+    automationSwitches.forEach(function (automationSwitch) {
+      automationSwitch.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (automationSwitch.disabled) return;
+        var on = !automationSwitch.classList.contains('on') && !automationSwitch.classList.contains('is-on');
+        automationSwitch.classList.toggle('on', on);
+        automationSwitch.classList.toggle('is-on', on);
+        automationSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+    });
 
     host._pbHeaderCleanup = (host._pbHeaderCleanup || []).concat(function () {
       if (connectTimer) { clearTimeout(connectTimer); connectTimer = null; }

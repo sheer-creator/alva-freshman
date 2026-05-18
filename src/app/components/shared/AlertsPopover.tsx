@@ -5,19 +5,21 @@ const FONT = "font-['Delight',sans-serif]";
 
 /* ========== Switch Toggle ========== */
 
-function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function Switch({ on, onToggle, disabled = false }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={on}
+      disabled={disabled}
       onClick={(e) => { e.stopPropagation(); onToggle(); }}
-      className="shrink-0 cursor-pointer border-none outline-none p-0 overflow-hidden transition-colors"
+      className={`shrink-0 border-none outline-none p-0 overflow-hidden transition-colors ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
       style={{
         width: 32,
         height: 16,
         borderRadius: 1000,
         background: on ? 'var(--main-m1, #49A3A6)' : 'rgba(0,0,0,0.15)',
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <div
@@ -154,11 +156,26 @@ function UnconnectedContent({ onTelegram, onDiscord }: { onTelegram: () => void;
 
 /* ========== Connected Content ========== */
 
-function ConnectedContent({ onManage }: { onManage?: () => void }) {
+function ConnectedContent({ open, onManage }: { open: boolean; onManage?: () => void }) {
   const [receiveAlerts, setReceiveAlerts] = useState(true);
   const [automations, setAutomations] = useState(MOCK_AUTOMATIONS);
 
+  useEffect(() => {
+    if (!open) return;
+    setReceiveAlerts(true);
+    setAutomations(prev => prev.map(a => ({ ...a, enabled: true })));
+  }, [open]);
+
+  const toggleReceiveAlerts = () => {
+    setReceiveAlerts((current) => {
+      const next = !current;
+      setAutomations(prev => prev.map(a => ({ ...a, enabled: next })));
+      return next;
+    });
+  };
+
   const toggleAutomation = (id: string) => {
+    if (!receiveAlerts) return;
     setAutomations(prev => prev.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a));
   };
 
@@ -174,7 +191,7 @@ function ConnectedContent({ onManage }: { onManage?: () => void }) {
           <p className={`${FONT} shrink-0 text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] text-right whitespace-nowrap m-0`}>
             Receive Alerts
           </p>
-          <Switch on={receiveAlerts} onToggle={() => setReceiveAlerts(!receiveAlerts)} />
+          <Switch on={receiveAlerts} onToggle={toggleReceiveAlerts} />
         </div>
 
         {/* Automation list */}
@@ -191,7 +208,7 @@ function ConnectedContent({ onManage }: { onManage?: () => void }) {
               <p className={`${FONT} flex-1 min-w-0 text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] m-0`}>
                 {a.name}
               </p>
-              <Switch on={a.enabled} onToggle={() => toggleAutomation(a.id)} />
+              <Switch on={a.enabled} onToggle={() => toggleAutomation(a.id)} disabled={!receiveAlerts} />
             </div>
           ))}
         </div>
@@ -340,7 +357,7 @@ export function AlertsPopover({ open, onClose, onTelegram, onDiscord, onManage, 
       </p>
 
       {connected
-        ? <ConnectedContent onManage={onManage} />
+        ? <ConnectedContent open={open} onManage={onManage} />
         : <UnconnectedContent onTelegram={onTelegram} onDiscord={onDiscord} />
       }
     </div>

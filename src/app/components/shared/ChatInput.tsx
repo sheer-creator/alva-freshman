@@ -113,7 +113,7 @@ const DROPDOWN_ACTIVE_BACKGROUND = 'rgba(73,163,166,0.08)';
 const DROPDOWN_HOVER_BACKGROUND = 'var(--b-r03)';
 const PICKER_HEIGHT: Record<PickerKind, number> = {
   mention: 350,
-  skill: 264,
+  skill: 272,
 };
 const MODEL_OPTIONS = ['Sonnet 4.6', 'Opus 4.7'];
 
@@ -601,7 +601,7 @@ function ChatPickerDropdown({
     >
       {kind === 'skill' && (
         <div
-          className="px-[12px] py-[4px] font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px]"
+          className="px-[12px] py-[8px] font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px]"
           style={{ color: 'var(--text-n5)' }}
         >
           Skill Hub

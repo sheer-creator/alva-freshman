@@ -1193,6 +1193,10 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     padding: 0;
 }
 .switch.on, .switch.is-on { background-color: var(--main-m1, #49A3A6); }
+.switch:disabled, .switch.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
 .switch-thumb {
     position: absolute;
     top: 50%;
