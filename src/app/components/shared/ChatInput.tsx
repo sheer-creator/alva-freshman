@@ -28,6 +28,8 @@ interface ChatInputProps {
   bottomChip?: BottomChipData | null;
   injectText?: InjectTextSignal | null;
   onInputChange?: (text: string) => void;
+  hideSkill?: boolean;
+  hideInspector?: boolean;
 }
 
 type PickerKind = 'mention' | 'skill';
@@ -550,7 +552,7 @@ function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerIte
   );
 }
 
-export function ChatInput({ placeholder = 'Build an investing playbook from your ideas', contextTag, shadow, onSend, bottomChip, injectText, onInputChange }: ChatInputProps) {
+export function ChatInput({ placeholder = 'Build an investing playbook from your ideas', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector }: ChatInputProps) {
   const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes } = useChatContext();
   const [hasText, setHasText] = useState(false);
   const [quoteHover, setQuoteHover] = useState(false);
@@ -1028,33 +1030,37 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
         >
           <CdnIcon name="at-l" size={16} color={activePicker === 'mention' ? 'var(--main-m1)' : 'var(--text-n9)'} />
         </button>
-        <button
-          ref={skillButtonRef}
-          type="button"
-          aria-label="Add skill"
-          aria-pressed={activePicker === 'skill'}
-          className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-          onClick={() => togglePicker('skill')}
-        >
-          <CdnIcon name="skill-l" size={16} color={activePicker === 'skill' ? 'var(--main-m1)' : 'var(--text-n9)'} />
-        </button>
+        {!hideSkill && (
+          <button
+            ref={skillButtonRef}
+            type="button"
+            aria-label="Add skill"
+            aria-pressed={activePicker === 'skill'}
+            className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+            onClick={() => togglePicker('skill')}
+          >
+            <CdnIcon name="skill-l" size={16} color={activePicker === 'skill' ? 'var(--main-m1)' : 'var(--text-n9)'} />
+          </button>
+        )}
         <button type="button" className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
           <CdnIcon name="photo-l" size={16} color="var(--text-n9)" />
         </button>
-        <Tooltip text="Click elements on the left to annotate changes" placement="top">
-          <button
-            type="button"
-            className="shrink-0 cursor-pointer transition-opacity"
-            style={{ opacity: inspectorActive ? 1 : undefined }}
-            onClick={toggleInspector}
-          >
-            <CdnIcon
-              name={inspectorActive ? 'pointer-f' : 'pointer-l'}
-              size={16}
-              color={inspectorActive ? 'var(--main-m1)' : 'var(--text-n9)'}
-            />
-          </button>
-        </Tooltip>
+        {!hideInspector && (
+          <Tooltip text="Click elements on the left to annotate changes" placement="top">
+            <button
+              type="button"
+              className="shrink-0 cursor-pointer transition-opacity"
+              style={{ opacity: inspectorActive ? 1 : undefined }}
+              onClick={toggleInspector}
+            >
+              <CdnIcon
+                name={inspectorActive ? 'pointer-f' : 'pointer-l'}
+                size={16}
+                color={inspectorActive ? 'var(--main-m1)' : 'var(--text-n9)'}
+              />
+            </button>
+          </Tooltip>
+        )}
         {bottomChip && (
           <div
             className="flex min-w-0 flex-1 items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
