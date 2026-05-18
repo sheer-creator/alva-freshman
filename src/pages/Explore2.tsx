@@ -26,706 +26,376 @@ import { HeroCarousel } from '@/app/components/explore/HeroCarousel';
  *   - 5 general   · feeds, alerts, leaderboards, dashboards, games
  *     of which 1 is portrait-override (person-subject)
  */
+/**
+ * Trending playbooks captured from alva.ai/explore on 2026-05-18. Each
+ * entry mirrors the live record (title, description, tickers, view +
+ * follow counters) and uses the actual screenshot thumbnail as its cover
+ * via `coverImageUrl`.
+ */
 const PLAYBOOKS: ExplorePlaybook[] = [
-  // 1
   {
-    id: 'quality-value-screener',
-    creator: 'ivan',
-    title: 'Quality-Value Screener',
-    description: 'Large-cap US stocks combining Value, Quality, and Safety factors. Top quintile rebalanced monthly with FCF and net-debt screens.',
-    tickers: ['PG', 'JNJ', 'KO', 'MRK'],
-    pulse: 'active', stars: 101, remixes: 0,
+    id: 'salp-thesis',
+    creator: 'alvin0617',
+    title: 'SALP Thesis Tracker',
+    description: 'Tracks Situational Awareness LP — Leopold Aschenbrenner\'s AI infrastructure fund. Based on actual Q4 2025 13F holdings across four layers: AI Cloud, Power, Photonics, and Semiconductors.',
+    tickers: ['CRWV', 'CORZ', 'IREN', 'APLD'],
+    pulse: 'active', stars: 14731, remixes: 68,
     cover: {
-      template: 'screener',
-      title: 'Quality-Value Screener',
-      author: 'ivan',
-      tickers: ['PG', 'JNJ', 'KO', 'MRK'],
-      domain: 'value',
-      series: 'SCORED · S&P LARGE CAP · 6H',
+      template: 'thesis',
+      title: 'SALP Thesis Tracker',
+      author: 'alvin0617',
+      tickers: ['CRWV', 'CORZ', 'IREN', 'APLD'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-00f7b5d8-5b41-47cb-a98d-f3f7cc5c5be8.webp',
     },
   },
-  // 2
   {
-    id: 'ptsd-supply',
+    id: 'humanoid-citrini-vf',
+    creator: 'Lakel',
+    title: 'Humanoid Robots Tracker',
+    description: 'The humanoid robots thesis Citrini published in May 2025, now monitored and tracked daily. 75 names across 9 supply-chain layers, scored against fresh news + market data every weekday — with the read delivered to your phone.',
+    tickers: ['TSLA', 'NVDA', 'RRX', 'ON'],
+    pulse: 'active', stars: 480, remixes: 5,
+    cover: {
+      template: 'thesis',
+      title: 'Humanoid Robots Tracker',
+      author: 'Lakel',
+      tickers: ['TSLA', 'NVDA', 'RRX', 'ON'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-faa0783d-4904-4e1e-9d9e-a142a6960793_Browserless.webp',
+    },
+  },
+  {
+    id: 'cls-long-thesis-alva',
+    creator: 'Lakel',
+    title: 'Long Thesis: Celestica (CLS)',
+    description: 'Long-thesis playbook on Celestica (CLS), ported to the Alva visual chassis from the Citrini Research article dated Jul 31, 2023.',
+    tickers: ['CLS'],
+    pulse: 'active', stars: 236, remixes: 2,
+    cover: {
+      template: 'thesis',
+      title: 'Long Thesis: Celestica (CLS)',
+      author: 'Lakel',
+      tickers: ['CLS'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-d73c00b6-39a8-47de-a0fa-e2307b6ca088_Browserless.webp',
+    },
+  },
+  {
+    id: 'amd-deep-dive',
+    creator: 'Lakel',
+    title: 'AMD Deep-Dive',
+    description: 'Single-stock deep-dive on Advanced Micro Devices (AMD)',
+    tickers: ['AMD'],
+    pulse: 'active', stars: 167, remixes: 1,
+    cover: {
+      template: 'thesis',
+      title: 'AMD Deep-Dive',
+      author: 'Lakel',
+      tickers: ['AMD'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-a43bb55b-e2bc-436f-b34c-ca5ed45d7f3c_Browserless.webp',
+    },
+  },
+  {
+    id: 'iran-conflict-digest',
+    creator: 'tianqi',
+    title: 'Iran Conflict Digest',
+    description: 'Daily classified digest of Iran military ops, nuclear program, Strait of Hormuz, regional proxies, and energy-market risk. Automated escalation classification, two-tier Brave search.',
+    tickers: [],
+    pulse: 'active', stars: 188, remixes: 2,
+    cover: {
+      template: 'thesis',
+      title: 'Iran Conflict Digest',
+      author: 'tianqi',
+      tickers: [],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-e9150041-4a33-4ca0-9862-1b9466e76964_Browserless.webp',
+    },
+  },
+  {
+    id: 'shanghaojin-tweet-trader',
+    creator: 'furyfrog1993',
+    title: 'Herman Jin Tweet Trader',
+    description: 'Backtest of @shanghaojin\'s tweet signals · 3 holding strategies · AI Trader Profile · Refreshed hourly',
+    tickers: ['NVDA', 'ICG', 'AVGO', 'GOOG'],
+    pulse: 'active', stars: 477, remixes: 3,
+    cover: {
+      template: 'thesis',
+      title: 'Herman Jin Tweet Trader',
+      author: 'furyfrog1993',
+      tickers: ['NVDA', 'ICG', 'AVGO', 'GOOG'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-9f150e82-d3a6-4ce6-a81c-d3db7d2a2414_Browserless.webp',
+    },
+  },
+  {
+    id: 'mag7-capex',
+    creator: 'sirius.shen',
+    title: 'AI Infra Stocks Tracker',
+    description: 'Daily verification of the three AI-infra thesis pillars: Mag7 hyperscaler capex direction, ASIC vs GPU share-take, and real beneficiary revenue translation across optical / HBM / enterprise-AI storage. Tracks an 18-name basket vs SMH with ADK-narrated thesis-divergence findings.',
+    tickers: ['GOOG', 'MSFT', 'META', 'AMZN'],
+    pulse: 'active', stars: 2317, remixes: 7,
+    cover: {
+      template: 'thesis',
+      title: 'AI Infra Stocks Tracker',
+      author: 'sirius.shen',
+      tickers: ['GOOG', 'MSFT', 'META', 'AMZN'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-dcf0fe01-30e7-48a2-9773-9b5823e23292.webp',
+    },
+  },
+  {
+    id: 'korea-semi-raw-numbers',
+    creator: 'Blue',
+    title: 'Korea Semi Raw Numbers',
+    description: 'Bare-bones KCS monitor for the two HS lines from the KOL post: DRAM/HBM (HS 8542.32) and SSD (HS 8523.51, the modern home after HS 8471.70.4010 was retired). Monthly export USD, weight, and implied unit price per group. No commentary, no equity proxies — just the raw numbers.',
+    tickers: [],
+    pulse: 'active', stars: 710, remixes: 10,
+    cover: {
+      template: 'thesis',
+      title: 'Korea Semi Raw Numbers',
+      author: 'Blue',
+      tickers: [],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-12812480-54ea-4d45-ab5f-063eebe9182b.webp',
+    },
+  },
+  {
+    id: 'miner-ai-pivot',
+    creator: 'alvin0617',
+    title: 'Miner AI Pivot Tracker',
+    description: '9 Bitcoin miners pivoting to AI/HPC, tracked through Leopold Aschenbrenner\'s \'power is the bottleneck\' lens. Daily quant snapshot + ADK divergence-finder anchored to three pillars: power capacity & energization, AI/HPC contract translation, and the mining-economics floor. Alpha measured vs BTC, SPY, and WGMI.',
+    tickers: ['WULF', 'CORZ', 'CIFR', 'HCM'],
+    pulse: 'active', stars: 58, remixes: 1,
+    cover: {
+      template: 'thesis',
+      title: 'Miner AI Pivot Tracker',
+      author: 'alvin0617',
+      tickers: ['WULF', 'CORZ', 'CIFR', 'HCM'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-1eb4577d-d638-4feb-9724-cb693e490f8f_Browserless.webp',
+    },
+  },
+  {
+    id: 'kol-tweet-trader-leaderboard',
+    creator: 'vernon',
+    title: 'KOL Tweet Trader Leaderboard',
+    description: 'Top 50 financial KOLs ALVA tracks via per-handle tweet-trader campaign feeds — ranked by audited Score Index, win rate, and 90D backtest PnL.',
+    tickers: [],
+    pulse: 'active', stars: 44, remixes: 1,
+    cover: {
+      template: 'thesis',
+      title: 'KOL Tweet Trader Leaderboard',
+      author: 'vernon',
+      tickers: [],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-8c76f2b2-7833-42a5-9ee5-6c823d4d6c54_Browserless.webp',
+    },
+  },
+  {
+    id: 'trump-china-tracker',
+    creator: 'ivan',
+    title: 'Trump China Trade Tracker',
+    description: 'CEO DELEGATION TRACKER — US stocks tied to Trump\'s Beijing trip and surrounding China headlines\nRanked by delegation status, China-business linkage, and live news flow — surfaces who wins or loses as deals are announced from Beijing',
+    tickers: [],
+    pulse: 'idle', stars: 211, remixes: 2,
+    cover: {
+      template: 'thesis',
+      title: 'Trump China Trade Tracker',
+      author: 'ivan',
+      tickers: [],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/prd/uploads/1961349611146735616/2026/05/f2033ae6-8faf-44e4-8374-260cf91f62b0.png',
+    },
+  },
+  {
+    id: 'openai-rewire-screener',
+    creator: 'MacKinsey',
+    title: 'OpenAI Cloud Shift Screener',
+    description: 'MEMORY CYCLE STAGE TRACKER — DRAM / NAND / HBM + semi hardware names with Early / Mid / Late / Down stage labels\nRanked by momentum, volume, and fundamental inflection — surfaces names where the memory cycle is turning',
+    tickers: [],
+    pulse: 'idle', stars: 382, remixes: 2,
+    cover: {
+      template: 'screener',
+      title: 'OpenAI Cloud Shift Screener',
+      author: 'MacKinsey',
+      tickers: [],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-ee0a6c0f-b1bb-44b0-80d1-afa3549136d4.webp',
+    },
+  },
+  {
+    id: 'ai-infra-after-mag7-earnings',
+    creator: 'MinnesotaCafe',
+    title: 'AI Infra After Mag7 Earnings',
+    description: 'AI infrastructure basket (equal-weight ANET/AVGO/MRVL/VRT/CRDO/NTAP) after each Mag7 earnings day, 2021-2025.',
+    tickers: ['ANET', 'AVGO', 'MRVL', 'VRT'],
+    pulse: 'idle', stars: 247, remixes: 2,
+    cover: {
+      template: 'what-if',
+      title: 'AI Infra After Mag7 Earnings',
+      author: 'MinnesotaCafe',
+      tickers: ['ANET', 'AVGO', 'MRVL', 'VRT'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/prd/uploads/1961349611146735616/2026/05/a8a10b60-033a-42fb-876a-a02338e0e7c4.png',
+    },
+  },
+  {
+    id: 'aleabitoreddit-tweet-trader',
+    creator: 'furyfrog1993',
+    title: 'Serenity Tweet Trader',
+    description: 'Backtest of @aleabitoreddit\'s tweet signals · 3 holding strategies · AI Trader Profile · Refreshed every 6h',
+    tickers: ['AAOI', 'AXTI', 'LITE'],
+    pulse: 'idle', stars: 333, remixes: 1,
+    cover: {
+      template: 'thesis',
+      title: 'Serenity Tweet Trader',
+      author: 'furyfrog1993',
+      tickers: ['AAOI', 'AXTI', 'LITE'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-db3d8ffc-f3ad-413e-a517-cd9f0dd88681.webp',
+    },
+  },
+  {
+    id: 'memory-cycle-screener',
+    creator: 'ivan',
+    title: 'Memory Cycle Screener',
+    description: 'MEMORY CYCLE STAGE TRACKER — DRAM / NAND / HBM + semi hardware names with Early / Mid / Late / Down stage labels\nRanked by momentum, volume, and fundamental inflection — surfaces names where the memory cycle is turning',
+    tickers: [],
+    pulse: 'idle', stars: 285, remixes: 4,
+    cover: {
+      template: 'screener',
+      title: 'Memory Cycle Screener',
+      author: 'ivan',
+      tickers: [],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/prd/uploads/1961349611146735616/2026/05/81ae6530-4f7f-45f4-b13a-239407b2a16a.png',
+    },
+  },
+  {
+    id: 'kol-trade-ideas-digest-v3',
+    creator: 'Brighton Knights',
+    title: 'KOL Trade Ideas Digest',
+    description: 'Daily digest of top trade calls from finance KOLs — clusters by asset, surfaces BTC directional splits, multi-asset singletons, and pushes fresh ideas every day.',
+    tickers: ['BTC', 'ETH', 'SOL', 'NVDA'],
+    pulse: 'idle', stars: 109, remixes: 2,
+    cover: {
+      template: 'thesis',
+      title: 'KOL Trade Ideas Digest',
+      author: 'Brighton Knights',
+      tickers: ['BTC', 'ETH', 'SOL', 'NVDA'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/prd/uploads/1961349611146735616/2026/05/ee372f15-f980-4f09-9535-1bd3a34d0ff4.png',
+    },
+  },
+  {
+    id: 'commodity-pulse',
+    creator: 'tianqi',
+    title: 'Commodity Pulse',
+    description: 'Commodity Pulse tracks fast-moving shifts across metals, energy, and critical minerals by combining market data, news, and social signals to surface what moved, why it matters, and what to watch next.',
+    tickers: [],
+    pulse: 'idle', stars: 35, remixes: 1,
+    cover: {
+      template: 'thesis',
+      title: 'Commodity Pulse',
+      author: 'tianqi',
+      tickers: [],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/prd/uploads/1961349611146735616/2026/05/33357a50-8ae6-42da-9cb8-4c57faa4478a.png',
+    },
+  },
+  {
+    id: 'ai-infra-after-mag7-earnings-2975',
     creator: 'steven',
-    title: 'PTSD — Post-Traumatic Supply',
-    description: 'Identifies industries with reluctant supply expansion across five layers. 16-name long/short basket benchmarked vs SPY and XLE with daily narrative.',
-    tickers: ['XOM', 'CVX', 'LNG', 'MPC'],
-    pulse: 'active', stars: 278, remixes: 1,
+    title: 'AI Infra After Mag7 Earnings',
+    description: 'AI infrastructure basket (equal-weight ANET/AVGO/MRVL/VRT/CRDO/NTAP) after each Mag7 earnings day, 2021-2025.',
+    tickers: ['ANET', 'AVGO', 'MRVL', 'VRT'],
+    pulse: 'idle', stars: 190, remixes: 1,
     cover: {
-      template: 'thesis',
-      title: 'PTSD — Post-Traumatic Supply',
+      template: 'what-if',
+      title: 'AI Infra After Mag7 Earnings',
       author: 'steven',
-      tickers: [],
-      domain: 'energy',
-      anchor: 'APR 27',
-      category: 'CATALYST',
-      kind: 'Long leg +4.1% vs XLE +0.3% WTD',
+      tickers: ['ANET', 'AVGO', 'MRVL', 'VRT'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-4ffa8414-1026-4508-b990-4567d5bc100a.webp',
     },
   },
-  // 3
   {
-    id: 'spy-oil-hormuz',
-    creator: 'terrezzaeynon897',
-    title: 'SPY & Oil After Hormuz Blockade',
-    description: 'Historical SPY and USO movements after Strait of Hormuz blockade events. 30-day forward returns across 5 prior episodes.',
-    tickers: ['SPY', 'USO'],
-    pulse: 'idle', stars: 102, remixes: 4,
-    cover: {
-      template: 'what-if',
-      title: 'SPY & Oil After Hormuz Blockade',
-      author: 'terrezzaeynon897',
-      tickers: ['SPY', 'USO'],
-      domain: 'event_study',
-      series: '30D AFTER HORMUZ · 5×',
-      kind: 'Historically Drops',
-      anchor: '−2.4%',
-      whatIfBars: [-1.8, -3.2, 0.6, -2.1, -0.9],
-    },
-  },
-  // 4
-  {
-    id: 'rave-short-squeeze',
-    creator: 'deepstonks',
-    title: 'RAVE Short Squeeze Monitor',
-    description: 'Real-time derivatives dashboard tracking funding rates, open interest, sentiment, and liquidations across three exchanges with 60-second auto-refresh.',
-    tickers: ['RAVE'],
-    pulse: 'active', stars: 353, remixes: 0,
-    cover: {
-      template: 'general',
-      title: 'RAVE Short Squeeze Monitor',
-      author: 'deepstonks',
-      tickers: ['RAVE'],
-      domain: 'alerts',
-      kind: 'ALERTS · LIVE · 30S',
-      anchor: '14 active',
-      series: '8 RESOLVED · 6H',
-    },
-  },
-  // 5
-  {
-    id: 'congressional-buys',
-    creator: 'ivan',
-    title: 'Congressional Conviction Buys',
-    description: 'US stocks ranked by congressional member purchases in the last 90 days, ordered by conviction, volume, recency, and bipartisan diversity.',
-    tickers: ['NVDA', 'AAPL', 'TSLA', 'MSFT'],
-    pulse: 'active', stars: 291, remixes: 3,
-    cover: {
-      template: 'screener',
-      title: 'Congressional Conviction Buys',
-      author: 'ivan',
-      tickers: ['NVDA', 'AAPL', 'TSLA', 'MSFT'],
-      domain: 'tech',
-      series: 'ALT DATA · 90D DISCLOSURES · DAILY',
-    },
-  },
-  // 6 — Named-person portrait: Buffett 13F tracker. Per SKILL §Portrait,
-  // portraits are reserved for SPECIFIC named real-world public figures.
-  // Landscape source (≥1.5 aspect), real subjectName ("Warren Buffett"),
-  // and a license tag — all enforced by validatePortrait().
-  {
-    id: 'buffett-13f',
-    creator: 'long-us-10x',
-    title: "Buffett's 13F Shadow Portfolio",
-    description: "Mirrors Berkshire Hathaway's latest 13F. Auto-rebalances within 24h of SEC disclosure with size-adjusted weights and turnover dampening.",
-    tickers: ['AAPL', 'KO', 'BAC', 'AXP'],
-    pulse: 'active', stars: 286, remixes: 12,
-    cover: {
-      template: 'general',
-      title: "Buffett's 13F Shadow Portfolio",
-      author: 'long-us-10x',
-      tickers: ['AAPL', 'KO', 'BAC', 'AXP'],
-      kind: 'PORTFOLIO · QUARTERLY',
-      anchor: '24 holdings',
-      series: '$345B AUM · BERKSHIRE',
-      portrait: {
-        // Wikimedia Commons "Special:FilePath" — stable across MD5 path
-        // changes, per skill PERSON_REGISTRY convention. Source is 4:3
-        // (1.33); we declare 1.5 to match the validator's threshold and
-        // the renderer's effective top-anchored slice on the wide cover.
-        imageHash: 'https://commons.wikimedia.org/wiki/Special:FilePath/Warren_Buffett_with_Fisher_College_of_Business_Student.jpg?width=640',
-        source: 'https://commons.wikimedia.org/wiki/File:Warren_Buffett_with_Fisher_College_of_Business_Student.jpg',
-        portraitH: 30,
-        imageAspectRatio: 1.5,
-        subjectName: 'Warren Buffett',
-        license: 'CC-BY',
-      },
-    },
-  },
-  // 7
-  {
-    id: 'next-ai-bottleneck',
-    creator: 'steven',
-    title: 'The Next AI Bottleneck',
-    description: 'Daily tracker of supply constraints across Power, Compute, and Deployment sectors affecting the AI buildout — fixed thesis with a daily verdict.',
-    tickers: ['VST', 'TLN', 'NRG', 'ETR'],
-    pulse: 'active', stars: 250, remixes: 2,
-    cover: {
-      template: 'thesis',
-      title: 'The Next AI Bottleneck',
-      author: 'steven',
-      tickers: [],
-      domain: 'ai',
-      anchor: 'APR 27',
-      category: 'AMBIGUOUS',
-      kind: 'Power leg +2.8% vs Compute −0.4% WTD',
-    },
-  },
-  // 8
-  {
-    id: 'nvda-tsm',
-    creator: 'Smart Jing',
-    title: 'NVDA +3% Triggered TSM TP/SL',
-    description: 'Buys TSM at the close when NVDA gains >3% close-to-close. Exits on +10% take-profit or −5% stop-loss across 12 historical triggers.',
-    tickers: ['NVDA', 'TSM'],
-    pulse: 'active', stars: 48, remixes: 7,
-    annualizedReturn: '+27.73%',
-    cover: {
-      template: 'what-if',
-      title: 'NVDA +3% Triggered TSM TP/SL',
-      author: 'smart-jing',
-      tickers: ['NVDA', 'TSM'],
-      domain: 'event_study',
-      series: '30D AFTER NVDA +3% · 12×',
-      kind: 'Historically Climbs',
-      anchor: '+27.7%',
-      whatIfBars: [3.2, -1.1, 5.4, 2.8, -0.5, 4.6, 1.9, -0.8],
-    },
-  },
-  // 9
-  {
-    id: 'narrative-alpha',
-    creator: 'leoz',
-    title: 'Narrative Alpha Discovery',
-    description: 'Agentic signal discovery mining social media, KOL tweets, news, Reddit, and podcasts for emerging investable narratives in US equities.',
-    tickers: ['SHOP', 'PLTR', 'NET'],
-    pulse: 'active', stars: 177, remixes: 5,
-    cover: {
-      template: 'general',
-      title: 'Narrative Alpha Discovery',
-      author: 'leoz',
-      tickers: [],
-      domain: 'guide',
-      kind: 'CONTEXT FEED · DAILY',
-      anchor: '47 emergent',
-      series: 'X · SUBSTACK · PODCASTS',
-    },
-  },
-  // 10
-  {
-    id: 'social-smart-money',
-    creator: 'stock-king',
-    title: 'Social × Smart Money Consensus',
-    description: 'US stocks ranked by convergence of social mention volume, insider buying, and congressional purchases. Daily post-close refresh with consensus highlights.',
-    tickers: ['META', 'GOOGL', 'AMD', 'AMZN'],
-    pulse: 'active', stars: 247, remixes: 1,
-    cover: {
-      template: 'screener',
-      title: 'Social × Smart Money Consensus',
-      author: 'stock-king',
-      tickers: ['META', 'GOOGL', 'AMD', 'AMZN'],
-      domain: 'tech',
-      series: '3-SIGNAL CONVERGENCE · 4H',
-    },
-  },
-  // 11
-  {
-    id: 'space-defense',
-    creator: 'siriusshen',
-    title: 'Space × Defense Thesis Tracker',
-    description: 'Three-pillar theme tracker covering commercial launch disruption, DoD software modernization, and commercial ISR — with a daily narrative and quant feeds.',
-    tickers: ['LMT', 'RTX', 'RKLB', 'PLTR'],
-    pulse: 'active', stars: 151, remixes: 0,
-    cover: {
-      template: 'thesis',
-      title: 'Space × Defense Thesis Tracker',
-      author: 'siriusshen',
-      tickers: [],
-      domain: 'defense',
-      anchor: 'APR 27',
-      category: 'RISK',
-      kind: 'Launch leg −1.6% vs ITA +0.2% WTD',
-    },
-  },
-  // 12
-  {
-    id: 'copper-gold-spx',
-    creator: 'terrezzaeynon897',
-    title: 'Copper/Gold Ratio vs S&P 500',
-    description: 'Historical analysis of forward S&P returns after copper-to-gold ratio prints a 1-year low. 60-day path across 8 prior signals.',
-    tickers: ['SPY', 'HG=F', 'GC=F'],
-    pulse: 'idle', stars: 88, remixes: 4,
-    cover: {
-      template: 'what-if',
-      title: 'Copper/Gold Ratio vs S&P 500',
-      author: 'terrezzaeynon897',
-      tickers: ['SPY'],
-      domain: 'macro',
-      series: '60D AFTER 1Y LOW · 8×',
-      kind: 'Historically Climbs',
-      anchor: '+5.7%',
-      whatIfBars: [3.2, 5.1, -1.2, 6.8, 4.1, -0.5, 7.2, 2.4],
-    },
-  },
-  // 13
-  {
-    id: 'kol-leaderboard',
-    creator: 'inflame',
-    title: 'KOL Trading Leaderboard',
-    description: 'Tracks 20 financial influencers by composite tweet-signal performance. Weekly leaderboard with 90D rolling Sharpe.',
-    tickers: ['SPY', 'QQQ'],
-    pulse: 'active', stars: 141, remixes: 0,
-    cover: {
-      template: 'general',
-      title: 'KOL Trading Leaderboard',
-      author: 'inflame',
-      tickers: [],
-      domain: 'leaderboard',
-      kind: 'LEADERBOARD · WEEKLY',
-      anchor: 'Top 20 KOLs',
-      series: 'COMPOSITE SIGNAL · 90D',
-    },
-  },
-  // 14
-  {
-    id: 'inflection-screener',
-    creator: 'ivan',
-    title: 'Inflection Point Screener',
-    description: 'Screens 948 mid-caps daily for margin acceleration, revenue inflection, and profitability crossover. Top decile with 90-day holding period.',
-    tickers: ['SHOP', 'CRWD', 'NET', 'DDOG'],
-    pulse: 'active', stars: 141, remixes: 0,
-    cover: {
-      template: 'screener',
-      title: 'Inflection Point Screener',
-      author: 'ivan',
-      tickers: ['SHOP', 'CRWD', 'NET', 'DDOG'],
-      domain: 'growth',
-      series: 'MARGIN ACCEL · 948 NAMES',
-    },
-  },
-  // 15
-  {
-    id: 'white-collar-crisis',
-    creator: 'steven',
-    title: 'White-Collar Crisis Thesis Tracker',
-    description: 'Market-neutral basket tracking AI-driven compression in white-collar labor. Long staffing-disrupted vs hedged with admin-services.',
-    tickers: ['ROL', 'WSO', 'CTAS'],
-    pulse: 'active', stars: 99, remixes: 0,
-    cover: {
-      template: 'thesis',
-      title: 'White-Collar Crisis Thesis Tracker',
-      author: 'steven',
-      tickers: [],
-      domain: 'macro',
-      anchor: 'APR 27',
-      category: 'RISK',
-      kind: 'Junior-analyst postings −18% YoY',
-    },
-  },
-  // 16
-  {
-    id: 'post-earnings-drift',
-    creator: 'stock-king',
-    title: 'Post-Earnings Drift · Momentum',
-    description: 'US stocks that just reported strong beats with upward guidance. 5-day hold from open with stop-loss at −3% intraday.',
-    tickers: ['AVGO', 'PANW', 'MU', 'ANET'],
-    pulse: 'active', stars: 119, remixes: 0,
-    cover: {
-      template: 'screener',
-      title: 'Post-Earnings Drift · Momentum',
-      author: 'stock-king',
-      tickers: ['AVGO', 'PANW', 'MU', 'ANET'],
-      domain: 'momentum',
-      series: 'POSITIVE GUIDANCE · 5D HOLD',
-    },
-  },
-  // 17
-  {
-    id: 'eight-ball-game',
-    creator: 'furycom',
-    title: '8-Ball Pool · Casual Game',
-    description: 'HTML5 Canvas billiards with realistic physics, AI opponent, and async multiplayer. Top scores ranked weekly across the Alva community.',
+    id: 'market-anomaly-digest-v2',
+    creator: 'B.D.E',
+    title: 'Market Anomaly Digest',
+    description: 'Daily anomaly digest — template-aligned. Tracks unusual price, volume, options, and volatility signals. Four frozen sections, one pushed card per day.',
     tickers: [],
-    pulse: 'active', stars: 95, remixes: 0,
+    pulse: 'idle', stars: 100, remixes: 1,
     cover: {
-      template: 'general',
-      title: '8-Ball Pool · Casual Game',
-      author: 'furycom',
+      template: 'thesis',
+      title: 'Market Anomaly Digest',
+      author: 'B.D.E',
       tickers: [],
-      domain: 'guide',
-      kind: 'HIGH SCORE · GAME',
-      anchor: '38,420',
-      series: 'CANVAS · MULTIPLAYER',
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/prd/uploads/1961349611146735616/2026/05/ac5a314c-29f1-4559-b6f4-d0c09920fdfb.png',
     },
   },
-  // 18 — Single-ticker what-if · NVDA earnings
   {
-    id: 'nvda-earnings-beat',
-    creator: 'dividend-ai',
-    title: 'NVDA Post-Beat Drift',
-    description: 'Tracks the 30-day forward path of NVDA after a positive EPS surprise + raised guidance. 11 historical triggers since 2021.',
-    tickers: ['NVDA'],
-    pulse: 'active', stars: 184, remixes: 9,
-    annualizedReturn: '+34.2%',
-    cover: {
-      template: 'what-if',
-      title: 'NVDA Post-Beat Drift',
-      author: 'dividend-ai',
-      tickers: ['NVDA'],
-      domain: 'earnings',
-      series: '30D AFTER BEAT · 11×',
-      kind: 'Historically Climbs',
-      anchor: '+9.2%',
-      whatIfBars: [2.1, 4.8, -0.6, 6.2, 3.4, 1.5, -1.1, 5.7],
-    },
-  },
-  // 19 — Single-ticker thesis · TSLA narrative
-  {
-    id: 'tsla-fsd',
-    creator: 'kira-z',
-    title: 'TSLA FSD Catalyst Watcher',
-    description: 'Long-running thesis tracking TSLA Full Self-Driving milestones, regulatory filings, and unsupervised-mode geofence expansion.',
-    tickers: ['TSLA'],
-    pulse: 'active', stars: 156, remixes: 8,
+    id: 'kevinxu-tweet-trader',
+    creator: 'furyfrog1993',
+    title: 'Kevin Xu Tweet Trader',
+    description: 'Backtest of @kevinxu\'s tweet signals · 3 holding strategies · AI Trader Profile · Refreshed every 6h',
+    tickers: ['IREN', 'HIMS', 'QS', 'FIG'],
+    pulse: 'idle', stars: 239, remixes: 3,
     cover: {
       template: 'thesis',
-      title: 'TSLA FSD Catalyst Watcher',
-      author: 'kira-z',
-      tickers: ['TSLA'],
-      domain: 'ai',
-      anchor: 'APR 27',
-      category: 'CATALYST',
-      kind: 'Robotaxi miles +38% vs prior week',
-    },
-  },
-  // 20 — Single-ticker general · AAPL alerts feed
-  {
-    id: 'aapl-buybacks',
-    creator: 'capital-pulse',
-    title: 'AAPL Capital Return Pulse',
-    description: 'Live feed of AAPL buyback authorizations, dividend changes, and treasury debt issuance. Surfaces material capital-allocation shifts as they hit the wire.',
-    tickers: ['AAPL'],
-    pulse: 'active', stars: 98, remixes: 3,
-    cover: {
-      template: 'general',
-      title: 'AAPL Capital Return Pulse',
-      author: 'capital-pulse',
-      tickers: ['AAPL'],
-      domain: 'alerts',
-      kind: 'ALERTS · BUYBACK · LIVE',
-      anchor: '$110B auth',
-      series: 'Q2 2026 · 4 EVENTS',
-    },
-  },
-  // 21 — Single-ticker general · BTC funding-rate alerts
-  {
-    id: 'btc-funding',
-    creator: 'derive-x',
-    title: 'BTC Funding Rate Squeeze',
-    description: 'Cross-exchange BTC perpetual funding rate monitor. Alerts when funding turns deeply negative — historically a contrarian buy signal.',
-    tickers: ['BTC'],
-    pulse: 'active', stars: 142, remixes: 6,
-    cover: {
-      template: 'general',
-      title: 'BTC Funding Rate Squeeze',
-      author: 'derive-x',
-      tickers: ['BTC'],
-      domain: 'alerts',
-      kind: 'ALERTS · LIVE · 5M',
-      anchor: '−0.04%',
-      series: 'BINANCE · BYBIT · OKX',
-    },
-  },
-  // 22 — Single-ticker thesis · Powell macro reads (named person)
-  {
-    id: 'powell-watch',
-    creator: 'fomc-pulse',
-    title: 'Powell Speak Tracker',
-    description: 'Sentiment & language-shift analysis across every Powell speech, FOMC statement, and Q&A. Surfaces hawkish/dovish tilt vs prior cycle.',
-    tickers: [],
-    pulse: 'active', stars: 211, remixes: 7,
-    cover: {
-      template: 'thesis',
-      title: 'Powell Speak Tracker',
-      author: 'fomc-pulse',
-      tickers: [],
-      domain: 'fed',
-      anchor: 'APR 27',
-      category: 'AMBIGUOUS',
-      kind: 'Hawkish tilt +0.6σ vs Mar FOMC',
-    },
-  },
-  // 23 — Single-ticker brand · META AI capex
-  {
-    id: 'meta-ai-capex',
-    creator: 'capex-watch',
-    title: 'META AI Infra Capex Tracker',
-    description: 'Quarterly tracking of Meta\'s AI infrastructure spend — datacenter buildout, GPU orders, and Reality Labs commitments vs analyst expectations.',
-    tickers: ['META'],
-    pulse: 'active', stars: 132, remixes: 4,
-    cover: {
-      template: 'thesis',
-      title: 'META AI Infra Capex Tracker',
-      author: 'capex-watch',
-      tickers: ['META'],
-      anchor: 'APR 27',
-      category: 'CATALYST',
-      kind: 'Q1 capex $9.7B vs $8.2B est',
-    },
-  },
-  // 24 — Single-ticker brand · MSFT Azure backlog
-  {
-    id: 'msft-azure',
-    creator: 'cloud-pulse',
-    title: 'MSFT Azure Backlog Pulse',
-    description: 'Tracks Azure remaining performance obligations (RPO), AI-workload share, and OpenAI compute reservations from earnings calls and 10-Q filings.',
-    tickers: ['MSFT'],
-    pulse: 'active', stars: 167, remixes: 5,
-    cover: {
-      template: 'general',
-      title: 'MSFT Azure Backlog Pulse',
-      author: 'cloud-pulse',
-      tickers: ['MSFT'],
-      kind: 'BACKLOG · QUARTERLY',
-      anchor: '$298B RPO',
-      series: '+24% YoY · AI MIX 38%',
-    },
-  },
-  // 25 — Single-ticker brand · GOOGL antitrust events
-  {
-    id: 'googl-antitrust',
-    creator: 'reg-watch',
-    title: 'GOOGL Antitrust Catalyst Map',
-    description: 'Live map of all GOOGL DOJ / EU / state-AG cases. Court calendar, ruling dates, and historical price reactions to similar tech-antitrust events.',
-    tickers: ['GOOGL'],
-    pulse: 'active', stars: 89, remixes: 2,
-    cover: {
-      template: 'thesis',
-      title: 'GOOGL Antitrust Catalyst Map',
-      author: 'reg-watch',
-      tickers: ['GOOGL'],
-      anchor: 'APR 27',
-      category: 'RISK',
-      kind: 'DOJ remedy hearing in 12 days',
-    },
-  },
-  // 26 — Named-person portrait · Bill Ackman activism
-  {
-    id: 'ackman-activism',
-    creator: 'activist-watch',
-    title: "Ackman Activist Position Tracker",
-    description: 'Live monitor of Pershing Square 13D/13F filings, public letters, and proxy fights. Surfaces concentrated activist positions before they become consensus.',
-    tickers: ['CMG', 'HHC', 'GOOGL'],
-    pulse: 'active', stars: 174, remixes: 6,
-    cover: {
-      template: 'general',
-      title: "Ackman Activist Position Tracker",
-      author: 'activist-watch',
-      tickers: ['CMG', 'HHC', 'GOOGL'],
-      kind: 'PORTFOLIO · CONCENTRATED',
-      anchor: '8 holdings',
-      series: '$15B AUM · PERSHING SQUARE',
-      portrait: {
-        imageHash: 'https://commons.wikimedia.org/wiki/Special:FilePath/Bill_Ackman_(26410186110)_(cropped).jpg?width=640',
-        source: 'https://commons.wikimedia.org/wiki/File:Bill_Ackman_(26410186110)_(cropped).jpg',
-        portraitH: 28,
-        imageAspectRatio: 1.5,
-        subjectName: 'Bill Ackman',
-        license: 'CC-BY',
-      },
-    },
-  },
-  // 27 — Named-person portrait · Ray Dalio macro reads
-  {
-    id: 'dalio-macro',
-    creator: 'all-weather',
-    title: "Dalio Macro Cycle Tracker",
-    description: "Tracks Ray Dalio's published macro framework — debt cycles, productivity gaps, and reserve-currency rotation signals. Auto-tags Bridgewater letters and posts.",
-    tickers: [],
-    pulse: 'active', stars: 198, remixes: 4,
-    cover: {
-      template: 'thesis',
-      title: 'Dalio Macro Cycle Tracker',
-      author: 'all-weather',
-      tickers: [],
-      anchor: 'APR 27',
-      category: 'AMBIGUOUS',
-      kind: 'Late long-term debt cycle · risk-off bias',
-      portrait: {
-        // Real 16:9 landscape source from Wikimedia (500×281 → 1.78 aspect).
-        imageHash: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ray_Dalio_Sept_23_2017_NYC.jpg?width=640',
-        source: 'https://commons.wikimedia.org/wiki/File:Ray_Dalio_Sept_23_2017_NYC.jpg',
-        portraitH: 25,
-        imageAspectRatio: 1.78,
-        subjectName: 'Ray Dalio',
-        license: 'CC-BY-SA',
-      },
-    },
-  },
-  // 28 — alva.ai #6 · BTC Contrarian Crowd Reversal (single-ticker BTC, brand path)
-  {
-    id: 'btc-contrarian',
-    creator: 'furycom',
-    title: 'BTC Contrarian Crowd Reversal',
-    description: 'Mean-reversion strategy that fades crowd consensus using funding rates, long/short ratios, RSI, and Bollinger Bands to identify reversal entries.',
-    tickers: ['BTC'],
-    pulse: 'active', stars: 181, remixes: 1,
-    cover: {
-      template: 'thesis',
-      title: 'BTC Contrarian Crowd Reversal',
-      author: 'furycom',
-      tickers: ['BTC'],
-      anchor: 'APR 28',
-      category: 'AMBIGUOUS',
-      kind: 'Funding −0.06% vs L/S 1.78x crowded',
-    },
-  },
-  // 29 — alva.ai #8 · Citrini Context (named-person feed, no portrait override
-  // because Citrini is a pseudonymous handle, not a real-name attestation)
-  {
-    id: 'citrini-context',
-    creator: 'harryzz',
-    title: 'Citrini Context',
-    description: "Curated direct content from Citrini and team — X posts, Substack articles, and subscriber chat threads aggregated into a single chronological feed.",
-    tickers: [],
-    pulse: 'active', stars: 155, remixes: 0,
-    cover: {
-      template: 'general',
-      title: 'Citrini Context',
-      author: 'harryzz',
-      tickers: [],
-      domain: 'guide',
-      kind: 'CONTEXT FEED · DAILY',
-      anchor: '12 new posts',
-      series: 'X · SUBSTACK · CHAT',
-    },
-  },
-  // 30 — alva.ai #12 · Defense Tech and Space Stocks Tracker
-  {
-    id: 'defense-tech-space',
-    creator: 'syeveline9',
-    title: 'Defense Tech and Space Stocks Tracker',
-    description: 'Three-pillar theme tracker covering commercial launch disruption, DoD software modernization, and commercial space-ISR across a 17-name universe.',
-    tickers: ['RKLB', 'PLTR', 'LMT', 'BA'],
-    pulse: 'active', stars: 124, remixes: 2,
-    cover: {
-      template: 'thesis',
-      title: 'Defense Tech and Space Stocks Tracker',
-      author: 'syeveline9',
-      tickers: ['RKLB', 'PLTR', 'LMT', 'BA'],
-      domain: 'defense',
-      anchor: 'APR 28',
-      category: 'CATALYST',
-      kind: 'Launch leg +2.4% vs ITA +0.6% WTD',
-    },
-  },
-  // 31 — alva.ai #14 · Inflection Point Screener (v2 — alva.ai lists two
-  // entries with the same title by ivan; this is the second, slightly
-  // different framing)
-  {
-    id: 'inflection-screener-v2',
-    creator: 'ivan',
-    title: 'Inflection Point Screener',
-    description: 'US mid-caps where gross margins accelerate, revenue re-accelerates, and operating profitability turns. Top decile rebalanced weekly.',
-    tickers: ['CRWD', 'NET', 'DDOG', 'SNOW'],
-    pulse: 'active', stars: 118, remixes: 2,
-    cover: {
-      template: 'screener',
-      title: 'Inflection Point Screener',
-      author: 'ivan',
-      tickers: ['CRWD', 'NET', 'DDOG', 'SNOW'],
-      domain: 'growth',
-      series: 'GROSS MARGIN ACCEL · WEEKLY',
-    },
-  },
-  // 32 — alva.ai #15 · BTC Crashed 46% — Time to Buy? (single-ticker BTC,
-  // brand path, what-if event-study with 7-indicator bottom-signal scoring)
-  {
-    id: 'btc-crashed-46',
-    creator: 'long-us-10x',
-    title: 'BTC Crashed 46% — Time to Buy?',
-    description: 'Real-time 7-indicator scoring system using on-chain and derivatives data, auto-updated every 4 hours. Historical avg return 200%+ from prior bottom signals.',
-    tickers: ['BTC'],
-    pulse: 'active', stars: 110, remixes: 1,
-    annualizedReturn: '+200%',
-    cover: {
-      template: 'what-if',
-      title: 'BTC Crashed 46% — Time to Buy?',
-      author: 'long-us-10x',
-      tickers: ['BTC'],
-      domain: 'event_study',
-      series: 'BOTTOM SIGNAL · 7/7 BUY · 4H',
-      kind: 'Historically Climbs',
-      anchor: '+182%',
-      whatIfBars: [12, 28, 45, 38, 52, 41, 65, 58],
+      title: 'Kevin Xu Tweet Trader',
+      author: 'furyfrog1993',
+      tickers: ['IREN', 'HIMS', 'QS', 'FIG'],
+      coverImageUrl: 'https://alva-ai-static.b-cdn.net/thumbnails/screenshot-4e35799b-3884-4255-9aad-f35818d95279.webp',
     },
   },
 ];
 
 /**
- * Display order — first 9 positions mirror alva.ai/explore's current top 9
- * Trendings (refreshed 2026-04-28). Remaining positions interleave the
- * single-ticker brand cards and named-person portraits we author locally.
+ * Display order = the live alva.ai/explore Trendings order.
+ * Hero carousel uses the same source — first 5 entries become hero slides.
  */
 const DISPLAY_ORDER = [
-  // ── alva.ai/explore top 9 (verified 2026-04-28) ───────────────
-  'rave-short-squeeze',     // #1 · deepstonks
-  'congressional-buys',     // #2 · ivan
-  'ptsd-supply',            // #3 · steven
-  'next-ai-bottleneck',     // #4 · steven
-  'social-smart-money',     // #5 · stock-king
-  'btc-contrarian',         // #6 · furycom (NEW)
-  'narrative-alpha',        // #7 · leoz
-  'citrini-context',        // #8 · harryzz (NEW)
-  'space-defense',          // #9 · siriusshen
-  // ── alva.ai/explore positions 10–16 (verified 2026-04-28) — these
-  //    feed the hero carousel via HERO_ORDER below ─────────────
-  'kol-leaderboard',        // #10 · inflame
-  'inflection-screener',    // #11 · ivan
-  'defense-tech-space',     // #12 · syeveline9 (NEW)
-  'post-earnings-drift',    // #13 · stock-king
-  'inflection-screener-v2', // #14 · ivan (NEW — duplicate listed by alva.ai)
-  'btc-crashed-46',         // #15 · long-us-10x (NEW)
-  'spy-oil-hormuz',         // #16 · terrezzaeynon897
-  // ── remaining locally authored cards ────────────────────────
-  'quality-value-screener',
-  'nvda-earnings-beat',
-  'buffett-13f',
-  'tsla-fsd',
-  'aapl-buybacks',
-  'ackman-activism',
-  'meta-ai-capex',
-  'msft-azure',
-  'nvda-tsm',
-  'dalio-macro',
-  'btc-funding',
-  'googl-antitrust',
-  'copper-gold-spx',
-  'powell-watch',
-  'white-collar-crisis',
-  'eight-ball-game',
+  'salp-thesis',
+  'humanoid-citrini-vf',
+  'cls-long-thesis-alva',
+  'amd-deep-dive',
+  'iran-conflict-digest',
+  'shanghaojin-tweet-trader',
+  'mag7-capex',
+  'korea-semi-raw-numbers',
+  'miner-ai-pivot',
+  'kol-tweet-trader-leaderboard',
+  'trump-china-tracker',
+  'openai-rewire-screener',
+  'ai-infra-after-mag7-earnings',
+  'aleabitoreddit-tweet-trader',
+  'memory-cycle-screener',
+  'kol-trade-ideas-digest-v3',
+  'commodity-pulse',
+  'ai-infra-after-mag7-earnings-2975',
+  'market-anomaly-digest-v2',
+  'kevinxu-tweet-trader',
 ];
 
-/**
- * Hero carousel source — alva.ai/explore positions 10–16, in alva.ai order.
- * Curated rather than top-by-stars: the top 9 are already in the trendings
- * grid header; the next 7 give the carousel its own distinct rotation.
- */
-const HERO_ORDER = [
-  'kol-leaderboard',        // #10
-  'inflection-screener',    // #11
-  'defense-tech-space',     // #12
-  'post-earnings-drift',    // #13
-  'inflection-screener-v2', // #14
-  'btc-crashed-46',         // #15
-  'spy-oil-hormuz',         // #16
-];
+const HERO_ORDER = DISPLAY_ORDER.slice(0, 5);
 
 const PLAYBOOKS_ORDERED: ExplorePlaybook[] = DISPLAY_ORDER
   .map((id) => PLAYBOOKS.find((p) => p.id === id))
   .filter((p): p is ExplorePlaybook => p !== undefined);
 
-const CATEGORIES = ['Popular', 'Newest'];
+const CATEGORIES = ['Popular', 'Recent'];
+
+/**
+ * Multi-select chip filter taxonomy. Each chip matches a playbook if ANY of
+ * its match rules fires — template label, ticker contains the term, or the
+ * domain/title/description contains it (case-insensitive). When no chip is
+ * selected, all playbooks pass.
+ */
+const CATEGORY_CHIPS = [
+  'Smart Screener', 'Theme Tracker', 'Backtest', 'AI Digest', 'Asset Deepdive',
+  'Crypto', 'BTC', 'Thesis', 'Tech', 'Equity', 'What-if', 'NVDA', 'Macro',
+  'Healthcare', 'ETH', 'Energy', 'FX', 'MAG7', 'Financials', 'Commodities',
+] as const;
+type CategoryChip = typeof CATEGORY_CHIPS[number];
+
+function chipMatchesPlaybook(chip: CategoryChip, p: ExplorePlaybook): boolean {
+  const haystack = `${p.title} ${p.description} ${p.tickers.join(' ')} ${p.cover.domain ?? ''} ${p.cover.template}`.toLowerCase();
+  const term = chip.toLowerCase();
+  // Template synonyms
+  if (chip === 'Smart Screener' && p.cover.template === 'screener') return true;
+  if (chip === 'Theme Tracker' && p.cover.template === 'thesis') return true;
+  if (chip === 'What-if' && p.cover.template === 'what-if') return true;
+  if (chip === 'Thesis' && p.cover.template === 'thesis') return true;
+  // Ticker hard match
+  if (p.tickers.some((t) => t.toLowerCase() === term)) return true;
+  // Free-text fallback
+  return haystack.includes(term);
+}
 
 /* ========== SVG 绘图工具 ========== */
 
@@ -1243,199 +913,297 @@ function HeroSpotlight({ onNavigate }: { onNavigate: (page: Page) => void }) {
   );
 }
 
-/* ========== Trendings header ========== */
+/* ========== Filter bar (sort dropdown + multi-select chips) ========== */
 
-/** Template filter values used by the dropdown next to the segmented tabs. */
-const TEMPLATE_FILTER_OPTIONS = [
-  'Trendings', 'Screener', 'Thesis', 'What-If', 'Others',
-] as const;
-type TemplateFilter = typeof TEMPLATE_FILTER_OPTIONS[number];
-
-function TrendingsHeader({
-  active, onChange, templateFilter, onTemplateChange, isMobile = false,
+/**
+ * Horizontal chip strip. Tracks scroll position to show a left-edge fade
+ * once content has scrolled in from the start, and a right-edge fade while
+ * more content extends past the visible area. On hover, surfaces small
+ * round arrow buttons in the directions that are currently scrollable —
+ * style follows Figma 5526:303437 (white bg, 0.5 px line/l2 border).
+ */
+function ChipStrip({
+  selectedChips, onChipToggle, onClippedRightChange,
 }: {
-  active: string; onChange: (cat: string) => void;
-  templateFilter: TemplateFilter; onTemplateChange: (v: TemplateFilter) => void;
-  isMobile?: boolean;
+  selectedChips: Set<CategoryChip>;
+  onChipToggle: (chip: CategoryChip) => void;
+  /** Fires whenever the right edge clipping flips so the parent can show
+      a divider between the chip strip and the sort dropdown only when the
+      strip's right content is actually being hidden. */
+  onClippedRightChange?: (clipped: boolean) => void;
 }) {
-  // Desktop: single row — title tabs on the left, segmented Popular/Newest
-  // pill on the right, 1px divider underneath.
-  // Mobile: two rows — row 1 is the title-tab strip (full-bleed scroll, the
-  //   page's 16px side padding is cancelled so the strip extends to the
-  //   viewport edges and is naturally clipped on overflow); the divider
-  //   under it spans the full viewport width. Row 2 holds the segmented
-  //   Popular/Newest pill, aligned right.
-  //
-  // Active-tab visibility: when the selected tab changes (or the active
-  // pill on desktop), smooth-scroll the strip so the chosen button has
-  // ≥16px breathing room from both viewport edges.
-  const stripRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false);
+  const [scrollState, setScrollState] = useState({ atStart: true, atEnd: false });
 
-  // Smooth-scroll the active tab so it sits with ≥16px breathing room
-  // from both viewport edges. We compute the target manually (because
-  // `scrollIntoView({inline: 'nearest'})` doesn't honor the safe zone
-  // when a tab is even 1px on screen) and animate it with a hand-rolled
-  // easing tween instead of `behavior: 'smooth'` — the latter kept
-  // getting silently canceled by something in this stack (React
-  // strict-mode double-invocation? auto-cycle re-render?). The tween
-  // works around that by writing scrollLeft each frame ourselves.
-  useEffect(() => {
-    const strip = stripRef.current;
-    const btn = tabRefs.current[templateFilter];
-    if (!strip || !btn) return;
-    const SAFE = 16;
-    const stripLeft = strip.scrollLeft;
-    const visRight = stripLeft + strip.clientWidth;
-    const btnLeft = btn.offsetLeft;
-    const btnRight = btnLeft + btn.offsetWidth;
-    const maxScroll = Math.max(0, strip.scrollWidth - strip.clientWidth);
-    let target: number | null = null;
-    if (btnLeft < stripLeft + SAFE) {
-      target = Math.max(0, btnLeft - SAFE);
-    } else if (btnRight > visRight - SAFE) {
-      target = Math.min(maxScroll, btnRight - strip.clientWidth + SAFE);
-    }
-    if (target === null || Math.abs(target - stripLeft) <= 1) return;
-
-    const from = stripLeft;
-    const to = target;
-    const dur = 280;            // ms
-    const start = performance.now();
-    let raf = 0;
-    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // cubic-out
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / dur);
-      strip.scrollLeft = from + (to - from) * ease(t);
-      if (t < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [templateFilter]);
-
-  const titleTabs = (
-    <div
-      ref={stripRef}
-      className="flex items-stretch gap-[20px]"
-      style={{
-        height: 52,
-        overflowX: 'auto',
-        overflowY: 'hidden',
-        scrollbarWidth: 'none',
-        WebkitOverflowScrolling: 'touch',
-        flex: isMobile ? undefined : 1,
-        // Mobile: page padding is 16 — undo it on the strip and re-add as
-        // inner padding so tab labels start where they would on desktop
-        // but content can scroll past the viewport edges.
-        marginLeft: isMobile ? -16 : 0,
-        marginRight: isMobile ? -16 : 0,
-        paddingLeft: isMobile ? 16 : 0,
-        paddingRight: isMobile ? 16 : 0,
-        // Reserve a 16px safe zone on both sides — useful even with the
-        // manual tween below, in case anyone touches the strip via touch
-        // panning + scroll-snap later.
-        scrollPaddingInline: 16,
-      }}
-    >
-      {TEMPLATE_FILTER_OPTIONS.map((opt) => {
-        const isActive = opt === templateFilter;
-        return (
-          <button
-            key={opt}
-            ref={(el) => { tabRefs.current[opt] = el; }}
-            onClick={() => onTemplateChange(opt)}
-            className="cursor-pointer flex flex-col items-start shrink-0"
-            style={{ background: 'transparent', border: 'none', padding: '12px 0 0', gap: 10 }}
-          >
-            <span
-              className="text-[18px] leading-[28px] tracking-[0.18px] whitespace-nowrap"
-              style={{
-                color: isActive ? 'var(--text-n9)' : 'var(--text-n7)',
-                fontFamily: "'Delight', sans-serif",
-                fontWeight: isActive ? 500 : 400,
-              }}
-            >
-              {opt}
-            </span>
-            <span
-              className="h-[2px] w-full"
-              style={{ background: isActive ? 'var(--main-m1, #49a3a6)' : 'transparent' }}
-            />
-          </button>
-        );
-      })}
-    </div>
-  );
-
-  const filterPill = (
-    <div
-      className="flex gap-0 items-center p-[2px] rounded-[6px] shrink-0"
-      style={{ background: 'var(--b-r05)' }}
-    >
-      {CATEGORIES.map((cat) => {
-        const isActive = cat === active;
-        return (
-          <button
-            key={cat}
-            onClick={() => onChange(cat)}
-            className="h-[28px] px-[10px] rounded-[4px] cursor-pointer transition-colors flex items-center justify-center"
-            style={{ background: isActive ? 'white' : 'transparent', border: 'none', padding: '0 10px' }}
-          >
-            <span
-              className="text-[12px] leading-[20px] tracking-[0.12px]"
-              style={{
-                color: isActive ? 'var(--text-n9)' : 'var(--text-n7)',
-                fontFamily: "'Delight', sans-serif",
-                fontWeight: isActive ? 500 : 400,
-              }}
-            >
-              {cat}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-
-  if (isMobile) {
-    return (
-      <div className="flex flex-col" style={{ gap: 12 }}>
-        <div
-          // Full-bleed wrapper: undo page padding so the divider stretches
-          // edge-to-edge of the viewport.
-          style={{
-            marginLeft: -16,
-            marginRight: -16,
-            paddingLeft: 16,
-            paddingRight: 16,
-            borderBottom: '1px solid var(--line-l07)',
-          }}
-        >
-          {titleTabs}
-        </div>
-        <div className="flex justify-end">{filterPill}</div>
-      </div>
+  const recomputeScrollState = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const atStart = el.scrollLeft <= 1;
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+    // Fire the parent notifier unconditionally — the initial mount has
+    // setState equal to its default and would skip the callback otherwise.
+    onClippedRightChange?.(!atEnd);
+    setScrollState((prev) =>
+      prev.atStart === atStart && prev.atEnd === atEnd ? prev : { atStart, atEnd },
     );
-  }
+  };
+
+  useEffect(() => {
+    recomputeScrollState();
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(recomputeScrollState);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const scrollByStep = (dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * Math.max(120, el.clientWidth * 0.6), behavior: 'smooth' });
+  };
 
   return (
     <div
-      className="relative flex items-end gap-[16px] h-[52px]"
-      style={{ borderBottom: '1px solid var(--line-l07)' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ flex: 1, minWidth: 0, position: 'relative', overflow: 'visible' }}
     >
-      {titleTabs}
-      <div style={{ marginBottom: 10 }}>{filterPill}</div>
+      <div
+        ref={scrollRef}
+        onScroll={recomputeScrollState}
+        style={{
+          display: 'flex',
+          gap: 8,
+          alignItems: 'center',
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {CATEGORY_CHIPS.map((chip) => {
+          const isActive = selectedChips.has(chip);
+          return (
+            <button
+              key={chip}
+              onClick={() => onChipToggle(chip)}
+              style={{
+                flexShrink: 0,
+                height: 28,
+                padding: '3px 9px',
+                borderRadius: 4,
+                border: isActive
+                  ? '1px solid var(--text-n9, rgba(0,0,0,0.9))'
+                  : '1px solid transparent',
+                background: isActive ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--content-br03, rgba(0,0,0,0.03))',
+                color: isActive ? 'white' : 'var(--text-n7, rgba(0,0,0,0.7))',
+                cursor: 'pointer',
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 12,
+                lineHeight: '20px',
+                letterSpacing: 0.12,
+                whiteSpace: 'nowrap',
+                transition: 'background-color 160ms ease, color 160ms ease',
+              }}
+            >
+              {chip}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Edge fades — only visible when there's content in that direction. */}
+      {!scrollState.atStart && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: '100%',
+            width: 28,
+            pointerEvents: 'none',
+            background:
+              'linear-gradient(to left, rgba(246,246,246,0) 0%, rgba(246,246,246,0.85) 50%, #f6f6f6 100%)',
+          }}
+        />
+      )}
+      {!scrollState.atEnd && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            height: '100%',
+            width: 28,
+            pointerEvents: 'none',
+            background:
+              'linear-gradient(to right, rgba(246,246,246,0) 0%, rgba(246,246,246,0.85) 50%, #f6f6f6 100%)',
+          }}
+        />
+      )}
+
+      {/* Scroll arrow buttons — only when hovered AND there's room to scroll
+          in that direction. Style per Figma 5526:303437. */}
+      {hovered && !scrollState.atStart && (
+        <ScrollArrow direction="left" onClick={() => scrollByStep(-1)} />
+      )}
+      {hovered && !scrollState.atEnd && (
+        <ScrollArrow direction="right" onClick={() => scrollByStep(1)} />
+      )}
+    </div>
+  );
+}
+
+function ScrollArrow({ direction, onClick }: { direction: 'left' | 'right'; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        position: 'absolute',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        [direction]: 0,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        background: 'var(--background-b0-container, white)',
+        border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        zIndex: 3,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+      } as React.CSSProperties}
+    >
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="rgba(0,0,0,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {direction === 'left' ? <path d="M10 3L5 8l5 5" /> : <path d="M6 3l5 5-5 5" />}
+      </svg>
+    </button>
+  );
+}
+
+function FilterBar({
+  sort, onSortChange, selectedChips, onChipToggle, isMobile = false,
+}: {
+  sort: string;
+  onSortChange: (v: string) => void;
+  selectedChips: Set<CategoryChip>;
+  onChipToggle: (chip: CategoryChip) => void;
+  isMobile?: boolean;
+}) {
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sortOpen) return;
+    const close = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) setSortOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [sortOpen]);
+
+  const sortDropdown = (
+    <div ref={sortRef} style={{ position: 'relative', flexShrink: 0 }}>
+      <button
+        onClick={() => setSortOpen((o) => !o)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          width: 100,
+          padding: '4px 8px',
+          height: 28,
+          borderRadius: 6,
+          border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
+          background: 'transparent',
+          cursor: 'pointer',
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 12,
+          lineHeight: '20px',
+          letterSpacing: 0.12,
+          color: 'var(--text-n9, rgba(0,0,0,0.9))',
+        }}
+      >
+        <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sort}</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="rgba(0,0,0,0.7)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {sortOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 32,
+            left: 0,
+            width: 120,
+            background: 'white',
+            border: '1px solid var(--line-l07, rgba(0,0,0,0.07))',
+            borderRadius: 8,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+            padding: 4,
+            zIndex: 10,
+          }}
+        >
+          {CATEGORIES.map((opt) => (
+            <button
+              key={opt}
+              onClick={() => { onSortChange(opt); setSortOpen(false); }}
+              style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
+                padding: '6px 8px',
+                borderRadius: 4,
+                background: opt === sort ? 'var(--b-r05, rgba(0,0,0,0.05))' : 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: "'Delight', sans-serif",
+                fontSize: 12,
+                lineHeight: '20px',
+                color: 'var(--text-n9, rgba(0,0,0,0.9))',
+              }}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const [rightClipped, setRightClipped] = useState(false);
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        paddingTop: isMobile ? 4 : 12,
+        width: '100%',
+      }}
+    >
+      <ChipStrip
+        selectedChips={selectedChips}
+        onChipToggle={onChipToggle}
+        onClippedRightChange={setRightClipped}
+      />
+      {rightClipped && (
+        <div style={{ width: 1, height: 16, background: 'var(--line-l07, rgba(0,0,0,0.07))', flexShrink: 0 }} />
+      )}
+      {sortDropdown}
     </div>
   );
 }
 
 /* ========== 页面 ========== */
 
-/**
- * Mobile breakpoint mirrors NewChat's (`MOBILE_THRESHOLD_PX = 640`). Below
- * 640px the page collapses to a single-column experience: smaller paddings,
- * 2-column playbook grid, horizontally-scrollable tabs, and a stacked hero.
- */
 const MOBILE_THRESHOLD_PX = 640;
 
 function useIsMobile(threshold = MOBILE_THRESHOLD_PX): boolean {
@@ -1450,27 +1218,49 @@ function useIsMobile(threshold = MOBILE_THRESHOLD_PX): boolean {
   return isMobile;
 }
 
-export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
-  const [activeTab, setActiveTab] = useState('Popular');
-  const [templateFilter, setTemplateFilter] = useState<TemplateFilter>('Trendings');
-  const isMobile = useIsMobile();
+function useContainerWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    if (!ref.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) setW(e.contentRect.width);
+    });
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
 
-  // Filter the ordered playbook list by the selected template. "Others" is
-  // a UI category for future / non-defined templates and currently matches
-  // no playbooks (empty list); "All Templates" disables filtering.
+export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (page: Page) => void; onOpenSearch?: () => void }) {
+  const [sort, setSort] = useState<string>('Popular');
+  const [selectedChips, setSelectedChips] = useState<Set<CategoryChip>>(() => new Set());
+  const isMobile = useIsMobile();
+  const [gridRef, gridContainerWidth] = useContainerWidth();
+
+  const toggleChip = (chip: CategoryChip) => {
+    setSelectedChips((prev) => {
+      const next = new Set(prev);
+      if (next.has(chip)) next.delete(chip);
+      else next.add(chip);
+      return next;
+    });
+  };
+
+  // Multi-select chip filter: a playbook passes when it matches ANY selected
+  // chip. No selection → show everything. Sort is currently a UI label only —
+  // 'Popular' keeps the curated DISPLAY_ORDER; 'Recent' reverses it so the
+  // newest-feeling items lead.
   const filteredPlaybooks = useMemo(() => {
-    if (templateFilter === 'Trendings') return PLAYBOOKS_ORDERED;
-    // 'Others' now subsumes the previous 'General' bucket — anything that's
-    // not a screener/thesis/what-if maps here.
-    if (templateFilter === 'Others') {
-      return PLAYBOOKS_ORDERED.filter((p) => p.cover.template === 'general');
-    }
-    const target =
-      templateFilter === 'Screener' ? 'screener' :
-      templateFilter === 'Thesis'   ? 'thesis'   :
-      'what-if';
-    return PLAYBOOKS_ORDERED.filter((p) => p.cover.template === target);
-  }, [templateFilter]);
+    const base = sort === 'Recent' ? [...PLAYBOOKS_ORDERED].reverse() : PLAYBOOKS_ORDERED;
+    if (selectedChips.size === 0) return base;
+    return base.filter((p) => {
+      for (const chip of selectedChips) {
+        if (chipMatchesPlaybook(chip, p)) return true;
+      }
+      return false;
+    });
+  }, [sort, selectedChips]);
 
   // Hero carousel features alva.ai/explore positions 10–16 (curated via
   // HERO_ORDER) — the top 9 already lead the grid below, so the carousel
@@ -1515,8 +1305,8 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
           style={{
             paddingTop: isMobile ? 32 : 72,
             paddingBottom: isMobile ? 32 : 60,
-            paddingLeft: isMobile ? 16 : 40,
-            paddingRight: isMobile ? 16 : 40,
+            paddingLeft: isMobile ? 16 : 28,
+            paddingRight: isMobile ? 16 : 28,
           }}
         >
           <div className="w-full flex flex-col" style={{ gap: isMobile ? 16 : 24 }}>
@@ -1531,32 +1321,43 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
             >
               Explore
             </h2>
-            <HeroCarousel playbooks={heroPlaybooks} isMobile={isMobile} />
-            <TrendingsHeader
-              active={activeTab}
-              onChange={setActiveTab}
-              templateFilter={templateFilter}
-              onTemplateChange={setTemplateFilter}
+            {/* Hero is full-bleed: it breaks out of the page's 40-px (or 16
+                on mobile) horizontal padding so peek slivers extend to the
+                page edges per Figma 3297:18875. */}
+            <div style={{ marginLeft: isMobile ? -16 : -28, marginRight: isMobile ? -16 : -28 }}>
+              <HeroCarousel playbooks={heroPlaybooks} isMobile={isMobile} />
+            </div>
+            <FilterBar
+              sort={sort}
+              onSortChange={setSort}
+              selectedChips={selectedChips}
+              onChipToggle={toggleChip}
               isMobile={isMobile}
             />
             <div
+              ref={gridRef}
               style={{
-                display: 'grid',
-                // Width logic per Figma Alva-Library node 29305:11868: cards
-                // have a 328px floor and otherwise FILL the row. `auto-fill +
-                // minmax(328px, 1fr)` is the CSS equivalent of the spec's
-                // `N = ⌊(W + 12) / 340⌋` formula — column count steps purely
-                // from container width with no JS needed; near each
-                // breakpoint cards swell to ~440 then snap back to 328 once
-                // the next column fits.
-                // `min(100%, 328px)` keeps the floor from overflowing on
-                // narrow phones (<328 viewport): the column shrinks to fit
-                // when there's only 1 column anyway, and snaps back to the
-                // 328 floor as soon as the container can hold it.
-                gridTemplateColumns:
-                  'repeat(auto-fill, minmax(min(100%, 328px), 1fr))',
-                gap: isMobile ? 8 : 12,
-                width: '100%',
+                // Per Figma 4244:19977: N = ⌊(W + 12) / 340⌋,
+                // cardW = min(400, (W − 12·(N−1)) / N).
+                // CSS `auto-fill + minmax()` doesn't follow this exactly —
+                // browsers fit fewer tracks once a max-cap is added — so we
+                // compute the column count and card width in JS and emit
+                // explicit pixel tracks.
+                ...(() => {
+                  const W = Math.max(0, gridContainerWidth);
+                  if (W === 0) return { display: 'grid', gap: 12, width: '100%' };
+                  // Column count still follows Figma 4244:19977 (N = ⌊(W+12)/340⌋),
+                  // but the per-card min/max clamps have been removed — each
+                  // card just splits the row evenly with no floor or cap, so
+                  // the grid is fluid and there's no leftover padding band.
+                  const N = Math.max(1, Math.floor((W + 12) / 340));
+                  return {
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))`,
+                    gap: 12,
+                    width: '100%',
+                  } as const;
+                })(),
               }}
             >
               {filteredPlaybooks.map((pb, i) => (

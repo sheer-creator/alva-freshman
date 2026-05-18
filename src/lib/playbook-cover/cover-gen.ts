@@ -378,16 +378,11 @@ export function validatePortrait(input: CoverInput): void {
 
 type IconGeom = { x: number; y: number; size: number };
 function iconGeometryFor(template: Template): IconGeom {
-  // What-if: frame at (237, 15) intentionally overflows safe-zone top-left.
-  // Material Symbols / brand 80%-inset SVGs both have ~5px internal padding,
-  // so the *visible* glyph's top-right lands at (296, 20) — exactly at the
-  // safe-zone corner. Aligning the FRAME to (232, 28) leaves the visible
-  // glyph 5–6 px indented from the corner — the bug the user reported.
-  // What-if frame at (240, 12) — visible glyph floats past safe-zone
-  // top-right by ~5 px, reading as decisively corner-anchored. Frame
-  // right x=304 still inside cover (320).
-  if (template === "what-if") return { x: 240, y: 12, size: 64 };
-  return { x: 192, y: 22, size: 100 };
+  // Single source of truth lives in dimensions.ts so the canvas-resize
+  // recalibration (sizes scaled by 180/140 to match the new 16:9 cover)
+  // doesn't have to be re-applied here.
+  if (template === "what-if") return { ...WHATIF_ICON_GEOM };
+  return { ...DEFAULT_ICON_GEOM };
 }
 
 // ================================================================
@@ -416,7 +411,7 @@ function buildScreenerContent(input: CoverInput, locale: Locale, text: TextPalet
     {
       kind: "peer-chips",
       tickers: peers,
-      x: 28, y: 100,
+      x: 28, y: 140,
       chipHeight: 20,
       chipPaddingX: 8,
       chipGap: 4,
@@ -426,7 +421,7 @@ function buildScreenerContent(input: CoverInput, locale: Locale, text: TextPalet
       chipBorderRadius: 4,
       chipBg:        { color: text.base, opacity: 0.10 },
       chipTextColor: text.support,                            // textBase @ 0.70
-      textBaselineY: 110,
+      textBaselineY: 150,
     },
   ];
 }
@@ -450,14 +445,14 @@ function buildThesisContent(input: CoverInput, locale: Locale, text: TextPalette
       text: splitDelta(input.kind ?? "", locale),
       category,
       categoryLabel: localizeCategory(category, locale),     // ← pre-resolved per locale
-      x: 28, y: 72,
+      x: 28, y: 112,
       fontSize: 18,
       lineHeight: 22,
       fontWeight: FONT_WEIGHTS.semiBold,
       letterSpacing: 0,
       bodyColor: text.hero,
       categoryX: 28,
-      categoryY: 60,
+      categoryY: 100,
       categoryFontSize: 10,
       categoryFontWeight: FONT_WEIGHTS.semiBold,
       categoryLetterSpacing: cjk ? 0 : TRACKED_CAPS,
@@ -559,10 +554,10 @@ function buildWhatIfContent(input: CoverInput, bgHsl: HSL, locale: Locale, text:
     { kind: "label",    text: input.series ?? labels.whatIfLabel, x: 28, y: 20,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
-    { kind: "verb",     text: input.kind   ?? "", x: 28, y: 64,
+    { kind: "verb",     text: input.kind   ?? "", x: 28, y: 104,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
-    { kind: "hero-pct", text: input.anchor ?? "", x: 28, y: 80,
+    { kind: "hero-pct", text: input.anchor ?? "", x: 28, y: 120,
       fontSize: 40, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
     {
       kind: "bars",
@@ -587,13 +582,13 @@ function buildWhatIfContent(input: CoverInput, bgHsl: HSL, locale: Locale, text:
  * tallest negative bar's bottom touches the safe-zone bottom (y=120).
  */
 function computeWhatIfBars(values: number[], bgHsl: HSL): { bars: BarSpec[]; zeroLineY: number } {
-  if (!values.length) return { bars: [], zeroLineY: 112 };
+  if (!values.length) return { bars: [], zeroLineY: 152 };
   const N        = values.length;
   const w        = (BARS_RIGHT - BARS_LEFT - BAR_GAP * (N - 1)) / N;
   const maxAbs   = Math.max(...values.map(v => Math.abs(v)), 0.0001);
   const heights  = values.map(v => Math.max(Math.abs(v) * (28 / maxAbs), 4));
   const maxNegH  = values.reduce((a, v, i) => v < 0 ? Math.max(a, heights[i]!) : a, 0);
-  const zeroLineY = 120 - maxNegH;
+  const zeroLineY = 160 - maxNegH;
   const bars: BarSpec[] = values.map((v, i) => {
     const isPos = v >= 0;
     return {
@@ -615,9 +610,9 @@ function buildGeneralContent(input: CoverInput, locale: Locale): ContentElement[
     { kind: "label",      text: input.kind   ?? labels.generalKind, x: 28, y: 24,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
-    { kind: "hero-pulse", text: input.anchor ?? "", x: 28, y: 66,
+    { kind: "hero-pulse", text: input.anchor ?? "", x: 28, y: 106,
       fontSize: 28, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
-    { kind: "series",     text: input.series ?? "", x: 28, y: 106,
+    { kind: "series",     text: input.series ?? "", x: 28, y: 146,
       fontSize: 10, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "support" },
   ];

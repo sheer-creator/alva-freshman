@@ -42,6 +42,25 @@ export function PlaybookCover({
   const gradId = `${uid}-bg`;
   const portrait = bg.portraitRender;
 
+  // Live cover override — when the input ships a `coverImageUrl`, swap the
+  // generated SVG for the actual screenshot. Hooks above still run so React
+  // sees a stable call order.
+  if (rawInput.coverImageUrl) {
+    return (
+      <img
+        src={rawInput.coverImageUrl}
+        alt=""
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          objectFit: 'cover',
+          objectPosition: 'center top',
+        }}
+      />
+    );
+  }
+
   return (
     <svg
       viewBox={`0 0 ${COVER_W} ${COVER_H}`}

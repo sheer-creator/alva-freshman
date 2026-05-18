@@ -3,8 +3,11 @@
 
 // ---------- Cover canvas ----------
 
+// 16:9 canvas (1280×720 export → 320×180 design). Direction D anchors:
+// header + watermark are top-anchored; hero, chips, delta, support are
+// bottom-anchored. Resizing the canvas only changes the middle empty gap.
 export const COVER_W = 320;
-export const COVER_H = 140;
+export const COVER_H = 180;
 
 // ---------- Card frame ----------
 
@@ -19,9 +22,9 @@ export const COVER_RADIUS  = 8;
 export const SAFE_LEFT   = 28;
 export const SAFE_RIGHT  = 292;
 export const SAFE_TOP    = 20;
-export const SAFE_BOTTOM = 120;
+export const SAFE_BOTTOM = 160;
 export const SAFE_W      = SAFE_RIGHT - SAFE_LEFT;     // 264
-export const SAFE_H      = SAFE_BOTTOM - SAFE_TOP;     // 100
+export const SAFE_H      = SAFE_BOTTOM - SAFE_TOP;     // 140
 
 // ---------- Distribution-bars zone (what-if only) ----------
 
@@ -54,8 +57,13 @@ export const TYPE_FLOORS = {
 
 // ---------- Cover icon placement ----------
 
-export const DEFAULT_ICON_GEOM = { x: 192, y: 22, size: 100 } as const;
-export const WHATIF_ICON_GEOM  = { x: 240, y: 12, size: 64  } as const;
+// Calibrated for the 16:9 canvas (COVER_H=180). The watermark icon is
+// vertically centred and right-aligned (BTC-orb style), occupying the
+// right half of the cover. x derived so the right edge sits at SAFE_RIGHT
+// (292); y derived so the icon's vertical centre matches the canvas centre
+// (90), i.e. y = (180 − size) / 2.
+export const DEFAULT_ICON_GEOM = { x: 164, y: 26, size: 128 } as const;
+export const WHATIF_ICON_GEOM  = { x: 210, y: 49, size: 82  } as const;
 
 // ---------- Theme tokens (canonical exports) ----------
 //
