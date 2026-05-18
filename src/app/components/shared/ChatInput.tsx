@@ -5,6 +5,7 @@ import { CdnIcon } from './CdnIcon';
 import { Avatar } from './Avatar';
 import { Tooltip } from './Tooltip';
 import type { ContextTagData } from '@/lib/chat-config';
+import { AVATAR_COLOR_PALETTE, CREATOR_AVATARS } from '@/lib/chart-theme';
 import { useChatContext } from '../chat/ChatContext';
 
 export interface BottomChipData {
@@ -33,6 +34,7 @@ interface ChatInputProps {
 }
 
 type PickerKind = 'mention' | 'skill';
+type PickerAnchorMode = 'toolbar' | 'caret';
 type PickerItemType = 'portfolio' | 'playbook' | 'session' | 'skill';
 
 interface PickerPosition {
@@ -101,6 +103,11 @@ interface ChatPickerItem {
 const PREVIEW_WIDTH = 480;
 const PICKER_GAP = 8;
 const PREVIEW_GAP = 8;
+const ICON_CDN = 'https://alva-ai-static.b-cdn.net/icons';
+const PICKER_HEIGHT: Record<PickerKind, number> = {
+  mention: 340,
+  skill: 264,
+};
 
 const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
   {
@@ -404,6 +411,151 @@ function SocialDot({ type }: { type: 'discord' | 'telegram' | 'x' }) {
   );
 }
 
+function parseAuthoredLabel(label: string): { title: string; author?: string } {
+  const match = label.match(/^@([^/]+)\/(.+)$/);
+  if (!match) return { title: label };
+  return { title: match[2], author: match[1] };
+}
+
+function getPickerRowMeta(item: ChatPickerItem): { title: string; author?: string } {
+  const parsed = parseAuthoredLabel(item.label);
+  if (parsed.author) return parsed;
+  if (item.preview.kind === 'skill') return { title: item.label, author: item.preview.creator };
+  if (item.preview.kind === 'playbook') return { title: item.label, author: item.preview.creator };
+  return { title: item.label };
+}
+
+function getInlineMentionIcon(item: ChatPickerItem): string {
+  if (item.type === 'playbook') return item.icon || 'sidebar-dashboard-normal';
+  if (item.type === 'session') return item.icon || 'sidebar-thread-normal';
+  if (item.type === 'portfolio') return item.icon || 'wallet-l';
+  return item.icon || 'skill-l';
+}
+
+function createInlineAvatarNode(name: string, size = 18): HTMLElement {
+  const src = CREATOR_AVATARS[name];
+  if (src) {
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = name;
+    Object.assign(image.style, {
+      display: 'block',
+      width: `${size}px`,
+      height: `${size}px`,
+      minWidth: `${size}px`,
+      minHeight: `${size}px`,
+      borderRadius: '50%',
+      objectFit: 'cover',
+      flexShrink: '0',
+      background: '#f0f0f0',
+    });
+    return image;
+  }
+
+  const avatar = document.createElement('span');
+  const initial = name.trim().charAt(0).toUpperCase();
+  const sum = [...name].reduce((total, char) => total + char.charCodeAt(0), 0);
+  const color = AVATAR_COLOR_PALETTE[sum % AVATAR_COLOR_PALETTE.length];
+  Object.assign(avatar.style, {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: `${size}px`,
+    height: `${size}px`,
+    minWidth: `${size}px`,
+    minHeight: `${size}px`,
+    borderRadius: '50%',
+    flexShrink: '0',
+    background: color,
+    color: '#fff',
+    fontFamily: "'Delight', sans-serif",
+    fontSize: `${size * 0.44}px`,
+    lineHeight: '1',
+  });
+  avatar.textContent = initial;
+  return avatar;
+}
+
+function createInlineMentionNode(item: ChatPickerItem): HTMLElement {
+  const meta = getPickerRowMeta(item);
+  const token = document.createElement('span');
+  token.contentEditable = 'false';
+  token.dataset.chatInlineToken = 'true';
+  token.dataset.itemId = item.id;
+  token.dataset.itemType = item.type;
+  token.dataset.label = item.label;
+  token.setAttribute('role', 'button');
+  token.setAttribute('aria-label', meta.title);
+  Object.assign(token.style, {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    maxWidth: '216px',
+    padding: '1px 6px 1px 2px',
+    borderRadius: 'var(--radius-ct-min, 2px)',
+    background: 'rgba(73,163,166,0.05)',
+    verticalAlign: '-4px',
+    lineHeight: '20px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+  });
+
+  const leadingVisual = item.type === 'skill' && item.avatar
+    ? createInlineAvatarNode(item.avatar, 18)
+    : document.createElement('span');
+
+  if (!(item.type === 'skill' && item.avatar)) {
+    Object.assign(leadingVisual.style, {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '18px',
+      height: '18px',
+      flexShrink: '0',
+      borderRadius: '2px',
+      background: 'var(--main-m1, #49a3a6)',
+    });
+
+    const icon = document.createElement('span');
+    const iconUrl = `${ICON_CDN}/${getInlineMentionIcon(item)}.svg`;
+    Object.assign(icon.style, {
+      display: 'block',
+      width: '14px',
+      height: '14px',
+      backgroundColor: '#fff',
+      WebkitMaskImage: `url(${iconUrl})`,
+      WebkitMaskSize: 'contain',
+      WebkitMaskRepeat: 'no-repeat',
+      WebkitMaskPosition: 'center',
+      maskImage: `url(${iconUrl})`,
+      maskSize: 'contain',
+      maskRepeat: 'no-repeat',
+      maskPosition: 'center',
+    });
+    leadingVisual.appendChild(icon);
+  }
+
+  const label = document.createElement('span');
+  label.textContent = meta.title;
+  Object.assign(label.style, {
+    display: 'inline-block',
+    maxWidth: item.type === 'session' ? '184px' : '184px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    color: 'var(--main-m1, #49a3a6)',
+    fontFamily: "'Delight', sans-serif",
+    fontSize: '12px',
+    fontWeight: '400',
+    lineHeight: '20px',
+    letterSpacing: '0.12px',
+    whiteSpace: 'nowrap',
+  });
+
+  token.appendChild(leadingVisual);
+  token.appendChild(label);
+  return token;
+}
+
 function ChatPickerDropdown({
   pickerRef,
   kind,
@@ -431,7 +583,7 @@ function ChatPickerDropdown({
         left: position.left,
         top: position.top,
         width: position.width,
-        height: kind === 'mention' ? 340 : 232,
+        height: PICKER_HEIGHT[kind],
         padding: '8px 0',
         background: 'var(--b0-container, #fff)',
         border: '0.5px solid var(--line-l2)',
@@ -439,8 +591,17 @@ function ChatPickerDropdown({
       }}
       onMouseLeave={onLeave}
     >
+      {kind === 'skill' && (
+        <div
+          className="px-[16px] pb-[6px] pt-[2px] font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+          style={{ color: 'var(--text-n5)' }}
+        >
+          Skill Hub
+        </div>
+      )}
       {items.map((item) => {
         const isSelected = kind === 'skill' && selectedId === item.id;
+        const rowMeta = getPickerRowMeta(item);
         return (
           <button
             key={item.id}
@@ -467,8 +628,16 @@ function ChatPickerDropdown({
               className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
               style={{ color: isSelected ? 'var(--main-m1)' : 'var(--text-n9)' }}
             >
-              {item.label}
+              {rowMeta.title}
             </span>
+            {rowMeta.author && (
+              <span
+                className="ml-auto max-w-[112px] shrink-0 truncate text-right font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+                style={{ color: 'var(--text-n5)' }}
+              >
+                {rowMeta.author}
+              </span>
+            )}
           </button>
         );
       })}
@@ -636,7 +805,7 @@ function ChatPickerPreview({
   );
 }
 
-export function ChatInput({ placeholder = 'Build an investing playbook from your ideas', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector }: ChatInputProps) {
+export function ChatInput({ placeholder = 'Plan, Build, @ for context, / for Alva skill hub', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector }: ChatInputProps) {
   const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes } = useChatContext();
   const [hasText, setHasText] = useState(false);
   const [quoteHover, setQuoteHover] = useState(false);
@@ -644,6 +813,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
   const [chipPulse, setChipPulse] = useState(false);
   const [tagDismissed, setTagDismissed] = useState(false);
   const [activePicker, setActivePicker] = useState<PickerKind | null>(null);
+  const [pickerAnchorMode, setPickerAnchorMode] = useState<PickerAnchorMode>('toolbar');
   const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null);
   const [hoveredPickerItem, setHoveredPickerItem] = useState<ChatPickerItem | null>(null);
   const [previewPosition, setPreviewPosition] = useState<PreviewPosition | null>(null);
@@ -695,12 +865,6 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     return editorRef.current.textContent?.replace(/\u200B/g, '').trim() || '';
   }, []);
 
-  const handleInput = useCallback(() => {
-    const text = getTextContent();
-    setHasText(!!text);
-    onInputChange?.(text);
-  }, [getTextContent, onInputChange]);
-
   const placeCursorAtEnd = useCallback(() => {
     const el = editorRef.current;
     if (!el) return;
@@ -713,23 +877,147 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     sel.addRange(range);
   }, []);
 
-  const updatePickerPosition = useCallback((kind: PickerKind = activePicker || 'mention') => {
+  const getCaretRect = useCallback((): DOMRect | null => {
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    if (!editor || !selection || selection.rangeCount === 0) return null;
+    const range = selection.getRangeAt(0);
+    if (!editor.contains(range.commonAncestorContainer)) return null;
+
+    const collapsed = range.cloneRange();
+    collapsed.collapse(false);
+    const rect = collapsed.getClientRects()[0] ?? collapsed.getBoundingClientRect();
+    if (rect && (rect.width || rect.height)) return rect;
+    return editor.getBoundingClientRect();
+  }, []);
+
+  const getTextBeforeCaret = useCallback(() => {
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    if (!editor || !selection || selection.rangeCount === 0) return '';
+    const range = selection.getRangeAt(0);
+    if (!editor.contains(range.commonAncestorContainer)) return '';
+
+    const before = range.cloneRange();
+    before.selectNodeContents(editor);
+    before.setEnd(range.endContainer, range.endOffset);
+    return before.toString().replace(/\u200B/g, '');
+  }, []);
+
+  const createRangeFromTextOffsets = useCallback((start: number, end: number) => {
+    const editor = editorRef.current;
+    if (!editor) return null;
+
+    const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    let current = 0;
+    let startSet = false;
+    let endSet = false;
+    let node = walker.nextNode() as Text | null;
+
+    while (node) {
+      const next = current + node.data.length;
+      if (!startSet && start <= next) {
+        range.setStart(node, Math.max(0, start - current));
+        startSet = true;
+      }
+      if (!endSet && end <= next) {
+        range.setEnd(node, Math.max(0, end - current));
+        endSet = true;
+        break;
+      }
+      current = next;
+      node = walker.nextNode() as Text | null;
+    }
+
+    if (!startSet || !endSet) return null;
+    return range;
+  }, []);
+
+  const findActiveTriggerRange = useCallback((kind: PickerKind) => {
+    const beforeCaret = getTextBeforeCaret();
+    const pattern = kind === 'mention' ? /(^|\s)@[^@\s/]*$/ : /(^|\s)\/[^@\s/]*$/;
+    const match = beforeCaret.match(pattern);
+    if (!match || match.index === undefined) return null;
+    const start = match.index + match[1].length;
+    const end = beforeCaret.length;
+    return createRangeFromTextOffsets(start, end);
+  }, [createRangeFromTextOffsets, getTextBeforeCaret]);
+
+  const insertInlineTokenFromCaret = useCallback((kind: PickerKind, item: ChatPickerItem) => {
+    const range = findActiveTriggerRange(kind);
+    const editor = editorRef.current;
+    if (!range || !editor) return false;
+
+    range.deleteContents();
+    const token = createInlineMentionNode(item);
+    const trailingSpace = document.createTextNode(' ');
+    range.insertNode(trailingSpace);
+    range.insertNode(token);
+
+    const afterToken = document.createRange();
+    afterToken.setStartAfter(trailingSpace);
+    afterToken.collapse(true);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(afterToken);
+
+    const text = getTextContent();
+    setHasText(!!text);
+    onInputChange?.(text);
+    return true;
+  }, [findActiveTriggerRange, getTextContent, onInputChange]);
+
+  const updatePickerPosition = useCallback((kind: PickerKind = activePicker || 'mention', anchorMode: PickerAnchorMode = pickerAnchorMode) => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
     const wrapperRect = wrapper.getBoundingClientRect();
     const triggerRect = (kind === 'mention' ? mentionButtonRef.current : skillButtonRef.current)?.getBoundingClientRect();
+    const caretRect = anchorMode === 'caret' ? getCaretRect() : null;
     const width = Math.min(wrapperRect.width, window.innerWidth - 16);
-    let left = wrapperRect.left;
+    let left = caretRect ? caretRect.left : wrapperRect.left;
     left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
 
-    const height = kind === 'mention' ? 340 : 232;
-    let top = (triggerRect?.top ?? wrapperRect.top) - height - PICKER_GAP;
-    if (top < 8) top = Math.min((triggerRect?.bottom ?? wrapperRect.bottom) + PICKER_GAP, window.innerHeight - height - 8);
+    const height = PICKER_HEIGHT[kind];
+    const anchorTop = caretRect?.top ?? triggerRect?.top ?? wrapperRect.top;
+    const anchorBottom = caretRect?.bottom ?? triggerRect?.bottom ?? wrapperRect.bottom;
+    let top = anchorTop - height - PICKER_GAP;
+    if (top < 8) top = Math.min(anchorBottom + PICKER_GAP, window.innerHeight - height - 8);
     top = Math.max(8, Math.min(top, window.innerHeight - height - 8));
 
     setPickerPosition({ left, top, width });
-  }, [activePicker]);
+  }, [activePicker, getCaretRect, pickerAnchorMode]);
+
+  const openPickerFromCaret = useCallback((kind: PickerKind) => {
+    setPickerAnchorMode('caret');
+    setActivePicker(kind);
+    setHoveredPickerItem(null);
+    setPreviewPosition(null);
+    requestAnimationFrame(() => updatePickerPosition(kind, 'caret'));
+  }, [updatePickerPosition]);
+
+  const handleInput = useCallback(() => {
+    const text = getTextContent();
+    setHasText(!!text);
+    onInputChange?.(text);
+
+    const beforeCaret = getTextBeforeCaret();
+    const triggerMatch = beforeCaret.match(/(?:^|\s)([@/])[^@\s/]*$/);
+    if (triggerMatch?.[1] === '@') {
+      openPickerFromCaret('mention');
+      return;
+    }
+    if (triggerMatch?.[1] === '/' && !hideSkill) {
+      openPickerFromCaret('skill');
+      return;
+    }
+    if (pickerAnchorMode === 'caret') {
+      setActivePicker(null);
+      setHoveredPickerItem(null);
+      setPreviewPosition(null);
+    }
+  }, [getTextBeforeCaret, getTextContent, hideSkill, onInputChange, openPickerFromCaret, pickerAnchorMode]);
 
   const cancelPreviewHide = useCallback(() => {
     if (previewHideTimer.current) {
@@ -755,9 +1043,10 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
 
   const togglePicker = useCallback((kind: PickerKind) => {
     cancelPreviewHide();
+    setPickerAnchorMode('toolbar');
     setActivePicker((current) => {
       const next = current === kind ? null : kind;
-      if (next) requestAnimationFrame(() => updatePickerPosition(next));
+      if (next) requestAnimationFrame(() => updatePickerPosition(next, 'toolbar'));
       return next;
     });
     setHoveredPickerItem(null);
@@ -772,6 +1061,12 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
 
   const selectPickerItem = useCallback((item: ChatPickerItem) => {
     if (activePicker === 'mention') {
+      if (pickerAnchorMode === 'caret') {
+        insertInlineTokenFromCaret('mention', item);
+        closePicker();
+        editorRef.current?.focus();
+        return;
+      }
       setSelectedMentionItems((items) => [...items, item]);
       closePicker();
       editorRef.current?.focus();
@@ -779,11 +1074,17 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
       return;
     }
 
+    if (pickerAnchorMode === 'caret') {
+      insertInlineTokenFromCaret('skill', item);
+      closePicker();
+      editorRef.current?.focus();
+      return;
+    }
     setSelectedSkillItem((current) => (current?.id === item.id ? null : item));
     closePicker();
     editorRef.current?.focus();
     requestAnimationFrame(() => placeCursorAtEnd());
-  }, [activePicker, closePicker, placeCursorAtEnd]);
+  }, [activePicker, closePicker, insertInlineTokenFromCaret, pickerAnchorMode, placeCursorAtEnd]);
 
   const handlePickerItemHover = useCallback((item: ChatPickerItem, rowRect: DOMRect) => {
     cancelPreviewHide();
