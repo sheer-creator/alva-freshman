@@ -1,4 +1,4 @@
-import{j as e}from"./index-RxqxpJwI.js";import{A as t}from"./AppShell-MxTcJ0WN.js";import{i as a}from"./inlinePlaybookHeader-C-q5vfkF.js";import"./referral-mock-DKJhP-m3.js";const i=`<!doctype html>
+import{j as e}from"./index-CV_eN5f_.js";import{A as t}from"./AppShell-CbVrUUYq.js";import{i as a}from"./inlinePlaybookHeader-C-q5vfkF.js";import"./referral-mock-DKJhP-m3.js";const i=`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -1156,12 +1156,6 @@ import{j as e}from"./index-RxqxpJwI.js";import{A as t}from"./AppShell-MxTcJ0WN.j
         <div class="tab-item" data-tab="analysis" data-text="Analysis">Analysis</div>
       </div>
       <div class="tab-right-group">
-        <button class="pb-meta-link pb-meta-link--readme tab-readme" type="button" data-modal-open="methodology-modal">
-          <span class="pb-meta-icon-badge" aria-hidden="true">
-            <img class="pb-meta-icon-img" src="https://alva-ai-static.b-cdn.net/icons/researcher-l1.svg" width="14" height="14" alt="" />
-          </span>
-          <span>README</span>
-        </button>
         <div class="filter-dropdown tab-snapshot" id="snap-filter" style="display:none;">
           <button type="button" class="filter-dropdown-trigger" id="snap-filter-trigger" aria-haspopup="listbox" aria-expanded="false">
             <span class="filter-dropdown-value" id="snap-filter-value">&mdash;</span>

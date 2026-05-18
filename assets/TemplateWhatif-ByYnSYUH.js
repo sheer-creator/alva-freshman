@@ -1,4 +1,4 @@
-import{j as e}from"./index-RxqxpJwI.js";import{A as n}from"./AppShell-MxTcJ0WN.js";import{i as a}from"./inlinePlaybookHeader-C-q5vfkF.js";import"./referral-mock-DKJhP-m3.js";const s=`<!DOCTYPE html>
+import{j as e}from"./index-CV_eN5f_.js";import{A as n}from"./AppShell-CbVrUUYq.js";import{i as a}from"./inlinePlaybookHeader-C-q5vfkF.js";import"./referral-mock-DKJhP-m3.js";const s=`<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -301,10 +301,6 @@ import{j as e}from"./index-RxqxpJwI.js";import{A as n}from"./AppShell-MxTcJ0WN.j
   <!-- ═══════════════ §1 Title + README chip ═══════════════ -->
   <div class="section-title">
     <span class="section-title-text">S&amp;P 500 After a Q1 2026 Earnings Beat — Quarter-to-Date What-If</span>
-    <button type="button" class="section-readme-btn" data-modal-open="methodology-modal" aria-label="Open README">
-      <span class="section-readme-icon" aria-hidden="true"></span>
-      <span>README</span>
-    </button>
   </div>
 
   <!-- ═══════════════ §2 Verdict hero ═══════════════ -->
