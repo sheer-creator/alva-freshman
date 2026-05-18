@@ -47,6 +47,15 @@ interface PreviewPosition {
   width: number;
 }
 
+interface PortfolioHolding {
+  symbol: string;
+  weight: string;
+  value: string;
+  pnl: string;
+  pnlPct: string;
+  pnlPositive: boolean;
+}
+
 type PickerPreviewData =
   | {
       kind: 'portfolio';
@@ -55,6 +64,7 @@ type PickerPreviewData =
       percent: string;
       range: string;
       account: string;
+      holdings: PortfolioHolding[];
     }
   | {
       kind: 'session';
@@ -85,6 +95,7 @@ interface ChatPickerItem {
   icon?: string;
   avatar?: string;
   preview: PickerPreviewData;
+  targetHash?: string;
 }
 
 const PREVIEW_WIDTH = 480;
@@ -98,6 +109,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'wallet-l',
     label: 'IBKR · U***6789 · Live',
     insertText: 'IBKR · U***6789 · Live',
+    targetHash: 'portfolio',
     preview: {
       kind: 'portfolio',
       value: '$8,223.06',
@@ -105,6 +117,13 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
       percent: '+1.25%',
       range: '1D',
       account: 'U***6789 · Live',
+      holdings: [
+        { symbol: 'AAPL', weight: '10.2%', value: '$10,301.83', pnl: '+$1,140.21', pnlPct: '+12.45%', pnlPositive: true },
+        { symbol: 'NVDA', weight: '9.4%', value: '$9,520.40', pnl: '+$2,032.55', pnlPct: '+27.13%', pnlPositive: true },
+        { symbol: 'MSFT', weight: '7.8%', value: '$7,896.10', pnl: '+$486.32', pnlPct: '+6.56%', pnlPositive: true },
+        { symbol: 'TSLA', weight: '6.5%', value: '$6,553.20', pnl: '-$312.84', pnlPct: '-4.55%', pnlPositive: false },
+        { symbol: 'AMZN', weight: '5.1%', value: '$5,144.05', pnl: '+$201.78', pnlPct: '+4.08%', pnlPositive: true },
+      ],
     },
   },
   {
@@ -113,6 +132,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-dashboard-normal',
     label: '@Sheer-X/Attribution Analysis Strategy for Price Trends',
     insertText: '@Sheer-X/Attribution Analysis Strategy for Price Trends',
+    targetHash: 'template-thesis',
     preview: {
       kind: 'playbook',
       title: 'CRCL Earnings Radar — FY26 Q1',
@@ -127,6 +147,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-dashboard-normal',
     label: '@Long-US/BTC Dip Mean-Reversion RSI Bollinger v2',
     insertText: '@Long-US/BTC Dip Mean-Reversion RSI Bollinger v2',
+    targetHash: 'template-whatif',
     preview: {
       kind: 'playbook',
       title: 'BTC Dip Mean-Reversion RSI Bollinger v2',
@@ -141,6 +162,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'wallet-l',
     label: 'Binance · U***6789 · Spot',
     insertText: 'Binance · U***6789 · Spot',
+    targetHash: 'portfolio',
     preview: {
       kind: 'portfolio',
       value: '$12,048.90',
@@ -148,6 +170,13 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
       percent: '+0.72%',
       range: '1D',
       account: 'U***6789 · Spot',
+      holdings: [
+        { symbol: 'BTC', weight: '38.6%', value: '$4,650.82', pnl: '+$612.40', pnlPct: '+15.16%', pnlPositive: true },
+        { symbol: 'ETH', weight: '22.4%', value: '$2,696.95', pnl: '+$184.21', pnlPct: '+7.33%', pnlPositive: true },
+        { symbol: 'SOL', weight: '11.8%', value: '$1,421.77', pnl: '+$203.55', pnlPct: '+16.71%', pnlPositive: true },
+        { symbol: 'LINK', weight: '6.2%', value: '$747.03', pnl: '-$42.18', pnlPct: '-5.34%', pnlPositive: false },
+        { symbol: 'USDT', weight: '4.0%', value: '$481.96', pnl: '+$0.02', pnlPct: '+0.00%', pnlPositive: true },
+      ],
     },
   },
   {
@@ -156,6 +185,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'TSLA Financial Trends and Charts Analysis',
     insertText: 'TSLA Financial Trends and Charts Analysis',
+    targetHash: 'thread/tsla-financial',
     preview: {
       kind: 'session',
       title: 'TSLA Financial Trends and Charts Analysis',
@@ -168,6 +198,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-dashboard-normal',
     label: '@Sheer-X/NVDA Price Fetcher',
     insertText: '@Sheer-X/NVDA Price Fetcher',
+    targetHash: 'template-screener',
     preview: {
       kind: 'playbook',
       title: 'NVDA Price Fetcher',
@@ -182,6 +213,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'US Treasury Yield and Bitcoin Correlation Analysis',
     insertText: 'US Treasury Yield and Bitcoin Correlation Analysis',
+    targetHash: 'thread/treasury-btc-1',
     preview: {
       kind: 'session',
       title: 'US Treasury Yield and Bitcoin Correlation Analysis',
@@ -194,6 +226,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'US Treasury Yield and Bitcoin Correlation Analysis',
     insertText: 'US Treasury Yield and Bitcoin Correlation Analysis',
+    targetHash: 'thread/treasury-btc-2',
     preview: {
       kind: 'session',
       title: 'US Treasury Yield and Bitcoin Correlation Analysis',
@@ -206,6 +239,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'US Treasury Yield and Bitcoin Correlation Analysis',
     insertText: 'US Treasury Yield and Bitcoin Correlation Analysis',
+    targetHash: 'thread/treasury-btc-3',
     preview: {
       kind: 'session',
       title: 'US Treasury Yield and Bitcoin Correlation Analysis',
@@ -311,7 +345,10 @@ const SKILL_PICKER_ITEMS: ChatPickerItem[] = [
 ];
 
 function previewHeightForItem(item: ChatPickerItem) {
-  if (item.preview.kind === 'portfolio') return 116;
+  if (item.preview.kind === 'portfolio') {
+    const rows = item.preview.holdings.length;
+    return 168 + 28 + rows * 28;
+  }
   if (item.preview.kind === 'session') return 120;
   if (item.preview.kind === 'playbook') return 204;
   return 246;
@@ -439,8 +476,23 @@ function ChatPickerDropdown({
   );
 }
 
-function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerItem; position: PreviewPosition; previewRef: RefObject<HTMLDivElement> }) {
+function ChatPickerPreview({
+  item,
+  position,
+  previewRef,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}: {
+  item: ChatPickerItem;
+  position: PreviewPosition;
+  previewRef: RefObject<HTMLDivElement>;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onClick: () => void;
+}) {
   const preview = item.preview;
+  const clickable = !!item.targetHash;
 
   return (
     <div
@@ -456,8 +508,11 @@ function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerIte
         boxShadow: 'var(--shadow-s)',
         fontFamily: "'Delight', sans-serif",
         color: 'var(--text-n9)',
-        cursor: 'pointer',
+        cursor: clickable ? 'pointer' : 'default',
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={clickable ? onClick : undefined}
     >
       {preview.kind === 'portfolio' && (
         <div className="flex flex-col gap-[16px]">
@@ -471,6 +526,35 @@ function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerIte
               <span style={{ color: 'var(--text-n5)' }}>{preview.range}</span>
             </div>
           </div>
+          <div className="flex flex-col gap-[2px]">
+            <div
+              className="grid items-center text-[12px] leading-[20px] tracking-[0.12px]"
+              style={{ gridTemplateColumns: '56px 56px minmax(0,1fr) minmax(0,1.6fr)', columnGap: 12, color: 'var(--text-n5)' }}
+            >
+              <span>Symbol</span>
+              <span className="text-right">Weight</span>
+              <span className="text-right">Value</span>
+              <span className="text-right">P&amp;L</span>
+            </div>
+            {preview.holdings.map((h) => (
+              <div
+                key={h.symbol}
+                className="grid items-center text-[13px] leading-[20px] tracking-[0.13px]"
+                style={{ gridTemplateColumns: '56px 56px minmax(0,1fr) minmax(0,1.6fr)', columnGap: 12, color: 'var(--text-n9)', height: 28, fontVariantNumeric: 'tabular-nums' }}
+              >
+                <span className="truncate font-medium">{h.symbol}</span>
+                <span className="text-right">{h.weight}</span>
+                <span className="text-right">{h.value}</span>
+                <span
+                  className="text-right truncate"
+                  style={{ color: h.pnlPositive ? 'var(--main-m3)' : 'var(--main-m4, #d04a52)' }}
+                >
+                  {h.pnl} <span style={{ opacity: 0.7 }}>({h.pnlPct})</span>
+                </span>
+              </div>
+            ))}
+          </div>
+          <div style={{ height: 0, borderTop: '0.5px solid var(--line-l07)' }} />
           <div className="flex h-[22px] items-center gap-[6px]">
             <PortfolioMark />
             <p className="m-0 min-w-0 flex-1 text-[14px] leading-[22px] tracking-[0.14px]">{preview.account}</p>
@@ -567,6 +651,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
   const [selectedSkillItem, setSelectedSkillItem] = useState<ChatPickerItem | null>(null);
   const prevQuoteCount = useRef(0);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previewHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -646,13 +731,30 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     setPickerPosition({ left, top, width });
   }, [activePicker]);
 
+  const cancelPreviewHide = useCallback(() => {
+    if (previewHideTimer.current) {
+      clearTimeout(previewHideTimer.current);
+      previewHideTimer.current = null;
+    }
+  }, []);
+
+  const schedulePreviewHide = useCallback(() => {
+    cancelPreviewHide();
+    previewHideTimer.current = setTimeout(() => {
+      setHoveredPickerItem(null);
+      setPreviewPosition(null);
+    }, 180);
+  }, [cancelPreviewHide]);
+
   const closePicker = useCallback(() => {
+    cancelPreviewHide();
     setActivePicker(null);
     setHoveredPickerItem(null);
     setPreviewPosition(null);
-  }, []);
+  }, [cancelPreviewHide]);
 
   const togglePicker = useCallback((kind: PickerKind) => {
+    cancelPreviewHide();
     setActivePicker((current) => {
       const next = current === kind ? null : kind;
       if (next) requestAnimationFrame(() => updatePickerPosition(next));
@@ -660,7 +762,13 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     });
     setHoveredPickerItem(null);
     setPreviewPosition(null);
-  }, [updatePickerPosition]);
+  }, [updatePickerPosition, cancelPreviewHide]);
+
+  const navigateToTarget = useCallback((item: ChatPickerItem) => {
+    if (!item.targetHash) return;
+    closePicker();
+    window.location.hash = item.targetHash;
+  }, [closePicker]);
 
   const selectPickerItem = useCallback((item: ChatPickerItem) => {
     if (activePicker === 'mention') {
@@ -678,6 +786,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
   }, [activePicker, closePicker, placeCursorAtEnd]);
 
   const handlePickerItemHover = useCallback((item: ChatPickerItem, rowRect: DOMRect) => {
+    cancelPreviewHide();
     if (!pickerPosition) return;
 
     const width = Math.min(PREVIEW_WIDTH, Math.max(280, window.innerWidth - 16));
@@ -693,7 +802,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
 
     setHoveredPickerItem(item);
     setPreviewPosition({ left, top, width });
-  }, [pickerPosition]);
+  }, [pickerPosition, cancelPreviewHide]);
 
   useEffect(() => {
     if (!activePicker) return;
@@ -1119,13 +1228,17 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             selectedId={activePicker === 'skill' ? selectedSkillItem?.id ?? null : null}
             onSelect={selectPickerItem}
             onItemHover={handlePickerItemHover}
-            onLeave={() => {
-              setHoveredPickerItem(null);
-              setPreviewPosition(null);
-            }}
+            onLeave={schedulePreviewHide}
           />
           {hoveredPickerItem && previewPosition && (
-            <ChatPickerPreview item={hoveredPickerItem} position={previewPosition} previewRef={previewRef} />
+            <ChatPickerPreview
+              item={hoveredPickerItem}
+              position={previewPosition}
+              previewRef={previewRef}
+              onMouseEnter={cancelPreviewHide}
+              onMouseLeave={schedulePreviewHide}
+              onClick={() => navigateToTarget(hoveredPickerItem)}
+            />
           )}
         </>,
         document.body,
