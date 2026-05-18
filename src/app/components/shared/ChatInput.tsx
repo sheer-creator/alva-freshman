@@ -1632,32 +1632,6 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
             </button>
           </Tooltip>
         )}
-        {bottomChip && (
-          <div
-            className="flex min-w-0 flex-1 items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
-            style={{ background: 'var(--b-r05)', maxWidth: 'fit-content' }}
-          >
-            {bottomChip.avatar ? (
-              <Avatar name={bottomChip.avatar} size={16} />
-            ) : (
-              bottomChip.icon && <CdnIcon name={bottomChip.icon} size={14} color="var(--text-n9)" />
-            )}
-            <span
-              className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
-              style={{ color: 'var(--text-n9)', minWidth: 0 }}
-            >
-              {bottomChip.label}
-            </span>
-            <button
-              type="button"
-              className="shrink-0 flex items-center justify-center size-[16px] rounded-full cursor-pointer hover:bg-black/10 transition-colors"
-              onClick={(e) => { e.stopPropagation(); bottomChip.onRemove?.(); }}
-              aria-label="Remove chip"
-            >
-              <CdnIcon name="close-l1" size={12} color="var(--text-n7)" />
-            </button>
-          </div>
-        )}
         <div className="relative ml-auto flex h-[28px] shrink-0 items-center justify-end">
           {modelMenuOpen && (
             <div
