@@ -5,6 +5,7 @@ import { CdnIcon } from './CdnIcon';
 import { Avatar } from './Avatar';
 import { Tooltip } from './Tooltip';
 import type { ContextTagData } from '@/lib/chat-config';
+import { AVATAR_COLOR_PALETTE, CREATOR_AVATARS } from '@/lib/chart-theme';
 import { useChatContext } from '../chat/ChatContext';
 
 export interface BottomChipData {
@@ -33,9 +34,12 @@ interface ChatInputProps {
   bottomChip?: BottomChipData | null;
   injectText?: InjectTextSignal | null;
   onInputChange?: (text: string) => void;
+  hideSkill?: boolean;
+  hideInspector?: boolean;
 }
 
 type PickerKind = 'mention' | 'skill';
+type PickerAnchorMode = 'toolbar' | 'caret';
 type PickerItemType = 'portfolio' | 'playbook' | 'session' | 'skill';
 
 interface PickerPosition {
@@ -50,6 +54,15 @@ interface PreviewPosition {
   width: number;
 }
 
+interface PortfolioHolding {
+  symbol: string;
+  weight: string;
+  value: string;
+  pnl: string;
+  pnlPct: string;
+  pnlPositive: boolean;
+}
+
 type PickerPreviewData =
   | {
       kind: 'portfolio';
@@ -58,6 +71,7 @@ type PickerPreviewData =
       percent: string;
       range: string;
       account: string;
+      holdings: PortfolioHolding[];
     }
   | {
       kind: 'session';
@@ -88,11 +102,17 @@ interface ChatPickerItem {
   icon?: string;
   avatar?: string;
   preview: PickerPreviewData;
+  targetHash?: string;
 }
 
 const PREVIEW_WIDTH = 480;
 const PICKER_GAP = 8;
 const PREVIEW_GAP = 8;
+const ICON_CDN = 'https://alva-ai-static.b-cdn.net/icons';
+const PICKER_HEIGHT: Record<PickerKind, number> = {
+  mention: 340,
+  skill: 264,
+};
 
 const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
   {
@@ -101,6 +121,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'wallet-l',
     label: 'IBKR · U***6789 · Live',
     insertText: 'IBKR · U***6789 · Live',
+    targetHash: 'portfolio',
     preview: {
       kind: 'portfolio',
       value: '$8,223.06',
@@ -108,6 +129,13 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
       percent: '+1.25%',
       range: '1D',
       account: 'U***6789 · Live',
+      holdings: [
+        { symbol: 'AAPL', weight: '10.2%', value: '$10,301.83', pnl: '+$1,140.21', pnlPct: '+12.45%', pnlPositive: true },
+        { symbol: 'NVDA', weight: '9.4%', value: '$9,520.40', pnl: '+$2,032.55', pnlPct: '+27.13%', pnlPositive: true },
+        { symbol: 'MSFT', weight: '7.8%', value: '$7,896.10', pnl: '+$486.32', pnlPct: '+6.56%', pnlPositive: true },
+        { symbol: 'TSLA', weight: '6.5%', value: '$6,553.20', pnl: '-$312.84', pnlPct: '-4.55%', pnlPositive: false },
+        { symbol: 'AMZN', weight: '5.1%', value: '$5,144.05', pnl: '+$201.78', pnlPct: '+4.08%', pnlPositive: true },
+      ],
     },
   },
   {
@@ -116,6 +144,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-dashboard-normal',
     label: '@Sheer-X/Attribution Analysis Strategy for Price Trends',
     insertText: '@Sheer-X/Attribution Analysis Strategy for Price Trends',
+    targetHash: 'template-thesis',
     preview: {
       kind: 'playbook',
       title: 'CRCL Earnings Radar — FY26 Q1',
@@ -130,6 +159,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-dashboard-normal',
     label: '@Long-US/BTC Dip Mean-Reversion RSI Bollinger v2',
     insertText: '@Long-US/BTC Dip Mean-Reversion RSI Bollinger v2',
+    targetHash: 'template-whatif',
     preview: {
       kind: 'playbook',
       title: 'BTC Dip Mean-Reversion RSI Bollinger v2',
@@ -144,6 +174,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'wallet-l',
     label: 'Binance · U***6789 · Spot',
     insertText: 'Binance · U***6789 · Spot',
+    targetHash: 'portfolio',
     preview: {
       kind: 'portfolio',
       value: '$12,048.90',
@@ -151,6 +182,13 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
       percent: '+0.72%',
       range: '1D',
       account: 'U***6789 · Spot',
+      holdings: [
+        { symbol: 'BTC', weight: '38.6%', value: '$4,650.82', pnl: '+$612.40', pnlPct: '+15.16%', pnlPositive: true },
+        { symbol: 'ETH', weight: '22.4%', value: '$2,696.95', pnl: '+$184.21', pnlPct: '+7.33%', pnlPositive: true },
+        { symbol: 'SOL', weight: '11.8%', value: '$1,421.77', pnl: '+$203.55', pnlPct: '+16.71%', pnlPositive: true },
+        { symbol: 'LINK', weight: '6.2%', value: '$747.03', pnl: '-$42.18', pnlPct: '-5.34%', pnlPositive: false },
+        { symbol: 'USDT', weight: '4.0%', value: '$481.96', pnl: '+$0.02', pnlPct: '+0.00%', pnlPositive: true },
+      ],
     },
   },
   {
@@ -159,6 +197,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'TSLA Financial Trends and Charts Analysis',
     insertText: 'TSLA Financial Trends and Charts Analysis',
+    targetHash: 'thread/tsla-financial',
     preview: {
       kind: 'session',
       title: 'TSLA Financial Trends and Charts Analysis',
@@ -171,6 +210,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-dashboard-normal',
     label: '@Sheer-X/NVDA Price Fetcher',
     insertText: '@Sheer-X/NVDA Price Fetcher',
+    targetHash: 'template-screener',
     preview: {
       kind: 'playbook',
       title: 'NVDA Price Fetcher',
@@ -185,6 +225,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'US Treasury Yield and Bitcoin Correlation Analysis',
     insertText: 'US Treasury Yield and Bitcoin Correlation Analysis',
+    targetHash: 'thread/treasury-btc-1',
     preview: {
       kind: 'session',
       title: 'US Treasury Yield and Bitcoin Correlation Analysis',
@@ -197,6 +238,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'US Treasury Yield and Bitcoin Correlation Analysis',
     insertText: 'US Treasury Yield and Bitcoin Correlation Analysis',
+    targetHash: 'thread/treasury-btc-2',
     preview: {
       kind: 'session',
       title: 'US Treasury Yield and Bitcoin Correlation Analysis',
@@ -209,6 +251,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-thread-normal',
     label: 'US Treasury Yield and Bitcoin Correlation Analysis',
     insertText: 'US Treasury Yield and Bitcoin Correlation Analysis',
+    targetHash: 'thread/treasury-btc-3',
     preview: {
       kind: 'session',
       title: 'US Treasury Yield and Bitcoin Correlation Analysis',
@@ -314,7 +357,10 @@ const SKILL_PICKER_ITEMS: ChatPickerItem[] = [
 ];
 
 function previewHeightForItem(item: ChatPickerItem) {
-  if (item.preview.kind === 'portfolio') return 116;
+  if (item.preview.kind === 'portfolio') {
+    const rows = item.preview.holdings.length;
+    return 168 + 28 + rows * 28;
+  }
   if (item.preview.kind === 'session') return 120;
   if (item.preview.kind === 'playbook') return 204;
   return 246;
@@ -370,6 +416,151 @@ function SocialDot({ type }: { type: 'discord' | 'telegram' | 'x' }) {
   );
 }
 
+function parseAuthoredLabel(label: string): { title: string; author?: string } {
+  const match = label.match(/^@([^/]+)\/(.+)$/);
+  if (!match) return { title: label };
+  return { title: match[2], author: match[1] };
+}
+
+function getPickerRowMeta(item: ChatPickerItem): { title: string; author?: string } {
+  const parsed = parseAuthoredLabel(item.label);
+  if (parsed.author) return parsed;
+  if (item.preview.kind === 'skill') return { title: item.label, author: item.preview.creator };
+  if (item.preview.kind === 'playbook') return { title: item.label, author: item.preview.creator };
+  return { title: item.label };
+}
+
+function getInlineMentionIcon(item: ChatPickerItem): string {
+  if (item.type === 'playbook') return item.icon || 'sidebar-dashboard-normal';
+  if (item.type === 'session') return item.icon || 'sidebar-thread-normal';
+  if (item.type === 'portfolio') return item.icon || 'wallet-l';
+  return item.icon || 'skill-l';
+}
+
+function createInlineAvatarNode(name: string, size = 18): HTMLElement {
+  const src = CREATOR_AVATARS[name];
+  if (src) {
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = name;
+    Object.assign(image.style, {
+      display: 'block',
+      width: `${size}px`,
+      height: `${size}px`,
+      minWidth: `${size}px`,
+      minHeight: `${size}px`,
+      borderRadius: '50%',
+      objectFit: 'cover',
+      flexShrink: '0',
+      background: '#f0f0f0',
+    });
+    return image;
+  }
+
+  const avatar = document.createElement('span');
+  const initial = name.trim().charAt(0).toUpperCase();
+  const sum = [...name].reduce((total, char) => total + char.charCodeAt(0), 0);
+  const color = AVATAR_COLOR_PALETTE[sum % AVATAR_COLOR_PALETTE.length];
+  Object.assign(avatar.style, {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: `${size}px`,
+    height: `${size}px`,
+    minWidth: `${size}px`,
+    minHeight: `${size}px`,
+    borderRadius: '50%',
+    flexShrink: '0',
+    background: color,
+    color: '#fff',
+    fontFamily: "'Delight', sans-serif",
+    fontSize: `${size * 0.44}px`,
+    lineHeight: '1',
+  });
+  avatar.textContent = initial;
+  return avatar;
+}
+
+function createInlineMentionNode(item: ChatPickerItem): HTMLElement {
+  const meta = getPickerRowMeta(item);
+  const token = document.createElement('span');
+  token.contentEditable = 'false';
+  token.dataset.chatInlineToken = 'true';
+  token.dataset.itemId = item.id;
+  token.dataset.itemType = item.type;
+  token.dataset.label = item.label;
+  token.setAttribute('role', 'button');
+  token.setAttribute('aria-label', meta.title);
+  Object.assign(token.style, {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    maxWidth: '216px',
+    padding: '1px 6px 1px 2px',
+    borderRadius: 'var(--radius-ct-min, 2px)',
+    background: 'rgba(73,163,166,0.05)',
+    verticalAlign: '-4px',
+    lineHeight: '20px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+  });
+
+  const leadingVisual = item.type === 'skill' && item.avatar
+    ? createInlineAvatarNode(item.avatar, 18)
+    : document.createElement('span');
+
+  if (!(item.type === 'skill' && item.avatar)) {
+    Object.assign(leadingVisual.style, {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '18px',
+      height: '18px',
+      flexShrink: '0',
+      borderRadius: '2px',
+      background: 'var(--main-m1, #49a3a6)',
+    });
+
+    const icon = document.createElement('span');
+    const iconUrl = `${ICON_CDN}/${getInlineMentionIcon(item)}.svg`;
+    Object.assign(icon.style, {
+      display: 'block',
+      width: '14px',
+      height: '14px',
+      backgroundColor: '#fff',
+      WebkitMaskImage: `url(${iconUrl})`,
+      WebkitMaskSize: 'contain',
+      WebkitMaskRepeat: 'no-repeat',
+      WebkitMaskPosition: 'center',
+      maskImage: `url(${iconUrl})`,
+      maskSize: 'contain',
+      maskRepeat: 'no-repeat',
+      maskPosition: 'center',
+    });
+    leadingVisual.appendChild(icon);
+  }
+
+  const label = document.createElement('span');
+  label.textContent = meta.title;
+  Object.assign(label.style, {
+    display: 'inline-block',
+    maxWidth: item.type === 'session' ? '184px' : '184px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    color: 'var(--main-m1, #49a3a6)',
+    fontFamily: "'Delight', sans-serif",
+    fontSize: '12px',
+    fontWeight: '400',
+    lineHeight: '20px',
+    letterSpacing: '0.12px',
+    whiteSpace: 'nowrap',
+  });
+
+  token.appendChild(leadingVisual);
+  token.appendChild(label);
+  return token;
+}
+
 function ChatPickerDropdown({
   pickerRef,
   kind,
@@ -397,7 +588,7 @@ function ChatPickerDropdown({
         left: position.left,
         top: position.top,
         width: position.width,
-        height: kind === 'mention' ? 340 : 232,
+        height: PICKER_HEIGHT[kind],
         padding: '8px 0',
         background: 'var(--b0-container, #fff)',
         border: '0.5px solid var(--line-l2)',
@@ -405,8 +596,17 @@ function ChatPickerDropdown({
       }}
       onMouseLeave={onLeave}
     >
+      {kind === 'skill' && (
+        <div
+          className="px-[16px] pb-[6px] pt-[2px] font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+          style={{ color: 'var(--text-n5)' }}
+        >
+          Skill Hub
+        </div>
+      )}
       {items.map((item) => {
         const isSelected = kind === 'skill' && selectedId === item.id;
+        const rowMeta = getPickerRowMeta(item);
         return (
           <button
             key={item.id}
@@ -433,8 +633,16 @@ function ChatPickerDropdown({
               className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
               style={{ color: isSelected ? 'var(--main-m1)' : 'var(--text-n9)' }}
             >
-              {item.label}
+              {rowMeta.title}
             </span>
+            {rowMeta.author && (
+              <span
+                className="ml-auto max-w-[112px] shrink-0 truncate text-right font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+                style={{ color: 'var(--text-n5)' }}
+              >
+                {rowMeta.author}
+              </span>
+            )}
           </button>
         );
       })}
@@ -442,8 +650,23 @@ function ChatPickerDropdown({
   );
 }
 
-function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerItem; position: PreviewPosition; previewRef: RefObject<HTMLDivElement> }) {
+function ChatPickerPreview({
+  item,
+  position,
+  previewRef,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}: {
+  item: ChatPickerItem;
+  position: PreviewPosition;
+  previewRef: RefObject<HTMLDivElement>;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onClick: () => void;
+}) {
   const preview = item.preview;
+  const clickable = !!item.targetHash;
 
   return (
     <div
@@ -459,8 +682,11 @@ function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerIte
         boxShadow: 'var(--shadow-s)',
         fontFamily: "'Delight', sans-serif",
         color: 'var(--text-n9)',
-        cursor: 'pointer',
+        cursor: clickable ? 'pointer' : 'default',
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={clickable ? onClick : undefined}
     >
       {preview.kind === 'portfolio' && (
         <div className="flex flex-col gap-[16px]">
@@ -474,6 +700,35 @@ function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerIte
               <span style={{ color: 'var(--text-n5)' }}>{preview.range}</span>
             </div>
           </div>
+          <div className="flex flex-col gap-[2px]">
+            <div
+              className="grid items-center text-[12px] leading-[20px] tracking-[0.12px]"
+              style={{ gridTemplateColumns: '56px 56px minmax(0,1fr) minmax(0,1.6fr)', columnGap: 12, color: 'var(--text-n5)' }}
+            >
+              <span>Symbol</span>
+              <span className="text-right">Weight</span>
+              <span className="text-right">Value</span>
+              <span className="text-right">P&amp;L</span>
+            </div>
+            {preview.holdings.map((h) => (
+              <div
+                key={h.symbol}
+                className="grid items-center text-[13px] leading-[20px] tracking-[0.13px]"
+                style={{ gridTemplateColumns: '56px 56px minmax(0,1fr) minmax(0,1.6fr)', columnGap: 12, color: 'var(--text-n9)', height: 28, fontVariantNumeric: 'tabular-nums' }}
+              >
+                <span className="truncate font-medium">{h.symbol}</span>
+                <span className="text-right">{h.weight}</span>
+                <span className="text-right">{h.value}</span>
+                <span
+                  className="text-right truncate"
+                  style={{ color: h.pnlPositive ? 'var(--main-m3)' : 'var(--main-m4, #d04a52)' }}
+                >
+                  {h.pnl} <span style={{ opacity: 0.7 }}>({h.pnlPct})</span>
+                </span>
+              </div>
+            ))}
+          </div>
+          <div style={{ height: 0, borderTop: '0.5px solid var(--line-l07)' }} />
           <div className="flex h-[22px] items-center gap-[6px]">
             <PortfolioMark />
             <p className="m-0 min-w-0 flex-1 text-[14px] leading-[22px] tracking-[0.14px]">{preview.account}</p>
@@ -555,7 +810,7 @@ function ChatPickerPreview({ item, position, previewRef }: { item: ChatPickerIte
   );
 }
 
-export function ChatInput({ placeholder = 'Build an investing playbook from your ideas', contextTag, shadow, onSend, bottomChip, injectText, onInputChange }: ChatInputProps) {
+export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector }: ChatInputProps) {
   const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes } = useChatContext();
   const [hasText, setHasText] = useState(false);
   const [quoteHover, setQuoteHover] = useState(false);
@@ -563,6 +818,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
   const [chipPulse, setChipPulse] = useState(false);
   const [tagDismissed, setTagDismissed] = useState(false);
   const [activePicker, setActivePicker] = useState<PickerKind | null>(null);
+  const [pickerAnchorMode, setPickerAnchorMode] = useState<PickerAnchorMode>('toolbar');
   const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null);
   const [hoveredPickerItem, setHoveredPickerItem] = useState<ChatPickerItem | null>(null);
   const [previewPosition, setPreviewPosition] = useState<PreviewPosition | null>(null);
@@ -570,6 +826,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
   const [selectedSkillItem, setSelectedSkillItem] = useState<ChatPickerItem | null>(null);
   const prevQuoteCount = useRef(0);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previewHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -613,12 +870,6 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     return editorRef.current.textContent?.replace(/\u200B/g, '').trim() || '';
   }, []);
 
-  const handleInput = useCallback(() => {
-    const text = getTextContent();
-    setHasText(!!text);
-    onInputChange?.(text);
-  }, [getTextContent, onInputChange]);
-
   const placeCursorAtEnd = useCallback(() => {
     const el = editorRef.current;
     if (!el) return;
@@ -631,42 +882,196 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
     sel.addRange(range);
   }, []);
 
-  const updatePickerPosition = useCallback((kind: PickerKind = activePicker || 'mention') => {
+  const getCaretRect = useCallback((): DOMRect | null => {
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    if (!editor || !selection || selection.rangeCount === 0) return null;
+    const range = selection.getRangeAt(0);
+    if (!editor.contains(range.commonAncestorContainer)) return null;
+
+    const collapsed = range.cloneRange();
+    collapsed.collapse(false);
+    const rect = collapsed.getClientRects()[0] ?? collapsed.getBoundingClientRect();
+    if (rect && (rect.width || rect.height)) return rect;
+    return editor.getBoundingClientRect();
+  }, []);
+
+  const getTextBeforeCaret = useCallback(() => {
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    if (!editor || !selection || selection.rangeCount === 0) return '';
+    const range = selection.getRangeAt(0);
+    if (!editor.contains(range.commonAncestorContainer)) return '';
+
+    const before = range.cloneRange();
+    before.selectNodeContents(editor);
+    before.setEnd(range.endContainer, range.endOffset);
+    return before.toString().replace(/\u200B/g, '');
+  }, []);
+
+  const createRangeFromTextOffsets = useCallback((start: number, end: number) => {
+    const editor = editorRef.current;
+    if (!editor) return null;
+
+    const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    let current = 0;
+    let startSet = false;
+    let endSet = false;
+    let node = walker.nextNode() as Text | null;
+
+    while (node) {
+      const next = current + node.data.length;
+      if (!startSet && start <= next) {
+        range.setStart(node, Math.max(0, start - current));
+        startSet = true;
+      }
+      if (!endSet && end <= next) {
+        range.setEnd(node, Math.max(0, end - current));
+        endSet = true;
+        break;
+      }
+      current = next;
+      node = walker.nextNode() as Text | null;
+    }
+
+    if (!startSet || !endSet) return null;
+    return range;
+  }, []);
+
+  const findActiveTriggerRange = useCallback((kind: PickerKind) => {
+    const beforeCaret = getTextBeforeCaret();
+    const pattern = kind === 'mention' ? /(^|\s)@[^@\s/]*$/ : /(^|\s)\/[^@\s/]*$/;
+    const match = beforeCaret.match(pattern);
+    if (!match || match.index === undefined) return null;
+    const start = match.index + match[1].length;
+    const end = beforeCaret.length;
+    return createRangeFromTextOffsets(start, end);
+  }, [createRangeFromTextOffsets, getTextBeforeCaret]);
+
+  const insertInlineTokenFromCaret = useCallback((kind: PickerKind, item: ChatPickerItem) => {
+    const range = findActiveTriggerRange(kind);
+    const editor = editorRef.current;
+    if (!range || !editor) return false;
+
+    range.deleteContents();
+    const token = createInlineMentionNode(item);
+    const trailingSpace = document.createTextNode(' ');
+    range.insertNode(trailingSpace);
+    range.insertNode(token);
+
+    const afterToken = document.createRange();
+    afterToken.setStartAfter(trailingSpace);
+    afterToken.collapse(true);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(afterToken);
+
+    const text = getTextContent();
+    setHasText(!!text);
+    onInputChange?.(text);
+    return true;
+  }, [findActiveTriggerRange, getTextContent, onInputChange]);
+
+  const updatePickerPosition = useCallback((kind: PickerKind = activePicker || 'mention', anchorMode: PickerAnchorMode = pickerAnchorMode) => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
     const wrapperRect = wrapper.getBoundingClientRect();
     const triggerRect = (kind === 'mention' ? mentionButtonRef.current : skillButtonRef.current)?.getBoundingClientRect();
+    const caretRect = anchorMode === 'caret' ? getCaretRect() : null;
     const width = Math.min(wrapperRect.width, window.innerWidth - 16);
-    let left = wrapperRect.left;
+    let left = caretRect ? caretRect.left : wrapperRect.left;
     left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
 
-    const height = kind === 'mention' ? 340 : 232;
-    let top = (triggerRect?.top ?? wrapperRect.top) - height - PICKER_GAP;
-    if (top < 8) top = Math.min((triggerRect?.bottom ?? wrapperRect.bottom) + PICKER_GAP, window.innerHeight - height - 8);
+    const height = PICKER_HEIGHT[kind];
+    const anchorTop = caretRect?.top ?? triggerRect?.top ?? wrapperRect.top;
+    const anchorBottom = caretRect?.bottom ?? triggerRect?.bottom ?? wrapperRect.bottom;
+    let top = anchorTop - height - PICKER_GAP;
+    if (top < 8) top = Math.min(anchorBottom + PICKER_GAP, window.innerHeight - height - 8);
     top = Math.max(8, Math.min(top, window.innerHeight - height - 8));
 
     setPickerPosition({ left, top, width });
-  }, [activePicker]);
+  }, [activePicker, getCaretRect, pickerAnchorMode]);
+
+  const openPickerFromCaret = useCallback((kind: PickerKind) => {
+    setPickerAnchorMode('caret');
+    setActivePicker(kind);
+    setHoveredPickerItem(null);
+    setPreviewPosition(null);
+    requestAnimationFrame(() => updatePickerPosition(kind, 'caret'));
+  }, [updatePickerPosition]);
+
+  const handleInput = useCallback(() => {
+    const text = getTextContent();
+    setHasText(!!text);
+    onInputChange?.(text);
+
+    const beforeCaret = getTextBeforeCaret();
+    const triggerMatch = beforeCaret.match(/(?:^|\s)([@/])[^@\s/]*$/);
+    if (triggerMatch?.[1] === '@') {
+      openPickerFromCaret('mention');
+      return;
+    }
+    if (triggerMatch?.[1] === '/' && !hideSkill) {
+      openPickerFromCaret('skill');
+      return;
+    }
+    if (pickerAnchorMode === 'caret') {
+      setActivePicker(null);
+      setHoveredPickerItem(null);
+      setPreviewPosition(null);
+    }
+  }, [getTextBeforeCaret, getTextContent, hideSkill, onInputChange, openPickerFromCaret, pickerAnchorMode]);
+
+  const cancelPreviewHide = useCallback(() => {
+    if (previewHideTimer.current) {
+      clearTimeout(previewHideTimer.current);
+      previewHideTimer.current = null;
+    }
+  }, []);
+
+  const schedulePreviewHide = useCallback(() => {
+    cancelPreviewHide();
+    previewHideTimer.current = setTimeout(() => {
+      setHoveredPickerItem(null);
+      setPreviewPosition(null);
+    }, 180);
+  }, [cancelPreviewHide]);
 
   const closePicker = useCallback(() => {
+    cancelPreviewHide();
     setActivePicker(null);
     setHoveredPickerItem(null);
     setPreviewPosition(null);
-  }, []);
+  }, [cancelPreviewHide]);
 
   const togglePicker = useCallback((kind: PickerKind) => {
+    cancelPreviewHide();
+    setPickerAnchorMode('toolbar');
     setActivePicker((current) => {
       const next = current === kind ? null : kind;
-      if (next) requestAnimationFrame(() => updatePickerPosition(next));
+      if (next) requestAnimationFrame(() => updatePickerPosition(next, 'toolbar'));
       return next;
     });
     setHoveredPickerItem(null);
     setPreviewPosition(null);
-  }, [updatePickerPosition]);
+  }, [updatePickerPosition, cancelPreviewHide]);
+
+  const navigateToTarget = useCallback((item: ChatPickerItem) => {
+    if (!item.targetHash) return;
+    closePicker();
+    window.location.hash = item.targetHash;
+  }, [closePicker]);
 
   const selectPickerItem = useCallback((item: ChatPickerItem) => {
     if (activePicker === 'mention') {
+      if (pickerAnchorMode === 'caret') {
+        insertInlineTokenFromCaret('mention', item);
+        closePicker();
+        editorRef.current?.focus();
+        return;
+      }
       setSelectedMentionItems((items) => [...items, item]);
       closePicker();
       editorRef.current?.focus();
@@ -674,13 +1079,20 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
       return;
     }
 
+    if (pickerAnchorMode === 'caret') {
+      insertInlineTokenFromCaret('skill', item);
+      closePicker();
+      editorRef.current?.focus();
+      return;
+    }
     setSelectedSkillItem((current) => (current?.id === item.id ? null : item));
     closePicker();
     editorRef.current?.focus();
     requestAnimationFrame(() => placeCursorAtEnd());
-  }, [activePicker, closePicker, placeCursorAtEnd]);
+  }, [activePicker, closePicker, insertInlineTokenFromCaret, pickerAnchorMode, placeCursorAtEnd]);
 
   const handlePickerItemHover = useCallback((item: ChatPickerItem, rowRect: DOMRect) => {
+    cancelPreviewHide();
     if (!pickerPosition) return;
 
     const width = Math.min(PREVIEW_WIDTH, Math.max(280, window.innerWidth - 16));
@@ -696,7 +1108,7 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
 
     setHoveredPickerItem(item);
     setPreviewPosition({ left, top, width });
-  }, [pickerPosition]);
+  }, [pickerPosition, cancelPreviewHide]);
 
   useEffect(() => {
     if (!activePicker) return;
@@ -1066,33 +1478,63 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
         >
           <CdnIcon name="at-l" size={16} color={activePicker === 'mention' ? 'var(--main-m1)' : 'var(--text-n9)'} />
         </button>
-        <button
-          ref={skillButtonRef}
-          type="button"
-          aria-label="Add skill"
-          aria-pressed={activePicker === 'skill'}
-          className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-          onClick={() => togglePicker('skill')}
-        >
-          <CdnIcon name="skill-l" size={16} color={activePicker === 'skill' ? 'var(--main-m1)' : 'var(--text-n9)'} />
-        </button>
+        {!hideSkill && (
+          <button
+            ref={skillButtonRef}
+            type="button"
+            aria-label="Add skill"
+            aria-pressed={activePicker === 'skill'}
+            className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+            onClick={() => togglePicker('skill')}
+          >
+            <CdnIcon name="skill-l" size={16} color={activePicker === 'skill' ? 'var(--main-m1)' : 'var(--text-n9)'} />
+          </button>
+        )}
         <button type="button" className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
           <CdnIcon name="photo-l" size={16} color="var(--text-n9)" />
         </button>
-        <Tooltip text="Click elements on the left to annotate changes" placement="top">
-          <button
-            type="button"
-            className="shrink-0 cursor-pointer transition-opacity"
-            style={{ opacity: inspectorActive ? 1 : undefined }}
-            onClick={toggleInspector}
+        {!hideInspector && (
+          <Tooltip text="Click elements on the left to annotate changes" placement="top">
+            <button
+              type="button"
+              className="shrink-0 cursor-pointer transition-opacity"
+              style={{ opacity: inspectorActive ? 1 : undefined }}
+              onClick={toggleInspector}
+            >
+              <CdnIcon
+                name={inspectorActive ? 'pointer-f' : 'pointer-l'}
+                size={16}
+                color={inspectorActive ? 'var(--main-m1)' : 'var(--text-n9)'}
+              />
+            </button>
+          </Tooltip>
+        )}
+        {bottomChip && (
+          <div
+            className="flex min-w-0 flex-1 items-center gap-[6px] h-[24px] pl-[8px] pr-[6px] rounded-[999px]"
+            style={{ background: 'var(--b-r05)', maxWidth: 'fit-content' }}
           >
-            <CdnIcon
-              name={inspectorActive ? 'pointer-f' : 'pointer-l'}
-              size={16}
-              color={inspectorActive ? 'var(--main-m1)' : 'var(--text-n9)'}
-            />
-          </button>
-        </Tooltip>
+            {bottomChip.avatar ? (
+              <Avatar name={bottomChip.avatar} size={16} />
+            ) : (
+              bottomChip.icon && <CdnIcon name={bottomChip.icon} size={14} color="var(--text-n9)" />
+            )}
+            <span
+              className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] truncate"
+              style={{ color: 'var(--text-n9)', minWidth: 0 }}
+            >
+              {bottomChip.label}
+            </span>
+            <button
+              type="button"
+              className="shrink-0 flex items-center justify-center size-[16px] rounded-full cursor-pointer hover:bg-black/10 transition-colors"
+              onClick={(e) => { e.stopPropagation(); bottomChip.onRemove?.(); }}
+              aria-label="Remove chip"
+            >
+              <CdnIcon name="close-l1" size={12} color="var(--text-n7)" />
+            </button>
+          </div>
+        )}
         <div className="flex shrink-0 items-center justify-end gap-[4px] ml-auto">
           <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap">
             Sonnet 4.6
@@ -1125,13 +1567,17 @@ export function ChatInput({ placeholder = 'Build an investing playbook from your
             selectedId={activePicker === 'skill' ? selectedSkillItem?.id ?? null : null}
             onSelect={selectPickerItem}
             onItemHover={handlePickerItemHover}
-            onLeave={() => {
-              setHoveredPickerItem(null);
-              setPreviewPosition(null);
-            }}
+            onLeave={schedulePreviewHide}
           />
           {hoveredPickerItem && previewPosition && (
-            <ChatPickerPreview item={hoveredPickerItem} position={previewPosition} previewRef={previewRef} />
+            <ChatPickerPreview
+              item={hoveredPickerItem}
+              position={previewPosition}
+              previewRef={previewRef}
+              onMouseEnter={cancelPreviewHide}
+              onMouseLeave={schedulePreviewHide}
+              onClick={() => navigateToTarget(hoveredPickerItem)}
+            />
           )}
         </>,
         document.body,

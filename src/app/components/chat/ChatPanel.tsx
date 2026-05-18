@@ -8,7 +8,7 @@ import { ChatMessages } from './ChatMessages';
 import { PlaybookSuggestions, hasContextSuggestions } from './PlaybookSuggestions';
 import { TodoListCard, ReviewPlanCard, AnswerQuestionCard } from './StreamingMessages';
 import type { ContextTagData } from '@/lib/chat-config';
-import { CONVERSATIONS, isPlaybookOwnerPage, isPlaybookPage } from '@/lib/chat-config';
+import { CONVERSATIONS } from '@/lib/chat-config';
 
 const FONT = "font-['Delight',sans-serif]";
 
@@ -219,7 +219,6 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                     contextTag={contextTag}
                     onSend={sendPrompt}
                     injectText={injectSignal}
-                    placeholder={isPlaybookPage(activePage) && !isPlaybookOwnerPage(activePage) ? 'Ask anything about this playbook' : undefined}
                   />
                 </>
               )}

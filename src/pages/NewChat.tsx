@@ -2645,6 +2645,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           <div style={{ width: '100%', maxWidth: HERO_WIDTH, position: 'relative', zIndex: 1 }}>
             <ChatInput
               shadow
+              hideSkill
+              hideInspector
               bottomChip={
                 selected
                   ? {

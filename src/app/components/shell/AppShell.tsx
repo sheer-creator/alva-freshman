@@ -31,9 +31,10 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
-const DEFAULT_PANEL_W = 496;
-const MIN_PANEL_W = 380;
-const MAX_PANEL_W = 720;
+const DEFAULT_PANEL_W = 480;
+const MIN_PANEL_W = 436;
+const getMaxPanelW = () =>
+  typeof window !== 'undefined' ? Math.max(MIN_PANEL_W, window.innerWidth * 0.6) : DEFAULT_PANEL_W;
 
 function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLeave, children }: AppShellProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -64,16 +65,18 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
         lastWasNarrow = isNarrow;
       }
       setIsMobile(w < MOBILE_THRESHOLD);
+      setPanelWidth((prev) => Math.min(getMaxPanelW(), Math.max(MIN_PANEL_W, prev)));
     };
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
   const sidebarWidth = sidebarCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
   const effectiveSidebarWidth = isMobile ? 0 : sidebarWidth;
-  const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_W);
+  const [panelWidth, setPanelWidth] = useState(() => Math.min(getMaxPanelW(), DEFAULT_PANEL_W));
   const dragging = useRef(false);
   const startX = useRef(0);
   const startW = useRef(DEFAULT_PANEL_W);
+  const panelWrapperRef = useRef<HTMLDivElement>(null);
 
   /* ── postMessage bridge: inspector quotes, remix, drawer ── */
   useEffect(() => {
@@ -173,16 +176,36 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
       dragging.current = true;
       startX.current = e.clientX;
       startW.current = panelWidth;
+      const node = panelWrapperRef.current;
+      if (node) node.style.transition = 'none';
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      /* iframe 会偷 mousemove —— 拖拽期间屏蔽 pointer-events，事件回到 document */
+      const iframes = Array.from(document.querySelectorAll('iframe'));
+      const prevIframePE: string[] = iframes.map((f) => f.style.pointerEvents);
+      iframes.forEach((f) => { f.style.pointerEvents = 'none'; });
+
+      let latest = panelWidth;
+      const maxW = getMaxPanelW();
       const onMove = (ev: MouseEvent) => {
         if (!dragging.current) return;
         const delta = startX.current - ev.clientX;
-        const next = Math.min(MAX_PANEL_W, Math.max(MIN_PANEL_W, startW.current + delta));
-        setPanelWidth(next);
+        latest = Math.min(maxW, Math.max(MIN_PANEL_W, startW.current + delta));
+        if (node) {
+          node.style.width = `${latest}px`;
+          node.style.minWidth = `${latest}px`;
+        }
       };
       const onUp = () => {
         dragging.current = false;
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        iframes.forEach((f, i) => { f.style.pointerEvents = prevIframePE[i]; });
+        if (node) node.style.transition = '';
+        setPanelWidth(latest);
       };
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
@@ -257,19 +280,18 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
           </div>
           {contextTag !== null && (
             <div
+              ref={panelWrapperRef}
               className="relative shrink-0"
               style={{
                 width: showChat ? panelWidth : 0,
                 minWidth: showChat ? panelWidth : 0,
-                transition: dragging.current
-                  ? 'none'
-                  : 'width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)',
+                transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)',
                 overflow: 'hidden',
               }}
             >
               <div
                 className="absolute bottom-0 left-0 top-0 z-10"
-                style={{ width: 6, cursor: 'col-resize' }}
+                style={{ width: 12, cursor: 'col-resize' }}
                 onMouseDown={onDragStart}
               />
               <ChatPanel onClose={closeChat} contextTag={contextTag} />
