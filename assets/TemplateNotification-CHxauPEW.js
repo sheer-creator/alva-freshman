@@ -1,4 +1,4 @@
-import{j as e}from"./index-DvXLXWXc.js";import{A as t}from"./AppShell-BcYU-4Le.js";import{i as a}from"./inlinePlaybookHeader-BzqFSyuA.js";import"./referral-mock-DKJhP-m3.js";const i=`<!DOCTYPE html>
+import{j as e}from"./index-BCnS2QOk.js";import{A as t}from"./AppShell-CpZyznt1.js";import{i as a}from"./inlinePlaybookHeader-BzqFSyuA.js";import"./referral-mock-DKJhP-m3.js";const i=`<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
