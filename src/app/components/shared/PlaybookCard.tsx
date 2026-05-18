@@ -68,7 +68,8 @@ export function PlaybookCard({
         display: 'flex',
         flexDirection: 'column',
         boxShadow: hovered ? 'var(--shadow-l, 0 10px 20px 0 rgba(0,0,0,0.08))' : 'none',
-        transition: 'box-shadow 130ms cubic-bezier(0.2, 0, 0, 1)',
+        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+        transition: 'box-shadow 130ms cubic-bezier(0.2, 0, 0, 1), transform 180ms cubic-bezier(0.2, 0, 0, 1)',
       }}
     >
       {/* Cover */}
@@ -77,7 +78,7 @@ export function PlaybookCard({
           style={{
             margin: '4px 4px 0 4px',
             width: 'calc(100% - 8px)',
-            aspectRatio: simple ? '472 / 265.5' : '320 / 140',
+            aspectRatio: '16 / 9',
             borderRadius: 4,
             overflow: 'hidden',
             background: simple
