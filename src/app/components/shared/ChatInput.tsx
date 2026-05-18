@@ -109,8 +109,10 @@ const PREVIEW_WIDTH = 480;
 const PICKER_GAP = 8;
 const PREVIEW_GAP = 8;
 const ICON_CDN = 'https://alva-ai-static.b-cdn.net/icons';
+const DROPDOWN_ACTIVE_BACKGROUND = 'rgba(73,163,166,0.08)';
+const DROPDOWN_HOVER_BACKGROUND = 'var(--b-r03)';
 const PICKER_HEIGHT: Record<PickerKind, number> = {
-  mention: 340,
+  mention: 312,
   skill: 264,
 };
 
@@ -589,7 +591,7 @@ function ChatPickerDropdown({
         top: position.top,
         width: position.width,
         height: PICKER_HEIGHT[kind],
-        padding: '8px 0',
+        padding: 4,
         background: 'var(--b0-container, #fff)',
         border: '0.5px solid var(--line-l2)',
         boxShadow: 'var(--shadow-s)',
@@ -598,7 +600,7 @@ function ChatPickerDropdown({
     >
       {kind === 'skill' && (
         <div
-          className="px-[16px] pb-[6px] pt-[2px] font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+          className="px-[12px] py-[4px] font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px]"
           style={{ color: 'var(--text-n5)' }}
         >
           Skill Hub
@@ -611,33 +613,32 @@ function ChatPickerDropdown({
           <button
             key={item.id}
             type="button"
-            className="group flex w-full cursor-pointer items-center gap-[8px] overflow-hidden px-[16px] py-[7px] text-left transition-colors"
+            className="group flex w-full items-center gap-[8px] overflow-hidden rounded-[4px] px-[12px] py-[8px] text-left transition-colors"
             style={{
-              height: 36,
+              height: 38,
               border: 'none',
-              cursor: 'pointer',
-              background: isSelected ? 'var(--main-m1-10)' : 'transparent',
+              background: isSelected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent',
             }}
             onMouseEnter={(event) => {
-              if (!isSelected) (event.currentTarget as HTMLElement).style.background = 'var(--b-r03)';
+              if (!isSelected) (event.currentTarget as HTMLElement).style.background = DROPDOWN_HOVER_BACKGROUND;
               onItemHover(item, event.currentTarget.getBoundingClientRect());
             }}
             onMouseLeave={(event) => {
-              if (!isSelected) (event.currentTarget as HTMLElement).style.background = 'transparent';
+              (event.currentTarget as HTMLElement).style.background = isSelected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent';
             }}
             onFocus={(event) => onItemHover(item, event.currentTarget.getBoundingClientRect())}
             onClick={() => onSelect(item)}
           >
             <PickerRowIcon item={item} />
             <span
-              className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px]"
+              className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] font-normal leading-[22px] tracking-[0.14px]"
               style={{ color: isSelected ? 'var(--main-m1)' : 'var(--text-n9)' }}
             >
               {rowMeta.title}
             </span>
             {rowMeta.author && (
               <span
-                className="ml-auto max-w-[112px] shrink-0 truncate text-right font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+                className="ml-auto max-w-[112px] shrink-0 truncate text-right font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px]"
                 style={{ color: 'var(--text-n5)' }}
               >
                 {rowMeta.author}
@@ -820,6 +821,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const [activePicker, setActivePicker] = useState<PickerKind | null>(null);
   const [pickerAnchorMode, setPickerAnchorMode] = useState<PickerAnchorMode>('toolbar');
   const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [hoveredPickerItem, setHoveredPickerItem] = useState<ChatPickerItem | null>(null);
   const [previewPosition, setPreviewPosition] = useState<PreviewPosition | null>(null);
   const [selectedMentionItems, setSelectedMentionItems] = useState<ChatPickerItem[]>([]);
@@ -832,6 +834,8 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const wrapperRef = useRef<HTMLDivElement>(null);
   const mentionButtonRef = useRef<HTMLButtonElement>(null);
   const skillButtonRef = useRef<HTMLButtonElement>(null);
+  const addMenuRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -1048,6 +1052,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
 
   const togglePicker = useCallback((kind: PickerKind) => {
     cancelPreviewHide();
+    setAddMenuOpen(false);
     setPickerAnchorMode('toolbar');
     setActivePicker((current) => {
       const next = current === kind ? null : kind;
@@ -1057,6 +1062,22 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
     setHoveredPickerItem(null);
     setPreviewPosition(null);
   }, [updatePickerPosition, cancelPreviewHide]);
+
+  const toggleAddMenu = useCallback(() => {
+    cancelPreviewHide();
+    closePicker();
+    setAddMenuOpen((open) => !open);
+  }, [cancelPreviewHide, closePicker]);
+
+  const openFileDialog = useCallback(() => {
+    setAddMenuOpen(false);
+    fileInputRef.current?.click();
+  }, []);
+
+  const openMentionFromAddMenu = useCallback(() => {
+    setAddMenuOpen(false);
+    togglePicker('mention');
+  }, [togglePicker]);
 
   const navigateToTarget = useCallback((item: ChatPickerItem) => {
     if (!item.targetHash) return;
@@ -1146,6 +1167,28 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
     };
   }, [activePicker, closePicker]);
 
+  useEffect(() => {
+    if (!addMenuOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (mentionButtonRef.current?.contains(target)) return;
+      if (addMenuRef.current?.contains(target)) return;
+      setAddMenuOpen(false);
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setAddMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [addMenuOpen]);
+
   // Reset dismissal & clear editor when contextTag changes
   useEffect(() => {
     const el = editorRef.current;
@@ -1206,6 +1249,13 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
         className="relative w-full shrink-0 flex flex-col gap-[12px] p-[16px] chat-input-wrapper"
         style={{ background: 'var(--b0-container, #fff)', border: '0.5px solid var(--line-l2)', borderRadius: 12, boxShadow: shadow ? 'var(--shadow-s)' : undefined }}
       >
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={(event) => { event.currentTarget.value = ''; }}
+      />
       {/* ── Annotation hover popover ── */}
       {quoteHover && elementQuotes.length > 0 && (
         <div
@@ -1467,16 +1517,48 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           onKeyDown={handleKeyDown}
         />
       </div>
-      <div className="flex items-center gap-[12px] h-[28px]">
+      <div className="flex items-center gap-[12px] h-[28px] relative">
+        {addMenuOpen && (
+          <div
+            ref={addMenuRef}
+            className="absolute left-0 bottom-[36px] z-[120] flex w-[320px] flex-col overflow-hidden rounded-[8px] p-[4px]"
+            style={{
+              background: 'var(--b0-container, #fff)',
+              border: '0.5px solid var(--line-l2)',
+              boxShadow: 'var(--shadow-s)',
+            }}
+          >
+            <button
+              type="button"
+              className="flex h-[38px] w-full items-center gap-[8px] rounded-[4px] px-[12px] py-[8px] text-left transition-colors hover:bg-[var(--b-r03)]"
+              onClick={openFileDialog}
+            >
+              <CdnIcon name="clip-l" size={20} color="var(--text-n9)" />
+              <span className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] font-normal leading-[22px] tracking-[0.14px] text-[var(--text-n9)]">
+                Add files or photos
+              </span>
+            </button>
+            <button
+              type="button"
+              className="flex h-[38px] w-full items-center gap-[8px] rounded-[4px] px-[12px] py-[8px] text-left transition-colors hover:bg-[var(--b-r03)]"
+              onClick={openMentionFromAddMenu}
+            >
+              <CdnIcon name="at-l" size={20} color="var(--text-n9)" />
+              <span className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] font-normal leading-[22px] tracking-[0.14px] text-[var(--text-n9)]">
+                Mentioned playbooks/portfolio/threads
+              </span>
+            </button>
+          </div>
+        )}
         <button
           ref={mentionButtonRef}
           type="button"
-          aria-label="Mention context"
-          aria-pressed={activePicker === 'mention'}
+          aria-label="Add files or context"
+          aria-pressed={addMenuOpen}
           className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-          onClick={() => togglePicker('mention')}
+          onClick={toggleAddMenu}
         >
-          <CdnIcon name="at-l" size={16} color={activePicker === 'mention' ? 'var(--main-m1)' : 'var(--text-n9)'} />
+          <CdnIcon name="add-l2" size={16} color={addMenuOpen ? 'var(--main-m1)' : 'var(--text-n9)'} />
         </button>
         {!hideSkill && (
           <button
@@ -1490,9 +1572,6 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
             <CdnIcon name="skill-l" size={16} color={activePicker === 'skill' ? 'var(--main-m1)' : 'var(--text-n9)'} />
           </button>
         )}
-        <button type="button" className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
-          <CdnIcon name="photo-l" size={16} color="var(--text-n9)" />
-        </button>
         {!hideInspector && (
           <Tooltip text="Click elements on the left to annotate changes" placement="top">
             <button

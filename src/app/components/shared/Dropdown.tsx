@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { CdnIcon } from './CdnIcon';
 
+const DROPDOWN_ACTIVE_BACKGROUND = 'rgba(73,163,166,0.08)';
+const DROPDOWN_HOVER_BACKGROUND = 'var(--b-r03, rgba(0,0,0,0.03))';
+
 export interface DropdownItem {
   id: string;
   label: string;
@@ -49,45 +52,53 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
     return (
       <div
         key={item.id}
-        className="relative w-full cursor-pointer"
+        className="relative flex h-[38px] w-full items-center gap-[8px] rounded-[4px] px-[12px] py-[8px]"
         style={{
-          backgroundColor: selected ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent',
+          backgroundColor: selected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent',
           transition: 'background-color 0.12s ease',
         }}
+        role="button"
+        tabIndex={0}
         onClick={() => {
           onSelect(item.id);
           setOpen(false);
         }}
+        onKeyDown={(e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          onSelect(item.id);
+          setOpen(false);
+        }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--b-r03, rgba(0,0,0,0.03))';
+          if (!selected) (e.currentTarget as HTMLDivElement).style.backgroundColor = DROPDOWN_HOVER_BACKGROUND;
         }}
         onMouseLeave={(e) => {
-          if (!selected) (e.currentTarget as HTMLDivElement).style.backgroundColor = 'transparent';
+          (e.currentTarget as HTMLDivElement).style.backgroundColor = selected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent';
         }}
       >
-        <div className="flex items-center gap-[8px]" style={{ padding: '7px 16px' }}>
-          {item.icon && (
-            <CdnIcon name={item.icon} size={20} color={item.iconColor ?? 'var(--text-n9, rgba(0,0,0,0.9))'} />
-          )}
-          <span className="flex-1 min-w-0 flex items-center gap-[8px]">
-            <span
-              className="min-w-0 font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate"
-            >
-              {item.label}
-            </span>
-            {item.badge != null && item.badge > 0 && (
-              <span
-                className="shrink-0 font-['Delight',sans-serif] text-[10px] leading-[16px] font-medium text-white"
-                style={{ background: 'var(--main-m1, #49A3A6)', borderRadius: 999, padding: '0 6px' }}
-              >
-                {item.badge}
-              </span>
-            )}
+        {item.icon && (
+          <CdnIcon
+            name={item.icon}
+            size={20}
+            color={selected ? 'var(--main-m1, #49A3A6)' : (item.iconColor ?? 'var(--text-n9, rgba(0,0,0,0.9))')}
+          />
+        )}
+        <span className="flex min-w-0 flex-1 items-center gap-[8px]">
+          <span
+            className="min-w-0 truncate font-['Delight',sans-serif] text-[14px] font-normal leading-[22px] tracking-[0.14px]"
+            style={{ color: selected ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9)' }}
+          >
+            {item.label}
           </span>
-          {selected && (
-            <CdnIcon name="check-l1" size={16} color="var(--main-m1, #49A3A6)" />
+          {item.badge != null && item.badge > 0 && (
+            <span
+              className="shrink-0 font-['Delight',sans-serif] text-[10px] font-medium leading-[16px] text-white"
+              style={{ background: 'var(--main-m1, #49A3A6)', borderRadius: 999, padding: '0 6px' }}
+            >
+              {item.badge}
+            </span>
           )}
-        </div>
+        </span>
       </div>
     );
   };
@@ -102,9 +113,9 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
           className="absolute top-full mt-[4px] z-50 flex flex-col"
           style={{
             backgroundColor: 'var(--b0-container, #fff)',
-            padding: '8px 0',
+            padding: 4,
             borderRadius: 8,
-            boxShadow: 'var(--shadow-s, 0 6px 20px rgba(0,0,0,0.06))',
+            boxShadow: 'var(--shadow-s, 0 6px 20px rgba(0,0,0,0.04))',
             width: width ?? 'auto',
             minWidth: width ?? 220,
             maxHeight: maxHeight,
@@ -116,8 +127,8 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
           {allSections.map((section, si) => (
             <div key={si}>
               {section.title && (
-                <div className="flex items-center" style={{ padding: '8px 16px 4px 16px' }}>
-                  <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]">
+                <div className="flex items-center px-[12px] py-[4px]">
+                  <span className="font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px] text-[var(--text-n5)]">
                     {section.title}
                   </span>
                 </div>
