@@ -805,7 +805,7 @@ function ChatPickerPreview({
   );
 }
 
-export function ChatInput({ placeholder = 'Plan, Build, @ for context, / for Alva skill hub', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector }: ChatInputProps) {
+export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector }: ChatInputProps) {
   const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes } = useChatContext();
   const [hasText, setHasText] = useState(false);
   const [quoteHover, setQuoteHover] = useState(false);
