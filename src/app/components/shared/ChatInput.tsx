@@ -112,9 +112,10 @@ const ICON_CDN = 'https://alva-ai-static.b-cdn.net/icons';
 const DROPDOWN_ACTIVE_BACKGROUND = 'rgba(73,163,166,0.08)';
 const DROPDOWN_HOVER_BACKGROUND = 'var(--b-r03)';
 const PICKER_HEIGHT: Record<PickerKind, number> = {
-  mention: 312,
+  mention: 350,
   skill: 264,
 };
+const MODEL_OPTIONS = ['Sonnet 4.6', 'Opus 4.7'];
 
 const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
   {
@@ -585,7 +586,7 @@ function ChatPickerDropdown({
   return (
     <div
       ref={pickerRef}
-      className="fixed z-[5000] overflow-visible rounded-[8px]"
+      className="fixed z-[5000] overflow-y-auto overflow-x-hidden rounded-[8px]"
       style={{
         left: position.left,
         top: position.top,
@@ -822,6 +823,8 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const [pickerAnchorMode, setPickerAnchorMode] = useState<PickerAnchorMode>('toolbar');
   const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [modelMenuOpen, setModelMenuOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(MODEL_OPTIONS[0]);
   const [hoveredPickerItem, setHoveredPickerItem] = useState<ChatPickerItem | null>(null);
   const [previewPosition, setPreviewPosition] = useState<PreviewPosition | null>(null);
   const [selectedMentionItems, setSelectedMentionItems] = useState<ChatPickerItem[]>([]);
@@ -835,6 +838,8 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const mentionButtonRef = useRef<HTMLButtonElement>(null);
   const skillButtonRef = useRef<HTMLButtonElement>(null);
   const addMenuRef = useRef<HTMLDivElement>(null);
+  const modelButtonRef = useRef<HTMLButtonElement>(null);
+  const modelMenuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -1053,6 +1058,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const togglePicker = useCallback((kind: PickerKind) => {
     cancelPreviewHide();
     setAddMenuOpen(false);
+    setModelMenuOpen(false);
     setPickerAnchorMode('toolbar');
     setActivePicker((current) => {
       const next = current === kind ? null : kind;
@@ -1066,8 +1072,21 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const toggleAddMenu = useCallback(() => {
     cancelPreviewHide();
     closePicker();
+    setModelMenuOpen(false);
     setAddMenuOpen((open) => !open);
   }, [cancelPreviewHide, closePicker]);
+
+  const toggleModelMenu = useCallback(() => {
+    cancelPreviewHide();
+    closePicker();
+    setAddMenuOpen(false);
+    setModelMenuOpen((open) => !open);
+  }, [cancelPreviewHide, closePicker]);
+
+  const selectModel = useCallback((model: string) => {
+    setSelectedModel(model);
+    setModelMenuOpen(false);
+  }, []);
 
   const openFileDialog = useCallback(() => {
     setAddMenuOpen(false);
@@ -1188,6 +1207,28 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
       document.removeEventListener('keydown', handleEscape);
     };
   }, [addMenuOpen]);
+
+  useEffect(() => {
+    if (!modelMenuOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (modelButtonRef.current?.contains(target)) return;
+      if (modelMenuRef.current?.contains(target)) return;
+      setModelMenuOpen(false);
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setModelMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [modelMenuOpen]);
 
   // Reset dismissal & clear editor when contextTag changes
   useEffect(() => {
@@ -1428,7 +1469,9 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
               </button>
             </div>
           )}
-          {selectedMentionItems.map((item, index) => (
+          {selectedMentionItems.map((item, index) => {
+            const rowMeta = getPickerRowMeta(item);
+            return (
               <div
                 key={`${item.id}-${index}`}
                 className="inline-flex max-w-full items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
@@ -1449,7 +1492,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
                     className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] truncate"
                     style={{ color: 'var(--text-n9)', maxWidth: 280 }}
                   >
-                    {item.label}
+                    {rowMeta.title}
                   </span>
                 </span>
                 <button
@@ -1464,7 +1507,8 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
                   <CdnIcon name="close-l1" size={12} color="var(--text-n5)" />
                 </button>
               </div>
-          ))}
+            );
+          })}
           {selectedSkillItem && (
               <div
                 className="inline-flex max-w-full items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
@@ -1521,7 +1565,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
         {addMenuOpen && (
           <div
             ref={addMenuRef}
-            className="absolute left-0 bottom-[36px] z-[120] flex w-[320px] flex-col overflow-hidden rounded-[8px] p-[4px]"
+            className="absolute left-[-16px] bottom-[30px] z-[120] flex w-[320px] flex-col overflow-hidden rounded-[8px] p-[4px]"
             style={{
               background: 'var(--b0-container, #fff)',
               border: '0.5px solid var(--line-l2)',
@@ -1614,11 +1658,59 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
             </button>
           </div>
         )}
-        <div className="flex shrink-0 items-center justify-end gap-[4px] ml-auto">
-          <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap">
-            Sonnet 4.6
-          </span>
-          <CdnIcon name="arrow-down-f2" size={12} color="var(--text-n2)" />
+        <div className="relative ml-auto flex h-[28px] shrink-0 items-center justify-end">
+          {modelMenuOpen && (
+            <div
+              ref={modelMenuRef}
+              className="absolute right-0 bottom-[30px] z-[120] flex w-[144px] flex-col overflow-hidden rounded-[8px] p-[4px]"
+              style={{
+                background: 'var(--b0-container, #fff)',
+                border: '0.5px solid var(--line-l2)',
+                boxShadow: 'var(--shadow-s)',
+              }}
+            >
+              {MODEL_OPTIONS.map((model) => {
+                const selected = model === selectedModel;
+                return (
+                  <button
+                    key={model}
+                    type="button"
+                    className="flex h-[38px] w-full items-center rounded-[4px] px-[12px] py-[8px] text-left transition-colors"
+                    style={{
+                      background: selected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent',
+                    }}
+                    onMouseEnter={(event) => {
+                      if (!selected) event.currentTarget.style.background = DROPDOWN_HOVER_BACKGROUND;
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.background = selected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent';
+                    }}
+                    onClick={() => selectModel(model)}
+                  >
+                    <span
+                      className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] font-normal leading-[22px] tracking-[0.14px]"
+                      style={{ color: selected ? 'var(--main-m1)' : 'var(--text-n9)' }}
+                    >
+                      {model}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <button
+            ref={modelButtonRef}
+            type="button"
+            aria-label="Select model"
+            aria-expanded={modelMenuOpen}
+            className="flex shrink-0 items-center justify-end gap-[4px] transition-opacity hover:opacity-70"
+            onClick={toggleModelMenu}
+          >
+            <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] whitespace-nowrap">
+              {selectedModel}
+            </span>
+            <CdnIcon name="arrow-down-f2" size={12} color="var(--text-n2)" />
+          </button>
         </div>
         <button
           type="button"
