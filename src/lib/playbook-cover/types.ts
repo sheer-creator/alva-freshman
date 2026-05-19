@@ -59,8 +59,12 @@ export type CoverInput = {
   whatIfBars?: number[];
   /** Defaults to "en". Affects category translations, default labels, font stack, splitDelta separators. */
   locale?:  Locale;
-  /** Optional override: when set, the renderer swaps the generated SVG for
-   *  this image (e.g. a screenshot). Cover-gen ignores this field. */
+  /**
+   * Optional live cover image URL — local override outside the skill spec.
+   * When set, `PlaybookCover` renders this image filling the canvas instead
+   * of the generated SVG. Used by the Explore grid to display the actual
+   * screenshot thumbnails fetched from alva.ai. Cover-gen ignores the field.
+   */
   coverImageUrl?: string;
 };
 
