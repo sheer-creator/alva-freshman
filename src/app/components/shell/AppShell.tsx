@@ -31,7 +31,7 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
-const DEFAULT_PANEL_W = 480;
+const DEFAULT_PANEL_W = 496;
 const MIN_PANEL_W = 436;
 const getMaxPanelW = () =>
   typeof window !== 'undefined' ? Math.max(MIN_PANEL_W, window.innerWidth * 0.6) : DEFAULT_PANEL_W;

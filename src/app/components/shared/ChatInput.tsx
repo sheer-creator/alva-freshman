@@ -592,7 +592,7 @@ function ChatPickerDropdown({
         top: position.top,
         width: position.width,
         height: PICKER_HEIGHT[kind],
-        padding: 4,
+        padding: '8px 0',
         background: 'var(--b0-container, #fff)',
         border: '0.5px solid var(--line-l2)',
         boxShadow: 'var(--shadow-s)',
@@ -601,7 +601,7 @@ function ChatPickerDropdown({
     >
       {kind === 'skill' && (
         <div
-          className="px-[12px] py-[8px] font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px]"
+          className="px-[16px] pb-[4px] pt-[8px] font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px]"
           style={{ color: 'var(--text-n5)' }}
         >
           Skill Hub
@@ -702,30 +702,30 @@ function ChatPickerPreview({
               <span style={{ color: 'var(--text-n5)' }}>{preview.range}</span>
             </div>
           </div>
-          <div className="flex flex-col gap-[2px]">
+          <div className="flex flex-col gap-[4px]">
             <div
-              className="grid items-center text-[12px] leading-[20px] tracking-[0.12px]"
-              style={{ gridTemplateColumns: '56px 56px minmax(0,1fr) minmax(0,1.6fr)', columnGap: 12, color: 'var(--text-n5)' }}
+              className="flex items-center gap-[8px] text-[12px] leading-[20px] tracking-[0.12px]"
+              style={{ color: 'var(--text-n5)' }}
             >
-              <span>Symbol</span>
-              <span className="text-right">Weight</span>
-              <span className="text-right">Value</span>
-              <span className="text-right">P&amp;L</span>
+              <span className="w-[72px] shrink-0">Symbol</span>
+              <span className="w-[64px] shrink-0 text-right">Weight</span>
+              <span className="min-w-0 flex-1 text-right">Value</span>
+              <span className="min-w-0 flex-1 text-right">P&amp;L</span>
             </div>
             {preview.holdings.map((h) => (
               <div
                 key={h.symbol}
-                className="grid items-center text-[13px] leading-[20px] tracking-[0.13px]"
-                style={{ gridTemplateColumns: '56px 56px minmax(0,1fr) minmax(0,1.6fr)', columnGap: 12, color: 'var(--text-n9)', height: 28, fontVariantNumeric: 'tabular-nums' }}
+                className="flex items-center gap-[8px] text-[14px] leading-[22px] tracking-[0.14px]"
+                style={{ color: 'var(--text-n9)', fontVariantNumeric: 'tabular-nums' }}
               >
-                <span className="truncate font-medium">{h.symbol}</span>
-                <span className="text-right">{h.weight}</span>
-                <span className="text-right">{h.value}</span>
+                <span className="w-[72px] shrink-0 truncate font-medium">{h.symbol}</span>
+                <span className="w-[64px] shrink-0 text-right">{h.weight}</span>
+                <span className="min-w-0 flex-1 text-right">{h.value}</span>
                 <span
-                  className="text-right truncate"
+                  className="min-w-0 flex-1 truncate whitespace-nowrap text-right"
                   style={{ color: h.pnlPositive ? 'var(--main-m3)' : 'var(--main-m4, #d04a52)' }}
                 >
-                  {h.pnl} <span style={{ opacity: 0.7 }}>({h.pnlPct})</span>
+                  {h.pnl}
                 </span>
               </div>
             ))}

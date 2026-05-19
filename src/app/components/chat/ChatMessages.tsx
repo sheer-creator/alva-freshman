@@ -79,7 +79,7 @@ const DASHBOARD_COVER_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns
 <text x="16" y="252" font-size="6" fill="rgba(0,0,0,.15)" font-family="sans-serif" font-weight="500">Alva</text>
 </svg>`)}`;
 
-function PlaybookCard({ sourceThreadId }: { sourceThreadId?: string }) {
+function PlaybookCard({ sourceThreadId, variant = 'default' }: { sourceThreadId?: string; variant?: 'default' | 'drawer' }) {
   const handleClick = () => {
     if (sourceThreadId) {
       sessionStorage.setItem('openChatWithThread', sourceThreadId);
@@ -89,11 +89,11 @@ function PlaybookCard({ sourceThreadId }: { sourceThreadId?: string }) {
   return (
     <div
       className="flex flex-col items-start overflow-clip w-[360px] shrink-0 cursor-pointer hover:shadow-l transition-shadow"
-      style={{ border: '0.5px solid var(--line-l3)', borderRadius: 12, padding: 4, background: 'white' }}
+      style={{ border: '0.5px solid var(--line-l3)', borderRadius: variant === 'drawer' ? 8 : 12, padding: 4, background: 'white' }}
       onClick={handleClick}
     >
       <div className="relative shrink-0 w-full" style={{ aspectRatio: '472 / 265.5' }}>
-        <div className="absolute inset-0 rounded-[8px] overflow-hidden">
+        <div className="absolute inset-0 rounded-[4px] overflow-hidden">
           <img src={DASHBOARD_COVER_SVG} alt="Dashboard preview" className="absolute top-0 left-0 w-full h-full block" style={{ objectFit: 'cover' }} />
         </div>
       </div>
@@ -227,6 +227,71 @@ function SourceLink({ sourceThreadId }: { sourceThreadId?: string }) {
   );
 }
 
+function GeneratedLine() {
+  return (
+    <div className="flex items-center gap-[4px] w-full overflow-hidden">
+      <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] truncate">
+        Ran 5 commands, searched code, read a file
+      </span>
+      <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5)" />
+    </div>
+  );
+}
+
+function DrawerConversation({ sourceThreadId }: { sourceThreadId?: string }) {
+  const FONT = "font-['Delight',sans-serif]";
+  return (
+    <div className="flex flex-col gap-[16px] items-start w-full">
+      <div className="flex flex-col items-end w-full">
+        <div className="w-full px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
+          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>{MOCK_USER_MSG}</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-[4px] w-full pt-[4px]">
+        <AlvaBetaLogo />
+      </div>
+      <GeneratedLine />
+
+      <div className="flex flex-col gap-[12px] items-start w-full">
+        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
+          Building the <span className="font-medium">3-Widget Grid</span> layout:
+        </p>
+        <BulletList items={MOCK_BULLETS.map(b => ({ bold: b.bold, text: b.text }))} />
+        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Dashboard is ready. Here's a summary:</p>
+        <SourceLink sourceThreadId={sourceThreadId} />
+        <PlaybookCard sourceThreadId={sourceThreadId} variant="drawer" />
+      </div>
+
+      <div className="flex flex-col items-end w-full">
+        <div
+          className={`${FONT} flex flex-col w-full px-[16px] py-[12px] text-[14px] leading-[22px] tracking-[0.14px]`}
+          style={{ background: 'var(--main-m1-10)', borderRadius: 8, gap: 12 }}
+        >
+          {MOCK_QA_PAIRS.map((pair, i) => (
+            <div key={i} className="flex flex-col gap-[2px]">
+              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n5)]`}>{pair.q}</p>
+              <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>{pair.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-[4px] w-full pt-[4px]">
+        <AlvaBetaLogo />
+      </div>
+      <GeneratedLine />
+
+      <div className="flex flex-col gap-[12px] items-start w-full">
+        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Key takeaways:</p>
+        <BulletList items={MOCK_TAKEAWAYS.map(t => ({ text: t }))} />
+        <SourceLink sourceThreadId={sourceThreadId} />
+        <PlaybookCard sourceThreadId={sourceThreadId} variant="drawer" />
+      </div>
+    </div>
+  );
+}
+
 function MockConversation({ sourceThreadId }: { sourceThreadId?: string }) {
   const FONT = "font-['Delight',sans-serif]";
   return (
@@ -306,9 +371,10 @@ function EmptyState() {
 interface ChatMessagesProps {
   conversationId: string;
   hasContent?: boolean;
+  surface?: 'page' | 'drawer';
 }
 
-export function ChatMessages({ conversationId, hasContent }: ChatMessagesProps) {
+export function ChatMessages({ conversationId, hasContent, surface = 'page' }: ChatMessagesProps) {
   const { streamingState, pendingPrompt } = useChatContext();
   const showContent = hasContent ?? (conversationId !== 'new');
 
@@ -329,6 +395,10 @@ export function ChatMessages({ conversationId, hasContent }: ChatMessagesProps) 
         <StreamingMessages state={streamingState} />
       </div>
     );
+  }
+
+  if (surface === 'drawer') {
+    return <DrawerConversation sourceThreadId={conversationId} />;
   }
 
   return (

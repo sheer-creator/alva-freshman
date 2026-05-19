@@ -127,7 +127,7 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
           {allSections.map((section, si) => (
             <div key={si}>
               {section.title && (
-                <div className="flex items-center px-[12px] py-[4px]">
+                <div className="flex items-center px-[12px] pb-[4px] pt-[8px]">
                   <span className="font-['Delight',sans-serif] text-[12px] font-normal leading-[20px] tracking-[0.12px] text-[var(--text-n5)]">
                     {section.title}
                   </span>

@@ -7,6 +7,7 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Dropdown } from '@/app/components/shared/Dropdown';
 import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDropdown';
 import { CONVERSATIONS } from '@/lib/chat-config';
+import { AgentConnectedFeed } from '@/app/components/chat/AgentConnectedFeed';
 
 const FONT = "font-['Delight',sans-serif]";
 
@@ -127,26 +128,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
             {isAgent ? (
               <>
                 <div ref={agentScrollRef} className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[120px]">
-                  <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px]">
-                    {agentMessages.map((msg, i) =>
-                      msg.role === 'user' ? (
-                        <div key={i} className="flex flex-col items-end w-full">
-                          <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
-                            <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-                              {msg.text}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div key={i} className="flex flex-col gap-[16px] items-start w-full">
-                          <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" style={{ height: 12, width: 70 }} />
-                          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
-                            {msg.text}
-                          </p>
-                        </div>
-                      ),
-                    )}
-                  </div>
+                  <AgentConnectedFeed />
                 </div>
                 <div className="px-[28px] pb-[24px] shrink-0">
                   <ChatInput shadow onSend={handleAgentSend} placeholder="Message your Alva Agent..." />

@@ -4,6 +4,7 @@ import { AppShell } from '@/app/components/shell/AppShell';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { ChatMessages } from '@/app/components/chat/ChatMessages';
+import { AgentConnectedFeed } from '@/app/components/chat/AgentConnectedFeed';
 import { AlvaLoading } from '@/app/components/shared/AlvaLoading';
 import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDropdown';
 import { Dropdown } from '@/app/components/shared/Dropdown';
@@ -777,26 +778,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
           {isAgent ? (
             <>
               <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[120px]">
-                <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px]">
-                  {messages.map((msg, i) =>
-                    msg.role === 'user' ? (
-                      <div key={i} className="flex flex-col items-end w-full">
-                        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
-                          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-                            {msg.text}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div key={i} className="flex flex-col gap-[16px] items-start w-full">
-                        <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" style={{ height: 12, width: 70 }} />
-                        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
-                          {msg.text}
-                        </p>
-                      </div>
-                    ),
-                  )}
-                </div>
+                <AgentConnectedFeed />
               </div>
               <div className="px-[28px] pb-[24px] shrink-0">
                 <ChatInput shadow onSend={handleSend} placeholder="Message your Alva Agent..." />

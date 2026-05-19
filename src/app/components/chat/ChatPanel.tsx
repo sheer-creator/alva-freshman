@@ -9,6 +9,7 @@ import { PlaybookSuggestions, hasContextSuggestions } from './PlaybookSuggestion
 import { TodoListCard, ReviewPlanCard, AnswerQuestionCard } from './StreamingMessages';
 import type { ContextTagData } from '@/lib/chat-config';
 import { CONVERSATIONS } from '@/lib/chat-config';
+import { AgentConnectedFeed } from './AgentConnectedFeed';
 
 const FONT = "font-['Delight',sans-serif]";
 
@@ -16,6 +17,23 @@ const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
   role: 'agent',
   text: 'Hey! I\'m your Alva Agent, connected via Telegram. I\'m always-on and ready to help with market analysis, portfolio tracking, and playbook execution. What would you like to work on?',
 };
+
+function IconButton({ label, onClick, children }: { label: string; onClick?: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className="flex size-[16px] shrink-0 cursor-pointer items-center justify-center transition-opacity hover:opacity-70"
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
+function AlvaMark() {
+  return <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" style={{ height: 12, width: 70 }} />;
+}
 
 interface ChatPanelProps {
   onClose: () => void;
@@ -73,7 +91,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
         }}
       >
         {/* Topbar */}
-        <div className="flex items-center gap-[16px] h-[48px] px-[24px] py-[16px] shrink-0" style={{ zIndex: 2 }}>
+        <div className="flex items-center gap-[16px] h-[56px] px-[24px] py-[16px] shrink-0" style={{ zIndex: 2 }}>
           <div className="flex-1 min-w-0">
             <ThreadSwitcherDropdown
               activeId={activeConversationId}
@@ -109,30 +127,27 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
           <div className="flex items-center gap-[16px] shrink-0">
             {isAgent ? (
               <>
-                <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={handleFullscreen}>
+                <IconButton label="New chat" onClick={() => setActiveConversation('new')}>
+                  <CdnIcon name="chat-new-l" size={16} />
+                </IconButton>
+                <IconButton label="Open full view" onClick={handleFullscreen}>
                   <CdnIcon name="full-screen-l" size={16} />
-                </button>
-                <button
-                  className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-                  onClick={() => { onClose(); window.location.hash = 'alva-agent'; }}
-                >
+                </IconButton>
+                <IconButton label="Agent settings" onClick={() => { onClose(); window.location.hash = 'alva-agent'; }}>
                   <CdnIcon name="settings-l" size={16} />
-                </button>
-                <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={onClose}>
+                </IconButton>
+                <IconButton label="Collapse panel" onClick={onClose}>
                   <CdnIcon name="collapse-right-l" size={16} />
-                </button>
+                </IconButton>
               </>
             ) : (
               <>
-                <button
-                  className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-                  onClick={() => { onClose(); window.location.hash = 'new-chat'; }}
-                >
+                <IconButton label="New chat" onClick={() => { onClose(); window.location.hash = 'new-chat'; }}>
                   <CdnIcon name="chat-new-l" size={16} />
-                </button>
-                <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={handleFullscreen}>
+                </IconButton>
+                <IconButton label="Open full view" onClick={handleFullscreen}>
                   <CdnIcon name="full-screen-l" size={16} />
-                </button>
+                </IconButton>
                 <Dropdown
                   items={[{ id: 'rename', label: 'Rename', icon: 'edit-l1' }, { id: 'delete', label: 'Delete', icon: 'delete-l' }]}
                   onSelect={() => {}}
@@ -144,9 +159,9 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                     </div>
                   }
                 />
-                <button className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity" onClick={onClose}>
+                <IconButton label="Collapse panel" onClick={onClose}>
                   <CdnIcon name="collapse-right-l" size={16} />
-                </button>
+                </IconButton>
               </>
             )}
           </div>
@@ -156,27 +171,8 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
         <div className="flex flex-col flex-1 items-center min-h-0 pb-[8px] px-[8px] relative" style={{ zIndex: 1 }}>
           {isAgent ? (
             <>
-              <div ref={agentScrollRef} className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px]">
-                <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px] pb-[120px]">
-                  {agentMessages.map((msg, i) =>
-                    msg.role === 'user' ? (
-                      <div key={i} className="flex flex-col items-end w-full">
-                        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
-                          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-                            {msg.text}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div key={i} className="flex flex-col gap-[16px] items-start w-full">
-                        <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" style={{ height: 12, width: 70 }} />
-                        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
-                          {msg.text}
-                        </p>
-                      </div>
-                    ),
-                  )}
-                </div>
+              <div ref={agentScrollRef} className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px] pb-[48px]">
+                <AgentConnectedFeed />
               </div>
               <ChatInput contextTag={contextTag} onSend={handleAgentSend} />
             </>
@@ -187,11 +183,10 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                   <PlaybookSuggestions page={activePage} onPromptClick={handlePromptClick} />
                 </div>
               ) : (
-                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px]">
+                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px] pb-[48px]">
                   <div className={hasInitialInput ? "flex flex-col w-full" : "flex flex-col flex-1 min-h-0 w-full"}>
-                    <ChatMessages conversationId={activeConversationId} hasContent={hasInitialInput} />
+                    <ChatMessages conversationId={activeConversationId} hasContent={hasInitialInput} surface="drawer" />
                   </div>
-                  <div className="shrink-0 w-full" style={{ height: hasInitialInput ? 120 : 0 }} />
                 </div>
               )}
 

@@ -1,11 +1,9 @@
 import { Dropdown } from './Dropdown';
 import { CONVERSATIONS } from '@/lib/chat-config';
 
-const AGENT_ICON = `${import.meta.env.BASE_URL}sidebar-skills-normal.svg`;
-
 const AGENT_SECTION = {
   title: 'Alva Agent',
-  items: [{ id: '__agent__', label: 'Alva Agent', icon: AGENT_ICON, badge: 3 }],
+  items: [{ id: '__agent__', label: 'Alva Agent', icon: 'bot-l' }],
 };
 
 const THREAD_SECTION = {
