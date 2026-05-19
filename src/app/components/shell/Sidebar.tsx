@@ -178,16 +178,18 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.12)'; }}
             onClick={() => onNavigate('pricing')}
           >
-            {/* Decorative top-right glow */}
+            {/* Decorative top-right glow — soft m3 bloom, diffused via blur */}
             <span
               aria-hidden
               className="pointer-events-none absolute z-[1]"
               style={{
-                right: -46,
-                top: -46,
-                width: 93,
-                height: 93,
-                background: 'radial-gradient(circle, rgba(42,155,125,0.45) 0%, rgba(42,155,125,0) 70%)',
+                right: -56,
+                top: -56,
+                width: 112,
+                height: 112,
+                background:
+                  'radial-gradient(circle, rgba(42,155,125,0.22) 0%, rgba(42,155,125,0.08) 45%, rgba(42,155,125,0) 75%)',
+                filter: 'blur(8px)',
               }}
             />
             <div className="relative z-[2] flex items-start gap-[8px]">
