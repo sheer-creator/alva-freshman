@@ -282,9 +282,10 @@ function RegularHeroCard({
         height: isMobile ? "auto" : 220,
         minHeight: isMobile ? 180 : undefined,
         borderRadius: 16,
-        border: "1px solid var(--line-l07, rgba(0,0,0,0.07))",
+        // Per Figma 5461:50119 — line/l12 + Shadow S (6 20 4).
+        border: "1px solid var(--line-l12, rgba(0,0,0,0.12))",
         background,
-        boxShadow: "0 6px 20px 0 rgba(0,0,0,0.06)",
+        boxShadow: "0 6px 20px 0 rgba(0,0,0,0.04)",
         overflow: "hidden",
         boxSizing: "border-box",
         cursor: "pointer",
@@ -403,9 +404,11 @@ function CompactHeroCard({
         display: "grid",
         gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
         borderRadius: 16,
-        border: "1px solid var(--line-l07, rgba(0,0,0,0.07))",
+        // Per Figma 5461:50119 — line/l12 + Shadow S (6 20 4). Compact
+        // uses the same chassis as regular.
+        border: "1px solid var(--line-l12, rgba(0,0,0,0.12))",
         background,
-        boxShadow: "0 6px 20px 0 rgba(0,0,0,0.06)",
+        boxShadow: "0 6px 20px 0 rgba(0,0,0,0.04)",
         overflow: "hidden",
         boxSizing: "border-box",
         cursor: "pointer",
