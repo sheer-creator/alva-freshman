@@ -583,18 +583,20 @@ const SKILL_TEMPLATE: Record<string, CoverTemplateName> = {
 };
 
 // Skill → cover domain（用于决定 watermark icon 与色域）
+// 注意：domain 必须在该 skill 对应 template 的 TEMPLATE_ALLOWED_DOMAINS 里，
+// 否则 resolveDomain 会回落到 "guide"（menu_book 通用书本图标）。
 const SKILL_DOMAIN: Record<string, DomainKey> = {
-  'theme-tracker': 'trend_up',
-  'smart-screener': 'momentum',
-  'deep-dive': 'ai',
-  'daily-macro-brief': 'macro',
-  'earnings-edge': 'earnings',
-  'crypto-pulse': 'crypto',
-  'what-if': 'event_study',
-  'yield-hunter': 'dividend',
-  'dividend-diary': 'dividend',
-  backtest: 'event_study',
-  valuation: 'value',
+  'theme-tracker':     'macro',        // thesis  → trend_up 不在 thesis 允许列表，改 macro
+  'smart-screener':    'momentum',     // screener
+  'deep-dive':         'ai',           // thesis
+  'daily-macro-brief': 'review',       // general → macro 不在 general 允许列表，改 review
+  'earnings-edge':     'macro',        // thesis  → earnings 不在 thesis 允许列表，改 macro
+  'crypto-pulse':      'alerts',       // general → crypto 不在 general 允许列表，改 alerts
+  'what-if':           'event_study',  // what-if
+  'yield-hunter':      'dividend',     // screener
+  'dividend-diary':    'dividend',     // screener
+  backtest:            'event_study',  // what-if
+  valuation:           'value',        // thesis
 };
 
 /* ========== Cover 假数据生成器 ==========
@@ -736,7 +738,7 @@ function PlaybookCard({
       <div
         style={{
           width: '100%',
-          aspectRatio: '320 / 140',
+          aspectRatio: '320 / 180',
           borderRadius: 4,
           overflow: 'hidden',
           flexShrink: 0,

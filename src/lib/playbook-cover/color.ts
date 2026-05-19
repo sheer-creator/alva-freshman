@@ -3,6 +3,14 @@
 
 import { RGB, HSL, TextPalette } from "./types";
 
+/** RGB (0..1 floats) → CSS rgb()/rgba() string. */
+export function rgbToCss({ r, g, b }: RGB, alpha = 1): string {
+  const to = (x: number) => Math.round(Math.max(0, Math.min(1, x)) * 255);
+  return alpha >= 1
+    ? `rgb(${to(r)}, ${to(g)}, ${to(b)})`
+    : `rgba(${to(r)}, ${to(g)}, ${to(b)}, ${alpha})`;
+}
+
 // ---------- FNV-1a (32-bit) ----------
 
 /**
@@ -183,17 +191,6 @@ export function barColorFor(bgH: number, isPositive: boolean): RGB {
 
 /** Opacity for bar fills — 0.55 gives atmospheric weight without losing signal. */
 export const BAR_OPACITY = 0.55;
-
-/**
- * Convert an RGB (components in 0..1) plus optional alpha into a CSS color
- * string. Used by renderers; not part of the skill's pure color math.
- */
-export function rgbToCss({ r, g, b }: RGB, alpha = 1): string {
-  const to = (x: number) => Math.round(x * 255);
-  return alpha === 1
-    ? `rgb(${to(r)}, ${to(g)}, ${to(b)})`
-    : `rgba(${to(r)}, ${to(g)}, ${to(b)}, ${alpha})`;
-}
 
 // ---------- Icon color (non-brand) ----------
 
