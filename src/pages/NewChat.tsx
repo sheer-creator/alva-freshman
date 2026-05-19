@@ -739,7 +739,7 @@ function PlaybookCard({
         style={{
           width: '100%',
           aspectRatio: '320 / 180',
-          borderRadius: 4,
+          borderRadius: 8,
           overflow: 'hidden',
           flexShrink: 0,
         }}
@@ -1571,6 +1571,37 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
   const pillsContainerRef = useRef<HTMLDivElement>(null);
   const communityRef = useRef<HTMLDivElement>(null);
   const hoverHideTimerRef = useRef<number | null>(null);
+
+  /* ── Pill hover gate — show a small loading ring at the cursor for one full
+     rotation before opening the SkillInfoCard. Cancels if the user moves off
+     the pill before the ring completes. ── */
+  const PILL_HOVER_RING_MS = 600;
+  const pillHoverTimerRef = useRef<number | null>(null);
+  const pillHoverMoveRef = useRef<((e: MouseEvent) => void) | null>(null);
+  const [pillHoverRing, setPillHoverRing] = useState<{ x: number; y: number } | null>(null);
+
+  const cancelPillHoverRing = () => {
+    if (pillHoverTimerRef.current !== null) {
+      window.clearTimeout(pillHoverTimerRef.current);
+      pillHoverTimerRef.current = null;
+    }
+    if (pillHoverMoveRef.current) {
+      document.removeEventListener('mousemove', pillHoverMoveRef.current);
+      pillHoverMoveRef.current = null;
+    }
+    setPillHoverRing(null);
+  };
+  const startPillHoverRing = (id: string, btn: HTMLElement, originX: number, originY: number) => {
+    cancelPillHoverRing();
+    setPillHoverRing({ x: originX, y: originY });
+    const onMove = (ev: MouseEvent) => setPillHoverRing({ x: ev.clientX, y: ev.clientY });
+    document.addEventListener('mousemove', onMove);
+    pillHoverMoveRef.current = onMove;
+    pillHoverTimerRef.current = window.setTimeout(() => {
+      cancelPillHoverRing();
+      computeHover(id, btn.getBoundingClientRect());
+    }, PILL_HOVER_RING_MS);
+  };
 
   const cancelHoverHide = () => {
     if (hoverHideTimerRef.current !== null) {
@@ -2725,12 +2756,13 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                     if (!supportsHover()) return;
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
-                    computeHover(t.id, e.currentTarget.getBoundingClientRect());
+                    startPillHoverRing(t.id, e.currentTarget, e.clientX, e.clientY);
                   }}
                   onMouseLeave={(e) => {
                     if (!supportsHover()) return;
                     e.currentTarget.style.boxShadow = 'none';
                     e.currentTarget.style.transform = 'translateY(0)';
+                    cancelPillHoverRing();
                     scheduleHoverHide();
                   }}
                   style={{
@@ -2996,6 +3028,43 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           onMouseEnter={cancelHoverHide}
           onMouseLeave={scheduleHoverHide}
         />
+      )}
+      {pillHoverRing && (
+        <div
+          aria-hidden
+          style={{
+            position: 'fixed',
+            left: pillHoverRing.x + 14,
+            top: pillHoverRing.y + 14,
+            width: 16,
+            height: 16,
+            pointerEvents: 'none',
+            zIndex: 9999,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" style={{ display: 'block' }}>
+            <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="1.6" />
+            <circle
+              cx="8" cy="8" r="6"
+              fill="none"
+              stroke="var(--main-m1)"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeDasharray={2 * Math.PI * 6}
+              strokeDashoffset={2 * Math.PI * 6}
+              transform="rotate(-90 8 8)"
+              style={{
+                animation: `nc-pill-ring-fill ${PILL_HOVER_RING_MS}ms linear forwards`,
+              }}
+            />
+          </svg>
+          <style>{`
+            @keyframes nc-pill-ring-fill {
+              from { stroke-dashoffset: ${2 * Math.PI * 6}; }
+              to   { stroke-dashoffset: 0; }
+            }
+          `}</style>
+        </div>
       )}
       {communityOpen && !isOpt2 && (
         <SkillsLibraryPanel

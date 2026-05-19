@@ -31,7 +31,7 @@ function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }:
     ? 'text-white/35'
     : active
       ? 'text-[var(--main-m1)]'
-      : 'text-white hover:bg-white/5';
+      : 'text-white hover:bg-white/20';
   const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? 'var(--main-m1)' : '#ffffff';
   return (
     <div
@@ -108,7 +108,7 @@ function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?
       <button
         onClick={onClick}
         title={collapsed ? label : undefined}
-        className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/5 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
+        className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/20 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
           <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
@@ -131,8 +131,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
     <div
       className="antialiased bg-[var(--b0-sidebar)] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 z-[2] overflow-y-auto overflow-x-hidden"
       style={{
-        backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)',
-        backgroundSize: '3px 3px',
         width: collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED,
         transition: 'width 200ms ease',
       }}
@@ -166,9 +164,61 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Feed Test" icon="sidebar-dashboard-normal" active={activePage === 'screener'} collapsed={collapsed} onClick={() => onNavigate('screener')} />
       </div>
 
+      {/* Upgrade to Pro card — sits above the user row */}
+      {!collapsed && (
+        <div className="shrink-0 w-full px-[8px] pt-[8px] pb-[8px] relative z-[3]">
+          <button
+            type="button"
+            className="relative isolate w-full overflow-hidden rounded-[8px] pt-[6px] pl-[10px] pr-[8px] pb-[8px] text-left transition-colors cursor-pointer"
+            style={{
+              background: 'rgba(255, 255, 255, 0.12)',
+              border: '0.5px solid rgba(255, 255, 255, 0.18)',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.18)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.12)'; }}
+            onClick={() => onNavigate('pricing')}
+          >
+            {/* Decorative top-right glow */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute z-[1]"
+              style={{
+                right: -46,
+                top: -46,
+                width: 93,
+                height: 93,
+                background: 'radial-gradient(circle, rgba(42,155,125,0.45) 0%, rgba(42,155,125,0) 70%)',
+              }}
+            />
+            <div className="relative z-[2] flex items-start gap-[8px]">
+              <span
+                className="flex items-center justify-center shrink-0 rounded-[4px]"
+                style={{ width: 20, height: 20, background: 'rgba(42, 155, 125, 0.20)', marginTop: 4 }}
+              >
+                <CdnIcon name="arrow-up-f1" size={14} color="var(--main-m3, #2A9B7D)" />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span
+                  className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+                  style={{ color: '#fff' }}
+                >
+                  Upgrade to Pro
+                </span>
+                <span
+                  className="font-['Delight',sans-serif] text-[10px] leading-[16px] tracking-[0.1px]"
+                  style={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                >
+                  Unlock unlimited playbooks with 7-day free trial
+                </span>
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* 用户行 */}
       <div
-        className={`content-stretch flex items-center relative rounded-[6px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/5 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
+        className={`content-stretch flex items-center relative rounded-[6px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/20 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
         onClick={() => onNavigate('user-profile')}
