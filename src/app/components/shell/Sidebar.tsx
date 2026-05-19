@@ -31,7 +31,7 @@ function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }:
     ? 'text-white/35'
     : active
       ? 'text-[var(--main-m1)]'
-      : 'text-white hover:bg-white/5';
+      : 'text-white hover:bg-white/10';
   const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? 'var(--main-m1)' : '#ffffff';
   return (
     <div
@@ -108,7 +108,7 @@ function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?
       <button
         onClick={onClick}
         title={collapsed ? label : undefined}
-        className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/5 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
+        className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[6px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/10 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
           <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
@@ -166,7 +166,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* 用户行 */}
       <div
-        className={`content-stretch flex items-center relative rounded-[6px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/5 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
+        className={`content-stretch flex items-center relative rounded-[6px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/10 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
         onClick={() => onNavigate('user-profile')}
