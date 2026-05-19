@@ -79,7 +79,7 @@ export function PlaybookCard({
             margin: '4px 4px 0 4px',
             width: 'calc(100% - 8px)',
             aspectRatio: '16 / 9',
-            borderRadius: 4,
+            borderRadius: 8,
             overflow: 'hidden',
             background: simple
               ? 'linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%)'
