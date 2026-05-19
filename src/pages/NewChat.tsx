@@ -738,7 +738,7 @@ function PlaybookCard({
       <div
         style={{
           width: '100%',
-          aspectRatio: '320 / 140',
+          aspectRatio: '320 / 180',
           borderRadius: 4,
           overflow: 'hidden',
           flexShrink: 0,

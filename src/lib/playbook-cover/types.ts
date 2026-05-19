@@ -59,12 +59,8 @@ export type CoverInput = {
   whatIfBars?: number[];
   /** Defaults to "en". Affects category translations, default labels, font stack, splitDelta separators. */
   locale?:  Locale;
-  /**
-   * Optional live cover image URL. When set, `PlaybookCover` renders this
-   * image filling the canvas instead of the generated SVG cover; the
-   * template-driven content layer is bypassed. Used to display the actual
-   * thumbnails fetched from alva.ai (which are screenshot-derived WebPs).
-   */
+  /** Optional override: when set, the renderer swaps the generated SVG for
+   *  this image (e.g. a screenshot). Cover-gen ignores this field. */
   coverImageUrl?: string;
 };
 
