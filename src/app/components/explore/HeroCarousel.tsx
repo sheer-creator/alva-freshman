@@ -275,8 +275,11 @@ function RegularHeroCard({
   isMobile: boolean;
 }) {
   const ticker = p.tickers[0];
+  const [hovered, setHovered] = useState(false);
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         position: "relative",
         height: isMobile ? "auto" : 220,
@@ -285,10 +288,15 @@ function RegularHeroCard({
         // Per Figma 5461:50119 — line/l12 + Shadow S (6 20 4).
         border: "1px solid var(--line-l12, rgba(0,0,0,0.12))",
         background,
-        boxShadow: "0 6px 20px 0 rgba(0,0,0,0.04)",
+        boxShadow: hovered
+          ? "0 10px 24px 0 rgba(0,0,0,0.08)"
+          : "0 6px 20px 0 rgba(0,0,0,0.04)",
         overflow: "hidden",
         boxSizing: "border-box",
         cursor: "pointer",
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
+        transition:
+          "transform 180ms cubic-bezier(0.2, 0, 0, 1), box-shadow 180ms cubic-bezier(0.2, 0, 0, 1)",
       }}
     >
       {/* Left text column */}
@@ -398,8 +406,11 @@ function CompactHeroCard({
   p: ExplorePlaybook;
   background: string;
 }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: "grid",
         gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
@@ -408,10 +419,15 @@ function CompactHeroCard({
         // uses the same chassis as regular.
         border: "1px solid var(--line-l12, rgba(0,0,0,0.12))",
         background,
-        boxShadow: "0 6px 20px 0 rgba(0,0,0,0.04)",
+        boxShadow: hovered
+          ? "0 10px 24px 0 rgba(0,0,0,0.08)"
+          : "0 6px 20px 0 rgba(0,0,0,0.04)",
         overflow: "hidden",
         boxSizing: "border-box",
         cursor: "pointer",
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
+        transition:
+          "transform 180ms cubic-bezier(0.2, 0, 0, 1), box-shadow 180ms cubic-bezier(0.2, 0, 0, 1)",
       }}
     >
       {/* Left column — byline + title + description, vertically centred. */}
