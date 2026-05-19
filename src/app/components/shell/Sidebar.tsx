@@ -164,6 +164,58 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Feed Test" icon="sidebar-dashboard-normal" active={activePage === 'screener'} collapsed={collapsed} onClick={() => onNavigate('screener')} />
       </div>
 
+      {/* Upgrade to Pro card — sits above the user row */}
+      {!collapsed && (
+        <div className="shrink-0 w-full px-[8px] pt-[8px] pb-[8px] relative z-[3]">
+          <button
+            type="button"
+            className="relative isolate w-full overflow-hidden rounded-[8px] pt-[6px] pl-[10px] pr-[8px] pb-[8px] text-left transition-colors cursor-pointer"
+            style={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '0.5px solid rgba(255, 255, 255, 0.12)',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.10)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.06)'; }}
+            onClick={() => onNavigate('pricing')}
+          >
+            {/* Decorative top-right glow */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute z-[1]"
+              style={{
+                right: -46,
+                top: -46,
+                width: 93,
+                height: 93,
+                background: 'radial-gradient(circle, rgba(42,155,125,0.45) 0%, rgba(42,155,125,0) 70%)',
+              }}
+            />
+            <div className="relative z-[2] flex items-start gap-[8px]">
+              <span
+                className="flex items-center justify-center shrink-0 rounded-[4px]"
+                style={{ width: 20, height: 20, background: 'rgba(42, 155, 125, 0.20)', marginTop: 4 }}
+              >
+                <CdnIcon name="arrow-up-f1" size={14} color="var(--main-m3, #2A9B7D)" />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span
+                  className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+                  style={{ color: '#fff' }}
+                >
+                  Upgrade to Pro
+                </span>
+                <span
+                  className="font-['Delight',sans-serif] text-[10px] leading-[16px] tracking-[0.1px]"
+                  style={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                >
+                  Unlock unlimited playbooks with 7-day free trial
+                </span>
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* 用户行 */}
       <div
         className={`content-stretch flex items-center relative rounded-[6px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/10 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
