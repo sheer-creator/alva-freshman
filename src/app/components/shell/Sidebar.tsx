@@ -171,11 +171,11 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
             type="button"
             className="relative isolate w-full overflow-hidden rounded-[8px] pt-[6px] pl-[10px] pr-[8px] pb-[8px] text-left transition-colors cursor-pointer"
             style={{
-              background: 'rgba(255, 255, 255, 0.12)',
-              border: '0.5px solid rgba(255, 255, 255, 0.18)',
+              background: 'rgba(255, 255, 255, 0.10)',
+              border: '0.5px solid rgba(255, 255, 255, 0.12)',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.18)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.12)'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.16)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.10)'; }}
             onClick={() => onNavigate('pricing')}
           >
             {/* Decorative top-right glow — soft m3 bloom, diffused via blur */}
