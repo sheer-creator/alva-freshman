@@ -1373,8 +1373,19 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           })}
         </div>
       )}
-      {(selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0 || !!bottomChip) && (
-        <div className="flex flex-wrap gap-[8px] items-start w-full">
+      {/* Chip row — animates height open/close via grid-template-rows.
+          marginBottom -12 collapses the wrapper's gap:12 when the row is
+          empty so the editor doesn't get pushed down by a phantom slot. */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: (selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0 || !!bottomChip) ? '1fr' : '0fr',
+          marginBottom: (selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0 || !!bottomChip) ? 0 : -12,
+          transition: 'grid-template-rows 240ms cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 240ms cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        <div style={{ overflow: 'hidden', minHeight: 0 }}>
+          <div className="flex flex-wrap gap-[8px] items-start w-full">
           {bottomChip && (
             <div
               className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0"
@@ -1542,8 +1553,9 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
                 </button>
               </div>
           )}
+          </div>
         </div>
-      )}
+      </div>
       <div className="relative min-h-[44px]" style={{ maxHeight: 240, overflowY: 'auto' }}>
         {showPlaceholder && (
           <div className="absolute inset-0 pointer-events-none font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n3)]">
