@@ -1,30 +1,34 @@
 /**
  * [INPUT]: CoverInput (template, title, tickers, optional kind/anchor/series, etc.)
- * [OUTPUT]: SVG cover at the canonical 320×140 design size, scales to container.
+ * [OUTPUT]: SVG cover at the canonical 320×180 design size, scales to container.
  * [POS]: Component — used inside Explore PlaybookCard / HeroCarousel / NewChat
  *
- * 100% data-driven SVG renderer for the alva-cover-generation skill's CoverOutput.
- * Every value (color, font, opacity, position, dimension) comes from the SKILL
- * output (`generateCover`) or `dimensions.ts`. There are no constants in this
- * file. To change cover behavior: edit the SKILL, not this renderer.
+ * Path-inlining SVG renderer for the SKILL's CoverOutput, adapted from
+ * RobertLee8888/alva-cover-imagegen. Brand logos (simpleicons CDN) and
+ * Material Symbols (fonts.gstatic.com) are fetched once at mount, parsed
+ * into <path> data, and inlined into the SVG — so the rendered cover is
+ * self-contained and survives XMLSerializer + canvas drawImage cleanly,
+ * and the icon scales 1:1 with the SVG viewBox (no foreignObject quirks).
  *
- * Public API kept compatible with the legacy wrapper:
- *   <PlaybookCover input={coverInput} staggerMs={...} />
- *
- * `staggerMs` continues to drive a 10s live-update loop on thesis & what-if
- * templates (numerical jitter on the original input strings); other templates
- * pass through unchanged.
+ * Local extensions beyond the skill:
+ *   - `input.coverImageUrl` short-circuits to an <img> filling the slot.
+ *     Used by the Explore grid to display the actual screenshot
+ *     thumbnails fetched from alva.ai. Hero/detail surfaces strip the
+ *     field so they always render the parametric cover.
+ *   - `staggerMs` continues to drive a 10s live-update loop on thesis &
+ *     what-if templates (numerical jitter on the input strings).
  */
 
 import { useEffect, useMemo, useState } from 'react';
 import type {
-  CoverInput, CoverOutput, ContentElement, RGB, TextPalette, FontStack,
+  CoverInput, CoverOutput, ContentElement, IconSpec, TextPalette, FontStack,
 } from './types';
 import { generateCover } from './cover-gen';
-import { rgbToCss } from './color';
 import { materialSymbolUrl } from './icon-mapping';
 import { COVER_W, COVER_H } from './dimensions';
-import { BrandLogo } from './BrandLogo';
+import { rgbToCss } from './color';
+
+type IconFragment = { viewBox: string; inner: string };
 
 export function PlaybookCover({
   input: rawInput,
@@ -42,9 +46,27 @@ export function PlaybookCover({
   const gradId = `${uid}-bg`;
   const portrait = bg.portraitRender;
 
+  const [iconFrag, setIconFrag] = useState<IconFragment | null>(null);
+  const iconKey = useMemo(() => JSON.stringify(icon ?? null), [icon]);
+
+  useEffect(() => {
+    if (!icon) {
+      setIconFrag(null);
+      return;
+    }
+    let cancelled = false;
+    fetchIconFragment(icon).then((frag) => {
+      if (!cancelled) setIconFrag(frag);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [iconKey]);
+
   // Live cover override — when the input ships a `coverImageUrl`, swap the
   // generated SVG for the actual screenshot. Hooks above still run so React
-  // sees a stable call order.
+  // sees a stable hook order across renders.
   if (rawInput.coverImageUrl) {
     return (
       <img
@@ -64,6 +86,8 @@ export function PlaybookCover({
   return (
     <svg
       viewBox={`0 0 ${COVER_W} ${COVER_H}`}
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
       preserveAspectRatio="xMidYMid meet"
       style={{ width: '100%', height: '100%', display: 'block' }}
     >
@@ -79,41 +103,19 @@ export function PlaybookCover({
       {portrait && (
         <image
           href={portrait.href}
-          x={0} y={0} width={COVER_W} height={COVER_H}
+          x={0} y={0}
+          width={COVER_W} height={COVER_H}
           preserveAspectRatio={portrait.crop.svgPreserveAspectRatio}
           opacity={portrait.opacity}
-          style={{ filter: `saturate(${1 + portrait.filters.saturation}) contrast(${1 + portrait.filters.contrast}) brightness(${1 + portrait.filters.exposure})` }}
+          style={{
+            filter: `saturate(${1 + portrait.filters.saturation}) contrast(${
+              1 + portrait.filters.contrast
+            }) brightness(${1 + portrait.filters.exposure})`,
+          }}
         />
       )}
 
-      {icon?.kind === 'material' && (
-        <foreignObject x={icon.x} y={icon.y} width={icon.size} height={icon.size}>
-          <div
-            // @ts-expect-error xmlns required for foreignObject children
-            xmlns="http://www.w3.org/1999/xhtml"
-            style={{
-              width: '100%', height: '100%',
-              backgroundColor: rgbToCss(icon.color),
-              opacity: icon.opacity,
-              WebkitMaskImage: `url(${materialSymbolUrl(icon.symbol)})`,
-              maskImage: `url(${materialSymbolUrl(icon.symbol)})`,
-              WebkitMaskSize: 'contain', maskSize: 'contain',
-              WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
-              WebkitMaskPosition: 'center', maskPosition: 'center',
-            }}
-          />
-        </foreignObject>
-      )}
-
-      {icon?.kind === 'brand' && (
-        <BrandLogo
-          slug={icon.logoSlug}
-          color={rgbToCssHex(icon.color)}
-          size={icon.size} opacity={icon.opacity}
-          x={icon.x} y={icon.y}
-          fallbackSymbol={icon.fallbackSymbol}
-        />
-      )}
+      {icon && iconFrag && <IconLayer icon={icon} frag={iconFrag} />}
 
       {content.map((el, i) => (
         <ContentEl key={i} el={el} text={text} fontFamily={fontFamily} />
@@ -122,10 +124,84 @@ export function PlaybookCover({
   );
 }
 
+/* ---------- icon layer ---------- */
+
+function IconLayer({ icon, frag }: { icon: NonNullable<IconSpec>; frag: IconFragment }) {
+  // Inner vector sits at 80 % of the icon frame (10 % inset on each side) —
+  // matches the SKILL's brand-vs-Material weight calibration.
+  const inset = icon.size * 0.1;
+  const innerX = icon.x + inset;
+  const innerY = icon.y + inset;
+  const innerSize = icon.size - inset * 2;
+
+  return (
+    <g opacity={icon.opacity} fill={rgbToCss(icon.color)}>
+      <svg
+        x={innerX}
+        y={innerY}
+        width={innerSize}
+        height={innerSize}
+        viewBox={frag.viewBox}
+        dangerouslySetInnerHTML={{ __html: frag.inner }}
+      />
+    </g>
+  );
+}
+
+async function fetchIconFragment(icon: NonNullable<IconSpec>): Promise<IconFragment | null> {
+  const candidates = iconCandidates(icon);
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const txt = await res.text();
+      const frag = parseSvgFragment(txt);
+      if (frag) return frag;
+    } catch {
+      // try next
+    }
+  }
+  return null;
+}
+
+function iconCandidates(icon: NonNullable<IconSpec>): string[] {
+  if (icon.kind === 'material') {
+    return [materialSymbolUrl(icon.symbol)];
+  }
+  const slug = icon.logoSlug;
+  return [
+    `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${slug}.svg`,
+    `https://cdn.simpleicons.org/${slug}`,
+    materialSymbolUrl(icon.fallbackSymbol),
+  ];
+}
+
+function parseSvgFragment(svgText: string): IconFragment | null {
+  const vbMatch = svgText.match(/viewBox="([^"]+)"/);
+  if (!vbMatch) return null;
+  const viewBox = vbMatch[1]!;
+
+  const openEnd = svgText.indexOf('>');
+  const closeStart = svgText.lastIndexOf('</svg>');
+  if (openEnd < 0 || closeStart < 0 || closeStart <= openEnd) return null;
+
+  let inner = svgText.slice(openEnd + 1, closeStart).trim();
+  inner = inner.replace(/<title[\s\S]*?<\/title>/gi, '');
+  inner = inner.replace(/<desc[\s\S]*?<\/desc>/gi, '');
+  inner = inner.replace(/<!--[\s\S]*?-->/g, '');
+  // strip fill attributes so the outer <g fill="..."> drives color
+  inner = inner.replace(/\sfill="[^"]*"/g, '');
+  return { viewBox, inner: inner.trim() };
+}
+
 function stackToCss(stack: FontStack): string {
   const all = [stack.primary, ...stack.fallbacks];
-  return all.map(f => /[ ]/.test(f) && !f.startsWith('"') ? `"${f}"` : f).join(', ');
+  return all
+    .map((f) => (/[ ]/.test(f) && !f.startsWith('"') ? `"${f}"` : f))
+    .join(', ');
 }
+
+/* ---------- content element renderers ---------- */
 
 function ContentEl({
   el, text, fontFamily,
@@ -136,25 +212,16 @@ function ContentEl({
       const display = el.caps ? el.text.toUpperCase() : el.text;
       return (
         <text
-          x={el.x} y={el.y}
+          x={el.x}
+          y={el.y}
           fill={rgbToCss(text[el.paletteRole])}
-          fontFamily={fontFamily} fontSize={el.fontSize} fontWeight={el.fontWeight}
-          letterSpacing={`${el.letterSpacing}em`} dominantBaseline="hanging"
+          fontFamily={fontFamily}
+          fontSize={el.fontSize}
+          fontWeight={el.fontWeight}
+          letterSpacing={`${el.letterSpacing}em`}
+          dominantBaseline="hanging"
         >
           {display}
-        </text>
-      );
-    }
-
-    case 'series': {
-      return (
-        <text
-          x={el.x} y={el.y}
-          fill={rgbToCss(text[el.paletteRole])}
-          fontFamily={fontFamily} fontSize={el.fontSize} fontWeight={el.fontWeight}
-          letterSpacing={`${el.letterSpacing}em`} dominantBaseline="hanging"
-        >
-          {el.text}
         </text>
       );
     }
@@ -164,10 +231,14 @@ function ContentEl({
     case 'hero-pct': {
       return (
         <text
-          x={el.x} y={el.y}
+          x={el.x}
+          y={el.y}
           fill={rgbToCss(text[el.paletteRole])}
-          fontFamily={fontFamily} fontSize={el.fontSize} fontWeight={el.fontWeight}
-          letterSpacing={`${el.letterSpacing}em`} dominantBaseline="hanging"
+          fontFamily={fontFamily}
+          fontSize={el.fontSize}
+          fontWeight={el.fontWeight}
+          letterSpacing={`${el.letterSpacing}em`}
+          dominantBaseline="hanging"
         >
           {el.text}
         </text>
@@ -178,31 +249,40 @@ function ContentEl({
       const bgColor = rgbToCss(el.chipBg.color, el.chipBg.opacity);
       const fgColor = rgbToCss(el.chipTextColor);
       let cursor = el.x;
-      const chips = el.tickers.map((tk, i) => {
-        const w = el.chipPaddingX * 2 + tk.length * (el.chipFontSize * 0.62);
-        const chip = (
-          <g key={i}>
-            <rect
-              x={cursor} y={el.y - 1}
-              width={w} height={el.chipHeight}
-              rx={el.chipBorderRadius}
-              fill={bgColor}
-            />
-            <text
-              x={cursor + w / 2} y={el.textBaselineY}
-              fill={fgColor}
-              fontFamily={fontFamily} fontSize={el.chipFontSize}
-              fontWeight={el.chipFontWeight} letterSpacing={`${el.chipLetterSpacing}em`}
-              textAnchor="middle" dominantBaseline="middle"
-            >
-              {tk}
-            </text>
-          </g>
-        );
-        cursor += w + el.chipGap;
-        return chip;
-      });
-      return <>{chips}</>;
+      return (
+        <>
+          {el.tickers.map((tk, i) => {
+            const w = el.chipPaddingX * 2 + tk.length * (el.chipFontSize * 0.62);
+            const node = (
+              <g key={i}>
+                <rect
+                  x={cursor}
+                  y={el.y - 1}
+                  width={w}
+                  height={el.chipHeight}
+                  rx={el.chipBorderRadius}
+                  fill={bgColor}
+                />
+                <text
+                  x={cursor + w / 2}
+                  y={el.textBaselineY}
+                  fill={fgColor}
+                  fontFamily={fontFamily}
+                  fontSize={el.chipFontSize}
+                  fontWeight={el.chipFontWeight}
+                  letterSpacing={`${el.chipLetterSpacing}em`}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                >
+                  {tk}
+                </text>
+              </g>
+            );
+            cursor += w + el.chipGap;
+            return node;
+          })}
+        </>
+      );
     }
 
     case 'delta': {
@@ -217,9 +297,11 @@ function ContentEl({
               fill={rgbToCss(el.categoryColor)}
             />
             <text
-              x={el.categoryX + 10} y={el.categoryY}
+              x={el.categoryX + 10}
+              y={el.categoryY}
               fill={rgbToCss(el.categoryColor)}
-              fontFamily={fontFamily} fontSize={el.categoryFontSize}
+              fontFamily={fontFamily}
+              fontSize={el.categoryFontSize}
               fontWeight={el.categoryFontWeight}
               letterSpacing={`${el.categoryLetterSpacing}em`}
               dominantBaseline="middle"
@@ -230,10 +312,13 @@ function ContentEl({
           {lines.map((line, i) => (
             <text
               key={i}
-              x={el.x} y={el.y + i * el.lineHeight}
+              x={el.x}
+              y={el.y + i * el.lineHeight}
               fill={rgbToCss(el.bodyColor)}
-              fontFamily={fontFamily} fontSize={el.fontSize}
-              fontWeight={el.fontWeight} letterSpacing={`${el.letterSpacing}em`}
+              fontFamily={fontFamily}
+              fontSize={el.fontSize}
+              fontWeight={el.fontWeight}
+              letterSpacing={`${el.letterSpacing}em`}
               dominantBaseline="hanging"
             >
               {line}
@@ -248,8 +333,10 @@ function ContentEl({
         <>
           {el.bars.length > 0 && (
             <line
-              x1={el.zeroLine.x1} x2={el.zeroLine.x2}
-              y1={el.zeroLineY} y2={el.zeroLineY}
+              x1={el.zeroLine.x1}
+              x2={el.zeroLine.x2}
+              y1={el.zeroLineY}
+              y2={el.zeroLineY}
               stroke={rgbToCss(el.zeroLine.color, el.zeroLine.opacity)}
               strokeWidth={el.zeroLine.strokeWidth}
             />
@@ -257,18 +344,22 @@ function ContentEl({
           {el.bars.map((b, i) => (
             <rect
               key={i}
-              x={b.x} y={b.y} width={b.width} height={b.height}
-              fill={rgbToCss(b.color, el.barOpacity)} rx={1}
+              x={b.x}
+              y={b.y}
+              width={b.width}
+              height={b.height}
+              fill={rgbToCss(b.color, el.barOpacity)}
+              rx={1}
             />
           ))}
         </>
       );
     }
 
+    case 'series':
     case 'chip':
     case 'delta-badge':
     case 'delta-stack':
-      // Not currently emitted by the SKILL for our inputs. Wire when needed.
       return null;
 
     default:
@@ -276,12 +367,7 @@ function ContentEl({
   }
 }
 
-function rgbToCssHex({ r, g, b }: RGB): string {
-  const to = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
-  return `#${to(r)}${to(g)}${to(b)}`;
-}
-
-/* ---------- Live update ---------- */
+/* ---------- live update ---------- */
 
 const LIVE_INTERVAL_MS = 10_000;
 
@@ -347,5 +433,5 @@ function jitterPercents(s: string, range: number, tick: number): string {
 
 function pseudoRandom(seed: number): number {
   const x = Math.sin(seed) * 10_000;
-  return (x - Math.floor(x)) - 0.5;
+  return (x - Math.floor(x) - 0.5) * 2;
 }

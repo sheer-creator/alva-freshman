@@ -106,7 +106,12 @@ export function clampPaperRegime({ H, S, L }: HSL): HSL {
  *   textL = max(bgL − 0.70, 0.18)
  */
 export function textBaseFor({ H, S, L }: HSL): RGB {
-  const textS = Math.min(S + 0.20, 0.45);
+  // Achromatic (mono) brand input — bgS very low. Force textS=0 so the text
+  // is a pure neutral gray instead of picking up a red tint from H=0+textS>0.
+  // Without this, AAPL (#000000) would derive textS=0.20 over H=0 → dark
+  // red-brown text, clashing with its gray bg gradient.
+  const isAchromatic = S < 0.05;
+  const textS = isAchromatic ? 0 : Math.min(S + 0.20, 0.45);
   const textL = Math.max(L - 0.70, 0.18);
   return hslToRgb(H, textS, textL);
 }
@@ -179,6 +184,17 @@ export function barColorFor(bgH: number, isPositive: boolean): RGB {
 /** Opacity for bar fills — 0.55 gives atmospheric weight without losing signal. */
 export const BAR_OPACITY = 0.55;
 
+/**
+ * Convert an RGB (components in 0..1) plus optional alpha into a CSS color
+ * string. Used by renderers; not part of the skill's pure color math.
+ */
+export function rgbToCss({ r, g, b }: RGB, alpha = 1): string {
+  const to = (x: number) => Math.round(x * 255);
+  return alpha === 1
+    ? `rgb(${to(r)}, ${to(g)}, ${to(b)})`
+    : `rgba(${to(r)}, ${to(g)}, ${to(b)}, ${alpha})`;
+}
+
 // ---------- Icon color (non-brand) ----------
 
 /**
@@ -199,16 +215,4 @@ export function iconColorFor({ H, S, L }: HSL): RGB {
  */
 export function slotToHue(slot: number, baseH: number, range: number): number {
   return baseH + (slot / 11 - 0.5) * range * 2;
-}
-
-/**
- * CSS color helper — RGB (0..1) → `rgb()` / `rgba()` string. Kept here so
- * consumers across the app can use the same color math without importing
- * a second utility module.
- */
-export function rgbToCss({ r, g, b }: RGB, alpha = 1): string {
-  const to = (x: number) => Math.round(x * 255);
-  return alpha === 1
-    ? `rgb(${to(r)}, ${to(g)}, ${to(b)})`
-    : `rgba(${to(r)}, ${to(g)}, ${to(b)}, ${alpha})`;
 }

@@ -9,7 +9,7 @@ import {
   BgSpec, IconSpec, TextPalette, ContentElement, BarSpec, BrandEntry, PaletteBand,
 } from "./types";
 import {
-  DEFAULT_ICON_GEOM, WHATIF_ICON_GEOM,
+  BRAND_ICON_GEOM, MATERIAL_ICON_GEOM, WHATIF_ICON_GEOM,
   BARS_LEFT, BARS_RIGHT, BAR_GAP,
   CATEGORY_COLORS, FONT_WEIGHTS, TRACKED_CAPS,
 } from "./dimensions";
@@ -63,15 +63,22 @@ export function generateCover(input: CoverInput): CoverOutput {
   const isPortrait = !!input.portrait;
 
   // ---- Layer 1: background ----
+  // Single registered ticker (mono OR chromatic) → brand bg via alpha-on-white.
+  // Mono brands (AAPL/NKE/UBER/SPY etc, all #000000) yield a clean neutral
+  // gray gradient — was previously skipped to avoid a "deactivated" look,
+  // but user-facing testing confirmed full bg switch is the expected behavior
+  // when a single brand ticker is present. textBaseFor() handles achromatic
+  // (S<0.05) input by using pure gray text, so mono bg + neutral text reads
+  // cleanly.
   const bgHsl: HSL = isPortrait
     ? { H: input.portrait!.portraitH, S: band.S, L: band.L }
-    : brand && !brand.mono
+    : brand
       ? brandBgHsl(brand, band)          // alpha-on-white averaged back to HSL
       : hashedBgHsl(input.title, input.tickers, band);
 
   const bg: BgSpec = isPortrait
     ? withPortraitRender(buildGradient(bgHsl, "portrait"), input.portrait!)
-    : brand && !brand.mono
+    : brand
       ? buildBrandBg(brand, band)
       : buildGradient(bgHsl, "hashed");
 
@@ -92,10 +99,14 @@ export function generateCover(input: CoverInput): CoverOutput {
           );
 
   // ---- Text palette ----
+  // For chromatic brands, derive text from brand hue (TSLA → red-brown, BTC →
+  // warm brown). For mono brands (S<0.05), derive from bgHsl (which is now
+  // also the brand's hsl, but textBaseFor() neutralizes saturation). End
+  // result for AAPL: clean neutral dark-gray text on light gray gradient.
   const text: TextPalette = deriveTextPalette(
     brand && !brand.mono
-      ? colorToHsl(brand.color)          // brand override: text derives from brand hue
-      : bgHsl,
+      ? colorToHsl(brand.color)          // chromatic brand: text from brand hue
+      : bgHsl,                           // mono brand or no brand: text from bgHsl
   );
 
   // ---- Content (per-archetype) ----
@@ -282,7 +293,7 @@ function brandBgHsl(brand: BrandEntry, band: PaletteBand): HSL {
 
 function buildMaterialIcon(symbol: string, template: Template, bgHsl: HSL): IconSpec {
   const color = iconColorFor(bgHsl);
-  const geom = iconGeometryFor(template);
+  const geom = iconGeometryFor(template, "material");
   return {
     kind: "material",
     symbol,
@@ -302,7 +313,7 @@ function symbolForDomain(domain: string): string {
 }
 
 function buildBrandIcon(ticker: string, brand: BrandEntry, template: Template): IconSpec {
-  const geom = iconGeometryFor(template);
+  const geom = iconGeometryFor(template, "brand");
   const opacity = geom.size === 64 ? 0.50 : 0.40;
   return {
     kind: "brand",
@@ -377,12 +388,14 @@ export function validatePortrait(input: CoverInput): void {
 }
 
 type IconGeom = { x: number; y: number; size: number };
-function iconGeometryFor(template: Template): IconGeom {
-  // Single source of truth lives in dimensions.ts so the canvas-resize
-  // recalibration (sizes scaled by 180/140 to match the new 16:9 cover)
-  // doesn't have to be re-applied here.
-  if (template === "what-if") return { ...WHATIF_ICON_GEOM };
-  return { ...DEFAULT_ICON_GEOM };
+function iconGeometryFor(template: Template, kind: "brand" | "material"): IconGeom {
+  // What-if uses the same compact corner-anchored frame regardless of kind —
+  // the what-if hero text is full-width so a smaller icon is correct there.
+  if (template === "what-if") return WHATIF_ICON_GEOM;
+  // Brand glyphs fill their viewBox; Material Symbol glyphs leave significant
+  // padding inside the viewBox. Use different frame sizes to equalize visible
+  // visual weight on the cover.
+  return kind === "brand" ? BRAND_ICON_GEOM : MATERIAL_ICON_GEOM;
 }
 
 // ================================================================
@@ -403,15 +416,15 @@ function buildScreenerContent(input: CoverInput, locale: Locale, text: TextPalet
   const peers = input.tickers.slice(1, 4);
   const cjk   = isCJKLocale(locale);
   return [
-    { kind: "label",  text: input.series ?? DEFAULT_LABELS[locale].screenerSeries, x: 28, y: 24,
+    { kind: "label",  text: input.series ?? DEFAULT_LABELS[locale].screenerSeries, x: 28, y: 35,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
-    { kind: "ticker", text: lead, x: 28, y: 48,
-      fontSize: 34, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
+    { kind: "ticker", text: lead, x: 28, y: 70,
+      fontSize: 42, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
     {
       kind: "peer-chips",
       tickers: peers,
-      x: 28, y: 140,
+      x: 28, y: 128,
       chipHeight: 20,
       chipPaddingX: 8,
       chipGap: 4,
@@ -421,7 +434,7 @@ function buildScreenerContent(input: CoverInput, locale: Locale, text: TextPalet
       chipBorderRadius: 4,
       chipBg:        { color: text.base, opacity: 0.10 },
       chipTextColor: text.support,                            // textBase @ 0.70
-      textBaselineY: 150,
+      textBaselineY: 138,
     },
   ];
 }
@@ -437,7 +450,7 @@ function buildThesisContent(input: CoverInput, locale: Locale, text: TextPalette
   // series is the caps label text and is template-agnostic).
   const category: "RISK" | "CATALYST" | "AMBIGUOUS" = input.category ?? "AMBIGUOUS";
   return [
-    { kind: "label",  text: label, x: 28, y: 24,
+    { kind: "label",  text: label, x: 28, y: 35,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
     {
@@ -445,18 +458,18 @@ function buildThesisContent(input: CoverInput, locale: Locale, text: TextPalette
       text: splitDelta(input.kind ?? "", locale),
       category,
       categoryLabel: localizeCategory(category, locale),     // ← pre-resolved per locale
-      x: 28, y: 112,
-      fontSize: 18,
-      lineHeight: 22,
+      x: 28, y: 100,
+      fontSize: 22,
+      lineHeight: 26,
       fontWeight: FONT_WEIGHTS.semiBold,
       letterSpacing: 0,
       bodyColor: text.hero,
       categoryX: 28,
-      categoryY: 100,
-      categoryFontSize: 10,
+      categoryY: 82,
+      categoryFontSize: 11,
       categoryFontWeight: FONT_WEIGHTS.semiBold,
       categoryLetterSpacing: cjk ? 0 : TRACKED_CAPS,
-      categoryDotSize: 4,
+      categoryDotSize: 6,
       categoryColor: CATEGORY_COLORS[category],
     },
   ];
@@ -551,14 +564,14 @@ function buildWhatIfContent(input: CoverInput, bgHsl: HSL, locale: Locale, text:
   const cjk    = isCJKLocale(locale);
   const { bars, zeroLineY } = computeWhatIfBars(input.whatIfBars ?? [], bgHsl);
   return [
-    { kind: "label",    text: input.series ?? labels.whatIfLabel, x: 28, y: 20,
+    { kind: "label",    text: input.series ?? labels.whatIfLabel, x: 28, y: 30,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
-    { kind: "verb",     text: input.kind   ?? "", x: 28, y: 104,
+    { kind: "verb",     text: input.kind   ?? "", x: 28, y: 83,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
-    { kind: "hero-pct", text: input.anchor ?? "", x: 28, y: 120,
-      fontSize: 40, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
+    { kind: "hero-pct", text: input.anchor ?? "", x: 28, y: 100,
+      fontSize: 50, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
     {
       kind: "bars",
       bars,
@@ -578,17 +591,17 @@ function buildWhatIfContent(input: CoverInput, bgHsl: HSL, locale: Locale, text:
 /**
  * Compute BarSpec[] + zeroLineY from raw signed values. Each bar's height
  * scales relative to the absolute max in the set (cap 28 px), with a 4 px
- * floor so tiny bars stay visible. zeroLineY = 120 − maxNegHeight, so the
- * tallest negative bar's bottom touches the safe-zone bottom (y=120).
+ * floor so tiny bars stay visible. zeroLineY = 150 − maxNegHeight, so the
+ * tallest negative bar's bottom touches the safe-zone bottom (y=150).
  */
 function computeWhatIfBars(values: number[], bgHsl: HSL): { bars: BarSpec[]; zeroLineY: number } {
-  if (!values.length) return { bars: [], zeroLineY: 152 };
+  if (!values.length) return { bars: [], zeroLineY: 142 };
   const N        = values.length;
   const w        = (BARS_RIGHT - BARS_LEFT - BAR_GAP * (N - 1)) / N;
   const maxAbs   = Math.max(...values.map(v => Math.abs(v)), 0.0001);
   const heights  = values.map(v => Math.max(Math.abs(v) * (28 / maxAbs), 4));
   const maxNegH  = values.reduce((a, v, i) => v < 0 ? Math.max(a, heights[i]!) : a, 0);
-  const zeroLineY = 160 - maxNegH;
+  const zeroLineY = 150 - maxNegH;
   const bars: BarSpec[] = values.map((v, i) => {
     const isPos = v >= 0;
     return {
@@ -607,12 +620,12 @@ function buildGeneralContent(input: CoverInput, locale: Locale): ContentElement[
   const labels = DEFAULT_LABELS[locale];
   const cjk    = isCJKLocale(locale);
   return [
-    { kind: "label",      text: input.kind   ?? labels.generalKind, x: 28, y: 24,
+    { kind: "label",      text: input.kind   ?? labels.generalKind, x: 28, y: 35,
       fontSize: 9, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "label", caps: !cjk },
-    { kind: "hero-pulse", text: input.anchor ?? "", x: 28, y: 106,
-      fontSize: 28, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
-    { kind: "series",     text: input.series ?? "", x: 28, y: 146,
+    { kind: "hero-pulse", text: input.anchor ?? "", x: 28, y: 94,
+      fontSize: 34, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: 0, paletteRole: "hero" },
+    { kind: "series",     text: input.series ?? "", x: 28, y: 140,
       fontSize: 10, fontWeight: FONT_WEIGHTS.semiBold, letterSpacing: cjk ? 0 : TRACKED_CAPS,
       paletteRole: "support" },
   ];

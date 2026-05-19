@@ -60,10 +60,11 @@ export type CoverInput = {
   /** Defaults to "en". Affects category translations, default labels, font stack, splitDelta separators. */
   locale?:  Locale;
   /**
-   * Optional live cover image URL. When set, `PlaybookCover` renders this
-   * image filling the canvas instead of the generated SVG cover; the
-   * template-driven content layer is bypassed. Used to display the actual
-   * thumbnails fetched from alva.ai (which are screenshot-derived WebPs).
+   * Optional live cover image URL — local override outside the skill spec.
+   * When set, `PlaybookCover` renders this image filling the canvas
+   * instead of the generated SVG. Used by the Explore grid to display the
+   * actual screenshot thumbnails fetched from alva.ai. Hero / detail
+   * surfaces strip this field so they always show the parametric cover.
    */
   coverImageUrl?: string;
 };

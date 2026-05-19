@@ -274,7 +274,7 @@ export function createCardShell(parent: FigmaNode): FigmaNode {
   // Cover
   const cover = (globalThis as any).figma.createFrame();
   cover.name = "Cover";
-  cover.resize(320, 180);
+  cover.resize(320, 140);
   cover.cornerRadius = 8;
   cover.clipsContent = true;
   card.appendChild(cover);

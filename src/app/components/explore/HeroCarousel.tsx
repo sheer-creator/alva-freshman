@@ -36,27 +36,31 @@ const PEEK_SCALE = 0.9;
 type CardMode = "regular" | "compact";
 
 /**
- * Cards-per-container formula — Figma 4145:11614.
+ * Cards-per-container formula — Figma 4145:11614 (2026-05-19 spec).
  *
- *   N  = ⌊ (W + 16) ÷ 856 ⌋
- *   W  = card-span (module-aligned), gap = 16, peek visible = 12,
- *   cardMin = 840 (below cardMin a card switches to compact),
- *   viewport = W + 56 (28 on each side: 12 peek + 16 gap).
+ *   n      = ⌊ (W − 40 + 856) ÷ 856 ⌋
+ *   W      = container width (visible carousel area, incl. peek + gap)
+ *   gap    = 16
+ *   peek   = 12
+ *   gutter = 28 each side (peek + gap)   ← reserved on mobile too
+ *   cardMin compact = 480
+ *   cardMin wide    = 840
+ *   card   = (W − 56 − (n − 1) · 16) ÷ n
  *
- *   W < 480         → hidden
- *   480 ≤ W < 840   → 1 compact card · card = W
- *   840 ≤ W < 1696  → 1 wide card    · card = W
- *   1696 ≤ W < 2552 → 2 wide cards   · each (W − 16) ÷ 2
- *   W ≥ 2552        → 3 wide cards   · each (W − 32) ÷ 3
+ *   W < 536         → hidden (W < cardMin(480) + gutter(56))
+ *   536 ≤ W < 896   → 1 compact card · card = W − 56  (mobile/sidebar/drawer)
+ *   896 ≤ W < 1752  → 1 wide card    · card = W − 56  (tablet/standard desktop)
+ *   1752 ≤ W < 2608 → 2 wide cards   · each (W − 72) ÷ 2  (wide desktop)
+ *   W ≥ 2608        → 3 wide cards   · each (W − 88) ÷ 3  (ultra-wide / 4K)
  *
- * On mobile there are no peek slivers so W is the container width directly;
- * on desktop W = container − 56.
+ * Mobile is no longer a special-case; the same gutter is reserved on every
+ * platform so the peek behavior is consistent.
  */
-function layoutForSpan(span: number): { cardsPerRow: 0 | 1 | 2 | 3; mode: CardMode } {
-  if (span < 480) return { cardsPerRow: 0, mode: "compact" };
-  if (span < 840) return { cardsPerRow: 1, mode: "compact" };
-  if (span < 1696) return { cardsPerRow: 1, mode: "regular" };
-  if (span < 2552) return { cardsPerRow: 2, mode: "regular" };
+function layoutForContainer(W: number): { cardsPerRow: 0 | 1 | 2 | 3; mode: CardMode } {
+  if (W < 536) return { cardsPerRow: 0, mode: "compact" };
+  if (W < 896) return { cardsPerRow: 1, mode: "compact" };
+  if (W < 1752) return { cardsPerRow: 1, mode: "regular" };
+  if (W < 2608) return { cardsPerRow: 2, mode: "regular" };
   return { cardsPerRow: 3, mode: "regular" };
 }
 
@@ -77,19 +81,14 @@ export function HeroCarousel({ playbooks, isMobile = false }: { playbooks: Explo
     return () => ro.disconnect();
   }, []);
 
-  // Card span W per Figma 4145:11614. Mobile has no peek so the card spans
-  // the container directly; desktop reserves 28 px on each side (12 peek +
-  // 16 gap), so W = container − 56.
-  const cardSpan = isMobile
-    ? containerWidth
-    : Math.max(0, containerWidth - 2 * (PEEK + GAP));
-  const { cardsPerRow, mode } = layoutForSpan(cardSpan);
+  // W is the full container width (visible carousel area, incl. peek + gap),
+  // per Figma 4145:11614. Same 28-px gutter is reserved on every platform.
+  const W = containerWidth;
+  const { cardsPerRow, mode } = layoutForContainer(W);
   const cardW = cardsPerRow === 0
     ? 0
-    : cardsPerRow === 1
-      ? cardSpan
-      : (cardSpan - GAP * (cardsPerRow - 1)) / cardsPerRow;
-  const cardH = isMobile ? 0 : CARD_HEIGHT[mode];
+    : (W - 56 - GAP * (cardsPerRow - 1)) / cardsPerRow;
+  const cardH = cardsPerRow === 0 ? 0 : CARD_HEIGHT[mode];
 
   const lastIdx = Math.max(0, playbooks.length - cardsPerRow);
   const positions = lastIdx + 1;
@@ -109,7 +108,9 @@ export function HeroCarousel({ playbooks, isMobile = false }: { playbooks: Explo
 
   const stepPx = cardW + GAP;
   const offsetPx = idx * stepPx;
-  const startInset = isMobile ? 0 : PEEK + GAP;
+  // Same 28-px gutter on every platform — peek slivers leak past on mobile
+  // too per the 2026-05-19 spec.
+  const startInset = PEEK + GAP;
 
   // The peek slivers + drop shadow both need to escape the viewport's
   // horizontal padding. We clip horizontally (overflow-x: clip) so peeks
