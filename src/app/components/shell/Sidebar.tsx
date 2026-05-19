@@ -131,8 +131,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
     <div
       className="antialiased bg-[var(--b0-sidebar)] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 z-[2] overflow-y-auto overflow-x-hidden"
       style={{
-        backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px)',
-        backgroundSize: '3px 3px',
         width: collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED,
         transition: 'width 200ms ease',
       }}

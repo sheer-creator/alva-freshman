@@ -248,7 +248,7 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
 
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <ReferralModal isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} onNavigate={onNavigate} />
-      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-white lg:ml-[228px] lg:rounded-bl-[8px] lg:rounded-tl-[8px]">
+      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-white lg:ml-[228px]">
         {/* Mobile topbar — shown below lg */}
         <div
           className="flex lg:hidden items-center shrink-0"
