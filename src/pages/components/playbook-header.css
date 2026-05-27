@@ -619,7 +619,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     display: inline-flex; align-items: center; gap: 4px;
     height: 24px; padding: 0 8px;
     border: 0.5px solid rgba(0,0,0,0.12);
-    border-radius: var(--radius-ct-xs, 2px);
+    border-radius: var(--radius-ct-s, 4px);
     background: #fff;
     font-family: inherit;
     font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
@@ -669,7 +669,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     display: inline-flex; align-items: center; justify-content: center;
     width: 20px; height: 20px;
     padding: 0;
-    background: transparent; border: none; border-radius: var(--radius-ct-xs, 2px);
+    background: transparent; border: none; border-radius: var(--radius-ct-s, 4px);
     cursor: pointer;
     flex-shrink: 0;
     color: var(--text-n9);
