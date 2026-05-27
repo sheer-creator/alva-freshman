@@ -60,13 +60,28 @@
 
   function renderFeeds(feeds, lastUpdated) {
     if (!feeds.length) return '';
-    var metaRow = lastUpdated
-      ? '<div class="feeds-popover-meta">Last Updated: ' + esc(lastUpdated) + '</div>'
-      : '';
+    var allPaused = feeds.every(function (f) { return f.paused; });
+    var bulkLabel = allPaused ? 'Resume all' : 'Pause all';
+    var bulkIcon = allPaused ? 'feeds-popover-bulk-icon ic-play' : 'feeds-popover-bulk-icon ic-pause';
+    var metaText = lastUpdated
+      ? '<span class="feeds-popover-meta-text">Last Updated: ' + esc(lastUpdated) + '</span>'
+      : '<span class="feeds-popover-meta-text"></span>';
+    var metaRow =
+      '<div class="feeds-popover-meta">' +
+        metaText +
+        '<button type="button" class="feeds-popover-bulk' + (allPaused ? ' is-paused' : '') + '" data-feeds-bulk aria-pressed="' + (allPaused ? 'true' : 'false') + '">' +
+          '<span class="' + bulkIcon + '" aria-hidden="true"></span>' +
+          '<span class="feeds-popover-bulk-label">' + bulkLabel + '</span>' +
+        '</button>' +
+      '</div>';
     var rows = feeds.map(function (f) {
-      var cls = 'feeds-popover-row clickable';
+      var paused = !!f.paused;
+      var cls = 'feeds-popover-row clickable' + (paused ? ' is-paused' : '');
       var extra = ' data-feed="' + esc(f.id || '') + '" role="button" tabindex="0"';
       var chev = '<span class="feeds-popover-row-chev" aria-hidden="true"></span>';
+      var lastCell = paused ? 'Paused' : esc(f.lastRun);
+      var toggleIcon = paused ? 'feeds-popover-row-toggle-icon ic-play' : 'feeds-popover-row-toggle-icon ic-pause';
+      var toggleLabel = paused ? 'Resume' : 'Pause';
       return (
         '<div class="' + cls + '"' + extra + '>' +
           '<div class="feeds-popover-cell-name">' +
@@ -74,7 +89,10 @@
             '<span>' + esc(f.name) + '</span>' +
           '</div>' +
           '<div class="feeds-popover-cell-interval">' + esc(f.interval) + '</div>' +
-          '<div class="feeds-popover-cell-last">' + esc(f.lastRun) + '</div>' +
+          '<div class="feeds-popover-cell-last">' + lastCell + '</div>' +
+          '<button type="button" class="feeds-popover-row-toggle" data-feed-toggle aria-label="' + toggleLabel + '" title="' + toggleLabel + '" aria-pressed="' + (paused ? 'true' : 'false') + '">' +
+            '<span class="' + toggleIcon + '" aria-hidden="true"></span>' +
+          '</button>' +
           chev +
         '</div>'
       );
@@ -85,6 +103,7 @@
         '<div class="feeds-popover-cell-name">Automation</div>' +
         '<div class="feeds-popover-cell-interval">Interval</div>' +
         '<div class="feeds-popover-cell-last">Last Run</div>' +
+        '<span class="feeds-popover-row-toggle is-placeholder" aria-hidden="true"></span>' +
         '<span class="feeds-popover-row-chev is-placeholder" aria-hidden="true"></span>' +
       '</div>' +
       rows +
@@ -717,7 +736,52 @@
       document.removeEventListener('keydown', onKeydown);
     });
 
-    popover.querySelectorAll('[data-feed]').forEach(function (row) {
+    function syncBulkButton() {
+      var bulk = popover.querySelector('[data-feeds-bulk]');
+      if (!bulk) return;
+      var rows = popover.querySelectorAll('.feeds-popover-row[data-feed]');
+      if (!rows.length) return;
+      var allPaused = true;
+      rows.forEach(function (r) { if (!r.classList.contains('is-paused')) allPaused = false; });
+      bulk.classList.toggle('is-paused', allPaused);
+      bulk.setAttribute('aria-pressed', allPaused ? 'true' : 'false');
+      var label = bulk.querySelector('.feeds-popover-bulk-label');
+      var icon = bulk.querySelector('.feeds-popover-bulk-icon');
+      if (label) label.textContent = allPaused ? 'Resume all' : 'Pause all';
+      if (icon) {
+        icon.classList.toggle('ic-play', allPaused);
+        icon.classList.toggle('ic-pause', !allPaused);
+      }
+    }
+
+    function setRowPaused(row, paused) {
+      row.classList.toggle('is-paused', paused);
+      var lastCell = row.querySelector('.feeds-popover-cell-last');
+      if (lastCell) {
+        if (paused) {
+          if (lastCell.getAttribute('data-last-run') == null) {
+            lastCell.setAttribute('data-last-run', lastCell.textContent || '');
+          }
+          lastCell.textContent = 'Paused';
+        } else {
+          var prev = lastCell.getAttribute('data-last-run');
+          if (prev != null) lastCell.textContent = prev;
+        }
+      }
+      var toggleBtn = row.querySelector('[data-feed-toggle]');
+      if (toggleBtn) {
+        toggleBtn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        toggleBtn.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
+        toggleBtn.setAttribute('title', paused ? 'Resume' : 'Pause');
+        var ti = toggleBtn.querySelector('.feeds-popover-row-toggle-icon');
+        if (ti) {
+          ti.classList.toggle('ic-play', paused);
+          ti.classList.toggle('ic-pause', !paused);
+        }
+      }
+    }
+
+    popover.querySelectorAll('.feeds-popover-row[data-feed]').forEach(function (row) {
       var activate = function () {
         close();
         host.dispatchEvent(new CustomEvent('playbook-feed-click', {
@@ -729,7 +793,44 @@
       row.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
       });
+
+      var toggleBtn = row.querySelector('[data-feed-toggle]');
+      if (toggleBtn) {
+        var togglePause = function (e) {
+          if (e) { e.stopPropagation(); e.preventDefault(); }
+          var nextPaused = !row.classList.contains('is-paused');
+          setRowPaused(row, nextPaused);
+          syncBulkButton();
+          host.dispatchEvent(new CustomEvent('playbook-feed-pause-toggle', {
+            bubbles: true,
+            detail: { id: row.getAttribute('data-feed'), paused: nextPaused }
+          }));
+        };
+        toggleBtn.addEventListener('click', togglePause);
+        toggleBtn.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') togglePause(e);
+        });
+      }
     });
+
+    var bulkBtn = popover.querySelector('[data-feeds-bulk]');
+    if (bulkBtn) {
+      bulkBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var rows = popover.querySelectorAll('.feeds-popover-row[data-feed]');
+        var anyActive = false;
+        rows.forEach(function (r) { if (!r.classList.contains('is-paused')) anyActive = true; });
+        var nextPaused = anyActive; // if any active → pause all; else resume all
+        rows.forEach(function (r) { setRowPaused(r, nextPaused); });
+        syncBulkButton();
+        host.dispatchEvent(new CustomEvent('playbook-feeds-pause-all', {
+          bubbles: true,
+          detail: { paused: nextPaused }
+        }));
+      });
+    }
+
+    syncBulkButton();
 
     var viewAll = popover.querySelector('.feeds-popover-viewall');
     if (viewAll) {

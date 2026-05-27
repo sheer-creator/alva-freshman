@@ -600,7 +600,8 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 }
 .feeds-popover-meta {
     position: relative;
-    padding: 10px 20px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 20px;
     font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: rgba(0,0,0,0.5);
     white-space: nowrap;
@@ -612,6 +613,37 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     height: 1px;
     background: rgba(0,0,0,0.07);
     pointer-events: none;
+}
+.feeds-popover-meta-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.feeds-popover-bulk {
+    display: inline-flex; align-items: center; gap: 4px;
+    height: 24px; padding: 0 8px;
+    border: 0.5px solid rgba(0,0,0,0.12);
+    border-radius: var(--radius-ct-xs, 2px);
+    background: #fff;
+    font-family: inherit;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n9);
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+}
+.feeds-popover-bulk:hover {
+    background: rgba(0,0,0,0.04);
+}
+.feeds-popover-bulk-icon {
+    width: 12px; height: 12px; flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask-position: center; mask-position: center;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-size: contain; mask-size: contain;
+}
+.feeds-popover-bulk-icon.ic-pause {
+    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg');
+            mask-image: url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg');
+}
+.feeds-popover-bulk-icon.ic-play {
+    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/play-l.svg');
+            mask-image: url('https://alva-ai-static.b-cdn.net/icons/play-l.svg');
 }
 .feeds-popover-row {
     font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
@@ -632,7 +664,39 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 .feeds-popover-row-chev.is-placeholder { visibility: hidden; }
 .feeds-popover-cell-name { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .feeds-popover-cell-interval { width: 100px; flex-shrink: 0; }
-.feeds-popover-cell-last { width: 120px; flex-shrink: 0; }
+.feeds-popover-cell-last { width: 100px; flex-shrink: 0; }
+.feeds-popover-row-toggle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px;
+    padding: 0;
+    background: transparent; border: none; border-radius: var(--radius-ct-xs, 2px);
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--text-n9);
+    transition: background .15s;
+}
+.feeds-popover-row-toggle:hover { background: rgba(0,0,0,0.06); }
+.feeds-popover-row-toggle.is-placeholder { visibility: hidden; pointer-events: none; }
+.feeds-popover-row-toggle-icon {
+    width: 14px; height: 14px;
+    background-color: currentColor;
+    -webkit-mask-position: center; mask-position: center;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-size: contain; mask-size: contain;
+}
+.feeds-popover-row-toggle-icon.ic-pause {
+    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg');
+            mask-image: url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg');
+}
+.feeds-popover-row-toggle-icon.ic-play {
+    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/play-l.svg');
+            mask-image: url('https://alva-ai-static.b-cdn.net/icons/play-l.svg');
+}
+.feeds-popover-row.is-paused .pb-freq-dot::before { background: var(--b-r07, rgba(0,0,0,0.07)); }
+.feeds-popover-row.is-paused .pb-freq-dot::after  { background: rgba(0,0,0,0.3); }
+.feeds-popover-row.is-paused .feeds-popover-cell-name,
+.feeds-popover-row.is-paused .feeds-popover-cell-interval,
+.feeds-popover-row.is-paused .feeds-popover-cell-last { color: var(--text-n5); }
 .feeds-popover-viewall {
     display: flex; align-items: center; gap: 8px;
     padding: 10px 20px;
