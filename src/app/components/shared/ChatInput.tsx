@@ -1288,7 +1288,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
       <div
         ref={wrapperRef}
         className="relative w-full shrink-0 flex flex-col gap-[12px] p-[16px] chat-input-wrapper"
-        style={{ background: 'var(--b0-container, #fff)', border: '0.5px solid var(--line-l2)', borderRadius: 12, boxShadow: shadow ? 'var(--shadow-s)' : undefined }}
+        style={{ background: 'var(--b0-container, #fff)', border: '0.5px solid rgba(0,0,0,0.7)', borderRadius: 8, boxShadow: shadow ? 'var(--shadow-s)' : undefined }}
       >
       <input
         ref={fileInputRef}

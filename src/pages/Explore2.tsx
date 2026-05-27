@@ -364,7 +364,7 @@ const DISPLAY_ORDER = [
 
 const HERO_ORDER = DISPLAY_ORDER.slice(0, 5);
 
-const PLAYBOOKS_ORDERED: ExplorePlaybook[] = DISPLAY_ORDER
+export const PLAYBOOKS_ORDERED: ExplorePlaybook[] = DISPLAY_ORDER
   .map((id) => PLAYBOOKS.find((p) => p.id === id))
   .filter((p): p is ExplorePlaybook => p !== undefined);
 
@@ -381,9 +381,9 @@ const CATEGORY_CHIPS = [
   'Crypto', 'BTC', 'Thesis', 'Tech', 'Equity', 'What-if', 'NVDA', 'Macro',
   'Healthcare', 'ETH', 'Energy', 'FX', 'MAG7', 'Financials', 'Commodities',
 ] as const;
-type CategoryChip = typeof CATEGORY_CHIPS[number];
+export type CategoryChip = typeof CATEGORY_CHIPS[number];
 
-function chipMatchesPlaybook(chip: CategoryChip, p: ExplorePlaybook): boolean {
+export function chipMatchesPlaybook(chip: CategoryChip, p: ExplorePlaybook): boolean {
   const haystack = `${p.title} ${p.description} ${p.tickers.join(' ')} ${p.cover.domain ?? ''} ${p.cover.template}`.toLowerCase();
   const term = chip.toLowerCase();
   // Template synonyms
@@ -992,13 +992,11 @@ function ChipStrip({
               style={{
                 flexShrink: 0,
                 height: 28,
-                padding: '3px 9px',
-                borderRadius: 4,
-                border: isActive
-                  ? '1px solid var(--text-n9, rgba(0,0,0,0.9))'
-                  : '1px solid transparent',
-                background: isActive ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--content-br03, rgba(0,0,0,0.03))',
-                color: isActive ? 'white' : 'var(--text-n7, rgba(0,0,0,0.7))',
+                padding: '4px 10px',
+                borderRadius: 16,
+                border: 'none',
+                background: isActive ? 'rgba(0,0,0,0.7)' : 'var(--content-br03, rgba(0,0,0,0.03))',
+                color: isActive ? 'rgba(255,255,255,0.9)' : 'var(--text-n7, rgba(0,0,0,0.7))',
                 cursor: 'pointer',
                 fontFamily: "'Delight', sans-serif",
                 fontSize: 12,
@@ -1025,7 +1023,7 @@ function ChipStrip({
             width: 28,
             pointerEvents: 'none',
             background:
-              'linear-gradient(to left, rgba(246,246,246,0) 0%, rgba(246,246,246,0.85) 50%, #f6f6f6 100%)',
+              'linear-gradient(to left, rgba(255,255,255,0) 0%, rgba(255,255,255,0.85) 50%, #ffffff 100%)',
           }}
         />
       )}
@@ -1039,7 +1037,7 @@ function ChipStrip({
             width: 28,
             pointerEvents: 'none',
             background:
-              'linear-gradient(to right, rgba(246,246,246,0) 0%, rgba(246,246,246,0.85) 50%, #f6f6f6 100%)',
+              'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.85) 50%, #ffffff 100%)',
           }}
         />
       )}
@@ -1086,7 +1084,7 @@ function ScrollArrow({ direction, onClick }: { direction: 'left' | 'right'; onCl
   );
 }
 
-function FilterBar({
+export function FilterBar({
   sort, onSortChange, selectedChips, onChipToggle, isMobile = false,
 }: {
   sort: string;
@@ -1185,7 +1183,6 @@ function FilterBar({
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        paddingTop: isMobile ? 4 : 12,
         width: '100%',
       }}
     >
@@ -1345,16 +1342,12 @@ export default function Explore2({ onNavigate, onOpenSearch }: { onNavigate?: (p
                 // explicit pixel tracks.
                 ...(() => {
                   const W = Math.max(0, gridContainerWidth);
-                  if (W === 0) return { display: 'grid', gap: 12, width: '100%' };
-                  // Column count still follows Figma 4244:19977 (N = ⌊(W+12)/340⌋),
-                  // but the per-card min/max clamps have been removed — each
-                  // card just splits the row evenly with no floor or cap, so
-                  // the grid is fluid and there's no leftover padding band.
-                  const N = Math.max(1, Math.floor((W + 12) / 340));
+                  if (W === 0) return { display: 'grid', gap: 16, width: '100%' };
+                  const N = Math.max(1, Math.floor((W + 16) / 340));
                   return {
                     display: 'grid',
                     gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))`,
-                    gap: 12,
+                    gap: 16,
                     width: '100%',
                   } as const;
                 })(),

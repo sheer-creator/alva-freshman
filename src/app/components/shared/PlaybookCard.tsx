@@ -63,7 +63,7 @@ export function PlaybookCard({
         background: 'var(--b0-page, #fff)',
         border: selected
           ? '1px solid var(--line-l9, rgba(0,0,0,0.9))'
-          : '0.5px solid var(--line-l1, rgba(0,0,0,0.08))',
+          : '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
         padding: selected ? 0 : 0.5,
         display: 'flex',
         flexDirection: 'column',

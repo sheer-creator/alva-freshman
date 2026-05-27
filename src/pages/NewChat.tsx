@@ -17,6 +17,8 @@ import { COMMUNITY_TEMPLATES, PRIMARY_TEMPLATES, OTHERS_TEMPLATES, type Communit
 import { generateTypedSuggestions } from '@/data/typed-suggestions';
 import { PlaybookCover } from '@/lib/playbook-cover/PlaybookCover';
 import type { CoverInput, Template as CoverTemplateName, DomainKey } from '@/lib/playbook-cover/types';
+import { PlaybookCard as ExplorePlaybookCard } from '@/app/components/shared/PlaybookCard';
+import { FilterBar, PLAYBOOKS_ORDERED, chipMatchesPlaybook, type CategoryChip } from '@/pages/Explore2';
 
 const CHIP_ICON = 'researcher-l1';
 
@@ -60,12 +62,12 @@ const chipBaseStyle: React.CSSProperties = {
   height: 40,
   padding: '0 16px',
   borderRadius: 999,
-  border: '0.5px solid var(--line-l12)',
+  border: '0.5px solid var(--line-l2)',
   fontFamily: "'Delight', sans-serif",
   fontSize: 14,
   lineHeight: '22px',
-  fontWeight: 500,
-  color: 'var(--text-n7)',
+  fontWeight: 400,
+  color: 'var(--text-n9)',
   whiteSpace: 'nowrap',
   cursor: 'pointer',
   letterSpacing: 0.14,
@@ -1016,9 +1018,9 @@ function SkillsLibraryPanel({
 /* ========== Title hero — 标题 + 创建者气泡，允许折行，纵向居中，固定高度 ========== */
 /* Title transition: dot-burst ellipse port of text-reveal-v4 reference. */
 
-const TITLE_DESKTOP_FONT = 45;
+const TITLE_DESKTOP_FONT = 36;
 const TITLE_MOBILE_FONT = 28;
-const TITLE_LH = 1.2;
+const TITLE_LH = 1.33;
 const MOBILE_THRESHOLD_PX = 640;
 
 /* ── Dot-burst tunables (text-reveal-v4) ── */
@@ -1114,7 +1116,7 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
   const animatingRef = useRef(false);
   const [scale, setScale] = useState(1);
 
-  const text = selected ? `Build your ${selected.label}` : 'Pick a skill and start building';
+  const text = selected ? `Build your ${selected.label}` : 'Turn Ideas into Live\nInvesting Playbooks in Minutes';
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -1312,6 +1314,7 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
           transformOrigin: 'center',
           position: 'relative',
           zIndex: 1,
+          whiteSpace: 'pre-line',
         }}
       >
         {text}
@@ -1520,6 +1523,109 @@ function SkillDetailModal({
       </div>
     </div>,
     document.body,
+  );
+}
+
+/* ══════ Trending Playbooks (mirrors Explore2 grid; sits below the home hero) ══════ */
+
+const TRENDING_GRID_COLS_MIN = 340;
+const TRENDING_GRID_GAP = 16;
+
+function TrendingPlaybooksSection({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [sort, setSort] = useState<string>('Popular');
+  const [selectedChips, setSelectedChips] = useState<Set<CategoryChip>>(() => new Set());
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    if (!gridContainerRef.current) return;
+    const el = gridContainerRef.current;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? 0;
+      setContainerWidth(w);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const toggleChip = (chip: CategoryChip) => {
+    setSelectedChips((prev) => {
+      const next = new Set(prev);
+      if (next.has(chip)) next.delete(chip);
+      else next.add(chip);
+      return next;
+    });
+  };
+
+  const filtered = useMemo(() => {
+    const base = sort === 'Recent' ? [...PLAYBOOKS_ORDERED].reverse() : PLAYBOOKS_ORDERED;
+    if (selectedChips.size === 0) return base;
+    return base.filter((p) => {
+      for (const chip of selectedChips) {
+        if (chipMatchesPlaybook(chip, p)) return true;
+      }
+      return false;
+    });
+  }, [sort, selectedChips]);
+
+  const gridStyle: React.CSSProperties = (() => {
+    if (containerWidth === 0) return { display: 'grid', gap: TRENDING_GRID_GAP, width: '100%' };
+    const N = Math.max(1, Math.floor((containerWidth + TRENDING_GRID_GAP) / TRENDING_GRID_COLS_MIN));
+    return {
+      display: 'grid',
+      gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))`,
+      gap: TRENDING_GRID_GAP,
+      width: '100%',
+    };
+  })();
+
+  return (
+    <section
+      style={{
+        width: '100%',
+        padding: '40px 28px 60px',
+        position: 'relative',
+        zIndex: 2,
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+        {/* Title row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <p style={{ fontFamily: "'Delight', sans-serif", fontSize: 20, lineHeight: '30px', letterSpacing: 0.2, color: 'var(--text-n9)' }}>
+            Trending Playbooks
+          </p>
+          <button
+            type="button"
+            onClick={() => onNavigate('explore-2')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              height: 28, padding: '4px 0',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              fontFamily: "'Delight', sans-serif", fontSize: 12, lineHeight: '20px', letterSpacing: 0.12,
+              color: 'var(--text-n9)',
+            }}
+          >
+            View all
+            <CdnIcon name="arrow-right-l2" size={14} color="var(--text-n9)" />
+          </button>
+        </div>
+        {/* Filter bar (chips + Sort select) reused from Explore2 */}
+        <FilterBar
+          sort={sort}
+          onSortChange={setSort}
+          selectedChips={selectedChips}
+          onChipToggle={toggleChip}
+        />
+        {/* Grid */}
+        <div ref={gridContainerRef} style={gridStyle}>
+          {filtered.map((pb, i) => (
+            <div key={pb.id} style={{ width: '100%' }}>
+              <ExplorePlaybookCard p={pb} staggerMs={(i % 10) * 1000} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -2635,11 +2741,11 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           .nc-skill-card{ padding:14px; }
         }
       `}</style>
-      <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: 'var(--grey-g01)' }}>
+      <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: 'var(--b0-container, #ffffff)' }}>
         {/* ══════ Topbar — 在移动端由 AppShell 的 mobile topbar 接管，这里隐藏 ══════ */}
         <div
           className="flex items-center gap-[16px] h-[56px] px-[28px] shrink-0 newchat-page-topbar"
-          style={{ position: 'sticky', top: 0, zIndex: 5, background: 'transparent' }}
+          style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--b0-container, #ffffff)' }}
         >
           <div className="flex-1 min-w-0">
             <ThreadSwitcherDropdown
@@ -2666,8 +2772,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            gap: 40,
-            padding: '56px 24px 32px',
+            gap: 36,
+            padding: '24px 28px',
             position: 'relative',
             zIndex: 2,
           }}
@@ -2736,7 +2842,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
               style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: 10,
+                gap: 12,
                 justifyContent: 'center',
                 position: 'relative',
                 zIndex: 1,
@@ -2767,15 +2873,15 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                   }}
                   style={{
                     ...chipBaseStyle,
-                    background: isActive ? 'var(--main-m1)' : 'white',
-                    color: isActive ? '#fff' : chipBaseStyle.color,
-                    borderColor: isActive ? 'var(--main-m1)' : (chipBaseStyle.border as string)?.replace('0.5px solid ', '') ?? undefined,
+                    background: isActive ? 'rgba(0,0,0,0.7)' : 'white',
+                    color: isActive ? 'rgba(255,255,255,0.9)' : chipBaseStyle.color,
+                    borderColor: isActive ? 'rgba(0,0,0,0.7)' : (chipBaseStyle.border as string)?.replace('0.5px solid ', '') ?? undefined,
                   }}
                 >
                   {t.kol ? (
                     <Avatar name={t.creator} size={22} />
                   ) : (
-                    t.icon && <CdnIcon name={t.icon} size={16} color={isActive ? '#fff' : 'var(--text-n7)'} />
+                    t.icon && <CdnIcon name={t.icon} size={18} color={isActive ? '#fff' : 'var(--text-n9)'} />
                   )}
                   {t.label}
                 </button>
@@ -2854,6 +2960,11 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
             </div>
           )}
         </section>
+
+        {/* ══════ Trending Playbooks ══════ */}
+        {!isOpt2 && !selected && !showTypedSuggestions && (
+          <TrendingPlaybooksSection onNavigate={onNavigate} />
+        )}
 
         {/* ══════ Opt2 默认态：手动分列的瀑布流，hover 时本列下方卡片下推、其它列不动 ══════ */}
         {isOpt2 && !selected && (() => {
