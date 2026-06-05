@@ -1,20 +1,11 @@
 import { CdnIcon } from '../shared/CdnIcon';
+import { ActivityTrace } from './ActivityTrace';
+import alvaLogo from './logo-green-black.svg';
 
 const FONT = "font-['Delight',sans-serif]";
 
 function AlvaMark() {
-  return <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" style={{ height: 12, width: 70 }} />;
-}
-
-function GeneratedLine() {
-  return (
-    <div className="flex items-center gap-[4px] w-full overflow-hidden">
-      <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] truncate`}>
-        Ran 5 commands, searched code, read a file
-      </span>
-      <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5)" />
-    </div>
-  );
+  return <img src={alvaLogo} alt="Alva" style={{ height: 12, width: 47 }} />;
 }
 
 function FeedBarsIcon() {
@@ -50,7 +41,7 @@ function AgentNotification({ showGenerated = false }: { showGenerated?: boolean 
       <div className="flex w-full flex-col items-start gap-[4px] pt-[4px]">
         <AlvaMark />
       </div>
-      {showGenerated && <GeneratedLine />}
+      {showGenerated && <ActivityTrace />}
       <div className="flex w-full flex-col items-start gap-[12px]">
         <p className={`${FONT} flex items-center gap-[2px] text-[14px] font-medium leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
           <FeedBarsIcon />

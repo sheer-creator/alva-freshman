@@ -13,36 +13,27 @@ import type { StreamingState, StreamStep } from './StreamingMessages';
 
 /* ── Mock streaming scenario ── */
 const MOCK_STEPS: StreamStep[] = [
-  { type: 'plan', label: 'Plan', meta: 'NVDA Earnings Dashboard', lines: [
-    '1. Thoroughly explore the codebase to understand existing patterns',
-    '2. Identify similar features and architectural approaches',
-    '3. Consider multiple approaches and their trade-offs',
-    '4. Use AskUserQuestion if you need to clarify the approach',
-    '5. Design a concrete implementation strategy',
-  ], collapsed: true },
-  { type: 'read', label: 'Read', meta: '/src/app/components/shell/AppShell.tsx', lines: ['Read 112 lines'] },
-  { type: 'bash', label: 'Bash', meta: 'ls /Users/sheer/Downloads/Test/.claude/launch.json 2>/dev/null', lines: [
-    '7:<<<<<<< Updated upstream',
-    '9:=======',
-    '11:>>>>>>> Stashed changes',
-    '29:<<<<<<< Updated upstream',
-    '35:=======',
-    '40:>>>>>>> Stashed changes',
-  ], collapsed: true },
-  { type: 'read', label: 'Read', meta: '/src/styles/theme.css', lines: ['Read 48 lines'] },
+  {
+    type: 'bash',
+    label: 'Run Alva skill version check',
+    meta: '$ awk \'NR>=3263 && NR<=3400\' "/Users/sheer/Downloads/Test Template/Template-Thesis-standalone.html"',
+    duration: '2.3s',
+  },
+  { type: 'read', label: 'Read .alva.json', duration: '2.3s' },
+  { type: 'read', label: 'Get user info', duration: '2.3s' },
+  { type: 'read', label: 'Get SDK docs for TSLA feed modules', duration: '2.3s' },
+  {
+    type: 'thinking',
+    label: 'Thinking',
+    lines: [
+      'The feed is working. Now let me:\n1. Grant public read access to the feed path\n2. Deploy as a cronjob\n3. Release the feed\n4. Build the HTML dashboard\n5. Draft and release the playbook',
+      'Let me write the feed script. Note: RSI, MACD, Bollinger use milliseconds for start_time/end_time. OHLCV uses seconds.',
+    ],
+    duration: '2.3s',
+  },
+  { type: 'bash', label: 'Upload feed script via JSON body', duration: '2.3s' },
+  { type: 'search', label: 'Search web: Elon Musk latest tweets 2026 DOGE Tesla SpaceX xAI', duration: '2.3s' },
 ];
-
-const MOCK_TODOS: NonNullable<StreamingState['todos']> = {
-  title: 'Building NVDA Earnings Dashboard',
-  progress: '2/5',
-  items: [
-    { text: 'Clarify the objective: use daily technical indicators to determine.', status: 'done' },
-    { text: 'Retrieve SDK documentation to understand what market data are available for US equities like COIN.', status: 'done' },
-    { text: 'Use data_fetching to pull recent daily OHLCV data for COIN and then compute technical indicators.', status: 'loading' },
-    { text: 'Synthesize indicator outputs into a clear overbought/oversold judgment.', status: 'pending' },
-    { text: 'Summary table for metrics.', status: 'pending' },
-  ],
-};
 
 const MOCK_ANSWER = {
   question: 'Which dashboard layout do you prefer for the earnings overview?',
@@ -85,6 +76,24 @@ export interface ElementQuote {
   instruction: string | null;
 }
 
+export type AgentActivityBadgeKind = 'done' | 'needs-you' | 'proactive';
+export type AgentActivityStatus = 'idle' | 'working' | 'done' | 'needs-you' | 'proactive';
+
+export interface AgentActivityBadge {
+  kind: AgentActivityBadgeKind;
+  count?: number;
+  label: string;
+}
+
+export interface AgentActivitySummary {
+  status: AgentActivityStatus;
+  isWorking: boolean;
+  label: string;
+  tooltipLabel?: string;
+  ariaLabel: string;
+  badge: AgentActivityBadge | null;
+}
+
 /* ── Streaming simulation ── */
 function createStreamSimulation(
   setState: (fn: (prev: StreamingState) => StreamingState) => void,
@@ -125,30 +134,7 @@ function createStreamSimulation(
     if (cancelled) return;
     setOverlay(null);
 
-    // Phase 3: Checklist / Todo list (blocking overlay) — thinking keeps spinning
-    if (cancelled) return;
-    const todosData = { ...MOCK_TODOS };
-    setState(prev => ({ ...prev, statusText: 'Building NVDA Earnings Dashboard · 2/5' }));
-    setOverlay({ type: 'todos', todos: todosData });
-    await delay(1500);
-
-    // Progress todos
-    if (cancelled) return;
-    const updatedTodos = {
-      ...todosData,
-      progress: '3/5',
-      items: todosData.items.map((item, i) =>
-        i === 2 ? { ...item, status: 'done' as const } :
-        i === 3 ? { ...item, status: 'loading' as const } : item
-      ),
-    };
-    setState(prev => ({ ...prev, statusText: 'Building NVDA Earnings Dashboard · 3/5' }));
-    setOverlay({ type: 'todos', todos: updatedTodos });
-    await delay(1200);
-    if (cancelled) return;
-    setOverlay(null);
-
-    // Phase 4: Answer question (blocking - waits for user) — thinking keeps spinning
+    // Phase 3: Answer question (blocking - waits for user) — thinking keeps spinning
     if (cancelled) return;
     setState(prev => ({ ...prev, statusText: 'Waiting for your answer...' }));
     setOverlay({ type: 'answer', answer: MOCK_ANSWER });
@@ -224,8 +210,11 @@ interface ChatContextValue {
   streamingState: StreamingState | null;
   pendingPrompt: string | null;
   sendPrompt: (text: string) => void;
+  stopStreaming: () => void;
   overlay: OverlayData | null;
   dismissOverlay: () => void;
+  agentActivity: AgentActivitySummary;
+  openAgentActivity: () => void;
   prefillPrompt: PrefillPrompt | null;
   clearPrefill: () => void;
   /* inspector */
@@ -249,8 +238,6 @@ const ChatCtx = createContext<ChatContextValue | null>(null);
 export function ChatProvider({
   activePage,
   children,
-  threadsEntryMode = '1',
-  chatTriggerMode = 'fab',
 }: {
   activePage: Page;
   children: React.ReactNode;
@@ -264,10 +251,18 @@ export function ChatProvider({
   const [streamingState, setStreamingState] = useState<StreamingState | null>(null);
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const [overlay, setOverlay] = useState<OverlayData | null>(null);
+  const [doneUnreadCount, setDoneUnreadCount] = useState(0);
+  const [proactiveUnreadCount, setProactiveUnreadCount] = useState(0);
   const [prefillPrompt, setPrefillPrompt] = useState<PrefillPrompt | null>(null);
   const [inspectorActive, setInspectorActive] = useState(false);
   const [elementQuotes, setElementQuotes] = useState<ElementQuote[]>([]);
   const simRef = useRef<{ cancel: () => void; continueStream: () => void } | null>(null);
+  const chatOpenRef = useRef(chatOpen);
+
+  useEffect(() => {
+    chatOpenRef.current = chatOpen;
+    if (chatOpen) setDoneUnreadCount(0);
+  }, [chatOpen]);
 
   useEffect(() => {
     const threadId = sessionStorage.getItem('openChatWithThread');
@@ -348,6 +343,7 @@ export function ChatProvider({
   const sendPrompt = useCallback((text: string) => {
     simRef.current?.cancel();
     setOverlay(null);
+    setDoneUnreadCount(0);
     setPendingPrompt(text);
     setHasInitialInput(true);
     setActiveConversationId('streaming');
@@ -356,14 +352,113 @@ export function ChatProvider({
     simRef.current = createStreamSimulation(
       (fn) => setStreamingState(prev => prev ? fn(prev) : prev),
       (data) => setOverlay(data),
-      () => { simRef.current = null; },
+      () => {
+        simRef.current = null;
+        if (!chatOpenRef.current) setDoneUnreadCount(count => Math.max(1, count + 1));
+      },
     );
+  }, []);
+
+  const stopStreaming = useCallback(() => {
+    simRef.current?.cancel();
+    simRef.current = null;
+    setOverlay(null);
+    setStreamingState(prev => prev ? {
+      ...prev,
+      isStreaming: false,
+      thinking: false,
+      statusText: 'Done',
+    } : prev);
   }, []);
 
   const dismissOverlay = useCallback(() => {
     setOverlay(null);
     simRef.current?.continueStream();
   }, []);
+
+  const isWaitingForUser = overlay?.type === 'plan' || overlay?.type === 'answer';
+  const agentActivity = useMemo<AgentActivitySummary>(() => {
+    const isWorking = !!streamingState?.isStreaming;
+
+    if (isWaitingForUser) {
+      const answerQuestion = overlay?.type === 'answer' ? overlay.answer?.question : undefined;
+      const label = overlay?.type === 'plan'
+        ? 'Review Alva\'s plan'
+        : 'Answer question';
+      const tooltipLabel = answerQuestion || streamingState?.statusText || label;
+      const waitReason = streamingState?.statusText || tooltipLabel;
+      return {
+        status: 'needs-you',
+        isWorking,
+        label,
+        tooltipLabel,
+        ariaLabel: `${waitReason}. Alva Agent is waiting for you.`,
+        badge: { kind: 'needs-you', label },
+      };
+    }
+
+    if (proactiveUnreadCount > 0) {
+      const label = proactiveUnreadCount === 1 ? '1 new alert' : `${proactiveUnreadCount} new alerts`;
+      return {
+        status: 'proactive',
+        isWorking,
+        label,
+        ariaLabel: `${proactiveUnreadCount === 1 ? '1 new alert' : `${proactiveUnreadCount} new alerts`} from Alva Agent.`,
+        badge: { kind: 'proactive', count: proactiveUnreadCount, label },
+      };
+    }
+
+    if (doneUnreadCount > 0) {
+      const label = 'Done';
+      return {
+        status: 'done',
+        isWorking,
+        label,
+        ariaLabel: `${doneUnreadCount === 1 ? 'Answer ready' : `${doneUnreadCount} answers ready`}. Open Alva Agent.`,
+        badge: { kind: 'done', count: doneUnreadCount, label },
+      };
+    }
+
+    if (isWorking) {
+      const label = streamingState?.statusText || 'Thinking...';
+      const ariaStatus = streamingState?.statusText || label;
+      return {
+        status: 'working',
+        isWorking,
+        label,
+        ariaLabel: `${ariaStatus}. Open active Alva Agent thread.`,
+        badge: null,
+      };
+    }
+
+    return {
+      status: 'idle',
+      isWorking: false,
+      label: 'Alva Agent',
+      ariaLabel: 'Open Alva Agent',
+      badge: null,
+    };
+  }, [doneUnreadCount, isWaitingForUser, overlay?.type, proactiveUnreadCount, streamingState]);
+
+  const openAgentActivity = useCallback(() => {
+    if (isWaitingForUser || streamingState) {
+      setActiveConversationId('streaming');
+      setHasInitialInput(true);
+      setDoneUnreadCount(0);
+      setChatOpen(true);
+      return;
+    }
+
+    if (proactiveUnreadCount > 0) {
+      setActiveConversationId('__agent__');
+      setHasInitialInput(true);
+      setProactiveUnreadCount(0);
+      setChatOpen(true);
+      return;
+    }
+
+    openChat(false);
+  }, [isWaitingForUser, openChat, proactiveUnreadCount, streamingState]);
 
   useEffect(() => () => { simRef.current?.cancel(); }, []);
 
@@ -382,15 +477,17 @@ export function ChatProvider({
     () => ({
       chatOpen, hasInitialInput, toggleChat, closeChat, openChat, openChatWithPrefill, reopenChat,
       contextTag, activePage, activeConversationId, setActiveConversation,
-      streamingState, pendingPrompt, sendPrompt,
+      streamingState, pendingPrompt, sendPrompt, stopStreaming,
       overlay, dismissOverlay,
+      agentActivity, openAgentActivity,
       prefillPrompt, clearPrefill,
       inspectorActive, toggleInspector, elementQuotes, addElementQuote, removeElementQuote, clearElementQuotes,
     }),
     [chatOpen, hasInitialInput, toggleChat, closeChat, openChat, openChatWithPrefill, reopenChat,
      contextTag, activePage, activeConversationId, setActiveConversation,
-     streamingState, pendingPrompt, sendPrompt,
+     streamingState, pendingPrompt, sendPrompt, stopStreaming,
      overlay, dismissOverlay,
+     agentActivity, openAgentActivity,
      prefillPrompt, clearPrefill,
      inspectorActive, toggleInspector, elementQuotes, addElementQuote, removeElementQuote, clearElementQuotes],
   );

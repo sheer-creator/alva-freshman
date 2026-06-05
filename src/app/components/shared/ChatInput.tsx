@@ -36,6 +36,8 @@ interface ChatInputProps {
   onInputChange?: (text: string) => void;
   hideSkill?: boolean;
   hideInspector?: boolean;
+  allowReferences?: boolean;
+  autoFocus?: boolean;
 }
 
 type PickerKind = 'mention' | 'skill';
@@ -812,8 +814,8 @@ function ChatPickerPreview({
   );
 }
 
-export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector }: ChatInputProps) {
-  const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes } = useChatContext();
+export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector, allowReferences = true, autoFocus = false }: ChatInputProps) {
+  const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes, streamingState, stopStreaming } = useChatContext();
   const [hasText, setHasText] = useState(false);
   const [quoteHover, setQuoteHover] = useState(false);
   const [popoverBottom, setPopoverBottom] = useState(0);
@@ -890,6 +892,15 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
     sel.removeAllRanges();
     sel.addRange(range);
   }, []);
+
+  useEffect(() => {
+    if (!autoFocus) return;
+    const frame = requestAnimationFrame(() => {
+      editorRef.current?.focus();
+      placeCursorAtEnd();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [autoFocus, placeCursorAtEnd]);
 
   const getCaretRect = useCallback((): DOMRect | null => {
     const editor = editorRef.current;
@@ -1258,7 +1269,15 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
     requestAnimationFrame(() => placeCursorAtEnd());
   }, [placeCursorAtEnd]);
 
+  const isStreamingOutput = !!streamingState?.isStreaming;
+  const sendButtonActive = hasText || isStreamingOutput;
+
   const handleSendClick = useCallback(() => {
+    if (isStreamingOutput) {
+      stopStreaming();
+      return;
+    }
+
     const text = getTextContent();
     if (text && onSend) {
       onSend(text);
@@ -1269,7 +1288,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
       setSelectedSkillItem(null);
       onInputChange?.('');
     }
-  }, [getTextContent, onSend, onInputChange]);
+  }, [getTextContent, isStreamingOutput, onSend, onInputChange, stopStreaming]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1278,7 +1297,8 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
     }
   }, [handleSendClick]);
 
-  const showContextTag = !!contextTag && !tagDismissed;
+  const visibleElementQuotes = allowReferences ? elementQuotes : [];
+  const showContextTag = allowReferences && !!contextTag && !tagDismissed;
   const showPlaceholder = !hasText;
   const pickerItems = activePicker === 'mention' ? MENTION_PICKER_ITEMS : activePicker === 'skill' ? SKILL_PICKER_ITEMS : [];
   const selectedQuoteItems = selectedSkillItem ? [...selectedMentionItems, selectedSkillItem] : selectedMentionItems;
@@ -1298,7 +1318,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
         onChange={(event) => { event.currentTarget.value = ''; }}
       />
       {/* ── Annotation hover popover ── */}
-      {quoteHover && elementQuotes.length > 0 && (
+      {quoteHover && visibleElementQuotes.length > 0 && (
         <div
           className="absolute z-[100]"
           style={{
@@ -1315,7 +1335,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           onMouseEnter={keepHover}
           onMouseLeave={scheduleHide}
         >
-          {elementQuotes.map((q, i) => {
+          {visibleElementQuotes.map((q, i) => {
             const content = q.originalText || q.selector;
             return (
               <div key={i}>
@@ -1379,8 +1399,8 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
       <div
         style={{
           display: 'grid',
-          gridTemplateRows: (selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0 || !!bottomChip) ? '1fr' : '0fr',
-          marginBottom: (selectedQuoteItems.length > 0 || showContextTag || elementQuotes.length > 0 || !!bottomChip) ? 0 : -12,
+          gridTemplateRows: (selectedQuoteItems.length > 0 || showContextTag || visibleElementQuotes.length > 0 || !!bottomChip) ? '1fr' : '0fr',
+          marginBottom: (selectedQuoteItems.length > 0 || showContextTag || visibleElementQuotes.length > 0 || !!bottomChip) ? 0 : -12,
           transition: 'grid-template-rows 240ms cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 240ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
@@ -1446,7 +1466,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
               </button>
             </div>
           )}
-          {elementQuotes.length > 0 && (
+          {visibleElementQuotes.length > 0 && (
             <div
               ref={chipRef}
               className="inline-flex items-center gap-[6px] p-[6px] rounded-[4px] shrink-0 cursor-pointer"
@@ -1468,7 +1488,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
                 className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
                 style={{ color: 'var(--text-n9)' }}
               >
-                {elementQuotes.length} annotation
+                {visibleElementQuotes.length} annotation
               </span>
               <button
                 type="button"
@@ -1700,17 +1720,22 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
         </div>
         <button
           type="button"
+          aria-label={isStreamingOutput ? 'Stop streaming' : 'Send message'}
           className="flex items-center justify-center shrink-0 size-[28px] rounded-[6px] cursor-pointer transition-colors"
           style={{
-            background: hasText ? 'var(--main-m1)' : 'var(--b-r05)',
+            background: isStreamingOutput ? 'transparent' : sendButtonActive ? 'var(--main-m1)' : 'var(--b-r05)',
           }}
           onClick={handleSendClick}
         >
-          <CdnIcon
-            name="arrow-up-l1"
-            size={14}
-            color={hasText ? '#ffffff' : 'var(--text-n3)'}
-          />
+          {isStreamingOutput ? (
+            <CdnIcon name="stop-f" size={28} />
+          ) : (
+            <CdnIcon
+              name="arrow-up-l1"
+              size={14}
+              color={sendButtonActive ? '#ffffff' : 'var(--text-n3)'}
+            />
+          )}
         </button>
       </div>
       </div>

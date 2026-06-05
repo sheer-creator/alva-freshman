@@ -17,6 +17,7 @@ export interface ExplorePlaybook {
   stars: number;
   remixes: number;
   annualizedReturn?: string;
+  price?: string;
   cover: CoverInput;
 }
 
@@ -58,6 +59,7 @@ export function PlaybookCard({
       onMouseLeave={() => setHovered(false)}
       className="cursor-pointer"
       style={{
+        position: 'relative',
         borderRadius: 8,
         overflow: 'hidden',
         background: 'var(--b0-page, #fff)',
@@ -91,6 +93,34 @@ export function PlaybookCard({
           }}
         >
           {!simple && <PlaybookCover input={p.cover} staggerMs={staggerMs} />}
+        </div>
+      )}
+
+      {/* Paid badge */}
+      {p.price && (
+        <div
+          style={{
+            position: 'absolute',
+            top: -0.5,
+            right: -0.5,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '4px 8px',
+            borderTopRightRadius: 8,
+            borderBottomLeftRadius: 6,
+            background: 'linear-gradient(90deg, var(--main-m3, #2a9b7d), var(--main-m1, #49a3a6))',
+            color: '#fff',
+            fontFamily: "'Delight', sans-serif",
+            fontSize: 12,
+            lineHeight: '20px',
+            letterSpacing: 0.12,
+            zIndex: 2,
+          }}
+        >
+          <CdnIcon name="locked-f" size={14} color="#fff" />
+          {p.price}
         </div>
       )}
 
@@ -172,7 +202,7 @@ export function PlaybookCard({
                   fontSize: 16,
                   lineHeight: simple ? '26px' : '22px',
                   fontWeight: simple ? 400 : 600,
-                  fontFamily: simple ? "'Delight', sans-serif" : 'Inter, sans-serif',
+                  fontFamily: "'Delight', sans-serif",
                   color: 'var(--text-n9, rgba(0,0,0,0.9))',
                   letterSpacing: 0.16,
                   whiteSpace: 'nowrap',

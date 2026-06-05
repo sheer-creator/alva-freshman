@@ -44,6 +44,7 @@ export const PAGE_CONTEXT_MAP: Record<string, ContextTagData | null> = {
  *  contextTag to label the playbook chip with the actual playbook name. */
 export const PAGE_TITLES: Record<string, string> = {
   'new-chat': 'New chat',
+  explore: 'Explore',
   'explore-2': 'Explore',
   portfolio: 'Portfolio',
   agent: 'Agent',

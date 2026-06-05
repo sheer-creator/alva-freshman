@@ -3,6 +3,9 @@ import { CdnIcon } from '../shared/CdnIcon';
 import DotMatrixWave from '../shared/DotMatrixWave';
 import { useChatContext } from './ChatContext';
 import { StreamingMessages } from './StreamingMessages';
+import { ActivityTrace } from './ActivityTrace';
+import { TimelineConnectorLine, TimelineDot } from './TimelineMarkerParts';
+import alvaLogo from './logo-green-black.svg';
 
 /* ── Mock conversation data ── */
 const MOCK_USER_MSG = `Build me an NVDA earnings dashboard — I want to see quarterly revenue, gross margin trends, and a forward P/E comparison with AMD and INTC.`;
@@ -136,12 +139,14 @@ function ReasonedStepsDivider() {
       </div>
       {expanded && (
         <>
-          <div className="flex flex-col gap-[16px] w-full mt-[12px]">
+          <div className="flex flex-col gap-[12px] w-full mt-[12px]">
             {MOCK_REASON_STEPS.map((step, i) => (
-              <div key={i} className="flex gap-[8px] items-start w-full">
-                <div className="relative shrink-0 w-[12px] self-stretch">
-                  <div className="absolute left-1/2 top-[2px] bottom-[2px] w-0 -translate-x-1/2"
-                    style={{ borderLeft: '1px dashed var(--line-l12)' }} />
+              <div key={i} className="flex gap-[8px] items-center w-full">
+                <div className="flex flex-row items-center self-stretch">
+                  <div className="relative h-full w-[14px] shrink-0">
+                    {i < MOCK_REASON_STEPS.length - 1 && <TimelineConnectorLine />}
+                    <TimelineDot />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-[8px] items-start flex-1 min-w-0">
                   <div className="flex items-center gap-[8px] w-full">
@@ -188,8 +193,8 @@ const MOCK_TAKEAWAYS = [
   'Gross margin expansion is accelerating — the data center mix shift is structural',
 ];
 
-function AlvaBetaLogo() {
-  return <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" style={{ height: 12, width: 70 }} />;
+function AlvaLogo() {
+  return <img src={alvaLogo} alt="Alva" style={{ height: 12, width: 47 }} />;
 }
 
 function BulletList({ items }: { items: { bold?: string; text: string }[] }) {
@@ -227,17 +232,6 @@ function SourceLink({ sourceThreadId }: { sourceThreadId?: string }) {
   );
 }
 
-function GeneratedLine() {
-  return (
-    <div className="flex items-center gap-[4px] w-full overflow-hidden">
-      <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] truncate">
-        Ran 5 commands, searched code, read a file
-      </span>
-      <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5)" />
-    </div>
-  );
-}
-
 function DrawerConversation({ sourceThreadId }: { sourceThreadId?: string }) {
   const FONT = "font-['Delight',sans-serif]";
   return (
@@ -249,9 +243,9 @@ function DrawerConversation({ sourceThreadId }: { sourceThreadId?: string }) {
       </div>
 
       <div className="flex flex-col gap-[4px] w-full pt-[4px]">
-        <AlvaBetaLogo />
+        <AlvaLogo />
       </div>
-      <GeneratedLine />
+      <ActivityTrace />
 
       <div className="flex flex-col gap-[12px] items-start w-full">
         <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
@@ -278,9 +272,9 @@ function DrawerConversation({ sourceThreadId }: { sourceThreadId?: string }) {
       </div>
 
       <div className="flex flex-col gap-[4px] w-full pt-[4px]">
-        <AlvaBetaLogo />
+        <AlvaLogo />
       </div>
-      <GeneratedLine />
+      <ActivityTrace />
 
       <div className="flex flex-col gap-[12px] items-start w-full">
         <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Key takeaways:</p>
@@ -303,7 +297,7 @@ function MockConversation({ sourceThreadId }: { sourceThreadId?: string }) {
         </div>
       </div>
       <ReasonedStepsDivider />
-      <AlvaBetaLogo />
+      <AlvaLogo />
       <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
         Building the <span className="font-medium">3-Widget Grid</span> layout:
       </p>
@@ -341,7 +335,7 @@ function MockConversation({ sourceThreadId }: { sourceThreadId?: string }) {
         </div>
       </div>
       <ReasonedStepsDivider />
-      <AlvaBetaLogo />
+      <AlvaLogo />
       <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Key takeaways:</p>
       <BulletList items={MOCK_TAKEAWAYS.map(t => ({ text: t }))} />
       <SourceLink sourceThreadId={sourceThreadId} />

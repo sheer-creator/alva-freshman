@@ -1,7 +1,7 @@
 /**
  * [INPUT]: Page type, AppShell, ChatInput (bottomChip), new-chat-mock, Dropdown
  * [OUTPUT]: New Chat 入口页 — skill 驱动的起手页面
- * [POS]: 与 Home 并列的入口页面（Sidebar 最顶）
+ * [POS]: Sidebar 最顶的入口页面
  */
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -12,15 +12,17 @@ import { ChatInput } from '@/app/components/shared/ChatInput';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDropdown';
+import { POPULAR_RECENT_SORT_OPTIONS, TRENDING_FILTER_CHIPS, TrendingFilterBar, type PopularRecentSort, type TrendingFilterChip } from '@/app/components/shared/TrendingFilterBar';
 import { BURST_ICON_PATHS } from '@/app/components/shared/burst-icon-paths';
 import { COMMUNITY_TEMPLATES, PRIMARY_TEMPLATES, OTHERS_TEMPLATES, type CommunitySkillTemplate, type NewChatTemplate, type NewChatPlaybook } from '@/data/new-chat-mock';
 import { generateTypedSuggestions } from '@/data/typed-suggestions';
 import { PlaybookCover } from '@/lib/playbook-cover/PlaybookCover';
 import type { CoverInput, Template as CoverTemplateName, DomainKey } from '@/lib/playbook-cover/types';
 import { PlaybookCard as ExplorePlaybookCard } from '@/app/components/shared/PlaybookCard';
-import { FilterBar, PLAYBOOKS_ORDERED, chipMatchesPlaybook, type CategoryChip } from '@/pages/Explore2';
+import { PLAYBOOKS_ORDERED, chipMatchesPlaybook } from '@/pages/Explore2';
 
 const CHIP_ICON = 'researcher-l1';
+type CategoryChip = TrendingFilterChip;
 
 /** 返回 true 仅当设备支持 hover（即非触屏） */
 function supportsHover(): boolean {
@@ -76,7 +78,7 @@ const chipBaseStyle: React.CSSProperties = {
   transition: 'box-shadow 160ms ease, transform 160ms ease',
 };
 
-function SkillPill({
+export function SkillPill({
   template,
   active,
   onClick,
@@ -1382,7 +1384,7 @@ function SkillDetailModal({
               fontFamily: "'Delight', sans-serif",
               fontSize: 18,
               lineHeight: '24px',
-              fontWeight: 600,
+              fontWeight: 500,
               color: 'var(--text-n9)',
               letterSpacing: 0.18,
               margin: 0,
@@ -1532,7 +1534,7 @@ const TRENDING_GRID_COLS_MIN = 340;
 const TRENDING_GRID_GAP = 16;
 
 function TrendingPlaybooksSection({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [sort, setSort] = useState<string>('Popular');
+  const [sort, setSort] = useState<PopularRecentSort>('Popular');
   const [selectedChips, setSelectedChips] = useState<Set<CategoryChip>>(() => new Set());
   const gridContainerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -1596,7 +1598,7 @@ function TrendingPlaybooksSection({ onNavigate }: { onNavigate: (page: Page) => 
           </p>
           <button
             type="button"
-            onClick={() => onNavigate('explore-2')}
+            onClick={() => onNavigate('explore')}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 4,
               height: 28, padding: '4px 0',
@@ -1609,9 +1611,10 @@ function TrendingPlaybooksSection({ onNavigate }: { onNavigate: (page: Page) => 
             <CdnIcon name="arrow-right-l2" size={14} color="var(--text-n9)" />
           </button>
         </div>
-        {/* Filter bar (chips + Sort select) reused from Explore2 */}
-        <FilterBar
+        <TrendingFilterBar
           sort={sort}
+          sortOptions={POPULAR_RECENT_SORT_OPTIONS}
+          chips={TRENDING_FILTER_CHIPS}
           onSortChange={setSort}
           selectedChips={selectedChips}
           onChipToggle={toggleChip}
@@ -1633,8 +1636,7 @@ function TrendingPlaybooksSection({ onNavigate }: { onNavigate: (page: Page) => 
 
 const HERO_WIDTH = 960;
 
-export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' }: { onNavigate: (page: Page) => void; onOpenSearch?: () => void; variant?: 'default' | 'opt2' }) {
-  const isOpt2 = variant === 'opt2';
+export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [injectSignal, setInjectSignal] = useState<{ text: string; seq: number } | null>(null);
   const [typedText, setTypedText] = useState('');
@@ -1657,19 +1659,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
   );
   useEffect(() => {
     const h = () => setIsMobile(window.innerWidth < 640);
-    h();
-    window.addEventListener('resize', h);
-    return () => window.removeEventListener('resize', h);
-  }, []);
-  // Opt2 瀑布流的列数：<640 → 1, <1024 → 2, 否则 3。
-  const [opt2ColCount, setOpt2ColCount] = useState<number>(() =>
-    typeof window === 'undefined' ? 3 : window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : 3,
-  );
-  useEffect(() => {
-    const h = () => {
-      const w = window.innerWidth;
-      setOpt2ColCount(w < 640 ? 1 : w < 1024 ? 2 : 3);
-    };
     h();
     window.addEventListener('resize', h);
     return () => window.removeEventListener('resize', h);
@@ -1787,16 +1776,15 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
     );
   }, [selectedId]);
 
-  // 所有 skills 合并到一个池子；2 行内能放下的进 inline，其他塞进 More 下拉
+  // 所有 skills 合并到一个池子；首页 3 行内能放下的进 inline，其他塞进 More 下拉
   const allSkills: NewChatTemplate[] = useMemo(
     () => [...PRIMARY_TEMPLATES, ...OTHERS_TEMPLATES, ...COMMUNITY_TEMPLATES],
     [],
   );
   const morePillRef = useRef<HTMLButtonElement>(null);
-  const mirrorRef = useRef<HTMLDivElement>(null);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
 
-  // 直接对真实 pill 容器测量：先把所有 pill 设回可见，从尾部迭代隐藏直到 More 在第 1 或第 2 行。
+  // 直接对真实 pill 容器测量：先把所有 pill 设回可见，从尾部迭代隐藏直到 More 落在允许行数内。
   // 隐藏通过 DOM 直接 mutation；hiddenIds state 仅供 More 下拉读取。
   useLayoutEffect(() => {
     const recompute = () => {
@@ -1811,8 +1799,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
       });
       moreWrap.style.display = '';
       const hidden: string[] = [];
-      // 未选中态最多 4 行，选中后收紧为最多 2 行
-      const maxRows = selectedId ? 2 : 4;
+      // 未选中首页最多 3 行，选中后收紧为最多 2 行
+      const maxRows = selectedId ? 2 : 3;
       const fitsRows = () => {
         const tops = [
           ...new Set([
@@ -1852,12 +1840,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
     // 注意：把 selectedId 加入依赖，确保从「选中态」回到「pill 行可见」时重新测量
   }, [allSkills, hiddenIds, selectedId]);
 
-  const moreSkills: NewChatTemplate[] = useMemo(
-    () => allSkills.filter((s) => hiddenIds.has(s.id)),
-    [allSkills, hiddenIds],
-  );
-  const showMorePill = moreSkills.length > 0;
-
   const handlePillClick = (id: string) => {
     if (isMobile) {
       setMobileDetailId(id);
@@ -1891,7 +1873,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
   const hoveredTemplate = hover ? PRIMARY_TEMPLATES.find((t) => t.id === hover.id) || OTHERS_TEMPLATES.find((t) => t.id === hover.id) || COMMUNITY_TEMPLATES.find((t) => t.id === hover.id) : null;
 
   return (
-    <AppShell activePage={(isOpt2 ? 'new-chat-opt2' : 'new-chat') as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
+    <AppShell activePage="new-chat" onNavigate={onNavigate}>
       <style>{`
         @keyframes newchat-fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes newchat-fade{from{opacity:0}to{opacity:1}}
@@ -2069,7 +2051,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
             font-family:'Delight',sans-serif;
             font-size:16px;
             line-height:22px;
-            font-weight:600;
+            font-weight:500;
             color:var(--text-n9);
             letter-spacing:0.16px;
           }
@@ -2210,7 +2192,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           font-family:'Delight',sans-serif;
           font-size:18px;
           line-height:28px;
-          font-weight:600;
+          font-weight:500;
           color:var(--text-n9);
           letter-spacing:0.18px;
         }
@@ -2501,245 +2483,6 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           align-items:center;
         }
 
-        /* ══════ Opt2 page skill cards (manual columns / hover-reveal) ══════
-           列数由 JS 根据视口算好；每列是独立 flex column，列之间不会互相影响。
-           Round-robin 分布让高优 skill 落在每一列的顶部。 */
-        .nc-skill-masonry{
-          display:flex;
-          gap:12px;
-          align-items:flex-start;
-        }
-        .nc-skill-col{
-          flex:1 1 0;
-          min-width:0;
-          display:flex;
-          flex-direction:column;
-          gap:12px;
-        }
-        .nc-skill-card{
-          display:block;
-          width:100%;
-          background:#fff;
-          border:0.5px solid var(--line-l07);
-          border-radius:12px;
-          padding:16px;
-          font-family:inherit;
-          cursor:pointer;
-          text-align:left;
-          transition:box-shadow 160ms ease, border-color 160ms ease;
-        }
-        .nc-skill-card:focus-visible{
-          outline:2px solid rgba(73,163,166,0.6);
-          outline-offset:2px;
-        }
-        @media (hover: hover){
-          .nc-skill-card:hover{
-            box-shadow:0 6px 18px rgba(0,0,0,0.06);
-            border-color:rgba(0,0,0,0.14);
-          }
-        }
-        .nc-skill-card-header{
-          display:flex;
-          align-items:center;
-          /* gap 改为 thumb / icon 自带 margin-right，方便 hover 时一起平滑收起 */
-        }
-        .nc-skill-card-creator-thumb{
-          flex-shrink:0;
-          display:inline-flex;
-          align-items:center;
-          justify-content:center;
-          margin-right:12px;
-          /* hover 时 visibility:hidden 让头像瞬间消失但仍占位，让旁边的文字
-             用 transform 平滑滑到左侧（headline + meta 一起平移）。 */
-        }
-        .nc-skill-card-creator-thumb > div[class*="rounded-full"],
-        .nc-skill-card-creator-thumb > img{
-          box-shadow:inset 0 0 0 1px var(--line-l12);
-          border-radius:9999px;
-        }
-        .nc-skill-card-icon-wrap{
-          width:36px;
-          height:36px;
-          flex-shrink:0;
-          display:inline-flex;
-          align-items:center;
-          justify-content:center;
-          border-radius:9999px;
-          background:var(--b-r05);
-          border:1px solid var(--line-l12);
-          margin-right:12px;
-        }
-        .nc-skill-card-text{
-          flex:1;
-          min-width:0;
-          display:flex;
-          flex-direction:column;
-          gap:2px;
-        }
-        .nc-skill-card-name{
-          font-family:'Delight',sans-serif;
-          font-size:15px;
-          line-height:20px;
-          font-weight:600;
-          color:var(--text-n9);
-          letter-spacing:0.15px;
-          overflow:hidden;
-          text-overflow:ellipsis;
-          white-space:nowrap;
-        }
-        .nc-skill-card-author{
-          font-family:'Delight',sans-serif;
-          font-size:12px;
-          line-height:16px;
-          color:var(--text-n5);
-          letter-spacing:0.12px;
-          overflow:hidden;
-          text-overflow:ellipsis;
-          white-space:nowrap;
-        }
-        .nc-skill-card-text{
-          transition:transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @media (hover: hover){
-          /* 顶部头像直接 invisible（瞬间消失但保留占位），name+subtitle 用 transform
-             平滑左移 48px（头像 36 + margin-right 12）滑到左侧。 */
-          .nc-skill-card:hover .nc-skill-card-creator-thumb{
-            visibility:hidden;
-          }
-          /* 用相邻兄弟选择器：只对头像类卡片的 text 平移；icon 类卡片（图标不消失）不动。 */
-          .nc-skill-card:hover .nc-skill-card-creator-thumb + .nc-skill-card-text{
-            transform:translateX(-48px);
-          }
-        }
-        .nc-skill-card-desc{
-          font-family:'Delight',sans-serif;
-          font-size:13px;
-          line-height:20px;
-          color:var(--text-n7);
-          letter-spacing:0.13px;
-          margin:12px 0 0;
-        }
-        /* hover 之前隐藏，hover 时挤出。
-           - 默认（鼠标移走时生效）：起手就收，曲线偏 ease-in，让卡片立刻往回缩。
-           - hover（展开时生效）：Material 标准曲线，整段均匀流速能看到在涨高。 */
-        /* 用 grid-template-rows 0fr → 1fr 的技巧把高度直接动画到 content 真实高度，
-           避免 max-height 从 360px 先无效地缩回到 content 实际高度的"前置无视觉空走"。 */
-        .nc-skill-card-extra-wrap{
-          display:grid;
-          grid-template-rows:0fr;
-          /* 默认（收回）：起手即最快，鼠标一离开就开始缩 */
-          transition:grid-template-rows 200ms ease-out;
-        }
-        .nc-skill-card-extra{
-          overflow:hidden;
-          opacity:0;
-          transition:opacity 160ms ease-out;
-        }
-        @media (hover: hover){
-          .nc-skill-card:hover .nc-skill-card-extra-wrap{
-            grid-template-rows:1fr;
-            transition:grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          .nc-skill-card:hover .nc-skill-card-extra{
-            opacity:1;
-          }
-        }
-        @media (hover: none){
-          .nc-skill-card-extra-wrap{
-            grid-template-rows:1fr;
-          }
-          .nc-skill-card-extra{
-            opacity:1;
-          }
-        }
-        /* 触屏：始终显示 */
-        @media (hover: none){
-          .nc-skill-card-extra{
-            max-height:none;
-            opacity:1;
-          }
-        }
-        .nc-skill-card-tags{
-          display:flex;
-          flex-wrap:wrap;
-          gap:5px;
-          margin-top:12px;
-        }
-        .nc-skill-card-tag{
-          height:20px;
-          padding:0 6px;
-          border-radius:5px;
-          background:var(--b-r05);
-          color:var(--text-n5);
-          font-family:'Delight',sans-serif;
-          font-size:11px;
-          line-height:20px;
-          letter-spacing:0.11px;
-          white-space:nowrap;
-        }
-        .nc-skill-card-divider{
-          height:1px;
-          background:var(--line-l07);
-          margin:12px 0;
-        }
-        .nc-skill-card-creator{
-          display:flex;
-          align-items:center;
-          gap:10px;
-        }
-        .nc-skill-card-creator > div[class*="rounded-full"],
-        .nc-skill-card-creator > img{
-          box-shadow:inset 0 0 0 1px var(--line-l12);
-          border-radius:9999px;
-          flex-shrink:0;
-        }
-        .nc-skill-card-creator-text{
-          display:flex;
-          flex-direction:column;
-          flex:1 1 auto;
-          min-width:0;
-        }
-        .nc-skill-card-creator-socials{
-          display:flex;
-          align-items:center;
-          gap:6px;
-          flex-shrink:0;
-          margin-left:auto;
-        }
-        .nc-skill-card-creator-social{
-          width:24px;
-          height:24px;
-          border-radius:9999px;
-          background:var(--b-r05);
-          display:inline-flex;
-          align-items:center;
-          justify-content:center;
-          flex-shrink:0;
-          transition:background 120ms ease;
-        }
-        .nc-skill-card-creator-social:hover{ background:rgba(0,0,0,0.1); }
-        .nc-skill-card-creator-caps{
-          font-family:'Delight',sans-serif;
-          font-size:11px;
-          line-height:14px;
-          color:rgba(0,0,0,0.4);
-          letter-spacing:0.11px;
-          font-weight:400;
-        }
-        .nc-skill-card-creator-name{
-          font-family:'Delight',sans-serif;
-          font-size:13px;
-          line-height:18px;
-          color:var(--text-n9);
-          letter-spacing:0.13px;
-          font-weight:500;
-          overflow:hidden;
-          text-overflow:ellipsis;
-          white-space:nowrap;
-        }
-        @media (max-width: 639px){
-          .nc-skill-card{ padding:14px; }
-        }
       `}</style>
       <div className="h-screen overflow-y-auto relative" style={{ backgroundColor: 'var(--b0-container, #ffffff)' }}>
         {/* ══════ Topbar — 在移动端由 AppShell 的 mobile topbar 接管，这里隐藏 ══════ */}
@@ -2786,6 +2529,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
               shadow
               hideSkill
               hideInspector
+              allowReferences={false}
               bottomChip={
                 selected
                   ? {
@@ -2834,9 +2578,8 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           )}
 
           {/* skill pills — 未选中时展示。所有 pill + More 始终渲染在同一个容器；
-            布局测量时直接 mutate display:none 把溢出的 pill 隐藏（state 仅供 More 下拉用）。
-            Opt2 用瀑布流卡片代替药丸 → 这一行只在默认变体下渲染。 */}
-          {!isOpt2 && !showTypedSuggestions && (
+            布局测量时直接 mutate display:none 把溢出的 pill 隐藏（state 仅供 More 下拉用）。 */}
+          {!showTypedSuggestions && (
             <div
               ref={pillsContainerRef}
               style={{
@@ -2887,7 +2630,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
                 </button>
                 );
               })}
-              {!isOpt2 && <div ref={communityRef} data-more-wrap style={{ position: 'relative' }}>
+              {<div ref={communityRef} data-more-wrap style={{ position: 'relative' }}>
                 <button
                   ref={morePillRef}
                   type="button"
@@ -2962,120 +2705,10 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
         </section>
 
         {/* ══════ Trending Playbooks ══════ */}
-        {!isOpt2 && !selected && !showTypedSuggestions && (
+        {!selected && !showTypedSuggestions && (
           <TrendingPlaybooksSection onNavigate={onNavigate} />
         )}
 
-        {/* ══════ Opt2 默认态：手动分列的瀑布流，hover 时本列下方卡片下推、其它列不动 ══════ */}
-        {isOpt2 && !selected && (() => {
-          // 列数响应式：JS 根据视口决定列数，把 skills round-robin 分到独立列容器里。
-          // 每列是独立的 flex column —— 一列里某张卡片 hover 撑高，只会把同列的下方卡片往下推，
-          // 不会把卡片"挤"到别的列，从根上避免闪烁。
-          const cols = Math.max(1, opt2ColCount);
-          const columns: NewChatTemplate[][] = Array.from({ length: cols }, () => []);
-          allSkills.forEach((s, i) => columns[i % cols].push(s));
-          return (
-            <section
-              className="nc-skills-grid-section"
-              style={{
-                width: '100%',
-                maxWidth: HERO_WIDTH + 48,
-                margin: '0 auto',
-                padding: '0 24px 80px',
-                position: 'relative',
-                zIndex: 2,
-              }}
-            >
-              <div className="nc-skill-masonry">
-                {columns.map((col, ci) => (
-                  <div className="nc-skill-col" key={ci}>
-                    {col.map((s, i) => {
-                      const tags = (s as CommunitySkillTemplate).tags ?? tagsForSkill(s.id);
-                      return (
-                        <article
-                          key={s.id}
-                          role="button"
-                          tabIndex={0}
-                          className="nc-skill-card"
-                          onClick={() => {
-                            setSelectedId(s.id);
-                            setHover(null);
-                            setCommunityOpen(false);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              setSelectedId(s.id);
-                              setHover(null);
-                              setCommunityOpen(false);
-                            }
-                          }}
-                          style={{
-                            animation: 'newchat-fadeup 360ms ease-out both',
-                            animationDelay: `${Math.min(ci + i * cols, 12) * 30}ms`,
-                          }}
-                        >
-                          <header className="nc-skill-card-header">
-                            {s.kol ? (
-                              <span className="nc-skill-card-creator-thumb">
-                                <Avatar name={s.creator} size={36} />
-                              </span>
-                            ) : s.icon ? (
-                              <span className="nc-skill-card-icon-wrap">
-                                <CdnIcon name={s.icon} size={20} color="var(--text-n7)" />
-                              </span>
-                            ) : (
-                              <span className="nc-skill-card-creator-thumb">
-                                <Avatar name={s.creator} size={36} />
-                              </span>
-                            )}
-                            <span className="nc-skill-card-text">
-                              <span className="nc-skill-card-name">{s.label}</span>
-                              <span className="nc-skill-card-author">by {s.creator} · {relativeTimeForSkill(s.id)}</span>
-                            </span>
-                          </header>
-                          <p className="nc-skill-card-desc">{s.description}</p>
-                          <div className="nc-skill-card-tags">
-                            {tags.slice(0, 3).map((tag) => (
-                              <span key={tag} className="nc-skill-card-tag">{tag}</span>
-                            ))}
-                          </div>
-                          <div className="nc-skill-card-extra-wrap">
-                          <div className="nc-skill-card-extra">
-                            <div className="nc-skill-card-divider" />
-                            <div className="nc-skill-card-creator">
-                              <Avatar name={s.creator} size={28} />
-                              <div className="nc-skill-card-creator-text">
-                                <span className="nc-skill-card-creator-caps">Created by</span>
-                                <span className="nc-skill-card-creator-name">{s.creator}</span>
-                              </div>
-                              <div className="nc-skill-card-creator-socials">
-                                {socialsForCreator(s.creator).map((soc) => (
-                                  <a
-                                    key={soc.key}
-                                    href={soc.href}
-                                    target="_blank"
-                                    rel="noreferrer noopener"
-                                    aria-label={soc.label}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="nc-skill-card-creator-social"
-                                  >
-                                    {soc.render()}
-                                  </a>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })()}
 
         {/* ══════ 选中态：6 张 playbook（3×2）—— 先骨架，再淡入真实 ══════ */}
         {selected && (
@@ -3177,7 +2810,7 @@ export default function NewChat({ onNavigate, onOpenSearch, variant = 'default' 
           `}</style>
         </div>
       )}
-      {communityOpen && !isOpt2 && (
+      {communityOpen && (
         <SkillsLibraryPanel
           skills={allSkills}
           selectedId={selectedId}

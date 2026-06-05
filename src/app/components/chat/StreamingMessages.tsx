@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { CdnIcon } from '../shared/CdnIcon';
 import { AlvaLoading } from '../shared/AlvaLoading';
+import alvaLogo from './logo-green-black.svg';
+import { TimelineConnectorLine, TimelineDot } from './TimelineMarkerParts';
 
 /* ━━ Types ━━ */
-export type StepType = 'plan' | 'bash' | 'read' | 'answer';
+export type StepType = 'plan' | 'bash' | 'read' | 'answer' | 'thinking' | 'search';
 export type TodoStatus = 'done' | 'loading' | 'pending';
 
 export interface StreamStep {
@@ -12,6 +14,7 @@ export interface StreamStep {
   meta?: string;
   lines?: string[];
   collapsed?: boolean;
+  duration?: string;
 }
 
 export interface TodoItem {
@@ -53,89 +56,192 @@ export interface StreamingState {
 const FONT = "font-['Delight',sans-serif]";
 const MONO = "font-['JetBrains_Mono',monospace]";
 
+const STREAM_TIMELINE_CSS = `
+@keyframes stream-loading-text {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.82; }
+}
+`;
+
+function AgentBubbleLogo() {
+  return (
+    <div className="flex shrink-0 self-start items-center">
+      <img
+        src={alvaLogo}
+        alt="Alva"
+        style={{ height: 12, width: 47 }}
+      />
+    </div>
+  );
+}
+
 /* ━━ Thinking indicator with Alva lottie 14×14 ━━ */
 function ThinkingIndicator() {
   return (
     <div className="flex items-center gap-[8px] w-full">
-      <AlvaLoading size={12} />
-      <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n5)]`}>
+      <style>{STREAM_TIMELINE_CSS}</style>
+      <AlvaLoading size={14} />
+      <span
+        className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}
+        style={{ animation: 'stream-loading-text 1.4s ease-in-out infinite' }}
+      >
         Thinking...
       </span>
     </div>
   );
 }
 
-/* ━━ Timeline Step ━━ */
-function TimelineStep({ step }: { step: StreamStep }) {
-  const showContent = step.lines && step.lines.length > 0;
+function StepDuration({ value }: { value?: string }) {
   return (
-    <div className="flex gap-[8px] items-start w-full">
-      <div className="relative shrink-0 w-[12px] self-stretch">
-        <div className="absolute left-1/2 top-[2px] bottom-[2px] w-0 -translate-x-1/2"
-          style={{ borderLeft: '1px dashed var(--line-l12)' }} />
+    <span className={`${MONO} ml-auto min-w-[44px] shrink-0 text-right text-[10px] leading-[16px] tracking-[-0.2px] text-[var(--text-n5)]`}>
+      {value || '2.3s'}
+    </span>
+  );
+}
+
+function TimelineMarker({ active, showLine }: { active: boolean; showLine: boolean }) {
+  if (active) {
+    return (
+      <div className="relative h-full w-[14px] shrink-0">
+        {showLine && <TimelineConnectorLine />}
+        <AlvaLoading size={14} className="absolute left-0 top-[3px] z-[1]" />
       </div>
-      <div className="flex flex-col gap-[8px] items-start flex-1 min-w-0">
-        <div className="flex items-center gap-[8px] w-full">
-          <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)] shrink-0`}>
-            {step.label}
-          </span>
-          {step.meta && (
-            <div className="flex items-center justify-center max-w-[640px] px-[6px] py-[1px] rounded-[2px] min-w-0"
-              style={{ background: 'var(--b-r03)' }}>
-              <span className={`${MONO} text-[10px] leading-[16px] text-[var(--text-n5)] truncate`}>
-                {step.meta}
-              </span>
-            </div>
-          )}
-        </div>
-        {showContent && (
-          <div className="relative w-full overflow-clip" style={{ maxHeight: step.collapsed ? 64 : undefined }}>
-            <div className={`${MONO} text-[10px] leading-[16px] text-[var(--text-n5)] flex-1 min-w-0`}>
-              {step.lines!.map((line, i) => (
-                <p key={i} className="leading-[16px] mb-0">{line}</p>
-              ))}
-            </div>
-            {step.collapsed && (
-              <div className="absolute bottom-0 left-0 right-0 h-[32px]"
-                style={{ background: 'linear-gradient(transparent, white)' }} />
-            )}
-          </div>
-        )}
-      </div>
+    );
+  }
+
+  return (
+    <div className="relative h-full w-[14px] shrink-0">
+      {showLine && <TimelineConnectorLine />}
+      <TimelineDot />
     </div>
   );
 }
 
-/* ━━ Collapsible Steps Divider — title ABOVE expanded content ━━ */
-function StepsDivider({ count, children }: { count: number; children: React.ReactNode }) {
-  const [expanded, setExpanded] = useState(false);
+function StepBlock({ step }: { step: StreamStep }) {
+  if (step.type === 'bash') {
+    const command = step.meta || step.lines?.[0] || '';
+    return (
+      <div
+        className={`${FONT} flex w-full flex-col items-start justify-center gap-[2px] rounded-[4px] px-[12px] py-[8px] text-[12px] leading-[20px] tracking-[0.12px]`}
+        style={{ background: 'var(--b-r03)' }}
+      >
+        <p className="text-[var(--text-n9)]">Bash</p>
+        {command && <p className="w-full break-words text-[var(--text-n5)]">{command}</p>}
+      </div>
+    );
+  }
+
+  if (!step.lines?.length) return null;
 
   return (
-    <div className="w-full flex flex-col">
-      {/* Divider row — always visible, clickable */}
-      <div
-        className="flex items-center gap-[8px] w-full cursor-pointer group"
-        onClick={() => setExpanded(v => !v)}
-      >
-        <div className="flex-1 h-0" style={{ borderTop: '0.5px solid var(--line-l05)' }} />
-        <div className="flex items-center gap-[4px] shrink-0">
-          <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-            {count} Steps
-          </span>
-          <CdnIcon
-            name={expanded ? 'arrow-up-l2' : 'arrow-down-l2'}
-            size={12}
-            color="var(--text-n5)"
-          />
-        </div>
-        <div className="flex-1 h-0" style={{ borderTop: '0.5px solid var(--line-l05)' }} />
+    <div className={`${FONT} flex w-full flex-col gap-[8px] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+      {step.lines.map((line, i) => (
+        <p key={i} className="whitespace-pre-wrap break-words">{line}</p>
+      ))}
+    </div>
+  );
+}
+
+/* ━━ Timeline Step ━━ */
+function TimelineStep({ step, active, showLine }: { step: StreamStep; active: boolean; showLine: boolean }) {
+  const showContent = (step.lines && step.lines.length > 0) || (step.type === 'bash' && !!step.meta);
+  const [expanded, setExpanded] = useState(!step.collapsed);
+
+  return (
+    <div className="flex w-full items-center gap-[8px]">
+      <div className="flex flex-row items-center self-stretch">
+        <TimelineMarker active={active} showLine={showLine} />
       </div>
-      {/* Expanded content — BELOW the divider title */}
-      {expanded && (
-        <div className="flex flex-col gap-[16px] w-full mt-[16px]">
-          {children}
+      {showContent ? (
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-[8px]">
+          <button
+            type="button"
+            className="flex w-full items-center gap-[4px] cursor-pointer bg-transparent border-0 p-0 text-left"
+            onClick={() => setExpanded(value => !value)}
+            aria-expanded={expanded}
+          >
+            <span
+              className={`${FONT} min-w-0 shrink truncate text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}
+              style={active ? { animation: 'stream-loading-text 1.4s ease-in-out infinite' } : undefined}
+            >
+              {step.label}
+            </span>
+            <CdnIcon name={expanded ? 'arrow-down-l2' : 'arrow-right-l2'} size={12} color="var(--text-n5)" />
+            <StepDuration value={step.duration} />
+          </button>
+          <div
+            className="w-full"
+            style={{
+              display: 'grid',
+              gridTemplateRows: expanded ? '1fr' : '0fr',
+              opacity: expanded ? 1 : 0,
+              transform: expanded ? 'translateY(0)' : 'translateY(-2px)',
+              transition: 'grid-template-rows 220ms cubic-bezier(0.32,0.72,0,1), opacity 180ms ease, transform 220ms cubic-bezier(0.32,0.72,0,1)',
+            }}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <StepBlock step={step} />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex min-w-0 flex-1 items-center gap-[8px]">
+          <span
+            className={`${FONT} min-w-0 shrink truncate text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}
+            style={active ? { animation: 'stream-loading-text 1.4s ease-in-out infinite' } : undefined}
+          >
+            {step.label}
+          </span>
+          <StepDuration value={step.duration} />
         </div>
       )}
+    </div>
+  );
+}
+
+function GeneratedTimeline({ steps, activeIndex }: { steps: StreamStep[]; activeIndex: number }) {
+  const [expanded, setExpanded] = useState(true);
+
+  if (steps.length === 0) return null;
+  const commandCount = Math.max(steps.length, 1);
+
+  return (
+    <div className="flex w-full flex-col items-start gap-[12px]">
+      <style>{STREAM_TIMELINE_CSS}</style>
+      <button
+        type="button"
+        className="flex w-full items-center gap-[4px] cursor-pointer bg-transparent border-0 p-0 text-left"
+        onClick={() => setExpanded(value => !value)}
+        aria-expanded={expanded}
+      >
+        <span className={`${FONT} shrink-0 text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+          Ran {commandCount} commands, searched code, read a file
+        </span>
+        <CdnIcon name={expanded ? 'arrow-down-l2' : 'arrow-right-l2'} size={12} color="var(--text-n5)" />
+      </button>
+      <div
+        className="w-full"
+        style={{
+          display: 'grid',
+          gridTemplateRows: expanded ? '1fr' : '0fr',
+          opacity: expanded ? 1 : 0,
+          transform: expanded ? 'translateY(0)' : 'translateY(-2px)',
+          transition: 'grid-template-rows 240ms cubic-bezier(0.32,0.72,0,1), opacity 180ms ease, transform 240ms cubic-bezier(0.32,0.72,0,1)',
+        }}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex w-full flex-col items-start gap-[12px]">
+            {steps.map((step, i) => (
+              <TimelineStep
+                key={`${step.label}-${i}`}
+                step={step}
+                active={i === activeIndex}
+                showLine={i < steps.length - 1}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -196,51 +302,53 @@ function TodoListCard({ data }: { data: StreamingState['todos'] }) {
 /* ━━ Review Plan Card ━━ */
 function ReviewPlanCard({ data, onApprove }: { data: ReviewPlan; onApprove?: () => void }) {
   return (
-    <div className="w-full flex flex-col gap-[8px]">
-      <div className="rounded-[12px] overflow-clip flex flex-col"
-        style={{ background: 'white', border: '0.5px solid var(--line-l2)', boxShadow: 'var(--shadow-xs)' }}>
-        <div className="flex items-center px-[20px] py-[12px]"
-          style={{ background: 'var(--b-r02)', borderBottom: '0.5px solid var(--line-l12)' }}>
-          <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-            Review Alva's plan
-          </span>
-        </div>
-        <div className="flex flex-col gap-[8px] p-[20px]">
-          <p className={`${FONT} font-medium text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-            {data.title}
-          </p>
-          <div className="flex flex-col gap-[4px]">
-            {data.steps.map((s, i) => (
-              <div key={i} className="flex items-start">
-                <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-[20px] shrink-0 text-center`}>
-                  {i + 1}.
-                </span>
-                <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1`}>
-                  {s}
-                </span>
-              </div>
-            ))}
+    <div className="w-full flex flex-col items-start gap-[4px]">
+      <div className="flex w-full flex-col gap-[8px]">
+        <div className="rounded-[8px] overflow-clip flex flex-col"
+          style={{ background: 'white', border: '0.5px solid var(--line-l2)', boxShadow: 'var(--shadow-xs)' }}>
+          <div className="flex items-center px-[20px] py-[12px]"
+            style={{ background: 'var(--b-r02)' }}>
+            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+              Review Alva's plan
+            </span>
+          </div>
+          <div className="flex flex-col gap-[8px] p-[20px]">
+            <p className={`${FONT} font-medium text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+              {data.title}
+            </p>
+            <div className="flex flex-col gap-[4px]">
+              {data.steps.map((s, i) => (
+                <div key={i} className="flex items-start">
+                  <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-[20px] shrink-0 text-center`}>
+                    {i + 1}.
+                  </span>
+                  <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1`}>
+                    {s}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="rounded-[12px] overflow-clip flex flex-col p-[8px]"
-        style={{ background: 'white', border: '0.5px solid var(--line-l2)', boxShadow: 'var(--shadow-xs)' }}>
-        <button
-          className="flex gap-[8px] items-center p-[12px] rounded-[6px] w-full cursor-pointer transition-opacity hover:opacity-80"
-          style={{ background: 'var(--main-m1-10)' }}
-          onClick={onApprove}
-        >
-          <CdnIcon name="check-f2" size={18} color="var(--main-m1)" />
-          <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1 text-left`}>
-            Approve Alva's plan and start coding
-          </span>
-          <CdnIcon name="enter-l" size={18} color="var(--text-n5)" />
-        </button>
-        <div className="flex gap-[8px] items-center p-[12px]">
-          <CdnIcon name="edit-l1" size={18} color="var(--text-n5)" />
-          <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n5)]`}>
-            Tell Alva what to do instead
-          </span>
+        <div className="rounded-[8px] overflow-clip flex flex-col p-[8px]"
+          style={{ background: 'white', border: '0.5px solid var(--line-l2)', boxShadow: 'var(--shadow-xs)' }}>
+          <button
+            className="flex gap-[8px] items-center p-[12px] rounded-[6px] w-full cursor-pointer transition-opacity hover:opacity-80"
+            style={{ background: 'var(--main-m1-10)' }}
+            onClick={onApprove}
+          >
+            <CdnIcon name="check-f2" size={18} color="var(--main-m1)" />
+            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1 text-left`}>
+              Approve Alva's plan and start coding
+            </span>
+            <CdnIcon name="enter-l" size={18} color="var(--text-n5)" />
+          </button>
+          <div className="flex gap-[8px] items-center p-[12px]">
+            <CdnIcon name="edit-l1" size={18} color="var(--text-n5)" />
+            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n5)]`}>
+              Tell Alva what to do instead
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -265,66 +373,65 @@ function AnswerQuestionCard({
   };
 
   return (
-    <div className="w-full rounded-[12px] overflow-clip flex flex-col gap-[16px] items-end justify-center p-[20px]"
-      style={{ background: 'white', border: '0.5px solid var(--line-l2)', boxShadow: 'var(--shadow-xs)' }}>
-      <div className="flex gap-[12px] items-center w-full">
-        <span className={`${FONT} font-medium text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1`}>
-          {data.question}
-        </span>
-        <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] shrink-0`}>
-          {data.currentStep}
-        </span>
-      </div>
-      <div className="w-full rounded-[8px] flex flex-col" style={{ background: 'var(--b-r02)' }}>
-        {data.options.map((opt, i) => (
-          <div
-            key={i}
-            className={`flex gap-[2px] items-center py-[12px] px-[20px] relative cursor-pointer transition-colors ${i > 0 ? 'border-t' : ''}`}
-            style={{ borderColor: 'var(--line-l12)' }}
-            onClick={() => handleSelect(i)}
-          >
-            {selected === i && (
-              <div className="absolute inset-[-0.5px_-20px_0_-20px]" style={{ background: 'var(--main-m1-10)' }} />
-            )}
-            <div className="flex flex-col gap-[2px] flex-1 min-w-0 relative">
-              <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-                {opt.title}
-              </span>
-              <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] truncate`}>
-                {opt.description}
-              </span>
-            </div>
-            <div className="flex items-center justify-center px-[12px] py-[4px] rounded-[6px] shrink-0 w-[28px] relative"
-              style={{ background: selected === i ? 'var(--main-m1)' : 'var(--b-r07)' }}>
-              <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] ${selected === i ? 'text-white' : 'text-[var(--text-n5)]'}`}>
-                {i + 1}
-              </span>
-            </div>
-          </div>
-        ))}
-        <div className="flex gap-[8px] items-center py-[16px] px-[20px] border-t" style={{ borderColor: 'var(--line-l12)' }}>
-          <CdnIcon name="edit-l1" size={18} color="var(--text-n5)" />
-          <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1`}>
-            Tell Alva what to do instead...
+    <div className="w-full flex flex-col items-start gap-[4px]">
+      <div className="w-full rounded-[8px] overflow-clip flex flex-col gap-[16px] items-end justify-center p-[20px]"
+        style={{ background: 'white', border: '0.5px solid var(--line-l2)', boxShadow: 'var(--shadow-xs)' }}>
+        <div className="flex gap-[12px] items-center w-full">
+          <span className={`${FONT} font-medium text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1`}>
+            {data.question}
           </span>
-          <div className="flex items-center justify-center px-[12px] py-[4px] rounded-[6px] shrink-0 w-[28px]"
-            style={{ background: 'var(--b-r07)' }}>
-            <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-              {data.options.length + 1}
+          <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] shrink-0`}>
+            {data.currentStep}
+          </span>
+        </div>
+        <div className="w-full rounded-[8px] flex flex-col px-[20px]" style={{ background: 'var(--b-r02)' }}>
+          {data.options.map((opt, i) => (
+            <div
+              key={i}
+              className={`flex gap-[2px] items-center py-[12px] relative cursor-pointer transition-colors ${i > 0 ? 'border-t' : ''}`}
+              style={{ borderColor: 'var(--line-l12)' }}
+              onClick={() => handleSelect(i)}
+            >
+              <div className="flex flex-col gap-[2px] flex-1 min-w-0 relative">
+                <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+                  {opt.title}
+                </span>
+                <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)] truncate`}>
+                  {opt.description}
+                </span>
+              </div>
+              <div className="flex items-center justify-center rounded-[4px] shrink-0 w-[28px] h-[28px] relative"
+                style={{ background: selected === i ? 'var(--main-m2)' : 'var(--b-r07)' }}>
+                <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] ${selected === i ? 'text-white' : 'text-[var(--text-n5)]'}`}>
+                  {i + 1}
+                </span>
+              </div>
+            </div>
+          ))}
+          <div className="flex gap-[8px] items-center py-[16px] border-t" style={{ borderColor: 'var(--line-l12)' }}>
+            <CdnIcon name="edit-l1" size={18} color="var(--text-n5)" />
+            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] flex-1`}>
+              Tell Alva what to do instead...
             </span>
+            <div className="flex items-center justify-center rounded-[4px] shrink-0 w-[28px] h-[28px]"
+              style={{ background: 'var(--b-r07)' }}>
+              <span className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+                {data.options.length + 1}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex gap-[8px] items-center justify-end">
-        <button
-          className="flex items-center justify-center px-[16px] py-[6px] rounded-[6px] w-[80px] cursor-pointer transition-opacity hover:opacity-70"
-          style={{ background: 'white', border: '0.5px solid var(--line-l3)' }}
-          onClick={onSkip}
-        >
-          <span className={`${FONT} font-medium text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)]`}>
-            Skip
-          </span>
-        </button>
+        <div className="flex gap-[8px] items-center justify-end">
+          <button
+            className="flex items-center justify-center px-[16px] py-[6px] rounded-[4px] w-[80px] cursor-pointer transition-opacity hover:opacity-70"
+            style={{ background: 'white', border: '0.5px solid var(--line-l3)' }}
+            onClick={onSkip}
+          >
+            <span className={`${FONT} font-medium text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)]`}>
+              Skip
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -360,39 +467,21 @@ export function StreamingMessages({ state }: StreamingMessagesProps) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [state.steps.length, state.textContent, state.stepsCompleted, state.thinking]);
 
-  const stepsContent = state.steps.map((step, i) => (
-    <TimelineStep key={i} step={step} />
-  ));
+  const activeIndex = state.stepsCompleted || state.steps.length === 0 ? -1 : state.steps.length - 1;
+  const showAgentLogo = state.thinking || state.steps.length > 0 || !!state.textContent;
 
   return (
     <div className="flex flex-col gap-[16px] items-start w-full">
+      {showAgentLogo && <AgentBubbleLogo />}
+
       {/* Thinking indicator — visible during overlay phases, before steps */}
       {state.thinking && <ThinkingIndicator />}
 
-      {/* Steps: appear after user decisions, inline while streaming, collapsed when done */}
-      {state.stepsCompleted ? (
-        <StepsDivider count={state.steps.length}>
-          {stepsContent}
-        </StepsDivider>
-      ) : (
-        state.steps.length > 0 && stepsContent
-      )}
-
-      {/* Alva badge — formal content header, shown when steps done and text starts */}
-      {state.stepsCompleted && !state.thinking && (state.textContent || !state.isStreaming) && (
-        <div className="flex items-center gap-[4px] shrink-0">
-          <img src="https://alva-ai-static.b-cdn.net/icons/alva-watermark.svg" alt="Alva" style={{ height: 14 }} />
-          <span className={`${FONT} text-[10px] leading-[14px] px-[4px] py-[1px]`}
-            style={{ background: 'var(--main-m1-10)', color: 'var(--main-m1)', borderRadius: 3 }}>
-            Beta
-          </span>
-        </div>
-      )}
+      {/* Steps follow the Figma Generated format: summary row + vertical timeline. */}
+      {state.steps.length > 0 && <GeneratedTimeline steps={state.steps} activeIndex={activeIndex} />}
 
       {/* Streaming text */}
-      {state.textContent && (
-        <StreamingText text={state.textContent} isStreaming={state.isStreaming} />
-      )}
+      {state.textContent && <StreamingText text={state.textContent} isStreaming={state.isStreaming} />}
 
       <div ref={bottomRef} />
     </div>

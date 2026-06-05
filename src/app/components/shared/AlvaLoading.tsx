@@ -4,9 +4,10 @@ import lottie from 'lottie-web';
 interface AlvaLoadingProps {
   size?: number;
   className?: string;
+  tone?: 'light' | 'dark';
 }
 
-export function AlvaLoading({ size = 20, className }: AlvaLoadingProps) {
+export function AlvaLoading({ size = 20, className, tone = 'light' }: AlvaLoadingProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<ReturnType<typeof lottie.loadAnimation> | null>(null);
 
@@ -17,10 +18,10 @@ export function AlvaLoading({ size = 20, className }: AlvaLoadingProps) {
       renderer: 'svg',
       loop: true,
       autoplay: true,
-      path: `${import.meta.env.BASE_URL}logo-loading-light.json`,
+      path: `${import.meta.env.BASE_URL}logo-loading-${tone}.json`,
     });
     return () => { animRef.current?.destroy(); };
-  }, []);
+  }, [tone]);
 
   return (
     <div

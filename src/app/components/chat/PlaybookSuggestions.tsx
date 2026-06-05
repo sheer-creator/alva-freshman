@@ -1,184 +1,75 @@
-/**
- * [INPUT]: page (activePage), onPromptClick 回调
- * [OUTPUT]: ChatPanel 在支持的上下文页面空态下渲染 3 条自然语言建议 + 问候
- * [POS]: ChatPanel 空态层 — 支持 workspace / explore-2 / portfolio 等页面
- */
-
 import { CdnIcon } from '../shared/CdnIcon';
+import DotMatrixWave from '../shared/DotMatrixWave';
 
-interface ContextSuggestion {
-  icon: string;
-  text: string;
-}
-
-interface ContextConfig {
-  greeting: string;
-  suggestions: ContextSuggestion[];
-}
-
-/* ========== 每个页面的上下文建议 ========== */
-
-const CONTEXT_CONFIG: Record<string, ContextConfig> = {
-  'explore-2': {
-    greeting: "Hey YGGYLL, what's next?",
-    suggestions: [
-      {
-        icon: 'star-l',
-        text: 'Find the three playbooks with the highest 30-day return',
-      },
-      {
-        icon: 'researcher-l1',
-        text: 'Surface playbooks tied to the AI infrastructure theme',
-      },
-      {
-        icon: 'chat-l1',
-        text: 'Summarize which playbooks are trending in discussions this week',
-      },
-    ],
+const EMPTY_PROMPTS = [
+  {
+    icon: 'target-l2',
+    text: 'Backtest Any Market Scenario Before You Risk a Dollar',
   },
-  portfolio: {
-    greeting: "Hey YGGYLL, what's next?",
-    suggestions: [
-      {
-        icon: 'remix-l',
-        text: 'Find high-performing playbooks I could mirror with my portfolio',
-      },
-      {
-        icon: 'history-l',
-        text: 'Review my recent trades and summarize my trading style',
-      },
-      {
-        icon: 'alert-f2',
-        text: 'Flag the positions most at risk if BTC drops 10% next week',
-      },
-    ],
+  {
+    icon: 'target-l2',
+    text: 'Track Any Theme in Real Time',
   },
-};
+  {
+    icon: 'sidebar-thread-normal',
+    text: 'See Beyond the Numbers',
+  },
+];
 
-/** 判断当前页面是否有上下文建议（ChatPanel 据此决定是否替换默认空态） */
-export function hasContextSuggestions(page: string): boolean {
-  return page in CONTEXT_CONFIG;
-}
-
-/* ========== Suggestion 行 ========== */
-
-function SuggestionRow({
+function EmptyPromptPill({
   icon,
   text,
-  isLast,
   onClick,
 }: {
   icon: string;
   text: string;
-  isLast?: boolean;
-  onClick?: () => void;
+  onClick: () => void;
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '12px 14px',
-        background: 'transparent',
-        border: 'none',
-        borderBottom: isLast ? 'none' : '0.5px solid var(--line-l07)',
-        textAlign: 'left',
-        cursor: 'pointer',
-        width: '100%',
-        transition: 'background 0.15s, color 0.15s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(73,163,166,0.04)';
-        const label = e.currentTarget.querySelector('span.nc-suggestion-label') as HTMLSpanElement | null;
-        if (label) label.style.color = 'var(--main-m1)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'transparent';
-        const label = e.currentTarget.querySelector('span.nc-suggestion-label') as HTMLSpanElement | null;
-        if (label) label.style.color = 'var(--text-n9)';
-      }}
+      className="inline-flex h-[36px] max-w-full shrink-0 cursor-pointer items-center gap-[4px] rounded-[960px] border-0 px-[12px] py-[8px] transition-colors hover:bg-[var(--b-r07)]"
+      style={{ background: 'var(--grey-g02, #f5f5f5)' }}
     >
-      <CdnIcon name={icon} size={14} color="rgba(0,0,0,0.6)" />
+      <CdnIcon name={icon} size={16} color="var(--text-n9)" />
       <span
-        className="nc-suggestion-label"
-        style={{
-          flex: 1,
-          fontFamily: "'Delight', sans-serif",
-          fontSize: 13,
-          lineHeight: '20px',
-          color: 'var(--text-n9)',
-          letterSpacing: 0.13,
-          transition: 'color 0.15s',
-        }}
+        className="min-w-0 truncate font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
+        style={{ color: 'var(--text-n9)' }}
       >
         {text}
       </span>
-      <CdnIcon name="enter-l" size={12} color="var(--text-n3)" />
     </button>
   );
 }
 
-/* ========== 主组件 ========== */
-
-export function PlaybookSuggestions({ page, onPromptClick }: { page: string; onPromptClick: (text: string) => void }) {
-  const config = CONTEXT_CONFIG[page];
-  if (!config) return null;
-
+export function ChatEmptyState({ onPromptClick }: { onPromptClick: (text: string) => void }) {
   return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Greeting */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 12,
-          padding: '0 12px',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            background: 'rgba(73,163,166,0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden w-full">
+      <div className="relative flex min-h-[320px] flex-1 items-center justify-center overflow-hidden px-[16px] pb-[20px]">
+        <DotMatrixWave
+          className="pointer-events-none absolute inset-0 h-full w-full"
+          enableHover={false}
+          dotColor="#cfe8e8"
+          waveSpeed={0.72}
+        />
+        <h2
+          className="relative z-[1] m-0 max-w-[616px] text-center font-['Delight',sans-serif] text-[24px] font-normal leading-[34px] tracking-[0.24px]"
+          style={{ color: 'var(--text-n9)' }}
         >
-          <img
-            src={`${import.meta.env.BASE_URL}logo-portrait.svg`}
-            alt="Alva"
-            style={{ width: 36, height: 36 }}
-          />
-        </div>
-        <p
-          style={{
-            fontFamily: "'Delight', sans-serif",
-            fontSize: 18,
-            lineHeight: '26px',
-            fontWeight: 500,
-            color: 'var(--text-n9)',
-            letterSpacing: 0.18,
-          }}
-        >
-          {config.greeting}
-        </p>
+          Turn Ideas into Live
+          <br />
+          Investing Playbooks in Minutes
+        </h2>
       </div>
 
-      {/* Suggestions */}
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-        {config.suggestions.map((s, i) => (
-          <SuggestionRow
-            key={i}
-            icon={s.icon}
-            text={s.text}
-            isLast={i === config.suggestions.length - 1}
-            onClick={() => onPromptClick(s.text)}
+      <div className="flex shrink-0 flex-wrap items-center justify-start gap-[8px] overflow-hidden p-[16px] pt-[8px]">
+        {EMPTY_PROMPTS.map((prompt) => (
+          <EmptyPromptPill
+            key={prompt.text}
+            icon={prompt.icon}
+            text={prompt.text}
+            onClick={() => onPromptClick(prompt.text)}
           />
         ))}
       </div>

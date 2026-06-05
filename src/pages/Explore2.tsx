@@ -1121,7 +1121,7 @@ export function FilterBar({
           border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
           background: 'transparent',
           cursor: 'pointer',
-          fontFamily: 'Inter, sans-serif',
+          fontFamily: "'Delight', sans-serif",
           fontSize: 12,
           lineHeight: '20px',
           letterSpacing: 0.12,

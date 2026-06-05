@@ -27,15 +27,18 @@ export const SIDEBAR_W_COLLAPSED = 56;
 /* ========== 导航项组件 ========== */
 
 function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }: { label: string; icon?: string; badge?: string | number; active?: boolean; deprecated?: boolean; collapsed?: boolean; onClick?: () => void }) {
+  const interactive = Boolean(onClick);
   const textClass = deprecated
     ? 'text-white/35'
     : active
-      ? 'text-[var(--main-m1)]'
-      : 'text-white hover:bg-white/20';
-  const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? 'var(--main-m1)' : '#ffffff';
+      ? 'text-white bg-white/5'
+      : interactive
+        ? 'text-white hover:bg-white/5'
+        : 'text-white';
+  const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : '#ffffff';
   return (
     <div
-      className={`content-stretch flex h-[36px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full transition-colors ${collapsed ? 'justify-center px-0' : 'gap-[8px] px-[8px] py-[4px]'} ${textClass} ${onClick ? 'cursor-pointer' : ''}`}
+      className={`content-stretch flex h-[36px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full transition-colors ${collapsed ? 'justify-center px-0' : 'gap-[8px] px-[8px] py-[4px]'} ${textClass} ${interactive ? 'cursor-pointer' : ''}`}
       onClick={onClick}
       title={collapsed ? label : deprecated ? 'Deprecated — use New Chat' : undefined}
     >
@@ -82,10 +85,10 @@ function SectionHeader({ label, collapsed }: { label: string; collapsed?: boolea
 
 function Logo({ collapsed, onToggleCollapsed }: { collapsed?: boolean; onToggleCollapsed?: () => void }) {
   return (
-    <div className={`content-stretch flex h-[48px] items-center relative shrink-0 w-full z-[9] ${collapsed ? 'justify-center py-[16px]' : 'justify-between px-[8px] py-[16px]'}`}>
+    <div className={`content-stretch flex items-center relative shrink-0 w-full z-[9] ${collapsed ? 'justify-center py-[12px]' : 'justify-between px-[8px] py-[12px]'}`}>
       {!collapsed && (
-        <div className="h-[14px] relative shrink-0 w-[81px]">
-          <img src={`${import.meta.env.BASE_URL}logo-alva-beta.svg`} alt="Alva" className="absolute inset-0 block size-full object-contain object-left" />
+        <div className="h-[14px] relative shrink-0 w-[56px]">
+          <img src={`${import.meta.env.BASE_URL}logo-alva.svg`} alt="Alva" className="absolute inset-0 block size-full object-contain object-left" />
         </div>
       )}
       <button
@@ -104,17 +107,17 @@ function Logo({ collapsed, onToggleCollapsed }: { collapsed?: boolean; onToggleC
 
 function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?: boolean; onClick?: () => void; collapsed?: boolean; label?: string }) {
   return (
-    <div className={`content-stretch flex flex-col items-start relative shrink-0 w-full ${collapsed ? 'py-[4px]' : 'py-[4px]'}`}>
+    <div className={`content-stretch flex flex-col items-start relative shrink-0 w-full ${collapsed ? 'py-[4px]' : 'p-[8px]'}`}>
       <button
         onClick={onClick}
         title={collapsed ? label : undefined}
-        className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[4px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/20 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
+        className={`bg-transparent border-[0.5px] border-[rgba(255,255,255,0.3)] border-solid content-stretch flex h-[32px] items-center justify-center overflow-clip relative rounded-[4px] shrink-0 w-full transition-colors cursor-pointer hover:bg-white/5 ${collapsed ? 'px-0' : 'gap-[6px] px-[16px] py-[6px]'}`}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
           <path d="M7 1.75V12.25M1.75 7H12.25" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
         {!collapsed && (
-          <span className="font-['Delight',sans-serif] font-semibold leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
+          <span className="font-['Delight',sans-serif] font-medium leading-[20px] text-[12px] text-white tracking-[0.12px] whitespace-nowrap">
             {label}
           </span>
         )}
@@ -139,29 +142,35 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* New Playbook CTA — own group per Figma 2951:34936 */}
       <NewPlaybookButton collapsed={collapsed} onClick={() => onNavigate('new-chat')} />
-      <NewPlaybookButton collapsed={collapsed} label="New Chat (Opt2)" onClick={() => onNavigate('new-chat-opt2')} />
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
-        <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore-2'} collapsed={collapsed} onClick={() => onNavigate('explore-2')} />
+        <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore'} collapsed={collapsed} onClick={() => onNavigate('explore')} />
         <NavItem label="Agent" icon="sidebar-agent-normal" active={activePage === 'agent'} collapsed={collapsed} onClick={() => onNavigate('agent')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} collapsed={collapsed} onClick={() => onNavigate('alva-skills')} />
       </div>
 
-      {/* Starred */}
+      {/* Subscribed */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[6]">
-        <SectionHeader label="Starred" collapsed={collapsed} />
-        <NavItem label="Template-Screener" icon="sidebar-dashboard-normal" active={activePage === 'template-screener'} collapsed={collapsed} onClick={() => onNavigate('template-screener')} />
-        <NavItem label="Template-Thesis" icon="sidebar-dashboard-normal" active={activePage === 'template-thesis'} collapsed={collapsed} onClick={() => onNavigate('template-thesis')} />
-        <NavItem label="Template-Whatif" icon="sidebar-dashboard-normal" active={activePage === 'template-whatif'} collapsed={collapsed} onClick={() => onNavigate('template-whatif')} />
-        <NavItem label="Template-Notification" icon="sidebar-dashboard-normal" active={activePage === 'template-notification'} collapsed={collapsed} onClick={() => onNavigate('template-notification')} />
+        <SectionHeader label="Subscribed" collapsed={collapsed} />
+        <NavItem label="Attribution Analysis Strategy for Price Trends" icon="sidebar-dashboard-normal" active={activePage === 'template-screener'} collapsed={collapsed} onClick={() => onNavigate('template-screener')} />
+        <NavItem label="NVDA Price Fetcher" icon="sidebar-dashboard-normal" active={activePage === 'template-thesis'} collapsed={collapsed} onClick={() => onNavigate('template-thesis')} />
+        <NavItem label="Google / X Trends Tracker" icon="sidebar-dashboard-normal" active={activePage === 'template-whatif'} collapsed={collapsed} onClick={() => onNavigate('template-whatif')} />
       </div>
 
-      {/* My Playbooks */}
-      <div className="content-stretch flex flex-col flex-[1_0_0] gap-0 items-start min-h-px py-[4px] relative w-full z-[5]">
-        <SectionHeader label="My Playbooks" collapsed={collapsed} />
-        <NavItem label="Feed Test" icon="sidebar-dashboard-normal" active={activePage === 'screener'} collapsed={collapsed} onClick={() => onNavigate('screener')} />
+      {/* Playbooks */}
+      <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[5]">
+        <SectionHeader label="Playbooks" collapsed={collapsed} />
+        <NavItem label="NVDA Price Fetcher" icon="sidebar-dashboard-normal" active={activePage === 'screener'} collapsed={collapsed} onClick={() => onNavigate('screener')} />
+        <NavItem label="Short-Squeeze Risk Map" icon="sidebar-dashboard-normal" active={activePage === 'template-notification'} collapsed={collapsed} onClick={() => onNavigate('template-notification')} />
+      </div>
+
+      {/* Chats */}
+      <div className="content-stretch flex flex-col flex-[1_0_0] gap-0 items-start min-h-px py-[4px] relative w-full z-[4]">
+        <SectionHeader label="Chats" collapsed={collapsed} />
+        <NavItem label="Crypto Price + AI Trend Pulse" icon="chat-l1" collapsed={collapsed} />
+        <NavItem label="Heartbeat Run Counter" icon="chat-l1" collapsed={collapsed} />
       </div>
 
       {/* Upgrade to Pro card — sits above the user row */}
@@ -218,7 +227,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* 用户行 */}
       <div
-        className={`content-stretch flex items-center relative rounded-[4px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/20 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
+        className={`content-stretch flex items-center relative rounded-[4px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/5 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
         onMouseEnter={onUserMouseEnter}
         onMouseLeave={onUserMouseLeave}
         onClick={() => onNavigate('user-profile')}

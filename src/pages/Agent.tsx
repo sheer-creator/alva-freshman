@@ -2,20 +2,17 @@ import { useState, useRef, useCallback } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { Avatar } from '@/app/components/shared/Avatar';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { ChatMessages } from '@/app/components/chat/ChatMessages';
-import { AgentConnectedFeed } from '@/app/components/chat/AgentConnectedFeed';
 import { AlvaLoading } from '@/app/components/shared/AlvaLoading';
 import { ThreadSwitcherDropdown } from '@/app/components/shared/ThreadSwitcherDropdown';
 import { Dropdown } from '@/app/components/shared/Dropdown';
 import { CONVERSATIONS } from '@/lib/chat-config';
-import DotMatrixWave from '@/app/components/shared/DotMatrixWave';
-import { Tooltip } from '@/app/components/shared/Tooltip';
 import { DiscordConnectModal } from '@/app/components/shared/DiscordConnectModal';
 import { AlertsPopover } from '@/app/components/shared/AlertsPopover';
 import { useAgentPlatforms, type AgentPlatform } from '@/lib/agent-connected';
-import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
-import { BRAND_REGISTRY } from '@/lib/playbook-cover/brand-registry';
+import alvaLogo from '@/app/components/chat/logo-green-black.svg';
 
 type AgentState = 'empty' | 'connecting' | 'connected';
 
@@ -24,202 +21,92 @@ const FONT = "font-['Delight',sans-serif]";
 /* ── Feature cards for empty state ── */
 const FEATURES = [
   { icon: 'clock-l', title: 'Proactive push', desc: 'Playbooks reach you when signals move, not when you check.' },
-  { icon: 'bot-l', title: 'Messenger-native', desc: 'Telegram and Discord become your market feed inbox.' },
-  { icon: 'memory-l', title: 'Context memory', desc: 'Your agent remembers portfolios, themes, and preferences.' },
-  { icon: 'update-l', title: 'Always-on runtime', desc: 'Feeds keep running in Alva while you are away.' },
+  { icon: 'clock-l', title: 'Messenger-native', desc: 'Telegram and Discord become your market feed inbox.' },
+  { icon: 'clock-l', title: 'Context memory', desc: 'Your agent remembers portfolios, themes, and preferences.' },
+  { icon: 'clock-l', title: 'Always-on runtime', desc: 'Feeds keep running in Alva while you are away.' },
 ];
 
-/* \u2500\u2500 Push-ready playbooks with feed items \u2500\u2500 */
-interface TradeAction {
-  action: 'buy' | 'sell';
-  ticker: string;
-  detail: string;
-  trend: 'up' | 'down';
-}
-
-/* \u2500\u2500 Stock logo: Figma assets \u2192 brand registry CDN \u2192 letter fallback \u2500\u2500 */
-const STOCK_LOGO_ASSETS: Record<string, string> = {
-  AAPL: 'logo-stock-aapl.svg',
-  RKLB: 'logo-stock-rklb.svg',
-  NVDA: 'logo-stock-nvda.png',
-  TSLA: 'logo-stock-tsla.svg',
-};
-
-function StockLogo({ ticker }: { ticker: string }) {
-  const file = STOCK_LOGO_ASSETS[ticker];
-  if (file) {
-    return (
-      <img
-        src={`${import.meta.env.BASE_URL}${file}`}
-        alt={ticker}
-        className="size-[20px] rounded-full shrink-0 object-cover"
-      />
-    );
-  }
-  /* Brand registry: colored circle + white brand icon via mask-image */
-  const brand = BRAND_REGISTRY[ticker] || BRAND_REGISTRY[ticker + 'L']; /* GOOG \u2192 GOOGL */
-  if (brand) {
-    const logoUrl = `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${brand.logoSlug}.svg`;
-    return (
-      <div
-        className="relative size-[20px] rounded-full shrink-0 overflow-hidden"
-        style={{ background: brand.mono ? '#1A1E21' : brand.color }}
-      >
-        <div
-          className="absolute"
-          style={{
-            inset: '20%',
-            backgroundColor: '#fff',
-            WebkitMaskImage: `url(${logoUrl})`,
-            maskImage: `url(${logoUrl})`,
-            WebkitMaskSize: 'contain',
-            maskSize: 'contain',
-            WebkitMaskRepeat: 'no-repeat',
-            maskRepeat: 'no-repeat',
-            WebkitMaskPosition: 'center',
-            maskPosition: 'center',
-          }}
-        />
-      </div>
-    );
-  }
-  /* Final fallback: teal circle with first letter */
-  return (
-    <div
-      className={`${FONT} flex items-center justify-center size-[20px] rounded-full shrink-0 text-[10px] font-medium`}
-      style={{ background: 'rgba(73,163,166,0.15)', color: 'var(--main-m1)' }}
-    >
-      {ticker.charAt(0)}
-    </div>
-  );
-}
-
-interface FeedItem {
-  time: string;
-  title: string;
-  content?: string;
-  trades?: TradeAction[];
-  summary?: string;
-  feedName?: string;
-}
-
-interface PushPlaybook extends ExplorePlaybook {
-  feeds: FeedItem[];
+/* \u2500\u2500 Push-ready playbooks shown in the empty-state preview \u2500\u2500 */
+interface PushPlaybook {
+  id: string;
 }
 
 const PUSH_PLAYBOOKS: PushPlaybook[] = [
-  {
-    id: 'ai-diaspora-tracker',
-    title: 'AI Diaspora Tracker',
-    creator: 'leoz',
-    description: 'Track departures from OpenAI, Anthropic, DeepMind, xAI — startups, fundraising, and major moves.',
-    tickers: ['GOOG', 'MSFT', 'META'],
-    pulse: 'active',
-    stars: 4200,
-    remixes: 12,
-    cover: { template: 'general', title: 'AI Diaspora Tracker', author: 'leoz', tickers: ['GOOG', 'MSFT', 'META'], domain: 'alerts', kind: 'NOTIFICATIONS · DAILY', anchor: '7 today', series: 'NEWS · SOCIAL · PODCAST' },
-    feeds: [
-      {
-        time: 'May 8, 9:00 AM',
-        title: 'DeepMind RL pioneer David Silver\'s Ineffable Intelligence closes largest-ever European Seed at $1.1B / $5.1B valuation; same week Recursive Super exits Stealth \u{2014} DeepMind alumni startup wave explodes',
-        content: '\u{1F3AF} Today\'s highlights (3 most trackable targets)\n\n**\u{3010}Ineffable Intelligence\u{3011}\u{00B7} Fmr DeepMind RL chief, $1.1B Seed out of Stealth**\n- \u{1F9D1} Founder: David Silver (fmr Google DeepMind RL team lead / UCL professor, inventor of AlphaGo)\n- \u{1F3E2} New company: Ineffable Intelligence (Goal: human-data-free Superlearner, pure RL self-learning approach)\n- \u{1F4B0} Round: Seed ($1.1B / $5.1B valuation)\n- \u{1F91D} Lead: Sequoia, Lightspeed | Follow: Nvidia, Google, DST Global, Index, UK Sovereign AI Fund\n- \u{1F4C5} Date: 2026-04-27\n- \u{1F517} Sources: [1](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker) [2](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker)\n\n**Judgment:** Silver is the most credible name in RL. Pure RL self-supervised approach directly challenges the human-data moat of OpenAI/Anthropic. Nvidia and Google co-investing implies custom compute partnerships and acquisition optionality. Valuation at $5.1B but still Seed \u{2014} no secondary entry window, only path is chasing Series A pro-rata. Risk: no-human-data approach has no public OOD generalization validation yet; deployment window may be longer than peers. Conclusion: top-tier founder, aggressively chase A round.',
-      },
-      {
-        time: 'May 8, 9:00 AM',
-        title: '\u{3010}Recursive Superintelligence\u{3011}\u{00B7} DeepMind + OpenAI + Salesforce alliance, exits Stealth mid-May',
-        content: '- \u{1F9D1} Founders: Tim Rockt\u{00E4}schel (fmr DeepMind Principal Scientist / UCL), Richard Socher (fmr Salesforce Chief Scientist), Josh Tobin & Jeff Clune (both fmr OpenAI)\n- \u{1F3E2} New company: Recursive Superintelligence (Automate the full frontier AI R&D pipeline: eval / data / training / post-training)\n- \u{1F4B0} Round: $500M / $4B pre-money; round expected to close above $1B\n- \u{1F91D} Lead: GV | Follow: Nvidia\n- \u{1F4C5} Date: 2026-04-17 fundraise surfaced; public launch ~2026-05-mid\n- \u{1F517} Sources: [3](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker) [4](https://alva.ai/u/leoz/playbooks/ai-diaspora-tracker)\n\n**Judgment:** Socher brings productization chops, Rockt\u{00E4}schel brings deep research background \u{2014} strongest academic + product combo in the “self-improving AI pipeline” track to date. GV leading means Google is doubling down, forming dual hedge with Thinking Machines. Direct track overlap with SSI (Ilya) but more deployment-oriented. Public launch this month is the optimal entry window.',
-      },
-      {
-        time: 'May 7, 9:00 AM',
-        title: 'Gemini co-lead Oriol Vinyals departs Google DeepMind for xAI',
-        content: '- \u{1F9D1} Oriol Vinyals, co-lead of the Gemini project at Google DeepMind, confirmed his move to xAI effective next month.\n- Vinyals spent 8 years at DeepMind. Fourth senior Gemini researcher to leave in Q1 \u{2014} pattern suggests internal friction over roadmap priorities and compute allocation.',
-      },
-    ],
-  },
-  {
-    id: 'momentum-rebalance',
-    title: 'Momentum Rebalance',
-    creator: 'ivan',
-    description: 'Auto-rebalance portfolio by momentum score \u{2014} rotates top names across sectors every two weeks.',
-    tickers: ['AAPL', 'NVDA', 'RKLB'],
-    pulse: 'active',
-    stars: 3700,
-    remixes: 8,
-    cover: { template: 'general', title: 'Momentum Rebalance', author: 'ivan', tickers: ['AAPL', 'NVDA', 'RKLB'], domain: 'strategy', kind: 'STRATEGY \u{00B7} BI-WEEKLY', anchor: 'Last: May 8', series: 'MOMENTUM \u{00B7} TOP 3' },
-    feeds: [
-      {
-        time: 'May 8, 12:00 PM',
-        title: '',
-        feedName: 'bi-weekly rebalance',
-        trades: [
-          { action: 'buy', ticker: 'AAPL', detail: 'weight 33.3%', trend: 'up' },
-          { action: 'buy', ticker: 'RKLB', detail: 'weight 33.3%', trend: 'up' },
-          { action: 'buy', ticker: 'NVDA', detail: 'weight 33.3%', trend: 'up' },
-          { action: 'sell', ticker: 'TSLA', detail: 'exit position', trend: 'down' },
-        ],
-        summary: 'Rebalance: Top 3 by 63d momentum: AAPL(78.2%), RKLB(35.1%), NVDA(34.0%)',
-      },
-      {
-        time: 'May 1, 12:00 PM',
-        title: '',
-        feedName: 'sector rotation',
-        trades: [
-          { action: 'buy', ticker: 'MSFT', detail: 'weight 40%', trend: 'up' },
-          { action: 'buy', ticker: 'AMZN', detail: 'weight 30%', trend: 'up' },
-          { action: 'buy', ticker: 'GOOG', detail: 'weight 30%', trend: 'up' },
-          { action: 'sell', ticker: 'META', detail: 'exit position', trend: 'down' },
-        ],
-        summary: 'Rebalance: Top 3 by 63d momentum: MSFT(65.3%), AMZN(42.1%), GOOG(38.7%)',
-      },
-      {
-        time: 'Apr 24, 12:00 PM',
-        title: '',
-        feedName: 'momentum scan',
-        trades: [
-          { action: 'buy', ticker: 'TSLA', detail: 'weight 35%', trend: 'up' },
-          { action: 'buy', ticker: 'PLTR', detail: 'weight 35%', trend: 'up' },
-          { action: 'buy', ticker: 'SMCI', detail: 'weight 30%', trend: 'up' },
-          { action: 'sell', ticker: 'AAPL', detail: 'exit position', trend: 'down' },
-        ],
-        summary: 'Rebalance: Top 3 by 63d momentum: TSLA(89.4%), PLTR(67.2%), SMCI(55.8%)',
-      },
-    ],
-  },
-  {
-    id: 'three-masters-digest',
-    title: 'Three Masters Digest',
-    creator: 'leoz',
-    description: 'Track Buffett, Duan Yongping, and Musk \u{2014} original statements, key moves, and contradictions.',
-    tickers: ['TSLA', 'BRK.B', 'INTC'],
-    pulse: 'active',
-    stars: 6100,
-    remixes: 21,
-    cover: { template: 'general', title: 'Three Masters Digest', author: 'leoz', tickers: ['TSLA', 'BRK.B', 'INTC'], domain: 'alerts', kind: 'NOTIFICATIONS \u{00B7} DAILY', anchor: '3 today', series: 'NEWS \u{00B7} SOCIAL \u{00B7} FILINGS' },
-    feeds: [
-      {
-        time: 'May 8, 10:20 AM',
-        title: 'Musk toured Intel\'s Oregon fab signaling a chip partnership with SpaceX and Tesla; Tesla AI Vision pre-impact airbag deployment now standard on all new cars',
-        content: '**Musk**\n- Visited Intel Oregon fab this week, publicly stated “looking forward to building a great partnership with @SpaceX and @Tesla” \u{2014} first clear signal of Intel fab-level relationship with his companies. **Judgment:** if materialized, this is Intel\'s most significant foundry customer signal to date; INTC valuation repair upside is significant.\n- Tesla AI Vision new feature: pre-collision prediction and early airbag deployment, standard on all new cars at zero extra cost. **Judgment:** pure-vision AI safety capability continues to exceed expectations, further strengthening competitive edge over Lidar-based approaches.\n- Visited Redmond Starlink production line, publicly praised engineering and production team. **Judgment:** founder personally visiting production facilities marks a key capacity milestone; Starlink expansion certainty rising, providing sustained valuation support for SpaceX.',
-      },
-      {
-        time: 'May 8, 10:00 AM',
-        title: 'Quiet day \u{2014} No new original statements from Buffett, Duan Yongping, or Musk in the past 36h',
-        content: 'No new developments today (Quiet day)\n\nNo new original statements from any of the three masters in the last 36 hours.',
-      },
-      {
-        time: 'May 7, 10:00 AM',
-        title: 'Duan Yongping exits Shenhua for Pop Mart on 25-year compounding thesis; Musk under oath denied Tesla has concrete AGI plans, contradicting his own March 2026 tweet',
-        content: '**Duan Yongping**\n- Posted on Xueqiu: “I\'ve swapped all my Shenhua for Pop Mart,” moving entire China Shenhua (01088.HK) position into Pop Mart (09992.HK).\n- On CEO Wang Ning: “I can see how impressive he is. He\'s still so young \u{2014} he can compound for at least 25 more years. The compounding here is frightening.”\n- Managing positions from an entrepreneur\'s perspective; started building via selling puts in April, completed full swap by May \u{2014} from coal to trendy toys.\n\n**Judgment:** 25-year compounding framework + entrepreneur mutual recognition is a classic high-conviction position sizing pattern, not thematic rotation. The farewell to Shenhua \u{2014} “there will be chances to meet again” \u{2014} shows zero emotional attachment.\n\n**Musk**\n- In the OpenAI trial (May 2026), asked under oath whether Tesla has concrete AGI plans, Musk answered “No.”\n- This directly contradicts his March 4, 2026 public tweet: “Tesla will be one of the companies to make AGI and probably the first to make it in humanoid/atom-shaping form.”\n- After SpaceX acquired xAI for $250B, all 11 co-founders departed by March 2026; company needs to “rebuild from scratch.”\n\n**Judgment:** the direct contradiction between public narrative and sworn testimony is the core risk for Tesla\'s AI valuation \u{2014} investors buying into the AGI story, but the founder himself won\'t confirm it under oath.',
-      },
-    ],
-  },
+  { id: 'ai-diaspora-tracker-1' },
+  { id: 'ai-diaspora-tracker-2' },
+  { id: 'ai-diaspora-tracker-3' },
 ];
+
+const PREVIEW_CARD_TITLE = 'AI Diaspora Tracker';
+const PREVIEW_CARD_CREATOR = 'Alva Intern';
+const PREVIEW_CARD_DESC = 'Playbooks reach you when signals move, not when you check.';
+const PREVIEW_CARD_VIEWS = '12.8K';
+const PREVIEW_CARD_REMIXES = 3;
+const PREVIEW_ALERT_TITLE = '【Recursive Superintelligence】· DeepMind + OpenAI + Salesforce alliance, exits Stealth mid-May';
+const PREVIEW_ALERT_BULLETS = [
+  '🧑 Founders: Tim Rocktäschel (fmr DeepMind Principal Scientist / UCL), Richard Socher (fmr Salesforce Chief Scientist), Josh Tobin & Jeff Clune (both fmr OpenAI)',
+  '🏢 New company: Recursive Superintelligence (Automate the full frontier AI R&D pipeline: eval / data / training / post-training)',
+  '💰 Round: $500M / $4B pre-money; round expected to close above $1B',
+  '🤝 Lead: Sequoia, Lightspeed | Follow: Nvidia, Google, DST Global, Index, UK Sovereign AI Fund',
+  '📅 Date: 2026-04-27',
+];
+const PREVIEW_ALERT_JUDGMENT =
+  'Judgment: Silver is the most credible name in RL. Pure RL self-supervised approach directly challenges the human-data moat of OpenAI/Anthropic. Nvidia and Google co-investing implies custom compute partnerships and acquisition optionality. Valuation at $5.1B but still Seed — no secondary entry window, only path is chasing Series A pro-rata. Risk: no-human-data approach has no public OOD generalization validation yet; deployment window may be longer than peers. Conclusion: top-tier founder, aggressively chase A round.';
 
 /* ── Mock agent messages ── */
 export const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
   role: 'agent',
   text: 'Hey! I\'m your Alva Agent, connected via Telegram. I\'m always-on and ready to help with market analysis, portfolio tracking, and playbook execution. What would you like to work on?',
 };
+
+/* ── Playbook feed preview (mock data; component wired but not yet mounted) ── */
+type FeedPreviewStatus = 'pushed' | 'skipped';
+
+interface FeedPreviewItem {
+  id: string;
+  mode: string;
+  time: string;
+  status: FeedPreviewStatus;
+  headline: string;
+  digest: string;
+  tags: string[];
+}
+
+interface FeedPreviewPlaybook {
+  id: string;
+  title: string;
+  author: string;
+  cadence: string;
+  accent: string;
+  description: string;
+  items: FeedPreviewItem[];
+}
+
+const PLAYBOOK_FEED_PREVIEWS: FeedPreviewPlaybook[] = [
+  {
+    id: 'ai-infra',
+    title: 'AI Infrastructure Tracker',
+    author: 'Alva Intern',
+    cadence: 'Real-time',
+    accent: '#49A3A6',
+    description: 'Pushes when silicon, networking, or hyperscaler names break key levels.',
+    items: [
+      { id: 'a1', mode: 'Signal', time: '2m ago', status: 'pushed', headline: 'NVDA reclaimed its 20D MA on volume', digest: 'Momentum flipped positive; relative strength vs SOX improving.', tags: ['NVDA', 'momentum'] },
+      { id: 'a2', mode: 'Digest', time: '1h ago', status: 'skipped', headline: 'Weekly hyperscaler capex recap', digest: 'No threshold breach \u2014 held back to avoid noise.', tags: ['capex', 'weekly'] },
+    ],
+  },
+  {
+    id: 'btc-macro',
+    title: 'BTC Macro Pulse',
+    author: 'Harry Zzz',
+    cadence: 'Daily',
+    accent: '#E8833A',
+    description: 'Daily read on BTC trend, funding, and macro cross-currents.',
+    items: [
+      { id: 'b1', mode: 'Signal', time: '12m ago', status: 'pushed', headline: 'Funding reset to neutral after the flush', digest: 'OI down 8%, basis normalizing \u2014 squeeze risk easing.', tags: ['BTC', 'funding'] },
+    ],
+  },
+];
 
 function StatusPill({ status }: { status: FeedPreviewStatus }) {
   const pushed = status === 'pushed';
@@ -240,7 +127,7 @@ function StatusPill({ status }: { status: FeedPreviewStatus }) {
   );
 }
 
-function PlaybookFeedPreview({
+export function PlaybookFeedPreview({
   activeFeed,
   activeFeedId,
   onSelect,
@@ -386,6 +273,70 @@ function PlaybookFeedPreview({
   );
 }
 
+function AgentPreviewCard({
+  active,
+  onClick,
+}: {
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-[130px] w-full flex-col items-start gap-[4px] bg-white p-[16px] text-left transition-colors hover:bg-[var(--b-r02)]"
+      style={{
+        border: 'none',
+        borderBottom: '0.5px solid var(--line-l12)',
+        background: active ? 'rgba(73, 163, 166, 0.08)' : undefined,
+      }}
+    >
+      <p className={`${FONT} m-0 w-full text-[14px] font-normal leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+        {PREVIEW_CARD_TITLE}
+      </p>
+      <p className={`${FONT} m-0 line-clamp-2 w-full text-[12px] font-normal leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+        {PREVIEW_CARD_DESC}
+      </p>
+      <div className="mt-[4px] flex h-[28px] w-full items-end gap-[12px] pt-[8px]">
+        <div className="flex h-[20px] min-w-0 flex-1 items-center gap-[4px]">
+          <Avatar name={PREVIEW_CARD_CREATOR} size={18} />
+          <span className={`${FONT} min-w-0 flex-1 truncate text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)]`}>
+            {PREVIEW_CARD_CREATOR}
+          </span>
+        </div>
+        <span className={`${FONT} flex shrink-0 items-center gap-[4px] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)]`}>
+          <CdnIcon name="show-l" size={14} color="var(--text-n9)" />
+          {PREVIEW_CARD_VIEWS}
+        </span>
+        <span className={`${FONT} flex shrink-0 items-center gap-[4px] text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n9)]`}>
+          <CdnIcon name="remix-l" size={14} color="var(--text-n9)" />
+          {PREVIEW_CARD_REMIXES}
+        </span>
+      </div>
+    </button>
+  );
+}
+
+function AgentPreviewAlertSection() {
+  return (
+    <section
+      className="flex min-h-[336px] flex-col gap-[8px] border-t-[0.5px] border-solid border-[var(--line-l12)] py-[20px]"
+    >
+      <p className={`${FONT} m-0 text-[14px] font-medium leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+        {PREVIEW_ALERT_TITLE}
+      </p>
+      <ul className="alva-md-bullets">
+        {PREVIEW_ALERT_BULLETS.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+      <p className={`${FONT} m-0 text-[14px] font-normal leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+        {PREVIEW_ALERT_JUDGMENT}
+      </p>
+    </section>
+  );
+}
+
 /* ── Empty state ── */
 export function AgentEmptyState({
   onTelegramConnect,
@@ -401,131 +352,129 @@ export function AgentEmptyState({
   const [alertsPopoverOpen, setAlertsPopoverOpen] = useState(false);
 
   return (
-    <div className="flex flex-1 flex-col min-h-0 relative" style={{ background: '#F6F6F6' }}>
-      <DotMatrixWave
-        enableHover={false}
-        bgColor="#F6F6F6"
-        dotColor="#d1e0e0"
-        waveSpeed={0.6}
-        className="absolute inset-0 z-0 pointer-events-none w-full h-full"
-      />
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
+      <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-[1080px] w-[1920px] -translate-x-1/2 opacity-30">
+        <img src={`${import.meta.env.BASE_URL}agent-bg-pattern.png`} alt="" className="absolute inset-0 size-full max-w-none object-cover" />
+      </div>
 
-      <div className="relative z-10 flex-1 min-h-0 overflow-y-auto">
-       <div className="min-h-full flex items-center justify-center">
-        <div className="flex flex-col items-center gap-[24px] w-full max-w-[1336px] px-[28px] py-[48px]">
-        {/* Hero illustration */}
-        <div className="flex flex-col items-center max-w-[720px]">
-          <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva Agent" className="rounded-full" style={{ width: 48, height: 48, marginBottom: 20 }} />
-          <h1 className={`${FONT} text-[28px] leading-[38px] tracking-[0.28px] text-center text-[var(--text-n9)] font-normal`} style={{ marginBottom: 8 }}>
-            Connect Alva Agent to receive live Playbook feeds
-          </h1>
-          <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-center text-[var(--text-n5)]`}>
-            Link Telegram or Discord once. Every subscribed Playbook can push real-time signals, digests, and skipped-event context straight to your messenger.
-          </p>
-        </div>
+      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto min-h-full w-full max-w-[1212px] px-[28px] pb-[56px] pt-[56px]">
+          <section className="mx-auto flex w-full max-w-[408px] flex-col items-center">
+            <img
+              src={`${import.meta.env.BASE_URL}logo-portrait.svg`}
+              alt="Alva Agent"
+              className="h-[48px] w-[48px] rounded-full"
+            />
+            <div className="mt-[20px] flex w-full flex-col items-center gap-[8px]">
+              <h1 className={`${FONT} m-0 text-center text-[28px] font-normal leading-[38px] tracking-[0.28px] text-[var(--text-n9)]`}>
+                Your Alva Agent is ready
+              </h1>
+              <p className={`${FONT} m-0 text-center text-[12px] font-normal leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+                Connect a messaging app and let your agent work for you around the clock.
+              </p>
+            </div>
+          </section>
 
-        {/* Feature cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--spacing-m,16px)] w-full">
-          {FEATURES.map(f => (
-            <div
-              key={f.title}
-              className="flex flex-col gap-[var(--spacing-xxs,4px)] p-[var(--spacing-m,16px)] rounded-[var(--radius-ct-l,8px)]"
-              style={{ background: 'var(--b0-container, #ffffff)' }}
-            >
-              <div className="flex items-center gap-[6px]">
-                <CdnIcon name={f.icon} size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
-                <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
-                  {f.title}
+          <section className="mt-[24px] grid min-h-[90px] w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map((feature, index) => (
+              <div
+                key={feature.title}
+                className="flex min-h-[66px] flex-col gap-[4px] px-[16px] pt-[12px]"
+                style={{ borderLeft: index === 0 ? 'none' : '0.5px solid var(--line-l2)' }}
+              >
+                <div className="flex h-[22px] items-center gap-[8px]">
+                  <CdnIcon name={feature.icon} size={20} color="var(--text-n9)" />
+                  <p className={`${FONT} m-0 min-w-0 flex-1 truncate text-[14px] font-normal leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+                    {feature.title}
+                  </p>
+                </div>
+                <p className={`${FONT} m-0 text-[12px] font-normal leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+                  {feature.desc}
                 </p>
               </div>
-              <p className={`${FONT} text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]`}>
-                {f.desc}
-              </p>
+            ))}
+          </section>
+
+          <section className="mt-[24px] flex flex-col items-center justify-center gap-[16px] lg:flex-row lg:items-start">
+            <div
+              className="flex w-full max-w-[280px] flex-col overflow-hidden"
+              style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}
+            >
+              <button
+                className={`${FONT} flex h-[48px] w-full cursor-pointer items-center justify-center gap-[8px] px-[20px] py-[11px] text-[16px] font-medium leading-[26px] tracking-[0.16px] text-white transition-opacity hover:opacity-90`}
+                style={{ background: '#24a1de', border: 'none', borderRadius: 6 }}
+                onClick={onTelegramConnect}
+              >
+                <CdnIcon name="project-telegram-l" size={20} color="#fff" />
+                Connect Telegram
+              </button>
+              <div className={`${FONT} flex h-[28px] w-full items-center justify-center gap-[4px] px-[8px] text-[12px] leading-[20px] tracking-[0.12px]`}>
+                <span aria-hidden>🎁</span>
+                <span style={{ color: 'var(--main-m1)' }}>+3,000</span>
+                <span style={{ color: 'rgba(0, 0, 0, 0.9)' }}>bonus credits</span>
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Connect buttons — Telegram primary, Discord secondary */}
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-[var(--spacing-m,16px)] w-full">
-          <button
-            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium text-white cursor-pointer transition-opacity hover:opacity-90 w-full lg:w-[280px]`}
-            style={{ height: 48, padding: '11px 20px', borderRadius: 6, background: '#24A1DE', border: 'none' }}
-            onClick={onTelegramConnect}
-          >
-            <img src={"https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg"} alt="" style={{ width: 20, height: 20 }} />
-            Connect Telegram
-          </button>
+            <button
+              className={`${FONT} flex h-[48px] w-full max-w-[280px] cursor-pointer items-center justify-center gap-[8px] px-[20px] py-[11px] text-[16px] font-medium leading-[26px] tracking-[0.16px] transition-colors hover:bg-[var(--b-r03)]`}
+              style={{
+                background: 'transparent',
+                border: '0.5px solid var(--line-l3)',
+                borderRadius: 6,
+                color: 'var(--text-n9)',
+              }}
+              onClick={() => setDiscordFlowOpen(true)}
+            >
+              <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" className="h-[20px] w-[20px]" />
+              Connect Discord
+            </button>
+          </section>
 
-          <button
-            className={`${FONT} flex items-center justify-center gap-[8px] text-[16px] leading-[26px] tracking-[0.16px] font-medium cursor-pointer transition-colors w-full lg:w-[280px]`}
-            style={{
-              height: 48,
-              padding: '11px 20px',
-              borderRadius: 6,
-              background: 'transparent',
-              color: 'var(--text-n9)',
-              border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--b-r03, rgba(0,0,0,0.03))'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-            onClick={() => setDiscordFlowOpen(true)}
-          >
-            <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" style={{ width: 20, height: 20 }} />
-            Connect Discord
-          </button>
-        </div>
+          <section className="mt-[24px] h-[74px] pt-[24px]">
+            <p className={`${FONT} m-0 text-[16px] font-normal leading-[26px] tracking-[0.16px] text-[var(--text-n9)]`}>
+              Preview Playbook alerts
+            </p>
+            <p className={`${FONT} mt-[4px] text-[12px] font-normal leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
+              Connect once. Get alerts like these in Telegram or Discord.
+            </p>
+          </section>
 
-        {/* Live feeds from Playbooks */}
-        <div className="flex flex-col gap-[12px] w-full">
-          <div className="flex items-end justify-between gap-[12px]">
-            <div className="flex flex-col gap-[2px]">
-              <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)]`}>
-                Live feeds from Playbooks
-              </p>
-              <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-                Preview only. Connect Alva Agent to receive these pushes in Telegram or Discord.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col lg:flex-row gap-[var(--spacing-m,16px)] w-full">
-            {/* Left: Playbook cards — horizontal scroll on mobile, 1/4 col on desktop */}
-            <div className="flex lg:flex-col gap-[var(--spacing-m,16px)] overflow-x-auto lg:overflow-x-visible lg:w-1/4 shrink-0">
-              {PUSH_PLAYBOOKS.map(p => (
-                <div
-                  key={p.id}
-                  className="min-w-[220px] lg:min-w-0"
-                  onClick={() => setActivePlaybook(p.id)}
-                >
-                  <PlaybookCard p={p} noCover selected={p.id === activePlaybook} />
-                </div>
+          <section className="mt-[24px] grid w-full grid-cols-1 items-start gap-[16px] lg:grid-cols-[277px_minmax(0,1fr)]">
+            <div
+              className="flex w-full flex-col overflow-hidden rounded-[8px] bg-white"
+              style={{ border: '0.5px solid var(--line-l2)' }}
+            >
+              {PUSH_PLAYBOOKS.slice(0, 3).map((playbook) => (
+                <AgentPreviewCard
+                  key={playbook.id}
+                  active={activePlaybook === playbook.id}
+                  onClick={() => setActivePlaybook(playbook.id)}
+                />
               ))}
             </div>
 
-            {/* Right: Feed items */}
             <div
-              className="flex flex-col flex-1 min-w-0 rounded-[var(--radius-ct-l,8px)]"
-              style={{ background: 'var(--b0-container, #fff)' }}
+              className="flex min-h-[736px] min-w-0 flex-col overflow-hidden rounded-[8px] bg-white px-[24px]"
+              style={{ border: '0.5px solid var(--line-l2)' }}
             >
-              {/* Persistent header: playbook title + action buttons */}
-              <div className="flex items-center justify-between gap-[8px] px-[var(--spacing-xl,24px)] py-[var(--spacing-m,16px)]">
-                <p className={`${FONT} text-[16px] leading-[26px] tracking-[0.16px] text-[var(--text-n9)] truncate min-w-0`}>
-                  {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.title}
+              <div className="flex h-[64px] w-full shrink-0 items-center gap-[16px]">
+                <p className={`${FONT} m-0 min-w-0 flex-1 truncate text-[16px] font-normal leading-[26px] tracking-[0.16px] text-[var(--text-n9)]`}>
+                  {PREVIEW_CARD_TITLE}
                 </p>
-                <div className="flex items-center gap-[8px] shrink-0">
+                <div className="relative flex shrink-0 items-center gap-[12px]">
                   <button
-                    className="btn btn-primary-reverse btn-small"
+                    className={`${FONT} flex h-[32px] cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] text-[var(--text-n9)] transition-colors hover:bg-[var(--b-r03)]`}
+                    style={{ border: '0.5px solid var(--line-l3)' }}
                     onClick={() => onNavigate?.('template-notification')}
                   >
                     View Playbook
                   </button>
-                  <div style={{ position: 'relative' }}>
+                  <div className="relative">
                     <button
-                      className="btn btn-primary btn-small"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                      className={`${FONT} flex h-[32px] cursor-pointer items-center justify-center gap-[4px] rounded-[4px] border-none bg-[var(--main-m1)] px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white transition-opacity hover:opacity-90`}
                       onClick={() => setAlertsPopoverOpen(o => !o)}
                     >
-                      <img src={"https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg"} alt="" style={{ width: 16, height: 16 }} />
+                      <CdnIcon name="project-telegram-l" size={16} color="#fff" />
                       Get Alerts
                     </button>
                     <AlertsPopover
@@ -539,120 +488,16 @@ export function AgentEmptyState({
                         setAlertsPopoverOpen(false);
                         setDiscordFlowOpen(true);
                       }}
-                      onManage={() => onNavigate('alva-agent')}
+                      onManage={() => onNavigate?.('alva-agent')}
                     />
                   </div>
                 </div>
               </div>
-              <div className="mx-[var(--spacing-xl,24px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
-              {PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.feeds.map((feed, i, arr) => {
-                const isTrade = !!feed.trades;
-                const playbookTitle = PUSH_PLAYBOOKS.find(p => p.id === activePlaybook)?.title;
-                return (
-                <div key={i}>
-                  {isTrade ? (
-                    /* ── Trade card per Figma 6411:205650 ── */
-                    <div
-                      className="flex flex-col gap-[var(--spacing-xs,8px)] overflow-clip rounded-[var(--radius-ct-l,8px)] px-[var(--spacing-xl,24px)] py-[var(--spacing-l,20px)]"
-                      style={{ background: 'var(--b0-container, #fff)' }}
-                    >
-                      <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px]`} style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-                        {feed.time} · {feed.feedName || playbookTitle}
-                      </p>
-                      <div className="flex flex-col gap-[var(--spacing-xs,8px)] w-full">
-                        {feed.trades!.map((t, j) => (
-                          <div key={j} className="flex flex-wrap items-center gap-[var(--spacing-xxs,4px)] w-full">
-                            <StockLogo ticker={t.ticker} />
-                            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap`} style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                              {t.action === 'buy' ? 'Buy' : 'Sell'}
-                            </span>
-                            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] font-medium whitespace-nowrap`} style={{ color: 'var(--main-m1, #49A3A6)' }}>
-                              {t.ticker}
-                            </span>
-                            <span className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap`} style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                              {t.detail}
-                            </span>
-                            <CdnIcon
-                              name={t.trend === 'up' ? 'bullish-l' : 'bearish-l'}
-                              size={20}
-                              color={t.trend === 'up' ? 'var(--main-m3)' : 'var(--main-m4)'}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      {feed.summary && (
-                        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px]`} style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                          {feed.summary}
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    /* ── Regular feed item ── */
-                    <>
-                      <div className="flex flex-col gap-[var(--spacing-xs,8px)] px-[var(--spacing-xl,24px)] py-[var(--spacing-l,20px)]">
-                        <p className={`${FONT} text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]`}>
-                          {feed.time} <span className="text-[var(--text-n3)]">·</span> {feed.feedName || playbookTitle}
-                        </p>
-                        {feed.title && (
-                          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] font-medium`}>
-                            {feed.title}
-                          </p>
-                        )}
-                        {feed.content && (() => {
-                          const renderInline = (text: string) =>
-                            text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/).map((seg, si) => {
-                              if (seg.startsWith('**') && seg.endsWith('**')) return <span key={si} className="font-medium">{seg.slice(2, -2)}</span>;
-                              const linkMatch = seg.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-                              if (linkMatch) return <a key={si} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" className="text-[var(--main-m1,#49A3A6)] underline">{linkMatch[1]}</a>;
-                              return seg;
-                            });
-                          const elements: React.ReactNode[] = [];
-                          const lines = feed.content.split('\n');
-                          let idx = 0;
-                          let key = 0;
-                          while (idx < lines.length) {
-                            const line = lines[idx];
-                            if (line === '') { idx++; continue; }
-                            if (line.startsWith('- ')) {
-                              const items: string[] = [];
-                              while (idx < lines.length && lines[idx].startsWith('- ')) {
-                                items.push(lines[idx].slice(2));
-                                idx++;
-                              }
-                              elements.push(
-                                <ul key={key++} className="alva-md-bullets">
-                                  {items.map((t, ti) => <li key={ti}>{renderInline(t)}</li>)}
-                                </ul>
-                              );
-                            } else {
-                              elements.push(
-                                <p key={key++} className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] m-0`}>
-                                  {renderInline(line)}
-                                </p>
-                              );
-                              idx++;
-                            }
-                          }
-                          return <div className="flex flex-col gap-[4px]">{elements}</div>;
-                        })()}
-                      </div>
-                      {i < arr.length - 1 && (
-                        <div className="mx-[var(--spacing-xl,24px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
-                      )}
-                    </>
-                  )}
-                  {/* Divider between trade cards */}
-                  {isTrade && i < arr.length - 1 && (
-                    <div className="mx-[var(--spacing-xl,24px)]" style={{ height: '0.5px', background: 'var(--line-l1, rgba(0,0,0,0.1))' }} />
-                  )}
-                </div>
-                );
-              })}
+              <AgentPreviewAlertSection />
+              <AgentPreviewAlertSection />
             </div>
-          </div>
+          </section>
         </div>
-        </div>
-       </div>
       </div>
 
       <DiscordConnectModal
@@ -778,10 +623,29 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
           {isAgent ? (
             <>
               <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-[28px] pb-[120px]">
-                <AgentConnectedFeed />
+                <div className="flex flex-col flex-1 gap-[16px] items-start min-h-0 w-full pt-[16px]">
+                  {messages.map((msg, i) =>
+                    msg.role === 'user' ? (
+                      <div key={i} className="flex flex-col items-end w-full">
+                        <div className="max-w-[560px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
+                          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>
+                            {msg.text}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div key={i} className="flex flex-col gap-[16px] items-start w-full">
+                        <img src={alvaLogo} alt="Alva" style={{ height: 12, width: 47 }} />
+                        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
+                          {msg.text}
+                        </p>
+                      </div>
+                    ),
+                  )}
+                </div>
               </div>
               <div className="px-[28px] pb-[24px] shrink-0">
-                <ChatInput shadow onSend={handleSend} placeholder="Message your Alva Agent..." />
+                <ChatInput shadow allowReferences={false} onSend={handleSend} placeholder="Message your Alva Agent..." />
               </div>
             </>
           ) : hasThreadContent ? (
@@ -790,7 +654,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
                 <ChatMessages conversationId={activeView} />
               </div>
               <div className="px-[28px] pb-[24px] shrink-0">
-                <ChatInput shadow />
+                <ChatInput shadow allowReferences={false} />
               </div>
             </>
           ) : (
@@ -799,7 +663,7 @@ function AgentChat({ onNavigate }: { onNavigate: (page: Page) => void }) {
                 <ChatMessages conversationId="new" />
               </div>
               <div className="px-[28px] pb-[24px] shrink-0">
-                <ChatInput shadow />
+                <ChatInput shadow allowReferences={false} />
               </div>
             </>
           )}
