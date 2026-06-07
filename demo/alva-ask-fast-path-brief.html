@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alva Ask 轻量化方案 Brief</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --text:#18181b;
+    --text-2:#52525b;
+    --text-3:#a1a1aa;
+    --border:#ececef;
+    --border-2:#e2e2e6;
+    --soft:#f5f5f6;
+    --soft-2:#fafafa;
+    --accent:#18181b;
+    --green:#15803d;
+    --radius:12px;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter","Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:var(--sans);font-size:15px;line-height:1.72;
+  }
+  .wrap{max-width:840px;margin:0 auto;padding:88px 32px 120px;}
+
+  /* ---------- header ---------- */
+  .kicker{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--text-3);margin-bottom:18px;
+  }
+  h1{font-size:30px;line-height:1.25;font-weight:650;letter-spacing:-.02em;margin:0 0 14px;}
+  .lede{font-size:16px;color:var(--text-2);margin:0;max-width:62ch;}
+  .rule{height:1px;background:var(--border);border:0;margin:48px 0;}
+
+  /* ---------- sections ---------- */
+  section{margin:0 0 56px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin:0 0 20px;}
+  .sec-num{font-family:var(--mono);font-size:13px;color:var(--text-3);width:22px;flex:none;}
+  h2{font-size:19px;font-weight:640;letter-spacing:-.01em;margin:0;}
+  h3{font-size:14.5px;font-weight:640;margin:26px 0 10px;}
+  p{margin:0 0 14px;color:var(--text-2);}
+  ul{margin:0 0 14px;padding-left:20px;color:var(--text-2);}
+  li{margin:6px 0;}
+  li::marker{color:var(--text-3);}
+  strong{color:var(--text);font-weight:620;}
+  code{
+    font-family:var(--mono);font-size:.86em;background:var(--soft);
+    border:1px solid var(--border);padding:1.5px 6px;border-radius:6px;color:#3f3f46;
+  }
+  .lead-line{color:var(--text-2);margin-bottom:18px;}
+
+  /* ---------- callout for "现状" ---------- */
+  .facts{background:var(--soft-2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;}
+  .facts ul{margin:0;}
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:4px 0 8px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);font-weight:600;}
+  td:first-child{font-family:var(--mono);font-size:12.5px;color:var(--text-3);width:54px;}
+  tbody tr:last-child td{border-bottom:0;}
+  td strong{font-weight:600;}
+
+  /* ---------- two-col cards (暂不做/成功信号) ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .mini{border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+  .mini h4{margin:0 0 10px;font-size:13px;font-weight:640;}
+  .mini ul{margin:0;padding-left:18px;font-size:14px;}
+
+  /* ================= GUI demo shell ================= */
+  .demo{
+    background:var(--soft-2);border:1px solid var(--border);
+    border-radius:14px;padding:18px;margin:18px 0 6px;
+  }
+  .demo-tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--text-3);margin:0 0 14px;display:flex;align-items:center;gap:8px;
+  }
+  .demo-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:#c4c4c8;}
+  .demo-cap{font-size:12.5px;color:var(--text-3);margin:12px 2px 0;}
+
+  /* generic ui atoms */
+  .card{background:#fff;border:1px solid var(--border-2);border-radius:11px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;font-family:var(--sans);font-size:13px;
+    font-weight:520;padding:8px 14px;border-radius:8px;border:1px solid var(--border-2);
+    background:#fff;color:var(--text);cursor:default;white-space:nowrap;
+  }
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn.sm{padding:6px 11px;font-size:12.5px;}
+  .ico{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* 4a onboarding */
+  .ob{max-width:540px;margin:0 auto;padding:26px 26px 20px;}
+  .ob-q{font-size:16px;font-weight:620;margin:0 0 4px;}
+  .ob-sub{font-size:13px;color:var(--text-3);margin:0 0 20px;}
+  .ob-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .ob-opt{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--border-2);border-radius:10px;background:#fff;}
+  .ob-opt.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
+  .ob-ic{width:34px;height:34px;border-radius:9px;background:var(--soft);display:flex;align-items:center;justify-content:center;flex:none;color:#3f3f46;}
+  .ob-ic .ico{width:18px;height:18px;}
+  .ob-opt.on .ob-ic{background:var(--accent);color:#fff;}
+  .ob-t{font-size:13.5px;font-weight:600;line-height:1.3;}
+  .ob-d{font-size:11.5px;color:var(--text-3);line-height:1.4;margin-top:2px;}
+  .ob-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+  .ob-skip{font-size:13px;color:var(--text-3);}
+
+  /* 4b skillhub split */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .col-h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text-2);margin:0 0 11px;padding:0 2px;}
+  .col-h .pill{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);background:#fff;border:1px solid var(--border-2);border-radius:20px;padding:2px 8px;}
+  .skill{display:flex;gap:11px;align-items:center;padding:11px 13px;background:#fff;border:1px solid var(--border-2);border-radius:10px;margin-bottom:8px;}
+  .skill:last-child{margin-bottom:0;}
+  .skill-ic{width:30px;height:30px;border-radius:8px;background:var(--soft);display:flex;align-items:center;justify-content:center;flex:none;color:#52525b;}
+  .skill-ic .ico{width:16px;height:16px;}
+  .skill-t{font-size:13px;font-weight:600;}
+  .skill-d{font-size:11.5px;color:var(--text-3);line-height:1.35;margin-top:1px;}
+
+  /* 3 suggested prompts */
+  .composer{max-width:560px;margin:0 auto;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-2);background:#fff;border:1px solid var(--border-2);border-radius:20px;padding:7px 13px;}
+  .chip .ico{width:13px;height:13px;color:var(--text-3);}
+  .chip.hl{border-color:var(--accent);color:var(--text);}
+  .inputbar{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border-2);border-radius:12px;padding:11px 12px 11px 16px;}
+  .inputbar .ph{flex:1;font-size:13.5px;color:var(--text);}
+  .inputbar .typed{color:var(--text);}
+  .inputbar .caret{color:var(--text-3);}
+  .send{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+  .send .ico{width:15px;height:15px;stroke-width:2;}
+
+  /* chat (5a) */
+  .chat{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+  .msg{display:flex;gap:10px;max-width:88%;}
+  .msg.user{align-self:flex-end;flex-direction:row-reverse;}
+  .av{width:26px;height:26px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+  .av.alva{background:var(--accent);color:#fff;}
+  .av.u{background:var(--soft);color:#71717a;border:1px solid var(--border-2);}
+  .bubble{font-size:13.5px;line-height:1.55;padding:11px 14px;border-radius:11px;}
+  .msg.user .bubble{background:var(--soft);color:var(--text);}
+  .msg.alva .bubble{background:#fff;border:1px solid var(--border-2);color:var(--text-2);}
+  .bubble .res{color:var(--text);font-weight:600;}
+  .suggest{margin-top:11px;padding-top:11px;border-top:1px dashed var(--border-2);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .suggest span{font-size:12.5px;color:var(--text-3);}
+
+  /* proactive (5b) */
+  .pro{max-width:520px;margin:0 auto;display:flex;gap:11px;}
+  .pro .body{padding:15px 17px;}
+  .pro .lbl{font-size:11px;color:var(--text-3);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;}
+  .pro p{font-size:13.5px;color:var(--text);margin:0 0 13px;line-height:1.5;}
+  .pro .tickers{display:inline-flex;gap:5px;}
+  .tk{font-family:var(--mono);font-size:11.5px;background:var(--soft);border:1px solid var(--border-2);border-radius:6px;padding:1px 7px;color:#3f3f46;}
+  .pro .acts{display:flex;gap:8px;}
+
+  /* dashboard (4c) */
+  .dash{max-width:480px;margin:0 auto;padding:18px 20px;}
+  .dash-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .dash-t{font-size:14px;font-weight:640;}
+  .dash-s{font-size:11.5px;color:var(--text-3);margin-top:2px;}
+  .dash-badge{font-size:11px;color:var(--green);background:#f0fdf4;border:1px solid #dcfce7;border-radius:20px;padding:3px 9px;font-weight:600;}
+  .spark{width:100%;height:64px;display:block;margin:6px 0 16px;}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .metric .k{font-size:11px;color:var(--text-3);margin-bottom:3px;}
+  .metric .v{font-size:16px;font-weight:640;letter-spacing:-.01em;}
+  .metric .v.up{color:var(--green);}
+
+  /* 4a level segmented + embedded dashboard + stacked proactive */
+  .ob-q.second{margin-top:24px;}
+  .seg{display:flex;gap:8px;flex-wrap:wrap;}
+  .seg-opt{flex:1;min-width:92px;text-align:center;font-size:12.5px;font-weight:560;padding:11px 8px;border:1px solid var(--border-2);border-radius:9px;background:#fff;color:var(--text-2);}
+  .seg-opt .sub{display:block;font-size:10px;color:var(--text-3);font-weight:400;margin-top:3px;letter-spacing:.02em;}
+  .seg-opt.on{border-color:var(--accent);color:var(--text);box-shadow:inset 0 0 0 1px var(--accent);}
+  .embed-dash{display:block;margin-top:12px;border:1px solid var(--border-2);border-radius:10px;padding:14px 16px;background:#fff;}
+  .embed-dash .spark{height:56px;margin:4px 0 12px;}
+  .demo .pro + .pro{margin-top:14px;}
+
+  @media (max-width:680px){
+    .wrap{padding:56px 20px 80px;}
+    .grid2,.split,.ob-grid{grid-template-columns:1fr;}
+    .demo{padding:14px;}
+  }
+  @media print{
+    body{font-size:12px;}
+    .wrap{padding:0;max-width:none;}
+    .demo,.facts,.mini,.card{break-inside:avoid;}
+    section{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Product Brief</div>
+  <h1>Alva Ask 轻量化方案</h1>
+  <p class="lede">小白和轻度用户进入 Alva 后,看到价值的速度太慢。ask 场景在 harness 层没有独立的轻量路径,启动时加载完整 builder context,模型默认倾向先 build 而非先给结论。</p>
+
+  <hr class="rule">
+
+  <!-- 现状 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">00</span><h2>现状(代码事实)</h2></div>
+    <div class="facts">
+      <ul>
+        <li>7 种 session kind 全部加载同一个 <code>alva</code> skill(<code>profiles.ts</code>);ask 的 <code>ASK.md</code> overlay 当前为空 placeholder,对 ask 没有任何差异化。</li>
+        <li>渲染时全量注入 1634 行 <code>SKILL.md</code>(<code>buildSkillSection</code>),ask 与 build 拿到的 context 基本一致。</li>
+        <li>answer-first / 防过度 build 的约束(Reuse Before Build、Artifact Consent)只存在于运行时 prompt,profile 层不做分流,轻重判断的成本压在模型读完全量 context 之后。</li>
+        <li>首页 suggested prompt 携带 <code>skillLanding</code>,点击即带 skill 提交(<code>RecommendPrompts.tsx</code>),入口本身把用户推向 build。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 1 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>填实 ASK.md</h2></div>
+    <ul>
+      <li><strong>改哪里</strong>:<code>config/profiles/ASK.md</code>,当前 body 为空。body 渲染成 “Session Profile: Ask” 段,append 在 base CLAUDE.md 和全量 SKILL.md 之后。位置在最后,指令权重高,能压制前面的 builder 倾向。</li>
+      <li><strong>写什么</strong>:默认直接回答数据 / 研究 / 比较类问题;one-off 图表走 <code>RenderChart</code> 返回 chat;playbook、automation、alert 等持久产物只在用户明确要求时做,动手前先确认;答完后用一句话提示升级路径。</li>
+      <li><strong>局限</strong>:overlay 是叠加指令,删不掉已注入的 builder context,只能纠正模型倾向,降不了启动开销。减重靠第 2 步。</li>
+    </ul>
+  </section>
+
+  <!-- 2 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>拆 alva-ask 轻量 skill</h2></div>
+    <ul>
+      <li><strong>改哪里</strong>:新增 <code>alva-ask</code> skill,ask profile 改挂 <code>skills: ['alva-ask']</code>。<code>buildSkillSection</code> 按 skill 全量拼接,换 skill 才能真正减小注入体量。</li>
+      <li><strong>保留</strong>:精简 Pre-flight(whoami / memory 走 <code>&lt;session-prefill&gt;</code>)、数据查询(alva CLI、<code>data-skills</code>、search)、<code>RenderChart</code> 出图、<code>language.md</code> voice、Reuse Before Build。</li>
+      <li><strong>去掉</strong>:release / deploy / feed 写作工作流、Altra 回测引擎细节、design-components / design-widgets(合计 3000+ 行)、playbook publish / remix 全流程。</li>
+      <li><strong>边界(需拍板)</strong>:ask 里用户确实想 build 时,引导切到 build 路径,而非在 ask skill 里塞回 build 能力。</li>
+    </ul>
+  </section>
+
+  <!-- 3 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>suggested prompt 入口纠偏</h2></div>
+    <ul>
+      <li><strong>前端</strong>(<code>RecommendPrompts.tsx</code>):点击 prompt 默认填入输入框,不自动提交;skill 作为可选附加,不默认注入 <code>&lt;use-skill&gt;</code>。</li>
+      <li><strong>后端</strong>:收紧 <code>skillLanding</code> 生成策略,只在 prompt 本身是明确 build / remix 意图时才带 skill。</li>
+      <li><strong>待确认</strong>:后端 suggestedPrompts 生成逻辑与前端 <code>onSelect</code> 提交链路需先确认现状。</li>
+    </ul>
+
+    <div class="demo">
+      <p class="demo-tag">GUI 示意 · 点击填入,不自动提交</p>
+      <div class="composer">
+        <div class="chips">
+          <span class="chip hl"><svg class="ico" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 14l3-4 3 2 4-6"/></svg>NVDA 最近怎么样?</span>
+          <span class="chip">黄金 vs 美债</span>
+          <span class="chip">AI infra 板块概览</span>
+        </div>
+        <div class="inputbar">
+          <span class="ph"><span class="typed">NVDA 最近怎么样?</span><span class="caret">&nbsp;|</span></span>
+          <span class="send"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+      <p class="demo-cap">点击 chip → 文本进入输入框等待用户确认;问答类 prompt 不挂 skill,build / remix 类才挂。</p>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- 4 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>用户画像与价值前置</h2></div>
+
+    <h3>4a · 画像初始化收集(GUI)</h3>
+    <p>onboarding 或首次进入时,从两个维度收集画像,直接对应 alva <code>user.md</code> 的字段:一是<strong>目前主要做什么</strong>(映射 Investment Style),二是<strong>经验背景</strong>(映射 Knowledge Level:Beginner / Intermediate / Advanced / Professional)。可跳过,后续在设置里可改,也由 Alva Agent 在对话中持续补全。</p>
+
+    <div class="demo">
+      <p class="demo-tag">GUI 示意 · Onboarding 画像收集(两维度)</p>
+      <div class="card ob">
+        <p class="ob-q">你现在主要做什么?</p>
+        <p class="ob-sub">映射 user.md · Investment Style</p>
+        <div class="ob-grid">
+          <div class="ob-opt on">
+            <span class="ob-ic"><svg class="ico" viewBox="0 0 24 24"><path d="M5 3v18"/><path d="M5 4h13l-2.5 3.5L18 11H5"/></svg></span>
+            <span><span class="ob-t">看个结论</span><span class="ob-d">读懂一个标的或主题</span></span>
+          </div>
+          <div class="ob-opt">
+            <span class="ob-ic"><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M17 7a3 3 0 0 1 0 6"/></svg></span>
+            <span><span class="ob-t">跟单</span><span class="ob-d">持仓分析 + 跟做</span></span>
+          </div>
+          <div class="ob-opt">
+            <span class="ob-ic"><svg class="ico" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 14l3-4 3 2 4-6"/></svg></span>
+            <span><span class="ob-t">深度分析</span><span class="ob-d">找别人没有的数据</span></span>
+          </div>
+          <div class="ob-opt">
+            <span class="ob-ic"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h9"/><circle cx="17" cy="7" r="2.3"/><path d="M20 17h-9"/><circle cx="7" cy="17" r="2.3"/></svg></span>
+            <span><span class="ob-t">自定义构建</span><span class="ob-d">按我的想法做看板</span></span>
+          </div>
+        </div>
+        <p class="ob-q second">你的经验背景?</p>
+        <p class="ob-sub">映射 user.md · Knowledge Level</p>
+        <div class="seg">
+          <span class="seg-opt">新手<span class="sub">Beginner</span></span>
+          <span class="seg-opt on">进阶<span class="sub">Intermediate</span></span>
+          <span class="seg-opt">资深<span class="sub">Advanced</span></span>
+          <span class="seg-opt">专业<span class="sub">Professional</span></span>
+        </div>
+        <div class="ob-foot">
+          <span class="ob-skip">跳过</span>
+          <span class="btn primary sm">继续</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>4b · 画像驱动的 skillhub 外露</h3>
+    <p>skillhub 已支持 tag / username 过滤(<code>alva skillhub list --tag ...</code>);新增 persona → tag 映射,决定不同用户默认展示和外露哪些 skill。New Chat、首页推荐、suggested prompt 按画像筛选和排序,和第 3 项打通。</p>
+
+    <div class="demo">
+      <p class="demo-tag">GUI 示意 · 同一个 skillhub,两类用户看到不同外露</p>
+      <div class="split">
+        <div>
+          <div class="col-h">路人 / 小白 <span class="pill">看结论</span></div>
+          <div class="skill">
+            <span class="skill-ic"><svg class="ico" viewBox="0 0 24 24"><path d="M5 3v18"/><path d="M5 4h13l-2.5 3.5L18 11H5"/></svg></span>
+            <span><span class="skill-t">标的速读</span><span class="skill-d">一句话问,一张图答</span></span>
+          </div>
+          <div class="skill">
+            <span class="skill-ic"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></span>
+            <span><span class="skill-t">每日主题摘要</span><span class="skill-d">关注的板块每天给结论</span></span>
+          </div>
+          <div class="skill">
+            <span class="skill-ic"><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M17 7a3 3 0 0 1 0 6"/></svg></span>
+            <span><span class="skill-t">持仓体检</span><span class="skill-d">连账户看一眼风险</span></span>
+          </div>
+        </div>
+        <div>
+          <div class="col-h">分析型 / builder <span class="pill">建框架</span></div>
+          <div class="skill">
+            <span class="skill-ic"><svg class="ico" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 14l3-4 3 2 4-6"/></svg></span>
+            <span><span class="skill-t">Thesis Tracker</span><span class="skill-d">叙事 + 催化剂 + 篮子</span></span>
+          </div>
+          <div class="skill">
+            <span class="skill-ic"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h9"/><circle cx="17" cy="7" r="2.3"/><path d="M20 17h-9"/><circle cx="7" cy="17" r="2.3"/></svg></span>
+            <span><span class="skill-t">Screener</span><span class="skill-d">多资产排序打分</span></span>
+          </div>
+          <div class="skill">
+            <span class="skill-ic"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg></span>
+            <span><span class="skill-t">What-if 回测</span><span class="skill-d">历史情景 + Altra</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>4c · 现成产物快路径</h3>
+    <p>一个标的或 theme 直接在对话里给出带图结论 + 预制看板,绕开现写 feed / html。低定制画像(路人 / 散户)默认走这条,一进来就命中 aha。</p>
+
+    <div class="demo">
+      <p class="demo-tag">GUI 示意 · 对话内直接出看板(文字 + 产物)</p>
+      <div class="chat">
+        <div class="msg user">
+          <span class="av u">你</span>
+          <span class="bubble">看一下 NVDA</span>
+        </div>
+        <div class="msg alva">
+          <span class="av alva">A</span>
+          <span class="bubble">
+            <span class="res">动能强,估值偏高。</span>近 1 个月 +14.2%,资金面与新闻面正向,P/E 58 处于历史高位区间。
+            <span class="embed-dash">
+              <div class="dash-top">
+                <div>
+                  <div class="dash-t">NVDA · AI Infra 速读</div>
+                  <div class="dash-s">预制看板 · 数据来自 Alva</div>
+                </div>
+                <span class="dash-badge">自动更新</span>
+              </div>
+              <svg class="spark" viewBox="0 0 460 56" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  points="0,42 40,39 80,40 120,33 160,35 200,26 240,29 280,19 320,23 360,14 400,10 460,5"/>
+              </svg>
+              <div class="metrics">
+                <div class="metric"><div class="k">Price</div><div class="v">$182.4</div></div>
+                <div class="metric"><div class="k">1M</div><div class="v up">+14.2%</div></div>
+                <div class="metric"><div class="k">P/E</div><div class="v">58.3</div></div>
+              </div>
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- 5 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>build 引导(ask → playbook 转化)</h2></div>
+    <p class="lead-line">build 不做首屏首推,放在 ask 出成果之后的链路上,两个触发点。</p>
+
+    <h3>5a · 对话内即时建议</h3>
+    <p>ask 给出成果后,判断这次结果是否值得沉淀(可持续跟踪的标的 / theme / 信号),在回复末尾用一句话建议转成 playbook,用户点头再做。触发收敛:一次性结论不提示,带“持续跟踪 / 定期更新”价值的才提示。</p>
+
+    <div class="demo">
+      <p class="demo-tag">GUI 示意 · 对话内转化点</p>
+      <div class="chat">
+        <div class="msg user">
+          <span class="av u">你</span>
+          <span class="bubble">NVDA 这波 AI infra 行情还能跟吗?</span>
+        </div>
+        <div class="msg alva">
+          <span class="av alva">A</span>
+          <span class="bubble">
+            <span class="res">动能仍在,但估值已偏高。</span>近 1 个月 +14%,资金面与新闻面正向,P/E 58 处于历史高位区间,回调风险集中在财报前后。
+            <span class="suggest">
+              <span>想让它每天自动更新、有变化提醒你?</span>
+              <span class="btn primary sm"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>转成 Playbook</span>
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <h3>5b · proactive 召回</h3>
+    <p>通过 Alva Agent 主动消息(heartbeat / timeline),把用户最近多次关注的标的与 theme(来自 ask 历史与 memory <code>user.md</code>)接回构建链路,两种力度:</p>
+    <ul>
+      <li><strong>建议构建</strong>:挑出重复出现的几个标的,提示可以做成自动更新的 playbook,用户一键进入。</li>
+      <li><strong>静默预建</strong>:Alva 在后台直接把 playbook 建好,不消耗用户 credits,完成后退给用户查看,用户决定保留、继续打磨或丢弃。</li>
+    </ul>
+
+    <div class="demo">
+      <p class="demo-tag">GUI 示意 · Agent 主动消息(两种力度)</p>
+      <div class="pro">
+        <span class="av alva">A</span>
+        <div class="card body">
+          <div class="lbl">Alva · 主动建议</div>
+          <p>这周你问了好几次 <span class="tickers"><span class="tk">NVDA</span><span class="tk">AI infra</span><span class="tk">黄金</span></span>。要把其中几个做成自动更新的 playbook 吗?省得每次重新问。</p>
+          <div class="acts">
+            <span class="btn primary sm">建 AI infra 看板</span>
+            <span class="btn sm">看全部</span>
+          </div>
+        </div>
+      </div>
+      <div class="pro">
+        <span class="av alva">A</span>
+        <div class="card body">
+          <div class="lbl">Alva · 已为你预建</div>
+          <p>看你这周一直在跟 AI infra,我在后台先把看板建好了,<strong>没有扣除 credits</strong>。要看看吗,或者直接接着调?</p>
+          <div class="acts">
+            <span class="btn primary sm">查看看板</span>
+            <span class="btn sm">继续打磨</span>
+            <span class="btn sm">丢弃</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- 优先级 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">—</span><h2>优先级</h2></div>
+    <table>
+      <thead><tr><th>顺序</th><th>动作</th><th>性质</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>填实 ASK.md</strong></td><td>overlay 指令层</td></tr>
+        <tr><td>2</td><td><strong>拆 alva-ask skill + ask 改挂</strong></td><td>减少注入体量</td></tr>
+        <tr><td>3</td><td>suggested prompt 不自动挂 skill</td><td>入口路由</td></tr>
+        <tr><td>4a</td><td>画像收集 GUI</td><td>画像采集</td></tr>
+        <tr><td>4b</td><td>画像驱动 skillhub 外露</td><td>个性化外露</td></tr>
+        <tr><td>4c</td><td>预制看板 / mini solution</td><td>现成产物</td></tr>
+        <tr><td>5</td><td>build 引导(ask 后链路)</td><td>价值沉淀</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 暂不做 / 成功信号 -->
+  <section>
+    <div class="grid2">
+      <div class="mini">
+        <h4>暂不做</h4>
+        <ul>
+          <li>换默认模型,等 context 瘦身落地后再评估</li>
+          <li>完整 Skillhub 产品面</li>
+          <li>改动现有 build 工作流,它继续服务高定制用户</li>
+        </ul>
+      </div>
+      <div class="mini">
+        <h4>成功信号</h4>
+        <ul>
+          <li>ask 首字响应时间下降</li>
+          <li>ask 会话直接给出结论的比例上升</li>
+          <li>ask → build 后链路转化跑通</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
