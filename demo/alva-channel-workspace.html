@@ -769,13 +769,6 @@
       padding-right: 0;
     }
 
-    .side-item.channel-personal .side-icon,
-    .side-item.channel-personal::after {
-      color: var(--alva-teal);
-      border-color: rgba(73, 163, 166, 0.27);
-      background: rgba(73, 163, 166, 0.07);
-    }
-
     .side-item.channel-group-tg .side-icon,
     .side-item.channel-group-tg::after {
       color: #6dbdff;
@@ -788,11 +781,6 @@
       color: #a68dff;
       border-color: rgba(166, 141, 255, 0.32);
       background: rgba(166, 141, 255, 0.09);
-    }
-
-    .side-item.channel-personal:hover,
-    .side-item.channel-personal.active {
-      background: rgba(73, 163, 166, 0.11);
     }
 
     .side-item.channel-group-tg:hover,
@@ -1753,7 +1741,7 @@
           </article>
           <article class="story-card">
             <h3>个人投资者</h3>
-            <p>我希望群里的公共结论能帮助我，但涉及 portfolio、交易账户、private files 和个人偏好时，Alva 必须切回 My Alva，不能把私人上下文带进群。</p>
+            <p>我希望群里的公共结论能帮助我，但涉及 portfolio、交易账户、private files 和个人偏好时，Alva 必须切回 General 里的 personal agent，不能把私人上下文带进群。</p>
             <span class="chip">Goal: public signal, private action</span>
           </article>
           <article class="story-card">
@@ -1808,7 +1796,7 @@
           </div>
           <div class="journey-step">
             <strong>5. 公共到私人 handoff</strong>
-            <span>当问题涉及仓位、交易、private memory 或个人文件时，Alva 从 Group Channel 切回 My Alva 执行。</span>
+            <span>当问题涉及仓位、交易、private memory 或个人文件时，Alva 从 Group Channel 切回 General 里的 personal agent 执行。</span>
           </div>
         </div>
         <div class="spec-callout">核心转化不是“群聊里多一个 bot”，而是把群聊里的投研共识变成可浏览、可复用、可持续更新的 Alva workspace。</div>
@@ -1917,7 +1905,7 @@
       <section class="spec-section prototype-intro" id="prototype">
         <div class="eyebrow">Prototype</div>
         <h2>页面原型</h2>
-        <p>文章最后的宽屏原型把前面的产品定位放进 Alva freshman 的页面骨架：Playbooks 合并后用来源 icon 和 hover 态区分，Channels 用 ME/TG/DC 标识 personal channel、Telegram group 和 Discord group；右侧则是选中 group channel 后的 Memory / Playbooks / Chats / Artifacts 工作区。</p>
+        <p>文章最后的宽屏原型把前面的产品定位放进 Alva freshman 的页面骨架：原 Alva Agent 入口移动到 Channels 顶部并改名为 General，替换原 personal channel 入口，同时保留原 Agent 的入口逻辑；Playbooks 合并后用来源 icon 和 hover 态区分，Group Channels 用 TG/DC 标识 Telegram group 和 Discord group；右侧则是选中 group channel 后的 Memory / Playbooks / Chats / Artifacts 工作区。</p>
       </section>
 
   <main class="app">
@@ -2001,10 +1989,6 @@
           <span class="side-label">Explore</span>
         </button>
         <button class="side-item" type="button">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-agent"></use></svg></span>
-          <span class="side-label">Agent</span>
-        </button>
-        <button class="side-item" type="button">
           <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-portfolio"></use></svg></span>
           <span class="side-label">Portfolio</span>
         </button>
@@ -2015,6 +1999,26 @@
         <button class="side-item" type="button">
           <span class="side-icon coin"><svg viewBox="0 0 24 24"><use href="#icon-coin"></use></svg></span>
           <span class="side-label gradient">FinTwit Alpha League</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-heading">Channels</div>
+      <nav class="sidebar-group" aria-label="Channels">
+        <button class="side-item" type="button" title="General agent entry">
+          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-agent"></use></svg></span>
+          <span class="side-label">General</span>
+        </button>
+        <button class="side-item channel-item channel-group-tg active" type="button" data-meta="TG" title="Telegram group channel">
+          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
+          <span class="side-label">BTC Macro Room</span>
+        </button>
+        <button class="side-item channel-item channel-group-dc" type="button" data-meta="DC" title="Discord group channel">
+          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-discord"></use></svg></span>
+          <span class="side-label">DeFi Research Desk</span>
+        </button>
+        <button class="side-item channel-item channel-group-tg" type="button" data-meta="TG" title="Telegram group channel">
+          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
+          <span class="side-label">KOL Tracker Pilot</span>
         </button>
       </nav>
 
@@ -2059,26 +2063,6 @@
         <button class="side-item side-more" type="button">
           <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-more"></use></svg></span>
           <span class="side-label">More</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-heading">Channels</div>
-      <nav class="sidebar-group" aria-label="Channels">
-        <button class="side-item channel-item channel-personal" type="button" data-meta="ME" title="Personal channel">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-person-channel"></use></svg></span>
-          <span class="side-label">My Alva</span>
-        </button>
-        <button class="side-item channel-item channel-group-tg active" type="button" data-meta="TG" title="Telegram group channel">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
-          <span class="side-label">BTC Macro Room</span>
-        </button>
-        <button class="side-item channel-item channel-group-dc" type="button" data-meta="DC" title="Discord group channel">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-discord"></use></svg></span>
-          <span class="side-label">DeFi Research Desk</span>
-        </button>
-        <button class="side-item channel-item channel-group-tg" type="button" data-meta="TG" title="Telegram group channel">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
-          <span class="side-label">KOL Tracker Pilot</span>
         </button>
       </nav>
 
