@@ -1174,6 +1174,10 @@
       display: block;
     }
 
+    .tab-panel.flush {
+      padding: 0;
+    }
+
     .memory-grid {
       display: grid;
       grid-template-columns: 1.04fr 0.96fr;
@@ -1650,6 +1654,131 @@
         align-items: start;
       }
     }
+
+    /* ========== General (personal agent) bound-state view ========== */
+    .ws-view {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ws-view.active {
+      display: flex;
+    }
+
+    .agent-chat {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 468px;
+    }
+
+    .agent-chat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(252, 251, 246, 0.6);
+    }
+
+    .agent-id {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      color: var(--ink);
+      font: 760 13px/1.2 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .agent-id .agent-sub {
+      color: var(--muted);
+      font: 520 11px/1.3 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .agent-dot {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 0 3px var(--green-soft);
+    }
+
+    .agent-stream {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 18px 16px;
+      overflow: auto;
+    }
+
+    .chat-row {
+      display: flex;
+    }
+
+    .chat-row.user {
+      justify-content: flex-end;
+    }
+
+    .chat-agent-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font: 760 11px/1 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .bubble {
+      max-width: 80%;
+      border-radius: 11px;
+      padding: 11px 13px;
+      font: 520 12.5px/1.55 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .bubble.agent {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-top-left-radius: 3px;
+    }
+
+    .bubble.user {
+      background: var(--ink);
+      color: #fff;
+      border-top-right-radius: 3px;
+    }
+
+    .agent-input {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 16px 16px;
+      border: 1px solid var(--line-strong);
+      border-radius: 9px;
+      background: #fff;
+      padding: 11px 13px;
+      box-shadow: var(--shadow-soft);
+      color: var(--faint);
+      font: 520 12.5px/1.3 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .agent-send {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--ink);
+      color: #fff;
+      font: 700 14px/1 ui-sans-serif, system-ui, sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -1905,7 +2034,7 @@
       <section class="spec-section prototype-intro" id="prototype">
         <div class="eyebrow">Prototype</div>
         <h2>页面原型</h2>
-        <p>文章最后的宽屏原型把前面的产品定位放进 Alva freshman 的页面骨架：原 Alva Agent 入口移动到 Channels 顶部并改名为 General，替换原 personal channel 入口，同时保留原 Agent 的入口逻辑；Playbooks 合并后用来源 icon 和 hover 态区分，Group Channels 用 TG/DC 标识 Telegram group 和 Discord group；右侧则是选中 group channel 后的 Memory / Playbooks / Chats / Artifacts 工作区。</p>
+        <p>文章最后的宽屏原型把前面的产品定位放进 Alva freshman 的页面骨架：原 Alva Agent 入口移动到 Channels 顶部并改名为 General，替换原 personal channel 入口，同时保留原 Agent 的入口逻辑；Playbooks 合并后用来源 icon 和 hover 态区分，Group Channels 用 TG/DC 标识 Telegram group 和 Discord group；右侧则是选中 group channel 后的 Memory / Playbooks / Chats / Artifacts 工作区。点击侧边栏的 General 可切到 personal agent 绑定后的示意——模拟对话流加 Memory、Artifacts、Tasks 的显性化；点任意 group channel 切回群工作台。</p>
       </section>
 
   <main class="app">
@@ -2004,19 +2133,19 @@
 
       <div class="sidebar-heading">Channels</div>
       <nav class="sidebar-group" aria-label="Channels">
-        <button class="side-item" type="button" title="General agent entry">
+        <button class="side-item" type="button" data-channel="general" title="General agent entry">
           <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-agent"></use></svg></span>
           <span class="side-label">General</span>
         </button>
-        <button class="side-item channel-item channel-group-tg active" type="button" data-meta="TG" title="Telegram group channel">
+        <button class="side-item channel-item channel-group-tg active" type="button" data-channel="group" data-meta="TG" title="Telegram group channel">
           <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
           <span class="side-label">BTC Macro Room</span>
         </button>
-        <button class="side-item channel-item channel-group-dc" type="button" data-meta="DC" title="Discord group channel">
+        <button class="side-item channel-item channel-group-dc" type="button" data-channel="group" data-meta="DC" title="Discord group channel">
           <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-discord"></use></svg></span>
           <span class="side-label">DeFi Research Desk</span>
         </button>
-        <button class="side-item channel-item channel-group-tg" type="button" data-meta="TG" title="Telegram group channel">
+        <button class="side-item channel-item channel-group-tg" type="button" data-channel="group" data-meta="TG" title="Telegram group channel">
           <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
           <span class="side-label">KOL Tracker Pilot</span>
         </button>
@@ -2096,6 +2225,213 @@
     </aside>
 
     <section class="workspace" aria-label="Selected channel workspace">
+      <div class="ws-view" id="ws-general">
+        <header class="workspace-header">
+          <div>
+            <div class="eyebrow">Personal Channel / Alva Agent</div>
+            <div class="header-title">
+              <div class="title-avatar">A</div>
+              <div class="headline">
+                <h1>General</h1>
+                <p class="subline">Your personal Alva Agent. It remembers your preferences, tracks your playbooks, and works with you across web, Telegram, and mini app.</p>
+              </div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <span class="badge green">Telegram connected</span>
+            <button class="text-btn" type="button">Agent settings</button>
+            <button class="primary-action" type="button">Message Agent</button>
+          </div>
+        </header>
+
+        <nav class="tabs" aria-label="Personal channel sections">
+          <button class="tab active" type="button" data-tab="chat">Chat</button>
+          <button class="tab" type="button" data-tab="memory">Memory</button>
+          <button class="tab" type="button" data-tab="tasks">Tasks</button>
+          <button class="tab" type="button" data-tab="artifacts">Artifacts</button>
+        </nav>
+
+        <section class="canvas" aria-live="polite">
+          <div class="tab-panel active flush" data-panel="chat">
+            <div class="agent-chat">
+              <div class="agent-chat-head">
+                <div class="agent-id">
+                  <span class="agent-dot"></span>
+                  Alva Agent
+                  <span class="agent-sub">connected via Telegram · always-on</span>
+                </div>
+                <button class="text-btn" type="button">New chat</button>
+              </div>
+
+              <div class="agent-stream" aria-label="Conversation with Alva Agent">
+                <div class="chat-row">
+                  <div class="chat-agent-label"><span class="agent-dot"></span>Alva Agent</div>
+                </div>
+                <div class="chat-row">
+                  <div class="bubble agent">Morning, Leo. I kept your playbooks running overnight. One material change is worth your time 👇</div>
+                </div>
+                <div class="chat-row">
+                  <div class="bubble agent">BTC ETF inflows accelerated while funding stayed neutral — that's the confirmation setup from your saved BTC thesis.</div>
+                </div>
+                <div class="chat-row user">
+                  <div class="bubble user">Did any KOL I follow react to it?</div>
+                </div>
+                <div class="chat-row">
+                  <div class="bubble agent">Three did. @macro_ceo turned constructive — fresh call, A- track record. Two others recycled old bullish language, so I labeled them stale instead of pushing them to you.</div>
+                </div>
+              </div>
+
+              <div class="agent-input">
+                <span>Message your Alva Agent…</span>
+                <span class="agent-send" aria-hidden="true">↑</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" data-panel="memory">
+            <section class="block">
+              <div class="block-head">
+                <div>
+                  <h2>Personal Memory</h2>
+                  <p class="block-sub">What Alva remembers about you — preferences, focus, and retired theses.</p>
+                </div>
+                <button class="text-btn" type="button">Save note</button>
+              </div>
+
+              <div class="memory-list">
+                <article class="memory-item">
+                  <span class="memory-status"></span>
+                  <div>
+                    <div class="item-title">Evidence first, no hype</div>
+                    <p class="item-body">You prefer short updates that lead with data and links, not narrative framing.</p>
+                    <div class="chips">
+                      <span class="chip">preference</span>
+                      <span class="chip">delivery</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="memory-item">
+                  <span class="memory-status blue"></span>
+                  <div>
+                    <div class="item-title">Core focus: BTC, ETH, NVDA, AI infra</div>
+                    <p class="item-body">Alva weights macro and AI-infrastructure signals when filtering your feed.</p>
+                    <div class="chips">
+                      <span class="chip">watchlist</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="memory-item">
+                  <span class="memory-status amber"></span>
+                  <div>
+                    <div class="item-title">Trades stay in private context</div>
+                    <p class="item-body">Portfolio and trading actions never leave your personal agent, even when a group thesis triggers them.</p>
+                    <div class="chips">
+                      <span class="chip">privacy boundary</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="memory-item">
+                  <span class="memory-status red"></span>
+                  <div>
+                    <div class="item-title">Invalidated: "alt season imminent"</div>
+                    <p class="item-body">April thesis retired after rotation failed to confirm. Kept so Alva won't resurface it.</p>
+                    <div class="chips">
+                      <span class="chip">invalidated thesis</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <div class="tab-panel" data-panel="tasks">
+            <section class="block">
+              <div class="block-head">
+                <div>
+                  <h2>Running Tasks</h2>
+                  <p class="block-sub">Always-on and scheduled work your personal agent is handling.</p>
+                </div>
+                <button class="text-btn" type="button">New task</button>
+              </div>
+
+              <div class="task-list">
+                <article class="task-item">
+                  <div class="task-state">Running</div>
+                  <div>
+                    <div class="item-title">Track funding + ETF flow against my BTC thesis</div>
+                    <p class="item-body">Always-on. Pings Telegram only on a material change, then updates the thesis note.</p>
+                  </div>
+                  <span class="badge green">Live</span>
+                </article>
+
+                <article class="task-item">
+                  <div class="task-state">Scheduled</div>
+                  <div>
+                    <div class="item-title">Friday portfolio review digest</div>
+                    <p class="item-body">Next run Fri 16:00. Output lands in Artifacts and a Telegram summary.</p>
+                  </div>
+                  <span class="badge">Scheduled</span>
+                </article>
+
+                <article class="task-item">
+                  <div class="task-state">Needs input</div>
+                  <div>
+                    <div class="item-title">Confirm new KOL for your tracker</div>
+                    <p class="item-body">Alva found @chain_signal with a strong recent record. Approve to start tracking.</p>
+                  </div>
+                  <span class="badge amber">Review</span>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <div class="tab-panel" data-panel="artifacts">
+            <section class="block">
+              <div class="block-head">
+                <div>
+                  <h2>Artifacts</h2>
+                  <p class="block-sub">Files, notes, and skills Alva generated or processed for you.</p>
+                </div>
+                <button class="text-btn" type="button">Upload source</button>
+              </div>
+
+              <div class="artifact-list">
+                <article class="artifact-item">
+                  <span class="file-icon">PDF</span>
+                  <div>
+                    <div class="item-title">weekly-portfolio-review.pdf</div>
+                    <p class="item-body">Auto-generated every Friday from your holdings and tracked playbooks.</p>
+                  </div>
+                  <span class="badge">1.8 MB</span>
+                </article>
+
+                <article class="artifact-item">
+                  <span class="file-icon">MD</span>
+                  <div>
+                    <div class="item-title">btc-macro-thesis.md</div>
+                    <p class="item-body">Living thesis note Alva updates as ETF flow and funding evolve.</p>
+                  </div>
+                  <span class="badge green">Live</span>
+                </article>
+
+                <article class="artifact-item">
+                  <span class="file-icon">SK</span>
+                  <div>
+                    <div class="item-title">nvda-earnings.skill</div>
+                    <p class="item-body">Personal skill that watches NVDA prints and pings you on surprises.</p>
+                  </div>
+                  <span class="badge amber">Review</span>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+
+      <div class="ws-view active" id="ws-group">
       <header class="workspace-header">
         <div>
           <div class="eyebrow">Group Channel / Canonical Web Page</div>
@@ -2134,14 +2470,14 @@
       </section>
 
       <nav class="tabs" aria-label="Channel sections">
-        <button class="tab active" type="button" data-tab="memory">Memory</button>
+        <button class="tab active" type="button" data-tab="chats">Chats / Tasks</button>
+        <button class="tab" type="button" data-tab="memory">Memory</button>
         <button class="tab" type="button" data-tab="playbooks">Playbooks</button>
-        <button class="tab" type="button" data-tab="chats">Chats / Tasks</button>
         <button class="tab" type="button" data-tab="artifacts">Artifacts</button>
       </nav>
 
       <section class="canvas" aria-live="polite">
-        <div class="tab-panel active" data-panel="memory">
+        <div class="tab-panel" data-panel="memory">
           <div class="memory-grid">
             <section class="block">
               <div class="block-head">
@@ -2286,7 +2622,7 @@
           </div>
         </div>
 
-        <div class="tab-panel" data-panel="chats">
+        <div class="tab-panel active" data-panel="chats">
           <div class="block">
             <div class="block-head">
               <div>
@@ -2368,6 +2704,7 @@
           </div>
         </div>
       </section>
+      </div>
     </section>
 
     <aside class="right-panel" aria-label="Channel decisions and endpoints">
@@ -2465,20 +2802,42 @@
   </div>
 
   <script>
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-    const panels = Array.from(document.querySelectorAll('.tab-panel'));
+    /* Tabs are scoped per workspace view so General and group channels
+       can reuse the same tab/panel classes without clashing. */
+    document.querySelectorAll('.ws-view').forEach((view) => {
+      const tabs = Array.from(view.querySelectorAll('.tab'));
+      const panels = Array.from(view.querySelectorAll('.tab-panel'));
 
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        const target = tab.dataset.tab;
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
 
-        tabs.forEach((item) => {
-          item.classList.toggle('active', item === tab);
+          tabs.forEach((item) => {
+            item.classList.toggle('active', item === tab);
+          });
+
+          panels.forEach((panel) => {
+            panel.classList.toggle('active', panel.dataset.panel === target);
+          });
+        });
+      });
+    });
+
+    /* ── Channel switch: General (personal agent) vs group channel ── */
+    const channelItems = Array.from(document.querySelectorAll('[data-channel]'));
+    const wsGeneral = document.getElementById('ws-general');
+    const wsGroup = document.getElementById('ws-group');
+
+    channelItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        const isGeneral = item.dataset.channel === 'general';
+
+        channelItems.forEach((other) => {
+          other.classList.toggle('active', other === item);
         });
 
-        panels.forEach((panel) => {
-          panel.classList.toggle('active', panel.dataset.panel === target);
-        });
+        wsGeneral.classList.toggle('active', isGeneral);
+        wsGroup.classList.toggle('active', !isGeneral);
       });
     });
   </script>
