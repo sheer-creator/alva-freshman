@@ -19,18 +19,12 @@ export type Tag =
 const TEMPLATE_LABEL: Record<Template, string> = {
   screener: "Screener",
   thesis: "Thesis",
-  "what-if": "What-If",
+  "what-if": "What-if",
   general: "General",
 };
 
-const TEMPLATE_STYLE: Record<Template, { bg: string; fg: string }> = {
-  screener: { bg: "#ebf6f4", fg: "#0e493c" },
-  thesis:   { bg: "#f4eee4", fg: "#38291c" },
-  "what-if":{ bg: "#e8edf6", fg: "#1b2f4a" },
-  general:  { bg: "#f0f0f0", fg: "#1a1a1a" },
-};
-
-const SUBJECT_STYLE = { bg: "#f2f2f2", fg: "var(--text-n7)" };
+const TAG_BG = "var(--b-r05, rgba(0,0,0,0.05))";
+const TAG_FG = "var(--text-n7, rgba(0,0,0,0.7))";
 
 export function PlaybookTags({ tags, gap = 6 }: { tags: Tag[]; gap?: number }) {
   const ghostRef = useRef<HTMLDivElement>(null);
@@ -98,27 +92,28 @@ export function PlaybookTags({ tags, gap = 6 }: { tags: Tag[]; gap?: number }) {
 
 function TagPill({ tag }: { tag: Tag }) {
   if (tag.kind === "template") {
-    const style = TEMPLATE_STYLE[tag.template];
     return (
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 4,
+          height: 20,
           padding: "2px 6px",
           borderRadius: 4,
-          background: style.bg,
+          background: TAG_BG,
           flexShrink: 0,
         }}
       >
-        <TemplateGlyph template={tag.template} color={style.fg} />
+        <TemplateGlyph template={tag.template} color={TAG_FG} />
         <span
           style={{
             fontFamily: "'Delight', sans-serif",
-            fontSize: 11,
-            lineHeight: "14px",
-            fontWeight: 500,
-            color: style.fg,
+            fontSize: 12,
+            lineHeight: "20px",
+            fontWeight: 400,
+            letterSpacing: 0.12,
+            color: TAG_FG,
             whiteSpace: "nowrap",
           }}
         >
@@ -136,9 +131,10 @@ function TagPill({ tag }: { tag: Tag }) {
         display: "flex",
         alignItems: "center",
         gap: brand ? 4 : 0,
-        padding: "2px 8px",
+        height: 20,
+        padding: "2px 6px",
         borderRadius: 4,
-        background: SUBJECT_STYLE.bg,
+        background: TAG_BG,
         flexShrink: 0,
       }}
     >
@@ -153,10 +149,11 @@ function TagPill({ tag }: { tag: Tag }) {
       <span
         style={{
           fontFamily: "'Delight', sans-serif",
-          fontSize: 11,
-          lineHeight: "14px",
-          fontWeight: 500,
-          color: SUBJECT_STYLE.fg,
+          fontSize: 12,
+          lineHeight: "20px",
+          fontWeight: 400,
+          letterSpacing: 0.12,
+          color: TAG_FG,
           whiteSpace: "nowrap",
         }}
       >
