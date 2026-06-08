@@ -271,7 +271,13 @@ function InlinePlaybookCard() {
 
 /* ========== 终端动画组件 ========== */
 
-function AnimatedTerminal() {
+export function AnimatedTerminal({
+  className = '',
+  contentHeight = 'clamp(360px, calc(100vh - 440px), 560px)',
+}: {
+  className?: string;
+  contentHeight?: number | string;
+}) {
   const [visibleCount, setVisibleCount] = useState(0);
   const [showCard, setShowCard] = useState(false);
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -330,7 +336,7 @@ function AnimatedTerminal() {
 
   return (
     <div
-      className="w-full rounded-[12px] overflow-hidden relative"
+      className={`w-full rounded-[12px] overflow-hidden relative ${className}`}
       style={{
         background: 'linear-gradient(180deg, #131320 0%, #0e0e1a 100%)',
         boxShadow: '0 4px 32px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(255,255,255,0.06) inset',
@@ -351,7 +357,7 @@ function AnimatedTerminal() {
       <div
         ref={containerRef}
         className="px-[16px] py-[14px] overflow-y-auto"
-        style={{ height: 'clamp(360px, calc(100vh - 440px), 560px)', scrollBehavior: 'smooth' }}
+        style={{ height: contentHeight, scrollBehavior: 'smooth' }}
       >
         {SCRIPT.slice(0, visibleCount).map((line, i) => (
           <div
@@ -494,11 +500,47 @@ function IconOpenAi({ className }: { className?: string }) {
   );
 }
 
-const AGENT_ICONS = [IconLangChain, IconCrewAi, IconAsterisk, IconHuggingFace, IconVercelLike, IconOpenAi] as const;
+export const AGENT_ICONS = [IconLangChain, IconCrewAi, IconAsterisk, IconHuggingFace, IconVercelLike, IconOpenAi] as const;
+
+const skillsAsset = (name: string) => `${import.meta.env.BASE_URL}figma/skills/${name}`;
+
+const SKILLS_LANDING_CARDS = [
+  {
+    image: skillsAsset('data.png'),
+    title: ['All the Data,', 'None of the Grunt Work'],
+    desc: 'Tap into 100+ institutional-grade data APIs — including alternative data — without sourcing, cleaning, or stitching anything together yourself.',
+  },
+  {
+    image: skillsAsset('analyst.png'),
+    title: ['Think Like an Analyst,', 'Move Like an Agent'],
+    desc: 'Your playbook work the way top analysts do — not follow rigid templates, but adapt, reason, and act on your investing ideas.',
+  },
+  {
+    image: skillsAsset('backtest.png'),
+    title: ['Talk Is Cheap,', 'Backtest It'],
+    desc: 'Validate your strategy against real historical data in minutes. No code, no guesswork — just results you can trust before you deploy.',
+  },
+  {
+    image: skillsAsset('execution.png'),
+    title: ['From Strategy to', 'Execution Instantly'],
+    desc: 'One click to go live. Attach trading autopilot to your playbook and never miss a signal again.',
+    badge: 'Coming Soon',
+  },
+  {
+    image: skillsAsset('remix.png'),
+    title: ['Remix the Best,', 'Build Something Better'],
+    desc: 'Remix, tweak, and improve upon community playbooks. Great ideas compound when everyone builds on each other.',
+  },
+  {
+    image: skillsAsset('discuss.png'),
+    title: ['Discuss,', "Don't Just Read It"],
+    desc: 'Exchange ideas, challenge theses, and sharpen your edge directly on playbooks — with a community that thinks as hard as you do.',
+  },
+];
 
 /* ========== 复制按钮 ========== */
 
-function CopyInstallBtn() {
+function CopyInstallBtn({ onTry }: { onTry: () => void }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(INSTALL_CMD);
@@ -508,89 +550,76 @@ function CopyInstallBtn() {
 
   return (
     <div
-      className="flex items-center gap-[12px] px-[20px] py-[10px] rounded-[8px] border border-[rgba(0,0,0,0.10)]"
-      style={{ background: copied ? 'rgba(73,163,166,0.04)' : 'rgba(255,255,255,0.6)', borderColor: copied ? 'rgba(73,163,166,0.20)' : undefined }}
+      className="flex h-[48px] w-[608px] max-w-full items-center overflow-hidden rounded-[8px] py-[4px] pl-[24px] pr-[4px]"
+      style={{ background: 'rgba(255,255,255,0.1)', border: `0.5px solid ${copied ? 'rgba(73,163,166,0.35)' : 'rgba(0,0,0,0.3)'}` }}
     >
-      <code className="text-[13px] leading-[20px] font-['JetBrains_Mono',monospace] text-[rgba(0,0,0,0.50)]">
-        {INSTALL_CMD}
-      </code>
       <button
+        type="button"
         onClick={handleCopy}
-        className="flex items-center gap-[5px] px-[14px] py-[5px] rounded-[6px] border-none cursor-pointer transition-all shrink-0"
-        style={{ background: copied ? '#3d8e91' : 'var(--main-m1)' }}
+        className="w-[364px] shrink-0 cursor-pointer truncate border-0 bg-transparent p-0 text-left font-['Delight',sans-serif] text-[18px] font-normal leading-[28px] tracking-[0.18px] text-[var(--text-n9)]"
+        title={copied ? 'Copied' : 'Copy command'}
       >
-        {copied ? (
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8.5l3 3 7-7" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        ) : (
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <rect x="5" y="5" width="8" height="8" rx="1.5" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" />
-            <path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" />
-          </svg>
-        )}
-        <span className="text-[13px] leading-[18px] font-['Delight',sans-serif] text-white">
-          {copied ? 'Copied!' : 'Copy'}
-        </span>
+        {INSTALL_CMD}
+      </button>
+      <button
+        type="button"
+        onClick={onTry}
+        className="ml-[24px] flex h-[40px] w-[192px] shrink-0 cursor-pointer items-center justify-center gap-[8px] rounded-[6px] border-0 bg-[var(--main-m1)] px-[20px] py-[9px] font-['Delight',sans-serif] text-[14px] font-medium leading-[22px] tracking-[0.14px] text-white transition-opacity hover:opacity-90"
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0" aria-hidden="true">
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M14.852 5.076C15.3984 5.07636 15.8415 5.51927 15.8417 6.06565V14.8512C15.8416 15.3976 15.3984 15.8405 14.852 15.8408H6.0665C5.51997 15.8406 5.07697 15.3977 5.07685 14.8512V6.06565C5.07704 5.51916 5.52001 5.07619 6.0665 5.076H14.852ZM6.0665 5.976C6.01707 5.97619 5.97704 6.01622 5.97685 6.06565V14.8512C5.97697 14.9007 6.01703 14.9406 6.0665 14.9408H14.852C14.9014 14.9405 14.9416 14.9005 14.9417 14.8512V6.06565C14.9415 6.01632 14.9013 5.97635 14.852 5.976H6.0665ZM12.5449 2.158C13.0912 2.15843 13.5344 2.60131 13.5346 3.14765V3.91757C13.5346 4.16595 13.3329 4.36733 13.0846 4.36757C12.836 4.36757 12.6346 4.1661 12.6346 3.91757V3.14765C12.6344 3.09837 12.5941 3.05842 12.5449 3.058H3.14765C3.09822 3.05819 3.05819 3.09822 3.058 3.14765V12.5449C3.05819 12.5943 3.09822 12.6344 3.14765 12.6346H3.91757C4.1659 12.6348 4.36757 12.8362 4.36757 13.0846C4.36757 13.3329 4.1659 13.5343 3.91757 13.5346H3.14765C2.60117 13.5344 2.15819 13.0914 2.158 12.5449V3.14765C2.15819 2.60117 2.60117 2.15819 3.14765 2.158H12.5449Z"
+            fill="currentColor"
+          />
+        </svg>
+        Try with your agent
       </button>
     </div>
   );
 }
 
-/* ========== 数据 ========== */
-
-const FEATURES = [
-  {
-    label: 'Market Data',
-    desc: 'Crypto, equities, macro, on-chain & sentiment',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-        <path d="M2 16l4-5 3 2.5 4-6 5 3.5" stroke={C.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Backtesting',
-    desc: 'Historical data, paper trading & analytics',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="10" r="7.5" stroke={C.orange} strokeWidth="1.5" />
-        <path d="M10 5v5l3.5 2" stroke={C.orange} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Live Signals',
-    desc: 'Scheduled pipelines that push alerts 24/7',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="10" r="3" stroke={C.green} strokeWidth="1.5" />
-        <circle cx="10" cy="10" r="1.2" fill={C.green} />
-        <path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke={C.green} strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Visual Playbooks',
-    desc: 'Interactive dashboards with charts & KPIs',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-        <rect x="2.5" y="3.5" width="15" height="10" rx="1.5" stroke={C.blue} strokeWidth="1.5" />
-        <path d="M5 16.5h10" stroke={C.blue} strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Share & Remix',
-    desc: 'Publish and let others fork your strategies',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-        <path d="M6 6v5.5c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5.67 1.5 1.5V17" stroke={C.red} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M6 6L4 8M6 6l2 2M14 17l-2-2M14 17l2-2" stroke={C.red} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-];
+function SkillsLandingCard({
+  image,
+  title,
+  desc,
+  badge,
+}: {
+  image: string;
+  title: string[];
+  desc: string;
+  badge?: string;
+}) {
+  return (
+    <article className="flex min-w-0 flex-col gap-[20px]">
+      <div
+        className="relative h-[430px] w-full overflow-hidden rounded-[12px]"
+        style={{ background: '#fcfcfc', border: '0.5px solid var(--line-l2)' }}
+      >
+        <img src={image} alt="" className="absolute inset-0 size-full object-cover" />
+      </div>
+      <div className="relative flex h-[182px] w-full flex-col items-start p-[20px]">
+        <h2 className="m-0 font-['Delight',sans-serif] text-[30px] font-normal leading-[36px] tracking-[0.3px] text-[var(--text-n9)]">
+          {title[0]}
+          <br />
+          {title[1]}
+        </h2>
+        {badge && (
+          <span
+            className="absolute left-[287px] top-[44px] rounded-[4px] px-[10px] py-[6px] font-['Delight',sans-serif] text-[10px] leading-[11px] tracking-[0.1px] text-[var(--text-n7)]"
+            style={{ background: 'rgba(73,163,166,0.1)', border: '0.5px solid var(--line-l07)' }}
+          >
+            {badge}
+          </span>
+        )}
+        <p className="m-0 mt-[16px] w-[350px] max-w-full font-['Delight',sans-serif] text-[14px] font-normal leading-[18.2px] tracking-[0.14px] text-[var(--text-n6)]">
+          {desc}
+        </p>
+      </div>
+    </article>
+  );
+}
 
 /* ========== 主页面 ========== */
 
@@ -602,80 +631,61 @@ interface AlvaSkillsProps {
 export default function AlvaSkills({ onNavigate, onOpenSearch }: AlvaSkillsProps) {
   return (
     <AppShell activePage={'alva-skills' as Page} onNavigate={onNavigate} onOpenSearch={onOpenSearch}>
-      <div
-        className="min-h-screen overflow-y-auto"
-        style={{
-          background: 'var(--grey-g01)',
-          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.05) 0.5px, transparent 0.5px)',
-          backgroundSize: '4px 4px',
-        }}
-      >
-
-        <section className="w-full flex justify-center pt-[32px] pb-[16px] px-[24px]">
-          <div className="w-full max-w-[960px] flex flex-col items-center">
-            <h1 className="font-['Delight',sans-serif] text-[26px] leading-[34px] font-normal text-[var(--text-n9)] text-center mb-[8px]">
-              Alva Skills
+      <div className="min-h-screen overflow-y-auto bg-white">
+        <div className="mx-auto w-full max-w-[1212px]">
+          <section className="flex min-h-[1006px] w-full flex-col items-center px-[28px] pt-[80px]">
+            <h1 className="m-0 flex h-[96px] w-full max-w-[960px] flex-col justify-center overflow-hidden text-center font-['Delight',sans-serif] text-[36px] font-normal leading-[48px] tracking-[0.36px] text-[var(--text-n9)]">
+              Turn Your Agent
+              <br />
+              into an Alpha Engine
             </h1>
-            <p className="font-['Delight',sans-serif] text-[14px] leading-[22px] text-[rgba(0,0,0,0.38)] text-center mb-[20px] max-w-[620px]">
-              Turn your AI agent into a finance powerhouse — access 250+ financial skills, build cloud-side analytics, backtest strategies, and ship live investing playbooks.
-            </p>
 
-            <div className="mb-[12px]">
-              <CopyInstallBtn />
+            <div className="mt-[24px] flex w-full justify-center">
+              <CopyInstallBtn onTry={() => onNavigate('agent')} />
             </div>
 
-            {/* 辅助链接 */}
-            <div className="flex items-center justify-center gap-[16px] mb-[16px]">
+            <div className="mt-[24px] flex h-[22px] w-[722px] max-w-full items-center justify-center gap-[16px] font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n5)]">
               <button
+                type="button"
                 onClick={() => window.open('https://github.com/alva-ai/skills', '_blank')}
-                className="flex items-center gap-[5px] bg-transparent border-none cursor-pointer group p-0"
+                className="cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors hover:text-[var(--text-n9)]"
               >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="rgba(0,0,0,0.45)" className="group-hover:fill-[var(--text-n7)] transition-colors">
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
-                </svg>
-                <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[var(--text-n5)] group-hover:text-[var(--text-n7)] transition-colors">GitHub</span>
+                GitHub
               </button>
-              <span className="w-[1px] h-[12px] bg-[var(--b-r07)]" />
+              <span aria-hidden>|</span>
               <button
+                type="button"
                 onClick={() => onNavigate('api-keys')}
-                className="flex items-center gap-[5px] bg-transparent border-none cursor-pointer group p-0"
+                className="cursor-pointer border-0 bg-transparent p-0 text-inherit transition-colors hover:text-[var(--text-n9)]"
               >
-                <div className="w-[5px] h-[5px] rounded-full bg-[var(--main-m1)] shrink-0" />
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-[var(--text-n7)] group-hover:text-[var(--text-n9)] transition-colors">
-                  <path d="M10 1.5a3 3 0 00-2.83 4.01L3 9.68V13h3.32l.35-.35A3 3 0 1010 1.5zM10 5a1 1 0 110-2 1 1 0 010 2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                </svg>
-                <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] text-[var(--text-n7)] group-hover:text-[var(--text-n9)] transition-colors">Get API Key</span>
+                Get API Key
               </button>
             </div>
 
-            {/* Feature 横条 */}
-            <div className="w-full grid grid-cols-5 mb-[16px]">
-              {FEATURES.map(f => (
-                <div key={f.label} className="flex flex-col items-center gap-[6px] py-[12px] px-[8px]">
-                  <div className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.8)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                    {f.icon}
-                  </div>
-                  <span className="font-['Delight',sans-serif] text-[12px] leading-[16px] text-[var(--text-n5)] text-center">{f.label}</span>
-                  <span className="font-['Delight',sans-serif] text-[10px] leading-[14px] text-[rgba(0,0,0,0.28)] text-center">{f.desc}</span>
-                </div>
-              ))}
+            <div className="mt-[24px] w-full max-w-[1024px]">
+              <AnimatedTerminal contentHeight={560} />
             </div>
 
-            <AnimatedTerminal />
-          </div>
-        </section>
+            <div className="mt-[24px] flex w-full max-w-[1024px] items-center gap-[20px]">
+              <div className="flex h-[30px] w-[502px] shrink-0 items-center justify-between">
+                {AGENT_ICONS.map((Icon, index) => (
+                  <span key={index} className="flex size-[30px] items-center justify-center">
+                    <Icon className="size-[30px]" />
+                  </span>
+                ))}
+              </div>
+              <p className="m-0 min-w-0 flex-1 font-['Delight',sans-serif] text-[14px] font-normal leading-[22px] tracking-[0.14px] text-[var(--text-n5)]">
+                Build playbooks with your favorite AI agent — or let your agent access them to act on them directly.
+              </p>
+            </div>
+          </section>
 
-        {/* ========== Supported Agents (same icons as Home hero) ========== */}
-        <section className="w-full flex justify-center pt-[16px] pb-[32px] px-[24px]">
-          <div className="flex items-center justify-center gap-[20px]">
-            {AGENT_ICONS.map((Icon, i) => (
-              <span key={i} className="flex w-[20px] h-[20px] items-center justify-center">
-                <Icon className="w-[20px] h-[20px]" />
-              </span>
+          <section className="grid w-full grid-cols-1 gap-x-[20px] gap-y-[40px] px-[28px] pb-[56px] pt-[20px] lg:grid-cols-2">
+            {SKILLS_LANDING_CARDS.map((card) => (
+              <SkillsLandingCard key={card.image} {...card} />
             ))}
-          </div>
-        </section>
-
+          </section>
+        </div>
       </div>
     </AppShell>
   );
