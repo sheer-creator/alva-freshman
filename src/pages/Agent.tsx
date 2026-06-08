@@ -20,10 +20,17 @@ const FONT = "font-['Delight',sans-serif]";
 
 /* ── Feature cards for empty state ── */
 const FEATURES = [
-  { icon: 'clock-l', title: 'Proactive push', desc: 'Playbooks reach you when signals move, not when you check.' },
-  { icon: 'clock-l', title: 'Messenger-native', desc: 'Telegram and Discord become your market feed inbox.' },
-  { icon: 'clock-l', title: 'Context memory', desc: 'Your agent remembers portfolios, themes, and preferences.' },
-  { icon: 'clock-l', title: 'Always-on runtime', desc: 'Feeds keep running in Alva while you are away.' },
+  { icon: 'bot-l', title: 'Alva in your chat app', desc: 'Review Playbooks, run analysis, and act on updates - no browser needed.' },
+  { icon: 'memory-l', title: 'Memory that compounds', desc: 'Your positions, your thesis, your preferences - every conversation builds on the last.' },
+  { icon: 'clock-l', title: 'Alerts before you ask', desc: 'Schedule any alert or report - your agent also knows when to reach out on its own.' },
+  { icon: 'update-l', title: "Runs while you don't", desc: 'Live 24/7 in a secure cloud sandbox. Never drops, never sleeps.' },
+];
+
+/* ── Other connect methods shown as chips under the primary buttons ── */
+const OTHER_CONNECTS = [
+  { name: 'Slack', logo: 'logo-social-slack.svg' },
+  { name: 'Line', logo: 'logo-social-line.svg' },
+  { name: "What's App", logo: 'logo-social-whatsapp.svg' },
 ];
 
 /* \u2500\u2500 Push-ready playbooks shown in the empty-state preview \u2500\u2500 */
@@ -395,24 +402,24 @@ export function AgentEmptyState({
             ))}
           </section>
 
-          <section className="mt-[24px] flex flex-col items-center justify-center gap-[16px] lg:flex-row lg:items-start">
+          <section className="mt-[24px] flex flex-col items-center gap-[16px] lg:flex-row lg:items-end lg:justify-center">
             <div
               className="flex w-full max-w-[280px] flex-col overflow-hidden"
               style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}
             >
+              <div className={`${FONT} flex h-[28px] w-full items-center justify-center gap-[4px] px-[8px] text-[12px] font-medium leading-[20px] tracking-[0.12px]`}>
+                <span aria-hidden>🎁</span>
+                <span style={{ color: 'var(--main-m1)' }}>+3,000</span>
+                <span style={{ color: 'rgba(0, 0, 0, 0.9)' }}>bonus credits</span>
+              </div>
               <button
                 className={`${FONT} flex h-[48px] w-full cursor-pointer items-center justify-center gap-[8px] px-[20px] py-[11px] text-[16px] font-medium leading-[26px] tracking-[0.16px] text-white transition-opacity hover:opacity-90`}
                 style={{ background: '#24a1de', border: 'none', borderRadius: 6 }}
                 onClick={onTelegramConnect}
               >
-                <CdnIcon name="project-telegram-l" size={20} color="#fff" />
+                <CdnIcon name="logo-social-telegram2" size={20} />
                 Connect Telegram
               </button>
-              <div className={`${FONT} flex h-[28px] w-full items-center justify-center gap-[4px] px-[8px] text-[12px] leading-[20px] tracking-[0.12px]`}>
-                <span aria-hidden>🎁</span>
-                <span style={{ color: 'var(--main-m1)' }}>+3,000</span>
-                <span style={{ color: 'rgba(0, 0, 0, 0.9)' }}>bonus credits</span>
-              </div>
             </div>
 
             <button
@@ -428,6 +435,20 @@ export function AgentEmptyState({
               <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" className="h-[20px] w-[20px]" />
               Connect Discord
             </button>
+          </section>
+
+          {/* Other connect methods */}
+          <section className="mt-[16px] flex flex-wrap items-center justify-center gap-[12px]">
+            {OTHER_CONNECTS.map((m) => (
+              <div
+                key={m.name}
+                className={`${FONT} flex items-center gap-[4px] rounded-full px-[10px] py-[6px] text-[14px] font-normal leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}
+                style={{ background: 'var(--b-r03, rgba(0,0,0,0.03))' }}
+              >
+                <img src={`${import.meta.env.BASE_URL}${m.logo}`} alt="" className="h-[18px] w-[18px] rounded-full" />
+                {m.name}
+              </div>
+            ))}
           </section>
 
           <section className="mt-[24px] h-[74px] pt-[24px]">
