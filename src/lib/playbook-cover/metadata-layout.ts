@@ -29,8 +29,8 @@ export const METADATA_LAYOUT = {
     maxLines: 2,
     fontSize: 16,
     lineHeight: 22,
-    fontWeight: 600,                 // Inter Semi Bold
-    fontFamily: "Inter",
+    fontWeight: 500,                 // Delight Medium
+    fontFamily: "Delight",
     textOverflow: "ellipsis" as const,
   },
 
@@ -43,8 +43,8 @@ export const METADATA_LAYOUT = {
     height: 40,                       // locked, regardless of 1/2 line content
     fontSize: 13,
     lineHeight: 18,
-    fontWeight: 400,                 // Inter Regular
-    fontFamily: "Inter",
+    fontWeight: 400,                 // Delight Regular
+    fontFamily: "Delight",
     textOverflow: "ellipsis" as const,
   },
 
@@ -55,8 +55,8 @@ export const METADATA_LAYOUT = {
     maxLines: 1,
     fontSize: 9,
     lineHeight: 12,
-    fontWeight: 600,                 // Inter Semi Bold
-    fontFamily: "Inter",
+    fontWeight: 500,                 // Delight Medium
+    fontFamily: "Delight",
     letterSpacing: 0.16,
     textTransform: "uppercase" as const,
     paddingX: 6,
@@ -71,8 +71,8 @@ export const METADATA_LAYOUT = {
     maxLines: 1,
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: 500,                 // Inter Medium
-    fontFamily: "Inter",
+    fontWeight: 500,                 // Delight Medium
+    fontFamily: "Delight",
     textOverflow: "ellipsis" as const,
   },
 } as const;

@@ -114,7 +114,7 @@ function TagPill({ tag }: { tag: Tag }) {
         <TemplateGlyph template={tag.template} color={style.fg} />
         <span
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "'Delight', sans-serif",
             fontSize: 11,
             lineHeight: "14px",
             fontWeight: 500,
@@ -152,7 +152,7 @@ function TagPill({ tag }: { tag: Tag }) {
       )}
       <span
         style={{
-          fontFamily: "Inter, sans-serif",
+          fontFamily: "'Delight', sans-serif",
           fontSize: 11,
           lineHeight: "14px",
           fontWeight: 500,

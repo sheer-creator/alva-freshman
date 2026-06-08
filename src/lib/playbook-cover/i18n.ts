@@ -130,10 +130,10 @@ export function getCoverFontStack(locale: Locale): FontStack {
   };
 }
 
-/** Metadata frame face stack — Inter primary + locale-appropriate CJK fallback. */
+/** Metadata frame face stack — Delight primary + locale-appropriate CJK fallback. */
 export function getMetadataFontStack(locale: Locale): FontStack {
   return {
-    primary: "Inter",
+    primary: "Delight",
     fallbacks: FALLBACK_BY_LOCALE[locale] ?? COMMON_LATIN_FALLBACKS,
   };
 }

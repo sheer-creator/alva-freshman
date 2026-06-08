@@ -124,7 +124,7 @@ import type { RGB } from "./types";
 export const FONT_FAMILY_COVER    = '"Delight", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif';
 
 /** Default metadata-frame font-family CSS string. */
-export const FONT_FAMILY_METADATA = '"Inter", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif';
+export const FONT_FAMILY_METADATA = '"Delight", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif';
 
 /** Inter / Delight weights used across covers + metadata. */
 export const FONT_WEIGHTS = {
