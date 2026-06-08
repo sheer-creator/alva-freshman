@@ -201,7 +201,7 @@ export function PlaybookCard({
                 style={{
                   fontSize: 16,
                   lineHeight: simple ? '26px' : '22px',
-                  fontWeight: simple ? 400 : 600,
+                  fontWeight: 400,
                   fontFamily: "'Delight', sans-serif",
                   color: 'var(--text-n9, rgba(0,0,0,0.9))',
                   letterSpacing: 0.16,
