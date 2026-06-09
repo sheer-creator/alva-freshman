@@ -1576,7 +1576,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           </div>
         </div>
       </div>
-      <div className="relative min-h-[44px]" style={{ maxHeight: 240, overflowY: 'auto' }}>
+      <div className="relative min-h-[44px] chat-input-editor-shell" style={{ maxHeight: 240, overflowY: 'auto' }}>
         {showPlaceholder && (
           <div className="absolute inset-0 pointer-events-none font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n3)]">
             {placeholder}

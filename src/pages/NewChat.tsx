@@ -1154,6 +1154,10 @@ function TitleHero({ selected, maxWidth }: { selected: NewChatTemplate | null; m
     // On very first paint (prev was empty), no burst — just show
     if (!prev) return;
 
+    // Skill-switch title burst disabled — title swaps text instantly (no dot-burst).
+    const titleBurstEnabled = false as boolean;
+    if (!titleBurstEnabled) return;
+
     animatingRef.current = true;
 
     // Outgoing layer = prev text, live layer = next text (incoming)
@@ -1887,6 +1891,12 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
         }
         .nc-skeleton-anim{animation:newchat-skeleton 1.4s ease-in-out infinite}
         button.nc-pill{display:flex}
+        .nc-chatbox-wrap .chat-input-wrapper{
+          box-sizing:border-box;
+        }
+        .nc-chatbox-wrap .chat-input-editor-shell{
+          min-height:48px;
+        }
         .nc-prompt-row{
           display:flex;
           align-items:center;
@@ -2524,7 +2534,7 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
           <TitleHero selected={selected} maxWidth={HERO_WIDTH} />
 
           {/* 输入框 */}
-          <div style={{ width: '100%', maxWidth: HERO_WIDTH, position: 'relative', zIndex: 1 }}>
+          <div className="nc-chatbox-wrap" style={{ width: '100%', maxWidth: HERO_WIDTH, position: 'relative', zIndex: 1 }}>
             <ChatInput
               shadow
               hideSkill
@@ -2587,6 +2597,7 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
                 flexWrap: 'wrap',
                 gap: 12,
                 justifyContent: 'center',
+                paddingTop: 12,
                 position: 'relative',
                 zIndex: 1,
                 width: '100%',
