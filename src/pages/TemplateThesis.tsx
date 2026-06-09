@@ -1,5 +1,6 @@
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
+import { PLAYBOOK_TITLES } from '@/data/playbooks';
 import thesisHtml from './playbook-template-thesis.html?raw';
 import { inlinePlaybookHeader } from './components/inlinePlaybookHeader';
 
@@ -11,7 +12,7 @@ function TemplateThesisContent() {
       <div className="flex-1 overflow-hidden">
         <iframe
           srcDoc={html}
-          title="Template-Thesis"
+          title={PLAYBOOK_TITLES['template-thesis']}
           className="block h-full w-full border-0"
         />
       </div>

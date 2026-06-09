@@ -1,3 +1,5 @@
+import { PLAYBOOK_TITLES } from '@/data/playbooks';
+
 export type ChatTriggerMode = 'floating-bar' | 'sidebar' | 'fab' | 'inline-composer';
 
 /** Change this to switch between the four approaches */
@@ -58,11 +60,7 @@ export const PAGE_TITLES: Record<string, string> = {
   billing: 'Billing',
   'alva-agent': 'Alva Agent',
   'portfolio-settings': 'Portfolio',
-  screener: 'Feed Test',
-  'template-screener': 'Template-Screener',
-  'template-thesis': 'Template-Thesis',
-  'template-whatif': 'Template-Whatif',
-  'template-notification': 'Template-Notification',
+  ...PLAYBOOK_TITLES,
 };
 
 export interface ConversationItem {

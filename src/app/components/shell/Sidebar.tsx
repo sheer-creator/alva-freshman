@@ -7,6 +7,7 @@
 import type { Page } from '@/app/App';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { PLAYBOOK_NAV_ITEMS } from '@/data/playbooks';
 
 /* ========== 类型 ========== */
 
@@ -26,7 +27,7 @@ export const SIDEBAR_W_COLLAPSED = 56;
 
 /* ========== 导航项组件 ========== */
 
-function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }: { label: string; icon?: string; badge?: string | number; active?: boolean; deprecated?: boolean; collapsed?: boolean; onClick?: () => void }) {
+function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed, onClick }: { label: string; icon?: string; avatarName?: string; badge?: string | number; active?: boolean; deprecated?: boolean; collapsed?: boolean; onClick?: () => void }) {
   const interactive = Boolean(onClick);
   const textClass = deprecated
     ? 'text-white/35'
@@ -42,9 +43,13 @@ function NavItem({ label, icon, badge, active, deprecated, collapsed, onClick }:
       onClick={onClick}
       title={collapsed ? label : deprecated ? 'Deprecated — use New Chat' : undefined}
     >
-      {icon && (
-        <div className="overflow-clip relative shrink-0 size-[16px]">
-          <CdnIcon name={icon} size={16} color={iconColor} />
+      {(avatarName || icon) && (
+        <div className="overflow-clip relative shrink-0 size-[16px] flex items-center justify-center">
+          {avatarName ? (
+            <Avatar name={avatarName} size={16} />
+          ) : icon ? (
+            <CdnIcon name={icon} size={16} color={iconColor} />
+          ) : null}
         </div>
       )}
       {!collapsed && (
@@ -83,7 +88,7 @@ function SectionHeader({ label, collapsed }: { label: string; collapsed?: boolea
 
 /* ========== Logo ========== */
 
-function Logo({ collapsed, onToggleCollapsed }: { collapsed?: boolean; onToggleCollapsed?: () => void }) {
+function Logo({ collapsed }: { collapsed?: boolean }) {
   return (
     <div className={`content-stretch flex items-center relative shrink-0 w-full z-[9] ${collapsed ? 'justify-center py-[12px]' : 'justify-between px-[8px] py-[12px]'}`}>
       {!collapsed && (
@@ -91,14 +96,15 @@ function Logo({ collapsed, onToggleCollapsed }: { collapsed?: boolean; onToggleC
           <img src={`${import.meta.env.BASE_URL}logo-alva.svg`} alt="Alva" className="absolute inset-0 block size-full object-contain object-left" />
         </div>
       )}
-      <button
-        type="button"
-        onClick={onToggleCollapsed}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="relative shrink-0 size-[16px] flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity bg-transparent border-none p-0"
-      >
-        <img src={`${import.meta.env.BASE_URL}sidebar-onoff.svg`} alt="" className="block size-[16px]" />
-      </button>
+      {!collapsed && (
+        <a
+          href={`${import.meta.env.BASE_URL}demo/`}
+          className="relative shrink-0 font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] no-underline transition-colors hover:text-white"
+          style={{ color: 'rgba(255, 255, 255, 0.5)' }}
+        >
+          Demo
+        </a>
+      )}
     </div>
   );
 }
@@ -129,7 +135,7 @@ function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?
 /* ========== 主组件 ========== */
 
 export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, onOpenReferral, collapsed = false, onToggleCollapsed }: SidebarProps) {
-  void onOpenSearch; void onOpenReferral; // 保持已有签名
+  void onOpenSearch; void onOpenReferral; void onToggleCollapsed; // 保持已有签名
   return (
     <div
       className="antialiased bg-[var(--b0-sidebar)] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 z-[2] overflow-y-auto overflow-x-hidden"
@@ -138,7 +144,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         transition: 'width 200ms ease',
       }}
     >
-      <Logo collapsed={collapsed} onToggleCollapsed={onToggleCollapsed} />
+      <Logo collapsed={collapsed} />
 
       {/* New Playbook CTA — own group per Figma 2951:34936 */}
       <NewPlaybookButton collapsed={collapsed} onClick={() => onNavigate('new-chat')} />
@@ -151,19 +157,20 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} collapsed={collapsed} onClick={() => onNavigate('alva-skills')} />
       </div>
 
-      {/* Subscribed */}
-      <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[6]">
-        <SectionHeader label="Subscribed" collapsed={collapsed} />
-        <NavItem label="Attribution Analysis Strategy for Price Trends" icon="sidebar-dashboard-normal" active={activePage === 'template-screener'} collapsed={collapsed} onClick={() => onNavigate('template-screener')} />
-        <NavItem label="NVDA Price Fetcher" icon="sidebar-dashboard-normal" active={activePage === 'template-thesis'} collapsed={collapsed} onClick={() => onNavigate('template-thesis')} />
-        <NavItem label="Google / X Trends Tracker" icon="sidebar-dashboard-normal" active={activePage === 'template-whatif'} collapsed={collapsed} onClick={() => onNavigate('template-whatif')} />
-      </div>
-
       {/* Playbooks */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[5]">
         <SectionHeader label="Playbooks" collapsed={collapsed} />
-        <NavItem label="NVDA Price Fetcher" icon="sidebar-dashboard-normal" active={activePage === 'screener'} collapsed={collapsed} onClick={() => onNavigate('screener')} />
-        <NavItem label="Short-Squeeze Risk Map" icon="sidebar-dashboard-normal" active={activePage === 'template-notification'} collapsed={collapsed} onClick={() => onNavigate('template-notification')} />
+        {PLAYBOOK_NAV_ITEMS.map((item) => (
+          <NavItem
+            key={item.page}
+            label={item.title}
+            icon={item.source === 'owned' ? 'sidebar-dashboard-normal' : undefined}
+            avatarName={item.source === 'subscribed' ? item.owner : undefined}
+            active={activePage === item.page}
+            collapsed={collapsed}
+            onClick={() => onNavigate(item.page)}
+          />
+        ))}
       </div>
 
       {/* Chats */}

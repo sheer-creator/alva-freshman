@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alva Demo Index</title>
     <style>
+      @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+
       :root {
         color-scheme: light;
-        --bg: #f4f5ef;
-        --panel: #fcfdf9;
-        --ink: #141712;
-        --muted: #626a5c;
-        --line: #d8dece;
-        --line-strong: #b8c2aa;
-        --accent: #2f5d43;
-        --accent-soft: #e4ecde;
+        --bg: #ffffff;
+        --text-n9: rgba(0, 0, 0, 0.9);
+        --text-n7: rgba(0, 0, 0, 0.7);
+        --text-n5: rgba(0, 0, 0, 0.5);
+        --text-n3: rgba(0, 0, 0, 0.3);
+        --line-l05: rgba(0, 0, 0, 0.05);
+        --line-l07: rgba(0, 0, 0, 0.07);
+        --line-l12: rgba(0, 0, 0, 0.12);
+        --line-l2: rgba(0, 0, 0, 0.2);
+        --grey-g01: #fafafa;
+        --main-m1: #49a3a6;
       }
 
       * {
@@ -24,176 +30,131 @@
       body {
         margin: 0;
         min-height: 100vh;
-        background:
-          linear-gradient(135deg, rgba(47, 93, 67, 0.08), transparent 34%),
-          var(--bg);
-        color: var(--ink);
-        font-family:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+        color: var(--text-n9);
+        font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
       }
 
       main {
-        width: min(960px, calc(100% - 40px));
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        width: 100%;
+        max-width: 1024px;
         margin: 0 auto;
-        padding: 56px 0;
+        padding: 40px;
       }
 
       header {
-        display: flex;
-        justify-content: space-between;
-        gap: 24px;
-        align-items: end;
-        margin-bottom: 24px;
-        border-bottom: 1px solid var(--line);
-        padding-bottom: 20px;
+        margin-bottom: 28px;
       }
 
       h1 {
-        margin: 0 0 8px;
-        font-size: clamp(32px, 5vw, 56px);
-        line-height: 0.95;
-        letter-spacing: 0;
-      }
-
-      p {
         margin: 0;
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.65;
-      }
-
-      .count {
-        flex: 0 0 auto;
-        border: 1px solid var(--line-strong);
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent);
-        padding: 8px 12px;
-        font-size: 13px;
-        font-weight: 700;
-        white-space: nowrap;
-      }
-
-      .demo-list {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        overflow: hidden;
-        background: var(--panel);
-        box-shadow: 0 18px 60px rgba(20, 23, 18, 0.08);
+        font-size: 36px;
+        font-weight: 400;
+        line-height: 44px;
+        letter-spacing: 0;
+        color: var(--text-n9);
       }
 
       .demo-row {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        gap: 20px;
+        justify-content: space-between;
+        gap: 24px;
         min-height: 72px;
-        padding: 16px 18px;
+        padding: 20px 0;
+        border-top: 0.5px solid var(--line-l2);
         color: inherit;
         text-decoration: none;
-        border-top: 1px solid var(--line);
-        transition:
-          background 140ms ease,
-          transform 140ms ease;
+        transition: opacity 140ms ease;
+      }
+
+      .demo-row:hover {
+        opacity: 0.62;
       }
 
       .demo-row:first-child {
         border-top: 0;
       }
 
-      .demo-row:hover {
-        background: #f0f5ea;
-      }
-
       .demo-row:focus-visible {
-        outline: 2px solid var(--accent);
+        outline: 2px solid var(--main-m1);
         outline-offset: -2px;
       }
 
       .demo-main {
-        display: grid;
-        gap: 5px;
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 6px;
         min-width: 0;
       }
 
       .demo-title {
-        font-size: 17px;
-        font-weight: 750;
+        font-size: 18px;
+        line-height: 28px;
+        letter-spacing: 0.18px;
+        color: var(--text-n9);
         overflow-wrap: anywhere;
       }
 
-      .demo-path {
-        color: var(--muted);
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-        font-size: 12px;
-        overflow-wrap: anywhere;
-      }
-
-      .demo-meta {
-        display: flex;
-        gap: 10px;
-        color: var(--muted);
-        font-size: 12px;
-        white-space: nowrap;
+      .demo-summary {
+        font-size: 13px;
+        line-height: 20px;
+        letter-spacing: 0.13px;
+        color: var(--text-n7);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .empty-state {
-        display: flex;
-        gap: 18px;
-        border: 1px dashed var(--line-strong);
+        border: 1px dashed var(--line-l12);
         border-radius: 8px;
-        background: rgba(252, 253, 249, 0.76);
+        background: var(--grey-g01);
         padding: 24px;
-      }
-
-      .empty-mark {
-        display: grid;
-        place-items: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-size: 24px;
-        font-weight: 800;
       }
 
       h2 {
         margin: 0 0 6px;
-        font-size: 18px;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-n9);
+      }
+
+      .empty-state p {
+        margin: 0;
+        color: var(--text-n7);
+        font-size: 13px;
+        line-height: 22px;
       }
 
       code {
         border-radius: 4px;
-        background: #e9eee2;
+        background: var(--line-l05);
         padding: 2px 5px;
-        color: #252b21;
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-        font-size: 0.93em;
+        color: var(--text-n7);
+        font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.92em;
       }
 
       footer {
-        margin-top: 18px;
-        color: var(--muted);
+        margin-top: auto;
+        padding-top: 24px;
+        color: var(--text-n5);
         font-size: 12px;
+        line-height: 20px;
       }
 
       @media (max-width: 680px) {
         main {
-          width: min(100% - 28px, 960px);
-          padding: 32px 0;
-        }
-
-        header,
-        .demo-row {
-          align-items: flex-start;
-          flex-direction: column;
-        }
-
-        .demo-meta {
-          width: 100%;
-          justify-content: space-between;
+          padding: 28px 20px;
         }
       }
     </style>
@@ -201,57 +162,38 @@
   <body>
     <main>
       <header>
-        <div>
-          <h1>Demo Index</h1>
-          <p>Standalone product-design pages served from <code>/demo</code>.</p>
-        </div>
-        <span class="count">4 pages</span>
+        <h1>Demo Index</h1>
       </header>
 
       <section class="demo-list" aria-label="Demo pages">
         <a class="demo-row" href="/demo/alva-ask-fast-path-brief.html">
                     <span class="demo-main">
-                      <span class="demo-title">Alva Ask Fast Path Brief</span>
-                      <span class="demo-path">/demo/alva-ask-fast-path-brief.html</span>
-                    </span>
-                    <span class="demo-meta">
-                      <span>HTML</span>
-                      <span>27.0 KB</span>
+                      <span class="demo-title">Alva Ask 轻量化方案 Brief</span>
+                      <span class="demo-summary">小白和轻度用户进入 Alva 后,看到价值的速度太慢。ask 场景在 harness 层没有独立的轻量路径,启动时加载完整 builder context,模型默认倾向先 build 而非先给结论。</span>
                     </span>
                   </a>
         <a class="demo-row" href="/demo/alva-channel-workspace.html">
                     <span class="demo-main">
-                      <span class="demo-title">Alva Channel Workspace</span>
-                      <span class="demo-path">/demo/alva-channel-workspace.html</span>
-                    </span>
-                    <span class="demo-meta">
-                      <span>HTML</span>
-                      <span>87.1 KB</span>
+                      <span class="demo-title">Alva Channel Workspace Demo</span>
+                      <span class="demo-summary">A single-page product spec for turning personal and group surfaces into one durable investment workspace model.</span>
                     </span>
                   </a>
         <a class="demo-row" href="/demo/demo-playbook-template-creator-voice.html">
                     <span class="demo-main">
-                      <span class="demo-title">Demo Playbook Template Creator Voice</span>
-                      <span class="demo-path">/demo/demo-playbook-template-creator-voice.html</span>
-                    </span>
-                    <span class="demo-meta">
-                      <span>HTML</span>
-                      <span>40.8 KB</span>
+                      <span class="demo-title">Playbook Template Creator Voice Surfaces</span>
+                      <span class="demo-summary">极简示意：把 Creator 的主观解释放到不同可见度的产品表面，避免所有话都挤进 iframe 或每个 widget。</span>
                     </span>
                   </a>
         <a class="demo-row" href="/demo/logangallina77-paid-user-journey-cn.html">
                     <span class="demo-main">
-                      <span class="demo-title">Logangallina77 Paid User Journey Cn</span>
-                      <span class="demo-path">/demo/logangallina77-paid-user-journey-cn.html</span>
-                    </span>
-                    <span class="demo-meta">
-                      <span>HTML</span>
-                      <span>33.0 KB</span>
+                      <span class="demo-title">Alva 付费用户旅程 - logangallina77</span>
+                      <span class="demo-summary">这个 Google CPC 用户带着非常明确的需求进来：在市场完全定价之前，找到未来需求爆发下的瓶颈资产。注册后 69 分钟付费 Pro，4 小时内又购买 credits，并连续创建、回测、修正多个 playbook。</span>
                     </span>
                   </a>
       </section>
 
       <footer>Generated from <code>public/demo</code>. Re-run <code>npm run demo:index</code> after adding pages.</footer>
     </main>
+    <script src="/demo/_switcher.js" defer></script>
   </body>
 </html>
