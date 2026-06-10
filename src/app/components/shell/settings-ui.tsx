@@ -12,7 +12,7 @@ export function SettingsSection({
   style,
 }: {
   title?: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   right?: ReactNode;
   children?: ReactNode;
   gap?: number;

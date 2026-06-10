@@ -32,7 +32,7 @@ function ReceiverSelect({ active }: { active: AgentPlatform | null }) {
     >
       <img src={meta.logo} alt="" className="size-[16px] shrink-0" />
       <span className="flex-1 min-w-0 text-left text-[12px] leading-[20px] tracking-[0.12px] truncate" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{meta.name}</span>
-      <CdnIcon name="arrow-down-f2" size={12} color="var(--text-n9, rgba(0,0,0,0.9))" />
+      <CdnIcon name="arrow-down-f2" size={12} color="var(--text-n2, rgba(0,0,0,0.2))" />
     </button>
   );
 }

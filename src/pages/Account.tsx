@@ -11,7 +11,6 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import {
   FieldShell,
   OutlineButton,
-  RowCard,
   SETTINGS_FONT,
   SettingsSection,
 } from '@/app/components/shell/settings-ui';
@@ -23,47 +22,11 @@ const USER = {
   joined: '12/23/2025',
 };
 
-function SocialLogo({ type }: { type: 'gmail' | 'email' | 'x' | 'telegram' | 'discord' }) {
-  if (type === 'discord') {
-    return <img src={`${import.meta.env.BASE_URL}logo-social-discord.svg`} alt="" className="size-[40px]" />;
-  }
-  return <img src={`https://alva-ai-static.b-cdn.net/icons/logo-social-${type}.svg`} alt="" className="size-[40px]" />;
-}
-
-function AccountRow({
-  icon,
-  title,
-  subtitle,
-  action,
-  actionTone = 'muted',
-}: {
-  icon: 'gmail' | 'email' | 'x' | 'telegram' | 'discord';
-  title: string;
-  subtitle: string;
-  action: React.ReactNode;
-  actionTone?: 'muted' | 'primary';
-}) {
-  return (
-    <RowCard>
-      <SocialLogo type={icon} />
-      <div className="flex-1 min-w-0 flex flex-col gap-[4px] overflow-hidden">
-        <p className="text-[16px] leading-[26px] tracking-[0.16px] whitespace-nowrap" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: SETTINGS_FONT }}>
-          {title}
-        </p>
-        <p className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: SETTINGS_FONT }}>
-          {subtitle}
-        </p>
-      </div>
-      <div className="shrink-0 text-[14px] leading-[22px] tracking-[0.14px] text-right" style={{ color: actionTone === 'primary' ? 'var(--main-m1, #49A3A6)' : 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: SETTINGS_FONT }}>
-        {action}
-      </div>
-    </RowCard>
-  );
-}
-
 export default function Account({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [nickname, setNickname] = useState('Sheer');
   const [bio, setBio] = useState('');
+  const [saved, setSaved] = useState({ nickname: 'Sheer', bio: '' });
+  const dirty = nickname !== saved.nickname || bio !== saved.bio;
 
   return (
     <SettingsLayout active="account" onNavigate={onNavigate} mapTo={{ account: 'user-profile' }}>
@@ -136,16 +99,23 @@ export default function Account({ onNavigate }: { onNavigate: (page: Page) => vo
             </span>
           </div>
         </FieldShell>
-      </SettingsSection>
 
-      <SettingsSection title="Connections" subtitle="Manage how you sign in to Alva and where we can reach you." gap={16}>
-        <div className="w-full flex flex-col gap-[16px]">
-          <AccountRow icon="gmail" title="Gmail" subtitle="sheer@alva.xyz" action={<span className="px-[8px] py-[2px] rounded-[4px]" style={{ background: 'var(--b-r05, rgba(0,0,0,0.05))' }}>Login Account</span>} />
-          <AccountRow icon="email" title="Email" subtitle="sheer@alva.xyz" action="Disconnect" />
-          <AccountRow icon="x" title="X (Twitter)" subtitle="@sheer_lee" action="Disconnect" />
-          <AccountRow icon="telegram" title="Telegram" subtitle="Get instant alerts when prices break out." action="Connect" actionTone="primary" />
-          <AccountRow icon="discord" title="Discord" subtitle="Join the community and chat with other traders." action="Connect" actionTone="primary" />
-        </div>
+        {/* Save — 无改动时置灰禁用 */}
+        <button
+          type="button"
+          disabled={!dirty}
+          onClick={() => setSaved({ nickname, bio })}
+          className="w-[126px] h-[48px] flex items-center justify-center rounded-[6px] text-[16px] leading-[26px] tracking-[0.16px]"
+          style={{
+            background: 'var(--b0-container, #fff)',
+            border: `0.5px solid ${dirty ? 'var(--line-l3, rgba(0,0,0,0.3))' : 'var(--line-l2, rgba(0,0,0,0.2))'}`,
+            color: dirty ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n3, rgba(0,0,0,0.3))',
+            cursor: dirty ? 'pointer' : 'default',
+            fontFamily: SETTINGS_FONT,
+          }}
+        >
+          Save
+        </button>
       </SettingsSection>
     </SettingsLayout>
   );
