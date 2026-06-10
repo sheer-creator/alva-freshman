@@ -1,51 +1,9 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
-
-// Git author email -> GitHub login. Resolved offline so dev/build never hit the
-// network; unknown emails fall back to the raw git author name.
-const GITHUB_LOGINS = {
-  'zhouyifei00@gmail.com': 'zyfayes',
-  'sheer@alva.xyz': 'sheer-creator',
-};
-
-// Deployment clones can be shallow, which makes git history unreliable for
-// attribution. Pin known demo authors by path before falling back to git.
-const DEMO_AUTHOR_OVERRIDES = new Map([
-  ['alva-ask-fast-path-brief.html', 'zyfayes'],
-  ['alva-channel-workspace.html', 'zyfayes'],
-  ['alva-homepage-planb.html', 'zyfayes'],
-  ['demo-playbook-template-creator-voice.html', 'zyfayes'],
-  ['logangallina77-paid-user-journey-cn.html', 'zyfayes'],
-  ['alva-homepage-planb-kol-channel.html', 'zet'],
-]);
-
-// GitHub login of whoever first added the file (the earliest A-commit), via git.
-// Returns null when git is unavailable so the index simply omits the author.
-function resolveAuthor(relativePath, absolutePath) {
-  if (DEMO_AUTHOR_OVERRIDES.has(relativePath)) {
-    return DEMO_AUTHOR_OVERRIDES.get(relativePath);
-  }
-
-  try {
-    const out = execFileSync(
-      'git',
-      ['log', '--diff-filter=A', '--format=%ae\t%an', '--', absolutePath],
-      { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
-    );
-    const lines = out.trim().split('\n').filter(Boolean);
-    const earliest = lines.at(-1);
-    if (!earliest) return null;
-    const [email, name] = earliest.split('\t');
-    return GITHUB_LOGINS[email] || name || null;
-  } catch {
-    return null;
-  }
-}
 const demoDir = path.join(rootDir, 'public', 'demo');
 const indexPath = path.join(demoDir, 'index.html');
 const switcherFileName = '_switcher.js';
@@ -170,13 +128,11 @@ async function collectHtmlFiles(currentDir = demoDir) {
     if (relativePath === 'index.html') continue;
 
     const contents = await readFile(absolutePath, 'utf8');
-    const normalizedRelativePath = relativePath.replaceAll(path.sep, '/');
     files.push({
       title: extractTitle(contents, titleFromRelativePath(relativePath)),
       route: routeFromRelativePath(relativePath),
-      relativePath: normalizedRelativePath,
+      relativePath: relativePath.replaceAll(path.sep, '/'),
       summary: extractSummary(contents),
-      author: resolveAuthor(normalizedRelativePath, absolutePath),
     });
   }
 
@@ -199,7 +155,6 @@ function renderList(files) {
               <span class="demo-title">${escapeHtml(file.title)}</span>
               ${file.summary ? `<span class="demo-summary">${escapeHtml(file.summary)}</span>` : ''}
             </span>
-            ${file.author ? `<span class="demo-author">@${escapeHtml(file.author)}</span>` : ''}
           </a>
   `.trim()).join('\n');
 
@@ -316,14 +271,6 @@ function renderPage(files) {
         overflow-wrap: anywhere;
       }
 
-      .demo-author {
-        flex: 0 0 auto;
-        font-size: 12px;
-        line-height: 18px;
-        letter-spacing: 0.12px;
-        color: var(--text-n5);
-      }
-
       .demo-summary {
         font-size: 13px;
         line-height: 20px;
@@ -401,7 +348,7 @@ const files = (await collectHtmlFiles()).sort((left, right) =>
 const SWITCHER_CSS = `
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
-.ads-root { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; }
+.ads-root { position: fixed; bottom: 16px; right: 16px; z-index: 99999; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; }
 .ads-menu { width: 520px; max-width: calc(100vw - 32px); border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); background: #fff; padding: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); }
 .ads-menu[hidden] { display: none; }
 .ads-root button, .ads-root span { font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; font-style: normal; }
@@ -413,8 +360,8 @@ const SWITCHER_CSS = `
 .ads-item-tag { flex: 0 0 auto; font-size: 10px; font-weight: 400; line-height: 14px; letter-spacing: 0.1px; color: #49a3a6; }
 .ads-item-sub { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 400; line-height: 18px; letter-spacing: 0.12px; color: rgba(0,0,0,0.5); }
 .ads-divider { height: 1px; background: rgba(0,0,0,0.05); margin: 6px 0; }
-.ads-bar { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
-.ads-back, .ads-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; width: 228px; max-width: calc(100vw - 32px); height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); font-family: inherit; font-size: 13px; font-weight: 500; line-height: 22px; letter-spacing: 0.13px; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.12); transition: transform 120ms ease; }
+.ads-bar { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.ads-back, .ads-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: auto; max-width: min(210px, calc(100vw - 32px)); height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.12); font-family: inherit; font-size: 12px; font-weight: 500; line-height: 18px; letter-spacing: 0.12px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.10); transition: transform 120ms ease; }
 .ads-back span, .ads-toggle span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ads-back:hover, .ads-toggle:hover { transform: translateY(-1px); }
 .ads-back { background: #fff; color: rgba(0,0,0,0.9); }
@@ -432,8 +379,8 @@ function renderSwitcherScript(files) {
   var STYLE = ${JSON.stringify(SWITCHER_CSS)};
   var INDEX_ROUTE = '/demo/';
   var APP_ROUTE = '/';
-  var ARROW_LEFT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  var MENU_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ARROW_LEFT = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var MENU_ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   function esc(value) {
     return String(value).replace(/[&<>"]/g, function (ch) {
