@@ -2630,22 +2630,28 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
                     </div>
                   ))}
                 </div>
-                {/* push 卡内容区绝对定位不撑高，行高按 Figma 固定 281.5 */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16, gridAutoRows: 281.5 }}>
-                  {selected.recCards.flatMap((c) => (c.type === 'push' ? [c.push] : [])).slice(0, 2).map((push, i) => (
-                    <div
-                      key={push.id}
-                      style={{
-                        animation: 'newchat-fadeup 360ms ease-out both',
-                        animationDelay: `${(i + 3) * 50}ms`,
-                      }}
-                    >
-                      <div onClick={() => setActiveFeed(push)} style={{ height: '100%', cursor: 'pointer' }}>
-                        <AutomationCard a={push} />
-                      </div>
+                {/* push 卡内容区绝对定位不撑高，行高按 Figma 固定 281.5；只有 1 张时占满整行 */}
+                {(() => {
+                  const pushes = selected.recCards.flatMap((c) => (c.type === 'push' ? [c.push] : [])).slice(0, 2);
+                  if (pushes.length === 0) return null;
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${pushes.length}, minmax(0, 1fr))`, gap: 16, gridAutoRows: 281.5 }}>
+                      {pushes.map((push, i) => (
+                        <div
+                          key={push.id}
+                          style={{
+                            animation: 'newchat-fadeup 360ms ease-out both',
+                            animationDelay: `${(i + 3) * 50}ms`,
+                          }}
+                        >
+                          <div onClick={() => setActiveFeed(push)} style={{ height: '100%', cursor: 'pointer' }}>
+                            <AutomationCard a={push} />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, animation: 'newchat-fade 320ms ease-out' }}>
@@ -2751,6 +2757,7 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
         open={!!activeFeed}
         onClose={() => setActiveFeed(null)}
         feedName={activeFeed?.feedName ?? ''}
+        alerts={activeFeed ? [activeFeed] : undefined}
         description="This automation runs on a fixed schedule and publishes new results to its subscribers. Each run pulls the latest data, applies the feed's logic, and writes a signal that powers the cards and alerts above. Open Settings → Automations to view full run logs and manage it."
       />
     </AppShell>

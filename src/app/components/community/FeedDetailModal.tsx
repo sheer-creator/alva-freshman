@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { PushContent, type PushCardData } from '@/app/components/shared/AutomationCard';
 
 /* ========== Status dot (14px) ========== */
 
@@ -56,6 +57,8 @@ export interface FeedDetailModalProps {
   description: string;
   stats?: FeedDetailStats;
   history?: FeedRunHistoryItem[];
+  /** 最近推送 — 传入时在描述上方展示完整 alert 内容（复用 push 卡的渲染） */
+  alerts?: PushCardData[];
   /** 点击 "Manage feed" — 传入时显示入口(跳转到 Settings Automations) */
   onManage?: () => void;
 }
@@ -120,12 +123,16 @@ export function FeedDetailModal({
   description,
   stats = DEFAULT_STATS,
   history = DEFAULT_HISTORY,
+  alerts,
   onManage,
 }: FeedDetailModalProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [descExpanded, setDescExpanded] = useState(false);
   const [descOverflows, setDescOverflows] = useState(false);
   const descRef = useRef<HTMLDivElement>(null);
+  const [alertExpanded, setAlertExpanded] = useState(false);
+  const [alertOverflows, setAlertOverflows] = useState(false);
+  const alertRef = useRef<HTMLDivElement>(null);
 
   // ESC 关闭
   useEffect(() => {
@@ -136,13 +143,19 @@ export function FeedDetailModal({
   }, [open, onClose]);
 
   // Modal 关闭时重置展开状态
-  useEffect(() => { if (!open) { setExpandedId(null); setDescExpanded(false); } }, [open]);
+  useEffect(() => { if (!open) { setExpandedId(null); setDescExpanded(false); setAlertExpanded(false); } }, [open]);
 
   // 检测描述块是否溢出 280px
   useEffect(() => {
     if (!open || !descRef.current) return;
     setDescOverflows(descRef.current.scrollHeight > 280);
   }, [open, description]);
+
+  // 检测 alert 块是否溢出 280px（agent 推送可能很长）
+  useEffect(() => {
+    if (!open || !alertRef.current) return;
+    setAlertOverflows(alertRef.current.scrollHeight > 280);
+  }, [open, alerts]);
 
   if (!open) return null;
 
@@ -207,6 +220,49 @@ export function FeedDetailModal({
             )}
           </div>
         </div>
+
+        {/* Latest Alerts — 点开来源的推送完整内容；超长（如 agent 推送）折叠到 280px，箭头展开收起 */}
+        {alerts && alerts.length > 0 && (
+          <div
+            ref={alertRef}
+            className={`shrink-0 relative flex flex-col gap-[8px] items-start w-full rounded-[8px] px-[16px] py-[12px] overflow-hidden ${alertOverflows ? 'pb-[31px]' : ''}`}
+            style={{
+              background: 'var(--grey-g01, #fafafa)',
+              maxHeight: alertExpanded ? (alertRef.current?.scrollHeight ?? 9999) : 280,
+              transition: 'max-height 0.3s ease-out',
+            }}
+          >
+            <p className="font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px] w-full">
+              Latest Alert
+            </p>
+            {alerts.map((a, i) => (
+              <div key={a.id} className="flex flex-col gap-[8px] w-full">
+                {i > 0 && <div className="h-px w-full" style={{ background: 'var(--line-l07, rgba(0,0,0,0.07))' }} />}
+                <PushContent a={a} />
+              </div>
+            ))}
+            {alertOverflows && (
+              <div className="absolute bottom-0 left-0 right-0 flex flex-col items-stretch">
+                {!alertExpanded && (
+                  <div className="h-[32px] pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(250,250,250,0), #fafafa)' }} />
+                )}
+                <button
+                  type="button"
+                  onClick={() => setAlertExpanded(prev => !prev)}
+                  className="w-full flex items-start justify-center h-[19px] cursor-pointer border-none outline-none p-0"
+                  style={{ background: 'var(--grey-g01, #fafafa)' }}
+                >
+                  <div
+                    className="transition-transform duration-200 ease-out"
+                    style={{ transform: alertExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  >
+                    <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2, rgba(0,0,0,0.2))" />
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Description — grey block, collapsed 280px / expanded full height with animation */}
         <div

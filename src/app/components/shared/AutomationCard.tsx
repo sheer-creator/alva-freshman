@@ -228,6 +228,29 @@ function KolBody({ d }: { d: KolPush }) {
   );
 }
 
+/** 时间戳行 + 变体内容 —— 卡片 body 与 FeedDetailModal 的 alert 区块共用 */
+export function PushContent({ a }: { a: PushCardData }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+      <p
+        style={{
+          margin: 0,
+          fontFamily: FONT,
+          fontSize: 12,
+          lineHeight: '20px',
+          letterSpacing: 0.12,
+          color: 'var(--text-n5, rgba(0,0,0,0.5))',
+        }}
+      >
+        {a.timestamp} · {a.source}
+      </p>
+      {a.kind === 'normal' && <NormalBody d={a} />}
+      {a.kind === 'trade' && <TradeBody d={a} />}
+      {a.kind === 'kol' && <KolBody d={a} />}
+    </div>
+  );
+}
+
 export function AutomationCard({ a, defaultOn = false }: { a: PushCardData; defaultOn?: boolean }) {
   const [hovered, setHovered] = useState(false);
   const [on, setOn] = useState(defaultOn);
@@ -263,22 +286,7 @@ export function AutomationCard({ a, defaultOn = false }: { a: PushCardData; defa
             overflow: 'hidden',
           }}
         >
-          <p
-            style={{
-              margin: 0,
-              fontFamily: FONT,
-              fontSize: 12,
-              lineHeight: '20px',
-              letterSpacing: 0.12,
-              color: 'var(--text-n5, rgba(0,0,0,0.5))',
-            }}
-          >
-            {a.timestamp} · {a.source}
-          </p>
-
-          {a.kind === 'normal' && <NormalBody d={a} />}
-          {a.kind === 'trade' && <TradeBody d={a} />}
-          {a.kind === 'kol' && <KolBody d={a} />}
+          <PushContent a={a} />
 
           {/* 底部渐隐 mask */}
           <div
