@@ -19,6 +19,7 @@ import { AutomationCard, type PushCardData } from '@/app/components/shared/Autom
 import { FeedDetailModal } from '@/app/components/community/FeedDetailModal';
 import { generateTypedSuggestions } from '@/data/typed-suggestions';
 import { PlaybookCover } from '@/lib/playbook-cover/PlaybookCover';
+import { PlaybookTags, buildTags } from '@/lib/playbook-cover/PlaybookTags';
 import type { CoverInput, Template as CoverTemplateName, DomainKey } from '@/lib/playbook-cover/types';
 import { PlaybookCard as ExplorePlaybookCard } from '@/app/components/shared/PlaybookCard';
 import { PLAYBOOKS_ORDERED, chipMatchesPlaybook } from '@/pages/Explore2';
@@ -32,30 +33,6 @@ function supportsHover(): boolean {
   if (typeof window.matchMedia !== 'function') return true;
   return window.matchMedia('(hover: hover)').matches;
 }
-
-/* ========== Skill 标签颜色 — 对应 Figma 的 m1/m2/m5 ========== */
-
-interface SkillColor {
-  bg: string;
-  fg: string;
-}
-const SKILL_COLOR_MAP: Record<string, SkillColor> = {
-  // m1 teal
-  'theme-tracker': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
-  'smart-screener': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
-  backtest: { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
-  'crypto-pulse': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
-  'yield-hunter': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
-  'dividend-diary': { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' },
-  // m2 blue
-  'what-if': { bg: 'var(--main-m2-10)', fg: 'var(--main-m2)' },
-  'deep-dive': { bg: 'var(--main-m2-10)', fg: 'var(--main-m2)' },
-  // m5 yellow
-  valuation: { bg: 'var(--main-m5-10)', fg: 'var(--main-m5)' },
-  'daily-macro-brief': { bg: 'var(--main-m5-10)', fg: 'var(--main-m5)' },
-  'earnings-edge': { bg: 'var(--main-m5-10)', fg: 'var(--main-m5)' },
-};
-const skillColor = (id: string): SkillColor => SKILL_COLOR_MAP[id] ?? { bg: 'var(--main-m1-10)', fg: 'var(--main-m1)' };
 
 /* ========== Skill pill ========== */
 
@@ -519,64 +496,6 @@ function PromptRowSkeleton({ widthPct }: { widthPct: number }) {
   );
 }
 
-/* ========== Ticker logo ========== */
-
-const CRYPTO_TICKERS = new Set(['BTC', 'ETH', 'SOL', 'PEPE', 'ARB', 'OP', 'AVAX', 'BNB', 'USDT', 'USDC', 'XRP', 'DOGE']);
-// 已知是 ETF / index 等无 logo 的标的，直接走颜色 fallback 不发请求
-const SKIP_LOGO = new Set([
-  'SPX', 'SPY', 'QQQ', 'R2K', 'IWM', 'AGG', 'TLT', 'VIX', 'EFA', 'EEM',
-  'DXY', 'CL', 'HYG', 'LQD', 'GLD', 'GDX', 'NOBL', 'FXI', 'KWEB', '2330.TW',
-]);
-const TICKER_FALLBACK_COLOR: Record<string, string> = {
-  BTC: '#F7931A',
-  ETH: '#627EEA',
-  SOL: '#14F195',
-  PEPE: '#3FAA3D',
-  SPX: '#94A3B8',
-  SPY: '#94A3B8',
-  QQQ: '#94A3B8',
-  GLD: '#E6A91A',
-  GDX: '#E6A91A',
-  TLT: '#627EEA',
-  VIX: '#EF4444',
-  AGG: '#94A3B8',
-  IWM: '#94A3B8',
-};
-
-function TickerLogo({ ticker }: { ticker: string }) {
-  const [errored, setErrored] = useState(false);
-  let src: string | null = null;
-  if (!errored && !SKIP_LOGO.has(ticker)) {
-    if (CRYPTO_TICKERS.has(ticker)) src = `https://assets.coincap.io/assets/icons/${ticker.toLowerCase()}@2x.png`;
-    else src = `https://financialmodelingprep.com/image-stock/${ticker}.png`;
-  }
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={ticker}
-        width={12}
-        height={12}
-        style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff' }}
-        onError={() => setErrored(true)}
-      />
-    );
-  }
-  const fallback = TICKER_FALLBACK_COLOR[ticker] || '#94A3B8';
-  return (
-    <span
-      style={{
-        width: 12,
-        height: 12,
-        borderRadius: '50%',
-        background: fallback,
-        flexShrink: 0,
-        display: 'inline-block',
-      }}
-    />
-  );
-}
-
 /* ========== Cover input 映射（复用 @/lib/playbook-cover） ========== */
 
 const SKILL_TEMPLATE: Record<string, CoverTemplateName> = {
@@ -695,33 +614,21 @@ function buildCoverInput(p: NewChatPlaybook, skillId: string): CoverInput {
 }
 
 
-/* ========== Playbook 卡片（按 Figma 4571:74212 spec 严格实现） ========== */
+/* ========== Playbook 卡片（按 Figma 7825:70505 Playbook/Card M spec 实现） ========== */
 
 function PlaybookCard({
   p,
-  skillLabel,
-  skillIcon,
-  skillKol,
-  skillCreator,
   skillId,
   onClick,
-  hideTags = false,
 }: {
   p: NewChatPlaybook;
-  skillLabel: string;
-  skillIcon?: string;
-  skillKol?: boolean;
-  skillCreator?: string;
   skillId: string;
   onClick?: () => void;
-  /** 隐藏 tag 栏（推荐区与 push 卡混排时用） */
-  hideTags?: boolean;
 }) {
-  const tickers = (p.tickers ?? []).slice(0, 2);
-  const sc = skillColor(skillId);
-  // KOL skill 在卡片里展示灰底黑字（不再用 m1/m5 主题色）
-  const skillChipBg = skillKol ? 'rgba(0,0,0,0.05)' : sc.bg;
-  const skillChipFg = skillKol ? 'rgba(0,0,0,0.9)' : sc.fg;
+  const tags = buildTags({
+    template: SKILL_TEMPLATE[skillId] ?? 'general',
+    tickers: p.tickers ?? [],
+  });
   return (
     <div
       onClick={onClick}
@@ -729,7 +636,7 @@ function PlaybookCard({
       style={{
         background: '#ffffff',
         border: '0.5px solid var(--line-l3)',
-        borderRadius: 12,
+        borderRadius: 8,
         padding: 4,
         display: 'flex',
         flexDirection: 'column',
@@ -752,8 +659,8 @@ function PlaybookCard({
       <div
         style={{
           width: '100%',
-          aspectRatio: '320 / 180',
-          borderRadius: 8,
+          aspectRatio: '472 / 265.5',
+          borderRadius: 4,
           overflow: 'hidden',
           flexShrink: 0,
         }}
@@ -766,65 +673,11 @@ function PlaybookCard({
           padding: '16px 12px 12px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 10,
+          gap: 12,
         }}
       >
-        {/* TagRow */}
-        {!hideTags && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              height: 20,
-              padding: '2px 6px',
-              borderRadius: 4,
-              background: skillChipBg,
-              color: skillChipFg,
-              fontFamily: "'Delight', sans-serif",
-              fontSize: 12,
-              lineHeight: '20px',
-              letterSpacing: 0.12,
-              fontWeight: 400,
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            {skillKol && skillCreator ? (
-              <Avatar name={skillCreator} size={12} />
-            ) : (
-              skillIcon && <CdnIcon name={skillIcon} size={12} color={skillChipFg} />
-            )}
-            {skillLabel}
-          </span>
-          {tickers.map((t) => (
-            <span
-              key={t}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                height: 20,
-                padding: '2px 8px',
-                borderRadius: 4,
-                background: 'var(--b-r05)',
-                color: 'var(--text-n7)',
-                fontFamily: "'Delight', sans-serif",
-                fontSize: 12,
-                lineHeight: '20px',
-                letterSpacing: 0.12,
-                fontWeight: 400,
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}
-            >
-              <TickerLogo ticker={t} />
-              {t}
-            </span>
-          ))}
-        </div>
-        )}
+        {/* TagRow — template + tickers，灰底 n7（同 Explore Card M） */}
+        <PlaybookTags tags={tags} />
         {/* TextBlock */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <p
@@ -2749,48 +2602,53 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
             }}
           >
             {!cardsReady ? (
-              <div className="nc-skeleton-anim" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, animation: 'newchat-fade 200ms ease-out' }}>
-                {Array.from({ length: selected.recCards?.length ?? 6 }).map((_, i) => (
+              <div className="nc-skeleton-anim" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16, animation: 'newchat-fade 200ms ease-out' }}>
+                {Array.from({ length: 3 }).map((_, i) => (
                   <PlaybookCardSkeleton key={i} />
                 ))}
               </div>
             ) : selected.recCards ? (
-              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${selected.recCards.length}, minmax(0, 1fr))`, gap: 16, animation: 'newchat-fade 320ms ease-out' }}>
-                {selected.recCards.map((c, i) => {
-                  const key = c.type === 'playbook' ? c.playbook.id : c.push.id;
-                  return (
+              /* 两行布局（Figma 7825:70590）：第一行 3 张 playbook 卡，第二行 2 张 push 卡 */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'newchat-fade 320ms ease-out' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
+                  {selected.recCards.flatMap((c) => (c.type === 'playbook' ? [c.playbook] : [])).slice(0, 3).map((p, i) => (
                     <div
-                      key={key}
+                      key={p.id}
                       style={{
                         animation: 'newchat-fadeup 360ms ease-out both',
                         animationDelay: `${i * 50}ms`,
                       }}
                     >
-                      {c.type === 'playbook' ? (
-                        <PlaybookCard
-                          p={c.playbook}
-                          skillId={selected.id}
-                          skillLabel={selected.label}
-                          skillIcon={selected.icon}
-                          skillKol={selected.kol}
-                          skillCreator={selected.creator}
-                          hideTags
-                          onClick={() => {
-                            sessionStorage.setItem('autoOpenChatPanel', '1');
-                            onNavigate('new-chat');
-                          }}
-                        />
-                      ) : (
-                        <div onClick={() => setActiveFeed(c.push)} style={{ height: '100%', cursor: 'pointer' }}>
-                          <AutomationCard a={c.push} />
-                        </div>
-                      )}
+                      <PlaybookCard
+                        p={p}
+                        skillId={selected.id}
+                        onClick={() => {
+                          sessionStorage.setItem('autoOpenChatPanel', '1');
+                          onNavigate('new-chat');
+                        }}
+                      />
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+                {/* push 卡内容区绝对定位不撑高，行高按 Figma 固定 281.5 */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16, gridAutoRows: 281.5 }}>
+                  {selected.recCards.flatMap((c) => (c.type === 'push' ? [c.push] : [])).slice(0, 2).map((push, i) => (
+                    <div
+                      key={push.id}
+                      style={{
+                        animation: 'newchat-fadeup 360ms ease-out both',
+                        animationDelay: `${(i + 3) * 50}ms`,
+                      }}
+                    >
+                      <div onClick={() => setActiveFeed(push)} style={{ height: '100%', cursor: 'pointer' }}>
+                        <AutomationCard a={push} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, animation: 'newchat-fade 320ms ease-out' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, animation: 'newchat-fade 320ms ease-out' }}>
                 {selected.playbooks.slice(0, 6).map((p, i) => (
                   <div
                     key={p.id}
@@ -2802,10 +2660,6 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
                     <PlaybookCard
                       p={p}
                       skillId={selected.id}
-                      skillLabel={selected.label}
-                      skillIcon={selected.icon}
-                      skillKol={selected.kol}
-                      skillCreator={selected.creator}
                       onClick={() => {
                         sessionStorage.setItem('autoOpenChatPanel', '1');
                         onNavigate('new-chat');

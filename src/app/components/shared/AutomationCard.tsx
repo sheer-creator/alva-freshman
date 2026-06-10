@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { Avatar } from './Avatar';
 import { CdnIcon } from './CdnIcon';
+import { TickerLogo } from './TickerLogo';
 
 const FONT = "'Delight', sans-serif";
 
@@ -121,7 +122,7 @@ function TradeBody({ d }: { d: TradePush }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
       {d.rows.map((r, i) => (
         <div key={i} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
-          <Avatar name={r.ticker} size={20} />
+          <TickerLogo ticker={r.ticker} size={20} />
           <span style={{ fontFamily: FONT, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
             {r.action}
           </span>
