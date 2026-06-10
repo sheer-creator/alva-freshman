@@ -21,7 +21,7 @@ const DEMO_AUTHOR_OVERRIDES = new Map([
   ['alva-homepage-planb.html', 'zyfayes'],
   ['demo-playbook-template-creator-voice.html', 'zyfayes'],
   ['logangallina77-paid-user-journey-cn.html', 'zyfayes'],
-  ['alva-homepage-planb-kol-channel.html', null],
+  ['alva-homepage-planb-kol-channel.html', 'zet'],
 ]);
 
 // GitHub login of whoever first added the file (the earliest A-commit), via git.
