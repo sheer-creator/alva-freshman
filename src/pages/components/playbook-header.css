@@ -568,7 +568,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     position: absolute;
     top: calc(100% + 6px); left: 0;
     z-index: 50;
-    display: none;
+    display: flex;
     flex-direction: column;
     width: 520px;
     background: #fff;
@@ -576,8 +576,20 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     border-radius: 8px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.04);
     overflow: hidden;
+    /* hover 浮现：默认隐藏，.open 时淡入 + 轻微上浮 */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity .16s ease-out, transform .18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear .18s;
 }
-.feeds-popover.open { display: flex; }
+.feeds-popover.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition: opacity .16s ease-out, transform .18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
+}
 .feeds-popover-header,
 .feeds-popover-row {
     position: relative;
@@ -617,18 +629,17 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 .feeds-popover-meta-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .feeds-popover-bulk {
     display: inline-flex; align-items: center; gap: 4px;
-    height: 24px; padding: 0 8px;
-    border: 0.5px solid var(--line-l3);
-    border-radius: var(--radius-ct-s, 4px);
-    background: var(--b-common-white, #fff);
+    height: 24px; padding: 0;
+    border: none;
+    background: none;
     font-family: inherit;
     font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: var(--text-n9);
     cursor: pointer;
-    transition: background .15s, border-color .15s;
+    transition: opacity .15s;
 }
-.feeds-popover-bulk:hover { border-color: var(--text-n9); }
-.feeds-popover-bulk:active { border-color: var(--line-l3); background: var(--b-r02); }
+.feeds-popover-bulk:hover { opacity: 0.7; }
+.feeds-popover-bulk:active { opacity: 0.5; }
 .feeds-popover-bulk-icon {
     width: 12px; height: 12px; flex-shrink: 0;
     background-color: currentColor;

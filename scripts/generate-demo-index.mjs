@@ -1,9 +1,36 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
+
+// Git author email -> GitHub login. Resolved offline so dev/build never hit the
+// network; unknown emails fall back to the raw git author name.
+const GITHUB_LOGINS = {
+  'zhouyifei00@gmail.com': 'zyfayes',
+  'sheer@alva.xyz': 'sheer-creator',
+};
+
+// GitHub login of whoever first added the file (the earliest A-commit), via git.
+// Returns null when git is unavailable so the index simply omits the author.
+function resolveAuthor(absolutePath) {
+  try {
+    const out = execFileSync(
+      'git',
+      ['log', '--diff-filter=A', '--format=%ae\t%an', '--', absolutePath],
+      { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+    );
+    const lines = out.trim().split('\n').filter(Boolean);
+    const earliest = lines.at(-1);
+    if (!earliest) return null;
+    const [email, name] = earliest.split('\t');
+    return GITHUB_LOGINS[email] || name || null;
+  } catch {
+    return null;
+  }
+}
 const demoDir = path.join(rootDir, 'public', 'demo');
 const indexPath = path.join(demoDir, 'index.html');
 const switcherFileName = '_switcher.js';
@@ -133,6 +160,7 @@ async function collectHtmlFiles(currentDir = demoDir) {
       route: routeFromRelativePath(relativePath),
       relativePath: relativePath.replaceAll(path.sep, '/'),
       summary: extractSummary(contents),
+      author: resolveAuthor(absolutePath),
     });
   }
 
@@ -155,6 +183,7 @@ function renderList(files) {
               <span class="demo-title">${escapeHtml(file.title)}</span>
               ${file.summary ? `<span class="demo-summary">${escapeHtml(file.summary)}</span>` : ''}
             </span>
+            ${file.author ? `<span class="demo-author">@${escapeHtml(file.author)}</span>` : ''}
           </a>
   `.trim()).join('\n');
 
@@ -269,6 +298,14 @@ function renderPage(files) {
         letter-spacing: 0.18px;
         color: var(--text-n9);
         overflow-wrap: anywhere;
+      }
+
+      .demo-author {
+        flex: 0 0 auto;
+        font-size: 12px;
+        line-height: 18px;
+        letter-spacing: 0.12px;
+        color: var(--text-n5);
       }
 
       .demo-summary {

@@ -101,7 +101,7 @@ function Logo({ collapsed }: { collapsed?: boolean }) {
           href={`${import.meta.env.BASE_URL}demo/`}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative shrink-0 cursor-pointer font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px] no-underline transition-colors hover:text-white"
+          className="relative shrink-0 cursor-pointer font-['Delight',sans-serif] text-[12px] leading-[16px] tracking-[0.12px] no-underline transition-colors hover:text-white"
           style={{ color: 'rgba(255, 255, 255, 0.5)' }}
         >
           Demo
@@ -166,8 +166,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
           <NavItem
             key={item.page}
             label={item.title}
-            icon={item.source === 'owned' ? 'sidebar-dashboard-normal' : undefined}
-            avatarName={item.source === 'subscribed' ? item.owner : undefined}
+            avatarName={item.owner}
             active={activePage === item.page}
             collapsed={collapsed}
             onClick={() => onNavigate(item.page)}

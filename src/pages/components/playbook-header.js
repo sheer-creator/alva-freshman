@@ -41,13 +41,15 @@
   }
 
   function avatarUrl(seed) {
-    if (seed === 'YGGYLL') return '/alva-infant/portrait.png';
-    var backgroundBySeed = {
-      'Mira Chen': 'e3f2fd',
-      'Vega Zhou': 'f3e5f5'
+    var photoBySeed = {
+      'YGGYLL': '/portrait.png',
+      'Caleb Frost': '/avatars/caleb-frost.png',
+      'Asha Bello': '/avatars/asha-bello.png',
+      'Nina Reyes': '/avatars/nina-reyes.png'
     };
+    if (photoBySeed[seed]) return photoBySeed[seed];
     var s = encodeURIComponent(seed || 'user');
-    return 'https://api.dicebear.com/9.x/notionists/svg?seed=' + s + '&backgroundColor=' + (backgroundBySeed[seed] || 'fff3e0');
+    return 'https://api.dicebear.com/9.x/notionists/svg?seed=' + s + '&backgroundColor=fff3e0';
   }
 
   function readFeeds(host) {
@@ -720,9 +722,26 @@
     }
     registerPopover(host, close);
 
+    // Hover 自动浮现：指针进入 trigger 或 popover 即展开；离开后短延迟收起，
+    // 用延迟兜底跨越 trigger→popover 之间 6px 间隙时的瞬时 mouseleave，避免闪烁。
+    var hideTimer = null;
+    function cancelHide() {
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    }
+    function scheduleHide() {
+      cancelHide();
+      hideTimer = setTimeout(function () { hideTimer = null; close(); }, 140);
+    }
+    trigger.addEventListener('mouseenter', function () { cancelHide(); open(); });
+    trigger.addEventListener('mouseleave', scheduleHide);
+    popover.addEventListener('mouseenter', cancelHide);
+    popover.addEventListener('mouseleave', scheduleHide);
+
+    // 点按/键盘仍可展开（触屏 / Enter），收起交给移开指针、外部点击或 Esc。
     trigger.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (popover.classList.contains('open')) close(); else open();
+      cancelHide();
+      open();
     });
 
     var onDocClick = function (e) {
@@ -738,6 +757,7 @@
     host._pbHeaderCleanup = (host._pbHeaderCleanup || []).concat(function () {
       document.removeEventListener('click', onDocClick);
       document.removeEventListener('keydown', onKeydown);
+      cancelHide();
     });
 
     function syncBulkButton() {
