@@ -1,6 +1,6 @@
 /**
  * [INPUT]: AppShell, settings page
- * [OUTPUT]: Settings 通用布局 — Back + 固定侧边栏(184px) + 自适应内容，整体 max-width 1200
+ * [OUTPUT]: Settings 通用布局 — Back + 固定侧边栏(184px) + 944px 内容区，整体 max-width 1156
  * [POS]: shell 层 — Account / Billing / Portfolio / Alva Agent / API Key 共用外壳
  */
 
@@ -36,10 +36,10 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
   return (
     <AppShell activePage={activePage} onNavigate={onNavigate}>
       <div className="min-h-full flex flex-col items-center" style={{ background: 'var(--b0-page, #fff)' }}>
-        <div className="w-full flex flex-col gap-[var(--spacing-l)] px-[var(--spacing-xxl)] pt-[var(--spacing-xxl)] pb-[80px] items-center">
+        <div className="w-full max-w-[1156px] px-[16px] lg:px-0 pb-[80px]">
 
           {/* Back */}
-          <div className="w-full max-w-[1200px]">
+          <div className="w-full h-[52px] flex items-center">
             <button
               onClick={() => {
                 const ret = sessionStorage.getItem('settingsReturnPage') as Page | null;
@@ -54,7 +54,7 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
           </div>
 
           {/* Sidebar + Content */}
-          <div className="w-full max-w-[1200px] flex gap-[var(--spacing-xxl)] items-start">
+          <div className="w-full mt-[4px] flex gap-[28px] items-start">
 
             {/* Fixed sidebar 184px */}
             <nav className="flex flex-col shrink-0" style={{ width: 184 }}>
@@ -67,7 +67,7 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
                     onClick={() => onNavigate(target)}
                     className="flex items-center px-[var(--spacing-m)] py-[10px] rounded-[var(--radius-btn-s)] text-left cursor-pointer transition-colors w-full"
                     style={{
-                      background: isActive ? 'var(--main-m1-10)' : 'transparent',
+                      background: isActive ? 'var(--b0, #f6f6f6)' : 'transparent',
                       border: 'none',
                     }}
                     onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'var(--b-r03)'; }}
@@ -89,7 +89,7 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
             </nav>
 
             {/* Flexible content area */}
-            <div className="flex-1 min-w-0 flex flex-col gap-[var(--spacing-xl)]">
+            <div className="flex-1 min-w-0 max-w-[944px] flex flex-col gap-[48px]">
               {children}
             </div>
           </div>
