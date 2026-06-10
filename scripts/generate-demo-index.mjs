@@ -13,9 +13,24 @@ const GITHUB_LOGINS = {
   'sheer@alva.xyz': 'sheer-creator',
 };
 
+// Deployment clones can be shallow, which makes git history unreliable for
+// attribution. Pin known demo authors by path before falling back to git.
+const DEMO_AUTHOR_OVERRIDES = new Map([
+  ['alva-ask-fast-path-brief.html', 'zyfayes'],
+  ['alva-channel-workspace.html', 'zyfayes'],
+  ['alva-homepage-planb.html', 'zyfayes'],
+  ['demo-playbook-template-creator-voice.html', 'zyfayes'],
+  ['logangallina77-paid-user-journey-cn.html', 'zyfayes'],
+  ['alva-homepage-planb-kol-channel.html', null],
+]);
+
 // GitHub login of whoever first added the file (the earliest A-commit), via git.
 // Returns null when git is unavailable so the index simply omits the author.
-function resolveAuthor(absolutePath) {
+function resolveAuthor(relativePath, absolutePath) {
+  if (DEMO_AUTHOR_OVERRIDES.has(relativePath)) {
+    return DEMO_AUTHOR_OVERRIDES.get(relativePath);
+  }
+
   try {
     const out = execFileSync(
       'git',
@@ -155,12 +170,13 @@ async function collectHtmlFiles(currentDir = demoDir) {
     if (relativePath === 'index.html') continue;
 
     const contents = await readFile(absolutePath, 'utf8');
+    const normalizedRelativePath = relativePath.replaceAll(path.sep, '/');
     files.push({
       title: extractTitle(contents, titleFromRelativePath(relativePath)),
       route: routeFromRelativePath(relativePath),
-      relativePath: relativePath.replaceAll(path.sep, '/'),
+      relativePath: normalizedRelativePath,
       summary: extractSummary(contents),
-      author: resolveAuthor(absolutePath),
+      author: resolveAuthor(normalizedRelativePath, absolutePath),
     });
   }
 
