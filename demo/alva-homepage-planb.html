@@ -326,6 +326,19 @@
   .am-tpl-t { display: block; font-size: 13px; color: var(--text-n9); }
   .am-tpl-s { display: block; font-size: 11.5px; color: var(--text-n5); margin-top: 2px; }
   .ko-grid.compact { grid-template-columns: 1fr; }
+  /* curated packs — batch-select rows above the individual picks */
+  .pk-label { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-n3); margin: 2px 0 8px; }
+  .pack { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 0.5px solid var(--line-l07); border-radius: 11px; background: #fff; margin-bottom: 6px; }
+  .pk-row { display: flex; align-items: center; gap: 9px; }
+  .pk-avas { display: flex; flex: 0 0 auto; }
+  .pkav { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #fff; margin-left: -7px; display: grid; place-items: center; font-size: 8px; color: #fff; }
+  .pkav:first-child { margin-left: 0; }
+  .pkav.more { background: var(--b-r05); color: var(--text-n5); }
+  .pk-n { font-size: 13.5px; color: var(--text-n9); }
+  .pk-s { font-size: 11.5px; color: var(--text-n5); margin-top: 3px; }
+  .pk-add { height: 30px; padding: 0 12px; border-radius: 8px; border: 0.5px solid var(--line-l3); background: #fff; font-size: 12px; color: var(--text-n9); display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; transition: background 140ms ease, border-color 140ms ease; }
+  .pk-add.on { color: var(--main-m1); border-color: rgba(73,163,166,0.4); background: var(--main-m1-10); }
+  .pk-add svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .am-base { display: flex; gap: 10px; margin-top: 18px; }
   .am-sel { flex: 1 1 0; min-width: 0; }
   .am-sel-k { display: block; font-size: 11.5px; color: var(--text-n5); margin-bottom: 6px; }
@@ -2829,15 +2842,61 @@ function SourceTag({ source, onGoArtifacts }) {
   );
 }
 
+/* curated packs — batch-select sets of entities, shared by inline onboards
+   and the automation modal; member lists mirror the mobile concept */
+const ENTITY_PACKS = {
+  kol: [
+    { name: 'AI Infrastructure', handles: ['@SerenityFund', '@EvergreenCap', '@chip_insider', '@macroscopex'], sub: 'Serenity, Evergreen, Chip Insider +1 \u00b7 4 voices' },
+    { name: 'Macro & Rates', handles: ['@macroscopex', '@volwhisperer', '@saxena_puru'], sub: 'Macro Scope X, Vol Whisperer, Puru Saxena \u00b7 3 voices' },
+    { name: 'Crypto Desk', handles: ['@SatoshiA', '@coldwallet', '@mai_t', '@q_macro'], sub: 'Satoshi A, Coldwallet +2 \u00b7 4 voices' },
+  ],
+  tickers: [
+    { name: 'AI Infrastructure', handles: ['NVDA', 'AVGO', 'TSM'], sub: 'NVDA, AVGO, TSM \u00b7 3 names' },
+    { name: 'Power & Grid', handles: ['VRT', 'GEV'], sub: 'VRT, GEV \u00b7 2 names' },
+  ],
+};
+/* a pack reads as Added iff every member is picked — derived, no second source of truth */
+const packOn = (pk, picked) => pk.handles.every((h) => !!picked[h]);
+const applyPack = (pk, picked, setRecs, setPicked) => {
+  const on = packOn(pk, picked);
+  if (!on) setRecs((r) => [...r, ...pk.handles.filter((h) => !r.some((k) => k.handle === h)).map((h) => ({ name: h.replace(/^@/, ''), handle: h, focus: `From ${pk.name}` }))]);
+  setPicked((p) => { const n = { ...p }; pk.handles.forEach((h) => { n[h] = !on; }); return n; });
+};
+
 /* ============ shared entity picker ============
    One widget wherever a template needs entities — inline in a channel
    onboard or inside the automation modal: rich recommendation rows with a
    one-click toggle, plus a free-entry handle row. */
-function EntityPicker({ recs, picked, onToggle, onAdd, placeholder, onLabel = 'Following', offLabel = 'Follow', compact }) {
+function EntityPicker({ recs, picked, onToggle, onAdd, packs, onPack, placeholder, onLabel = 'Following', offLabel = 'Follow', compact }) {
   const [entry, setEntry] = useState('');
   const add = () => { const v = entry.trim(); if (v) onAdd(v); setEntry(''); };
+  const member = (h) => recs.find((k) => k.handle === h) || { name: h.replace(/^@/, '') };
   return (
     <>
+      {packs && (
+        <>
+          <div className="pk-label">Curated packs</div>
+          {packs.map((pk) => {
+            const on = packOn(pk, picked);
+            return (
+              <div className="pack" key={pk.name}>
+                <div className="pk-info">
+                  <div className="pk-row">
+                    <span className="pk-avas">
+                      {pk.handles.slice(0, 3).map((h) => <span className="pkav" style={{ background: avaColor(member(h).name) }} key={h}>{initials(member(h).name)}</span>)}
+                      {pk.handles.length > 3 && <span className="pkav more">+{pk.handles.length - 3}</span>}
+                    </span>
+                    <span className="pk-n">{pk.name}</span>
+                  </div>
+                  <div className="pk-s">{pk.sub}</div>
+                </div>
+                <button className={`pk-add${on ? ' on' : ''}`} onClick={() => onPack(pk)}>{on ? <><Icon name="check" size={13} />Added</> : '+ Add'}</button>
+              </div>
+            );
+          })}
+          <div className="pk-label" style={{ marginTop: 14 }}>Or pick individually</div>
+        </>
+      )}
       <div className={`ko-grid${compact ? ' compact' : ''}`}>
         {recs.map((k) => {
           const on = !!picked[k.handle];
@@ -2877,6 +2936,7 @@ function KolFollowOnboard({ onDigest }) {
     setRecs((r) => (r.some((k) => k.handle === v) ? r : [...r, { name: v.replace(/^@/, ''), handle: v, focus: 'Added by you' }]));
     setPicked((p) => ({ ...p, [v]: true }));
   };
+  const onPack = (pk) => applyPack(pk, picked, setRecs, setPicked);
   return (
     <div className="kol-onboard">
       <div className="ko-h">
@@ -2886,7 +2946,7 @@ function KolFollowOnboard({ onDigest }) {
         </div>
         <span className="ko-count">{count} following</span>
       </div>
-      <EntityPicker recs={recs} picked={picked} onToggle={toggle} onAdd={addCustom}
+      <EntityPicker recs={recs} picked={picked} onToggle={toggle} onAdd={addCustom} packs={ENTITY_PACKS.kol} onPack={onPack}
         placeholder="Add any handle — e.g. @chamath, a Substack, or a Telegram channel" />
       <div className="am-base">
         <label className="am-sel">
@@ -3238,12 +3298,12 @@ const TICKER_RECOMMENDED = [
 const AUTO_TEMPLATES = [
   { id: 'kol', label: 'KOL Digest', hint: 'Follow a set of voices', entityLabel: 'Voices to follow', onLabel: 'Following', offLabel: 'Follow',
     ph: 'Add any handle — e.g. @chamath, a Substack, or a Telegram channel',
-    recs: KOL_RECOMMENDED,
+    recs: KOL_RECOMMENDED, packs: ENTITY_PACKS.kol,
     name: 'KOL-Morning-Digest', every: 'Daily · 07:30 ET',
     prompt: 'Each morning, read everything these voices posted overnight, keep only the posts with a real signal, and push one digest — each item with the call, the ticker, and why it matters.' },
   { id: 'tickers', label: 'Ticker Digest', hint: 'Watch a set of tickers', entityLabel: 'Tickers to watch', onLabel: 'Watching', offLabel: 'Watch',
     ph: 'Add any ticker — e.g. MSFT, COIN, 7203.T',
-    recs: TICKER_RECOMMENDED,
+    recs: TICKER_RECOMMENDED, packs: ENTITY_PACKS.tickers,
     name: 'Ticker-Daily-Digest', every: 'Daily · post-close',
     prompt: 'Every day after the close, summarize what moved these tickers — price, volume, news, filings — into one short digest. Flag anything that changes the thesis.' },
 ];
@@ -3271,6 +3331,7 @@ function AutomationModal({ channelId, initial, onClose, onSave }) {
     setRecs((r) => (r.some((k) => k.handle === v) ? r : [...r, { name: v.replace(/^@/, ''), handle: v, focus: 'Added by you' }]));
     setPicked((p) => ({ ...p, [v]: true }));
   };
+  const onPack = (pk) => applyPack(pk, picked, setRecs, setPicked);
   const ok = mode === 'template' ? entities.length > 0 : instruction.trim().length > 0;
   // the name derives itself — template name, or the first words of the instruction
   const autoName = editing ? initial.name
@@ -3307,7 +3368,7 @@ function AutomationModal({ channelId, initial, onClose, onSave }) {
                 {t.entityLabel}
                 <span className="ko-count">{entities.length} {t.onLabel.toLowerCase()}</span>
               </div>
-              <EntityPicker compact recs={recs} picked={picked} onToggle={toggle} onAdd={addCustom}
+              <EntityPicker compact recs={recs} picked={picked} onToggle={toggle} onAdd={addCustom} packs={t.packs} onPack={onPack}
                 placeholder={t.ph} onLabel={t.onLabel} offLabel={t.offLabel} />
               <div className="am-label">Digest prompt</div>
               <textarea className="post-edit" rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} />
