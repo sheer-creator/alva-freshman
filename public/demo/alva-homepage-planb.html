@@ -136,7 +136,10 @@
   .sb-newchat .plus { font-size: 18px; line-height: 1; font-weight: 400; }
 
   .sb-group { display: grid; gap: 2px; margin-bottom: 14px; }
-  .sb-heading { margin: 14px 10px 6px; color: var(--sidebar-muted); font-size: 12px; letter-spacing: 0.12px; }
+  .sb-heading { margin: 14px 10px 6px; color: var(--sidebar-muted); font-size: 12px; letter-spacing: 0.12px; display: flex; align-items: center; justify-content: space-between; }
+  .sb-add { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; color: var(--sidebar-muted); transition: background 140ms ease, color 140ms ease; }
+  .sb-add:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sb-add svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
   /* channel rows with meta badge (ME / TG / DC) */
   .sb-item.channel { grid-template-columns: 20px minmax(0,1fr) auto; }
@@ -209,6 +212,136 @@
   .members-btn:hover { background: var(--b-r02); border-color: var(--line-l3); }
   .members-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   .members-btn .mb-count { font-size: 13px; color: var(--text-n9); }
+
+  /* IM connect — topbar pill + modal rows + sidebar glyph */
+  .imlink { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px; border-radius: 8px; border: 0.5px solid var(--line-l2); background: #fff; font-size: 12.5px; color: var(--text-n9); transition: background 140ms ease, border-color 140ms ease; }
+  .imlink:hover { background: var(--b-r02); border-color: var(--line-l3); }
+  .imlink svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .imlink .im-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--main-m3); }
+  .imlink.ghost { color: var(--text-n5); border-color: var(--line-l12); }
+  .imlink.ghost:hover { color: var(--text-n7); }
+  .im-row { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 11px; align-items: center; padding: 9px 10px; border-radius: 9px; }
+  .im-row:hover { background: var(--b-r02); }
+  .im-ico { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; flex: 0 0 auto; }
+  .im-ico svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .im-name { font-size: 14px; color: var(--text-n9); }
+  .im-sub { font-size: 12px; color: var(--text-n5); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .im-sub.on { color: var(--main-m3); }
+  .im-go { height: 30px; padding: 0 13px; border-radius: 8px; border: 0.5px solid var(--line-l3); background: #fff; font-size: 12.5px; color: var(--text-n9); transition: background 140ms ease; }
+  .im-go:hover { background: var(--b-r02); }
+  .im-go.busy { color: var(--text-n5); cursor: default; }
+  .im-off { font-size: 12px; color: var(--text-n5); }
+  .im-off:hover { color: var(--main-m4); }
+  .im-note { padding: 10px 10px 6px; font-size: 11.5px; color: var(--text-n3); }
+  .sb-im { color: rgba(255,255,255,0.38); display: grid; place-items: center; }
+  .sb-im svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* telegram connect guide — animated mini phone (topics in one bot DM) */
+  .tg-guide { padding: 4px 6px 2px; }
+  .tgg-phone { border: 0.5px solid var(--line-l2); border-radius: 16px; overflow: hidden; background: #fff; box-shadow: var(--shadow-s); }
+  .tgg-head { display: flex; align-items: center; gap: 9px; padding: 11px 13px; background: rgba(109,189,255,0.10); border-bottom: 0.5px solid var(--line-l05); }
+  .tgg-ava { width: 28px; height: 28px; border-radius: 8px; overflow: hidden; flex: 0 0 auto; }
+  .tgg-ava img { width: 100%; height: 100%; display: block; }
+  .tgg-name { font-size: 13.5px; color: var(--text-n9); }
+  .tgg-sub { font-size: 11px; color: var(--text-n5); }
+  .tgg-row { display: flex; align-items: center; gap: 8px; padding: 9px 13px; font-size: 13px; color: var(--text-n9); border-bottom: 0.5px solid var(--line-l05); animation: tggIn 380ms cubic-bezier(0.22,0.61,0.36,1) backwards; }
+  .tgg-i { width: 16px; display: grid; place-items: center; color: #5aa6e8; font-size: 12px; flex: 0 0 auto; }
+  .tgg-i svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+  .tgg-n { margin-left: auto; font-size: 10.5px; color: var(--text-n3); white-space: nowrap; }
+  .tgg-row.new { background: rgba(73,163,166,0.07); }
+  .tgg-row.new .tgg-n { color: var(--main-m1); }
+  .tgg-msg { padding: 10px 13px 13px; }
+  .tgg-bubble { background: rgba(109,189,255,0.10); border-radius: 12px; padding: 9px 12px; font-size: 12.5px; line-height: 18px; color: var(--text-n7); animation: tggIn 380ms cubic-bezier(0.22,0.61,0.36,1) backwards; animation-delay: 620ms; }
+  @keyframes tggIn { from { transform: translateY(7px); } to { transform: none; } }
+  .tgg-cap { margin-top: 10px; font-size: 11.5px; line-height: 17px; color: var(--text-n5); }
+  .tgg-cap a { color: var(--main-m1); text-decoration: none; }
+  .tgg-video { width: 100%; border-radius: 14px; border: 0.5px solid var(--line-l2); display: block; box-shadow: var(--shadow-s); background: #000; }
+  .tgg-created { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 11px; border-radius: 9px; background: rgba(73,163,166,0.07); border: 0.5px solid rgba(73,163,166,0.25); font-size: 12.5px; color: var(--text-n9); }
+  .tgg-created .tgg-n { color: var(--main-m1); }
+  .gd-sec { margin-top: 10px; }
+  .gd-h { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-n5); }
+  .gd-ul { margin: 4px 0 0; padding-left: 17px; }
+  .gd-ul li { margin-top: 4px; }
+  .gd-ul li::marker { color: var(--text-n5); }
+  .dg-tasks { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .dg-tasks .roomtask { margin-top: 0; }
+
+  /* global Ask — floating right panel (product ChatPanel chrome) */
+  .askpanel { position: fixed; top: 8px; right: 8px; bottom: 8px; width: 400px; background: #fff; border: 0.5px solid var(--line-l2); border-radius: 12px; box-shadow: var(--shadow-l); z-index: 40; display: flex; flex-direction: column; overflow: hidden; animation: apIn 240ms cubic-bezier(0.22,0.61,0.36,1); }
+  @keyframes apIn { from { transform: translateX(28px); } to { transform: none; } }
+  .ap-h { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 20px 0 24px; flex: 0 0 auto; }
+  .ap-ava { position: relative; width: 20px; height: 20px; flex: 0 0 auto; }
+  .ap-ava img { width: 20px; height: 20px; border-radius: 50%; display: block; }
+  .ap-dot { position: absolute; right: -3px; bottom: -1px; width: 8px; height: 8px; border-radius: 50%; background: var(--main-m1); border: 1.5px solid #fff; }
+  .ap-t { font-size: 14px; color: var(--text-n9); }
+  .ap-ico { width: 16px; height: 16px; display: grid; place-items: center; color: var(--text-n5); transition: opacity 140ms ease; }
+  .ap-ico:hover { opacity: 0.7; }
+  .ap-ico svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .ap-note { padding: 0 24px 10px; font-size: 11.5px; color: var(--text-n5); border-bottom: 0.5px solid var(--line-l07); flex: 0 0 auto; }
+  .ap-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 16px 16px 8px; }
+  .ap-body .bubble { max-width: none; }
+  .ap-foot { flex: 0 0 auto; padding: 10px 12px 14px; border-top: 0.5px solid var(--line-l07); display: flex; flex-direction: column; gap: 8px; }
+  .ap-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px; border-radius: 4px; border: 0.5px solid var(--line-l2); align-self: flex-start; }
+  .ap-chip-ico { width: 20px; height: 20px; border-radius: 2px; background: var(--main-m1); color: #fff; display: grid; place-items: center; flex: 0 0 auto; }
+  .ap-chip-ico svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .ap-chip-label { font-size: 12px; line-height: 20px; color: var(--text-n9); max-width: 184px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ap-chip-x { width: 14px; height: 14px; display: grid; place-items: center; color: var(--text-n5); transition: opacity 140ms ease; }
+  .ap-chip-x:hover { opacity: 0.7; }
+  .ap-chip-x svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.8; transform: rotate(45deg); }
+
+  /* mirror read view — hand-off hint */
+  .mirror-hint { margin-top: 20px; border: 0.5px solid var(--line-l07); border-radius: 12px; background: var(--wash); padding: 13px 15px; }
+  .mh-t { font-size: 12.5px; line-height: 18px; color: var(--text-n5); margin-bottom: 10px; }
+  .mh-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  /* mirrored group — private control surface + explicit write-back */
+  .web-sep { display: flex; align-items: center; gap: 12px; margin: 24px 0 10px; color: var(--text-n3); font-size: 11px; letter-spacing: 0.2px; }
+  .web-sep::before, .web-sep::after { content: ""; flex: 1 1 auto; height: 0.5px; background: var(--line-l07); }
+  .postrow { margin-bottom: 16px; }
+  .post-btn { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 8px; border: 0.5px solid var(--line-l12); background: #fff; font-size: 12.5px; color: var(--text-n7); transition: color 140ms ease, background 140ms ease; }
+  .post-btn:hover { color: var(--text-n9); background: var(--b-r02); }
+  .post-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .post-lock { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-n3); }
+  .post-lock svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+  .req-tag { font-size: 9px; letter-spacing: 0.3px; color: var(--text-n5); border: 0.5px solid var(--line-l12); border-radius: 4px; padding: 1px 5px; }
+  .post-edit { width: 100%; border: 0.5px solid var(--line-l12); border-radius: 10px; background: var(--wash); padding: 10px 12px; font: inherit; font-size: 13.5px; line-height: 20px; color: var(--text-n9); outline: none; resize: vertical; }
+  .post-edit:focus { border-color: var(--line-l3); background: #fff; }
+  .post-meta { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--text-n5); margin: 10px 0 12px; }
+  .post-meta svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+  .post-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .post-go { height: 32px; padding: 0 14px; border-radius: 8px; background: var(--main-m1); color: #fff; font-size: 12.5px; font-weight: 500; transition: filter 140ms ease; }
+  .post-go:hover { filter: brightness(0.95); }
+  .post-go:disabled { opacity: 0.4; cursor: default; }
+  .nc-tpl { margin: 16px 0 0; }
+  .nc-tpl-l { display: block; font-size: 11.5px; color: var(--text-n5); margin-bottom: 8px; }
+  .nc-tpl-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .nc-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 18px; padding-top: 14px; border-top: 0.5px solid var(--line-l05); }
+  .nc-foot .post-meta { margin: 0; flex: 1 1 auto; min-width: 0; }
+
+  /* automation create/edit — template entities + standard base fields */
+  .am-label { font-size: 11.5px; color: var(--text-n5); margin: 18px 0 8px; }
+  .am-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .am-tpl { flex: 1 1 0; text-align: left; border: 0.5px solid var(--line-l12); border-radius: 10px; background: #fff; padding: 10px 12px; transition: border-color 140ms ease, background 140ms ease; }
+  .am-tpl.on { border-color: var(--main-m1); background: rgba(73,163,166,0.06); }
+  .am-tpl-t { display: block; font-size: 13px; color: var(--text-n9); }
+  .am-tpl-s { display: block; font-size: 11.5px; color: var(--text-n5); margin-top: 2px; }
+  .ko-grid.compact { grid-template-columns: 1fr; }
+  .am-base { display: flex; gap: 10px; margin-top: 18px; }
+  .am-sel { flex: 1 1 0; min-width: 0; }
+  .am-sel-k { display: block; font-size: 11.5px; color: var(--text-n5); margin-bottom: 6px; }
+  .am-sel select { width: 100%; height: 36px; padding: 0 30px 0 12px; border: 0.5px solid var(--line-l12); border-radius: 10px; appearance: none; -webkit-appearance: none; font: inherit; font-size: 13px; color: var(--text-n9); outline: none; cursor: pointer; background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0ab' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 10px center; }
+  .am-sel select:focus { border-color: var(--line-l3); }
+  .newauto { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 8px; border: 0.5px solid var(--line-l12); background: #fff; font-size: 12.5px; color: var(--text-n7); transition: border-color 140ms ease, color 140ms ease; }
+  .newauto:hover { border-color: var(--line-l3); color: var(--text-n9); }
+  .newauto svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; }
+  .qc-opt.locked { opacity: 0.55; cursor: default; }
+  .acc-sec { padding: 4px 10px 12px; border-bottom: 0.5px solid var(--line-l05); margin-bottom: 6px; }
+  .acc-h { display: flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-n3); margin: 6px 0 9px; }
+  .acc-sec .qc-opt { margin-bottom: 6px; background: #fff; }
+  .acc-note { font-size: 11px; color: var(--text-n3); margin-top: 8px; }
+  .set-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 7px 2px; font-size: 13px; }
+  .set-row .set-k { color: var(--text-n5); flex: 0 0 auto; }
+  .set-row .set-v { color: var(--text-n9); text-align: right; min-width: 0; }
 
   /* members modal */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.28); display: grid; place-items: center; z-index: 50; }
@@ -329,6 +462,7 @@
   .seg button { height: 28px; padding: 0 13px; border-radius: 999px; font-size: 12.5px; color: var(--text-n5); transition: color 140ms ease, background 140ms ease; }
   .seg button:hover { color: var(--text-n7); }
   .seg button.active { background: #fff; color: var(--text-n9); box-shadow: 0 1px 3px rgba(0,0,0,0.10); }
+  .seg.even button { flex: 1 1 0; height: 32px; }
   .panel-bar .grow { flex: 1 1 auto; }
   .ghost-btn { height: 32px; padding: 0 13px; border-radius: 8px; border: 0.5px solid var(--line-l3); font-size: 12.5px; color: var(--text-n9); display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; transition: background 140ms ease; }
   .ghost-btn:hover { background: var(--b-r02); }
@@ -337,7 +471,7 @@
   /* Tasks — sub-agent sessions */
   .task-list { display: flex; flex-direction: column; gap: 10px; }
   .task { border: 0.5px solid var(--line-l07); border-radius: 12px; background: #fff; overflow: hidden; }
-  .task-h { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; }
+  .task-h { display: grid; grid-template-columns: 34px minmax(0,1fr) auto auto; gap: 12px; align-items: center; padding: 14px 16px; }
   .task-h .tk-ico { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; }
   .task-h .tk-ico svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   .task-h .tk-t { font-size: 14.5px; color: var(--text-n9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -356,25 +490,42 @@
   @keyframes pulseDot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .task-body { padding: 2px 16px 15px 62px; }
-  .steps { display: flex; flex-direction: column; gap: 0; }
-  .step { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 10px; align-items: start; padding: 5px 0; position: relative; }
-  .step .sdot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; margin-top: 1px; flex: 0 0 auto; }
-  .step .sdot svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  .step.done .sdot { background: var(--main-m3); }
-  .step.now .sdot { background: var(--main-m1); }
-  .step.now .sdot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; border: 2px solid #fff; border-top-color: transparent; animation: spin 0.8s linear infinite; }
-  .step.todo .sdot { background: #fff; border: 1.5px solid var(--line-l2); }
-  .step .sline { position: absolute; left: 8.5px; top: 22px; bottom: -3px; width: 1.5px; background: var(--line-l07); }
-  .step:last-child .sline { display: none; }
-  .step .stext { font-size: 13.5px; line-height: 20px; color: var(--text-n7); }
-  .step.todo .stext { color: var(--text-n3); }
-  .step.now .stext { color: var(--text-n9); }
+  .step-now { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-n7); }
+  .step-now .sspin { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(73,163,166,0.3); border-top-color: var(--main-m1); animation: spin 0.8s linear infinite; flex: 0 0 auto; }
+  .step-now .squeue { width: 7px; height: 7px; border-radius: 50%; background: var(--text-n3); flex: 0 0 auto; }
 
-  .task-ask { display: flex; flex-direction: column; gap: 10px; }
-  .task-ask .q { font-size: 13.5px; line-height: 20px; color: var(--text-n9); background: var(--wash); border: 0.5px solid var(--line-l07); border-radius: 9px; padding: 11px 13px; }
-  .task-ask .opts { display: flex; gap: 8px; flex-wrap: wrap; }
-  .task-out { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-n7); }
-  .task-out .of { width: 30px; height: 30px; border-radius: 7px; background: rgba(224,83,87,0.12); color: var(--main-m4); display: grid; place-items: center; font-size: 10px; }
+  /* ask-user-question — mirrors the product QuestionCard */
+  .qcard { border: 1px solid var(--line-l07); border-radius: 8px; background: var(--wash); padding: 16px; max-width: 560px; }
+  .qc-chip { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--main-m1-10); color: var(--main-m1); font-size: 11px; font-weight: 500; margin-bottom: 8px; }
+  .qc-q { font-size: 14px; line-height: 22px; color: var(--text-n9); margin: 0 0 12px; }
+  .qc-opts { display: flex; flex-direction: column; gap: 6px; }
+  .qc-opt { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line-l07); cursor: pointer; transition: all 0.15s; }
+  .qc-opt.on { border-color: var(--main-m1); background: rgba(73,163,166,0.06); }
+  .qc-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-l2); display: grid; place-items: center; flex: 0 0 auto; margin-top: 2px; transition: all 0.15s; }
+  .qc-opt.on .qc-radio { border-color: var(--main-m1); background: var(--main-m1); }
+  .qc-label { font-size: 13px; font-weight: 500; color: var(--text-n9); }
+  .qc-desc { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
+  .qc-submit { margin-top: 12px; padding: 6px 16px; border-radius: 6px; background: var(--b-r07); color: var(--text-n5); font-size: 13px; font-weight: 500; transition: all 0.15s; cursor: default; }
+  .qc-submit.on { background: var(--main-m1); color: #fff; cursor: pointer; }
+  .qc-done { margin-top: 10px; font-size: 12px; color: var(--text-n5); }
+
+  .task-out { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text-n5); }
+  .task-out svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; color: var(--text-n3); }
+
+  /* per-task composer + mini thread (Tasks tab) */
+  .task-chat { border-top: 0.5px solid var(--line-l05); padding: 11px 16px 13px; }
+  .tthread { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .tthread .tm { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 10px; font-size: 13px; line-height: 19px; }
+  .tthread .tm .who { font-size: 10.5px; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-n3); padding-top: 2px; }
+  .tthread .tm.user .who { color: var(--main-m1); }
+  .tthread .tm .txt { color: var(--text-n7); min-width: 0; }
+  .tcomposer { display: flex; align-items: center; gap: 8px; height: 36px; border: 0.5px solid var(--line-l12); border-radius: 9px; background: var(--wash); padding: 0 5px 0 12px; transition: border-color 140ms ease, background 140ms ease; }
+  .tcomposer:focus-within { border-color: var(--line-l3); background: #fff; }
+  .tcomposer input { flex: 1 1 auto; min-width: 0; border: none; outline: none; background: transparent; font-size: 13px; color: var(--text-n9); }
+  .tcomposer input::placeholder { color: var(--text-n3); }
+  .tcomposer .tsend { width: 27px; height: 27px; border-radius: 7px; display: grid; place-items: center; color: var(--text-n3); flex: 0 0 auto; transition: color 140ms ease, background 140ms ease; }
+  .tcomposer .tsend.on { color: #fff; background: var(--main-m1); }
+  .tcomposer .tsend svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .task-h .tk-chev { color: var(--text-n3); display: grid; place-items: center; }
   .task-h .tk-chev svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; transform: rotate(-90deg); }
   button.task-h { width: 100%; text-align: left; background: none; border: none; cursor: pointer; transition: background 130ms ease; }
@@ -493,14 +644,6 @@
   .ko-cta svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   /* Group channel chat */
-  .group-intro { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .group-mark { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; flex: 0 0 auto; }
-  .group-mark svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-  .group-mark.ch-tg { color: #2f7fc4; background: rgba(109,189,255,0.16); }
-  .group-mark.ch-dc { color: #6f55c9; background: rgba(166,141,255,0.16); }
-  .gi-name { font-size: 17px; color: var(--text-n9); }
-  .gi-meta { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
-  .group-topic { font-size: 13px; line-height: 20px; color: var(--text-n5); padding: 11px 14px; background: var(--wash); border: 0.5px solid var(--line-l07); border-radius: 10px; margin-bottom: 22px; }
   .gmsg { display: grid; grid-template-columns: 32px minmax(0,1fr); gap: 11px; align-items: start; margin-bottom: 16px; }
   .gava { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; color: #fff; flex: 0 0 auto; overflow: hidden; }
   .gava.agent { background: transparent; border-radius: 9px; }
@@ -591,6 +734,8 @@
     max-width: 640px;
   }
   .bubble.plain { border: none; background: transparent; padding: 0; }
+  /* normal replies read as plain chat text — only pushes keep the card frame */
+  .msg:not(.user):not(.is-push) .bubble { border: none; background: transparent; padding: 0; border-radius: 0; }
   .bubble p + p { margin-top: 9px; }
   .bubble .lead { font-size: 22px; line-height: 30px; letter-spacing: 0.2px; }
   .bubble .sub { color: var(--text-n5); font-size: 13.5px; line-height: 21px; }
@@ -641,17 +786,7 @@
   .skg-stat { font-size: 12px; }
   .skg-s { font-size: 11px; color: var(--text-n3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* ask gallery — concrete facts + takeaway */
   .skg-list { display: flex; flex-direction: column; gap: 8px; }
-  .skg-ask { text-align: left; border: 0.5px solid var(--line-l07); border-radius: 11px; background: #fff; padding: 12px 14px; transition: box-shadow 150ms ease, border-color 150ms ease; }
-  .skg-ask:hover { box-shadow: var(--shadow-xs); border-color: var(--line-l2); }
-  .ska-h { display: flex; align-items: center; gap: 9px; font-size: 14px; color: var(--text-n9); }
-  .skg-ico { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; flex: 0 0 auto; }
-  .skg-ico svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-  .ska-facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 9px 0 9px 37px; }
-  .ska-fact { font-size: 11.5px; color: var(--text-n7); background: var(--wash); border: 0.5px solid var(--line-l05); border-radius: 6px; padding: 3px 8px; }
-  .ska-take { margin-left: 37px; font-size: 12.5px; color: var(--text-n7); }
-  .ska-take-tag { font-size: 10px; letter-spacing: 0.3px; text-transform: uppercase; color: var(--main-m2); background: var(--main-m2-10); border-radius: 999px; padding: 2px 7px; margin-right: 8px; }
 
   /* automation gallery — rule + cadence + sample */
   .skg-auto { text-align: left; border: 0.5px solid var(--line-l07); border-radius: 11px; background: #fff; padding: 12px 14px; transition: box-shadow 150ms ease, border-color 150ms ease; }
@@ -666,12 +801,103 @@
   .sga-meta svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; }
   .sga-live { font-size: 9px; letter-spacing: 0.4px; color: var(--main-m3); border: 0.5px solid rgba(45,143,97,0.3); background: rgba(45,143,97,0.10); border-radius: 999px; padding: 2px 6px; }
 
+  /* recommended → subscribe (playbook / automation) */
+  .subs-list { display: flex; flex-direction: column; gap: 8px; }
+  .sub-card { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; align-items: center; border: 0.5px solid var(--line-l07); border-radius: 11px; background: #fff; padding: 11px 13px; transition: box-shadow 150ms ease, border-color 150ms ease; }
+  .sub-card:hover { box-shadow: var(--shadow-xs); border-color: var(--line-l2); }
+  .sub-spark { width: 40px; height: 40px; border-radius: 9px; position: relative; overflow: hidden; flex: 0 0 auto; }
+  .sub-spark .skg-spark { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sub-bell { width: 40px; height: 40px; border-radius: 9px; background: var(--main-m5-10); color: var(--main-m5); display: grid; place-items: center; flex: 0 0 auto; }
+  .sub-bell svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .sub-body { min-width: 0; }
+  .sub-t { font-size: 14px; color: var(--text-n9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sub-m { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
+  .sub-d { font-size: 12px; line-height: 17px; color: var(--text-n5); margin-top: 3px; }
+  .sub-by { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-n3); margin-top: 6px; }
+  .sub-ava { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font-size: 8px; color: #fff; flex: 0 0 auto; }
+  .sub-btn { flex: 0 0 auto; height: 32px; padding: 0 13px; border-radius: 8px; border: 0.5px solid rgba(73,163,166,0.4); background: var(--main-m1-10); color: var(--main-m1); font-size: 12.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; transition: filter 140ms ease; }
+  .sub-btn:hover { filter: brightness(0.96); }
+  .sub-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* iframe-like live preview window (Concept A) */
+  .pvw { border: 0.5px solid var(--line-l2); border-radius: 12px; background: #fff; overflow: hidden; box-shadow: var(--shadow-s); }
+  .pvw-bar { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-bottom: 0.5px solid var(--line-l05); background: var(--wash); }
+  .pvw-mark { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; flex: 0 0 auto; }
+  .pvw-mark svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .pvw-title { flex: 1 1 auto; min-width: 0; font-size: 13.5px; color: var(--text-n9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pvw-live { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; color: var(--main-m3); background: rgba(45,143,97,0.10); border: 0.5px solid rgba(45,143,97,0.25); border-radius: 999px; padding: 3px 8px; white-space: nowrap; flex: 0 0 auto; }
+  .pvw-livedot { width: 6px; height: 6px; border-radius: 50%; background: var(--main-m3); animation: pulseDot 1.4s ease-in-out infinite; }
+  .pvw-body { padding: 14px 14px 4px; }
+
+  .pvw-chart { margin-bottom: 10px; }
+  .pvw-chart-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .pvw-chart-k { font-size: 11px; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-n5); }
+  .pvw-chart-v { font-size: 19px; letter-spacing: 0.2px; }
+  .pvw-area { width: 100%; height: 88px; display: block; }
+  .pvw-rows { display: flex; flex-direction: column; border-top: 0.5px solid var(--line-l05); }
+  .pvw-row { display: grid; grid-template-columns: 78px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--line-l05); }
+  .pvw-row:last-child { border-bottom: none; }
+  .pvw-tkr { font-size: 13px; color: var(--text-n9); letter-spacing: 0.2px; }
+  .pvw-v { font-size: 13px; color: var(--text-n7); }
+  .pvw-c { font-size: 12.5px; text-align: right; white-space: nowrap; }
+  .pvw-c.up { color: var(--main-m3); }
+  .pvw-c.down { color: var(--main-m4); }
+  .pvw-stats { display: flex; gap: 8px; margin: 11px 0 8px; }
+  .pvw-stat { flex: 1 1 0; min-width: 0; background: var(--wash); border: 0.5px solid var(--line-l05); border-radius: 9px; padding: 8px 10px; }
+  .pvw-sk { display: block; font-size: 10px; letter-spacing: 0.3px; text-transform: uppercase; color: var(--text-n3); }
+  .pvw-sv { display: block; font-size: 13px; color: var(--text-n9); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .pvw-rulek { font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-n3); }
+  .pvw-rule { font-size: 13.5px; line-height: 20px; color: var(--text-n9); margin: 5px 0 9px; }
+  .pvw-lastrun { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-n5); padding-bottom: 11px; border-bottom: 0.5px solid var(--line-l05); }
+  .pvw-lastrun svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+  .pvw-matches { display: flex; flex-direction: column; }
+  .pvw-match { display: grid; grid-template-columns: 50px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 0.5px solid var(--line-l05); }
+  .pvw-note { font-size: 12.5px; line-height: 18px; color: var(--text-n7); }
+  .pvw-tag { font-size: 10.5px; color: var(--text-n5); border: 0.5px solid var(--line-l12); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+  .pvw-tag.new { color: var(--main-m3); border-color: rgba(45,143,97,0.3); background: rgba(45,143,97,0.08); }
+  .pvw-push { display: flex; align-items: center; gap: 9px; margin: 11px 0 8px; padding: 10px 12px; background: var(--main-m5-10); border-radius: 9px; font-size: 12.5px; color: var(--text-n7); }
+  .pvw-bell { width: 24px; height: 24px; border-radius: 7px; background: #fff; color: var(--main-m5); display: grid; place-items: center; flex: 0 0 auto; }
+  .pvw-bell svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  .pvw-foot { display: flex; align-items: center; gap: 12px; padding: 9px 10px 9px 13px; border-top: 0.5px solid var(--line-l05); background: var(--wash); }
+  .pvw-by { display: inline-flex; align-items: center; gap: 7px; flex: 1 1 auto; min-width: 0; font-size: 12px; color: var(--text-n5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pvw-sub { flex: 0 0 auto; height: 32px; padding: 0 14px; border-radius: 8px; color: #fff; font-size: 12.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: filter 140ms ease; }
+  .pvw-sub:hover { filter: brightness(0.95); }
+  .pvw-sub svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .pvw-sub.on { background: var(--main-m3); cursor: default; }
+
+  /* carousel — one full card + half of the next, like the trending-playbook row */
+  .pvw-carousel { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x mandatory; scrollbar-width: thin; }
+  .pvw-carousel::-webkit-scrollbar { height: 8px; }
+  .pvw-carousel::-webkit-scrollbar-thumb { background: var(--b-r07); border-radius: 999px; }
+  .pvw-carousel .pvw { flex: 0 0 416px; scroll-snap-align: start; }
+  @keyframes pvfade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* first-push card after an instant subscribe */
+  .subpush-card { max-width: 460px; border: 0.5px solid var(--line-l07); border-radius: 11px; background: #fff; padding: 4px 14px; box-shadow: var(--shadow-xs); }
+  .subpush-stat { font-size: 12px; color: var(--text-n5); padding: 9px 0 8px; }
+
+  /* minimal carousel nav arrows */
+  .pvw-wrap { position: relative; }
+  .car-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 0.5px solid var(--line-l2); box-shadow: var(--shadow-s); display: grid; place-items: center; color: var(--text-n7); z-index: 2; transition: box-shadow 140ms ease, color 140ms ease; }
+  .car-nav:hover { color: var(--text-n9); box-shadow: var(--shadow-l); }
+  .car-nav svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .car-nav.left { left: -8px; }
+  .car-nav.left svg { transform: rotate(90deg); }
+  .car-nav.right { right: -8px; }
+  .car-nav.right svg { transform: rotate(-90deg); }
+
+  .pvw-remix { flex: 0 0 auto; height: 32px; padding: 0 12px; border-radius: 8px; border: 0.5px solid var(--line-l2); background: #fff; color: var(--text-n7); font-size: 12.5px; transition: background 140ms ease, color 140ms ease; }
+  .pvw-remix:hover { background: var(--b-r02); color: var(--text-n9); }
+  .sub-btn.on { color: var(--main-m3); border-color: rgba(45,143,97,0.35); background: rgba(45,143,97,0.10); cursor: default; }
+
   .skex-cta { align-self: flex-start; height: 38px; padding: 0 16px; border-radius: 9px; color: #fff; font-size: 13.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; transition: filter 140ms ease; }
   .skex-cta:hover { filter: brightness(0.95); }
   .skex-cta svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   /* prompt rows */
-  .prompts { display: flex; flex-direction: column; max-width: 660px; border: 0.5px solid var(--line-l07); border-radius: 12px; overflow: hidden; background: #fff; }
+  .prompts { display: flex; flex-direction: column; max-width: 660px; border: 0.5px solid var(--line-l07); border-radius: 12px; overflow: hidden; background: #fff; animation: pvfade 220ms ease; }
   .prompt {
     display: flex; align-items: center; gap: 14px; padding: 13px 16px; text-align: left; width: 100%;
     border-bottom: 0.5px solid var(--line-l05);
@@ -684,14 +910,9 @@
   .prompt .pico svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   .prompt:hover .pico { color: var(--main-m1); }
 
-  /* capability list (concept B) */
-  .caps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 660px; }
-  .cap { display: grid; grid-template-columns: 32px minmax(0,1fr); gap: 11px; padding: 13px; border: 0.5px solid var(--line-l07); border-radius: 10px; background: #fff; align-items: start; transition: box-shadow 160ms ease, transform 160ms ease; }
-  .cap:hover { box-shadow: var(--shadow-xs); transform: translateY(-2px); }
-  .cap .capico { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; }
-  .cap .capico svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .cap .ct { font-size: 14px; color: var(--text-n9); }
-  .cap .cd { margin-top: 3px; font-size: 12px; line-height: 17px; color: var(--text-n5); }
+  /* IM-style day separator */
+  .day-sep { display: flex; align-items: center; gap: 12px; max-width: 660px; margin: 2px 0 16px; color: var(--text-n3); font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .day-sep::before, .day-sep::after { content: ""; flex: 1 1 auto; height: 0.5px; background: var(--line-l07); }
 
   /* skill / playbook cards */
   .cardrow { display: flex; gap: 12px; max-width: 700px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
@@ -727,47 +948,7 @@
   .pcard .pfoot .ps { font-size: 11.5px; color: var(--text-n5); display: inline-flex; align-items: center; gap: 4px; }
   .pcard .pfoot .ps svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; }
 
-  /* briefing push card (concept C) */
-  .pushcard { border: 0.5px solid var(--line-l07); border-radius: 12px; background: #fff; max-width: 640px; overflow: hidden; box-shadow: var(--shadow-xs); }
-  .pushcard .ph { display: flex; align-items: center; gap: 10px; padding: 12px 14px 0; }
-  .pushcard .ph .pico { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; }
-  .pushcard .ph .pico svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .pushcard .ph .pt { font-size: 14px; color: var(--text-n9); }
-  .pushcard .ph .pm { margin-left: auto; font-size: 11px; color: var(--text-n3); }
-  .pushcard .pbody { padding: 12px 14px 14px; }
-
-  .pulse { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--line-l07); border-radius: 9px; overflow: hidden; border: 0.5px solid var(--line-l07); }
-  .pulse .pu { background: #fff; padding: 11px 12px; }
-  .pulse .pu .k { font-size: 11px; color: var(--text-n5); }
-  .pulse .pu .v { font-size: 18px; color: var(--text-n9); margin-top: 5px; }
-  .pulse .pu .c { font-size: 11.5px; margin-top: 3px; }
   .up { color: var(--main-m3); } .down { color: var(--main-m4); }
-
-  .miniplay { display: flex; gap: 11px; }
-  .miniplay .mc { flex: 1 1 0; min-width: 0; border: 0.5px solid var(--line-l07); border-radius: 9px; padding: 10px; transition: box-shadow 150ms ease; }
-  .miniplay .mc:hover { box-shadow: var(--shadow-xs); }
-  .miniplay .mc .mt { font-size: 13px; color: var(--text-n9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .miniplay .mc .md { font-size: 11.5px; line-height: 16px; color: var(--text-n5); margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .miniplay .mc .mf { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11px; color: var(--text-n5); }
-
-  .kol { display: flex; align-items: center; gap: 12px; }
-  .kol .ka { width: 40px; height: 40px; border-radius: 50%; flex: 0 0 auto; display: grid; place-items: center; font-size: 14px; color: #fff; }
-  .kol .kt { font-size: 14px; color: var(--text-n9); }
-
-  /* evening "on deck for tomorrow" card */
-  .evening-list { display: flex; flex-direction: column; }
-  .ev { display: grid; grid-template-columns: 78px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 0.5px solid var(--line-l05); }
-  .ev:last-child { border-bottom: none; }
-  .ev .evt { font-size: 12px; color: var(--text-n5); }
-  .ev .evn { font-size: 14px; color: var(--text-n9); }
-  .ev .evtag { font-size: 11px; color: var(--text-n5); border: 0.5px solid var(--line-l12); border-radius: 5px; padding: 1px 7px; background: var(--wash); white-space: nowrap; }
-  .ev .evtag.teal { color: var(--main-m1); border-color: rgba(73,163,166,0.3); background: var(--main-m1-10); }
-  .ev-cta { margin-top: 11px; height: 36px; width: 100%; border-radius: 9px; background: var(--main-m1-10); color: var(--main-m1); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: filter 140ms ease; }
-  .ev-cta:hover { filter: brightness(0.97); }
-  .ev-cta svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .kol .kd { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
-  .kbtn { margin-left: auto; flex: 0 0 auto; height: 32px; padding: 0 13px; border-radius: 8px; border: 0.5px solid var(--line-l3); font-size: 12.5px; color: var(--text-n9); transition: border-color 140ms ease; }
-  .kbtn:hover { border-color: var(--line-l3); background: var(--b-r02); }
 
   /* typing */
   .typing { display: inline-flex; gap: 5px; padding: 14px 16px; border: 0.5px solid var(--line-l2); border-radius: 14px; background: #fff; }
@@ -786,37 +967,15 @@
   @keyframes grow { from { width: 8%; } to { width: 82%; } }
   .building .bs { margin-top: 8px; font-size: 12px; color: var(--text-n5); }
 
-  /* task-started card (skill → new task) */
-  .taskcard { max-width: 460px; border: 0.5px solid var(--line-l12); border-radius: 12px; background: #fff; box-shadow: var(--shadow-xs); padding: 14px; }
-  .taskcard .tc-h { display: flex; align-items: center; gap: 11px; }
-  .taskcard .tc-ico { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; flex: 0 0 auto; }
-  .taskcard .tc-ico svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .taskcard .tc-t { font-size: 14.5px; color: var(--text-n9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .taskcard .tc-m { font-size: 12px; color: var(--text-n5); margin-top: 3px; display: flex; align-items: center; gap: 7px; }
-  .taskcard .tc-sub { font-size: 13px; line-height: 20px; color: var(--text-n7); margin: 11px 0 12px; }
-  .taskcard .tc-steps { display: flex; flex-direction: column; gap: 7px; padding: 12px 0 4px; border-top: 0.5px solid var(--line-l05); }
-  .taskcard .tc-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-n3); }
-  .taskcard .tc-step.now { color: var(--text-n9); }
-  .taskcard .tc-dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-l2); display: grid; place-items: center; flex: 0 0 auto; }
-  .taskcard .tc-step.now .tc-dot { border: none; background: var(--main-m1); }
-  .taskcard .tc-spin { width: 8px; height: 8px; border-radius: 50%; border: 2px solid #fff; border-top-color: transparent; animation: spin 0.8s linear infinite; }
-  .taskcard .tc-view { margin-top: 12px; height: 34px; width: 100%; border-radius: 9px; border: 0.5px solid var(--line-l2); background: #fff; color: var(--text-n9); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 140ms ease; }
-  .taskcard .tc-view:hover { background: var(--b-r02); }
-  .taskcard .tc-view svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.6; transform: rotate(-90deg); }
-  .taskcard.done { border-color: rgba(45,143,97,0.3); }
-  .taskcard .tc-step.done { color: var(--text-n7); }
-  .taskcard .tc-step.done .tc-dot { background: var(--main-m3); border: none; }
-  .taskcard .tc-step.done .tc-dot svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-  .tc-success { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: rgba(45,143,97,0.08); border: 0.5px solid rgba(45,143,97,0.22); }
-  .tcs-h { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--text-n9); }
-  .tcs-check { width: 20px; height: 20px; border-radius: 50%; background: var(--main-m3); color: #fff; display: grid; place-items: center; flex: 0 0 auto; }
-  .tcs-check svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-  .tcs-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 9px; padding-left: 29px; font-size: 12px; color: var(--text-n5); }
-  .tcs-meta span { display: inline-flex; align-items: center; gap: 6px; }
-  .tcs-meta svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; }
-  .tc-actions { display: flex; gap: 8px; }
-  .tc-actions .tc-view.alt { color: var(--main-m1); border-color: rgba(73,163,166,0.4); background: var(--main-m1-10); }
-  .tc-actions .tc-view.alt:hover { filter: brightness(0.97); background: var(--main-m1-10); }
+  /* minimal background-task chip */
+  .mtask { max-width: 420px; border: 0.5px solid var(--line-l12); border-radius: 11px; background: #fff; box-shadow: var(--shadow-xs); padding: 10px 13px; }
+  .mtask-h { display: flex; align-items: center; gap: 10px; }
+  .mtask-ico { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; flex: 0 0 auto; }
+  .mtask-ico svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .mtask-t { flex: 1 1 auto; min-width: 0; font-size: 13.5px; color: var(--text-n9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mtask-s { margin: 6px 0 1px 36px; font-size: 12.5px; line-height: 18px; color: var(--text-n5); }
+  .mtask-s button { color: var(--main-m1); font-size: 12.5px; }
+  .mtask-s button:hover { text-decoration: underline; }
 
   /* section heading inside chat */
   .seclabel { font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-n3); margin-bottom: -2px; }
@@ -845,11 +1004,14 @@
   .cb-send:hover { filter: brightness(0.94); }
   .cb-send svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* quick replies above composer (concept C) */
-  .quickreplies { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 auto 10px; }
-  .qr { height: 32px; padding: 0 13px; border-radius: 999px; border: 0.5px solid var(--line-l12); background: #fff; font-size: 13px; color: var(--text-n7); transition: box-shadow 150ms ease, transform 150ms ease; }
-  .qr:hover { box-shadow: var(--shadow-xs); transform: translateY(-1px); }
-  .qr .lead { color: var(--main-m1); margin-right: 6px; }
+  /* quick replies above composer — single row, whole chips only (overflow hides) */
+  .quickreplies { display: flex; gap: 8px; flex-wrap: wrap; max-height: 38px; overflow: hidden; margin: 0 auto 10px; }
+  .qr { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px; border-radius: 999px; border: 0.5px solid var(--line-l12); background: #fff; font-size: 13px; color: var(--text-n7); transition: box-shadow 150ms ease, transform 150ms ease, color 150ms ease; }
+  .qr:hover { box-shadow: var(--shadow-xs); transform: translateY(-1px); color: var(--text-n9); }
+  .qr .lead { color: var(--main-m1); }
+  .qr .qr-ico { width: 14px; height: 14px; display: grid; place-items: center; color: var(--text-n3); transition: color 140ms ease; flex: 0 0 auto; }
+  .qr .qr-ico svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .qr:hover .qr-ico { color: var(--main-m1); }
 
   .footnote { text-align: center; font-size: 11.5px; color: var(--text-n3); margin-top: 9px; }
 </style>
@@ -897,6 +1059,11 @@ const ICONS = {
   paperclip: <path d="M21 11.5 12.5 20a5 5 0 0 1-7-7l8-8a3.3 3.3 0 0 1 4.7 4.7l-8 8a1.7 1.7 0 0 1-2.4-2.4l7.3-7.3"/>,
   arrowup: <><path d="M12 19V5M6 11l6-6 6 6"/></>,
   chevdown: <path d="m6 9 6 6 6-6"/>,
+  plus: <><path d="M12 5v14M5 12h14"/></>,
+  whatsapp: <><path d="M12 4a8 8 0 0 0-6.9 12L4 20l4.2-1.1A8 8 0 1 0 12 4Z"/><path d="M9.5 9c.2 3 2.5 5.3 5.5 5.5"/></>,
+  slack: <><path d="M9.2 4.8v5.4M14.8 19.2v-5.4M4.8 14.8h5.4M19.2 9.2h-5.4"/><path d="M9.2 4.8a1.8 1.8 0 1 0-1.8 1.8M14.8 19.2a1.8 1.8 0 1 0 1.8-1.8M4.8 14.8a1.8 1.8 0 1 0 1.8 1.8M19.2 9.2a1.8 1.8 0 1 0-1.8-1.8"/></>,
+  link: <><path d="M10 14a4 4 0 0 0 6 .4l3-3a4 4 0 0 0-5.7-5.7l-1.6 1.6"/><path d="M14 10a4 4 0 0 0-6-.4l-3 3a4 4 0 0 0 5.7 5.7l1.6-1.6"/></>,
+  sliders: <><path d="M5 8h14M5 16h14"/><circle cx="10" cy="8" r="2.2"/><circle cx="15" cy="16" r="2.2"/></>,
   star: <path d="m12 3 2.5 5.6L20 9.3l-4 4 1 5.7-5-2.8-5 2.8 1-5.7-4-4 5.5-.7L12 3Z"/>,
   flame: <path d="M12 3c1 3-1.5 4-1.5 6.5A2.5 2.5 0 0 0 13 12c0-1 .8-1.8 1-2 1.5 1.5 2.5 3 2.5 5a4.5 4.5 0 0 1-9 0c0-3 3-4.5 4.5-12Z"/>,
   trend: <><path d="M4 16l5-5 3 3 7-7"/><path d="M16 7h4v4"/></>,
@@ -980,57 +1147,223 @@ function Cover({ tone = 'teal', label, value, unit, points }) {
 }
 
 /* ============ Primary skills (from real new-chat data) ============
-   kind: 'ask' (pure research) | 'automation' (alerting feed) | 'playbook' (live app)
+   kind: 'automation' (alerting feed) | 'playbook' (live app) — curated showcases only
    prompt: the suggested prompt that seeds the skill
    gallery: a few compact finished products people have built with this skill */
 const SKILLS = [
   { id: 'theme-tracker', label: 'Theme Tracker', icon: 'bulb', tone: 'teal', creator: 'Alva', kind: 'playbook',
     blurb: 'Build a live tracker for any market theme — sentiment, earnings, and policy catalysts across the basket, weekly.',
     prompt: 'Build a theme tracker for AI infrastructure — NVDA, AVGO, TSM, and power-grid names',
+    prompts: [
+      'Build a theme tracker for AI infrastructure — NVDA, AVGO, TSM, and power-grid names',
+      'Track the GLP-1 / obesity theme — LLY, NVO, and the supply chain around them',
+      'Set up a tracker for the power & grid buildout — VRT, GEV, ETN',
+    ],
     gallery: [
       { t: 'AI Infrastructure', s: '14 names · weekly refresh', tone: 'teal', points: [10, 22, 18, 34, 30, 48, 60], tickers: ['NVDA', 'AVGO', 'TSM'], stat: 'Basket +18% YTD' },
       { t: 'GLP-1 / Obesity', s: '9 names · weekly refresh', tone: 'blue', points: [14, 20, 30, 26, 40, 38, 52], tickers: ['LLY', 'NVO'], stat: 'Basket +24% YTD' },
       { t: 'Power & Grid Buildout', s: '11 names · weekly refresh', tone: 'orange', points: [8, 16, 22, 30, 28, 42, 50], tickers: ['VRT', 'GEV', 'ETN'], stat: 'Basket +12% YTD' },
+    ],
+    subs: [
+      { t: 'Hyperscaler Capex Tracker', creator: 'Macro Scope X', subscribers: '489', tone: 'teal', points: [10, 22, 18, 34, 30, 48, 60], meta: 'Weekly · 14 names', stat: '+18% YTD' },
+      { t: 'Power & Grid Buildout', creator: 'Sheer YLL', subscribers: '231', tone: 'orange', points: [8, 16, 22, 30, 28, 42, 50], meta: 'Weekly · 11 names', stat: '+12% YTD' },
+    ],
+    previews: [
+      { t: 'Hyperscaler Capex Tracker', creator: 'Macro Scope X', subscribers: '489', tone: 'teal', cadence: 'weekly', meta: 'Weekly · 14 names',
+        chart: { label: 'Basket performance · YTD', value: '+18.4%', points: [8, 12, 10, 16, 22, 19, 26, 30, 28, 34, 40, 38, 46, 52, 49, 60] },
+        rows: [
+          { t: 'NVDA', v: '$184.20', c: '+4.2%', up: true },
+          { t: 'AVGO', v: '$268.90', c: '+2.1%', up: true },
+          { t: 'TSM', v: '$201.40', c: '−0.8%', up: false },
+        ],
+        stats: [['Names', '14'], ['Sentiment', 'Bullish'], ['Next catalyst', 'NVDA ER']] },
+      { t: 'Power & Grid Buildout', creator: 'Sheer YLL', subscribers: '231', tone: 'orange', cadence: 'weekly', meta: 'Weekly · 11 names',
+        chart: { label: 'Basket performance · YTD', value: '+12.2%', points: [10, 14, 12, 18, 16, 22, 20, 26, 30, 27, 33, 38, 35, 42, 40, 47] },
+        rows: [
+          { t: 'VRT', v: '$112.40', c: '+3.1%', up: true },
+          { t: 'GEV', v: '$342.10', c: '+1.8%', up: true },
+          { t: 'ETN', v: '$338.25', c: '−0.4%', up: false },
+        ],
+        stats: [['Names', '11'], ['Sentiment', 'Constructive'], ['Next catalyst', 'GEV ER']] },
     ] },
   { id: 'smart-screener', label: 'Smart Screener', icon: 'screener', tone: 'teal', creator: 'Alva', kind: 'automation',
     blurb: 'Rank stocks by any factor combination, refreshed daily.',
     prompt: 'Screen US large-caps with rising earnings estimates and positive 20-day momentum, alert me on new entrants',
+    prompts: [
+      'Screen US large-caps with rising earnings estimates and positive 20-day momentum, alert me on new entrants',
+      'Find quality names down 20%+ from highs with ROE above 20% and net cash',
+      'Screen for stocks where 3+ insiders bought within the last two weeks',
+    ],
     gallery: [
       { t: 'Rising-estimate momentum', rule: 'Top-decile EPS revisions + positive 20d momentum', every: 'Daily · 16:05 ET', sample: '3 new today — ANET, VRT, CRDO' },
       { t: 'Oversold quality', rule: 'ROE > 20% + RSI < 30 + net cash', every: 'Daily · pre-open', sample: '5 matches — including NKE, EL' },
       { t: 'Insider-buying cluster', rule: '≥3 insiders buying within 10 days', every: 'Weekly · Monday', sample: '2 matches — OXY, PARA' },
+    ],
+    subs: [
+      { t: 'AI-Capex-Monitor', creator: 'Alva', subscribers: '1.2k', every: 'Daily · 16:05 ET', desc: 'Alerts on hyperscaler capex revisions and AI-infra beneficiaries' },
+      { t: 'Insider-Cluster Alert', creator: 'q_research', subscribers: '540', every: 'Weekly · Monday', desc: '≥3 insiders buying the same name within 10 days' },
+    ],
+    previews: [
+      { t: 'AI-Capex-Monitor', creator: 'Alva', subscribers: '1.2k', tone: 'amber', cadence: 'daily', every: 'Daily · 16:05 ET',
+        rule: 'Top-decile capex revisions + positive AI-infra read-through',
+        lastRun: 'Triggered 14m ago',
+        matches: [
+          { t: 'ANET', note: 'Capex guide +18% — networking pull-through', tag: 'New' },
+          { t: 'VRT', note: 'Backlog +31% YoY, raised FY guide', tag: 'New' },
+          { t: 'CRDO', note: 'AEC design wins at two hyperscalers', tag: 'Watch' },
+        ],
+        push: '3 new matches today — ANET, VRT, CRDO' },
+      { t: 'Insider-Cluster Alert', creator: 'q_research', subscribers: '540', tone: 'amber', cadence: 'weekly', every: 'Weekly · Monday',
+        rule: '≥3 insiders buying the same name within 10 days',
+        lastRun: 'Triggered 2d ago',
+        matches: [
+          { t: 'OXY', note: 'CEO + two directors bought $4.1M total', tag: 'New' },
+          { t: 'PARA', note: 'Three insiders added near 52-week lows', tag: 'New' },
+          { t: 'KSS', note: 'CFO cluster buy after the guidance cut', tag: 'Watch' },
+        ],
+        push: '2 new matches this week — OXY, PARA' },
     ] },
-  { id: 'deep-dive', label: 'Deep Dive', icon: 'search', tone: 'blue', creator: 'Alva', kind: 'ask',
-    blurb: 'A complete research package on any ticker — segmentation, peers, supply chain, and a bull/bear thesis.',
+  { id: 'deep-dive', label: 'Deep Dive', icon: 'search', tone: 'blue', creator: 'Alva', kind: 'playbook',
+    blurb: 'A complete research package on any ticker — kept alive: the thesis re-checks itself on every filing and print.',
     prompt: 'Deep-dive NVDA: revenue segmentation, peer valuation, supply chain, bull/bear thesis',
+    prompts: [
+      'Deep-dive NVDA: revenue segmentation, peer valuation, supply chain, bull/bear thesis',
+      'Deep-dive TSM: node roadmap, pricing power, and the CoWoS bottleneck',
+      'Deep-dive AVGO: networking growth, VMware integration, custom-ASIC pipeline',
+    ],
     gallery: [
-      { t: 'NVDA · Deep Dive', facts: ['DC 78% of rev, +154% YoY', '34× NTM vs AMD 28×', 'CoWoS supply the gate'], take: 'Constructive into the print' },
-      { t: 'TSM · Deep Dive', facts: ['3nm ramping to 25% of rev', 'CoWoS doubling thru 2025', 'Pricing power intact'], take: 'Highest-quality supply name' },
-      { t: 'AVGO · Deep Dive', facts: ['Networking +43% YoY', 'VMware accretive by FY25', 'Custom-ASIC tailwind'], take: 'Networking attach underrated' },
+      { t: 'NVDA · Living Deep Dive', s: 'Re-checked on filings & prints', tone: 'blue', points: [12, 20, 16, 28, 34, 30, 44], tickers: ['NVDA'], stat: 'DC 78% of rev · +154% YoY' },
+      { t: 'TSM · Node & CoWoS', s: 'Monthly sales + capacity reads', tone: 'teal', points: [16, 14, 22, 26, 24, 32, 38], tickers: ['TSM'], stat: '3nm at 25% of revenue' },
+      { t: 'AVGO · AI Attach', s: 'Networking + custom ASIC', tone: 'orange', points: [10, 18, 24, 20, 30, 36, 42], tickers: ['AVGO'], stat: 'Networking +43% YoY' },
+    ],
+    subs: [
+      { t: 'NVDA Living Deep Dive', creator: 'Alva', subscribers: '824', tone: 'blue', points: [12, 20, 16, 28, 34, 30, 44], meta: 'Refreshes on filings', stat: '34× NTM' },
+      { t: 'TSM Node & CoWoS Watch', creator: 'Chip Insider', subscribers: '412', tone: 'teal', points: [16, 14, 22, 26, 24, 32, 38], meta: 'Monthly re-read', stat: 'Pricing intact' },
+    ],
+    previews: [
+      { t: 'NVDA Living Deep Dive', creator: 'Alva', subscribers: '824', tone: 'blue', cadence: 'quarterly', meta: 'Refreshes on filings & prints',
+        chart: { label: 'Data-center share of revenue', value: '78%', points: [22, 26, 30, 36, 42, 50, 58, 66, 70, 74, 76, 78] },
+        rows: [
+          { t: 'NTM P/E', v: '34×', c: 'vs AMD 28×', up: true },
+          { t: 'DC revenue', v: '+154%', c: 'YoY', up: true },
+          { t: 'CoWoS', v: 'Tight', c: 'supply gate', up: false },
+        ],
+        stats: [['Thesis', 'Constructive'], ['Key risk', 'Supply gate'], ['Next catalyst', 'ER May 22']] },
+      { t: 'TSM Node & CoWoS Watch', creator: 'Chip Insider', subscribers: '412', tone: 'teal', cadence: 'monthly', meta: 'Monthly sales + capacity reads',
+        chart: { label: '3nm share of revenue', value: '25%', points: [4, 6, 9, 12, 15, 17, 20, 22, 23, 24, 25, 25] },
+        rows: [
+          { t: '3nm mix', v: '25%', c: '+9pp YoY', up: true },
+          { t: 'CoWoS', v: '2× by 2025', c: 'expanding', up: true },
+          { t: 'Wafer price', v: '+3–5%', c: '2025 hikes', up: true },
+        ],
+        stats: [['Quality', 'Top of supply'], ['Key risk', 'Geopolitics'], ['Next catalyst', 'Monthly sales']] },
     ] },
-  { id: 'what-if', label: 'What If', icon: 'remix', tone: 'blue', creator: 'Alva', kind: 'ask',
-    blurb: 'Run a scenario and watch your portfolio reprice.',
+  { id: 'what-if', label: 'What If', icon: 'remix', tone: 'blue', creator: 'Alva', kind: 'automation',
+    blurb: 'Scenario monitors for your book — it reprices the moment a watched shock fires.',
     prompt: 'What if NVDA falls 15% on an earnings miss — how does my book reprice?',
+    prompts: [
+      'What if NVDA falls 15% on an earnings miss — how does my book reprice?',
+      'What if the Fed cuts 50bp next meeting — which of my names benefit most?',
+      'What if the dollar spikes 5% — where is my book most exposed?',
+    ],
     gallery: [
-      { t: 'NVDA −15% miss', facts: ['Direct: −1.9% to book', 'AVGO −7%, TSM −6% drift', 'Total: −3.4%'], take: 'Survivable at current sizing' },
-      { t: 'Fed cuts 50bp', facts: ['Duration names +6%', 'Banks −2%', 'Total: +2.1%'], take: 'Net positive for the book' },
-      { t: 'USD +5% spike', facts: ['EM sleeve −9%', 'Exporters −3%', 'Total: −1.7%'], take: 'Manageable drawdown' },
+      { t: 'NVDA earnings shock', rule: 'Reprice the book on a ±10% NVDA move', every: 'Event-driven', sample: '−15% miss → book −3.4%' },
+      { t: 'Fed surprise', rule: 'Reprice on a 50bp out-of-consensus move', every: 'FOMC days', sample: '50bp cut → book +2.1%' },
+      { t: 'Dollar spike', rule: 'Alert when DXY moves +3% in 5 sessions', every: 'Daily · close', sample: 'USD +5% → book −1.7%' },
+    ],
+    subs: [
+      { t: 'Book-Shock-Monitor', creator: 'Alva', subscribers: '731', every: 'Event-driven', desc: 'Reprices your exposure the moment a watched scenario fires' },
+      { t: 'Macro-Surprise-Alert', creator: 'Macro Scope X', subscribers: '389', every: 'CPI / FOMC / NFP', desc: 'Out-of-consensus prints, mapped to your book\u2019s exposure' },
+    ],
+    previews: [
+      { t: 'Book-Shock-Monitor', creator: 'Alva', subscribers: '731', tone: 'amber', cadence: 'event-driven', every: 'Event-driven',
+        rule: 'Reprice the book when a watched scenario moves beyond 1\u03c3',
+        lastRun: 'Triggered 2h ago',
+        matches: [
+          { t: 'NVDA −15%', note: 'Direct −1.9%; with AVGO / TSM drift −3.4% total', tag: 'New' },
+          { t: 'USD +5%', note: 'EM sleeve −9%, exporters −3% — book −1.7%', tag: 'Watch' },
+          { t: 'Fed −50bp', note: 'Duration +6%, banks −2% — book +2.1%', tag: 'Watch' },
+        ],
+        push: 'NVDA scenario fired — your book reprices −3.4%' },
+      { t: 'Macro-Surprise-Alert', creator: 'Macro Scope X', subscribers: '389', tone: 'amber', cadence: 'on releases', every: 'CPI / FOMC / NFP days',
+        rule: 'Alert when a print lands 2\u03c3 from consensus, with your book exposure attached',
+        lastRun: 'Triggered Tue · CPI',
+        matches: [
+          { t: 'CPI 3.6%', note: 'Hot vs 3.3% consensus — duration names exposed', tag: 'New' },
+          { t: 'NFP +310k', note: 'Strong print — rate-cut odds repriced', tag: 'Watch' },
+          { t: 'PCE in-line', note: 'No book action needed', tag: 'Quiet' },
+        ],
+        push: 'CPI hot — duration sleeve is your exposure' },
     ] },
   { id: 'backtest', label: 'Backtest', icon: 'history', tone: 'teal', creator: 'Alva', kind: 'playbook',
     blurb: 'Rule-based strategies, fully attributed.',
     prompt: 'Backtest a monthly equal-weight MAG7 basket over the last 10 years',
+    prompts: [
+      'Backtest a monthly equal-weight MAG7 basket over the last 10 years',
+      'Backtest dividend aristocrats with annual rebalancing against the S&P',
+      'Backtest a BTC MACD crossover strategy on 1-hour bars over 5 years',
+    ],
     gallery: [
       { t: 'MAG7 equal-weight', s: '10Y · monthly rebalance', tone: 'green', points: [12, 18, 26, 22, 34, 44, 58], tickers: ['MAG7', 'SPX'], stat: '+24.1% CAGR · Sharpe 1.32' },
       { t: 'Dividend aristocrats', s: '10Y · annual rebalance', tone: 'teal', points: [20, 24, 22, 30, 28, 36, 40], tickers: ['NOBL'], stat: '+11.3% CAGR · DD −18%' },
       { t: 'BTC MACD crossover', s: '5Y · 1h signals', tone: 'orange', points: [30, 18, 40, 26, 48, 34, 56], tickers: ['BTC'], stat: 'Sharpe 0.9 · 61% win' },
+    ],
+    subs: [
+      { t: 'MAG7 Momentum Engine', creator: 'q_research', subscribers: '356', tone: 'green', points: [12, 18, 26, 22, 34, 44, 58], meta: 'Monthly rebalance', stat: '+24.1% CAGR' },
+      { t: 'Aristocrat Rotation', creator: 'Smart Jing', subscribers: '188', tone: 'teal', points: [20, 24, 22, 30, 28, 36, 40], meta: 'Annual rebalance', stat: 'Sharpe 1.1' },
+    ],
+    previews: [
+      { t: 'MAG7 Momentum Engine', creator: 'q_research', subscribers: '356', tone: 'green', cadence: 'monthly', meta: 'Monthly rebalance',
+        chart: { label: 'Equity curve · 10Y', value: '+24.1% CAGR', points: [6, 9, 8, 14, 12, 20, 18, 26, 30, 27, 36, 44, 40, 50, 58, 66] },
+        rows: [
+          { t: 'Strategy', v: '+312%', c: 'Sharpe 1.32', up: true },
+          { t: 'SPX b/m', v: '+186%', c: 'Sharpe 0.81', up: true },
+          { t: 'Max DD', v: '−21.4%', c: 'in 2022', up: false },
+        ],
+        stats: [['Rebalance', 'Monthly'], ['Win rate', '63%'], ['Names', '7']] },
+      { t: 'Aristocrat Rotation', creator: 'Smart Jing', subscribers: '188', tone: 'teal', cadence: 'annual', meta: 'Annual rebalance', fresh: true,
+        chart: { label: 'Equity curve · 10Y', value: '+11.3% CAGR', points: [8, 10, 12, 11, 15, 18, 17, 21, 24, 22, 27, 30, 29, 33, 36, 40] },
+        rows: [
+          { t: 'Strategy', v: '+192%', c: 'Sharpe 1.10', up: true },
+          { t: 'SPX b/m', v: '+186%', c: 'Sharpe 0.81', up: true },
+          { t: 'Max DD', v: '−18.2%', c: 'in 2020', up: false },
+        ],
+        stats: [['Rebalance', 'Annual'], ['Yield', '4.2%'], ['Names', '65']] },
     ] },
-  { id: 'valuation', label: 'Valuation', icon: 'credit', tone: 'orange', creator: 'Alva', kind: 'ask',
-    blurb: 'Reverse-DCF, relative-multiple, and SOTP frameworks.',
-    prompt: 'Value NVDA with a reverse-DCF — what growth is priced in at today’s level?',
+  { id: 'valuation', label: 'Valuation', icon: 'credit', tone: 'orange', creator: 'Alva', kind: 'playbook',
+    blurb: 'Reverse-DCF, relative-multiple, and SOTP frameworks — kept live as the price moves.',
+    prompt: 'Value NVDA with a reverse-DCF — what growth is priced in at today\u2019s level?',
+    prompts: [
+      'Value NVDA with a reverse-DCF — what growth is priced in at today\u2019s level?',
+      'Run a SOTP on TSM — advanced nodes vs mature nodes vs net cash',
+      'Compare MSFT\u2019s multiple to peers — is the Azure premium justified?',
+    ],
     gallery: [
-      { t: 'NVDA · Reverse-DCF', facts: ['~28% CAGR priced in', 'Street models 31%', '±5pt → ±18% FV'], take: 'Not stretched on its numbers' },
-      { t: 'TSM · SOTP', facts: ['Advanced node 62% of value', 'Mature 24%', 'Net cash 14%'], take: '~20% upside to SOTP' },
-      { t: 'MSFT · Relative multiple', facts: ['31× NTM vs peers 26×', 'Azure justifies premium', 'PEG 2.1'], take: 'Premium is earned' },
+      { t: 'NVDA · Priced-in Growth', s: 'Reverse-DCF · re-solved daily', tone: 'orange', points: [18, 22, 26, 24, 30, 28, 34], tickers: ['NVDA'], stat: '~28% CAGR priced in' },
+      { t: 'TSM · SOTP Monitor', s: 'Parts re-marked monthly', tone: 'teal', points: [14, 18, 16, 24, 28, 26, 32], tickers: ['TSM'], stat: '+20% to SOTP' },
+      { t: 'MSFT · Premium Watch', s: 'Multiple vs peers · daily', tone: 'blue', points: [20, 22, 26, 24, 28, 32, 30], tickers: ['MSFT'], stat: '31× vs peers 26×' },
+    ],
+    subs: [
+      { t: 'NVDA Priced-in Growth', creator: 'Alva', subscribers: '506', tone: 'orange', points: [18, 22, 26, 24, 30, 28, 34], meta: 'Reverse-DCF · daily', stat: '28% CAGR implied' },
+      { t: 'TSM SOTP Monitor', creator: 'q_research', subscribers: '264', tone: 'teal', points: [14, 18, 16, 24, 28, 26, 32], meta: 'Monthly re-mark', stat: '+20% to SOTP' },
+    ],
+    previews: [
+      { t: 'NVDA Priced-in Growth', creator: 'Alva', subscribers: '506', tone: 'orange', cadence: 'daily', meta: 'Reverse-DCF · re-solved daily',
+        chart: { label: 'Growth priced in at market', value: '28% CAGR', points: [20, 22, 21, 24, 26, 25, 27, 29, 28, 30, 29, 28] },
+        rows: [
+          { t: 'Implied', v: '28%', c: '10Y CAGR', up: true },
+          { t: 'Street', v: '31%', c: 'consensus models', up: true },
+          { t: 'Sensitivity', v: '±5pt', c: '→ ±18% FV', up: false },
+        ],
+        stats: [['Read', 'Not stretched'], ['Driver', 'DC growth'], ['Re-solves', 'Daily close']] },
+      { t: 'TSM SOTP Monitor', creator: 'q_research', subscribers: '264', tone: 'teal', cadence: 'monthly', meta: 'Parts re-marked monthly',
+        chart: { label: 'Upside to SOTP', value: '+20%', points: [10, 12, 14, 13, 16, 18, 17, 19, 21, 20, 22, 20] },
+        rows: [
+          { t: 'Advanced', v: '62%', c: 'of value', up: true },
+          { t: 'Mature', v: '24%', c: 'of value', up: true },
+          { t: 'Net cash', v: '14%', c: 'of value', up: true },
+        ],
+        stats: [['Upside', '+20%'], ['Method', 'SOTP'], ['Re-mark', 'Monthly']] },
     ] },
 ];
 
@@ -1058,13 +1391,6 @@ const PLAYBOOKS = [
     tickers: [['SPX', '#94A3B8'], ['NOBL', '#94A3B8']], stars: '231', cover: { label: 'YIELD · ranked', value: '4.2', unit: '%', points: [20, 24, 22, 30, 28, 36, 40] } },
 ];
 
-/* Capability rows (concept B explainer) */
-const CAPS = [
-  { icon: 'bulb', tone: 'teal', t: 'Track a theme', d: 'Live sentiment & catalysts across any basket' },
-  { icon: 'screener', tone: 'blue', t: 'Screen the market', d: 'Rank by any factor combination, daily' },
-  { icon: 'search', tone: 'orange', t: 'Deep-dive a ticker', d: 'Filings, peers, supply chain, thesis' },
-  { icon: 'remix', tone: 'green', t: 'Run a what-if', d: 'Reprice your book under any scenario' },
-];
 
 /* Memory — long-term context the agent keeps for this user (personal channel) */
 const MEMORY = [
@@ -1180,8 +1506,50 @@ const KOL_DIGEST_AGG = {
 /* Group channel chats — daily member chatter with Alva participating */
 const GROUP_CHATS = {
   'btc-room': {
-    members: '218 members · 12 online',
-    topic: 'BTC macro, ETF flows, and liquidity. @Alva is in the room — mention it to run anything.',
+    you: 'Group Admin',
+    mode: 'digest',
+    digests: [
+      { time: 'Yesterday · 21:00', title: 'Daily digest — 146 messages',
+        lead: 'Flows kept the room busy — third straight green day of ETF adds, and the desk still reads it as spot-led, not leverage.',
+        sections: [
+          { h: 'What the room is saying', bullets: [
+            '+$412M net ETF adds ($IBIT +$280M, $FBTC +$96M) — the longest green streak since February.',
+            'Funding held at 0.012% all session and open interest rose just 2% — Daniel K and Serene both call it spot demand.',
+            'Rates thread: 30d BTC–10Y correlation −0.38 and weakening (was −0.61 in May) — liquidity, not rates, is in charge.',
+          ] },
+          { h: 'Where the desk splits', bullets: [
+            'mai_t: calm funding means the move still has room — no euphoric-top signal yet.',
+            'coldwallet: calm funding is exactly how March looked two days before the flush — he\u2019s fading the streak.',
+            'Daniel K wants a close above $66.4k before adding; Serene would buy the $61.8k gap without waiting.',
+          ] },
+          { h: 'Worth keeping', bullets: [
+            'ETF creations have front-run the last three local highs by 1–2 sessions — the desk now treats flows as the leading tell.',
+            'Nobody in the room is positioned for a close below $60k — that consensus is itself the risk if the gap fills.',
+          ] },
+        ],
+        tasksLabel: 'One @Alva mention — answered in-thread and logged as a task:', tasks: [
+        { title: 'Answer: 30d BTC-10Y correlation read', by: 'Daniel K', status: 'done · answer posted 09:05' },
+      ] },
+      { time: '14:05', title: 'Today so far — 42 messages',
+        lead: 'Quieter session — funding is the tell everyone is watching.',
+        sections: [
+          { h: 'What the room is saying', bullets: [
+            'ETF pace is cooling intraday: +$38M by 14:00 vs +$120M at the same time yesterday (liang.btc).',
+            'mai_t wants a heads-up the moment funding flips. Room monitor is set: 8h funding above 0.05% or ETF net flow turning negative.',
+          ] },
+          { h: 'Where the desk splits', bullets: [
+            'q_macro: the basis trade is quietly rebuilding under the calm funding print.',
+            'Serene: CME open interest doesn\u2019t show it yet — burden of proof is on the bears.',
+          ] },
+          { h: 'Worth keeping', bullets: [
+            'If q_macro is right, the spot-led story weakens — I\u2019m pulling CME OI by maturity to verify before the close.',
+          ] },
+        ],
+        tasksLabel: 'Two @Alva mentions so far — each spawned a room task:', tasks: [
+        { title: 'Monitor: funding & ETF-flow flip alert', by: 'mai_t', status: 'running · shared with the room' },
+        { title: 'Verify: CME basis-trade rebuild', by: 'q_macro', status: 'running · step 1 of 3' },
+      ] },
+    ],
     msgs: [
       { who: 'Daniel K', text: 'ETF inflows printed +$412M yesterday. Third straight day of net adds.', time: '09:02' },
       { who: 'mai_t', text: 'Funding still calm though. This doesn\u2019t feel like the euphoric top everyone keeps calling.', time: '09:04' },
@@ -1193,8 +1561,8 @@ const GROUP_CHATS = {
     ],
   },
   'defi-desk': {
-    members: '96 members · 7 online',
-    topic: 'DeFi yields, L2 share, and protocol revenue. @Alva tracks the on-chain data.',
+    you: 'Bound Member',
+    mode: 'mirror-ask',
     msgs: [
       { who: 'leo.eth', text: 'Base fees ripping again this week. Feels like the L2 share story is back on.', time: '14:11' },
       { who: 'q_research', text: 'Is that organic or just one app? Want to see it net of the usual farming noise.', time: '14:13' },
@@ -1253,7 +1621,7 @@ const GROUP_DATA = {
       { kind: 'CSV', tone: 'blue', t: 'etf-net-flows.csv', b: 'Daily ETF creations / redemptions', badge: '1.4 MB', badgeKind: '' },
       { kind: 'SRC', tone: 'orange', t: 'Room source pack', b: 'Issuers, funding venues, on-chain feeds', badge: 'Admin', badgeKind: 'amber' },
     ],
-    autos: [{ id: 'ba1', name: 'AI-Capex-Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 142, usedBy: [['leo', 'power-grid-basket']] }, { id: 'ba2', name: 'ETF-Flow-Watcher', status: 'active', lastRun: '15m', runEvery: 'Daily · post-close', runs: 96, usedBy: [] }],
+    autos: [{ id: 'ba0', name: 'Room-Digest', status: 'active', lastRun: '14:05', runEvery: 'Daily · 21:00 + intraday', runs: 38, usedBy: [] }, { id: 'ba1', name: 'AI-Capex-Monitor', status: 'active', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 142, usedBy: [['leo', 'power-grid-basket']] }, { id: 'ba2', name: 'ETF-Flow-Watcher', status: 'active', lastRun: '15m', runEvery: 'Daily · post-close', runs: 96, usedBy: [] }],
     playbooks: pb('ai-capex'),
   },
   'defi-desk': {
@@ -1362,15 +1730,6 @@ const ARTIFACTS = [
 ];
 
 /* ============ Reusable presentation pieces ============ */
-function SkillChip({ s, onClick }) {
-  return (
-    <button className="chip" onClick={() => onClick(s)}>
-      <span className="ci"><Icon name={s.icon} size={16} /></span>
-      {s.label}
-    </button>
-  );
-}
-
 function PromptRow({ text, onClick }) {
   return (
     <button className="prompt" onClick={() => onClick(text)}>
@@ -1457,20 +1816,20 @@ const CHANNEL_DATA = {
 };
 
 
-window.PlanB = { Icon, Avatar, Cover, SkillChip, PromptRow, PlaybookCard, avaColor, initials, SKILLS, PROMPTS, PLAYBOOKS, CAPS, MEMORY, MEMORY_FILES, USER_MD, TASKS, TASK_TRANSCRIPT, AUTOMATIONS, ARTIFACTS, CHANNELS, KOL_FOLLOWS, KOL_SIGNALS, KOL_RECOMMENDED, KOL_DIGEST_AGG, GROUP_CHATS, GROUP_DATA, CHANNEL_DATA };
+window.PlanB = { Icon, Avatar, Cover, PromptRow, PlaybookCard, avaColor, initials, SKILLS, PROMPTS, PLAYBOOKS, MEMORY, MEMORY_FILES, USER_MD, TASKS, TASK_TRANSCRIPT, AUTOMATIONS, ARTIFACTS, CHANNELS, KOL_FOLLOWS, KOL_SIGNALS, KOL_RECOMMENDED, KOL_DIGEST_AGG, GROUP_CHATS, GROUP_DATA, CHANNEL_DATA };
   </script>
 
   <script type="text/babel">
 /* global React, ReactDOM */
 const { useState, useRef, useEffect, useCallback } = React;
 const PB = window.PlanB;
-const { Icon, Avatar, Cover, SkillChip, PromptRow, PlaybookCard, avaColor, initials, SKILLS, PROMPTS, PLAYBOOKS, CAPS, MEMORY, MEMORY_FILES, USER_MD, TASKS, TASK_TRANSCRIPT, AUTOMATIONS, ARTIFACTS, CHANNELS, KOL_FOLLOWS, KOL_SIGNALS, KOL_RECOMMENDED, KOL_DIGEST_AGG, GROUP_CHATS, GROUP_DATA, CHANNEL_DATA } = PB;
+const { Icon, Avatar, Cover, PromptRow, PlaybookCard, avaColor, initials, SKILLS, PROMPTS, PLAYBOOKS, MEMORY, MEMORY_FILES, USER_MD, TASKS, TASK_TRANSCRIPT, AUTOMATIONS, ARTIFACTS, CHANNELS, KOL_FOLLOWS, KOL_SIGNALS, KOL_RECOMMENDED, KOL_DIGEST_AGG, GROUP_CHATS, GROUP_DATA, CHANNEL_DATA } = PB;
 
 const TONE_BG = { teal: 'rgba(73,163,166,0.12)', blue: 'rgba(87,119,200,0.12)', orange: 'rgba(217,122,58,0.13)', green: 'rgba(45,143,97,0.12)', red: 'rgba(224,83,87,0.12)', amber: 'rgba(184,134,47,0.13)' };
 const TONE_FG = { teal: '#49A3A6', blue: '#5777c8', orange: '#d97a3a', green: '#2d8f61', red: '#e05357', amber: '#b8862f' };
 
 /* ===================== Sidebar ===================== */
-function Sidebar({ channel, onChannel }) {
+function Sidebar({ channel, onChannel, onNewChannel }) {
   const primary = [
     { ico: 'compass', label: 'Explore' },
     { ico: 'portfolio', label: 'Portfolio' },
@@ -1485,7 +1844,7 @@ function Sidebar({ channel, onChannel }) {
         <img className="sb-logo" src="../logo-alva-beta.svg" alt="Alva" />
         <button className="sb-toggle" aria-label="Toggle"><Icon name="layout" size={18} /></button>
       </div>
-      <button className="sb-newchat"><span className="plus">+</span> New Chat</button>
+      <button className="sb-newchat"><span className="plus">+</span> New Channel</button>
 
       <nav className="sb-group">
         {primary.map((n) => (
@@ -1500,15 +1859,16 @@ function Sidebar({ channel, onChannel }) {
         </button>
       </nav>
 
-      <div className="sb-heading">Channels</div>
+      <div className="sb-heading">Channels<button className="sb-add" aria-label="New channel" onClick={onNewChannel}><Icon name="plus" size={14} /></button></div>
       <nav className="sb-group">
         {CHANNELS.map((c, i) => (
           <button className={`sb-item channel ${c.cls}${channel === c.id ? ' active' : ''}${c.id === 'agent' ? ' pinned' : ''}`} key={c.id} onClick={() => onChannel(c.id)}>
             <span className="sb-ico"><Icon name={c.ico} size={18} /></span>
             <span className="sb-label">{c.label}</span>
+            {(() => { const l = IM_LINKS[c.id]; const first = l && IMS.find((im) => l[im.id]); return first ? <span className="sb-im"><Icon name={first.icon} size={12} /></span> : null; })()}
           </button>
         ))}
-        <button className="sb-item sb-more"><span className="sb-ico"><Icon name="more" size={18} /></span><span className="sb-label">New channel</span></button>
+        <button className="sb-item sb-more"><span className="sb-ico"><Icon name="more" size={18} /></span><span className="sb-label">More</span></button>
       </nav>
 
       <div className="sb-heading">Playbooks</div>
@@ -1522,7 +1882,7 @@ function Sidebar({ channel, onChannel }) {
         <button className="sb-item sb-more"><span className="sb-ico"><Icon name="more" size={18} /></span><span className="sb-label">More</span></button>
       </nav>
 
-      <div className="sb-heading">Chats</div>
+      <div className="sb-heading">Recent Chats</div>
       <nav className="sb-group">
         {chats.map((c) => (
           <button className="sb-item" key={c}>
@@ -1546,7 +1906,7 @@ function Sidebar({ channel, onChannel }) {
 /* ===================== Agent / User message wrappers ===================== */
 function AgentMsg({ persona = 'full', time, push, children }) {
   return (
-    <div className="msg">
+    <div className={`msg${push ? ' is-push' : ''}`}>
       <span className="agent-ava"><img src="../logo-portrait.svg" alt="Alva" /></span>
       <div className="msg-col">
         {persona !== 'subtle' && (
@@ -1568,10 +1928,12 @@ function UserMsg({ text }) {
 /* ===================== Concept A — Quiet Welcome ===================== */
 /* ===================== Skill expand — suggested prompt + finished-product preview ===================== */
 const KIND_META = {
-  ask: { label: 'Ask', icon: 'search', verb: 'Run research', tone: 'blue' },
   automation: { label: 'Automation', icon: 'automation', verb: 'Set up automation', tone: 'amber' },
   playbook: { label: 'Build Playbook', icon: 'target', verb: 'Build playbook', tone: 'teal' },
 };
+
+/* page-session subscription state — instant, no chat round-trip */
+const SUBSCRIBED = {};
 
 function MiniSpark({ points, tone }) {
   const stroke = TONE_FG[tone] || 'var(--main-m1)';
@@ -1590,20 +1952,124 @@ function MiniSpark({ points, tone }) {
   );
 }
 
-function SkillExpand({ skill, onRun }) {
+/* full-width area chart for the live preview window */
+function PreviewArea({ points, tone }) {
+  const stroke = TONE_FG[tone] || 'var(--main-m1)';
+  const w = 300, h = 90;
+  const max = Math.max(...points), min = Math.min(...points);
+  const xs = points.map((v, i) => (i / (points.length - 1)) * w);
+  const ys = points.map((v) => h - ((v - min) / (max - min || 1)) * (h - 8) - 4);
+  const line = points.map((v, i) => `${i === 0 ? 'M' : 'L'}${xs[i].toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
+  const gid = `pvg-${tone}`;
+  return (
+    <svg className="pvw-area" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" fill="none">
+      <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={stroke} stopOpacity="0.20" /><stop offset="1" stopColor={stroke} stopOpacity="0" /></linearGradient></defs>
+      <path d={`${line} L${w},${h} L0,${h} Z`} fill={`url(#${gid})`} />
+      <path d={line} stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* iframe-like live previews of recommended playbooks / automations — horizontal carousel, 1.5 cards visible */
+function SkillPreview({ skill, km, onRun, onSubscribed }) {
+  const previews = skill.previews;
+  const [, bump] = useState(0);
+  const carRef = useRef(null);
+  const [nav, setNav] = useState({ l: false, r: previews.length > 1 });
+  const isAuto = skill.kind === 'automation';
+  const subscribe = (p) => { SUBSCRIBED[p.t] = true; bump((n) => n + 1); onSubscribed(skill, p); };
+  const onScroll = () => {
+    const el = carRef.current;
+    if (el) setNav({ l: el.scrollLeft > 8, r: el.scrollLeft < el.scrollWidth - el.clientWidth - 8 });
+  };
+  const slide = (dir) => carRef.current && carRef.current.scrollBy({ left: dir * 426, behavior: 'smooth' });
+  return (
+    <div className="skex-block">
+      <div className="pvw-wrap">
+      <div className="pvw-carousel" ref={carRef} onScroll={onScroll}>
+        {previews.map((p, i) => {
+          const tone = p.tone;
+          const isSub = !!SUBSCRIBED[p.t];
+          return (
+            <div className="pvw" key={i}>
+              <div className="pvw-bar">
+                <span className="pvw-mark" style={{ background: TONE_BG[tone], color: TONE_FG[tone] }}><Icon name={isAuto ? 'automation' : 'target'} size={13} /></span>
+                <span className="pvw-title">{p.t}</span>
+                <span className="pvw-live"><span className="pvw-livedot"></span>LIVE · {p.cadence}</span>
+              </div>
+              <div className="pvw-body">
+                {isAuto ? (
+                  <>
+                    <div className="pvw-rulek">Alert rule</div>
+                    <div className="pvw-rule">{p.rule}</div>
+                    <div className="pvw-lastrun"><Icon name="clock" size={12} /> {p.lastRun}</div>
+                    <div className="pvw-matches">
+                      {p.matches.map((m, j) => (
+                        <div className="pvw-match" key={j}>
+                          <span className="pvw-tkr">{m.t}</span>
+                          <span className="pvw-note">{m.note}</span>
+                          <span className={`pvw-tag${m.tag === 'New' ? ' new' : ''}`}>{m.tag}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pvw-push"><span className="pvw-bell"><Icon name="alert" size={13} /></span>{p.push}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="pvw-chart">
+                      <div className="pvw-chart-h"><span className="pvw-chart-k">{p.chart.label}</span><span className="pvw-chart-v" style={{ color: TONE_FG[tone] }}>{p.chart.value}</span></div>
+                      <PreviewArea points={p.chart.points} tone={tone} />
+                    </div>
+                    <div className="pvw-rows">
+                      {p.rows.map((r, j) => (
+                        <div className="pvw-row" key={j}><span className="pvw-tkr">{r.t}</span><span className="pvw-v">{r.v}</span><span className={`pvw-c ${r.up ? 'up' : 'down'}`}>{r.c}</span></div>
+                      ))}
+                    </div>
+                    <div className="pvw-stats">
+                      {p.stats.map(([k, v], j) => (<div className="pvw-stat" key={j}><span className="pvw-sk">{k}</span><span className="pvw-sv">{v}</span></div>))}
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="pvw-foot">
+                <span className="pvw-by"><span className="sub-ava" style={{ background: avaColor(p.creator) }}>{initials(p.creator)}</span>{p.creator} · {p.subscribers} subscribers</span>
+                <button className="pvw-remix" onClick={() => onRun(skill, `Build my own version of ${p.t} — keep the idea, let me tweak the ${isAuto ? 'rule and schedule' : 'basket and rules'}`)}>Remix</button>
+                {isSub
+                  ? <button className="pvw-sub on"><Icon name="check" size={14} />Subscribed</button>
+                  : <button className="pvw-sub" style={{ background: TONE_FG[km.tone] }} onClick={() => subscribe(p)}><Icon name="plus" size={14} />Subscribe</button>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {nav.l && <button className="car-nav left" onClick={() => slide(-1)} aria-label="Previous"><Icon name="chevdown" size={15} /></button>}
+      {nav.r && <button className="car-nav right" onClick={() => slide(1)} aria-label="Next"><Icon name="chevdown" size={15} /></button>}
+      </div>
+    </div>
+  );
+}
+
+function SkillExpand({ skill, onRun, onSubscribed, variant }) {
   const km = KIND_META[skill.kind];
+  const preview = variant === 'preview' && skill.previews;
+  const [, bump] = useState(0);
   return (
     <div className="skex">
-      <div className="skex-tag" style={{ color: TONE_FG[km.tone], background: TONE_BG[km.tone] }}><Icon name={km.icon} size={13} /> {km.label}</div>
+      {variant !== 'preview' && <div className="skex-tag" style={{ color: TONE_FG[km.tone], background: TONE_BG[km.tone] }}><Icon name={km.icon} size={13} /> {km.label}</div>}
 
+      {variant !== 'preview' && (
       <div className="skex-block">
-        <div className="skex-h">Suggested prompt</div>
+        <div className="skex-h">{skill.subs ? 'Build your own' : 'Suggested prompt'}</div>
         <button className="skex-prompt" onClick={() => onRun(skill)}>
           <span>{skill.prompt}</span>
           <span className="skex-ent"><Icon name="enter" size={16} /></span>
         </button>
       </div>
+      )}
 
+      {preview && <SkillPreview skill={skill} km={km} onRun={onRun} onSubscribed={onSubscribed} />}
+
+      {!preview && (
       <div className="skex-block">
         <div className="skex-h">Made with this skill</div>
         {skill.kind === 'playbook' && (
@@ -1621,17 +2087,6 @@ function SkillExpand({ skill, onRun }) {
             ))}
           </div>
         )}
-        {skill.kind === 'ask' && (
-          <div className="skg-list">
-            {skill.gallery.map((g, i) => (
-              <button className="skg-ask" key={i} onClick={() => onRun(skill)}>
-                <div className="ska-h"><span className="skg-ico" style={{ background: TONE_BG[km.tone], color: TONE_FG[km.tone] }}><Icon name={km.icon} size={14} /></span>{g.t}</div>
-                <div className="ska-facts">{g.facts.map((f, j) => <span className="ska-fact" key={j}>{f}</span>)}</div>
-                <div className="ska-take"><span className="ska-take-tag">Takeaway</span>{g.take}</div>
-              </button>
-            ))}
-          </div>
-        )}
         {skill.kind === 'automation' && (
           <div className="skg-list">
             {skill.gallery.map((g, i) => (
@@ -1644,16 +2099,70 @@ function SkillExpand({ skill, onRun }) {
           </div>
         )}
       </div>
+      )}
 
-      <button className="skex-cta" style={{ background: TONE_FG[km.tone] }} onClick={() => onRun(skill)}>{km.verb}<Icon name="arrowup" size={15} /></button>
+      {!preview && skill.subs && (
+        <div className="skex-block">
+          <div className="skex-h">Recommended — subscribe in one tap</div>
+          <div className="subs-list">
+            {skill.subs.map((g, i) => (
+              <div className="sub-card" key={i}>
+                {g.points
+                  ? <span className="sub-spark" style={{ background: TONE_BG[g.tone] }}><MiniSpark points={g.points} tone={g.tone} /></span>
+                  : <span className="sub-bell"><Icon name="automation" size={15} /></span>}
+                <div className="sub-body">
+                  <div className="sub-t">{g.t}</div>
+                  <div className="sub-m">{g.meta || g.every}{g.stat && <> · <span style={{ color: TONE_FG[g.tone || km.tone] }}>{g.stat}</span></>}</div>
+                  {g.desc && <div className="sub-d">{g.desc}</div>}
+                  <div className="sub-by"><span className="sub-ava" style={{ background: avaColor(g.creator) }}>{initials(g.creator)}</span>{g.creator} · {g.subscribers} subscribers</div>
+                </div>
+                {SUBSCRIBED[g.t]
+                  ? <button className="sub-btn on"><Icon name="check" size={14} />Subscribed</button>
+                  : <button className="sub-btn" onClick={() => { SUBSCRIBED[g.t] = true; bump((n) => n + 1); onSubscribed(skill, g); }}><Icon name="plus" size={14} />Subscribe</button>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!preview && <button className="skex-cta" style={{ background: TONE_FG[km.tone] }} onClick={() => onRun(skill)}>{skill.subs ? 'Build my own' : km.verb}<Icon name="arrowup" size={15} /></button>}
     </div>
   );
 }
 
+/* Expandable skill chips + inline SkillExpand — shared across all four concepts */
+function SkillChips({ skills, more = true, variant, open: openProp, onOpenChange, onStartTask, onSubscribed }) {
+  const [internalOpen, setInternalOpen] = useState(null);
+  const open = openProp !== undefined ? openProp : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
+  return (
+    <>
+      <div className="chips">
+        {skills.map((s) => (
+          <button className={`chip${open === s.id ? ' active' : ''}`} key={s.id} onClick={() => setOpen(open === s.id ? null : s.id)}>
+            <span className="ci"><Icon name={s.icon} size={16} /></span>
+            {s.label}
+            <span className="chip-caret"><Icon name="chevdown" size={14} /></span>
+          </button>
+        ))}
+        {more && <button className="chip more">More skills</button>}
+      </div>
+      {open && (
+        <SkillExpand
+          skill={SKILLS.find((s) => s.id === open)}
+          variant={variant}
+          onRun={(s, txt) => { setOpen(null); onStartTask(s, txt); }}
+          onSubscribed={onSubscribed}
+        />
+      )}
+    </>
+  );
+}
+
 /* ===================== Concept A — Quiet Welcome ===================== */
-function ConceptA({ onSkill, onPrompt, onStartTask }) {
-  const [open, setOpen] = useState(null);
-  const shown = SKILLS.slice(0, 5);
+function ConceptA({ onPrompt, onStartTask, onSubscribed }) {
+  const [openSkill, setOpenSkill] = useState(null);
+  const sel = openSkill ? SKILLS.find((s) => s.id === openSkill) : null;
   return (
     <>
       <AgentMsg persona="subtle">
@@ -1664,24 +2173,14 @@ function ConceptA({ onSkill, onPrompt, onStartTask }) {
       </AgentMsg>
 
       <AgentMsg persona="subtle">
-        <div className="bubble plain" style={{ fontSize: 13.5, color: 'var(--text-n5)' }}>Pick a skill to see what it does — and what it builds:</div>
-        <div className="chips">
-          {shown.map((s) => (
-            <button className={`chip${open === s.id ? ' active' : ''}`} key={s.id} onClick={() => setOpen(open === s.id ? null : s.id)}>
-              <span className="ci"><Icon name={s.icon} size={16} /></span>
-              {s.label}
-              <span className="chip-caret"><Icon name="chevdown" size={14} /></span>
-            </button>
-          ))}
-          <button className="chip more">More skills</button>
-        </div>
-        {open && <SkillExpand skill={SKILLS.find((s) => s.id === open)} onRun={(s) => { setOpen(null); onStartTask(s); }} />}
+        <div className="bubble plain" style={{ fontSize: 13.5, color: 'var(--text-n5)' }}>Pick a skill — build your own, or subscribe to a ready-made one:</div>
+        <SkillChips skills={SKILLS.slice(0, 5)} variant="preview" open={openSkill} onOpenChange={setOpenSkill} onStartTask={onStartTask} onSubscribed={onSubscribed} />
       </AgentMsg>
 
       <AgentMsg persona="subtle">
-        <div className="bubble plain" style={{ fontSize: 13.5, color: 'var(--text-n5)' }}>Or try one of these:</div>
-        <div className="prompts">
-          {PROMPTS.slice(0, 3).map((t) => <PromptRow text={t} key={t} onClick={onPrompt} />)}
+        <div className="bubble plain" style={{ fontSize: 13.5, color: 'var(--text-n5)' }}>{sel ? <>Or build your own <b style={{ fontWeight: 500, color: 'var(--text-n7)' }}>{sel.label}</b> — try one of these:</> : 'Or try one of these:'}</div>
+        <div className="prompts" key={sel ? sel.id : 'default'}>
+          {(sel ? sel.prompts : PROMPTS.slice(0, 3)).map((t) => <PromptRow text={t} key={t} onClick={sel ? (txt) => onStartTask(sel, txt) : onPrompt} />)}
         </div>
       </AgentMsg>
     </>
@@ -1689,150 +2188,7 @@ function ConceptA({ onSkill, onPrompt, onStartTask }) {
 }
 
 /* ===================== Concept B — Guided Onboarding ===================== */
-function ConceptB({ onSkill, onPrompt, onCard }) {
-  return (
-    <>
-      <AgentMsg persona="full" time="now">
-        <div className="bubble">
-          <p className="lead" style={{ marginBottom: 6 }}>Welcome to Alva.</p>
-          <p>I'm your investing co-pilot. Tell me an idea and I'll research it, build a playbook, and keep it live for you. Here's a quick tour of what we can do together.</p>
-        </div>
-      </AgentMsg>
-
-      <AgentMsg persona="full" time="now">
-        <div className="seclabel">What you can build</div>
-        <div className="caps">
-          {CAPS.map((c) => (
-            <div className="cap" key={c.t}>
-              <span className="capico" style={{ background: TONE_BG[c.tone], color: TONE_FG[c.tone] }}><Icon name={c.icon} size={17} /></span>
-              <div>
-                <div className="ct">{c.t}</div>
-                <div className="cd">{c.d}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </AgentMsg>
-
-      <AgentMsg persona="full" time="now">
-        <div className="bubble">Pick a skill to start from — or remix a playbook the community already built.</div>
-        <div className="chips" style={{ marginTop: 2 }}>
-          {SKILLS.map((s) => <SkillChip s={s} key={s.id} onClick={onSkill} />)}
-        </div>
-      </AgentMsg>
-
-      <AgentMsg persona="full" time="now">
-        <div className="seclabel">Trending playbooks</div>
-        <div className="cardrow">
-          {PLAYBOOKS.map((p) => <PlaybookCard p={p} key={p.id} onClick={onCard} />)}
-        </div>
-      </AgentMsg>
-
-      <AgentMsg persona="full" time="now">
-        <div className="bubble" style={{ fontSize: 14 }}>Not sure where to begin? Tap a prompt and I'll take it from there.</div>
-        <div className="prompts">
-          {PROMPTS.map((t) => <PromptRow text={t} key={t} onClick={onPrompt} />)}
-        </div>
-      </AgentMsg>
-    </>
-  );
-}
-
-/* ===================== Concept C — Agent Briefing Feed ===================== */
-function PushCard({ icon, tone = 'teal', title, time, children }) {
-  return (
-    <div className="pushcard">
-      <div className="ph">
-        <span className="pico" style={{ background: TONE_BG[tone], color: TONE_FG[tone] }}><Icon name={icon} size={15} /></span>
-        <span className="pt">{title}</span>
-        {time && <span className="pm">{time}</span>}
-      </div>
-      <div className="pbody">{children}</div>
-    </div>
-  );
-}
-
-function ConceptC({ onSkill, onPrompt, onCard }) {
-  const t = timeContext();
-  const pulse = [
-    { k: 'BTC / USDT', v: '$63,066', c: '+2.85%', up: true },
-    { k: 'ETH / USDT', v: '$1,664', c: '−1.18%', up: false },
-    { k: 'S&P 500', v: '5,431', c: '+0.42%', up: true },
-  ];
-  return (
-    <>
-      <AgentMsg persona="full" push time={t.at(0)}>
-        <div className="bubble">
-          <p>{t.greeting}. I set this space up for you — no Telegram or Discord needed yet. {t.intro} I'll keep working in the background and push what matters right here.</p>
-        </div>
-      </AgentMsg>
-
-      <AgentMsg persona="full" push time={t.at(1)}>
-        <PushCard icon="pulse" tone="teal" title={t.pulseTitle} time="live">
-          <div className="pulse">
-            {pulse.map((p) => (
-              <div className="pu" key={p.k}>
-                <div className="k">{p.k}</div>
-                <div className="v">{p.v}</div>
-                <div className={`c ${p.up ? 'up' : 'down'}`}>{p.c}</div>
-              </div>
-            ))}
-          </div>
-        </PushCard>
-      </AgentMsg>
-
-      {t.isEvening && (
-        <AgentMsg persona="full" push time={t.at(2)}>
-          <PushCard icon="clock" tone="blue" title="On deck for tomorrow">
-            <div className="evening-list">
-              <div className="ev"><span className="evt">Pre-open</span><span className="evn">NVDA earnings</span><span className="evtag teal">your basket</span></div>
-              <div className="ev"><span className="evt">08:30 ET</span><span className="evn">US CPI print</span><span className="evtag">macro</span></div>
-              <div className="ev"><span className="evt">14:00 ET</span><span className="evn">FOMC minutes</span><span className="evtag">rates</span></div>
-            </div>
-            <button className="ev-cta" onClick={() => onPrompt('Brief me on tomorrow\u2019s catalysts and what they mean for my basket')}>Brief me before the open <Icon name="enter" size={15} /></button>
-          </PushCard>
-        </AgentMsg>
-      )}
-
-      <AgentMsg persona="full" push time={t.at(2)}>
-        <PushCard icon="flame" tone="orange" title={t.popularTitle}>
-          <div className="miniplay">
-            {PLAYBOOKS.slice(0, 2).map((p) => (
-              <button className="mc" key={p.id} onClick={() => onCard(p)}>
-                <div className="mt">{p.title}</div>
-                <div className="md">{p.desc}</div>
-                <div className="mf"><span className="tag skill">{p.skill}</span><span className="ps" style={{ marginLeft: 'auto' }}><Icon name="star" size={12} /> {p.stars}</span></div>
-              </button>
-            ))}
-          </div>
-        </PushCard>
-      </AgentMsg>
-
-      <AgentMsg persona="full" push time={t.at(3)}>
-        <PushCard icon="spark" tone="blue" title="Try one of these to get started">
-          <div className="chips">
-            {SKILLS.slice(0, 4).map((s) => <SkillChip s={s} key={s.id} onClick={onSkill} />)}
-          </div>
-        </PushCard>
-      </AgentMsg>
-
-      <AgentMsg persona="full" push time={t.at(3)}>
-        <PushCard icon="trend" tone="green" title="Follow a top FinTwit creator">
-          <div className="kol">
-            <span className="ka" style={{ background: avaColor('Macro Scope X') }}>{initials('Macro Scope X')}</span>
-            <div>
-              <div className="kt">Macro Scope X</div>
-              <div className="kd">100% win-rate · +74.7% ROI · tracked by Alva</div>
-            </div>
-            <button className="kbtn" onClick={() => onPrompt('Track Macro Scope X and brief me on every new call')}>Track</button>
-          </div>
-        </PushCard>
-      </AgentMsg>
-    </>
-  );
-}
-
-/* time-aware context for the briefing feed */
+/* time-aware context for the daily brief */
 function timeContext() {
   const now = new Date();
   const h = now.getHours();
@@ -1840,42 +2196,50 @@ function timeContext() {
     const d = new Date(now.getTime() + addMin * 60000);
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
-  if (h < 12) return { at, isMorning: true, greeting: 'Good morning', intro: 'Futures are steady into the US open.', pulseTitle: 'Premarket Pulse', popularTitle: 'Popular with new traders this morning' };
-  if (h < 18) return { at, greeting: 'Good afternoon', intro: 'Markets are open — here is where things stand.', pulseTitle: 'Midday Pulse', popularTitle: 'Trending with traders right now' };
-  return { at, isEvening: true, greeting: 'Good evening', intro: 'US markets have closed — here is your recap.', pulseTitle: 'After-the-Close Recap', popularTitle: 'What traders built today' };
+  if (h < 12) return { at, greeting: 'Good morning' };
+  if (h < 18) return { at, greeting: 'Good afternoon' };
+  return { at, greeting: 'Good evening', isEvening: true };
 }
 
-/* ===================== Concept D — Calm + Rich (A × B hybrid) ===================== */
-function ConceptD({ onSkill, onPrompt, onCard }) {
+/* ===================== Returning user — the daily state =====================
+   A perpetual 1:1 conversation, not a push feed: yesterday's thread resumes,
+   at most three pushes since (varied length, plain IM-friendly text), and the
+   personalized suggested prompts live above the composer. */
+function ConceptR({ onGoArtifacts }) {
+  const t = timeContext();
   return (
     <>
-      <AgentMsg persona="subtle">
-        <div className="bubble plain">
-          <p className="lead">Hi, I'm Alva.</p>
-          <p className="sub">Describe an investing idea and I'll turn it into a live playbook. No setup, no connections — just tell me what you're curious about.</p>
+      <div className="day-sep">Yesterday</div>
+
+      <UserMsg text="Is the power & grid trade getting crowded? VRT feels extended after this run." />
+
+      <AgentMsg persona="full" time="21:38">
+        <div className="bubble">
+          <p>Heavier than January, but not crowded yet — net exposure in the group sits around the 60th percentile and spreads are intact. The bigger risk is <span className="cashtag">$VRT</span>’s print on Thursday: consensus already assumes a guide-raise.</p>
+          <p style={{ marginTop: 8 }}>I’ll re-check utilization data before then and flag anything that changes the picture.</p>
         </div>
       </AgentMsg>
 
-      <AgentMsg persona="subtle">
-        <div className="bubble plain" style={{ fontSize: 13.5, color: 'var(--text-n5)' }}>Start with a skill —</div>
-        <div className="chips">
-          {SKILLS.slice(0, 5).map((s) => <SkillChip s={s} key={s.id} onClick={onSkill} />)}
-          <button className="chip more">More skills</button>
+      <div className="day-sep">Today</div>
+
+      <AgentMsg persona="full" push time="07:30">
+        <div className="bubble">
+          <p style={{ marginBottom: 5 }}><span style={{ fontWeight: 500 }}>AI-Capex-Monitor</span> · 3 new matches</p>
+          <p><span className="cashtag">$ANET</span> — capex guide +18%, networking pull-through</p>
+          <p><span className="cashtag">$VRT</span> — backlog +31% YoY, raised FY guide</p>
+          <p><span className="cashtag">$CRDO</span> — AEC design wins at two hyperscalers</p>
+          <p style={{ marginTop: 8, color: 'var(--text-n5)' }}>Two of the three touch your basket.</p>
         </div>
+        <div style={{ marginTop: 4 }}><SourceTag source={{ automation: 'AI-Capex-Monitor', playbook: 'Hyperscaler Capex Tracker' }} onGoArtifacts={onGoArtifacts} /></div>
       </AgentMsg>
 
-      <AgentMsg persona="subtle">
-        <div className="bubble plain" style={{ fontSize: 13.5, color: 'var(--text-n5)' }}>— or pick up something popular and make it yours:</div>
-        <div className="cardrow">
-          {PLAYBOOKS.slice(0, 3).map((p) => <PlaybookCard p={p} key={p.id} onClick={onCard} />)}
-        </div>
+      <AgentMsg persona="full" push time="12:41">
+        <div className="bubble"><span className="cashtag">$VRT</span> +5.1% on 2.3× average volume, a day before the print — the move we talked about last night.</div>
+        <div style={{ marginTop: 4 }}><SourceTag source={{ automation: 'Price-Spike-Watch' }} onGoArtifacts={onGoArtifacts} /></div>
       </AgentMsg>
 
-      <AgentMsg persona="subtle">
-        <div className="bubble plain" style={{ fontSize: 13.5, color: 'var(--text-n5)' }}>Not sure yet? Try one of these:</div>
-        <div className="prompts">
-          {PROMPTS.slice(0, 3).map((t) => <PromptRow text={t} key={t} onClick={onPrompt} />)}
-        </div>
+      <AgentMsg persona="full" push time={t.at(0)}>
+        <div className="bubble">{t.greeting}, leo. Your <span style={{ fontWeight: 500 }}>MAG7 backtest</span> finished overnight — +24.1% CAGR vs +18.9% for SPX, Sharpe 1.32. Full report in Artifacts.</div>
       </AgentMsg>
     </>
   );
@@ -1897,9 +2261,15 @@ function Composer({ quickReplies, placeholder, onSend }) {
       <div className="composer-inner" style={{ maxWidth: 720 }}>
         {quickReplies && (
           <div className="quickreplies">
-            {quickReplies.map((q) => (
-              <button className="qr" key={q} onClick={() => onSend(q)}><span className="lead">/</span>{q}</button>
-            ))}
+            {quickReplies.map((q) => {
+              const item = typeof q === 'string' ? { text: q } : q;
+              return (
+                <button className="qr" key={item.text} onClick={() => onSend(item.text)}>
+                  {item.icon ? <span className="qr-ico"><Icon name={item.icon} size={14} /></span> : <span className="lead">/</span>}
+                  {item.text}
+                </button>
+              );
+            })}
           </div>
         )}
         <div className="composer">
@@ -1933,16 +2303,19 @@ const TABS = [
   { id: 'artifacts', label: 'Artifacts', icon: 'file', count: PLAYBOOKS.length + AUTOMATIONS.length + ARTIFACTS.length },
 ];
 
-function TabBar({ tab, onTab }) {
+function TabBar({ tab, onTab, counts }) {
   return (
     <div className="tabbar">
-      {TABS.map((t) => (
-        <button key={t.id} className={tab === t.id ? 'active' : ''} onClick={() => onTab(t.id)}>
-          <span className="ti"><Icon name={t.icon} size={16} /></span>
-          {t.label}
-          {t.count != null && <span className="count">{t.count}</span>}
-        </button>
-      ))}
+      {TABS.map((t) => {
+        const n = counts && t.id in counts ? counts[t.id] : t.count;
+        return (
+          <button key={t.id} className={tab === t.id ? 'active' : ''} onClick={() => onTab(t.id)}>
+            <span className="ti"><Icon name={t.icon} size={16} /></span>
+            {t.label}
+            {n ? <span className="count">{n}</span> : null}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -2105,9 +2478,59 @@ function MemoryPanel({ groupMem = null, channelLabel } = {}) {
 }
 
 /* ===================== Tasks panel — sub-agent sessions ===================== */
-function TasksPanel({ onPrompt, tasks = TASKS, isGroup = false, channelLabel }) {
+/* ask-user-question, styled like the product QuestionCard */
+function AskCard({ q, options, onSubmit }) {
+  const [sel, setSel] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  return (
+    <div className="qcard">
+      <span className="qc-chip">Question</span>
+      <p className="qc-q">{q}</p>
+      <div className="qc-opts">
+        {options.map((o, i) => (
+          <div key={i} className={`qc-opt${sel === i ? ' on' : ''}`} onClick={() => !submitted && setSel(i)}>
+            <span className="qc-radio">{sel === i && <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5L4 7L8 3" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>}</span>
+            <div>
+              <div className="qc-label">{o.label}</div>
+              {o.desc && <div className="qc-desc">{o.desc}</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+      {!submitted
+        ? <button className={`qc-submit${sel != null ? ' on' : ''}`} onClick={() => { if (sel == null) return; setSubmitted(true); onSubmit(options[sel].label); }}>Submit</button>
+        : <div className="qc-done">Submitted</div>}
+    </div>
+  );
+}
+
+/* slim per-task composer — steer a session without leaving the list */
+function TaskComposer({ placeholder, onSend }) {
+  const [val, setVal] = useState('');
+  const submit = () => { const v = val.trim(); if (!v) return; onSend(v); setVal(''); };
+  return (
+    <div className="tcomposer">
+      <input value={val} placeholder={placeholder} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} />
+      <button className={`tsend${val.trim() ? ' on' : ''}`} onClick={submit} aria-label="Send"><Icon name="arrowup" size={14} /></button>
+    </div>
+  );
+}
+
+/* a task-scoped acknowledgement, in context of where the session stands */
+const taskAck = (t) =>
+  t.status === 'done' ? 'This session is closed — say the word and I’ll reopen it with that change.'
+  : t.status === 'queued' ? 'Noted — I’ll apply that when this session starts.'
+  : t.status === 'needs-input' ? 'Thanks — that unblocks me, continuing the build now.'
+  : 'Got it — folding that in. The current step re-runs with your instruction.';
+
+function TasksPanel({ tasks = TASKS, isGroup = false, channelLabel }) {
   const [filter, setFilter] = useState('all');
   const [open, setOpen] = useState(null);
+  const [threads, setThreads] = useState({});
+  const sendToTask = (t, text) => {
+    setThreads((p) => ({ ...p, [t.id]: [...(p[t.id] || []), { role: 'user', text }] }));
+    setTimeout(() => setThreads((p) => ({ ...p, [t.id]: [...(p[t.id] || []), { role: 'agent', text: taskAck(t) }] })), 900);
+  };
   const STATUS = { running: 'Running', 'needs-input': 'Needs input', done: 'Done', queued: 'Queued' };
   const shown = tasks.filter((t) => filter === 'all' ? true : filter === 'active' ? (t.status === 'running' || t.status === 'needs-input') : t.status === 'done');
 
@@ -2125,20 +2548,29 @@ function TasksPanel({ onPrompt, tasks = TASKS, isGroup = false, channelLabel }) 
           </div>
           <span className={`status-pill ${t.status}`}><span className="sd"></span>{STATUS[t.status]}</span>
         </div>
-        {log.length > 0 ? (
-          <div className="transcript">
-            <div className="seclabel" style={{ marginBottom: 12 }}>Session transcript</div>
-            {log.map((m, i) => (
-              <div className={`tr ${m.role}`} key={i}>
-                <span className="tr-tag">{m.role === 'user' ? 'You' : m.role === 'agent' ? 'Alva' : m.role === 'tool' ? 'Tool' : 'Event'}</span>
-                <div className="tr-body">{m.text}</div>
-              </div>
-            ))}
-            {t.status === 'running' && <div className="tr agent"><span className="tr-tag">Alva</span><div className="tr-body"><span className="typing" style={{ padding: '6px 12px', display: 'inline-flex' }}><i></i><i></i><i></i></span></div></div>}
-          </div>
-        ) : (
-          <div className="empty-note">This session hasn't produced a transcript yet.</div>
-        )}
+        <div className="transcript">
+          {log.length > 0 ? (
+            <>
+              <div className="seclabel" style={{ marginBottom: 12 }}>Session transcript</div>
+              {log.map((m, i) => (
+                <div className={`tr ${m.role}`} key={i}>
+                  <span className="tr-tag">{m.role === 'user' ? 'You' : m.role === 'agent' ? 'Alva' : m.role === 'tool' ? 'Tool' : 'Event'}</span>
+                  <div className="tr-body">{m.text}</div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="empty-note">This session hasn't produced a transcript yet.</div>
+          )}
+          {(threads[t.id] || []).map((m, i) => (
+            <div className={`tr ${m.role}`} key={`x${i}`}>
+              <span className="tr-tag">{m.role === 'user' ? 'You' : 'Alva'}</span>
+              <div className="tr-body">{m.text}</div>
+            </div>
+          ))}
+          {t.status === 'running' && <div className="tr agent"><span className="tr-tag">Alva</span><div className="tr-body"><span className="typing" style={{ padding: '6px 12px', display: 'inline-flex' }}><i></i><i></i><i></i></span></div></div>}
+          <TaskComposer placeholder="Message this task — adjust, pause, or redirect it" onSend={(txt) => sendToTask(t, txt)} />
+        </div>
       </div>
     );
   }
@@ -2170,39 +2602,42 @@ function TasksPanel({ onPrompt, tasks = TASKS, isGroup = false, channelLabel }) 
               <span className={`status-pill ${t.status}`}><span className="sd"></span>{STATUS[t.status]}</span>
               <span className="tk-chev"><Icon name="chevdown" size={16} /></span>
             </button>
-            {t.steps && (
-              <div className="task-body">
-                <div className="steps">
-                  {t.steps.map((s, i) => {
-                    const cls = s.done ? 'done' : s.now ? 'now' : 'todo';
-                    return (
-                      <div className={`step ${cls}`} key={i}>
-                        <span className="sdot">{s.done && <Icon name="check" size={12} />}</span>
-                        <span className="stext">{s.t}</span>
-                        <span className="sline"></span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {t.ask && (
-              <div className="task-body">
-                <div className="task-ask">
-                  <div className="q">{t.ask}</div>
-                  <div className="opts">
-                    <button className="chip" onClick={() => onPrompt('Scan my watchlist')}>My watchlist</button>
-                    <button className="chip" onClick={() => onPrompt('Scan the S&P 500')}>S&amp;P 500</button>
-                    <button className="chip" onClick={() => onPrompt('Scan all US large-caps')}>All US large-caps</button>
+            {t.steps && (() => {
+              const cur = t.steps.find((x) => x.now) || t.steps.find((x) => !x.done);
+              const idx = cur ? t.steps.indexOf(cur) + 1 : t.steps.length;
+              return (
+                <div className="task-body">
+                  <div className="step-now">
+                    {t.status === 'running' ? <span className="sspin"></span> : <span className="squeue"></span>}
+                    {t.status === 'queued' ? `${t.steps.length} steps planned` : <>Step {idx} of {t.steps.length} — {cur ? cur.t : 'wrapping up'}</>}
                   </div>
                 </div>
+              );
+            })()}
+            {t.ask && (
+              <div className="task-body">
+                <AskCard q={t.ask} options={[
+                  { label: 'My watchlist', desc: '32 names you already track' },
+                  { label: 'S&P 500', desc: 'US large-cap universe' },
+                  { label: 'All US large-caps', desc: 'Russell 1000 coverage' },
+                ]} onSubmit={(label) => sendToTask(t, label)} />
               </div>
             )}
             {t.output && (
               <div className="task-body">
-                <div className="task-out"><span className="of">PDF</span> Produced <strong style={{ color: 'var(--text-n9)' }}>{t.output}</strong> — saved to Artifacts.</div>
+                <div className="task-out"><Icon name="file" size={14} /> {t.output} · saved to Artifacts</div>
               </div>
             )}
+            <div className="task-chat">
+              {(threads[t.id] || []).length > 0 && (
+                <div className="tthread">
+                  {threads[t.id].map((m, i) => (
+                    <div className={`tm ${m.role}`} key={i}><span className="who">{m.role === 'user' ? 'You' : 'Alva'}</span><span className="txt">{m.text}</span></div>
+                  ))}
+                </div>
+              )}
+              <TaskComposer placeholder="Message this task…" onSend={(txt) => sendToTask(t, txt)} />
+            </div>
           </div>
         ))}
       </div>
@@ -2211,54 +2646,154 @@ function TasksPanel({ onPrompt, tasks = TASKS, isGroup = false, channelLabel }) 
 }
 
 /* ===================== Appended interaction messages (shared) ===================== */
-function ExtraThread({ extra, subtle, onGoTasks, onGoArtifacts }) {
+/* ===================== Conversational simulation =====================
+   Route a clicked prompt / typed message to a natural reply: simple
+   questions get a direct answer, complex asks spawn a Task (same card
+   flow as picking a skill). */
+const short = (t) => (t.length > 44 ? t.slice(0, 41).trimEnd() + '…' : t);
+
+const ANSWER_ROUTES = [
+  { m: /why did .* trigger|why did these trigger/i, paras: [
+      'The rule fired on top-decile capex revisions plus a positive AI-infra read-through.',
+      '$ANET — hyperscaler networking orders pulled forward; the +18% guide is the cleanest signal of the three. $VRT — backlog +31% YoY with a raised FY guide. $CRDO — two new AEC design wins ramping in H2.',
+      '$ANET and $VRT touch your basket already. $CRDO is adjacent — say the word and I’ll put it on the watchlist.',
+    ] },
+  { m: /add .+ to my watchlist/i, paras: [
+      'Done — $CRDO is on the watchlist. I’ll fold it into the next AI-Capex-Monitor run and flag it if it earns a basket slot.',
+    ] },
+  { m: /what changed in the latest/i, paras: [
+      'Three things since last week: $NVDA reclaimed the top sentiment slot, $TSM slipped on a soft monthly sales print, and the power names ($VRT, $GEV) took over momentum leadership.',
+      'Net: basket +18.4% YTD with breadth improving — 9 of 14 names are above their 20-day. The full table is in Artifacts.',
+    ] },
+  { m: /trim vrt|hold through thursday/i, paras: [
+      'Split it. Into Thursday you’re holding a +31% backlog story that’s now priced for a guide-raise — the asymmetry is worse than it was in January.',
+      'I’d trim a third here (locks today’s +5.1%), hold the rest through the print, and put a stop at $104 on what’s left. Want me to wire that stop?',
+    ] },
+  { m: /log it in my book/i, paras: [
+      'Logged — trimmed a third of $VRT, stop at $104 on the remainder. Power & grid drops to 6.8% of your book.',
+    ] },
+  { m: /nvda earnings game plan/i, paras: [
+      'Wednesday after the close. Consensus has DC revenue at $39.2B; the whisper is closer to $41B. Your exposure: 4.1% direct, plus roughly 3% through $AVGO and $TSM.',
+      'Plan: hold the core, no adds before the print. Above $43B on the guide, the whole basket re-rates. DC growth below +50% YoY is the bear case — about a −3% drag on your book. I’ll push the numbers the second they hit.',
+    ] },
+  { m: /walk me through (the|my) backtest/i, paras: [
+      'Equal-weight MAG7, monthly rebalance, ten years: +24.1% CAGR vs +18.9% for SPX, Sharpe 1.32 vs 0.81.',
+      'The edge is rebalancing discipline — monthly resets harvested the dispersion between names. Worst stretch was 2022: −21.4% drawdown, 14 months back to highs. The full report is in Artifacts, and it can go live as a playbook whenever you want.',
+    ] },
+];
+
+const TASK_ROUTES = [
+  { m: /yes — run the deep dive/i, t: () => ({ taskType: 'Research', tone: 'blue', title: 'Research: full deep dive', sub: 'Going deeper on your question — sources, data, and a written brief, saved to Artifacts.', steps: ['Scope the question', 'Pull sources and data', 'Draft the brief'] }) },
+  { m: /run (.+?) once now/i, t: (mm) => ({ taskType: 'Automation', tone: 'amber', title: `Run once: ${mm[1]}`, sub: 'A one-off pass outside the schedule — the result will push here when it lands.', steps: ['Pull fresh data', 'Apply the rule set', 'Push the result'] }) },
+  { m: /tune .*(rule|monitor)|stricter/i, t: () => ({ taskType: 'Automation', tone: 'amber', title: 'Tune: AI-Capex-Monitor', sub: 'Tightening the rule — I’ll backtest the stricter threshold over the last 90 days before redeploying.', steps: ['Raise the revision threshold to top-5%', 'Backtest the stricter rule over 90 days', 'Redeploy the watch'] }) },
+  { m: /^tune /i, t: (mm, text) => ({ taskType: 'Playbook', tone: 'teal', title: `Update: ${short(text.replace(/^tune /i, ''))}`, sub: 'Applying your changes and re-running the basket before the next scheduled refresh.', steps: ['Apply the changes', 'Re-run the basket', 'Update the live view'] }) },
+  { m: /stop alert|price alert|alert me|wire .*stop/i, t: () => ({ taskType: 'Automation', tone: 'amber', title: 'Alert: VRT stop at $104', sub: 'Wiring the trigger — once live I’ll watch in the background and push the moment it fires.', steps: ['Set the trigger at $104', 'Wire delivery here + Telegram', 'Activate the watch'] }) },
+  { m: /^screen |screener/i, t: (mm, text) => ({ taskType: 'Automation', tone: 'amber', title: `Screen: ${short(text.replace(/^screen /i, ''))}`, sub: 'Building the screen and wiring the daily refresh — new entrants will push here on every run.', steps: ['Define the factor rules', 'Backfill current matches', 'Schedule the daily scan'] }) },
+  { m: /^backtest /i, t: (mm, text) => ({ taskType: 'Playbook', tone: 'teal', title: `Backtest: ${short(text.replace(/^backtest (a |an |the )?/i, ''))}`, sub: 'Running the strategy over the full window — equity curve, attribution, and drawdowns land in Artifacts.', steps: ['Assemble the universe and rules', 'Run the simulation', 'Write up the results'] }) },
+  { m: /turn this into a live playbook/i, t: () => ({ taskType: 'Playbook', tone: 'teal', title: 'Build: MAG7 momentum playbook', sub: 'Promoting the backtest into a live playbook — monthly rebalance wired, results pushed here.', steps: ['Port the rules from the backtest', 'Wire the monthly rebalance', 'Go live'] }) },
+  { m: /tracker|^track |^follow /i, t: (mm, text) => ({ taskType: 'Playbook', tone: 'teal', title: `Build: ${short(text.replace(/^(build|set up|make|create) (a |an |the )?/i, ''))}`, sub: 'Building the tracker — pulling data, drafting the layout, and wiring its refresh.', steps: ['Define scope and inputs', 'Pull data and build the view', 'Wire the refresh schedule'] }) },
+  { m: /deep-dive|deep dive|^value |sotp|reverse-dcf|relative multiple/i, t: (mm, text) => ({ taskType: 'Research', tone: 'blue', title: `Research: ${short(text)}`, sub: 'Gathering filings, peers, and supply-chain data — the brief posts here and saves to Artifacts.', steps: ['Scope the question', 'Pull sources and data', 'Draft the brief'] }) },
+  { m: /^what if /i, t: (mm, text) => ({ taskType: 'Research', tone: 'blue', title: `Scenario: ${short(text.replace(/^what if /i, ''))}`, sub: 'Repricing your book under the scenario — direct exposure, correlated names, and the total drag.', steps: ['Set the shock parameters', 'Reprice the book', 'Post the breakdown'] }) },
+];
+
+function routeReply(text) {
+  for (const a of ANSWER_ROUTES) if (a.m.test(text)) return { kind: 'answer', paras: a.paras, chips: a.chips };
+  for (const r of TASK_ROUTES) { const mm = r.m.exec(text); if (mm) return { kind: 'task', ...r.t(mm, text) }; }
+  if (text.length > 80 || /^(build|create|make|set up|screen|backtest|track|deep-dive|run|scan|turn|tune|find)\b/i.test(text.trim())) {
+    return { kind: 'task', taskType: 'Research', tone: 'blue', title: `Research: ${short(text)}`, sub: 'Pulling sources and data — the brief will post here and save to Artifacts.', steps: ['Scope the question', 'Pull sources and data', 'Draft the brief'] };
+  }
+  return { kind: 'answer', paras: [
+    'Quick take: nothing here changes your positioning yet — real signal, but second-order for your basket.',
+    'Want the full picture? Say the word and I’ll run a proper deep dive and post the brief here.',
+  ] };
+}
+
+/* inline rich text: $TICKER reads as a cashtag */
+const rich = (text) => text.split(/(\$[A-Z]{2,6}\b)/g).map((seg, i) => (seg[0] === '$' ? <span className="cashtag" key={i}>{seg}</span> : seg));
+
+function ExtraThread({ extra, subtle, onGoTasks, onGoArtifacts, onConnectIm }) {
   return extra.map((m) => {
     if (m.role === 'user') return <UserMsg key={m.id} text={m.text} />;
     if (m.role === 'typing') return (
       <AgentMsg key={m.id} persona="subtle"><div className="typing"><i></i><i></i><i></i></div></AgentMsg>
     );
+    // direct answer — simple questions get a conversational reply, not a loader
+    if (m.role === 'agent' && m.reply.kind === 'answer') {
+      return (
+        <AgentMsg key={m.id} persona={m.push ? 'full' : (subtle ? 'subtle' : 'full')} push={m.push} time={m.push ? 'now' : (subtle ? null : 'now')}>
+          <div className="bubble">
+            {m.reply.paras.map((p, i) => <p key={i} style={i ? { marginTop: 8 } : null}>{rich(p)}</p>)}
+          </div>
+        </AgentMsg>
+      );
+    }
+    // first push right after an instant subscribe — moves the user out of the onboarding state
+    // post-setup nudge: the channel just did real work but only lives on the Web
+    if (m.role === 'agent' && m.reply.kind === 'imrec') {
+      return (
+        <AgentMsg key={m.id} persona="full" time="now">
+          <div className="bubble">
+            <p>One more thing — this channel only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires, in this channel’s own thread.</p>
+          </div>
+          {onConnectIm && (
+            <div className="chips" style={{ marginTop: 8 }}>
+              <button className="chip" onClick={() => onConnectIm('telegram')}><span className="ci" style={{ color: IM_TINT.telegram }}><Icon name="telegram" size={16} /></span>Connect Telegram</button>
+              <button className="chip" onClick={() => onConnectIm()}><span className="ci"><Icon name="link" size={16} /></span>See all IMs</button>
+            </div>
+          )}
+        </AgentMsg>
+      );
+    }
+    if (m.role === 'agent' && m.reply.kind === 'subpush') {
+      const p = m.reply.item;
+      const isAuto = m.reply.skillKind === 'automation';
+      const unit = isAuto ? 'alert' : 'run';
+      // cold start: brand-new or no pushes produced yet — set expectations + offer a first run
+      const hasContent = !p.fresh && (isAuto ? !!p.push : !!p.rows);
+      return (
+        <AgentMsg key={m.id} persona="full" push time="now">
+          {hasContent
+            ? <div className="bubble"><span style={{ fontWeight: 500 }}>{p.t}</span> is live in your workspace. Here's the latest {unit} — new ones will land right here.</div>
+            : <div className="bubble"><span style={{ fontWeight: 500 }}>{p.t}</span> is live in your workspace. Nothing has been pushed yet — the first {unit} lands with the next cycle{(p.every || p.meta) ? ` (${p.every || p.meta})` : ''}. Want me to run it once now?</div>}
+          {hasContent && (
+            <div className="subpush-card">
+              {isAuto ? (
+                <div className="pvw-push" style={{ margin: '10px 0' }}><span className="pvw-bell"><Icon name="alert" size={13} /></span>{p.push}</div>
+              ) : (
+                <>
+                  <div className="pvw-rows" style={{ borderTop: 'none' }}>
+                    {p.rows.map((r, j) => (
+                      <div className="pvw-row" key={j}><span className="pvw-tkr">{r.t}</span><span className="pvw-v">{r.v}</span><span className={`pvw-c ${r.up ? 'up' : 'down'}`}>{r.c}</span></div>
+                    ))}
+                  </div>
+                  <div className="subpush-stat">{p.chart.label} · <span style={{ color: TONE_FG[p.tone] }}>{p.chart.value}</span></div>
+                </>
+              )}
+            </div>
+          )}
+          <div style={{ marginTop: 4 }}><SourceTag source={isAuto ? { automation: p.t } : { automation: `${p.cadence || 'scheduled'}-run`, playbook: p.t }} onGoArtifacts={onGoArtifacts} /></div>
+        </AgentMsg>
+      );
+    }
     if (m.role === 'agent') return (
       <AgentMsg key={m.id} persona={subtle ? 'subtle' : 'full'} time={subtle ? null : 'now'}>
         {m.reply.kind === 'task' ? (() => {
           const r = m.reply;
-          const prog = r.progress || 0;
           const done = r.status === 'done';
+          const live = r.taskType === 'Automation';
           return (
-            <div className={`taskcard${done ? ' done' : ''}`}>
-              <div className="tc-h">
-                <span className="tc-ico" style={{ background: TONE_BG[r.tone], color: TONE_FG[r.tone] }}><Icon name={r.taskType === 'Automation' ? 'automation' : r.taskType === 'Research' ? 'search' : 'target'} size={16} /></span>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div className="tc-t">{r.title}</div>
-                  <div className="tc-m"><span className="tk-type">{r.taskType}</span>{done ? 'live · just now' : 'new task · just now'}</div>
-                </div>
+            <div className="mtask">
+              <div className="mtask-h">
+                <span className="mtask-ico" style={{ background: TONE_BG[r.tone], color: TONE_FG[r.tone] }}><Icon name={r.taskType === 'Automation' ? 'automation' : r.taskType === 'Research' ? 'search' : 'target'} size={14} /></span>
+                <span className="mtask-t">{r.title}</span>
                 {done
-                  ? <span className="status-pill done"><span className="sd"></span>Live</span>
+                  ? <span className="status-pill done"><span className="sd"></span>{live ? 'Live' : 'Done'}</span>
                   : <span className="status-pill running"><span className="sd"></span>Running</span>}
               </div>
-              <div className="tc-sub">{r.sub}</div>
-              <div className="tc-steps">
-                {r.steps.map((s, i) => {
-                  const state = i < prog || done ? 'done' : i === prog ? 'now' : 'todo';
-                  return (
-                    <div className={`tc-step ${state}`} key={i}>
-                      <span className="tc-dot">{state === 'done' ? <Icon name="check" size={11} /> : state === 'now' ? <span className="tc-spin"></span> : null}</span>
-                      {s}
-                    </div>
-                  );
-                })}
-              </div>
-              {done && r.success && (
-                <div className="tc-success">
-                  <div className="tcs-h"><span className="tcs-check"><Icon name="check" size={14} /></span>{r.success.headline}</div>
-                  <div className="tcs-meta">
-                    <span><Icon name="clock" size={13} /> {r.success.schedule}</span>
-                    <span><Icon name="send2" size={13} /> {r.success.delivery}</span>
-                  </div>
-                </div>
-              )}
-              <div className="tc-actions">
-                <button className="tc-view" onClick={onGoTasks}>Open in Tasks<Icon name="chevdown" size={15} /></button>
-                {done && <button className="tc-view alt" onClick={onGoArtifacts}>View automation<Icon name="chevdown" size={15} /></button>}
+              <div className="mtask-s">
+                {done
+                  ? <>{r.doneNote || (r.taskType === 'Research' ? 'Brief ready — saved to Artifacts.' : live ? 'Live — pushes will land here.' : 'Built and live.')} <button onClick={onGoArtifacts}>View in Artifacts</button></>
+                  : <>Background task — I’ll post here when it’s done. <button onClick={onGoTasks}>Track it in Tasks</button></>}
               </div>
             </div>
           );
@@ -2282,23 +2817,66 @@ const KOL_SIDE = { bullish: { c: 'var(--main-m3)', bg: 'rgba(45,143,97,0.10)', l
 function SourceTag({ source, onGoArtifacts }) {
   if (!source) return null;
   return (
-    <button className="srctag" onClick={onGoArtifacts}>
+    <button className="srctag" onClick={() => onGoArtifacts('automations')}>
       <span className="src-ico"><Icon name="automation" size={13} /></span>
       <span className="src-txt">
         <span className="src-auto">{source.automation}</span>
         {source.playbook
           ? <span className="src-pb"> · from <span className="src-pb-n"><Icon name="target" size={11} /> {source.playbook}</span></span>
-          : <span className="src-standalone"> · standalone automation</span>}
+          : <span className="src-standalone"> · {source.scope === 'channel' ? 'channel automation' : 'standalone automation'}</span>}
       </span>
     </button>
   );
 }
 
+/* ============ shared entity picker ============
+   One widget wherever a template needs entities — inline in a channel
+   onboard or inside the automation modal: rich recommendation rows with a
+   one-click toggle, plus a free-entry handle row. */
+function EntityPicker({ recs, picked, onToggle, onAdd, placeholder, onLabel = 'Following', offLabel = 'Follow', compact }) {
+  const [entry, setEntry] = useState('');
+  const add = () => { const v = entry.trim(); if (v) onAdd(v); setEntry(''); };
+  return (
+    <>
+      <div className={`ko-grid${compact ? ' compact' : ''}`}>
+        {recs.map((k) => {
+          const on = !!picked[k.handle];
+          return (
+            <div className={`ko-card${on ? ' on' : ''}`} key={k.handle}>
+              <span className="ko-ava" style={{ background: avaColor(k.name) }}>{initials(k.name)}</span>
+              <div className="ko-info">
+                <div className="ko-name">{k.name} <span className="ko-handle">{k.handle}</span></div>
+                <div className="ko-focus">{k.focus}</div>
+                {k.stat && <div className="ko-stat">{k.stat}</div>}
+              </div>
+              <button className={`ko-follow${on ? ' on' : ''}`} onClick={() => onToggle(k.handle)}>
+                {on ? <><Icon name="check" size={14} /> {onLabel}</> : `+ ${offLabel}`}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <div className="ko-custom">
+        <span className="ko-at"><Icon name="at" size={16} /></span>
+        <input value={entry} onChange={(e) => setEntry(e.target.value)} placeholder={placeholder}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } }} />
+        <button className="ko-add" disabled={!entry.trim()} onClick={add}>Add</button>
+      </div>
+    </>
+  );
+}
+
 function KolFollowOnboard({ onDigest }) {
-  const [follows, setFollows] = useState(() => Object.fromEntries(KOL_RECOMMENDED.map((k) => [k.handle, k.followed])));
-  const [custom, setCustom] = useState('');
-  const count = Object.values(follows).filter(Boolean).length;
-  const toggle = (h) => setFollows((p) => ({ ...p, [h]: !p[h] }));
+  const [recs, setRecs] = useState(KOL_RECOMMENDED);
+  const [picked, setPicked] = useState(() => Object.fromEntries(KOL_RECOMMENDED.filter((k) => k.followed).map((k) => [k.handle, true])));
+  const [every, setEvery] = useState('Daily · 07:30 ET');
+  const [deliver, setDeliver] = useState('kol-digest');
+  const count = Object.values(picked).filter(Boolean).length;
+  const toggle = (h) => setPicked((p) => ({ ...p, [h]: !p[h] }));
+  const addCustom = (v) => {
+    setRecs((r) => (r.some((k) => k.handle === v) ? r : [...r, { name: v.replace(/^@/, ''), handle: v, focus: 'Added by you' }]));
+    setPicked((p) => ({ ...p, [v]: true }));
+  };
   return (
     <div className="kol-onboard">
       <div className="ko-h">
@@ -2308,35 +2886,28 @@ function KolFollowOnboard({ onDigest }) {
         </div>
         <span className="ko-count">{count} following</span>
       </div>
-      <div className="ko-grid">
-        {KOL_RECOMMENDED.map((k) => {
-          const on = follows[k.handle];
-          return (
-            <div className={`ko-card${on ? ' on' : ''}`} key={k.handle}>
-              <span className="ko-ava" style={{ background: avaColor(k.name) }}>{initials(k.name)}</span>
-              <div className="ko-info">
-                <div className="ko-name">{k.name} <span className="ko-handle">{k.handle}</span></div>
-                <div className="ko-focus">{k.focus}</div>
-                <div className="ko-stat">{k.stat}</div>
-              </div>
-              <button className={`ko-follow${on ? ' on' : ''}`} onClick={() => toggle(k.handle)}>
-                {on ? <><Icon name="check" size={14} /> Following</> : <>+ Follow</>}
-              </button>
-            </div>
-          );
-        })}
-      </div>
-      <div className="ko-custom">
-        <span className="ko-at"><Icon name="at" size={16} /></span>
-        <input value={custom} onChange={(e) => setCustom(e.target.value)} placeholder="Add any handle — e.g. @chamath, a Substack, or a Telegram channel" />
-        <button className="ko-add" disabled={!custom.trim()} onClick={() => setCustom('')}>Add</button>
+      <EntityPicker recs={recs} picked={picked} onToggle={toggle} onAdd={addCustom}
+        placeholder="Add any handle — e.g. @chamath, a Substack, or a Telegram channel" />
+      <div className="am-base">
+        <label className="am-sel">
+          <span className="am-sel-k">Runs</span>
+          <select value={every} onChange={(e) => setEvery(e.target.value)}>
+            {AUTO_CADENCES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </label>
+        <label className="am-sel">
+          <span className="am-sel-k">Deliver to</span>
+          <select value={deliver} onChange={(e) => setDeliver(e.target.value)}>
+            {CHANNELS.filter((c) => c.kind !== 'group').map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </select>
+        </label>
       </div>
       <button className="ko-cta" onClick={() => onDigest(count)}>Start my digest — {count} {count === 1 ? 'voice' : 'voices'}<Icon name="arrowup" size={15} /></button>
     </div>
   );
 }
 
-function KolDigestView({ onDigest, extra, onGoTasks, onGoArtifacts }) {
+function KolDigestView({ onDigest, extra, onGoTasks, onGoArtifacts, onConnectIm }) {
   const agg = KOL_DIGEST_AGG;
   return (
     <div className="stage-inner" style={{ maxWidth: 720 }}>
@@ -2392,43 +2963,118 @@ function KolDigestView({ onDigest, extra, onGoTasks, onGoArtifacts }) {
         <KolFollowOnboard onDigest={onDigest} />
       </AgentMsg>
 
-      <ExtraThread extra={extra} subtle={false} onGoTasks={onGoTasks} onGoArtifacts={onGoArtifacts} />
+      <ExtraThread extra={extra} subtle={false} onGoTasks={onGoTasks} onGoArtifacts={onGoArtifacts} onConnectIm={onConnectIm} />
     </div>
   );
 }
 
 /* ===================== generic topic channel placeholder ===================== */
-function TopicChannelView({ channel }) {
+function TopicChannelView({ channel, extra, onPrompt, onGoTasks, onGoArtifacts, onConnectIm }) {
+  const go = (t) => onPrompt && onPrompt(t);
   return (
     <div className="stage-inner" style={{ maxWidth: 720 }}>
+      <div className="day-sep" style={{ maxWidth: 'none' }}>Personal topic channel · memory, tasks &amp; artifacts stay scoped here</div>
+      {channel.fresh ? (
+        /* just created — Alva opens the conversation and proposes the first moves */
+        <AgentMsg persona="full" time="now">
+          <div className="bubble">
+            <p><span style={{ fontWeight: 500 }}>{channel.label}</span> is live. Chat, tasks, memory, and artifacts stay scoped here — and I read the brief: “{channel.desc}”</p>
+            <p style={{ marginTop: 8 }}>Tell me what to watch, or pick a starting point:</p>
+          </div>
+          <div className="chips" style={{ marginTop: 8 }}>
+            <button className="chip" onClick={() => go(`Track the core ${channel.label} names`)}><span className="ci"><Icon name="target" size={16} /></span>Build the watchlist</button>
+            <button className="chip" onClick={() => go(`Deep-dive ${channel.label}: map the landscape`)}><span className="ci"><Icon name="search" size={16} /></span>First deep dive</button>
+            <button className="chip" onClick={() => go(`Screen ${channel.label} movers daily`)}><span className="ci"><Icon name="automation" size={16} /></span>Daily movers screen</button>
+          </div>
+        </AgentMsg>
+      ) : (
       <AgentMsg persona="subtle">
         <div className="bubble plain">
-          <p className="lead">{channel.label}</p>
-          <p className="sub">A focused personal channel. Everything here — chat, tasks, memory, and artifacts — stays scoped to this topic, separate from your other work. Pick up where you left off, or start a new line of research.</p>
+          <p className="sub">Pick up where we left off, or start a new line of research.</p>
         </div>
         <div className="chips" style={{ marginTop: 2 }}>
-          <button className="chip"><span className="ci"><Icon name="bulb" size={16} /></span>Continue research</button>
-          <button className="chip"><span className="ci"><Icon name="search" size={16} /></span>New deep dive</button>
+          <button className="chip" onClick={() => go('What moved here since we last dug in?')}><span className="ci"><Icon name="bulb" size={16} /></span>Continue research</button>
+          <button className="chip" onClick={() => go('Deep-dive the next open question here')}><span className="ci"><Icon name="search" size={16} /></span>New deep dive</button>
         </div>
       </AgentMsg>
+      )}
+      <ExtraThread extra={extra || []} subtle={false} onGoTasks={onGoTasks} onGoArtifacts={onGoArtifacts} onConnectIm={onConnectIm} />
     </div>
   );
 }
 
 /* ===================== Group channel — multi-member chat with Alva ===================== */
-function GroupChannelView({ channel, onGoTasks }) {
+function GroupChannelView({ channel, extra, onGoTasks, onGoArtifacts, onAskAlva }) {
   const data = GROUP_CHATS[channel.id];
+  const [posted, setPosted] = useState([]);
+  const [postOpen, setPostOpen] = useState(false);
   if (!data) return <TopicChannelView channel={channel} />;
+  const isAdmin = data.you === 'Group Admin';
+  const src = channel.cls === 'ch-tg' ? 'Telegram' : 'Discord';
+
+  const postedRows = posted.map((pm, i) => (
+    <div className="gmsg alva" key={`p${i}`}>
+      <span className="gava agent"><img src="../logo-portrait.svg" alt="Alva" /></span>
+      <div className="gcol">
+        <div className="gmeta"><span className="gwho">Alva</span><span className="gbot">BOT</span><span className="gtime">now</span><span className="req-tag">requested by leo</span></div>
+        <div className="gbubble alva">{pm}</div>
+      </div>
+    </div>
+  ));
+  const postModal = postOpen && <PostToGroupModal channel={channel} onClose={() => setPostOpen(false)} onPost={(text) => { setPosted((prev) => [...prev, text]); setPostOpen(false); }} />;
+
+  /* Variant A — digest mode: Alva keeps summarizing the room; you talk to the digest */
+  if (data.mode === 'digest') {
+    return (
+      <div className="stage-inner" style={{ maxWidth: 680 }}>
+        <div className="day-sep" style={{ maxWidth: 'none' }}>Mirrored from {src} · summarized by Room-Digest</div>
+
+        {data.digests.map((d, i) => (
+          <AgentMsg key={i} persona="full" push time={d.time}>
+            <div className="bubble">
+              <p style={{ marginBottom: 5 }}><span style={{ fontWeight: 500 }}>{d.title}</span></p>
+              <p>{rich(d.lead)}</p>
+              {d.sections.map((sec, j) => (
+                <div className="gd-sec" key={j}>
+                  <p className="gd-h">{sec.h}</p>
+                  <ul className="gd-ul">
+                    {sec.bullets.map((b, k) => <li key={k}>{rich(b)}</li>)}
+                  </ul>
+                </div>
+              ))}
+              {d.tasksLabel && <p style={{ marginTop: 10, color: 'var(--text-n5)' }}>{d.tasksLabel}</p>}
+            </div>
+            <div style={{ marginTop: 4 }}><SourceTag source={{ automation: 'Room-Digest', scope: 'channel' }} onGoArtifacts={onGoArtifacts} /></div>
+            {d.tasks && (
+              <div className="dg-tasks">
+                {d.tasks.map((t, k) => (
+                  <button className="roomtask" key={k} onClick={onGoTasks}>
+                    <span className="rt-ico"><Icon name="tasks" size={15} /></span>
+                    <span className="rt-col"><span className="rt-t">{t.title}</span><span className="rt-s">from @Alva mention by {t.by} · {t.status}</span></span>
+                    <span className="rt-chev"><Icon name="chevdown" size={15} /></span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </AgentMsg>
+        ))}
+
+        {postedRows}
+        <div className="postrow">
+          {isAdmin
+            ? <button className="post-btn" onClick={() => setPostOpen(true)}><Icon name="send2" size={14} />Post to group…</button>
+            : <span className="post-lock"><Icon name="alert" size={13} /> Posting to the group needs Group Admin</span>}
+        </div>
+        <ExtraThread extra={extra || []} subtle={false} onGoTasks={onGoTasks} onGoArtifacts={onGoArtifacts} />
+        {postModal}
+      </div>
+    );
+  }
+
+  /* Variant B — mirror-ask: raw read view; real conversation hands off to global Ask */
   return (
     <div className="stage-inner" style={{ maxWidth: 680 }}>
-      <div className="group-intro">
-        <span className={`group-mark ${channel.cls}`}><Icon name={channel.ico} size={18} /></span>
-        <div style={{ minWidth: 0 }}>
-          <div className="gi-name">{channel.label}</div>
-          <div className="gi-meta">{data.members}</div>
-        </div>
-      </div>
-      <div className="group-topic">{data.topic}</div>
+      <div className="day-sep" style={{ maxWidth: 'none' }}>Mirrored from {src} · read view</div>
 
       {data.msgs.map((m, i) => {
         if (m.alva) {
@@ -2466,6 +3112,47 @@ function GroupChannelView({ channel, onGoTasks }) {
           </div>
         );
       })}
+      {postedRows}
+
+      <div className="mirror-hint">
+        <div className="mh-t">To dig into the room with Alva, use global Ask — that thread stays in your Alva Agent Channel.</div>
+        <div className="mh-row">
+          <button className="post-btn" onClick={onAskAlva}><Icon name="agent" size={14} />Ask Alva about this room</button>
+          {isAdmin
+            ? <button className="post-btn" onClick={() => setPostOpen(true)}><Icon name="send2" size={14} />Post to group…</button>
+            : <span className="post-lock"><Icon name="alert" size={13} /> Posting needs Group Admin</span>}
+        </div>
+      </div>
+      {postModal}
+    </div>
+  );
+}
+
+/* explicit write-back to the IM group — preview first, bot sends with attribution */
+function PostToGroupModal({ channel, onClose, onPost }) {
+  const preset = channel.id === 'btc-room'
+    ? 'Room digest — BTC: ETF net flows +$412M (third straight day of adds), funding calm at 0.012%, 30d BTC-10Y correlation −0.38 and weakening. Watching for a funding flip above 0.05%.'
+    : 'Room digest — L2 fees: Base $38M vs Arbitrum $21M over 30d. Base +27% MoM but app-led. Flagging if either top app drops below 40% of Base fees.';
+  const [text, setText] = useState(preset);
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">Post to group</div>
+            <div className="modal-s">Preview first — the Alva bot sends it to {channel.label}, with your attribution.</div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="plus" size={16} /></button>
+        </div>
+        <div className="modal-body" style={{ padding: '12px 16px 16px' }}>
+          <textarea className="post-edit" rows={5} value={text} onChange={(e) => setText(e.target.value)} />
+          <div className="post-meta"><Icon name="agent" size={13} /> Sent by the Alva bot · requested by leo</div>
+          <div className="post-actions">
+            <button className="im-go" onClick={onClose}>Cancel</button>
+            <button className="post-go" onClick={() => onPost(text)}>Post to group</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -2496,7 +3183,7 @@ function SkillsPanel({ onSkill }) {
     </div>
   );
 }
-function AutomationRows({ items }) {
+function AutomationRows({ items, onEdit, channelId }) {
   return (
     <div className="auto-list">
       {items.map((a) => {
@@ -2506,6 +3193,7 @@ function AutomationRows({ items }) {
             <div className="auto-r1">
               <span className={`ad ${on ? 'on' : 'off'}`}></span>
               <span className="an">{a.name}</span>
+              {onEdit && <button className="aa" aria-label="Edit" onClick={() => onEdit(a)}><Icon name="sliders" size={15} /></button>}
               <button className="aa" aria-label={on ? 'Pause' : 'Resume'}><Icon name={on ? 'pause' : 'play'} size={16} /></button>
               <button className="aa" aria-label="Delete"><Icon name="more" size={16} /></button>
             </div>
@@ -2515,6 +3203,10 @@ function AutomationRows({ items }) {
               <span>{a.runEvery}</span>
               <span className="sep">|</span>
               <span>{a.runs} runs</span>
+              {a.custom && a.custom.deliver && a.custom.deliver !== channelId && (() => {
+                const target = CHANNELS.find((c) => c.id === a.custom.deliver);
+                return target ? <><span className="sep">|</span><span>→ {target.label}</span></> : null;
+              })()}
               {a.usedBy.length > 0 && (
                 <span className="usedby">
                   <span className="sep">|</span>
@@ -2531,9 +3223,141 @@ function AutomationRows({ items }) {
   );
 }
 
-function ArtifactsPanel({ onCard, files = ARTIFACTS, autos = AUTOMATIONS, playbooks = PLAYBOOKS, isGroup = false }) {
+/* ============ Channel automations — manual create & edit ============
+   Two ways in: a template form (pick entities, digest prompt prefilled) or
+   pure instructions. Both share the standard base fields: run schedule and
+   the channel that receives the pushes. */
+const TICKER_RECOMMENDED = [
+  { name: 'NVIDIA', handle: 'NVDA', focus: 'AI compute · data center', stat: '$3.4T cap · +38% YTD' },
+  { name: 'Broadcom', handle: 'AVGO', focus: 'Networking · custom ASIC', stat: '$1.2T cap · +24% YTD' },
+  { name: 'TSMC', handle: 'TSM', focus: 'Foundry · advanced nodes', stat: '$1.1T cap · +19% YTD' },
+  { name: 'Vertiv', handle: 'VRT', focus: 'Power & cooling', stat: '$42B cap · +31% YTD' },
+  { name: 'GE Vernova', handle: 'GEV', focus: 'Grid & generation', stat: '$96B cap · +27% YTD' },
+];
+
+const AUTO_TEMPLATES = [
+  { id: 'kol', label: 'KOL Digest', hint: 'Follow a set of voices', entityLabel: 'Voices to follow', onLabel: 'Following', offLabel: 'Follow',
+    ph: 'Add any handle — e.g. @chamath, a Substack, or a Telegram channel',
+    recs: KOL_RECOMMENDED,
+    name: 'KOL-Morning-Digest', every: 'Daily · 07:30 ET',
+    prompt: 'Each morning, read everything these voices posted overnight, keep only the posts with a real signal, and push one digest — each item with the call, the ticker, and why it matters.' },
+  { id: 'tickers', label: 'Ticker Digest', hint: 'Watch a set of tickers', entityLabel: 'Tickers to watch', onLabel: 'Watching', offLabel: 'Watch',
+    ph: 'Add any ticker — e.g. MSFT, COIN, 7203.T',
+    recs: TICKER_RECOMMENDED,
+    name: 'Ticker-Daily-Digest', every: 'Daily · post-close',
+    prompt: 'Every day after the close, summarize what moved these tickers — price, volume, news, filings — into one short digest. Flag anything that changes the thesis.' },
+];
+
+const AUTO_CADENCES = ['Every 5 min', 'Hourly', 'Daily \u00b7 07:30 ET', 'Daily \u00b7 post-close', 'Weekly \u00b7 Monday'];
+
+function AutomationModal({ channelId, initial, onClose, onSave }) {
+  const editing = !!initial;
+  const cfg = (initial && initial.custom) || {};
+  const [mode, setMode] = useState(cfg.mode || 'template');
+  const [tpl, setTpl] = useState(cfg.tpl || 'kol');
+  const t = AUTO_TEMPLATES.find((x) => x.id === tpl);
+  const seedRecs = (base) => [...base, ...(cfg.entities || []).filter((h) => !base.some((k) => k.handle === h)).map((h) => ({ name: h.replace(/^@/, ''), handle: h, focus: 'Added by you' }))];
+  const [recs, setRecs] = useState(() => seedRecs(t.recs));
+  const [picked, setPicked] = useState(() => Object.fromEntries((cfg.entities || []).map((h) => [h, true])));
+  const entities = Object.keys(picked).filter((h) => picked[h]);
+  const [prompt, setPrompt] = useState(cfg.prompt != null ? cfg.prompt : t.prompt);
+  const [instruction, setInstruction] = useState(cfg.instruction || '');
+  const [every, setEvery] = useState(initial ? initial.runEvery : t.every);
+  const [deliver, setDeliver] = useState(cfg.deliver || channelId);
+  const targets = CHANNELS.filter((c) => c.kind !== 'group' || c.id === channelId);
+  const pickTpl = (id) => { const nt = AUTO_TEMPLATES.find((x) => x.id === id); setTpl(id); setRecs(nt.recs); setPicked({}); setPrompt(nt.prompt); if (!editing) setEvery(nt.every); };
+  const toggle = (h) => setPicked((p) => ({ ...p, [h]: !p[h] }));
+  const addCustom = (v) => {
+    setRecs((r) => (r.some((k) => k.handle === v) ? r : [...r, { name: v.replace(/^@/, ''), handle: v, focus: 'Added by you' }]));
+    setPicked((p) => ({ ...p, [v]: true }));
+  };
+  const ok = mode === 'template' ? entities.length > 0 : instruction.trim().length > 0;
+  // the name derives itself — template name, or the first words of the instruction
+  const autoName = editing ? initial.name
+    : mode === 'template' ? t.name
+    : (instruction.trim().split(/\s+/).slice(0, 3).join('-').replace(/[^A-Za-z0-9-]/g, '') || 'Custom-Watch');
+  const save = () => ok && onSave({ name: autoName, runEvery: every, custom: { mode, tpl, entities, prompt, instruction, deliver } });
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{ width: 480, maxHeight: '88vh' }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">{editing ? 'Edit automation' : 'New automation'}</div>
+            <div className="modal-s">{editing ? initial.name : 'A standing instruction — Alva runs it on schedule and pushes the result.'}</div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="plus" size={16} /></button>
+        </div>
+        <div className="modal-body" style={{ padding: '20px 20px 18px' }}>
+          <div className="seg even">
+            <button className={mode === 'template' ? 'active' : ''} onClick={() => setMode('template')}>From a template</button>
+            <button className={mode === 'instruction' ? 'active' : ''} onClick={() => setMode('instruction')}>From instructions</button>
+          </div>
+
+          {mode === 'template' ? (
+            <>
+              <div className="am-row" style={{ marginTop: 18 }}>
+                {AUTO_TEMPLATES.map((x) => (
+                  <button key={x.id} className={`am-tpl${tpl === x.id ? ' on' : ''}`} onClick={() => pickTpl(x.id)}>
+                    <span className="am-tpl-t">{x.label}</span>
+                    <span className="am-tpl-s">{x.hint}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="am-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                {t.entityLabel}
+                <span className="ko-count">{entities.length} {t.onLabel.toLowerCase()}</span>
+              </div>
+              <EntityPicker compact recs={recs} picked={picked} onToggle={toggle} onAdd={addCustom}
+                placeholder={t.ph} onLabel={t.onLabel} offLabel={t.offLabel} />
+              <div className="am-label">Digest prompt</div>
+              <textarea className="post-edit" rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+            </>
+          ) : (
+            <textarea className="post-edit" rows={4} style={{ marginTop: 18 }} value={instruction}
+              placeholder={'Describe what to watch and what to push — e.g. \u201cWatch 8h funding; alert me the moment it crosses 0.05% with a one-line read.\u201d'}
+              onChange={(e) => setInstruction(e.target.value)} />
+          )}
+
+          <div className="am-base">
+            <label className="am-sel">
+              <span className="am-sel-k">Runs</span>
+              <select value={every} onChange={(e) => setEvery(e.target.value)}>
+                {AUTO_CADENCES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </label>
+            <label className="am-sel">
+              <span className="am-sel-k">Deliver to</span>
+              <select value={deliver} onChange={(e) => setDeliver(e.target.value)}>
+                {targets.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <div className="nc-foot">
+            <div className="post-meta">Pushes land in the channel — and mirror to its connected IMs.</div>
+            <button className="post-go" disabled={!ok} onClick={save}>{editing ? 'Save' : 'Create'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ArtifactsPanel({ onCard, files = ARTIFACTS, autos = AUTOMATIONS, playbooks = PLAYBOOKS, isGroup = false, initialSeg = null, channelId = 'agent' }) {
   const hasPlaybooks = playbooks.length > 0;
-  const [seg, setSeg] = useState(hasPlaybooks ? 'playbooks' : 'automations');
+  const [seg, setSeg] = useState(initialSeg || (hasPlaybooks ? 'playbooks' : 'automations'));
+  const [autoModal, setAutoModal] = useState(null); // 'new' | the automation being edited
+  const [, bump] = useState(0);
+  const saveAuto = (data) => {
+    if (autoModal === 'new') {
+      let id = 'ua-' + data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      while (autos.some((x) => x.id === id)) id += '-2';
+      autos.unshift({ id, status: 'active', lastRun: '\u2014', runs: 0, usedBy: [], ...data });
+    }
+    else Object.assign(autoModal, data);
+    setAutoModal(null);
+    bump((n) => n + 1);
+  };
   const activeAutos = autos.filter((a) => a.status === 'active').length;
   const segs = [];
   if (hasPlaybooks) segs.push(['playbooks', `Playbooks · ${playbooks.length}`]);
@@ -2553,6 +3377,10 @@ function ArtifactsPanel({ onCard, files = ARTIFACTS, autos = AUTOMATIONS, playbo
             <button key={id} className={seg === id ? 'active' : ''} onClick={() => setSeg(id)}>{l}</button>
           ))}
         </div>
+        <span className="grow"></span>
+        {seg === 'automations' && (
+          <button className="newauto" onClick={() => setAutoModal('new')}><Icon name="plus" size={14} />New automation</button>
+        )}
       </div>
 
       {seg === 'playbooks' && (
@@ -2561,7 +3389,12 @@ function ArtifactsPanel({ onCard, files = ARTIFACTS, autos = AUTOMATIONS, playbo
         </div>
       )}
 
-      {seg === 'automations' && <AutomationRows items={autos} />}
+      {seg === 'automations' && <AutomationRows items={autos} onEdit={(a) => setAutoModal(a)} channelId={channelId} />}
+      {/* portal: .panel animates with a transform, which would otherwise trap this fixed overlay */}
+      {autoModal && ReactDOM.createPortal(
+        <AutomationModal channelId={channelId} initial={autoModal === 'new' ? null : autoModal} onClose={() => setAutoModal(null)} onSave={saveAuto} />,
+        document.body
+      )}
 
       {seg === 'files' && (
         <div className="art-list">
@@ -2582,6 +3415,215 @@ function ArtifactsPanel({ onCard, files = ARTIFACTS, autos = AUTOMATIONS, playbo
 }
 
 /* ===================== Members modal ===================== */
+/* ===================== IM connections (per channel) ===================== */
+const IMS = [
+  { id: 'telegram', label: 'Telegram', icon: 'telegram', handle: '@leo_tg', sub: 'Bot DM — instant pushes' },
+  { id: 'discord', label: 'Discord', icon: 'discord', handle: 'leo#0882', sub: 'Bot DM — switch channels with /channel' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: 'whatsapp', handle: '+1 ··· 4821', sub: 'Business account DM' },
+  { id: 'slack', label: 'Slack', icon: 'slack', handle: '@leo · alva-hq', sub: 'Alva app in your workspace' },
+];
+const IM_TINT = { telegram: '#5aa6e8', discord: '#8b6fe0', whatsapp: '#3da55e', slack: '#b8862f' };
+const IM_LINKS = { agent: { telegram: true } }; // page-session state — Alva Agent ships connected
+const IM_REC_SHOWN = {}; // channels already nudged to connect an IM this session
+
+/* after connecting Telegram — official Threaded Mode demo, mock fallback */
+function TgGuide({ channel, onDone }) {
+  const [videoOk, setVideoOk] = useState(true);
+  const topics = CHANNELS.filter((c) => c.kind !== 'group' && c.id !== 'agent' && IM_LINKS[c.id] && IM_LINKS[c.id].telegram);
+  return (
+    <div className="tg-guide">
+      {videoOk ? (
+        <video className="tgg-video" autoPlay loop muted playsInline
+          poster="https://core.telegram.org/file/400780400227/2/btvhtJcqT_A.76194.jpg/b56e1d38cc2e92e2aa"
+          src="https://core.telegram.org/file/400780400658/2/zyAsgGtzdvg.5107918.mp4/413b3825ef972abc2a"
+          onError={() => setVideoOk(false)} />
+      ) : (
+        <div className="tgg-phone">
+          <div className="tgg-head">
+            <span className="tgg-ava"><img src="../logo-portrait.svg" alt="" /></span>
+            <div><div className="tgg-name">Alva</div><div className="tgg-sub">bot · one DM for all your channels</div></div>
+          </div>
+          <div className="tgg-row" style={{ animationDelay: '120ms' }}><span className="tgg-i"><Icon name="agent" size={12} /></span>General<span className="tgg-n">Alva Agent</span></div>
+          {topics.map((c, i) => (
+            <div className={`tgg-row${c.id === channel.id ? ' new' : ''}`} style={{ animationDelay: `${280 + i * 150}ms` }} key={c.id}>
+              <span className="tgg-i">#</span>{c.label}
+              <span className="tgg-n">{c.id === channel.id ? 'just created' : 'topic'}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="tgg-created"><span className="tgg-i">#</span>{channel.label}<span className="tgg-n">just created as a topic in your Alva bot DM</span></div>
+      <div className="tgg-cap">One bot DM, a topic per channel — Telegram Threaded Mode. Reply inside a topic and it lands back in that channel; plain messages go to Alva Agent. <a href="https://core.telegram.org/bots#natively-integrate-ai-chatbots" target="_blank" rel="noreferrer">Official demo ↗</a></div>
+      <button className="post-go" style={{ width: '100%', marginTop: 12 }} onClick={onDone}>Continue connecting</button>
+    </div>
+  );
+}
+
+function ImConnectModal({ channel, onClose, onConnect, onDisconnect, autoConnect }) {
+  const [pending, setPending] = useState(null);
+  const [guide, setGuide] = useState(false);
+  const links = IM_LINKS[channel.id] || {};
+  const start = (id) => { setPending(id); setTimeout(() => { setPending(null); onConnect(id); if (id === 'telegram') setGuide(true); }, 900); };
+  // opened from a "Connect Telegram" affordance — skip the list, run that flow directly
+  useEffect(() => { if (autoConnect && !links[autoConnect]) start(autoConnect); }, []);
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">Connect this channel</div>
+            <div className="modal-s">Mirror {channel.label} to your IM — pushes land there, replies sync back.</div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="plus" size={16} /></button>
+        </div>
+        <div className="modal-body">
+          {guide ? <TgGuide channel={channel} onDone={() => setGuide(false)} /> : (<>
+          {IMS.map((im) => {
+            const on = !!links[im.id];
+            const busy = pending === im.id;
+            return (
+              <div className="im-row" key={im.id}>
+                <span className="im-ico" style={{ color: IM_TINT[im.id], background: `${IM_TINT[im.id]}1f` }}><Icon name={im.icon} size={16} /></span>
+                <div style={{ minWidth: 0 }}>
+                  <div className="im-name">{im.label}</div>
+                  <div className={`im-sub${on ? ' on' : ''}`}>{on ? `Connected · ${im.handle}` : im.sub}</div>
+                </div>
+                {on
+                  ? <button className="im-off" onClick={() => onDisconnect(im.id)}>Disconnect</button>
+                  : <button className={`im-go${busy ? ' busy' : ''}`} onClick={() => !busy && start(im.id)}>{busy ? 'Connecting…' : 'Connect'}</button>}
+              </div>
+            );
+          })}
+          <div className="im-note">Connections are per channel — each channel mirrors on its own.</div>
+          </>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* global Ask — floating right panel, styled after the product ChatPanel */
+function AskPanel({ context, extra, onSend, onClose, onGoTasks, onGoArtifacts }) {
+  const [tagOn, setTagOn] = useState(true);
+  return (
+    <div className="askpanel">
+      <div className="ap-h">
+        <span className="ap-ava"><img src="../logo-portrait.svg" alt="Alva" /><span className="ap-dot"></span></span>
+        <span className="ap-t">Alva Agent</span>
+        <span style={{ flex: '1 1 auto' }}></span>
+        <button className="ap-ico" onClick={onClose} aria-label="Collapse panel"><Icon name="enter" size={16} /></button>
+      </div>
+      <div className="ap-note">Global Ask — this thread lives in your Alva Agent Channel</div>
+      <div className="ap-body">
+        {extra.length === 0 && <div className="empty-note">Ask anything — this room, your basket, the market.</div>}
+        <ExtraThread extra={extra} subtle={false} onGoTasks={onGoTasks} onGoArtifacts={onGoArtifacts} />
+      </div>
+      <div className="ap-foot">
+        {tagOn && context && (
+          <div className="ap-chip">
+            <span className="ap-chip-ico"><Icon name={context.ico || 'hash'} size={14} /></span>
+            <span className="ap-chip-label">{context.label}</span>
+            <button className="ap-chip-x" onClick={() => setTagOn(false)} aria-label="Remove context"><Icon name="plus" size={11} /></button>
+          </div>
+        )}
+        <TaskComposer placeholder={tagOn && context ? `Ask about ${context.label}…` : 'Ask Alva anything…'} onSend={onSend} />
+      </div>
+    </div>
+  );
+}
+
+/* create a personal topic channel — a name and an optional brief; everything
+   else (watchlist, automations, IM links) happens in the first conversation */
+function NewChannelModal({ onClose, onCreate }) {
+  const [name, setName] = useState('');
+  const [about, setAbout] = useState('');
+  const TEMPLATES = [
+    { n: 'Nuclear Renaissance', a: 'SMRs, uranium, and the power build-out behind AI.' },
+    { n: 'Japan Value', a: 'Cheap balance sheets meeting governance reform.' },
+    { n: 'Earnings Season', a: 'My names, their prints, and what changes after each call.' },
+  ];
+  const ok = name.trim().length > 0;
+  const create = () => ok && onCreate(name.trim(), about.trim());
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{ width: 460 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">New topic channel</div>
+            <div className="modal-s">A personal channel — chat, tasks, memory, and artifacts stay scoped to one topic.</div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="plus" size={16} /></button>
+        </div>
+        <div className="modal-body" style={{ padding: '18px 18px 16px' }}>
+          <input className="post-edit" autoFocus placeholder="Name — e.g. Nuclear Renaissance" value={name}
+            onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && create()} />
+          <textarea className="post-edit" rows={2} style={{ marginTop: 10 }} value={about}
+            placeholder="What is it about? Optional — Alva reads this as the channel’s brief." onChange={(e) => setAbout(e.target.value)} />
+          <div className="nc-tpl">
+            <span className="nc-tpl-l">Start from a template</span>
+            <div className="nc-tpl-row">
+              {TEMPLATES.map((t) => (
+                <button className="chip" key={t.n} onClick={() => { setName(t.n); setAbout(t.a); }}>{t.n}</button>
+              ))}
+            </div>
+          </div>
+          <div className="nc-foot">
+            <div className="post-meta"><Icon name="link" size={13} /> Connect Telegram or Discord and add automations once you’re inside.</div>
+            <button className="post-go" disabled={!ok} onClick={create}>Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* mirrored-group settings — visibility, mirror mapping, digest cadence */
+function GroupSettingsModal({ channel, onClose }) {
+  const data = GROUP_CHATS[channel.id] || {};
+  const you = data.you || 'Bound Member';
+  const admin = you === 'Group Admin';
+  const [vis, setVis] = useState('private');
+  const src = channel.cls === 'ch-tg' ? 'Telegram' : 'Discord';
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">Channel settings</div>
+            <div className="modal-s">{channel.label} · <span className="m-tag">you · {you}</span></div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="plus" size={16} /></button>
+        </div>
+        <div className="modal-body">
+          <div className="acc-sec">
+            <div className="acc-h">Access &amp; visibility</div>
+            {[
+              ['private', 'Private mirror', 'Only bound members and admins can open this Web channel'],
+              ['gated', 'Member-gated', 'Link holders see a landing page; bind + membership check to enter'],
+              ['public', 'Public read', 'Anyone can read content marked public — never raw chat or members'],
+            ].map(([id, label, desc]) => (
+              <div key={id} className={`qc-opt${vis === id ? ' on' : ''}${admin ? '' : ' locked'}`} onClick={() => admin && setVis(id)}>
+                <span className="qc-radio">{vis === id && <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5L4 7L8 3" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>}</span>
+                <div><div className="qc-label">{label}</div><div className="qc-desc">{desc}</div></div>
+              </div>
+            ))}
+            <div className="acc-note">{admin ? 'Changes apply to the Web mirror only — the IM group itself is untouched.' : 'Only Group Admins can change visibility.'}</div>
+          </div>
+          <div className="acc-sec" style={{ borderBottom: 'none' }}>
+            <div className="acc-h">Mirror</div>
+            <div className="set-row"><span className="set-k">Source</span><span className="set-v">{src} group · connected</span></div>
+            <div className="set-row"><span className="set-k">Web write-back</span><span className="set-v">Explicit “Post to group” only</span></div>
+            {data.mode === 'digest'
+              ? <div className="set-row"><span className="set-k">Digest automation</span><span className="set-v">Room-Digest · daily 21:00 + intraday</span></div>
+              : <div className="set-row"><span className="set-k">Chat mode</span><span className="set-v">Raw mirror · read view</span></div>}
+            <div className="acc-note">Web chat never posts back to the group — publishing is an explicit admin action.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MembersModal({ channel, roster, onClose }) {
   const isGroup = channel.kind === 'group';
   return (
@@ -2592,7 +3634,7 @@ function MembersModal({ channel, roster, onClose }) {
             <div className="modal-t">{isGroup ? 'Members' : 'Participants'}</div>
             <div className="modal-s">{isGroup ? `${channel.label} · ${channel.id === 'btc-room' ? '218 members' : '96 members'}` : channel.label}</div>
           </div>
-          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="plus" size={16} /></button>
         </div>
         <div className="modal-body">
           {roster.map((m) => (
@@ -2616,19 +3658,27 @@ function MembersModal({ channel, roster, onClose }) {
 
 /* ===================== App ===================== */
 const CONCEPTS = [
-  { id: 'A', label: 'Quiet Welcome', width: 720 },
-  { id: 'B', label: 'Guided Onboarding', width: 780 },
-  { id: 'D', label: 'Calm + Rich', width: 740 },
-  { id: 'C', label: 'Briefing Feed', width: 640 },
+  { id: 'A', label: 'New user', width: 720 },
+  { id: 'R', label: 'Returning', width: 680 },
 ];
+// Embed contract used by alva-channel-workspace.html iframe snippets.
+const INIT = new URLSearchParams(window.location.search);
+const initOneOf = (key, allowed, fallback) => {
+  const v = INIT.get(key);
+  return allowed.includes(v) ? v : fallback;
+};
 
 function App() {
-  const [channel, setChannel] = useState('agent');
-  const [concept, setConcept] = useState('A');
-  const [tab, setTab] = useState('chat');
+  const [channel, setChannel] = useState(initOneOf('channel', CHANNELS.map((c) => c.id), 'agent'));
+  const [concept, setConcept] = useState(initOneOf('concept', CONCEPTS.map((c) => c.id), 'A'));
+  const [tab, setTab] = useState(initOneOf('tab', TABS.map((t) => t.id), 'chat'));
+  const [artSeg, setArtSeg] = useState(INIT.get('artifact')); // deep-link into an Artifacts segment (e.g. a SourceTag → automations)
+  const goArtifacts = (seg) => { setArtSeg(typeof seg === 'string' ? seg : null); setTab('artifacts'); };
   const [extra, setExtra] = useState([]); // appended interaction messages
   const stageRef = useRef(null);
   const idRef = useRef(0);
+  const channelRef = useRef(channel);
+  channelRef.current = channel;
 
   const cfg = CONCEPTS.find((c) => c.id === concept);
   const cur = CHANNELS.find((c) => c.id === channel);
@@ -2651,60 +3701,62 @@ function App() {
     setExtra((prev) => [...prev, { id: uid, role: 'user', text: userText }, { id: uid + 0.5, role: 'typing' }]);
     setTimeout(() => {
       setExtra((prev) => prev.filter((m) => m.id !== uid + 0.5).concat({ id: uid + 0.6, role: 'agent', reply }));
+      // every background task reaches an end state
+      if (reply.kind === 'task') {
+        setTimeout(() => {
+          setExtra((prev) => prev.map((m) => (m.id === uid + 0.6 ? { ...m, reply: { ...m.reply, status: 'done' } } : m)));
+          // the channel just did real work but has no IM link — recommend one, once per channel
+          const ch = channelRef.current;
+          const c = CHANNELS.find((x) => x.id === ch);
+          if (c && c.kind !== 'group' && !IM_LINKS[ch] && !IM_REC_SHOWN[ch]) {
+            setTimeout(() => {
+              if (channelRef.current !== ch || IM_LINKS[ch] || IM_REC_SHOWN[ch]) return;
+              IM_REC_SHOWN[ch] = true;
+              setExtra((prev) => [...prev, { id: ++idRef.current, role: 'agent', reply: { kind: 'imrec' } }]);
+            }, 1400);
+          }
+        }, 4500);
+      }
     }, 1000);
   }, []);
 
-  const onSkill = useCallback((s) => {
-    respond(`Use ${s.label}`, { kind: 'building', title: `Spinning up ${s.label}`, sub: 'Pulling data and drafting your first version — this usually takes a moment.' });
-  }, [respond]);
-  const onPrompt = useCallback((text) => {
-    respond(text, { kind: 'building', title: 'On it', sub: 'Researching, then building a playbook you can run and tweak.' });
-  }, [respond]);
+  const onPrompt = useCallback((text) => { respond(text, routeReply(text)); }, [respond]);
+  const onSend = onPrompt;
   const onCard = useCallback((p) => {
     respond(`Open “${p.title}”`, { kind: 'building', title: `Opening ${p.title}`, sub: `Loading the latest run from ${p.creator}. You can remix it once it's ready.` });
   }, [respond]);
-  const onSend = useCallback((text) => {
-    respond(text, { kind: 'building', title: 'On it', sub: 'Researching, then building a playbook you can run and tweak.' });
-  }, [respond]);
 
   // Clicking a skill (or its suggested prompt / CTA) starts a new Task, shaped by skill.kind
-  const onStartTask = useCallback((skill) => {
+  const onStartTask = useCallback((skill, textOverride) => {
     const KIND = {
-      ask: { type: 'Research', tone: 'blue', title: `Research: ${skill.label}`, sub: 'Gathering sources and drafting the answer. I\u2019ll post the finished brief here and save it to Artifacts.', steps: ['Parse the question and scope', 'Pull sources and data', 'Draft the brief'] },
       automation: { type: 'Automation', tone: 'amber', title: `Automation: ${skill.label}`, sub: 'Wiring the alert rule and schedule. Once live, I\u2019ll watch in the background and push here on a trigger.', steps: ['Define the alert rule', 'Set the schedule and delivery', 'Activate the watch'] },
       playbook: { type: 'Playbook', tone: 'teal', title: `Build: ${skill.label}`, sub: 'Building your playbook — pulling data, drafting the layout, and wiring its refresh. You can tweak it once it\u2019s ready.', steps: ['Define scope and inputs', 'Pull data and build the view', 'Wire the refresh schedule'] },
     }[skill.kind];
-    respond(skill.prompt, { kind: 'task', taskType: KIND.type, tone: KIND.tone, title: KIND.title, sub: KIND.sub, steps: KIND.steps });
+    respond(textOverride || skill.prompt, { kind: 'task', taskType: KIND.type, tone: KIND.tone, title: KIND.title, sub: KIND.sub, steps: KIND.steps });
   }, [respond]);
 
-  // Start a digest automation from the follow onboarding — animate build → live
+  // Skills tab “Run skill” starts the same typed task flow
+  const onSkill = useCallback((s) => onStartTask(s), [onStartTask]);
+
+  // Start a digest automation from the follow onboarding — completes like any background task
   const onDigestAutomation = useCallback((count) => {
+    respond(`Follow ${count} ${count === 1 ? 'voice' : 'voices'} and send me a daily AI digest`, {
+      kind: 'task', taskType: 'Automation', tone: 'amber', title: 'Automation: KOL AI Digest',
+      doneNote: `Live — following ${count} ${count === 1 ? 'voice' : 'voices'}, daily roundup 07:30 ET, pushed here + Telegram.`,
+    });
+  }, [respond]);
+
+  // After an instant subscribe, Alva pushes the first run/alert so the conversation moves forward
+  const onSubscribed = useCallback((skill, item) => {
     setTab('chat');
     const uid = ++idRef.current;
-    const steps = ['Subscribe to the selected handles', 'Set the daily roundup schedule', 'Activate the digest push'];
-    const base = { kind: 'task', taskType: 'Automation', tone: 'amber', title: 'Automation: KOL AI Digest',
-      sub: 'Wiring your daily digest — I\u2019ll read these voices each morning and push only the signals that matter, here.',
-      steps, progress: 0, status: 'running' };
-    setExtra((prev) => [...prev, { id: uid, role: 'user', text: `Follow ${count} ${count === 1 ? 'voice' : 'voices'} and send me a daily AI digest` }, { id: uid + 0.5, role: 'typing' }]);
-    const mid = uid + 0.6;
-    const patch = (fn) => setExtra((prev) => prev.map((m) => m.id === mid ? { ...m, reply: fn(m.reply) } : m));
+    setExtra((prev) => [...prev, { id: uid + 0.5, role: 'typing' }]);
     setTimeout(() => {
-      setExtra((prev) => prev.filter((m) => m.id !== uid + 0.5).concat({ id: mid, role: 'agent', reply: { ...base } }));
-      let step = 0;
-      const advance = () => {
-        step += 1;
-        if (step <= steps.length) {
-          patch((r) => ({ ...r, progress: step }));
-          setTimeout(advance, 1100);
-        } else {
-          patch((r) => ({ ...r, status: 'done', progress: steps.length, success: { headline: `Your AI Digest is live — following ${count} ${count === 1 ? 'voice' : 'voices'}.`, schedule: 'Daily roundup · 07:30 ET', delivery: 'Pushed here + Telegram' } }));
-        }
-      };
-      setTimeout(advance, 1000);
-    }, 1000);
+      setExtra((prev) => prev.filter((m) => m.id !== uid + 0.5).concat({ id: uid + 0.6, role: 'agent', reply: { kind: 'subpush', item, skillKind: skill.kind } }));
+    }, 700);
   }, []);
 
-  const handlers = { onSkill, onPrompt, onCard, onStartTask };
+  const handlers = { onSkill, onPrompt, onCard, onStartTask, onSubscribed, onGoTasks: () => setTab('tasks'), onGoArtifacts: goArtifacts };
 
   const switchConcept = (id) => { setConcept(id); setTab('chat'); setExtra([]); };
   const switchChannel = (id) => { setChannel(id); setTab('chat'); setExtra([]); };
@@ -2712,11 +3764,52 @@ function App() {
   const onChat = tab === 'chat';
   const META = { agent: 'personal channel', kol: 'personal channel', topic: 'personal channel', group: cur.cls === 'ch-tg' ? 'Telegram group' : 'Discord group' };
   const roster = groupData ? groupData.roster : [{ name: 'leo', role: 'You' }, { name: 'Alva', role: 'Agent', bot: true }];
-  const [membersOpen, setMembersOpen] = useState(false);
+  const [membersOpen, setMembersOpen] = useState(INIT.get('modal') === 'members');
+  const [settingsOpen, setSettingsOpen] = useState(INIT.get('modal') === 'settings');
+  const [imOpen, setImOpen] = useState(INIT.get('modal') === 'im');
+  const [newChanOpen, setNewChanOpen] = useState(INIT.get('modal') === 'new-channel');
+
+  // create a personal topic channel: insert before the mirrored groups, open it fresh
+  const createChannel = (name, about) => {
+    let id = 'nc-' + (name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'channel');
+    while (CHANNELS.some((c) => c.id === id)) id += '-2';
+    const ch = { id, kind: 'topic', cls: 'ch-me', ico: 'hash', label: name, fresh: true,
+      desc: about || 'A focused personal channel — scoped chat, tasks, and memory.' };
+    const at = CHANNELS.findIndex((c) => c.kind === 'group');
+    CHANNELS.splice(at < 0 ? CHANNELS.length : at, 0, ch);
+    CHANNEL_DATA[id] = { tasks: [], files: [], autos: [], playbooks: [] };
+    setNewChanOpen(false);
+    switchChannel(id);
+  };
+  const [, imBump] = useState(0);
+  const connectIm = (imId) => {
+    IM_LINKS[channel] = { ...(IM_LINKS[channel] || {}), [imId]: true };
+    imBump((n) => n + 1);
+    const im = IMS.find((i) => i.id === imId);
+    setExtra((prev) => [...prev, { id: ++idRef.current, role: 'agent', push: true, reply: { kind: 'answer', paras: [
+      `Connected to ${im.label} — pushes from this channel now mirror to ${im.handle}. Reply there or here, it's the same conversation.`,
+    ] } }]);
+  };
+  const disconnectIm = (imId) => { if (IM_LINKS[channel]) { delete IM_LINKS[channel][imId]; imBump((n) => n + 1); } };
+
+  // global Ask side panel — its thread lives in the Alva Agent Channel context
+  const [askOpen, setAskOpen] = useState(INIT.get('modal') === 'ask');
+  const [askExtra, setAskExtra] = useState([]);
+  const respondAsk = useCallback((text) => {
+    const uid = ++idRef.current;
+    const reply = routeReply(text);
+    setAskExtra((prev) => [...prev, { id: uid, role: 'user', text }, { id: uid + 0.5, role: 'typing' }]);
+    setTimeout(() => {
+      setAskExtra((prev) => prev.filter((m) => m.id !== uid + 0.5).concat({ id: uid + 0.6, role: 'agent', reply }));
+      if (reply.kind === 'task') {
+        setTimeout(() => setAskExtra((prev) => prev.map((m) => (m.id === uid + 0.6 ? { ...m, reply: { ...m.reply, status: 'done' } } : m))), 4500);
+      }
+    }, 1000);
+  }, []);
 
   return (
     <div className="app">
-      <Sidebar channel={channel} onChannel={switchChannel} />
+      <Sidebar channel={channel} onChannel={switchChannel} onNewChannel={() => setNewChanOpen(true)} />
       <div className="main">
         <div className="topbar">
           <div className="topbar-left">
@@ -2736,38 +3829,69 @@ function App() {
                 ))}
               </div>
             )}
+            {cur.kind !== 'group' && (() => {
+              const linked = IMS.filter((im) => IM_LINKS[channel] && IM_LINKS[channel][im.id]);
+              return (
+                <button className={`imlink${linked.length ? '' : ' ghost'}`} onClick={() => setImOpen(true)} aria-label="Connect IM">
+                  {linked.length
+                    ? <><span style={{ color: IM_TINT[linked[0].id], display: 'grid', placeItems: 'center' }}><Icon name={linked[0].icon} size={14} /></span><span>{linked.length > 1 ? `${linked[0].label} +${linked.length - 1}` : linked[0].label}</span><span className="im-dot"></span></>
+                    : <><Icon name="link" size={14} /><span>Connect</span></>}
+                </button>
+              );
+            })()}
+            {GROUP_CHATS[channel] && GROUP_CHATS[channel].mode === 'mirror-ask' && (
+              <button className="members-btn" onClick={() => setAskOpen(true)} aria-label="Ask Alva">
+                <Icon name="agent" size={16} />
+                <span className="mb-count">Ask Alva</span>
+              </button>
+            )}
             <button className="members-btn" onClick={() => setMembersOpen(true)} aria-label="Members">
               <Icon name="portfolio" size={16} />
               <span className="mb-count">{groupData ? cur.id === 'btc-room' ? '218' : '96' : roster.length}</span>
             </button>
+            {cur.kind === 'group' && (
+              <button className="members-btn" onClick={() => setSettingsOpen(true)} aria-label="Channel settings">
+                <Icon name="sliders" size={16} />
+              </button>
+            )}
           </div>
         </div>
         {membersOpen && <MembersModal channel={cur} roster={roster} onClose={() => setMembersOpen(false)} />}
+        {settingsOpen && <GroupSettingsModal channel={cur} onClose={() => setSettingsOpen(false)} />}
+        {imOpen && <ImConnectModal channel={cur} autoConnect={typeof imOpen === 'string' ? imOpen : null} onClose={() => setImOpen(false)} onConnect={connectIm} onDisconnect={disconnectIm} />}
+        {newChanOpen && <NewChannelModal onClose={() => setNewChanOpen(false)} onCreate={createChannel} />}
+        {askOpen && <AskPanel context={cur} extra={askExtra} onSend={respondAsk} onClose={() => setAskOpen(false)} onGoTasks={() => { setAskOpen(false); setTab('tasks'); }} onGoArtifacts={(seg) => { setAskOpen(false); goArtifacts(seg); }} />}
 
-        <TabBar tab={tab} onTab={setTab} />
+        <TabBar tab={tab} onTab={(id) => { setArtSeg(null); setTab(id); }} counts={{
+          tasks: scoped ? scoped.tasks.length : TASKS.length,
+          skills: SKILLS.length,
+          artifacts: scoped ? (scoped.playbooks || []).length + scoped.autos.length + scoped.files.length : PLAYBOOKS.length + AUTOMATIONS.length + ARTIFACTS.length,
+        }} />
 
         <div className="stage" ref={stageRef}>
-          {tab === 'tasks' && <TasksPanel onPrompt={onPrompt} tasks={scoped ? scoped.tasks : TASKS} isGroup={!!groupData} channelLabel={cur.label} />}
+          {tab === 'tasks' && <TasksPanel tasks={scoped ? scoped.tasks : TASKS} isGroup={!!groupData} channelLabel={cur.label} />}
           {tab === 'memory' && <MemoryPanel groupMem={scoped ? scoped.memory : null} channelLabel={cur.label} />}
           {tab === 'skills' && <SkillsPanel onSkill={onSkill} />}
-          {tab === 'artifacts' && <ArtifactsPanel onCard={onCard} files={scoped ? scoped.files : ARTIFACTS} autos={scoped ? scoped.autos : AUTOMATIONS} playbooks={scoped ? (scoped.playbooks || []) : PLAYBOOKS} isGroup={!!groupData} />}
+          {tab === 'artifacts' && <ArtifactsPanel key={artSeg || 'd'} initialSeg={artSeg} channelId={cur.id} onCard={onCard} files={scoped ? scoped.files : ARTIFACTS} autos={scoped ? scoped.autos : AUTOMATIONS} playbooks={scoped ? (scoped.playbooks || []) : PLAYBOOKS} isGroup={!!groupData} />}
 
           {onChat && (isAgent ? (
             <div className="stage-inner" style={{ maxWidth: cfg.width }}>
               {concept === 'A' && <ConceptA {...handlers} />}
-              {concept === 'B' && <ConceptB {...handlers} />}
-              {concept === 'D' && <ConceptD {...handlers} />}
-              {concept === 'C' && <ConceptC {...handlers} />}
+              {concept === 'R' && <ConceptR {...handlers} />}
 
-              <ExtraThread extra={extra} subtle={concept === 'A' || concept === 'D'} onGoTasks={() => setTab('tasks')} onGoArtifacts={() => setTab('artifacts')} />
+              <ExtraThread extra={extra} subtle={concept === 'A'} onGoTasks={() => setTab('tasks')} onGoArtifacts={goArtifacts} onConnectIm={(im) => setImOpen(im || true)} />
             </div>
-          ) : cur.kind === 'kol' ? <KolDigestView onDigest={onDigestAutomation} extra={extra} onGoTasks={() => setTab('tasks')} onGoArtifacts={() => setTab('artifacts')} /> : cur.kind === 'group' ? <GroupChannelView channel={cur} onGoTasks={() => setTab('tasks')} /> : <TopicChannelView channel={cur} />)}
+          ) : cur.kind === 'kol' ? <KolDigestView onDigest={onDigestAutomation} extra={extra} onGoTasks={() => setTab('tasks')} onGoArtifacts={goArtifacts} onConnectIm={(im) => setImOpen(im || true)} /> : cur.kind === 'group' ? <GroupChannelView channel={cur} extra={extra} onGoTasks={() => setTab('tasks')} onGoArtifacts={goArtifacts} onAskAlva={() => setAskOpen(true)} /> : <TopicChannelView channel={cur} extra={extra} onPrompt={onPrompt} onGoTasks={() => setTab('tasks')} onGoArtifacts={goArtifacts} onConnectIm={(im) => setImOpen(im || true)} />)}
         </div>
 
-        {onChat && (
+        {onChat && !(cur.kind === 'group' && GROUP_CHATS[channel] && GROUP_CHATS[channel].mode === 'mirror-ask') && (
           <Composer
-            placeholder={cur.kind === 'kol' ? 'Ask about any call, or add a KOL to follow' : cur.kind === 'group' ? `Message ${cur.label} —  @Alva to run anything` : null}
-            quickReplies={isAgent && concept === 'C' ? ['Summarize today\u2019s macro', 'What\u2019s moving NVDA?', 'Build me a screener'] : null}
+            placeholder={cur.kind === 'kol' ? 'Ask about any call, or add a KOL to follow' : cur.kind === 'group' ? 'Ask about anything the room discussed — nothing posts back to the group' : cur.fresh ? `Tell Alva what ${cur.label} should cover or watch` : null}
+            quickReplies={isAgent && concept === 'R' ? [
+              { icon: 'chat', text: 'Trim VRT or hold through Thursday?' },
+              { icon: 'clock', text: 'My NVDA earnings game plan' },
+              { icon: 'history', text: 'Walk me through my backtest' },
+            ] : null}
             onSend={onSend} />
         )}
       </div>
