@@ -1,2846 +1,455 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alva Channel Workspace Demo</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      color-scheme: light;
-      --bg: #f6f6f6;
-      --paper: #fafafa;
-      --panel: #ffffff;
-      --ink: #20202c;
-      --muted: #606275;
-      --faint: #9a9aa8;
-      --line: #e5e5ec;
-      --line-strong: #d1d1dc;
-      --green: #49A3A6;
-      --green-soft: #e6f5f5;
-      --blue: #5777c8;
-      --blue-soft: #eaf0ff;
-      --amber: #a97825;
-      --amber-soft: #fff3dc;
-      --red: #b45b5b;
-      --red-soft: #fce8e8;
-      --violet: #8469c7;
-      --violet-soft: #f0eaff;
-      --alva-sidebar: #2A2A38;
-      --alva-sidebar-2: #333345;
-      --alva-sidebar-selected: rgba(255, 255, 255, 0.06);
-      --alva-sidebar-text: rgba(255, 255, 255, 0.88);
-      --alva-sidebar-muted: rgba(255, 255, 255, 0.48);
-      --alva-teal: #49A3A6;
-      --shadow: 0 24px 70px rgba(23, 27, 24, 0.11);
-      --shadow-soft: 0 12px 28px rgba(23, 27, 24, 0.08);
-      --radius: 8px;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      background: var(--bg);
-      color: var(--ink);
-      font-family:
-        Delight, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-
-    button,
-    input {
-      color: inherit;
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .spec-demo {
-      min-height: 100vh;
-      width: min(1280px, calc(100% - 40px));
-      margin: 0 auto;
-      padding: 26px 0 56px;
-    }
-
-    .spec-reader {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .spec-reader::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    .spec-reader::-webkit-scrollbar-thumb {
-      background: var(--line-strong);
-      border: 3px solid var(--paper);
-      border-radius: 999px;
-    }
-
-    .spec-cover {
-      order: 1;
-      padding: 26px;
-      border: 1px solid var(--line-strong);
-      background: #fff;
-      border-radius: var(--radius);
-      margin-bottom: 0;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .spec-cover h1 {
-      margin-top: 10px;
-      font-size: 34px;
-      line-height: 0.98;
-    }
-
-    .spec-lede {
-      margin-top: 12px;
-      color: var(--muted);
-      font: 520 14px/1.58 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .spec-promise {
-      margin-top: 14px;
-      border: 1px solid var(--ink);
-      background: var(--ink);
-      color: #fff;
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .spec-promise strong {
-      display: block;
-      font: 760 14px/1.3 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .spec-promise span {
-      display: block;
-      margin-top: 8px;
-      color: rgba(255, 255, 255, 0.72);
-      font: 520 12px/1.55 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .spec-nav {
-      order: 2;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 8px;
-      margin-bottom: 0;
-      padding: 8px;
-      border: 1px solid var(--line);
-      background: rgba(246, 246, 246, 0.92);
-      border-radius: var(--radius);
-      backdrop-filter: blur(16px);
-    }
-
-    .spec-nav a {
-      min-height: 38px;
-      display: flex;
-      align-items: center;
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 6px;
-      padding: 0 10px;
-      color: var(--ink);
-      text-decoration: none;
-      font: 760 11px/1.2 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .spec-section {
-      margin-top: 0;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.72);
-      border-radius: var(--radius);
-      padding: 18px;
-    }
-
-    #object-model { order: 3; }
-    #user-stories { order: 4; }
-    #user-journey { order: 5; }
-    #surface-positioning { order: 6; }
-    #group-flow { order: 7; }
-    #permissions { order: 8; }
-    #prototype { order: 9; }
-    .spec-demo .app { order: 10; }
-
-    .spec-section h2 {
-      font-size: 17px;
-      line-height: 1.15;
-    }
-
-    .spec-section p {
-      margin-top: 8px;
-      color: var(--muted);
-      font: 520 12px/1.62 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .spec-list,
-    .decision-list {
-      display: grid;
-      gap: 8px;
-      margin: 12px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .spec-list li,
-    .decision-list li {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 7px;
-      padding: 10px;
-      color: var(--muted);
-      font: 520 12px/1.5 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .spec-list strong,
-    .decision-list strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--ink);
-      font: 780 12px/1.3 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .decision-list {
-      counter-reset: decision;
-    }
-
-    .decision-list li {
-      position: relative;
-      padding-left: 40px;
-    }
-
-    .decision-list li::before {
-      counter-increment: decision;
-      content: counter(decision);
-      position: absolute;
-      left: 10px;
-      top: 10px;
-      width: 20px;
-      height: 20px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      background: var(--ink);
-      color: #fff;
-      font: 780 10px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .story-grid,
-    .surface-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .story-card,
-    .surface-card {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 7px;
-      padding: 12px;
-      min-width: 0;
-    }
-
-    .story-card h3,
-    .surface-card h3 {
-      font-size: 14px;
-      line-height: 1.25;
-    }
-
-    .story-card p,
-    .surface-card p {
-      margin-top: 8px;
-      font: 520 12px/1.55 ui-sans-serif, system-ui, sans-serif;
-      color: var(--muted);
-    }
-
-    .story-card .chip,
-    .surface-card .chip {
-      display: inline-flex;
-      margin-top: 10px;
-    }
-
-    .journey-rail {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 1px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--line);
-      margin-top: 12px;
-    }
-
-    .journey-map {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-      position: relative;
-    }
-
-    .journey-map::before {
-      content: "";
-      position: absolute;
-      left: 7%;
-      right: 7%;
-      top: 27px;
-      height: 2px;
-      background: linear-gradient(90deg, var(--alva-teal), #6dbdff, #91a6ff);
-      opacity: 0.42;
-    }
-
-    .journey-node {
-      position: relative;
-      min-height: 76px;
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      background: #fff;
-      padding: 12px 10px;
-      text-align: center;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .journey-node strong {
-      width: 32px;
-      height: 32px;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 9px;
-      border-radius: 999px;
-      background: var(--ink);
-      color: #fff;
-      font: 780 11px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .journey-node span {
-      color: var(--muted);
-      font: 720 11px/1.3 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .journey-step {
-      min-height: 150px;
-      background: #fff;
-      padding: 12px;
-    }
-
-    .journey-step strong {
-      display: block;
-      color: var(--ink);
-      font: 780 13px/1.25 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .journey-step span {
-      display: block;
-      margin-top: 8px;
-      color: var(--muted);
-      font: 520 12px/1.5 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .surface-compare {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .surface-column {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 7px;
-      padding: 12px;
-    }
-
-    .surface-column h3 {
-      font-size: 14px;
-    }
-
-    .surface-column ul {
-      display: grid;
-      gap: 8px;
-      margin: 10px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .surface-column li {
-      border-top: 1px solid var(--line);
-      padding-top: 8px;
-      color: var(--muted);
-      font: 520 12px/1.5 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .surface-loop {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 140px minmax(0, 1fr);
-      gap: 10px;
-      align-items: stretch;
-      margin-top: 12px;
-    }
-
-    .surface-loop-card,
-    .surface-loop-core {
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      background: #fff;
-      padding: 12px;
-      min-height: 118px;
-    }
-
-    .surface-loop-card h3,
-    .surface-loop-core h3 {
-      font-size: 14px;
-      line-height: 1.25;
-    }
-
-    .surface-loop-card p,
-    .surface-loop-core p {
-      margin-top: 8px;
-      color: var(--muted);
-      font: 520 12px/1.5 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .surface-loop-core {
-      display: grid;
-      place-items: center;
-      text-align: center;
-      background: var(--ink);
-      color: #fff;
-    }
-
-    .surface-loop-core p {
-      color: rgba(255, 255, 255, 0.68);
-    }
-
-    .surface-arrow {
-      margin-top: 10px;
-      border-radius: 999px;
-      background: var(--green-soft);
-      color: var(--green);
-      padding: 6px 9px;
-      font: 760 10px/1 ui-sans-serif, system-ui, sans-serif;
-      display: inline-flex;
-    }
-
-    .spec-table {
-      width: 100%;
-      margin-top: 12px;
-      border-collapse: collapse;
-      overflow: hidden;
-      border-radius: 7px;
-      font: 520 11px/1.45 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .spec-table th,
-    .spec-table td {
-      border: 1px solid var(--line);
-      padding: 8px;
-      vertical-align: top;
-      text-align: left;
-    }
-
-    .spec-table th {
-      background: var(--ink);
-      color: #fff;
-      font-weight: 760;
-    }
-
-    .spec-table td {
-      background: #fff;
-      color: var(--muted);
-    }
-
-    .spec-table td:first-child {
-      color: var(--ink);
-      font-weight: 760;
-    }
-
-    .spec-callout {
-      margin-top: 12px;
-      border: 1px solid rgba(47, 107, 82, 0.25);
-      background: var(--green-soft);
-      color: var(--green);
-      border-radius: 7px;
-      padding: 10px;
-      font: 720 12px/1.5 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .app {
-      min-height: 1600px;
-      display: grid;
-      grid-template-columns: minmax(294px, 348px) minmax(0, 1fr);
-      background: #f6f6f6;
-    }
-
-    .spec-demo .app {
-      grid-template-columns: minmax(294px, 348px) minmax(0, 1fr);
-      width: min(1680px, calc(100vw - 32px));
-      margin-left: 50%;
-      transform: translateX(-50%);
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-
-    .spec-demo .freshman-sidebar {
-      height: 1600px;
-      min-height: 1600px;
-    }
-
-    .spec-demo .right-panel {
-      display: none;
-    }
-
-    .rail {
-      background: var(--ink);
-      color: #fbfaf4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 10px;
-      gap: 14px;
-    }
-
-    .mark {
-      width: 40px;
-      height: 40px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.32);
-      background: #fbfaf4;
-      color: var(--ink);
-      font: 700 18px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .nav-stack {
-      display: grid;
-      gap: 8px;
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    .nav-btn {
-      width: 48px;
-      min-height: 52px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: transparent;
-      color: rgba(255, 255, 255, 0.68);
-      display: grid;
-      place-items: center;
-      gap: 3px;
-      padding: 6px 0;
-      font: 700 10px/1.1 ui-sans-serif, system-ui, sans-serif;
-      letter-spacing: 0;
-    }
-
-    .nav-btn span {
-      display: block;
-      font: 700 14px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .nav-btn.active {
-      background: #fbfaf4;
-      color: var(--ink);
-      border-color: #fbfaf4;
-    }
-
-    .freshman-sidebar {
-      min-height: 860px;
-      background: var(--alva-sidebar);
-      color: var(--alva-sidebar-text);
-      padding: 22px 12px 28px;
-      overflow: auto;
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .freshman-sidebar::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .freshman-sidebar::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.16);
-      border: 2px solid var(--alva-sidebar);
-      border-radius: 999px;
-    }
-
-    .sidebar-sprite {
-      position: absolute;
-      width: 0;
-      height: 0;
-      overflow: hidden;
-    }
-
-    .freshman-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 0 14px 22px;
-    }
-
-    .freshman-logo {
-      width: 102px;
-      height: auto;
-      display: block;
-    }
-
-    .sidebar-toggle {
-      width: 26px;
-      height: 26px;
-      display: grid;
-      place-items: center;
-      border: 0;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.72);
-      padding: 0;
-    }
-
-    .sidebar-toggle svg {
-      width: 22px;
-      height: 22px;
-      stroke: currentColor;
-    }
-
-    .new-chat-btn {
-      width: calc(100% - 28px);
-      min-height: 56px;
-      margin: 0 14px 28px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 6px;
-      background: transparent;
-      color: var(--alva-sidebar-text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      font-size: 20px;
-      line-height: 1;
-      font-weight: 500;
-    }
-
-    .new-chat-btn .plus {
-      font-size: 30px;
-      line-height: 1;
-      font-weight: 300;
-      transform: translateY(-1px);
-    }
-
-    .sidebar-group {
-      display: grid;
-      gap: 4px;
-      margin-bottom: 26px;
-    }
-
-    .sidebar-heading {
-      margin: 28px 14px 12px;
-      color: var(--alva-sidebar-muted);
-      font-size: 17px;
-      line-height: 1.2;
-      font-weight: 400;
-    }
-
-    .side-item {
-      position: relative;
-      min-height: 44px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 28px minmax(0, 1fr);
-      align-items: center;
-      gap: 10px;
-      border: 0;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--alva-sidebar-text);
-      padding: 7px 14px;
-      text-align: left;
-      font-size: 20px;
-      line-height: 1.2;
-      letter-spacing: 0;
-    }
-
-    .side-item.active {
-      background: var(--alva-sidebar-selected);
-    }
-
-    .side-item:hover {
-      background: rgba(255, 255, 255, 0.045);
-      color: #fff;
-    }
-
-    .side-item.muted {
-      color: var(--alva-sidebar-muted);
-    }
-
-    .side-item[data-meta] {
-      grid-template-columns: 28px minmax(0, 1fr);
-    }
-
-    .side-item[data-meta]::after {
-      content: attr(data-meta);
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      min-width: 28px;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      border-radius: 999px;
-      padding: 3px 6px 4px;
-      color: rgba(255, 255, 255, 0.56);
-      background: rgba(255, 255, 255, 0.035);
-      opacity: 0;
-      transform: translate(4px, -50%);
-      transition: opacity 140ms ease, transform 140ms ease, color 140ms ease, border-color 140ms ease, background 140ms ease;
-      font-size: 9px;
-      line-height: 1;
-      font-weight: 650;
-      letter-spacing: 0.04em;
-      text-align: center;
-      text-transform: uppercase;
-    }
-
-    .side-item[data-meta]:hover::after,
-    .side-item[data-meta].active::after {
-      opacity: 1;
-      transform: translate(0, -50%);
-    }
-
-    .side-item[data-meta]:hover .side-label,
-    .side-item[data-meta].active .side-label {
-      padding-right: 86px;
-    }
-
-    .side-item.source-subscribed:hover {
-      background: rgba(73, 163, 166, 0.105);
-    }
-
-    .side-item.source-subscribed:hover .side-icon {
-      color: #7ed4d6;
-    }
-
-    .side-item.source-subscribed:hover::after {
-      color: #7ed4d6;
-      border-color: rgba(73, 163, 166, 0.32);
-      background: rgba(73, 163, 166, 0.09);
-    }
-
-    .side-item.source-owned .side-icon {
-      color: #91a6ff;
-    }
-
-    .side-item.source-owned:hover {
-      background: rgba(125, 168, 255, 0.12);
-    }
-
-    .side-item.source-owned:hover::after {
-      color: #aebcff;
-      border-color: rgba(125, 168, 255, 0.34);
-      background: rgba(125, 168, 255, 0.1);
-    }
-
-    .side-item.channel-item::after,
-    .side-item.channel-item:hover::after,
-    .side-item.channel-item.active::after {
-      position: static;
-      right: auto;
-      top: auto;
-      opacity: 0.74;
-      transform: none;
-    }
-
-    .side-item.channel-item {
-      grid-template-columns: 28px minmax(0, 1fr) auto;
-    }
-
-    .side-item.channel-item .side-label,
-    .side-item.channel-item:hover .side-label,
-    .side-item.channel-item.active .side-label {
-      padding-right: 0;
-    }
-
-    .side-item.channel-group-tg .side-icon,
-    .side-item.channel-group-tg::after {
-      color: #6dbdff;
-      border-color: rgba(109, 189, 255, 0.3);
-      background: rgba(109, 189, 255, 0.08);
-    }
-
-    .side-item.channel-group-dc .side-icon,
-    .side-item.channel-group-dc::after {
-      color: #a68dff;
-      border-color: rgba(166, 141, 255, 0.32);
-      background: rgba(166, 141, 255, 0.09);
-    }
-
-    .side-item.channel-group-tg:hover,
-    .side-item.channel-group-tg.active {
-      background: rgba(109, 189, 255, 0.12);
-    }
-
-    .side-item.channel-group-dc:hover,
-    .side-item.channel-group-dc.active {
-      background: rgba(166, 141, 255, 0.12);
-    }
-
-    .side-label {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .side-label.gradient {
-      color: transparent;
-      background: linear-gradient(90deg, var(--alva-teal), #7da8ff 52%, #c37cf1);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-
-    .side-icon {
-      width: 24px;
-      height: 24px;
-      color: rgba(255, 255, 255, 0.84);
-      display: grid;
-      place-items: center;
-      flex: 0 0 auto;
-    }
-
-    .side-icon svg {
-      width: 22px;
-      height: 22px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .side-icon.teal {
-      color: var(--alva-teal);
-    }
-
-    .side-icon.coin {
-      color: #7bb7ff;
-    }
-
-    .side-icon.chat svg {
-      width: 23px;
-      height: 23px;
-    }
-
-    .side-more {
-      min-height: 38px;
-      color: var(--alva-sidebar-muted);
-    }
-
-    .channel-list {
-      padding: 18px 14px;
-      border-right: 1px solid var(--line);
-      background: rgba(252, 251, 246, 0.86);
-      backdrop-filter: blur(14px);
-      min-width: 0;
-    }
-
-    .section-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .eyebrow {
-      color: var(--muted);
-      font: 700 10px/1.2 ui-sans-serif, system-ui, sans-serif;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    h1,
-    h2,
-    h3,
-    p {
-      margin: 0;
-    }
-
-    h1 {
-      margin-top: 4px;
-      font-size: 27px;
-      line-height: 1.02;
-      font-weight: 520;
-      letter-spacing: 0;
-    }
-
-    h2 {
-      font-size: 18px;
-      line-height: 1.1;
-      font-weight: 560;
-      letter-spacing: 0;
-    }
-
-    h3 {
-      font-size: 14px;
-      line-height: 1.2;
-      font-weight: 650;
-      letter-spacing: 0;
-    }
-
-    .icon-btn,
-    .text-btn {
-      border: 1px solid var(--line-strong);
-      background: var(--panel);
-      min-height: 36px;
-      border-radius: 6px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .icon-btn {
-      width: 36px;
-      display: grid;
-      place-items: center;
-      font: 700 18px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .text-btn {
-      padding: 0 12px;
-      font: 700 12px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .search {
-      position: relative;
-      margin-bottom: 14px;
-    }
-
-    .search input {
-      width: 100%;
-      height: 38px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: 6px;
-      padding: 0 12px;
-      outline: none;
-      font: 500 13px/1.2 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .channel-group-title {
-      margin: 18px 0 8px;
-      color: var(--faint);
-      font: 800 10px/1 ui-sans-serif, system-ui, sans-serif;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .channel-card {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 36px minmax(0, 1fr);
-      gap: 10px;
-      padding: 10px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.74);
-      border-radius: var(--radius);
-      text-align: left;
-      margin-bottom: 8px;
-    }
-
-    .channel-card.active {
-      border-color: var(--ink);
-      box-shadow: 0 0 0 2px rgba(23, 27, 24, 0.06);
-      background: #fff;
-    }
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      background: var(--green-soft);
-      color: var(--green);
-      border: 1px solid rgba(47, 107, 82, 0.24);
-      border-radius: 6px;
-      font: 800 12px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .avatar.blue {
-      background: var(--blue-soft);
-      color: var(--blue);
-      border-color: rgba(49, 95, 136, 0.24);
-    }
-
-    .avatar.violet {
-      background: var(--violet-soft);
-      color: var(--violet);
-      border-color: rgba(109, 90, 139, 0.24);
-    }
-
-    .channel-name {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-      font: 750 13px/1.2 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .channel-name span:first-child {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .badge {
-      border: 1px solid var(--line);
-      background: var(--paper);
-      color: var(--muted);
-      padding: 3px 6px;
-      border-radius: 999px;
-      font: 800 9px/1 ui-sans-serif, system-ui, sans-serif;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .badge.green {
-      color: var(--green);
-      background: var(--green-soft);
-      border-color: rgba(47, 107, 82, 0.24);
-    }
-
-    .badge.amber {
-      color: var(--amber);
-      background: var(--amber-soft);
-      border-color: rgba(154, 104, 32, 0.22);
-    }
-
-    .channel-meta {
-      margin-top: 5px;
-      color: var(--muted);
-      font: 500 11px/1.35 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .workspace {
-      min-width: 0;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .workspace-header {
-      border: 1px solid var(--line-strong);
-      background:
-        linear-gradient(90deg, rgba(47, 107, 82, 0.09), transparent 28%),
-        var(--panel);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 18px;
-      align-items: end;
-    }
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-      margin-top: 8px;
-    }
-
-    .title-avatar {
-      width: 54px;
-      height: 54px;
-      display: grid;
-      place-items: center;
-      background: var(--ink);
-      color: #fbfaf4;
-      border-radius: 7px;
-      font: 800 15px/1 ui-sans-serif, system-ui, sans-serif;
-      flex: 0 0 auto;
-    }
-
-    .headline {
-      min-width: 0;
-    }
-
-    .headline h1 {
-      overflow-wrap: anywhere;
-    }
-
-    .subline {
-      margin-top: 7px;
-      color: var(--muted);
-      font: 520 13px/1.45 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-    }
-
-    .primary-action {
-      border: 1px solid var(--ink);
-      background: var(--ink);
-      color: #fff;
-      min-height: 38px;
-      border-radius: 6px;
-      padding: 0 14px;
-      font: 760 12px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      background: var(--line);
-      border-radius: var(--radius);
-    }
-
-    .metric {
-      min-height: 72px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.86);
-    }
-
-    .metric-value {
-      font: 760 22px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .metric-label {
-      margin-top: 8px;
-      color: var(--muted);
-      font: 620 11px/1.25 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .tab {
-      min-height: 44px;
-      border: 0;
-      border-left: 1px solid var(--line);
-      background: transparent;
-      color: var(--muted);
-      font: 800 12px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .tab:first-child {
-      border-left: 0;
-    }
-
-    .tab.active {
-      background: var(--ink);
-      color: #fff;
-    }
-
-    .canvas {
-      min-height: 470px;
-      border: 1px solid var(--line-strong);
-      background: var(--panel);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-soft);
-      overflow: hidden;
-    }
-
-    .tab-panel {
-      display: none;
-      padding: 18px;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    .tab-panel.flush {
-      padding: 0;
-    }
-
-    .memory-grid {
-      display: grid;
-      grid-template-columns: 1.04fr 0.96fr;
-      gap: 14px;
-    }
-
-    .block {
-      border: 1px solid var(--line);
-      background: var(--paper);
-      border-radius: var(--radius);
-      padding: 14px;
-    }
-
-    .block-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-
-    .block-sub {
-      margin-top: 4px;
-      color: var(--muted);
-      font: 520 12px/1.45 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .memory-list,
-    .playbook-list,
-    .task-list,
-    .artifact-list {
-      display: grid;
-      gap: 9px;
-    }
-
-    .memory-item,
-    .playbook-item,
-    .task-item,
-    .artifact-item {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 7px;
-      padding: 11px;
-    }
-
-    .memory-item {
-      display: grid;
-      grid-template-columns: 8px minmax(0, 1fr);
-      gap: 10px;
-      align-items: start;
-    }
-
-    .memory-status {
-      width: 8px;
-      height: 100%;
-      min-height: 46px;
-      border-radius: 99px;
-      background: var(--green);
-    }
-
-    .memory-status.amber { background: var(--amber); }
-    .memory-status.blue { background: var(--blue); }
-    .memory-status.red { background: var(--red); }
-
-    .item-title {
-      font: 760 13px/1.25 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .item-body {
-      margin-top: 6px;
-      color: var(--muted);
-      font: 500 12px/1.5 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .chip {
-      border: 1px solid var(--line);
-      background: var(--paper);
-      border-radius: 999px;
-      padding: 5px 8px;
-      color: var(--muted);
-      font: 760 10px/1 ui-sans-serif, system-ui, sans-serif;
-      white-space: nowrap;
-    }
-
-    .split-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .playbook-item {
-      min-height: 122px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .playbook-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .score {
-      flex: 0 0 auto;
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      background: var(--green-soft);
-      color: var(--green);
-      border-radius: 6px;
-      font: 780 13px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .progress-line {
-      height: 8px;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-line span {
-      display: block;
-      height: 100%;
-      width: var(--value, 62%);
-      background: linear-gradient(90deg, var(--green), var(--blue));
-    }
-
-    .task-item {
-      display: grid;
-      grid-template-columns: 94px minmax(0, 1fr) auto;
-      gap: 12px;
-      align-items: center;
-      min-height: 72px;
-    }
-
-    .task-state {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 7px 9px;
-      text-align: center;
-      color: var(--muted);
-      font: 780 10px/1 ui-sans-serif, system-ui, sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .artifact-item {
-      display: grid;
-      grid-template-columns: 42px minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      min-height: 68px;
-    }
-
-    .file-icon {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      background: var(--blue-soft);
-      color: var(--blue);
-      border-radius: 6px;
-      font: 800 12px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .right-panel {
-      padding: 18px 14px;
-      border-left: 1px solid var(--line);
-      background: rgba(252, 251, 246, 0.78);
-      backdrop-filter: blur(14px);
-      min-width: 0;
-    }
-
-    .decision-card {
-      border: 1px solid var(--line-strong);
-      background: var(--ink);
-      color: #fff;
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: var(--shadow-soft);
-      margin-bottom: 12px;
-    }
-
-    .decision-card .eyebrow {
-      color: rgba(255, 255, 255, 0.62);
-    }
-
-    .decision-card p {
-      margin-top: 8px;
-      color: rgba(255, 255, 255, 0.76);
-      font: 520 12px/1.52 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .side-block {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: var(--radius);
-      padding: 13px;
-      margin-bottom: 12px;
-    }
-
-    .endpoint {
-      display: grid;
-      grid-template-columns: 38px minmax(0, 1fr) auto;
-      gap: 9px;
-      align-items: center;
-      padding: 9px 0;
-      border-top: 1px solid var(--line);
-    }
-
-    .endpoint:first-of-type {
-      border-top: 0;
-      padding-top: 0;
-    }
-
-    .endpoint:last-child {
-      padding-bottom: 0;
-    }
-
-    .endpoint-id {
-      width: 38px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      font: 800 11px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .endpoint strong {
-      display: block;
-      font: 750 12px/1.2 ui-sans-serif, system-ui, sans-serif;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .endpoint small {
-      color: var(--muted);
-      font: 500 11px/1.4 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .role-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      padding: 10px 0;
-      border-top: 1px solid var(--line);
-      font: 650 12px/1.3 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .role-row:first-of-type {
-      border-top: 0;
-      padding-top: 0;
-    }
-
-    .mini-preview {
-      height: 210px;
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius);
-      background:
-        linear-gradient(180deg, #20332c 0%, #0f1714 100%);
-      color: #fff;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-    }
-
-    .mini-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      font: 760 11px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .mini-card {
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 7px;
-      padding: 10px;
-    }
-
-    .mini-card strong {
-      display: block;
-      font: 750 12px/1.25 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .mini-card span {
-      display: block;
-      margin-top: 7px;
-      color: rgba(255, 255, 255, 0.68);
-      font: 500 11px/1.45 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    @media (max-width: 1180px) {
-      .spec-demo {
-        width: min(1120px, calc(100% - 28px));
-      }
-
-      .spec-nav {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-
-      .journey-rail {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .journey-map {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .journey-map::before {
-        display: none;
-      }
-
-      .surface-loop {
-        grid-template-columns: 1fr;
-      }
-
-      .app,
-      .spec-demo .app {
-        grid-template-columns: minmax(270px, 320px) minmax(0, 1fr);
-      }
-
-      .right-panel {
-        display: none;
-      }
-    }
-
-    @media (max-width: 860px) {
-      .spec-demo {
-        width: min(100% - 20px, 760px);
-        display: flex;
-      }
-
-      .spec-reader {
-        display: flex;
-      }
-
-      .spec-cover {
-        padding: 18px;
-      }
-
-      .spec-cover h1 {
-        font-size: 30px;
-      }
-
-      .spec-nav {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        position: static;
-      }
-
-      .story-grid,
-      .surface-grid,
-      .surface-compare,
-      .journey-rail,
-      .journey-map {
-        grid-template-columns: 1fr;
-      }
-
-      .spec-demo .app {
-        width: 100%;
-        margin-left: 0;
-        transform: none;
-      }
-
-      .app {
-        display: block;
-        border-top-width: 4px;
-      }
-
-      .freshman-sidebar {
-        min-height: auto;
-        max-height: 430px;
-      }
-
-      .spec-demo .freshman-sidebar {
-        height: auto;
-        min-height: auto;
-        max-height: 430px;
-      }
-
-      .freshman-top {
-        padding-bottom: 14px;
-      }
-
-      .new-chat-btn {
-        margin-bottom: 18px;
-      }
-
-      .sidebar-group {
-        margin-bottom: 16px;
-      }
-
-      .sidebar-heading {
-        margin-top: 18px;
-      }
-
-      .rail {
-        position: sticky;
-        top: 0;
-        z-index: 3;
-        min-height: 64px;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 10px 12px;
-      }
-
-      .nav-stack {
-        display: flex;
-        width: auto;
-        margin: 0;
-      }
-
-      .nav-btn {
-        width: 52px;
-        min-height: 42px;
-      }
-
-      .channel-list {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .channel-list .channel-card {
-        display: inline-grid;
-        width: min(260px, 86vw);
-        margin: 0 8px 8px 0;
-        vertical-align: top;
-      }
-
-      .workspace {
-        padding: 14px;
-      }
-
-      .workspace-header,
-      .memory-grid,
-      .split-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .header-actions {
-        justify-content: flex-start;
-      }
-
-      .metrics {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .tabs {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .task-item,
-      .artifact-item {
-        grid-template-columns: 1fr;
-        align-items: start;
-      }
-    }
-
-    /* ========== General (personal agent) bound-state view ========== */
-    .ws-view {
-      display: none;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .ws-view.active {
-      display: flex;
-    }
-
-    .agent-chat {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 468px;
-    }
-
-    .agent-chat-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 13px 16px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(252, 251, 246, 0.6);
-    }
-
-    .agent-id {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-      color: var(--ink);
-      font: 760 13px/1.2 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .agent-id .agent-sub {
-      color: var(--muted);
-      font: 520 11px/1.3 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .agent-dot {
-      width: 9px;
-      height: 9px;
-      flex: 0 0 auto;
-      border-radius: 999px;
-      background: var(--green);
-      box-shadow: 0 0 0 3px var(--green-soft);
-    }
-
-    .agent-stream {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 18px 16px;
-      overflow: auto;
-    }
-
-    .chat-row {
-      display: flex;
-    }
-
-    .chat-row.user {
-      justify-content: flex-end;
-    }
-
-    .chat-agent-label {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      margin-bottom: 2px;
-      color: var(--muted);
-      font: 760 11px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .bubble {
-      max-width: 80%;
-      border-radius: 11px;
-      padding: 11px 13px;
-      font: 520 12.5px/1.55 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .bubble.agent {
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--ink);
-      border-top-left-radius: 3px;
-    }
-
-    .bubble.user {
-      background: var(--ink);
-      color: #fff;
-      border-top-right-radius: 3px;
-    }
-
-    .agent-input {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 0 16px 16px;
-      border: 1px solid var(--line-strong);
-      border-radius: 9px;
-      background: #fff;
-      padding: 11px 13px;
-      box-shadow: var(--shadow-soft);
-      color: var(--faint);
-      font: 520 12.5px/1.3 ui-sans-serif, system-ui, sans-serif;
-    }
-
-    .agent-send {
-      width: 28px;
-      height: 28px;
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      border-radius: 7px;
-      background: var(--ink);
-      color: #fff;
-      font: 700 14px/1 ui-sans-serif, system-ui, sans-serif;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alva Channel Product Spec</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --text:#18181b;
+    --text-2:#52525b;
+    --text-3:#a1a1aa;
+    --border:#ececef;
+    --border-2:#e2e2e6;
+    --soft:#f5f5f6;
+    --soft-2:#fafafa;
+    --accent:#18181b;
+    --radius:12px;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter","Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.72;}
+  .layout{max-width:1360px;margin:0 auto;padding:88px 24px 120px;display:grid;grid-template-columns:180px minmax(0,1fr);gap:32px;align-items:start}.wrap{max-width:none;margin:0;padding:0}.outline{position:sticky;top:28px;max-height:calc(100vh - 56px);overflow:auto;padding:3px 0 0 14px;border-left:1px solid var(--border);}.outline-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin:0 0 10px}.outline a{display:block;text-decoration:none;color:var(--text-3);font-size:12.5px;line-height:1.35;padding:4px 0}.outline a:hover{color:var(--text)}.outline .lv2{color:var(--text-2);font-weight:560;margin-top:3px}.outline .lv3{padding-left:12px;font-size:12px}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:18px;}
+  h1{font-size:32px;line-height:1.22;font-weight:650;letter-spacing:-.02em;margin:0 0 14px;}
+  .lede{font-size:16px;color:var(--text-2);margin:0;max-width:66ch;}
+  .source-note{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+  .source-note span{font-family:var(--mono);font-size:11px;color:var(--text-3);background:var(--soft-2);border:1px solid var(--border);border-radius:999px;padding:4px 9px;}
+  .rule{height:1px;background:var(--border);border:0;margin:48px 0;}
+  .frontmatter{background:var(--soft-2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:0 0 48px;}
+  .frontmatter summary{cursor:pointer;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);}
+  .frontmatter pre{white-space:pre-wrap;font-family:var(--mono);font-size:12px;line-height:1.58;color:var(--text-2);margin:14px 0 0;}
+  h1[id]{margin-top:0;}
+  h2{font-size:20px;font-weight:650;letter-spacing:-.01em;margin:54px 0 14px;}
+  h3{font-size:15px;font-weight:650;margin:30px 0 10px;}
+  h4{font-size:14px;font-weight:650;margin:0;}
+  h1[id],h2[id],h3[id]{scroll-margin-top:24px;}
+  p{margin:0 0 14px;color:var(--text-2);}
+  ul,ol{margin:0 0 16px;padding-left:20px;color:var(--text-2);}
+  li{margin:6px 0;}
+  li::marker{color:var(--text-3);}
+  strong{color:var(--text);font-weight:620;}
+  code{font-family:var(--mono);font-size:.86em;background:var(--soft);border:1px solid var(--border);padding:1.5px 6px;border-radius:6px;color:#3f3f46;}
+  a{color:var(--text);text-decoration:underline;text-decoration-color:var(--border-2);text-underline-offset:3px;}
+  .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--radius);margin:12px 0 22px;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);font-weight:600;background:#fff;}
+  tbody tr:last-child td{border-bottom:0;}
+  .demo{background:var(--soft-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:18px 0 24px;}
+  .demo-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin:0 0 14px;display:flex;align-items:center;gap:8px;}
+  .demo-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:#c4c4c8;}
+  .demo-cap{font-size:12.5px;color:var(--text-3);margin:12px 2px 0;}
+  .demo.planb{--planb-scale:.88;padding:10px;background:#f6f6f6;border-color:var(--border-2);box-shadow:0 16px 42px rgba(0,0,0,.08);overflow:hidden;}
+  .demo.planb .demo-tag{padding:8px 8px 0;margin-bottom:10px;}
+  .demo.planb .demo-tag::before{background:#49A3A6;}
+  .planb-viewport{height:760px;overflow:hidden;border-radius:12px;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.08);}
+  .planb-viewport.short{height:660px;}
+  .planb-viewport.tall{height:940px;}
+  .planb-frame{display:block;width:calc(100% / var(--planb-scale));height:calc(100% / var(--planb-scale));border:0;border-radius:12px;background:#fff;transform:scale(var(--planb-scale));transform-origin:top left;}
+  @media (min-width:1100px){.demo.planb{margin-left:0;margin-right:0;}}
+  .wire{background:#fff;border:1px solid var(--border-2);border-radius:11px;overflow:hidden;}
+  .shell{display:grid;grid-template-columns:190px 1fr;min-height:330px;}
+  .wire-side{border-right:1px solid var(--border-2);padding:14px;background:#fff;}
+  .brandline{font-weight:650;margin-bottom:12px;}
+  .ghost-btn{border:1px solid var(--border-2);border-radius:8px;padding:7px 10px;text-align:center;font-size:12.5px;margin-bottom:16px;}
+  .side-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin:16px 0 6px;}
+  .side-item{display:flex;justify-content:space-between;gap:8px;border-radius:8px;padding:7px 8px;font-size:12.5px;color:var(--text-2);}
+  .side-item b{display:block;color:var(--text);font-size:12.5px;font-weight:560;line-height:1.25;}
+  .side-item small{display:block;color:var(--text-3);font-size:10.5px;line-height:1.35;margin-top:2px;}
+  .side-item.on{border:1px solid var(--accent);color:var(--text);}
+  .side-item.faint{color:var(--text-3);}
+  .side-item span{font-family:var(--mono);font-size:10px;color:var(--text-3);}
+  .wire-main{padding:0;}
+  .topline,.panel-h{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--border-2);padding:12px 14px;font-size:13px;}
+  .topline span,.panel-h span{font-family:var(--mono);font-size:10.5px;color:var(--text-3);font-weight:400;}
+  .tabs{display:flex;gap:8px;border-bottom:1px solid var(--border-2);padding:9px 12px;overflow:auto;}
+  .tabs span{font-size:12.5px;color:var(--text-3);white-space:nowrap;}
+  .tabs span.on{color:var(--text);font-weight:620;}
+  .tabs.compact{padding:8px 12px;}
+  .tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
+  .tile,.panel,.chatline,.inputline,.row,.note,.field,.kv,.column{border:1px solid var(--border-2);border-radius:10px;background:#fff;}
+  .tile{padding:13px 14px;min-height:86px;}
+  .tile p,.row small,.note,.chatline p{font-size:12.5px;color:var(--text-3);line-height:1.45;margin:4px 0 0;}
+  .chatframe{padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .chatframe .tabs{border:1px solid var(--border-2);border-radius:10px;}
+  .chatline{padding:11px 13px;max-width:82%;}
+  .chatline.user{align-self:flex-end;background:var(--soft);}
+  .chatline b{font-size:12px;}
+  .inputline{padding:11px 13px;color:var(--text-3);font-size:13px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;border:0;background:transparent;}
+  .panel{overflow:hidden;}
+  .row{border-width:0 0 1px 0;border-radius:0;padding:12px 14px;}
+  .row:last-child{border-bottom:0;}
+  .row.on{background:var(--soft-2);}
+  .step{padding:11px 14px;border-bottom:1px solid var(--border-2);font-size:13px;color:var(--text-2);}
+  .step.done::before,.step.now::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#d4d4d8;margin-right:8px;vertical-align:1px;}
+  .step.now::before{background:var(--accent);}
+  .note{margin:12px;padding:12px 13px;color:var(--text-2);font-size:13px;}
+  .note.strong{border-color:var(--accent);color:var(--text);}
+  .form{padding-bottom:12px;}
+  .form label{display:block;font-size:12px;color:var(--text-3);padding:0 14px;margin:12px 0;}
+  .field{margin-top:6px;padding:9px 10px;font-size:13px;color:var(--text-2);}
+  .field.tall{min-height:72px;}
+  .actions{display:flex;justify-content:flex-end;gap:8px;padding:0 14px;align-items:center;}
+  .actions span,.actions b{font-size:12.5px;border:1px solid var(--border-2);border-radius:8px;padding:6px 10px;background:#fff;}
+  .actions b{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:520;}
+  .phone{border-radius:18px;}
+  .kv{display:flex;justify-content:space-between;gap:12px;border-width:0 0 1px 0;border-radius:0;padding:12px 14px;font-size:13px;}
+  .kv:last-child{border-bottom:0;}
+  .kv span{color:var(--text-3);}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px;}
+  .metrics span{border:1px solid var(--border-2);border-radius:10px;padding:11px 10px;font-size:11.5px;color:var(--text-3);}
+  .metrics b{display:block;color:var(--text);font-size:17px;line-height:1.2;}
+  .navmap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;border:0;background:transparent;}
+  .column{padding:14px;min-height:142px;}
+  .column b,.column span{display:block;}
+  .column span{font-size:12.5px;color:var(--text-2);border-top:1px solid var(--border);padding-top:8px;margin-top:8px;}
+  .column.muted span,.column.muted b{color:var(--text-3);}
+  .wire.full{border:0;background:transparent;overflow:visible;}
+  .mt12{margin-top:12px;}
+  .stack{display:grid;gap:12px;}
+  .tri-col{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .flow-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:12px;}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;}
+  .subgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px;border-top:1px solid var(--border-2);}
+  .subcard{border:1px solid var(--border-2);border-radius:10px;padding:12px;background:#fff;}
+  .subcard b{display:block;font-size:13px;margin-bottom:5px;}
+  .subcard p{font-size:12px;line-height:1.45;color:var(--text-3);margin:0;}
+  .tagline{font-family:var(--mono);font-size:10px;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;}
+  .route-row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;border-top:1px solid var(--border);padding:10px 14px;font-size:12.5px;color:var(--text-2);}
+  .route-row:first-child{border-top:0;}
+  .route-row b{color:var(--text);}
+  .memory-card{border:1px solid var(--border-2);border-radius:10px;background:#fff;padding:13px 14px;}
+  .memory-card b{display:block;font-size:13.5px;margin-bottom:5px;}
+  .memory-card p{font-size:12.5px;line-height:1.45;color:var(--text-2);margin:0 0 9px;}
+  .memory-meta{display:flex;gap:6px;flex-wrap:wrap;}
+  .memory-meta span{font-family:var(--mono);font-size:10px;color:var(--text-3);border:1px solid var(--border);border-radius:999px;padding:2px 7px;}
+  .feed-card{border:1px solid var(--border-2);border-radius:10px;background:#fff;overflow:hidden;}
+  .feed-card .row small{display:block;margin-top:4px;}
+  .thin-list{padding:12px 14px;}
+  .thin-list span{display:block;border-top:1px solid var(--border);padding:8px 0;font-size:12.5px;color:var(--text-2);}
+  .thin-list span:first-child{border-top:0;padding-top:0;}
+  .states{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:14px;border-top:1px solid var(--border-2);}
+  .state-card{border:1px solid var(--border-2);border-radius:10px;padding:11px 12px;}
+  .state-card b{display:block;font-size:12.5px;}
+  .state-card small{display:block;color:var(--text-3);font-size:11.5px;line-height:1.4;margin-top:4px;}
+  @media (max-width:900px){.layout{display:block;padding:56px 20px 88px}.wrap{max-width:none}.outline{position:static;max-height:none;margin:0 0 28px;padding:14px 0;border-left:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.outline a{display:inline-block;margin-right:12px}.outline .lv3{padding-left:0;color:var(--text-3)}}
+  @media (max-width:720px){.wrap{padding:0}.shell,.two-col,.navmap,.tri-col,.flow-grid,.detail-grid,.subgrid,.states{grid-template-columns:1fr}.wire-side{border-right:0;border-bottom:1px solid var(--border-2)}.tile-grid{grid-template-columns:1fr}.chatline{max-width:100%;}.route-row{grid-template-columns:1fr;gap:3px;}}
+  .demo.hifi{background:#fafafa;border-color:rgba(0,0,0,0.07);border-radius:14px;padding:18px;box-shadow:0 6px 20px rgba(0,0,0,0.04);}
+  .demo.hifi .demo-tag::before{background:#49A3A6;}
+  .hf-app{min-height:438px;display:grid;grid-template-columns:214px minmax(0,1fr);overflow:hidden;border:0.5px solid rgba(0,0,0,0.12);border-radius:12px;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,0.08);}
+  .hf-side{background:#2A2A38;color:rgba(255,255,255,0.88);padding:14px 10px;position:relative;overflow:hidden;}
+  .hf-side::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,rgba(0,0,0,.42) .6px,transparent .6px);background-size:3px 3px;opacity:.45;}
+  .hf-side>*{position:relative;}
+  .hf-brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;padding:4px 8px 15px;}
+  .hf-logo{width:18px;height:18px;border-radius:5px;background:#fff;display:inline-block;}
+  .hf-new{height:36px;margin:0 2px 16px;border:.5px solid rgba(255,255,255,.22);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;color:rgba(255,255,255,.88);}
+  .hf-group{margin:12px 10px 6px;display:flex;justify-content:space-between;align-items:center;color:rgba(255,255,255,.46);font-size:11px;letter-spacing:.2px;}
+  .hf-plus{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;color:rgba(255,255,255,.52);}
+  .hf-row{min-height:34px;display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 9px;border-radius:6px;font-size:13px;color:rgba(255,255,255,.82);}
+  .hf-row.active{background:rgba(255,255,255,.06);}
+  .hf-row:hover{background:rgba(255,255,255,.05);}
+  .hf-row .ico{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;color:#49A3A6;background:rgba(73,163,166,.09);font-size:11px;}
+  .hf-row .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hf-row .sub{display:block;margin-top:2px;font-size:10.5px;color:rgba(255,255,255,.42);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hf-meta{font-size:9px;text-transform:uppercase;letter-spacing:.5px;border:.5px solid rgba(255,255,255,.16);border-radius:999px;padding:3px 6px;color:rgba(255,255,255,.56);background:rgba(255,255,255,.035);}
+  .hf-row.tg .ico,.hf-row.tg .hf-meta{color:#6dbdff;background:rgba(109,189,255,.08);border-color:rgba(109,189,255,.3);}
+  .hf-row.dc .ico,.hf-row.dc .hf-meta{color:#a68dff;background:rgba(166,141,255,.09);border-color:rgba(166,141,255,.32);}
+  .hf-row.muted{color:rgba(255,255,255,.50);}
+  .hf-main{min-width:0;background:#fff;display:flex;flex-direction:column;}
+  .hf-top{height:58px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 18px;border-bottom:.5px solid rgba(0,0,0,.07);}
+  .hf-title{display:flex;align-items:center;gap:10px;min-width:0;}
+  .hf-mark{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:rgba(73,163,166,.10);color:#49A3A6;font-size:12px;flex:0 0 auto;}
+  .hf-txt{min-width:0;}
+  .hf-t{font-size:14px;color:rgba(0,0,0,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hf-s{font-size:11.5px;color:rgba(0,0,0,.50);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hf-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+  .hf-btn{height:31px;display:inline-flex;align-items:center;gap:6px;padding:0 11px;border:.5px solid rgba(0,0,0,.12);border-radius:8px;background:#fff;color:rgba(0,0,0,.70);font-size:12.5px;white-space:nowrap;}
+  .hf-btn.primary{background:#49A3A6;border-color:#49A3A6;color:#fff;}
+  .hf-tabs{height:45px;display:flex;align-items:center;gap:2px;padding:0 14px;border-bottom:.5px solid rgba(0,0,0,.07);overflow:auto;}
+  .hf-tab{position:relative;height:45px;display:flex;align-items:center;gap:7px;padding:0 10px;font-size:13px;color:rgba(0,0,0,.50);white-space:nowrap;}
+  .hf-tab.active{color:rgba(0,0,0,.90);}
+  .hf-tab.active::after{content:"";position:absolute;left:10px;right:10px;bottom:-.5px;height:2px;border-radius:2px;background:#49A3A6;}
+  .hf-canvas{padding:18px;min-height:0;display:flex;flex-direction:column;gap:12px;}
+  .hf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  .hf-grid.three{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .hf-card{border:.5px solid rgba(0,0,0,.07);border-radius:12px;background:#fff;padding:14px 15px;box-shadow:0 4px 15px rgba(0,0,0,.04);}
+  .hf-card.soft{background:#fafafa;box-shadow:none;}
+  .hf-card h4{font-size:14px;color:rgba(0,0,0,.90);margin:0 0 5px;font-weight:500;}
+  .hf-card p{font-size:12.5px;line-height:18px;color:rgba(0,0,0,.50);margin:0;}
+  .hf-list{display:flex;flex-direction:column;gap:8px;}
+  .hf-item{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:11px;align-items:center;border:.5px solid rgba(0,0,0,.07);border-radius:11px;background:#fff;padding:11px 13px;}
+  .hf-i{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:rgba(73,163,166,.10);color:#49A3A6;font-size:12px;letter-spacing:.2px;}
+  .hf-i.blue{background:rgba(87,119,200,.10);color:#5777c8;}
+  .hf-i.amber{background:rgba(184,134,47,.10);color:#b8862f;}
+  .hf-i.red{background:rgba(224,83,87,.10);color:#e05357;}
+  .hf-it{font-size:13.5px;color:rgba(0,0,0,.90);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hf-is{font-size:11.5px;color:rgba(0,0,0,.50);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hf-badge{font-size:10px;text-transform:uppercase;letter-spacing:.4px;border:.5px solid rgba(0,0,0,.12);border-radius:999px;padding:3px 8px;background:#fafafa;color:rgba(0,0,0,.50);white-space:nowrap;}
+  .hf-badge.green{color:#2d8f61;background:rgba(45,143,97,.10);border-color:rgba(45,143,97,.25);}
+  .hf-badge.amber{color:#b8862f;background:rgba(184,134,47,.10);border-color:rgba(184,134,47,.25);}
+  .hf-chat{display:flex;flex-direction:column;gap:12px;max-width:680px;margin:0 auto;width:100%;}
+  .hf-msg{display:flex;gap:10px;max-width:86%;}
+  .hf-msg.user{align-self:flex-end;flex-direction:row-reverse;}
+  .hf-ava{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:11px;font-weight:500;flex:0 0 auto;background:#f0f0f2;color:rgba(0,0,0,.50);}
+  .hf-ava.alva{background:#2A2A38;color:#49A3A6;overflow:hidden;}
+  .hf-ava.alva img{width:100%;height:100%;display:block;}
+  .hf-bubble{border:.5px solid rgba(0,0,0,.07);border-radius:12px;background:#fff;padding:11px 13px;box-shadow:0 4px 15px rgba(0,0,0,.04);}
+  .hf-msg.user .hf-bubble{background:#f5f5f6;box-shadow:none;}
+  .hf-bubble .who{font-size:10.5px;text-transform:uppercase;letter-spacing:.35px;color:rgba(0,0,0,.30);display:block;margin-bottom:4px;}
+  .hf-bubble p{font-size:13px;line-height:19px;color:rgba(0,0,0,.70);margin:0;}
+  .hf-composer{height:44px;border:.5px solid rgba(0,0,0,.12);border-radius:12px;background:#fff;padding:0 8px 0 14px;display:flex;align-items:center;gap:10px;color:rgba(0,0,0,.30);font-size:13px;box-shadow:0 4px 15px rgba(0,0,0,.04);}
+  .hf-send{width:30px;height:30px;border-radius:8px;background:#49A3A6;color:#fff;display:grid;place-items:center;margin-left:auto;}
+  .hf-task{border:.5px solid rgba(0,0,0,.07);border-radius:12px;background:#fff;overflow:hidden;}
+  .hf-task-head{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;}
+  .hf-task-body{padding:0 16px 14px 62px;}
+  .hf-step{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(0,0,0,.70);margin-top:6px;}
+  .hf-step::before{content:"";width:7px;height:7px;border-radius:50%;background:#49A3A6;}
+  .hf-step.now::before{background:#b8862f;box-shadow:0 0 0 4px rgba(184,134,47,.12);}
+  .hf-source{display:inline-flex;align-items:center;gap:6px;margin-top:8px;height:24px;padding:0 8px;border:.5px solid rgba(0,0,0,.12);border-radius:6px;background:#fff;color:rgba(0,0,0,.50);font-size:11.5px;}
+  .hf-mem{border:.5px solid rgba(0,0,0,.07);border-radius:11px;background:#fff;padding:14px 16px;box-shadow:0 4px 15px rgba(0,0,0,.04);}
+  .hf-mem .mt{font-size:14px;color:rgba(0,0,0,.90);}
+  .hf-mem .mb{font-size:12.5px;line-height:19px;color:rgba(0,0,0,.50);margin-top:5px;}
+  .hf-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .hf-chip{height:22px;display:inline-flex;align-items:center;padding:0 8px;border:.5px solid rgba(0,0,0,.12);border-radius:999px;background:#fafafa;color:rgba(0,0,0,.50);font-size:11px;}
+  .hf-form{border:.5px solid rgba(0,0,0,.07);border-radius:12px;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.08);overflow:hidden;}
+  .hf-form h4{height:52px;display:flex;align-items:center;padding:0 16px;border-bottom:.5px solid rgba(0,0,0,.07);font-size:15px;}
+  .hf-field{margin:13px 16px 0;}
+  .hf-field label{display:block;font-size:11.5px;color:rgba(0,0,0,.50);margin-bottom:6px;}
+  .hf-input{min-height:36px;border:.5px solid rgba(0,0,0,.12);border-radius:8px;background:#fafafa;padding:8px 10px;font-size:13px;color:rgba(0,0,0,.90);}
+  .hf-input.tall{min-height:78px;line-height:18px;}
+  .hf-form-actions{display:flex;justify-content:flex-end;gap:8px;padding:15px 16px;}
+  .hf-phone{width:310px;max-width:100%;border:.5px solid rgba(0,0,0,.12);border-radius:18px;background:#fff;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.05);}
+  .hf-phone-head{display:flex;align-items:center;gap:9px;padding:11px 13px;background:rgba(109,189,255,.10);border-bottom:.5px solid rgba(0,0,0,.05);}
+  .hf-phone-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 13px;border-bottom:.5px solid rgba(0,0,0,.05);font-size:13px;}
+  .hf-phone-row.active{background:rgba(73,163,166,.07);}
+  .hf-phone-row em{font-style:normal;font-size:10.5px;color:rgba(0,0,0,.30);}
+  .hf-room{border:.5px solid rgba(0,0,0,.07);border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.05);}
+  .hf-room-msg{padding:12px 14px;border-bottom:.5px solid rgba(0,0,0,.07);}
+  .hf-room-msg b{font-size:13px;}
+  .hf-room-msg p{font-size:12.5px;line-height:18px;color:rgba(0,0,0,.60);margin:4px 0 0;}
+  .hf-roomtask{display:flex;align-items:center;gap:11px;margin:10px 14px 14px;padding:10px 13px;border:.5px solid rgba(73,163,166,.28);background:rgba(73,163,166,.10);border-radius:10px;color:#49A3A6;}
+  .hf-roomtask strong{display:block;color:rgba(0,0,0,.90);font-size:13px;}
+  .hf-roomtask small{display:block;font-size:11.5px;color:#49A3A6;margin-top:2px;}
+  .hf-post{border:.5px solid rgba(0,0,0,.12);border-radius:10px;background:#fafafa;padding:11px 12px;font-size:13px;line-height:19px;color:rgba(0,0,0,.90);min-height:84px;}
+  .hf-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .hf-split.asym{grid-template-columns:1.15fr .85fr;}
+  .hf-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+  .hf-note{border:.5px solid rgba(0,0,0,.07);border-radius:10px;background:#fafafa;padding:11px 12px;font-size:12.5px;line-height:18px;color:rgba(0,0,0,.55);}
+  @media(max-width:760px){.hf-app,.hf-split,.hf-split.asym,.hf-grid,.hf-grid.three,.hf-mini-grid{grid-template-columns:1fr}.hf-side{display:none}.hf-phone{width:100%;}.hf-task-head,.hf-item{grid-template-columns:34px minmax(0,1fr)}.hf-task-head>.hf-badge,.hf-item>.hf-badge{grid-column:2}.hf-task-body{padding-left:16px;}}
+  @media print{.demo,.frontmatter,.table-wrap,.panel{break-inside:avoid}.wrap{max-width:none;padding:0}}
+</style>
 </head>
 <body>
-  <div class="spec-demo">
-    <aside class="spec-reader" aria-label="Alva Channel product specification">
-      <section class="spec-cover">
-        <div class="eyebrow">Product Spec + Visual Demo</div>
-        <h1>Alva Channel</h1>
-        <p class="spec-lede">A single-page product spec for turning personal and group surfaces into one durable investment workspace model.</p>
-        <div class="spec-promise">
-          <strong>Alva Channel is where Alva remembers, tracks, and works with you or your group.</strong>
-          <span>Memory remembers. Playbooks run. Chats and Tasks move work forward. Artifacts preserve what Alva generated or processed.</span>
-        </div>
-      </section>
-
-      <nav class="spec-nav" aria-label="Spec sections">
-        <a href="#object-model">Object model</a>
-        <a href="#user-stories">Stories</a>
-        <a href="#user-journey">Journey</a>
-        <a href="#surface-positioning">Surfaces</a>
-        <a href="#group-flow">TG / DC flow</a>
-        <a href="#permissions">Permissions</a>
-        <a href="#prototype">Prototype</a>
-      </nav>
-
-      <section class="spec-section" id="object-model">
-        <div class="eyebrow">Model</div>
-        <h2>对象定义</h2>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th>Object</th>
-              <th>Meaning</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Channel</td>
-              <td>由 Alva Agent 维护的上下文空间，scope 可以是 personal 或 group。</td>
-            </tr>
-            <tr>
-              <td>Memory</td>
-              <td>Channel 的长期记忆。Personal 是个人偏好和历史决策；Group 是群共识、关注对象、偏好和已验证/失效 thesis。</td>
-            </tr>
-            <tr>
-              <td>Playbooks</td>
-              <td>Channel 正在创建、订阅、跟踪、讨论或使用的投资应用。</td>
-            </tr>
-            <tr>
-              <td>Chats / Tasks</td>
-              <td>Channel 内发生的对话、research task、agent task、scheduled task 和需要用户输入的工作。</td>
-            </tr>
-            <tr>
-              <td>Artifacts</td>
-              <td>Alva 生成或处理过的文件、报告、数据、source packs、skills 和策略草稿。</td>
-            </tr>
-            <tr>
-              <td>Endpoint</td>
-              <td>Web、Telegram DM、Discord DM、Telegram group、Discord group、Mini App。</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="spec-callout">下方原型里的四个 tabs 对应这个对象模型：Memory / Playbooks / Chats/Tasks / Artifacts。</div>
-      </section>
-
-      <section class="spec-section" id="user-stories">
-        <div class="eyebrow">User Stories</div>
-        <h2>用户故事</h2>
-        <div class="story-grid">
-          <article class="story-card">
-            <h3>群管理员 / 社群主理人</h3>
-            <p>我想把 Alva 加进 Telegram 或 Discord 群，让群里的讨论、KOL 观点、playbook、digest 规则沉淀成一个共享 Channel，而不是每天从聊天记录里重新捞信息。</p>
-            <span class="chip">Goal: group intelligence layer</span>
-          </article>
-          <article class="story-card">
-            <h3>已绑定 Alva 的群成员</h3>
-            <p>我想在群里直接问 Alva、保存重要结论、让它持续 track 某个 ticker/KOL/playbook，并能回到 web 页面查看完整上下文和产物。</p>
-            <span class="chip">Goal: ask, save, track</span>
-          </article>
-          <article class="story-card">
-            <h3>未绑定账号的群访客</h3>
-            <p>我先浏览这个 group channel 的公开 Memory、tracked playbooks 和最新 brief，判断这个群的投研质量，再决定是否绑定 Alva 账号参与写入。</p>
-            <span class="chip">Goal: browse before bind</span>
-          </article>
-          <article class="story-card">
-            <h3>Playbook 创建者 / KOL campaign 运营者</h3>
-            <p>我想把一个 playbook 分发到相关 group channel，让它成为群里的长期跟踪对象，并通过群成员反馈、订阅和讨论获得冷启动流量。</p>
-            <span class="chip">Goal: distribute with context</span>
-          </article>
-          <article class="story-card">
-            <h3>个人投资者</h3>
-            <p>我希望群里的公共结论能帮助我，但涉及 portfolio、交易账户、private files 和个人偏好时，Alva 必须切回 General 里的 personal agent，不能把私人上下文带进群。</p>
-            <span class="chip">Goal: public signal, private action</span>
-          </article>
-          <article class="story-card">
-            <h3>Alva Agent</h3>
-            <p>我需要在群聊、mini app 和 web 页面之间保持同一个 Channel state：群里轻量回应，web 上组织证据、任务、文件和长期 Memory。</p>
-            <span class="chip">Goal: one state, many endpoints</span>
-          </article>
-        </div>
-      </section>
-
-      <section class="spec-section" id="user-journey">
-        <div class="eyebrow">Journey</div>
-        <h2>用户旅程</h2>
-        <div class="journey-map" aria-label="User journey map">
-          <div class="journey-node">
-            <strong>01</strong>
-            <span>群里触发</span>
-          </div>
-          <div class="journey-node">
-            <strong>02</strong>
-            <span>打开页面</span>
-          </div>
-          <div class="journey-node">
-            <strong>03</strong>
-            <span>绑定写入</span>
-          </div>
-          <div class="journey-node">
-            <strong>04</strong>
-            <span>Agent 维护</span>
-          </div>
-          <div class="journey-node">
-            <strong>05</strong>
-            <span>私域 handoff</span>
-          </div>
-        </div>
-        <div class="journey-rail">
-          <div class="journey-step">
-            <strong>1. 群里发现 Alva</strong>
-            <span>用户在 TG/DC 群里看到 Alva 的 digest、material change alert、KOL 回测卡片或 `/alva track` 命令结果。</span>
-          </div>
-          <div class="journey-step">
-            <strong>2. 打开 canonical page</strong>
-            <span>群消息、mini app 或 Discord card 指向同一个 Alva Group Channel 页面，访客能先浏览公开上下文。</span>
-          </div>
-          <div class="journey-step">
-            <strong>3. 绑定后参与写入</strong>
-            <span>绑定 Alva 账号后，用户可以 Ask、Save to Memory、上传 source、启动 task 或让 Alva track 新对象。</span>
-          </div>
-          <div class="journey-step">
-            <strong>4. Agent 持续维护</strong>
-            <span>Alva 把短期聊天 buffer、群共识、playbook 输出和 source packs 处理成 Memory、Tasks 和 Artifacts。</span>
-          </div>
-          <div class="journey-step">
-            <strong>5. 公共到私人 handoff</strong>
-            <span>当问题涉及仓位、交易、private memory 或个人文件时，Alva 从 Group Channel 切回 General 里的 personal agent 执行。</span>
-          </div>
-        </div>
-        <div class="spec-callout">核心转化不是“群聊里多一个 bot”，而是把群聊里的投研共识变成可浏览、可复用、可持续更新的 Alva workspace。</div>
-      </section>
-
-      <section class="spec-section" id="surface-positioning">
-        <div class="eyebrow">Surface Positioning</div>
-        <h2>Web 和群聊的互补关系</h2>
-        <div class="surface-loop" aria-label="Surface relationship diagram">
-          <div class="surface-loop-card">
-            <h3>Telegram / Discord</h3>
-            <p>把 Alva 放到群讨论发生的地方。负责触发、提醒、轻量命令、digest 和绑定引导。</p>
-            <span class="surface-arrow">activation / distribution</span>
-          </div>
-          <div class="surface-loop-core">
-            <div>
-              <h3>Channel State</h3>
-              <p>Memory, Playbooks, Tasks, Artifacts</p>
-            </div>
-          </div>
-          <div class="surface-loop-card">
-            <h3>Web / Mini App</h3>
-            <p>把群里的投研状态整理成可浏览、可写入、可检索、可执行的长期工作台。</p>
-            <span class="surface-arrow">record / workspace</span>
-          </div>
-        </div>
-        <div class="surface-compare">
-          <div class="surface-column">
-            <h3>Web / Mini App: system of record</h3>
-            <ul>
-              <li>承载完整 Channel 页面：Memory、Playbooks、Chats/Tasks、Artifacts。</li>
-              <li>适合浏览、检索、筛选、验证来源、查看回测和处理文件。</li>
-              <li>负责权限边界：访客只读，绑定成员可写，admin 可配置 digest 和 tracked targets。</li>
-              <li>处理复杂工作流：长任务、文件上传、playbook remix、private handoff、portfolio/trading 操作。</li>
-            </ul>
-          </div>
-          <div class="surface-column">
-            <h3>Telegram / Discord: activation surface</h3>
-            <ul>
-              <li>承接群里的自然讨论，在用户已经聚集的地方触发 Alva。</li>
-              <li>适合轻量命令、mention、reply、digest、material change alert 和绑定引导。</li>
-              <li>默认不把所有聊天都写入 Memory，只在明确保存或高置信判断时沉淀。</li>
-              <li>负责把用户带回 canonical Channel page，而不是在聊天窗口里塞完整产品。</li>
-            </ul>
-          </div>
-        </div>
-        <div class="surface-grid">
-          <article class="surface-card">
-            <h3>定位</h3>
-            <p>群里是“入口和触发器”，Web 是“状态和工作台”。Alva 不试图替代 Telegram/Discord，而是在群之上提供一层投资智能和长期记忆。</p>
-          </article>
-          <article class="surface-card">
-            <h3>增长含义</h3>
-            <p>每个 group channel 都可以变成一个公开或半公开的投研页面：访客可浏览，绑定用户可贡献，playbook 可分发，agent 可持续更新。</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="spec-section" id="group-flow">
-        <div class="eyebrow">Telegram / Discord</div>
-        <h2>群组联动流程</h2>
-        <ul class="spec-list">
-          <li><strong>Invite Alva</strong>用户把 Alva 加到 TG/DC 群后，系统创建 canonical Group Channel page。</li>
-          <li><strong>Open Channel</strong>群消息卡片、Telegram mini app、Discord card 都指向同一个 Channel 页面。</li>
-          <li><strong>Browse first</strong>群成员和访客可以浏览公开 Channel 内容，先看到 Memory 摘要、tracked playbooks 和最新 brief。</li>
-          <li><strong>Bind to write</strong>绑定 Alva 账号后，成员可以 Ask Alva、Save to Memory、Track target、上传 source 或启动 task。</li>
-          <li><strong>Material changes only</strong>Alva 回群必须克制：mention、command、reply、scheduled digest 或 material change 才出现。</li>
-        </ul>
-      </section>
-
-      <section class="spec-section" id="permissions">
-        <div class="eyebrow">Boundaries</div>
-        <h2>权限和隐私边界</h2>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th>Role</th>
-              <th>Capability</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Guest</td>
-              <td>浏览公开 Channel 页面；不能写入 Memory 或启动任务。</td>
-            </tr>
-            <tr>
-              <td>Unbound member</td>
-              <td>在群里看到 Alva 消息；点击链接浏览；收到绑定引导。</td>
-            </tr>
-            <tr>
-              <td>Bound member</td>
-              <td>Ask、Save to Memory、Track public targets、提交 source、参与 task。</td>
-            </tr>
-            <tr>
-              <td>Group admin</td>
-              <td>管理 tracked targets、digest cadence、visibility、成员写权限和 group-level artifacts。</td>
-            </tr>
-            <tr>
-              <td>Alva Agent</td>
-              <td>整理、验证、更新、提醒；但不能把个人 memory、portfolio 或 private files 暴露给群。</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="spec-section prototype-intro" id="prototype">
-        <div class="eyebrow">Prototype</div>
-        <h2>页面原型</h2>
-        <p>文章最后的宽屏原型把前面的产品定位放进 Alva freshman 的页面骨架：原 Alva Agent 入口移动到 Channels 顶部并改名为 General，替换原 personal channel 入口，同时保留原 Agent 的入口逻辑；Playbooks 合并后用来源 icon 和 hover 态区分，Group Channels 用 TG/DC 标识 Telegram group 和 Discord group；右侧则是选中 group channel 后的 Memory / Playbooks / Chats / Artifacts 工作区。点击侧边栏的 General 可切到 personal agent 绑定后的示意——模拟对话流加 Memory、Artifacts、Tasks 的显性化；点任意 group channel 切回群工作台。</p>
-      </section>
-
-  <main class="app">
-    <aside class="freshman-sidebar" aria-label="Alva navigation">
-      <svg class="sidebar-sprite" aria-hidden="true">
-        <symbol id="icon-layout" viewBox="0 0 24 24">
-          <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-          <path d="M9 4v16M4 9h5"></path>
-        </symbol>
-        <symbol id="icon-compass" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9"></circle>
-          <path d="m15.2 8.8-2.1 5.1-5.1 2.1 2.1-5.1 5.1-2.1Z"></path>
-        </symbol>
-        <symbol id="icon-agent" viewBox="0 0 24 24">
-          <rect x="4" y="5" width="16" height="15" rx="2"></rect>
-          <path d="M8 9h.01M12 9h.01M16 9h.01M8 14h8"></path>
-        </symbol>
-        <symbol id="icon-portfolio" viewBox="0 0 24 24">
-          <rect x="4" y="6" width="16" height="15" rx="2"></rect>
-          <path d="M8 6V4h8v2M8 11h.01M17 11h.01"></path>
-        </symbol>
-        <symbol id="icon-skill" viewBox="0 0 24 24">
-          <path d="M6 5h13v13H6z"></path>
-          <path d="M9 15 15 9M16 5h3v3"></path>
-        </symbol>
-        <symbol id="icon-coin" viewBox="0 0 24 24">
-          <circle cx="12" cy="11" r="8"></circle>
-          <path d="M12 6v10M15 8.5c-.6-.7-1.5-1-2.8-1-1.4 0-2.4.7-2.4 1.8 0 1.2 1 1.7 2.8 2 1.8.3 2.7.8 2.7 2 0 1.1-1 1.8-2.7 1.8-1.4 0-2.5-.4-3.2-1.2M6.8 20h10.4"></path>
-        </symbol>
-        <symbol id="icon-target" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="8"></circle>
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M17.5 6.5 20 4M19 4h1v4"></path>
-        </symbol>
-        <symbol id="icon-owned-playbook" viewBox="0 0 24 24">
-          <path d="M5 19h4L19 9l-4-4L5 15v4Z"></path>
-          <path d="m14 6 4 4M8 15l2 2"></path>
-        </symbol>
-        <symbol id="icon-person-channel" viewBox="0 0 24 24">
-          <circle cx="12" cy="8" r="4"></circle>
-          <path d="M5 20a7 7 0 0 1 14 0"></path>
-        </symbol>
-        <symbol id="icon-telegram" viewBox="0 0 24 24">
-          <path d="M20 5 4 11.5l6 2.1L12.2 19l3.2-4.4 4.6-9.6Z"></path>
-          <path d="m10 13.6 5.6-5.1"></path>
-        </symbol>
-        <symbol id="icon-discord" viewBox="0 0 24 24">
-          <path d="M8.2 8.2c1.2-.5 2.5-.7 3.8-.7s2.6.2 3.8.7l1.4 2.4c.7 1.3 1 2.8.9 4.3-1.5 1.1-3 1.8-4.6 2l-.8-1.5"></path>
-          <path d="M6.8 10.6c-.7 1.3-1 2.8-.9 4.3 1.5 1.1 3 1.8 4.6 2l.8-1.5"></path>
-          <path d="M9.5 13h.01M14.5 13h.01M8.2 8.2 6.8 10.6M15.8 8.2l1.4 2.4"></path>
-        </symbol>
-        <symbol id="icon-channel" viewBox="0 0 24 24">
-          <circle cx="7" cy="12" r="3"></circle>
-          <circle cx="17" cy="7" r="3"></circle>
-          <circle cx="17" cy="17" r="3"></circle>
-          <path d="M9.8 10.7 14.2 8.3M9.8 13.3l4.4 2.4"></path>
-        </symbol>
-        <symbol id="icon-chat" viewBox="0 0 24 24">
-          <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H10l-5 4v-5.5A2.5 2.5 0 0 1 5 12.8V6.5Z"></path>
-        </symbol>
-        <symbol id="icon-more" viewBox="0 0 24 24">
-          <path d="M6 12h.01M12 12h.01M18 12h.01"></path>
-        </symbol>
-      </svg>
-
-      <div class="freshman-top">
-        <img class="freshman-logo" src="../logo-alva-beta.svg" alt="Alva" />
-        <button class="sidebar-toggle" type="button" aria-label="Toggle sidebar">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-layout"></use></svg>
-        </button>
-      </div>
-
-      <button class="new-chat-btn" type="button">
-        <span class="plus" aria-hidden="true">+</span>
-        <span>New Chat</span>
-      </button>
-
-      <nav class="sidebar-group" aria-label="Primary">
-        <button class="side-item" type="button">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-compass"></use></svg></span>
-          <span class="side-label">Explore</span>
-        </button>
-        <button class="side-item" type="button">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-portfolio"></use></svg></span>
-          <span class="side-label">Portfolio</span>
-        </button>
-        <button class="side-item" type="button">
-          <span class="side-icon teal"><svg viewBox="0 0 24 24"><use href="#icon-skill"></use></svg></span>
-          <span class="side-label">Alva Skill</span>
-        </button>
-        <button class="side-item" type="button">
-          <span class="side-icon coin"><svg viewBox="0 0 24 24"><use href="#icon-coin"></use></svg></span>
-          <span class="side-label gradient">FinTwit Alpha League</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-heading">Channels</div>
-      <nav class="sidebar-group" aria-label="Channels">
-        <button class="side-item" type="button" data-channel="general" title="General agent entry">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-agent"></use></svg></span>
-          <span class="side-label">General</span>
-        </button>
-        <button class="side-item channel-item channel-group-tg active" type="button" data-channel="group" data-meta="TG" title="Telegram group channel">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
-          <span class="side-label">BTC Macro Room</span>
-        </button>
-        <button class="side-item channel-item channel-group-dc" type="button" data-channel="group" data-meta="DC" title="Discord group channel">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-discord"></use></svg></span>
-          <span class="side-label">DeFi Research Desk</span>
-        </button>
-        <button class="side-item channel-item channel-group-tg" type="button" data-channel="group" data-meta="TG" title="Telegram group channel">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-telegram"></use></svg></span>
-          <span class="side-label">KOL Tracker Pilot</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-heading">Playbooks</div>
-      <nav class="sidebar-group" aria-label="Playbooks">
-        <button class="side-item source-subscribed" type="button" data-meta="Subscribed" title="Subscribed playbook">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-target"></use></svg></span>
-          <span class="side-label">KOL Performance Explorer - Crypto</span>
-        </button>
-        <button class="side-item source-subscribed" type="button" data-meta="Subscribed" title="Subscribed playbook">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-target"></use></svg></span>
-          <span class="side-label">Evergreen Capital Tweet Tracker</span>
-        </button>
-        <button class="side-item source-subscribed" type="button" data-meta="Subscribed" title="Subscribed playbook">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-target"></use></svg></span>
-          <span class="side-label">Puru Saxena Tweet Tracker</span>
-        </button>
-        <button class="side-item source-subscribed" type="button" data-meta="Subscribed" title="Subscribed playbook">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-target"></use></svg></span>
-          <span class="side-label">FinTwit Alpha Leaderboard</span>
-        </button>
-        <button class="side-item source-subscribed" type="button" data-meta="Subscribed" title="Subscribed playbook">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-target"></use></svg></span>
-          <span class="side-label">Investor Roundtable</span>
-        </button>
-        <button class="side-item source-subscribed" type="button" data-meta="Subscribed" title="Subscribed playbook">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-target"></use></svg></span>
-          <span class="side-label">HL Funding Explorer</span>
-        </button>
-        <button class="side-item source-owned" type="button" data-meta="Created" title="Created by me">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-owned-playbook"></use></svg></span>
-          <span class="side-label">BTC K线图 · TradingView</span>
-        </button>
-        <button class="side-item source-owned" type="button" data-meta="Created" title="Created by me">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-owned-playbook"></use></svg></span>
-          <span class="side-label">Tokenized Stocks: CEX Map</span>
-        </button>
-        <button class="side-item source-owned" type="button" data-meta="Created" title="Created by me">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-owned-playbook"></use></svg></span>
-          <span class="side-label">Leopold 信号流 Tracker</span>
-        </button>
-        <button class="side-item side-more" type="button">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-more"></use></svg></span>
-          <span class="side-label">More</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-heading">Chats</div>
-      <nav class="sidebar-group" aria-label="Chats">
-        <button class="side-item" type="button">
-          <span class="side-icon chat"><svg viewBox="0 0 24 24"><use href="#icon-chat"></use></svg></span>
-          <span class="side-label">绘制 BTC K 线图 · Trading...</span>
-        </button>
-        <button class="side-item" type="button">
-          <span class="side-icon chat"><svg viewBox="0 0 24 24"><use href="#icon-chat"></use></svg></span>
-          <span class="side-label">Convert Image Content in...</span>
-        </button>
-        <button class="side-item" type="button">
-          <span class="side-icon chat"><svg viewBox="0 0 24 24"><use href="#icon-chat"></use></svg></span>
-          <span class="side-label">Serenity Tweet Tracker D...</span>
-        </button>
-        <button class="side-item" type="button">
-          <span class="side-icon chat"><svg viewBox="0 0 24 24"><use href="#icon-chat"></use></svg></span>
-          <span class="side-label">Greeting Inquiry: A Simple ...</span>
-        </button>
-        <button class="side-item" type="button">
-          <span class="side-icon chat"><svg viewBox="0 0 24 24"><use href="#icon-chat"></use></svg></span>
-          <span class="side-label">Earnings, Guidance, and P...</span>
-        </button>
-        <button class="side-item side-more" type="button">
-          <span class="side-icon"><svg viewBox="0 0 24 24"><use href="#icon-more"></use></svg></span>
-          <span class="side-label">More</span>
-        </button>
-      </nav>
-    </aside>
-
-    <section class="workspace" aria-label="Selected channel workspace">
-      <div class="ws-view" id="ws-general">
-        <header class="workspace-header">
-          <div>
-            <div class="eyebrow">Personal Channel / Alva Agent</div>
-            <div class="header-title">
-              <div class="title-avatar">A</div>
-              <div class="headline">
-                <h1>General</h1>
-                <p class="subline">Your personal Alva Agent. It remembers your preferences, tracks your playbooks, and works with you across web, Telegram, and mini app.</p>
-              </div>
-            </div>
-          </div>
-          <div class="header-actions">
-            <span class="badge green">Telegram connected</span>
-            <button class="text-btn" type="button">Agent settings</button>
-            <button class="primary-action" type="button">Message Agent</button>
-          </div>
-        </header>
-
-        <nav class="tabs" aria-label="Personal channel sections">
-          <button class="tab active" type="button" data-tab="chat">Chat</button>
-          <button class="tab" type="button" data-tab="memory">Memory</button>
-          <button class="tab" type="button" data-tab="tasks">Tasks</button>
-          <button class="tab" type="button" data-tab="artifacts">Artifacts</button>
-        </nav>
-
-        <section class="canvas" aria-live="polite">
-          <div class="tab-panel active flush" data-panel="chat">
-            <div class="agent-chat">
-              <div class="agent-chat-head">
-                <div class="agent-id">
-                  <span class="agent-dot"></span>
-                  Alva Agent
-                  <span class="agent-sub">connected via Telegram · always-on</span>
-                </div>
-                <button class="text-btn" type="button">New chat</button>
-              </div>
-
-              <div class="agent-stream" aria-label="Conversation with Alva Agent">
-                <div class="chat-row">
-                  <div class="chat-agent-label"><span class="agent-dot"></span>Alva Agent</div>
-                </div>
-                <div class="chat-row">
-                  <div class="bubble agent">Morning, Leo. I kept your playbooks running overnight. One material change is worth your time 👇</div>
-                </div>
-                <div class="chat-row">
-                  <div class="bubble agent">BTC ETF inflows accelerated while funding stayed neutral — that's the confirmation setup from your saved BTC thesis.</div>
-                </div>
-                <div class="chat-row user">
-                  <div class="bubble user">Did any KOL I follow react to it?</div>
-                </div>
-                <div class="chat-row">
-                  <div class="bubble agent">Three did. @macro_ceo turned constructive — fresh call, A- track record. Two others recycled old bullish language, so I labeled them stale instead of pushing them to you.</div>
-                </div>
-              </div>
-
-              <div class="agent-input">
-                <span>Message your Alva Agent…</span>
-                <span class="agent-send" aria-hidden="true">↑</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="tab-panel" data-panel="memory">
-            <section class="block">
-              <div class="block-head">
-                <div>
-                  <h2>Personal Memory</h2>
-                  <p class="block-sub">What Alva remembers about you — preferences, focus, and retired theses.</p>
-                </div>
-                <button class="text-btn" type="button">Save note</button>
-              </div>
-
-              <div class="memory-list">
-                <article class="memory-item">
-                  <span class="memory-status"></span>
-                  <div>
-                    <div class="item-title">Evidence first, no hype</div>
-                    <p class="item-body">You prefer short updates that lead with data and links, not narrative framing.</p>
-                    <div class="chips">
-                      <span class="chip">preference</span>
-                      <span class="chip">delivery</span>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="memory-item">
-                  <span class="memory-status blue"></span>
-                  <div>
-                    <div class="item-title">Core focus: BTC, ETH, NVDA, AI infra</div>
-                    <p class="item-body">Alva weights macro and AI-infrastructure signals when filtering your feed.</p>
-                    <div class="chips">
-                      <span class="chip">watchlist</span>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="memory-item">
-                  <span class="memory-status amber"></span>
-                  <div>
-                    <div class="item-title">Trades stay in private context</div>
-                    <p class="item-body">Portfolio and trading actions never leave your personal agent, even when a group thesis triggers them.</p>
-                    <div class="chips">
-                      <span class="chip">privacy boundary</span>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="memory-item">
-                  <span class="memory-status red"></span>
-                  <div>
-                    <div class="item-title">Invalidated: "alt season imminent"</div>
-                    <p class="item-body">April thesis retired after rotation failed to confirm. Kept so Alva won't resurface it.</p>
-                    <div class="chips">
-                      <span class="chip">invalidated thesis</span>
-                    </div>
-                  </div>
-                </article>
-              </div>
-            </section>
-          </div>
-
-          <div class="tab-panel" data-panel="tasks">
-            <section class="block">
-              <div class="block-head">
-                <div>
-                  <h2>Running Tasks</h2>
-                  <p class="block-sub">Always-on and scheduled work your personal agent is handling.</p>
-                </div>
-                <button class="text-btn" type="button">New task</button>
-              </div>
-
-              <div class="task-list">
-                <article class="task-item">
-                  <div class="task-state">Running</div>
-                  <div>
-                    <div class="item-title">Track funding + ETF flow against my BTC thesis</div>
-                    <p class="item-body">Always-on. Pings Telegram only on a material change, then updates the thesis note.</p>
-                  </div>
-                  <span class="badge green">Live</span>
-                </article>
-
-                <article class="task-item">
-                  <div class="task-state">Scheduled</div>
-                  <div>
-                    <div class="item-title">Friday portfolio review digest</div>
-                    <p class="item-body">Next run Fri 16:00. Output lands in Artifacts and a Telegram summary.</p>
-                  </div>
-                  <span class="badge">Scheduled</span>
-                </article>
-
-                <article class="task-item">
-                  <div class="task-state">Needs input</div>
-                  <div>
-                    <div class="item-title">Confirm new KOL for your tracker</div>
-                    <p class="item-body">Alva found @chain_signal with a strong recent record. Approve to start tracking.</p>
-                  </div>
-                  <span class="badge amber">Review</span>
-                </article>
-              </div>
-            </section>
-          </div>
-
-          <div class="tab-panel" data-panel="artifacts">
-            <section class="block">
-              <div class="block-head">
-                <div>
-                  <h2>Artifacts</h2>
-                  <p class="block-sub">Files, notes, and skills Alva generated or processed for you.</p>
-                </div>
-                <button class="text-btn" type="button">Upload source</button>
-              </div>
-
-              <div class="artifact-list">
-                <article class="artifact-item">
-                  <span class="file-icon">PDF</span>
-                  <div>
-                    <div class="item-title">weekly-portfolio-review.pdf</div>
-                    <p class="item-body">Auto-generated every Friday from your holdings and tracked playbooks.</p>
-                  </div>
-                  <span class="badge">1.8 MB</span>
-                </article>
-
-                <article class="artifact-item">
-                  <span class="file-icon">MD</span>
-                  <div>
-                    <div class="item-title">btc-macro-thesis.md</div>
-                    <p class="item-body">Living thesis note Alva updates as ETF flow and funding evolve.</p>
-                  </div>
-                  <span class="badge green">Live</span>
-                </article>
-
-                <article class="artifact-item">
-                  <span class="file-icon">SK</span>
-                  <div>
-                    <div class="item-title">nvda-earnings.skill</div>
-                    <p class="item-body">Personal skill that watches NVDA prints and pings you on surprises.</p>
-                  </div>
-                  <span class="badge amber">Review</span>
-                </article>
-              </div>
-            </section>
-          </div>
-        </section>
-      </div>
-
-      <div class="ws-view active" id="ws-group">
-      <header class="workspace-header">
-        <div>
-          <div class="eyebrow">Group Channel / Canonical Web Page</div>
-          <div class="header-title">
-            <div class="title-avatar">TG</div>
-            <div class="headline">
-              <h1>BTC Macro Room</h1>
-              <p class="subline">Alva remembers, tracks, and works with this group across Telegram, web, and mini app surfaces.</p>
-            </div>
-          </div>
-        </div>
-        <div class="header-actions">
-          <button class="text-btn" type="button">Open in Telegram</button>
-          <button class="text-btn" type="button">Share page</button>
-          <button class="primary-action" type="button">Track with Alva</button>
-        </div>
-      </header>
-
-      <section class="metrics" aria-label="Channel health">
-        <div class="metric">
-          <div class="metric-value">12</div>
-          <div class="metric-label">Tracked Playbooks</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value">31</div>
-          <div class="metric-label">Memory Notes</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value">5</div>
-          <div class="metric-label">Running Tasks</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value">68</div>
-          <div class="metric-label">Bound Members</div>
-        </div>
-      </section>
-
-      <nav class="tabs" aria-label="Channel sections">
-        <button class="tab active" type="button" data-tab="chats">Chats / Tasks</button>
-        <button class="tab" type="button" data-tab="memory">Memory</button>
-        <button class="tab" type="button" data-tab="playbooks">Playbooks</button>
-        <button class="tab" type="button" data-tab="artifacts">Artifacts</button>
-      </nav>
-
-      <section class="canvas" aria-live="polite">
-        <div class="tab-panel" data-panel="memory">
-          <div class="memory-grid">
-            <section class="block">
-              <div class="block-head">
-                <div>
-                  <h2>Group Memory</h2>
-                  <p class="block-sub">Long-term context Alva keeps for this channel. It is not raw chat history.</p>
-                </div>
-                <button class="text-btn" type="button">Save note</button>
-              </div>
-
-              <div class="memory-list">
-                <article class="memory-item">
-                  <span class="memory-status"></span>
-                  <div>
-                    <div class="item-title">Core BTC thesis: ETF flow plus funding stress</div>
-                    <p class="item-body">The room treats ETF inflow acceleration and neutral funding as the cleanest confirmation setup. Last verified from the 06 Jun group brief.</p>
-                    <div class="chips">
-                      <span class="chip">active thesis</span>
-                      <span class="chip">source: group + playbook</span>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="memory-item">
-                  <span class="memory-status amber"></span>
-                  <div>
-                    <div class="item-title">KOL calls need freshness labeling</div>
-                    <p class="item-body">Members prefer Alva to separate fresh calls, stale conviction, and recycled bullish language before posting updates.</p>
-                    <div class="chips">
-                      <span class="chip">group preference</span>
-                      <span class="chip">KOL leaderboard</span>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="memory-item">
-                  <span class="memory-status blue"></span>
-                  <div>
-                    <div class="item-title">Digest tone: short, evidence first, no hype</div>
-                    <p class="item-body">Group admins asked Alva to post only material changes, with links to the canonical channel page for detail.</p>
-                    <div class="chips">
-                      <span class="chip">delivery rule</span>
-                      <span class="chip">telegram</span>
-                    </div>
-                  </div>
-                </article>
-              </div>
-            </section>
-
-            <section class="block">
-              <div class="block-head">
-                <div>
-                  <h2>Memory Pipeline</h2>
-                  <p class="block-sub">What gets saved, and what stays short-lived.</p>
-                </div>
-              </div>
-
-              <div class="memory-list">
-                <article class="memory-item">
-                  <span class="memory-status red"></span>
-                  <div>
-                    <div class="item-title">Raw group context</div>
-                    <p class="item-body">Recent messages remain a short-term buffer for understanding replies. They do not become Memory automatically.</p>
-                  </div>
-                </article>
-
-                <article class="memory-item">
-                  <span class="memory-status amber"></span>
-                  <div>
-                    <div class="item-title">Chats / Tasks</div>
-                    <p class="item-body">Only @Alva, commands, replies, or explicit task starts become durable work threads in this channel.</p>
-                  </div>
-                </article>
-
-                <article class="memory-item">
-                  <span class="memory-status"></span>
-                  <div>
-                    <div class="item-title">Saved Memory</div>
-                    <p class="item-body">Alva or bound members save durable claims, preferences, recurring sources, and invalidated theses.</p>
-                  </div>
-                </article>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <div class="tab-panel" data-panel="playbooks">
-          <div class="block">
-            <div class="block-head">
-              <div>
-                <h2>Tracked Playbooks</h2>
-                <p class="block-sub">Public playbooks and KOL trackers this group asks Alva to watch.</p>
-              </div>
-              <button class="text-btn" type="button">Add public target</button>
-            </div>
-
-            <div class="split-grid">
-              <article class="playbook-item">
-                <div class="playbook-top">
-                  <div>
-                    <div class="item-title">@macro_ceo Tweet Tracker</div>
-                    <p class="item-body">Backtest of calls, refreshed hourly. Posts only on new high-confidence calls or rank changes.</p>
-                  </div>
-                  <span class="score">A-</span>
-                </div>
-                <div class="progress-line" style="--value: 74%;"><span></span></div>
-              </article>
-
-              <article class="playbook-item">
-                <div class="playbook-top">
-                  <div>
-                    <div class="item-title">BTC ETF Flow Monitor</div>
-                    <p class="item-body">Daily flow, basis, funding, and realized-volatility change summary for group brief.</p>
-                  </div>
-                  <span class="score">Live</span>
-                </div>
-                <div class="progress-line" style="--value: 88%;"><span></span></div>
-              </article>
-
-              <article class="playbook-item">
-                <div class="playbook-top">
-                  <div>
-                    <div class="item-title">Alt Rotation Watchlist</div>
-                    <p class="item-body">Tracks relative strength for SOL, ETH beta, and AI infra tokens. Needs source refresh.</p>
-                  </div>
-                  <span class="score">Fix</span>
-                </div>
-                <div class="progress-line" style="--value: 42%;"><span></span></div>
-              </article>
-
-              <article class="playbook-item">
-                <div class="playbook-top">
-                  <div>
-                    <div class="item-title">Group Thesis Dashboard</div>
-                    <p class="item-body">A shared page summarizing active, stale, and invalidated group theses.</p>
-                  </div>
-                  <span class="score">New</span>
-                </div>
-                <div class="progress-line" style="--value: 28%;"><span></span></div>
-              </article>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-panel active" data-panel="chats">
-          <div class="block">
-            <div class="block-head">
-              <div>
-                <h2>Chats / Tasks</h2>
-                <p class="block-sub">Group-triggered Alva work. Chat is the interaction layer; tasks are durable work.</p>
-              </div>
-              <button class="text-btn" type="button">New task</button>
-            </div>
-
-            <div class="task-list">
-              <article class="task-item">
-                <div class="task-state">Running</div>
-                <div>
-                  <div class="item-title">Compare latest KOL calls against current BTC setup</div>
-                  <p class="item-body">Started from Telegram mention. Alva is checking KOL tracker, ETF flow playbook, and group memory.</p>
-                </div>
-                <span class="badge green">9 min</span>
-              </article>
-
-              <article class="task-item">
-                <div class="task-state">Needs input</div>
-                <div>
-                  <div class="item-title">Should Alva post daily digest at market open or after US close?</div>
-                  <p class="item-body">Admin decision needed. Bound members can vote in mini app; Alva will save the rule to Memory.</p>
-                </div>
-                <span class="badge amber">Vote</span>
-              </article>
-
-              <article class="task-item">
-                <div class="task-state">Done</div>
-                <div>
-                  <div class="item-title">Summarize the weekend ETF thread</div>
-                  <p class="item-body">Output saved to Artifacts and linked to the active BTC thesis memory note.</p>
-                </div>
-                <span class="badge">Report</span>
-              </article>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-panel" data-panel="artifacts">
-          <div class="block">
-            <div class="block-head">
-              <div>
-                <h2>Artifacts</h2>
-                <p class="block-sub">Files, reports, data, source packs, and skills generated or processed by Alva.</p>
-              </div>
-              <button class="text-btn" type="button">Upload source</button>
-            </div>
-
-            <div class="artifact-list">
-              <article class="artifact-item">
-                <span class="file-icon">SK</span>
-                <div>
-                  <div class="item-title">btc-macro-room-digest.skill</div>
-                  <p class="item-body">Group-level skill defining digest tone, source priority, and material-change rules.</p>
-                </div>
-                <span class="badge green">Active</span>
-              </article>
-
-              <article class="artifact-item">
-                <span class="file-icon">PDF</span>
-                <div>
-                  <div class="item-title">ETF Flow Weekend Memo</div>
-                  <p class="item-body">Generated from group thread, KOL tracker output, and market data references.</p>
-                </div>
-                <span class="badge">2.4 MB</span>
-              </article>
-
-              <article class="artifact-item">
-                <span class="file-icon">SRC</span>
-                <div>
-                  <div class="item-title">KOL source pack</div>
-                  <p class="item-body">Handles, preferred benchmarks, excluded accounts, and freshness rules.</p>
-                </div>
-                <span class="badge amber">Review</span>
-              </article>
-            </div>
-          </div>
-        </div>
-      </section>
-      </div>
-    </section>
-
-    <aside class="right-panel" aria-label="Channel decisions and endpoints">
-      <section class="decision-card">
-        <div class="eyebrow">Channel Model</div>
-        <h2>Channel owns the workspace. Chat does not.</h2>
-        <p>Memory, Playbooks, Chats/Tasks, and Artifacts are the durable objects. Telegram, Discord, web, and mini app are endpoints.</p>
-      </section>
-
-      <section class="side-block">
-        <div class="block-head">
-          <div>
-            <h3>Connected Endpoints</h3>
-            <p class="block-sub">Same channel, multiple surfaces.</p>
-          </div>
-        </div>
-        <div class="endpoint">
-          <span class="endpoint-id">TG</span>
-          <span>
-            <strong>Telegram Group</strong>
-            <small>Primary posting surface</small>
-          </span>
-          <span class="badge green">Live</span>
-        </div>
-        <div class="endpoint">
-          <span class="endpoint-id">WEB</span>
-          <span>
-            <strong>Canonical Page</strong>
-            <small>Browsable by guests</small>
-          </span>
-          <span class="badge green">Public</span>
-        </div>
-        <div class="endpoint">
-          <span class="endpoint-id">APP</span>
-          <span>
-            <strong>Mini App</strong>
-            <small>Bound members can write</small>
-          </span>
-          <span class="badge">Open</span>
-        </div>
-      </section>
-
-      <section class="side-block">
-        <div class="block-head">
-          <div>
-            <h3>Role Rules</h3>
-            <p class="block-sub">Readable by many, writable by identity.</p>
-          </div>
-        </div>
-        <div class="role-row">
-          <span>Guest</span>
-          <span class="badge">Browse</span>
-        </div>
-        <div class="role-row">
-          <span>Unbound member</span>
-          <span class="badge">View</span>
-        </div>
-        <div class="role-row">
-          <span>Bound member</span>
-          <span class="badge green">Read / write</span>
-        </div>
-        <div class="role-row">
-          <span>Group admin</span>
-          <span class="badge amber">Manage</span>
-        </div>
-      </section>
-
-      <section class="side-block">
-        <div class="block-head">
-          <div>
-            <h3>Mini App Preview</h3>
-            <p class="block-sub">Fast access from Telegram.</p>
-          </div>
-        </div>
-        <div class="mini-preview">
-          <div class="mini-top">
-            <span>BTC Macro Room</span>
-            <span>Memory</span>
-          </div>
-          <div class="mini-card">
-            <strong>ETF flow thesis is still active</strong>
-            <span>Alva checked the tracker 18 minutes ago. No alert posted because funding is still neutral.</span>
-          </div>
-          <div class="mini-card">
-            <strong>Bound members can save notes</strong>
-            <span>Guests browse the group page; writing requires Alva identity.</span>
-          </div>
-        </div>
-      </section>
-    </aside>
-  </main>
-
-    </aside>
-
-  </div>
-
-  <script>
-    /* Tabs are scoped per workspace view so General and group channels
-       can reuse the same tab/panel classes without clashing. */
-    document.querySelectorAll('.ws-view').forEach((view) => {
-      const tabs = Array.from(view.querySelectorAll('.tab'));
-      const panels = Array.from(view.querySelectorAll('.tab-panel'));
-
-      tabs.forEach((tab) => {
-        tab.addEventListener('click', () => {
-          const target = tab.dataset.tab;
-
-          tabs.forEach((item) => {
-            item.classList.toggle('active', item === tab);
-          });
-
-          panels.forEach((panel) => {
-            panel.classList.toggle('active', panel.dataset.panel === target);
-          });
-        });
-      });
-    });
-
-    /* ── Channel switch: General (personal agent) vs group channel ── */
-    const channelItems = Array.from(document.querySelectorAll('[data-channel]'));
-    const wsGeneral = document.getElementById('ws-general');
-    const wsGroup = document.getElementById('ws-group');
-
-    channelItems.forEach((item) => {
-      item.addEventListener('click', () => {
-        const isGeneral = item.dataset.channel === 'general';
-
-        channelItems.forEach((other) => {
-          other.classList.toggle('active', other === item);
-        });
-
-        wsGeneral.classList.toggle('active', isGeneral);
-        wsGroup.classList.toggle('active', !isGeneral);
-      });
-    });
-  </script>
-    <script src="/demo/_switcher.js" defer></script>
-  </body>
+<div class="layout">
+<aside class="outline"><div class="outline-k">Outline</div><a class="lv2" href="#定义">定义</a><a class="lv2" href="#alva-agent-channel">Alva Agent Channel</a><a class="lv3" href="#chat">Chat</a><a class="lv3" href="#task">Task</a><a class="lv3" href="#artifacts">Artifacts</a><a class="lv3" href="#memory">Memory</a><a class="lv3" href="#skill">Skill</a><a class="lv3" href="#member">Member</a><a class="lv3" href="#connect-im">Connect IM</a><a class="lv3" href="#settings">Settings</a><a class="lv2" href="#personal-topic-channel">Personal Topic Channel</a><a class="lv3" href="#onboarding-preset-channel">Onboarding Preset Channel</a><a class="lv3" href="#connect-im-2">Connect IM</a><a class="lv2" href="#mirrored-im-group-channel">Mirrored IM Group Channel</a><a class="lv3" href="#connect-im-3">Connect IM</a><a class="lv3" href="#可见性和成员校验">可见性和成员校验</a><a class="lv3" href="#web-控制面和群写入">Web 控制面和群写入</a><a class="lv3" href="#群能力">群能力</a><a class="lv2" href="#导航改动">导航改动</a><a class="lv2" href="#分阶段落地">分阶段落地</a></aside>
+<main class="wrap">
+  <h1 id="alva-channel">Alva Channel</h1>
+  <details class="frontmatter"><summary>Document metadata</summary><pre>doc_type: product_spec
+status: draft
+last_reviewed: 2026-06-10
+language: zh-CN
+modules:
+  - alva_channel
+  - alva_agent_channel
+  - personal_topic_channel
+  - mirrored_im_group_channel
+  - channel_task
+  - task_session
+  - channel_artifacts
+  - channel_memory
+  - channel_skill
+  - channel_member
+  - channel_connect_im
+  - channel_settings
+  - channel_permissions
+sources:
+  - product_discussion: 2026-06-10 Alva Channel focused scope
+  - demo_reference: /Users/leozhou/Documents/workspace_alva/alva-freshman/public/demo/alva-channel-workspace.html
+  - demo_reference: /Users/leozhou/Documents/workspace_alva/alva-freshman/public/demo/alva-homepage-planb.html
+related_specs:
+  - docs/product/global-chat.zh-CN.md
+  - docs/product/alva-agent.zh-CN.md
+  - docs/product/playbook.zh-CN.md
+  - docs/product/alva-skill.zh-CN.md</pre></details>
+<h2 class="section-title" id="定义">定义</h2>
+<p>Alva Channel 是 Alva Agent 的长期上下文空间。它承载主会话、Task、Artifacts、Memory、Skill、Member、Connect IM 和 Settings。</p>
+<p>每个用户初始拥有一个 <code>Alva Agent Channel</code>。之后可以从它平行分化出多个 <code>Personal Topic Channel</code>，也可以把 Telegram / Discord 群镜像成 <code>Mirrored IM Group Channel</code>。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Channel workspace</p>
+  <div class="planb-viewport"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=agent&amp;concept=R&amp;tab=chat" title="Plan B actual Channel workspace"></iframe></div>
+</div>
+<p>分阶段覆盖：</p>
+<div class="table-wrap"><table><thead><tr><th>Channel</th><th>来源</th><th>参与范围</th><th>阶段</th><th>入口</th></tr></thead><tbody><tr><td>Alva Agent Channel</td><td>Alva-native</td><td>Single-player</td><td>Phase 1</td><td>Web 全局 Ask、Agent 入口、Channels section 置顶项</td></tr><tr><td>Personal Topic Channel</td><td>Alva-native</td><td>Single-player</td><td>Phase 1</td><td>Channels section 的 <code>+ New Channel</code>、Alva Agent Channel 自然语言创建</td></tr><tr><td>Mirrored IM Group Channel</td><td>IM-mirrored</td><td>Multi-player</td><td>Phase 2</td><td>Telegram / Discord 群、Web Channel 链接</td></tr></tbody></table></div>
+<h2 class="section-title" id="alva-agent-channel">Alva Agent Channel</h2>
+<p>Alva Agent Channel 是每个用户初始存在的默认 Channel。它承接 Web 全局 Ask、默认 Alva Agent 对话、未归属通知、未归属产物和 IM DM context。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · 默认 Channel 主会话</p>
+  <div class="planb-viewport short"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=agent&amp;concept=R&amp;tab=chat" title="Plan B actual Alva Agent main session"></iframe></div>
+</div>
+<p>基础规则：</p>
+<ul><li>参与者是用户和 Alva Agent。</li><li>默认 private。</li><li>在 Channels section 中默认置顶。</li><li>任意 Web 页面打开全局 Ask，默认进入 Alva Agent Channel。</li><li>固定存在，不参与普通删除。</li><li>可以创建 Personal Topic Channel。</li><li>可以把任务、产物、旧 Chat 或 task summary 移动到 Personal Topic Channel。</li></ul>
+<p>页面 tabs：</p>
+<div class="table-wrap"><table><thead><tr><th>Tab</th><th>优先级</th><th>内容</th></tr></thead><tbody><tr><td>Chat</td><td>P0</td><td>Channel main session，默认进入的主对话</td></tr><tr><td>Artifacts</td><td>P0</td><td>Channel 产物容器，分为 Playbooks、Automations、Files</td></tr><tr><td>Task</td><td>P1</td><td>Task 列表、手动创建 task、task status、task session 入口</td></tr><tr><td>Memory</td><td>P1</td><td>长期记忆、用户偏好、关键背景、重要决策</td></tr><tr><td>Skill</td><td>P2</td><td>默认 skill、临时 skill 使用记录、skill 开关</td></tr></tbody></table></div>
+<h3 id="chat">Chat</h3>
+<p>Alva Agent Channel 拥有一个 main session。用户在这个 main session 中持续对话，默认行为是 continue。</p>
+<p>Web 全局 Ask、Agent 入口和 Channels section 置顶项都会进入这个 main session。<code>Start fresh</code> 只清理短期上下文窗口，保留 Artifacts、Task、Memory、Skill 和 Settings。</p>
+<p>过渡期保留 New Chat 和 Chat History 作为 legacy 入口：</p>
+<ul><li>New Chat 不作为默认起手入口。</li><li>Chat History 不作为 Channel IA 核心入口。</li><li>旧 Chat 可以保存为新 Channel。</li><li>旧 Chat 可以移动到已有 Channel。</li><li>Task 未上线前，复杂指令先在 Channel main session 中执行，输出写入 Artifacts。</li></ul>
+<h3 id="task">Task</h3>
+<p>Task 是挂载在 Channel 下的独立工作单元，本质是一个独立 session。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Task 是 Channel 下的子 session</p>
+  <div class="planb-viewport"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=kol-digest&amp;tab=tasks" title="Plan B actual Channel tasks"></iframe></div>
+</div>
+<p>创建方式：</p>
+<ul><li>自动创建：用户在 main session 中提出复杂指令，Alva 判断需要 sub agent、长耗时工具调用或后台任务。</li><li>手动创建：用户在 Task tab 点击创建 task。</li><li>IM 触发：Mirrored IM Group Channel 中的 @Alva、命令、reply、Group Admin 规则触发。</li></ul>
+<p>运行规则：</p>
+<ul><li>Task 属于一个 parent Channel。</li><li>Task 创建时读取 parent Channel 允许访问的 context、Artifacts、Memory、Skill。</li><li>Task 拥有独立 task session。</li><li>用户可在 task session 内继续对话、补充信息、调整任务。</li><li>Task session 不污染 Channel main session 的短期上下文。</li><li>Task 的状态、进度、输出展示在 Task tab。</li><li>Task 产出的 Playbook 草稿、Automation、File 写入 Artifacts。</li><li>Task 完成后可把 summary、decision、memory candidate 回写到 parent Channel。</li><li>Task 未上线前，复杂指令在 Channel main session 中执行，输出写入 Artifacts。</li></ul>
+<h3 id="artifacts">Artifacts</h3>
+<p>Artifacts 是 Channel 的产物容器，包含三类：</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Artifacts 产物容器</p>
+  <div class="planb-viewport"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=kol-digest&amp;tab=artifacts&amp;artifact=automations" title="Plan B actual Channel artifacts"></iframe></div>
+</div>
+<div class="table-wrap"><table><thead><tr><th>类型</th><th>内容</th><th>规则</th></tr></thead><tbody><tr><td>Playbooks</td><td>Channel 关联、生成、使用过的 Playbook</td><td>全局 Playbooks 保持独立对象库；Channel 内 Playbooks 归入 Artifacts</td></tr><tr><td>Automations</td><td>Channel 触发、生成、订阅或运行的 Automation</td><td>Automation 是 Feed 面向用户端的语言；展示状态、cadence、last run、pause / resume</td></tr><tr><td>Files</td><td>文件、报告、source pack、图片、网页、策略草稿</td><td>可回到 source task 或 source message</td></tr></tbody></table></div>
+<p>Automation 投递规则：</p>
+<ul><li>创建 Automation 时可以选择消息投递的 Channel。</li><li>默认投递到 Alva Agent Channel。</li><li>可选投递目标包括 Alva Agent Channel、用户拥有的 Personal Topic Channel，以及用户有 Group Admin 权限的 Mirrored IM Group Channel。</li><li>Automation 的管理入口仍在 Artifacts / Automations 中；推送消息进入所选 Channel 的 Chat。</li><li>Phase 1 先支持单一投递 Channel；多 Channel 投递作为后续能力。</li></ul>
+<p>归属规则：</p>
+<ul><li>主会话产生的产物写入当前 Channel Artifacts。</li><li>Task 产物写入 parent Channel Artifacts。</li><li>用户可把 Alva Agent Channel 的 artifact 移动到 Personal Topic Channel。</li><li>Artifact access 控制具体文件、Playbook、报告、source pack 的读取和使用。</li><li>Automations 使用 Feed 产物作为数据来源；Files 需要补充对象归属、来源消息、权限和列表查询能力。</li></ul>
+<h3 id="memory">Memory</h3>
+<p>Memory 是 Alva 服务当前 Channel 的长期记忆。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Channel Memory 可追溯事实卡</p>
+  <div class="planb-viewport"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=kol-digest&amp;tab=memory" title="Plan B actual Channel memory"></iframe></div>
+</div>
+<p>当前现状：</p>
+<ul><li>Memory 是用户可见文件，不是隐藏模型状态；新用户会初始化 <code>~/memory/MEMORY.md</code> 和 <code>~/memory/user.md</code>。</li><li><code>user.md</code> 承载用户身份、投资风格、知识水平和偏好模板；<code>~/memory/</code> 下的主题文件承载长期背景，Agent 应先读 memory index，再按需读取相关文件。</li></ul>
+<p>默认处理：</p>
+<ul><li>main session 普通消息留在短期上下文。</li><li>用户显式保存时写入 Memory。</li><li>Task 输出可以生成 summary、artifact 或 memory candidate。</li><li>Group Admin 规则命中时可以生成 task 或 memory candidate。</li><li>Alva 总结可以生成可追溯 memory candidate。</li></ul>
+<p>Channel 扩展：</p>
+<ul><li>Memory 需要从用户级扩展到 Channel 级，至少区分 <code>user</code>、<code>personal_topic_channel</code>、<code>mirrored_im_group_channel</code> 三种 scope。</li><li>用户级 Memory 可作为基础画像被继承；Channel Memory 只保存当前主题或当前群组需要长期复用的信息。</li><li>Memory 必须支持查看、编辑、删除、source trace、scope 标记，以及 confidence 或 verification 状态。</li></ul>
+<h3 id="skill">Skill</h3>
+<p>Skill 是 Channel 级能力配置，Phase 3 落地。</p>
+<p>规则：</p>
+<ul><li>可按 Channel 设置默认 skill。</li><li>单次对话或单次 task 可临时 override。</li><li>Skill tab 展示最近使用的 skill 和来源 task。</li></ul>
+<h3 id="member">Member</h3>
+<p>Alva Agent Channel 是单人 Channel。</p>
+<p>角色：</p>
+<ul><li>Owner: 管理 Channel 名称、visibility、memory、settings、归档状态。</li><li>Alva Agent: 组织、总结、检索、提醒、执行任务。</li></ul>
+<h3 id="connect-im">Connect IM</h3>
+<p>IM 连接规则：</p>
+<ul><li>Web 是主工作面。</li><li>Telegram / Discord DM 可作为 Alva Agent Channel 的外部入口。</li><li>IM DM context 默认归属 Alva Agent Channel。</li><li>Telegram / Discord group 进入 Mirrored IM Group Channel 模型。</li><li>外部群不写入 Alva Agent Channel。</li><li>IM 连接不改变个人资产权限边界。</li></ul>
+<h3 id="settings">Settings</h3>
+<p>Settings 管理 Channel 级配置：</p>
+<ul><li>Profile: Channel 名称、description、icon。</li><li>Visibility: private / member-gated / public read。</li><li>Notifications: 频道通知、IM 推送、digest。</li><li>Memory policy: 自动保存策略、source trace、删除规则。</li><li>Default skill: Channel 默认 skill。</li><li>Connected IM: Telegram / Discord endpoint 绑定状态。</li><li>Archive / Delete: 归档、恢复、删除。</li></ul>
+<h2 class="section-title" id="personal-topic-channel">Personal Topic Channel</h2>
+<p>Personal Topic Channel 是从 Alva Agent Channel 平行分化出来的单人主题 Channel。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Personal Topic Channel 创建</p>
+  <div class="planb-viewport"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=agent&amp;modal=new-channel" title="Plan B actual new channel flow"></iframe></div>
+</div>
+<p>基础规则：</p>
+<ul><li>参与者是用户和 Alva Agent。</li><li>默认 private。</li><li>位于 Channels section，排在 Alva Agent Channel 下方。</li><li>用户主动创建入口只有两个：侧边导航栏 Channels section 的 <code>+ New Channel</code>，以及 Alva Agent Channel 中的自然语言创建请求。</li><li>每个 Channel 创建完成后必须有 <code>name</code> 和 <code>description</code>。</li><li>主体验是在同一主题内持续对话和推进任务。</li></ul>
+<p>创建、修改和删除：</p>
+<ul><li>通过 <code>+ New Channel</code> 创建时，用户可直接填写 <code>name</code> 和 <code>description</code>，也可只写主题，由 Alva 生成初始 <code>name</code> 和 <code>description</code>。</li><li>通过 Alva Agent Channel 创建时，用户用自然语言说明要长期跟进的主题；Alva 生成 Channel <code>name</code>、<code>description</code> 并创建。</li><li>Playbook、Skill、Automation 不能直接创建 Channel；它们只能在 Channel 创建后被加入 Artifacts、Skills 或相关 context。</li><li>Owner 可修改 Channel 的 <code>name</code> 和 <code>description</code>。修改不改变主对话、Artifacts、Task、Memory 的归属。</li><li>Owner 可删除 Personal Topic Channel。删除后该 Channel 从 Channels section 移除，并停止作为默认路由目标。</li><li>删除 Channel 不直接删除 Playbooks、Automations、Files 等独立对象；这些对象保留自己的生命周期和访问规则。</li><li>如果 Channel 下有 running Task 或 active Automation，删除前需要确认处理方式：停止、移出或保留为独立对象。</li><li>Alva Agent Channel 是默认置顶 Channel，不支持删除。</li></ul>
+<h3 id="onboarding-preset-channel">Onboarding Preset Channel</h3>
+<p>平台可以在新用户 onboarding 时预设一个或多个 Personal Topic Channel，用于把用户直接带入一个已经运转的主题空间。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Onboarding preset channel</p>
+  <div class="planb-viewport tall"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=kol-digest&amp;tab=chat" title="Plan B actual onboarding preset channel"></iframe></div>
+</div>
+<p>触发规则：</p>
+<ul><li>预设 Channel 由平台按注册渠道创建，不占用用户主动创建入口。</li><li>预设依据只使用注册渠道，例如 referral link、campaign link、KOL invite link 或 partner landing page。</li><li>新用户首次进入 Alva 时，可以默认落到最相关的预设 Channel，而不是 Alva Agent Channel 的空白主对话。</li><li>预设 Channel 仍然归用户所有，默认 private，用户可改名、改 description、暂停 Automation 或删除 Channel。</li></ul>
+<p>内容规则：</p>
+<ul><li>预设 Channel 必须有明确 <code>name</code> 和 <code>description</code>，说明这个 Channel 追踪什么主题。</li><li>平台可以为预设 Channel 添加若干 Automations 和 Playbooks。</li><li>Automations 可以先回填真实历史输出，让用户一进来就看到这个 Channel 已经推送过哪些市场消息、摘要、提醒和 source。</li><li>预设 Automations 支持快速参数填写，用户补充 tickers、watchlist、KOL handles、推送频率、投递 Channel 等必要参数后，就能变成自己的 Automation。</li><li>预设 Channel 可以展示特化的 setup Widget，用于填写 Automation 的必要个性化参数。</li><li>setup Widget 应直接服务当前预设 Automation，例如选择 tickers、上传 watchlist、填写 KOL handles、选择 cadence、选择投递 Channel、连接 Telegram。</li><li>用户完成 setup Widget 后，系统把预设 Automation 复制或激活为用户自己的 Automation；历史示例消息继续作为 sample，不伪装成用户自己的历史。</li><li>预设 Playbooks 用作示例和起点，用户可直接使用、remix，或把其中的 Automation 改成自己的版本。</li><li>历史消息必须来自真实 Automation run、真实公开 source 或明确标记的 demo sample，不能伪装成用户自己的历史对话。</li><li>预设 Channel 的目标是让用户理解“如何设置一个专属于自己的推送”，因此每条 Automation 消息都应能回到对应 Automation 的规则、cadence、source 和开关。</li></ul>
+<p>示例：</p>
+<ul><li>从 AI infra / KOL campaign 注册的用户，进入 <code>KOLs · AI Digest</code> Channel。</li><li>Channel 内预置 <code>KOL-AI-Digest</code>、<code>Serenity-New-Call-Alert</code> 等 Automations，以及一个可 remix 的 AI infra Playbook。</li><li>Chat 里展示过去若干条真实 digest push；Artifacts 里展示 Automations、Playbooks、相关 files 和 source list。</li><li>用户可以通过 setup Widget 填写参数，或继续对话：“只保留 semis 相关信号”、“改成每天盘前推送”、“把这个同步到 Telegram”。</li></ul>
+<p>继承与隔离：</p>
+<ul><li>Chat: 拥有独立 main session。</li><li>Artifacts: 拥有独立 Artifacts，分为 Playbooks、Automations、Files。</li><li>Task: 复用 Channel Task 模型；Task 属于当前 Topic Channel。</li><li>Memory: 只保存该主题的偏好、研究路线、历史判断、已验证结论、已推翻结论。</li><li>Skill: 可继承 Alva Agent Channel 默认 skill，也可设置 topic-specific skill。</li><li>Member: Phase 1 只支持 Owner + Alva Agent。</li><li>Connect IM: 默认 Web-first；Telegram / Discord 的 Channel 级连接按下方规则逐步开放。</li><li>Settings: 独立 name、description、visibility、notification、memory policy、default skill。</li></ul>
+<h3 id="connect-im-2">Connect IM</h3>
+<p>Personal Topic Channel 的 IM 连接不替代 Alva Agent Channel 的默认绑定。Alva Agent Channel 仍是 Web 全局 Ask、Telegram / Discord DM 和未归属消息的默认入口。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Personal Channel 连接 Telegram</p>
+  <div class="planb-viewport"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=kol-digest&amp;modal=im" title="Plan B actual IM connect modal"></iframe></div>
+</div>
+<p>Telegram 方案：</p>
+<ul><li>默认使用同一个官方 Alva Telegram Bot。</li><li>用户把 Personal Topic Channel 连接到 Telegram 后，Alva 在同一个 Telegram DM 中创建对应 topic，并保存 <code>channel_id &lt;-&gt; telegram chat_id + message_thread_id</code> 的映射。</li><li>Telegram 中不带 <code>message_thread_id</code> 的消息继续进入 Alva Agent Channel。</li><li>Telegram 中带 <code>message_thread_id</code> 的消息进入对应 Personal Topic Channel。</li><li>Channel 改名时可同步 Telegram topic 名称；删除 Channel 时默认只断开映射，不默认删除 Telegram topic 历史。</li><li>依据：<a href="https://core.telegram.org/bots#natively-integrate-ai-chatbots" target="_blank" rel="noreferrer">Telegram threaded conversations</a>、<a href="https://core.telegram.org/bots/api#createforumtopic" target="_blank" rel="noreferrer">createForumTopic</a>。</li></ul>
+<p>Discord 方案：</p>
+<ul><li>Discord DM 没有等价的 native topic 容器；Personal Topic Channel 不做完全同步的 DM topic。</li><li>短期可在同一个官方 Alva App 里用 slash command、select menu 或快捷切换指定当前 Channel。</li><li>需要 native thread 体验时，用户把 Alva App 安装到 Discord server，Alva 在指定 text / forum channel 下创建 thread 映射 Personal Topic Channel。</li><li>依据：<a href="https://docs.discord.com/developers/topics/threads" target="_blank" rel="noreferrer">Discord Threads</a>、<a href="https://docs.discord.com/developers/tutorials/developing-a-user-installable-app" target="_blank" rel="noreferrer">User-installable Apps</a>、<a href="https://docs.discord.com/developers/interactions/application-commands#contexts" target="_blank" rel="noreferrer">Application Command Contexts</a>。</li></ul>
+<p>Dedicated bot 方案：</p>
+<ul><li>不作为 Personal Topic Channel 的默认能力。</li><li>Telegram 可通过用户手动 BotFather 或 Telegram Managed Bots 创建专属 bot；Discord 可通过 Developer Portal 创建专属 app / bot。</li><li>只用于 creator paid room、KOL channel、enterprise white-label 或强品牌隔离场景。</li><li>依据：<a href="https://core.telegram.org/bots/features#managed-bots" target="_blank" rel="noreferrer">Telegram Managed Bots</a>。</li></ul>
+<p>迁移规则：</p>
+<ul><li>用户可在 Alva Agent Channel 中用自然语言创建 Personal Topic Channel。</li><li>用户可把 Alva Agent Channel 中的 artifact、旧 Chat、task summary 移动到 Personal Topic Channel。</li><li><code>Start fresh in this Channel</code> 清理该 Topic Channel 的短期上下文窗口，保留 Artifacts、Task、Memory、Skill、Settings。</li><li>Public read 只开放 Owner 选择公开的内容；Owner 的 private memory、portfolio、files、trading context 保持私有。</li></ul>
+<h2 class="section-title" id="mirrored-im-group-channel">Mirrored IM Group Channel</h2>
+<p>Mirrored IM Group Channel 来自 Telegram / Discord 群，是外部群在 Alva Web 上对应的主 Channel。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Mirrored IM Group Channel</p>
+  <div class="planb-viewport tall"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=btc-room&amp;tab=chat" title="Plan B actual mirrored Telegram group Channel"></iframe></div>
+</div>
+<p>基础规则：</p>
+<ul><li>访问角色包括 Group Admin、Bound Member、Unbound Member、Guest；Alva Agent 是群上下文代理。</li><li>可见性由 Group Admin 设置，默认 private；可选 member-gated 或 public read。</li><li>来源是 Telegram group 或 Discord group。</li><li>Alva Web Channel 是主工作面。</li><li>主体验是让 Alva 记录重点、读取上下文、追踪任务、生成摘要、分发更新。</li></ul>
+<h3 id="connect-im-3">Connect IM</h3>
+<p>连接流程：</p>
+<ol><li>Group Admin 把 Alva 加入 Telegram / Discord 群。</li><li>Alva 创建或绑定对应的 Mirrored IM Group Channel。</li><li>群成员通过链接进入 Web Channel。</li><li>未绑定用户进入绑定流程。</li><li>Bound Member 可提问、保存 memory、提交 source、启动 task。</li></ol>
+<p>连接规则：</p>
+<ul><li>一个 Telegram / Discord 群映射一个 Mirrored IM Group Channel；Web 侧对象是权限、memory、artifacts 的主记录。</li><li>IM 消息作为 Channel input event 进入系统。</li><li>Web Channel 保存整理后的状态、Artifacts、Task、Memory 和 Skill 配置。</li><li>外部 IM 成员绑定 Alva account 后获得 Web 写入能力。</li><li>群接入 Alva 不改变个人资产的权限边界。</li></ul>
+<h3 id="可见性和成员校验">可见性和成员校验</h3>
+<p>Mirrored IM Group Channel 的 Web 内容不自动继承外部 IM 群的可见性。Alva 不能凭一个 Web 访客判断对方是路人，还是群里尚未绑定 Alva 的成员；必须先让用户证明外部 IM 身份，再校验该身份是否仍在群里。</p>
+<p>访问状态：</p>
+<ul><li>Unknown visitor: 只有 Web session，没有 Telegram / Discord 身份；按群外路人处理。</li><li>Link-holder: 拿到 Web Channel 链接但未绑定；只能看到轻量 landing 和绑定入口。</li><li>Observed Unbound Member: Alva bot 在群里见过该 platform user id，但该身份还没有绑定 Alva account；不能给 Web 权限。</li><li>Bound non-member: 已绑定外部身份，但 membership check 失败；不能访问 private / member-gated 内容。</li><li>Bound Member: 已绑定外部身份，且 membership check 通过；可以访问 member-gated 内容。</li><li>Group Admin: 已绑定外部身份，且平台校验为群管理员；可以管理 visibility、成员规则和公开范围。</li></ul>
+<p>可见性规则：</p>
+<ul><li>Private Mirror: 默认态；只有 Bound Member 和 Group Admin 可以访问 Web Channel。</li><li>Member-Gated Mirror: 路人可看到轻量 landing；绑定并通过 membership check 后才能进入。</li><li>Public Read Mirror: 由 Group Admin 显式开启；路人只能看被标记为 public 的摘要、Playbooks、digest 或公开产物。</li><li>Public Read 不开放 raw chat、member list、private artifacts、task session、内部 source trace 或群内 private memory。</li><li>用户离开 Telegram / Discord 群后，Web Channel 权限应失效，或进入 pending reverification。</li></ul>
+<h3 id="web-控制面和群写入">Web 控制面和群写入</h3>
+<p>Mirrored IM Group Channel 在 Alva Web 端是群上下文控制面：用户在 Web 里和 Alva Agent 交互，查看群内沉淀，管理 Automations、Playbooks、Memory 和 Settings。</p>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Web 控制面和显式群写入</p>
+  <div class="planb-viewport"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=defi-desk&amp;modal=ask" title="Plan B actual mirrored group Web control surface"></iframe></div>
+</div>
+<p>默认规则：</p>
+<ul><li>Web 端 Chat 默认只和 Alva 交互，不把消息发回 Telegram / Discord 群。</li><li>用户可以在 Web Chat 里询问群上下文、生成摘要、整理 memory candidate、修改 Automation、挂接 Playbook 或调整 digest 规则。</li><li>修改 Automations、Playbooks、Memory 和 Settings 会影响未来 Alva 在群里的推送、响应和摘要，但不会自动发送一条普通群消息。</li><li>Bound Member 可以使用 Web 控制面；涉及群级设置、公开范围、群推送和群写入的操作需要 Group Admin 权限。</li></ul>
+<p>写回群规则：</p>
+<ul><li>发回外部群必须是显式动作，例如 <code>Post to group</code>、<code>Send digest now</code>、<code>Announce update</code>、<code>Publish summary</code>、<code>Push Playbook update</code>。</li><li>写回前必须展示 preview，并由有权限的用户确认。</li><li>写回群时由 Alva bot 发送，不伪装成用户本人；消息应带轻量 attribution，例如 <code>requested by &lt;user&gt;</code> 或 <code>configured by Group Admin</code>。</li><li>Automation delivery、digest delivery 和 Group Admin confirmed publish 是群写入路径；普通 Web Chat 不是群写入路径。</li></ul>
+<h3 id="群能力">群能力</h3>
+<p>Mirrored IM Group Channel 复用 Alva Agent Channel 的基础能力，但上下文范围变成群组：</p>
+<ul><li>Chat: 普通群聊进入短期上下文窗口。</li><li>Task: @Alva、命令、reply、显式保存、task trigger、Group Admin 规则可生成 task。</li><li>Artifacts: 群内生成或关联的 Playbooks、Automations、Files。</li><li>Memory: 群共识、关注对象、重要观点、Group Admin 规则、已验证 thesis、失效 thesis；重点是从群聊里沉淀可复用的高价值信息，不保存原始聊天记录本身。</li><li>Skill: Phase 3 支持群级 default skill。</li><li>Member: 支持 Group Admin、Bound Member、Unbound Member、Guest。</li><li>Settings: visibility、成员权限、公开范围、tracked targets、digest cadence、memory policy、IM 映射。</li></ul>
+<p>权限规则：</p>
+<ul><li>Channel access 控制频道页、main session、Artifacts、Task、Channel Memory 和 room-level context。</li><li>Public Channel 只公开被标记为 public 的 Channel 内容。</li><li>Public Channel 内的 private artifact 保持 private。</li><li>单人 private context 不能进入 Mirrored IM Group Channel。</li><li>Mirrored IM Group Channel 的 Memory 只保存群内可见信息或 Group Admin 明确提交的信息，并保留 source message、contributor 和 last verified time。</li><li>普通 Web Chat 不回写外部群；群写入必须走显式 publish / delivery 动作。</li><li>Task 继承 parent Channel 的访问边界。</li><li>涉及 portfolio、交易、私有文件、个人偏好、个人 memory 的请求切到用户 private Channel 或 Alva Agent Channel。</li></ul>
+<h2 class="section-title" id="导航改动">导航改动</h2>
+<div class="demo planb">
+  <p class="demo-tag">GUI 示意 · Navigation IA</p>
+  <div class="planb-viewport short"><iframe class="planb-frame" src="./alva-homepage-planb.html?embed=1&amp;channel=agent&amp;concept=R&amp;tab=chat" title="Plan B actual navigation IA"></iframe></div>
+</div>
+<p>规则：</p>
+<ul><li>Alva Agent Channel 初始存在、默认置顶。</li><li>Web 全局 Ask 默认打开 Alva Agent Channel。</li><li>Channels section 展示 Alva Agent Channel、Personal Topic Channels、Mirrored IM Group Channels。</li><li>Playbooks 是单一 section；Mine、Starred、Used 作为 filter 或排序信号。</li><li>过渡期 New Chat 和 Chat History 作为 legacy 入口保留。</li><li>终局移除 New Chat 和 Chat History 一级入口。</li><li>Task 挂载在对应 Channel 内。</li></ul>
+<h2 class="section-title" id="分阶段落地">分阶段落地</h2>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>目标</th><th>范围</th></tr></thead><tbody><tr><td>Phase 1: Channel MVP</td><td>建立 Channel-first 主体验</td><td>Alva Agent Channel、Personal Topic Channel、Onboarding preset channel、Chat、Artifacts、Channels navigation</td></tr><tr><td>Phase 1.5: Legacy 兼容</td><td>降低迁移成本</td><td>保留 New Chat / Chat History；旧 Chat 可归属到 Channel；复杂指令先在 main session 执行并写入 Artifacts</td></tr><tr><td>Phase 2: Task + Memory + Mirrored IM Group Channel</td><td>承接复杂工作、长期记忆和外部群镜像</td><td>Task object、Task tab、Task Session、Memory tab、Telegram / Discord 群镜像和 Web 管理面</td></tr><tr><td>Phase 3: Skill</td><td>Channel 级能力配置</td><td>Skill tab、默认 skill、临时 skill 使用记录、skill 开关</td></tr></tbody></table></div>
+<p>Phase 1: Channel MVP</p>
+<ul><li>建立 Channel-first 主体验。</li><li>落地 Alva Agent Channel 作为默认主会话。</li><li>新增 Personal Topic Channel 的创建、修改、删除、列表、归属和主会话。</li><li>支持新用户 onboarding preset channel：按注册渠道预设 Personal Topic Channel，并挂载 Playbooks、可回看历史输出的 Automations 和参数填写 Widget。</li><li>落地 Chat main session。</li><li>落地 Artifacts tab，优先接入 Playbooks 和 Feed 产物；Feed 在用户端归入 Automations，再补齐 Files 的归属能力。</li><li>落地 Channels navigation。</li><li>Personal Topic Channel 默认 private。</li></ul>
+<p>Phase 1.5: Legacy 兼容</p>
+<ul><li>保留 New Chat，但不作为默认入口。</li><li>保留 Chat History，但不作为 Channel IA 核心入口。</li><li>旧 Chat 可保存为新 Channel，或移动到已有 Channel。</li><li>Task 未上线前，复杂指令在 Channel main session 中执行。</li><li>复杂指令输出写入 Artifacts。</li></ul>
+<p>Phase 2: Task + Memory + Mirrored IM Group Channel</p>
+<ul><li>落地 Task object。</li><li>落地 Task tab。</li><li>落地 Task Session，支持继续对话。</li><li>支持 Task 回写 summary、artifact、memory candidate、follow-up task。</li><li>将长耗时工作产品化为 Channel Task。</li><li>在用户级 Memory 之外，新增 Channel scope Memory。</li><li>落地 Mirrored IM Group Channel 的 IM 路由、Group Admin、群订阅和 Web 侧管理面。</li><li>Mirrored IM Group Channel 支持 Group Admin、Bound Member、Unbound Member、Guest。</li></ul>
+<p>Phase 3: Skill</p>
+<ul><li>落地 Skill tab。</li><li>支持 Channel 默认 skill。</li><li>支持单次任务或对话临时使用其他 skill。</li></ul>
+<p>终局导航：</p>
+<ul><li>New Chat 从一级入口移除。</li><li>Chat History 从一级入口移除。</li><li>Task 挂载在对应 Channel 内。</li><li>全局 Playbooks 作为对象库保留。</li><li>Channel 内 Playbooks 归入 Artifacts。</li></ul>
+</main>
+</div>
+<script src="/demo/_switcher.js" defer></script>
+</body>
 </html>
