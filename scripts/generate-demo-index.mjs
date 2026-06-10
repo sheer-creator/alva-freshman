@@ -348,7 +348,7 @@ const files = (await collectHtmlFiles()).sort((left, right) =>
 const SWITCHER_CSS = `
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
-.ads-root { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; }
+.ads-root { position: fixed; bottom: 16px; right: 16px; z-index: 99999; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; }
 .ads-menu { width: 520px; max-width: calc(100vw - 32px); border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); background: #fff; padding: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); }
 .ads-menu[hidden] { display: none; }
 .ads-root button, .ads-root span { font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; font-style: normal; }
@@ -360,8 +360,8 @@ const SWITCHER_CSS = `
 .ads-item-tag { flex: 0 0 auto; font-size: 10px; font-weight: 400; line-height: 14px; letter-spacing: 0.1px; color: #49a3a6; }
 .ads-item-sub { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 400; line-height: 18px; letter-spacing: 0.12px; color: rgba(0,0,0,0.5); }
 .ads-divider { height: 1px; background: rgba(0,0,0,0.05); margin: 6px 0; }
-.ads-bar { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
-.ads-back, .ads-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; width: 228px; max-width: calc(100vw - 32px); height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); font-family: inherit; font-size: 13px; font-weight: 500; line-height: 22px; letter-spacing: 0.13px; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.12); transition: transform 120ms ease; }
+.ads-bar { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.ads-back, .ads-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: auto; max-width: min(210px, calc(100vw - 32px)); height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.12); font-family: inherit; font-size: 12px; font-weight: 500; line-height: 18px; letter-spacing: 0.12px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.10); transition: transform 120ms ease; }
 .ads-back span, .ads-toggle span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ads-back:hover, .ads-toggle:hover { transform: translateY(-1px); }
 .ads-back { background: #fff; color: rgba(0,0,0,0.9); }
@@ -379,8 +379,8 @@ function renderSwitcherScript(files) {
   var STYLE = ${JSON.stringify(SWITCHER_CSS)};
   var INDEX_ROUTE = '/demo/';
   var APP_ROUTE = '/';
-  var ARROW_LEFT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  var MENU_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ARROW_LEFT = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var MENU_ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   function esc(value) {
     return String(value).replace(/[&<>"]/g, function (ch) {

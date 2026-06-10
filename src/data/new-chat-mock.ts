@@ -5,6 +5,7 @@
  */
 
 import { CHART_COLORS } from '@/lib/chart-theme';
+import type { PushCardData } from '@/app/components/shared/AutomationCard';
 
 const C = CHART_COLORS;
 
@@ -33,7 +34,14 @@ export interface NewChatTemplate {
   icon?: string;
   prompts: string[];
   playbooks: NewChatPlaybook[];
+  /** 选中态推荐区的手动配置卡（缺省时用 playbooks） */
+  recCards?: RecCard[];
 }
+
+/** 推荐区单卡：可以是 playbook，也可以是 push 卡（normal/trade/kol） */
+export type RecCard =
+  | { type: 'playbook'; playbook: NewChatPlaybook }
+  | { type: 'push'; push: PushCardData };
 
 export interface CommunitySkillTemplate extends NewChatTemplate {
   tags: string[];
@@ -138,6 +146,13 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
       { id: 'glp1-theme', title: 'GLP-1 Obesity Complex', creator: 'Harry Zzz', desc: 'Unified tracker for GLP-1 winners (LLY / NVO) and food/restaurant losers. Weekly sentiment scoring with catalyst calendar.', tickers: ['LLY', 'NVO', 'AMGN'], color: C.orange, stars: 186, remixes: 22 },
       { id: 'nuclear-theme', title: 'Nuclear Renaissance Monitor', creator: 'Macro Scope X', desc: 'Watches uranium miners, SMR names, and hyperscaler PPA headlines. Surfaces policy + permitting catalysts in near real-time.', tickers: ['CCJ', 'SMR', 'VST', 'CEG'], color: C.deepBlue, stars: 94, remixes: 12 },
     ]),
+    recCards: [
+      { type: 'playbook', playbook: { id: 'tt-rec-pb', title: 'AI Infra Theme Radar', creator: 'Alva Intern', desc: 'Tracks NVDA / AVGO / TSM + power enablers. Weekly sentiment and rev-beat signals, rebalances to the strongest relative performers.', tickers: ['NVDA', 'AVGO', 'TSM', 'VST'], color: C.primary, stars: 312, remixes: 48 } },
+      { type: 'playbook', playbook: { id: 'tt-rec-pb2', title: 'GLP-1 Obesity Complex', creator: 'Harry Zzz', desc: 'Unified tracker for GLP-1 winners (LLY / NVO) and food/restaurant losers. Weekly sentiment scoring with catalyst calendar.', tickers: ['LLY', 'NVO'], color: C.orange, stars: 186, remixes: 22 } },
+      { type: 'playbook', playbook: { id: 'tt-rec-pb3', title: 'Nuclear Renaissance Monitor', creator: 'Macro Scope X', desc: 'Watches uranium miners, SMR names, and hyperscaler PPA headlines. Surfaces policy + permitting catalysts in near real-time.', tickers: ['CCJ', 'SMR'], color: C.deepBlue, stars: 94, remixes: 12 } },
+      { type: 'push', push: { kind: 'normal', id: 'tt-rec-normal', timestamp: 'May 8, 9:00 AM', source: 'ai-infra-tracker', feedName: 'ai-infra-digest', title: '【Blackwell ramp】· Hyperscaler orders pull forward into Q3, supply still tight', bullets: ['🏭 TSMC CoWoS capacity booked through year-end; HBM remains the bottleneck', '📈 AVGO raises AI revenue guide; custom-silicon pipeline expands', '⚡ Grid + power names (VST, CEG) bid as data-center demand compounds', '🧠 Context: hyperscaler capex revisions continue to climb — MSFT guided FY26 capex above consensus, AMZN reiterated full-year spend, GOOGL flagged TPU v6 ramp, and META lifted the low end of its range. Supply chain checks point to CoWoS-L allocation tightening through Q1 with HBM4 qualification slipping for at least one memory vendor.', '📌 Watch next: NVDA GTC keynote (Mar 17) for Rubin platform details, AVGO earnings (Mar 5) for AI ASIC backlog update, and TSMC Feb revenue print for wafer-start confirmation. Any guide-down on CoWoS expansion would be the first crack in the thesis.', '⚠️ Risk framing: basket is +38% YTD vs SMH +21%; positioning is crowded and a single hyperscaler capex cut headline could trigger a 5-8% air pocket. Keep position sizes inside the 2% single-name band.'] } },
+      { type: 'push', push: { kind: 'trade', id: 'tt-rec-trade', timestamp: 'May 8, 12:00 PM', source: 'ai-infra-basket', feedName: 'theme-rebalancer', rows: [{ ticker: 'NVDA', action: 'Buy', detail: 'weight 40%', dir: 'up' }, { ticker: 'AVGO', action: 'Buy', detail: 'weight 35%', dir: 'up' }, { ticker: 'TSM', action: 'Buy', detail: 'weight 25%', dir: 'up' }], note: 'Rebalance: tilt to compute + packaging leaders by 90d relative strength' } },
+    ],
   },
   {
     id: 'smart-screener',
@@ -155,6 +170,13 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
       { id: 'cheap-cashcow', title: 'Cheap Cash Cow Screener', creator: 'Alva Intern', desc: 'Finds small/mid-caps with FCF yield > 8% and net debt / EBITDA < 1.5. Excludes financials and energy. Rebalances monthly.', tickers: ['R2K'], color: C.blue, stars: 128, remixes: 19 },
       { id: 'crypto-breakout', title: 'Crypto Breakout Screen', creator: 'YGGYLL', desc: 'Scans top-50 tokens for 30D return > 30% combined with rising active-address count. Generates candidate list for further review.', tickers: ['BTC', 'ETH', 'SOL', 'AVAX'], color: C.red, stars: 76, remixes: 9 },
     ]),
+    recCards: [
+      { type: 'playbook', playbook: { id: 'ss-rec-pb', title: 'Momentum × Quality Screen', creator: 'Smart Jing', desc: 'Daily screen ranking SPX names by 6M momentum × ROIC. Top decile goes long, weekly rebalance with a 2% stop band.', tickers: ['SPX', 'QQQ'], color: C.green, stars: 241, remixes: 37 } },
+      { type: 'playbook', playbook: { id: 'ss-rec-pb2', title: 'Cheap Cash Cow Screener', creator: 'Alva Intern', desc: 'Finds small/mid-caps with FCF yield > 8% and net debt / EBITDA < 1.5. Excludes financials and energy. Rebalances monthly.', tickers: ['R2K'], color: C.blue, stars: 128, remixes: 19 } },
+      { type: 'playbook', playbook: { id: 'ss-rec-pb3', title: 'Crypto Breakout Screen', creator: 'YGGYLL', desc: 'Scans top-50 tokens for 30D return > 30% combined with rising active-address count. Generates candidate list for review.', tickers: ['BTC', 'SOL'], color: C.red, stars: 76, remixes: 9 } },
+      { type: 'push', push: { kind: 'normal', id: 'ss-rec-normal', timestamp: 'May 8, 8:30 AM', source: 'screener-run', feedName: 'momentum-quality-screen', title: '【Daily screen】· 14 names enter the top decile, 9 drop out', bullets: ['🟢 New entrants: ANET, FICO, GE — rising estimates + positive 20d momentum', '🔴 Dropped: EW, MKTX — momentum decay below threshold', '📊 Median forward P/E of the basket: 19.4x'] } },
+      { type: 'push', push: { kind: 'kol', id: 'ss-rec-kol', timestamp: 'May 8, 11:00 AM', source: 'kol-signal-relay', feedName: 'kol-watch', kolName: 'Smart Jing', headlineTicker: '$ANET', headlineText: '"Networking is the quiet winner of the AI buildout — backlog keeps compounding."', quoteTicker: '$ANET', quoteSide: 'LONG', analysis: 'Screen surfaces ANET on momentum × ROIC; the KOL view aligns with the quality-momentum thesis. No risk view stated.' } },
+    ],
   },
   {
     id: 'deep-dive',

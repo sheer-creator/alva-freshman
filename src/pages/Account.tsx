@@ -1,119 +1,122 @@
 /**
  * [INPUT]: SettingsLayout
- * [OUTPUT]: Account (All Settings) 页 — User Info Card / Nickname / Bio / Save
- * [POS]: 页面层
+ * [OUTPUT]: Account settings page matching Figma Setting/Account
+ * [POS]: settings page
  */
 
 import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { SettingsLayout } from '@/app/components/shell/SettingsLayout';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
-import { Avatar } from '@/app/components/shared/Avatar';
+import {
+  FieldShell,
+  OutlineButton,
+  SETTINGS_FONT,
+  SettingsSection,
+} from '@/app/components/shell/settings-ui';
 
-const FONT = "'Delight', sans-serif";
-const USER = { name: 'YGGYLL', email: 'sheer@alva.xyz', joined: '12/23/2025' };
-
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>
-      {children}
-    </span>
-  );
-}
+const USER = {
+  name: 'Sheer',
+  handle: '@sheer',
+  uid: '12345678901234',
+  joined: '12/23/2025',
+};
 
 export default function Account({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [nickname, setNickname] = useState(USER.name);
+  const [nickname, setNickname] = useState('Sheer');
   const [bio, setBio] = useState('');
-  const dirty = nickname !== USER.name || bio !== '';
+  const [saved, setSaved] = useState({ nickname: 'Sheer', bio: '' });
+  const dirty = nickname !== saved.nickname || bio !== saved.bio;
 
   return (
     <SettingsLayout active="account" onNavigate={onNavigate} mapTo={{ account: 'user-profile' }}>
-      {/* Header */}
-      <div className="flex items-center gap-[var(--spacing-m)] w-full">
-        <h1 className="flex-1 text-[28px] leading-[38px] tracking-[0.28px]" style={{ color: 'var(--text-n9)', fontFamily: FONT, fontWeight: 400 }}>Account</h1>
-      </div>
-
-      {/* User Info Card */}
-      <div className="flex items-center gap-[var(--spacing-xl)] w-full">
-        {/* Avatar */}
-        <div className="relative shrink-0" style={{ width: 80, height: 80 }}>
-          <Avatar name={USER.name} size={80} />
-          <div className="absolute bottom-0 right-[-8px] rounded-full flex items-center p-[var(--spacing-xs)] cursor-pointer" style={{ background: '#f6f6f6', border: '2px solid #fff' }}>
-            <CdnIcon name="edit-l1" size={16} color="var(--text-n9)" />
+      <SettingsSection title="Profile" gap={16}>
+        <div className="w-full h-[80px] flex items-center gap-[24px]">
+          <div className="relative shrink-0 size-[80px]">
+            <img src={`${import.meta.env.BASE_URL}portrait.png`} alt={USER.name} className="size-[80px] rounded-full object-cover" />
+            <button
+              type="button"
+              aria-label="Edit avatar"
+              className="absolute bottom-0 right-[-8px] size-[32px] rounded-full flex items-center justify-center cursor-pointer"
+              style={{ background: 'var(--b0, #f6f6f6)', boxShadow: '0 0 0 2px var(--b0-container, #fff)' }}
+            >
+              <CdnIcon name="edit-l1" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+            </button>
           </div>
-        </div>
-
-        {/* Name + Email + Joined */}
-        <div className="flex flex-col gap-[var(--spacing-xs)] flex-1 min-w-0 justify-center">
-          <p className="text-[24px] leading-[34px] tracking-[0.24px] truncate" style={{ color: 'var(--text-n9)', fontFamily: FONT }}>{USER.name}</p>
-          <div className="flex items-center gap-[var(--spacing-xs)] flex-wrap">
-            <div className="flex items-center gap-[var(--spacing-xxs)]">
-              <img src="https://alva-ai-static.b-cdn.net/icons/logo-social-google.svg" alt="Google" className="w-[14px] h-[14px]" />
-              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n7)', fontFamily: FONT }}>{USER.email}</span>
+          <div className="flex-1 min-w-0 flex flex-col justify-center gap-[8px]">
+            <div className="flex items-center gap-[8px] min-w-0">
+              <p className="text-[24px] leading-[34px] tracking-[0.24px] truncate" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: SETTINGS_FONT, fontWeight: 400 }}>
+                {USER.name}
+              </p>
+              <div className="shrink-0 flex flex-col pt-[8px]">
+                <p className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: SETTINGS_FONT }}>
+                  {USER.handle}
+                </p>
+              </div>
             </div>
-            <div className="h-[17px] w-0" style={{ borderLeft: '0.5px solid var(--line-l3)' }} />
-            <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n7)', fontFamily: FONT }}>Joined {USER.joined}</span>
+            <div className="flex items-center gap-[8px] flex-wrap">
+              <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: SETTINGS_FONT }}>
+                UID: {USER.uid}
+              </p>
+              <div className="h-[17px] w-0" style={{ borderLeft: '1px solid var(--line-l12, rgba(0,0,0,0.12))' }} />
+              <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: SETTINGS_FONT }}>
+                Joined {USER.joined}
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 flex items-center gap-[12px]">
+            <OutlineButton onClick={() => onNavigate('user-profile')}>
+              <CdnIcon name="user-profile-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+              Profile
+            </OutlineButton>
+            <OutlineButton>
+              <CdnIcon name="logout-l" size={16} color="var(--main-m4, #e05357)" />
+              <span style={{ color: 'var(--main-m4, #e05357)' }}>Log out</span>
+            </OutlineButton>
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex items-center gap-[var(--spacing-s)] shrink-0">
-          <button
-            className="btn btn-secondary btn-extra-small"
-            onClick={() => onNavigate('user-profile')}
-          >
-            <CdnIcon name="user-profile-l" size={16} color="var(--text-n9)" />
-            <span style={{ fontFamily: FONT }}>Profile</span>
-          </button>
-          <button
-            className="btn btn-secondary btn-extra-small"
-            style={{ color: 'var(--main-m4)' }}
-          >
-            <CdnIcon name="logout-l" size={16} color="var(--main-m4)" />
-            <span style={{ fontFamily: FONT }}>Log out</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Nickname */}
-      <div className="flex flex-col gap-[var(--spacing-s)]">
-        <FieldLabel>Nickname</FieldLabel>
-        <div className="input input-lg w-full">
-          <div className="input-border" />
+        <FieldShell label="Nickname" height={86}>
           <input
-            type="text"
             value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="input-field"
+            onChange={(event) => setNickname(event.target.value)}
+            className="w-full h-[48px] px-[16px] rounded-[6px] outline-none text-[16px] leading-[26px] tracking-[0.16px]"
+            style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: SETTINGS_FONT }}
           />
-        </div>
-      </div>
+        </FieldShell>
 
-      {/* User Info */}
-      <div className="flex flex-col gap-[var(--spacing-s)] h-[200px]">
-        <FieldLabel>User Info</FieldLabel>
-        <div className="input input-textarea w-full flex-1 relative">
-          <div className="input-border" />
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value.slice(0, 500))}
-            placeholder="Introduce about yourself..."
-            className="input-field"
-            style={{ paddingBottom: 32 }}
-          />
-          <span className="absolute bottom-[15.5px] right-[15.5px] text-[12px] leading-[20px] tracking-[0.12px] pointer-events-none" style={{ color: 'var(--text-n5)', fontFamily: FONT }}>
-            {bio.length}/500
-          </span>
-        </div>
-      </div>
+        <FieldShell label="User Info" height={148}>
+          <div className="relative flex-1 min-h-0">
+            <textarea
+              value={bio}
+              onChange={(event) => setBio(event.target.value.slice(0, 500))}
+              placeholder="Introduce about yourself..."
+              className="w-full h-full p-[16px] pb-[36px] rounded-[6px] outline-none resize-none text-[16px] leading-[26px] tracking-[0.16px] placeholder:text-[color:var(--text-n3,rgba(0,0,0,0.3))]"
+              style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))', color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: SETTINGS_FONT }}
+            />
+            <span className="absolute right-[15.5px] bottom-[15.5px] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: SETTINGS_FONT }}>
+              {bio.length}/500
+            </span>
+          </div>
+        </FieldShell>
 
-      {/* Save */}
-      <button
-        disabled={!dirty}
-        className={`btn btn-large w-[120px] ${dirty ? 'btn-primary' : 'btn-primary btn-disabled'}`}
-      >
-        Save
-      </button>
+        {/* Save — 无改动时置灰禁用 */}
+        <button
+          type="button"
+          disabled={!dirty}
+          onClick={() => setSaved({ nickname, bio })}
+          className="w-[126px] h-[48px] flex items-center justify-center rounded-[6px] text-[16px] leading-[26px] tracking-[0.16px]"
+          style={{
+            background: 'var(--b0-container, #fff)',
+            border: `0.5px solid ${dirty ? 'var(--line-l3, rgba(0,0,0,0.3))' : 'var(--line-l2, rgba(0,0,0,0.2))'}`,
+            color: dirty ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n3, rgba(0,0,0,0.3))',
+            cursor: dirty ? 'pointer' : 'default',
+            fontFamily: SETTINGS_FONT,
+          }}
+        >
+          Save
+        </button>
+      </SettingsSection>
     </SettingsLayout>
   );
 }

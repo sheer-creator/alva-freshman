@@ -5,6 +5,7 @@
  */
 
 import { useLayoutEffect, useRef, useState } from 'react';
+import type { Page } from '@/app/App';
 import svgPaths from "@/data/svg-guyqw4in5w";
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
@@ -129,11 +130,11 @@ function MenuItem({
 
 /* ========== Main ========== */
 
-export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) => void } = {}) {
+export default function UserInfo({ onNavigate }: { onNavigate?: (page: Page) => void } = {}) {
 
-  const go = (hash: string) => {
-    if (onNavigate) onNavigate(hash);
-    else if (hash) window.location.hash = hash;
+  const go = (page: Page) => {
+    if (onNavigate) onNavigate(page);
+    else if (page) window.location.hash = page;
   };
 
   return (
@@ -232,6 +233,7 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (hash: string) =
           <MenuItem
             icon={<CdnIcon name="wallet-l" size={20} color="var(--text-n9)" />}
             label="Creator Earnings"
+            onClick={() => go('creator-earnings')}
             dot
           />
           <MenuItem

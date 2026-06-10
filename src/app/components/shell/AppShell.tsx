@@ -308,7 +308,15 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
           ref={popupRef}
           className="fixed bottom-[56px] left-[8px] z-[9999] w-[360px]"
         >
-          <UserInfo />
+          <UserInfo
+            onNavigate={(page) => {
+              if (page === 'creator-earnings' && activePage && activePage !== 'creator-earnings') {
+                sessionStorage.setItem('creatorEarningsReturnPage', activePage);
+              }
+              setIsUserInfoOpen(false);
+              onNavigate(page);
+            }}
+          />
         </div>
       )}
     </div>

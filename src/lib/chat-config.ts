@@ -54,6 +54,7 @@ export const PAGE_TITLES: Record<string, string> = {
   account: 'Account',
   'user-profile': 'Profile',
   pricing: 'Pricing',
+  'creator-earnings': 'Creator Earnings',
   'api-keys': 'API Keys',
   notifications: 'Notifications',
   automations: 'Automations',
