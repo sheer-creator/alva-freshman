@@ -19,6 +19,8 @@ import {
 } from '@/lib/chart-theme';
 import { BROKER_PORTFOLIOS } from '@/data/trading-mock';
 import type { BrokerPortfolio, StrategyBinding, Position, JournalEntry } from '@/data/trading-mock';
+import { ConnectAccountModal } from '@/app/components/portfolio/ConnectAccountModal';
+import type { ConnectAccountModalProps } from '@/app/components/portfolio/ConnectAccountModal';
 
 /* ========== 通用样式常量 ========== */
 
@@ -621,6 +623,9 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
   const [activeBrokerId, setActiveBrokerId] = useState(BROKER_PORTFOLIOS[0].brokerId);
   const [tab, setTab] = useState<PortfolioTab>('overview');
   const [toast, setToast] = useState(false);
+  /* 评审深链：?connect-step=… 时自动展开 Connect 弹窗 */
+  const connectParams = new URLSearchParams(window.location.search);
+  const [connectOpen, setConnectOpen] = useState(connectParams.has('connect-step'));
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
   useEffect(() => {
@@ -670,7 +675,7 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
           <div className="flex items-center justify-between">
             <h2 className="text-[28px] leading-[38px] tracking-[0.28px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, fontWeight: 400 }}>Portfolio</h2>
             <div className="flex items-center gap-[12px]">
-              <HeaderButton icon="add-l2" label="Add" onClick={() => onNavigate('portfolio-settings')} />
+              <HeaderButton icon="add-l2" label="Add" onClick={() => setConnectOpen(true)} />
               <HeaderButton icon="settings-l" label="Settings" onClick={() => onNavigate('portfolio-settings')} />
             </div>
           </div>
@@ -698,6 +703,16 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
 
         </div>
       </div>
+
+      {/* Connect Account 弹窗（设计稿 Modal/Connect 7437:70052）。
+          评审直达：?connect-step=credentials&connect-broker=binance 等 query 参数可深链任一状态 */}
+      <ConnectAccountModal
+        open={connectOpen}
+        onClose={() => setConnectOpen(false)}
+        initialStep={(connectParams.get('connect-step') ?? undefined) as ConnectAccountModalProps['initialStep']}
+        initialBrokerId={connectParams.get('connect-broker') ?? undefined}
+        initialAccountType={(connectParams.get('connect-account') ?? undefined) as ConnectAccountModalProps['initialAccountType']}
+      />
     </AppShell>
   );
 }
