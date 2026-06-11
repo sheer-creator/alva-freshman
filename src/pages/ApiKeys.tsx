@@ -36,7 +36,7 @@ function KeyLogo({ icon }: { icon: KeyItem['icon'] }) {
   const src = {
     openclaw: 'logo-social-open-claw',
     claude: 'logo-social-claude',
-    gemini: '/logo-social-gemini.png',
+    gemini: `${import.meta.env.BASE_URL}logo-social-gemini.png`,
   }[icon];
   return (
     <span className="size-[24px] flex items-center justify-center shrink-0">

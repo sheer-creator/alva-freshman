@@ -18,9 +18,9 @@ import {
 } from '@/app/components/shell/settings-ui';
 
 const BROKERS = [
-  { name: 'Interactive Brokers', account: 'U***6789', badge: 'Live', bg: '#1c1c1c', logo: '/logo-broker-ibkr.svg', logoWidth: 21.6, logoHeight: 42.2 },
-  { name: 'Binance', account: 'U***6789', badge: 'Spot', bg: '#f0b90b', logo: '/logo-broker-binance.svg', logoWidth: 32.6, logoHeight: 32.6 },
-  { name: 'Alpaca', account: 'U***6789', badge: 'Live', bg: '#FCD72B', logo: '/logo-broker-alpaca.svg', logoWidth: 48, logoHeight: 48 },
+  { name: 'Interactive Brokers', account: 'U***6789', badge: 'Live', bg: '#1c1c1c', logo: `${import.meta.env.BASE_URL}logo-broker-ibkr.svg`, logoWidth: 21.6, logoHeight: 42.2 },
+  { name: 'Binance', account: 'U***6789', badge: 'Spot', bg: '#f0b90b', logo: `${import.meta.env.BASE_URL}logo-broker-binance.svg`, logoWidth: 32.6, logoHeight: 32.6 },
+  { name: 'Alpaca', account: 'U***6789', badge: 'Live', bg: '#FCD72B', logo: `${import.meta.env.BASE_URL}logo-broker-alpaca.svg`, logoWidth: 48, logoHeight: 48 },
 ];
 
 function BrokerRow({ broker }: { broker: typeof BROKERS[number] }) {

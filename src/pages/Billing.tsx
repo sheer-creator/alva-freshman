@@ -151,8 +151,8 @@ export default function Billing({ onNavigate }: { onNavigate: (page: Page) => vo
 
         <div className="w-full rounded-[8px] pt-[24px] px-[24px] pb-[16px] flex flex-col gap-[16px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', background: 'var(--b0-container, #fff)' }}>
           <div className="w-full flex items-start gap-[24px]">
-            <div className="flex-1 min-w-0 self-stretch flex flex-col gap-[12px]">
-              <div className="flex-1 flex flex-col gap-[8px] justify-end">
+            <div className="flex-1 min-w-0 self-stretch flex flex-col justify-between gap-[12px]">
+              <div className="flex flex-col gap-[8px]">
                 <div>
                   <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n10, #000)', fontFamily: SETTINGS_FONT }}>Available</p>
                   <div className="flex items-end gap-[8px]">
