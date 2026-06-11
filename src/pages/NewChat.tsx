@@ -1647,7 +1647,7 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
     );
   }, [selectedId]);
 
-  // 所有 skills 合并到一个池子；首页 3 行内能放下的进 inline，其他塞进 More 下拉
+  // 所有 skills 合并到一个池子；首页 2 行内能放下的进 inline，其他塞进 More 下拉
   const allSkills: NewChatTemplate[] = useMemo(
     () => [...PRIMARY_TEMPLATES, ...OTHERS_TEMPLATES, ...COMMUNITY_TEMPLATES],
     [],
@@ -1670,8 +1670,8 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
       });
       moreWrap.style.display = '';
       const hidden: string[] = [];
-      // 未选中首页最多 3 行，选中后收紧为最多 2 行
-      const maxRows = selectedId ? 2 : 3;
+      // 首页与选中态统一最多 2 行
+      const maxRows = 2;
       const fitsRows = () => {
         const tops = [
           ...new Set([
