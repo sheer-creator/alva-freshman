@@ -323,10 +323,12 @@ function ResultShell({ onClose, children }: { onClose: () => void; children: Rea
   );
 }
 
-function ResultBody({ circle, icon, iconColor, title, lines, iconAnim = 'fade' }: {
+function ResultBody({ circle, icon, iconColor, title, lines, iconAnim = 'fade', action }: {
   circle: 'success' | 'warning'; icon: string; iconColor: string; title: string; lines: string[];
   /** 成功态弹出（带回弹），警示态渐显 */
   iconAnim?: 'pop' | 'fade';
+  /** 文字操作链接（如 failed 态的 Try again） */
+  action?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-[24px] items-center justify-center w-full">
@@ -346,6 +348,7 @@ function ResultBody({ circle, icon, iconColor, title, lines, iconAnim = 'fade' }
         {lines.map((l) => (
           <p key={l} className="text-[14px] leading-[22px] tracking-[0.14px] w-full" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{l}</p>
         ))}
+        {action}
       </div>
     </div>
   );
@@ -426,9 +429,9 @@ export function ConnectAccountModal({
     };
   }, [open, initialStep, initialBrokerId, initialAccountType, onClose]);
 
-  /* 结果态统一：5s 倒计时后自动消失（成功额外回调 onConnected） */
+  /* 结果态：5s 倒计时后自动消失（成功额外回调 onConnected）；failed 例外——驻留并提供 Try again */
   useEffect(() => {
-    if (step !== 'success' && step !== 'failed' && step !== 'timeout' && step !== 'cancelled') return;
+    if (step !== 'success' && step !== 'timeout' && step !== 'cancelled') return;
     setCountdown(5);
     const iv = setInterval(() => setCountdown((c) => Math.max(0, c - 1)), 1000);
     const done = setTimeout(() => {
@@ -718,7 +721,17 @@ export function ConnectAccountModal({
             <ResultBody
               circle="warning" icon="warning-f" iconColor="var(--main-m5, #E6A91A)"
               title="Connection failed"
-              lines={['SnapTrade couldn’t reach your broker.', 'This is usually temporary — try again.', `Closing in ${countdown}s`]}
+              lines={['SnapTrade couldn’t reach your broker.', 'This is usually temporary.']}
+              action={
+                <button
+                  type="button"
+                  onClick={() => setStep('credentials')}
+                  className="border-none bg-transparent p-0 cursor-pointer text-[14px] leading-[22px] tracking-[0.14px] underline hover:opacity-70 transition-opacity"
+                  style={{ fontFamily: FONT, color: 'var(--main-m1, #49A3A6)', textDecorationSkipInk: 'none', textUnderlinePosition: 'from-font' }}
+                >
+                  Try again
+                </button>
+              }
             />
           </ResultShell>
         )}
