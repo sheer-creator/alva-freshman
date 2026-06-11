@@ -1,6 +1,10 @@
+import { execFile } from 'node:child_process';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
@@ -90,6 +94,60 @@ function extractSummary(html, maxLength = 240) {
   return candidate;
 }
 
+// Author = the GitHub account that created the page.
+// Resolution order: explicit <meta name="author"> override → GitHub login of the
+// commit that added the file (noreply email parse, else one `gh api` call per
+// unique email, cached) → git author name as offline fallback.
+const loginCache = new Map();
+
+async function gitCreationInfo(repoRelativePath) {
+  try {
+    const { stdout } = await execFileAsync(
+      'git',
+      ['log', '--diff-filter=A', '--follow', '--format=%H|%an|%ae', '--', repoRelativePath],
+      { cwd: rootDir },
+    );
+    const lines = stdout.trim().split('\n').filter(Boolean);
+    if (lines.length === 0) return null;
+    const [sha, name, email] = lines.at(-1).split('|');
+    return { sha, name, email };
+  } catch {
+    return null;
+  }
+}
+
+async function githubLoginFor({ sha, name, email }) {
+  if (loginCache.has(email)) return loginCache.get(email);
+  let login = null;
+  const noreply = email.match(/^(?:\d+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$/);
+  if (noreply) login = noreply[1];
+  if (!login) {
+    try {
+      const { stdout: remote } = await execFileAsync('git', ['remote', 'get-url', 'origin'], { cwd: rootDir });
+      const repo = remote.trim().match(/github\.com[/:](?:\d+\/)?([^/]+\/[^/]+?)(?:\.git)?$/)?.[1];
+      if (repo) {
+        const { stdout } = await execFileAsync('gh', ['api', `repos/${repo}/commits/${sha}`, '--jq', '.author.login // empty']);
+        login = stdout.trim() || null;
+      }
+    } catch {
+      // gh 不可用 / 离线时静默回退 git 作者名
+    }
+  }
+  const resolved = login || name;
+  loginCache.set(email, resolved);
+  return resolved;
+}
+
+async function resolveAuthor(html, relativePath) {
+  const metaMatch = html.match(/<meta\s+name=["']author["']\s+content=["']([^"']*)["']/i);
+  const metaAuthor = metaMatch ? cleanText(metaMatch[1]) : '';
+  if (metaAuthor) return metaAuthor;
+
+  const creation = await gitCreationInfo(path.posix.join('public/demo', relativePath.replaceAll(path.sep, '/')));
+  if (!creation) return 'sheer-creator'; // 尚未提交的新文件归本仓所有者
+  return githubLoginFor(creation);
+}
+
 // Prefer the page's own <title> (then first <h1>) so the index label matches
 // what the demo actually shows; fall back to the prettified file name.
 function extractTitle(html, fallback) {
@@ -133,6 +191,7 @@ async function collectHtmlFiles(currentDir = demoDir) {
       route: routeFromRelativePath(relativePath),
       relativePath: relativePath.replaceAll(path.sep, '/'),
       summary: extractSummary(contents),
+      author: await resolveAuthor(contents, relativePath),
     });
   }
 
@@ -155,6 +214,7 @@ function renderList(files) {
               <span class="demo-title">${escapeHtml(file.title)}</span>
               ${file.summary ? `<span class="demo-summary">${escapeHtml(file.summary)}</span>` : ''}
             </span>
+            <span class="demo-author">@${escapeHtml(file.author)}</span>
           </a>
   `.trim()).join('\n');
 
@@ -280,6 +340,14 @@ function renderPage(files) {
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+      }
+
+      .demo-author {
+        flex: 0 0 auto;
+        font-size: 12px;
+        line-height: 18px;
+        letter-spacing: 0.12px;
+        color: var(--text-n5);
       }
 
       .empty-state {
