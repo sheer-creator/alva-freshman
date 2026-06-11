@@ -573,7 +573,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     width: 480px;
     background: #fff;
     border: 0.5px solid rgba(0,0,0,0.2);
-    border-radius: 16px;
+    border-radius: var(--radius-pop-popover, 8px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.04);
     overflow: hidden;
     /* hover 浮现：默认隐藏，.open 时淡入 + 轻微上浮 */
@@ -594,7 +594,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     position: relative;
     display: flex; align-items: center; gap: 8px;
     padding: 16px 20px 12px;
-    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: rgba(0,0,0,0.5);
     white-space: nowrap;
 }
@@ -613,35 +613,25 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     border: none;
     background: none;
     font-family: inherit;
-    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: var(--text-n9);
     cursor: pointer;
     transition: opacity .15s;
 }
 .feeds-popover-bulk:hover { opacity: 0.7; }
 .feeds-popover-bulk:active { opacity: 0.5; }
-/* circled pause/play glyph: ring drawn by border, symbol by masked ::after */
 .feeds-popover-bulk-icon {
-    position: relative;
     width: 16px; height: 16px; flex-shrink: 0;
-    box-sizing: border-box;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-}
-.feeds-popover-bulk-icon::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
     background-color: currentColor;
     -webkit-mask-position: center; mask-position: center;
     -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
     -webkit-mask-size: contain; mask-size: contain;
 }
-.feeds-popover-bulk-icon.ic-pause::after {
+.feeds-popover-bulk-icon.ic-pause {
     -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg');
             mask-image: url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg');
 }
-.feeds-popover-bulk-icon.ic-play::after {
+.feeds-popover-bulk-icon.ic-play {
     -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/play-f.svg');
             mask-image: url('https://alva-ai-static.b-cdn.net/icons/play-f.svg');
 }
@@ -693,9 +683,8 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     display: inline-flex; align-items: center; justify-content: center;
     width: 24px; height: 24px;
     padding: 0;
-    box-sizing: border-box;
     background: transparent;
-    border: 1px solid currentColor;
+    border: none;
     border-radius: 50%;
     cursor: pointer;
     flex-shrink: 0;
@@ -704,7 +693,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 }
 .feeds-popover-row-toggle:hover { background: rgba(0,0,0,0.06); }
 .feeds-popover-row-toggle-icon {
-    width: 10px; height: 10px;
+    width: 16px; height: 16px;
     background-color: currentColor;
     -webkit-mask-position: center; mask-position: center;
     -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
