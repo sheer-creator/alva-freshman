@@ -306,11 +306,12 @@ function PrimaryButton({ label, onClick }: { label: string; onClick: () => void 
   );
 }
 
-/** 结果态外壳（成功 / 取消 / 失败 / 超时 / 加载） */
-function ResultShell({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+/** 结果态外壳（成功 / 取消 / 失败 / 超时 / 加载）。containerRef 共用主弹窗 sheetRef → 状态间高度走同一 FLIP 过渡 */
+function ResultShell({ onClose, children, containerRef }: { onClose: () => void; children: React.ReactNode; containerRef?: React.Ref<HTMLDivElement> }) {
   return (
     <div
-      className="relative flex flex-col gap-[28px] items-center justify-center w-[436px] max-w-[calc(100vw-32px)] min-h-[436px] px-[28px] pt-[56px] pb-[28px] rounded-[12px] max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
+      ref={containerRef}
+      className="relative flex flex-col gap-[28px] items-center justify-center w-[436px] max-w-[calc(100vw-32px)] min-h-[436px] px-[28px] pt-[56px] pb-[28px] rounded-[12px] overflow-hidden max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
       style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
     >
       {/* 移动端拖拽条 */}
@@ -323,16 +324,19 @@ function ResultShell({ onClose, children }: { onClose: () => void; children: Rea
   );
 }
 
-function ResultBody({ circle, icon, iconColor, title, lines, iconAnim = 'fade', action }: {
+function ResultBody({ circle, icon, iconColor, title, lines, iconAnim = 'fade', action, alert = false }: {
   circle: 'success' | 'warning'; icon: string; iconColor: string; title: string; lines: string[];
   /** 成功态弹出（带回弹），警示态渐显 */
   iconAnim?: 'pop' | 'fade';
   /** 文字操作链接（如 failed 态的 Try again） */
   action?: React.ReactNode;
+  /** 错误态：文案块挂 role="alert"，出现即被屏幕阅读器断言式播报 */
+  alert?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-[24px] items-center justify-center w-full">
       <div
+        aria-hidden="true"
         className="relative flex items-center justify-center size-[80px]"
         style={{
           animation: iconAnim === 'pop'
@@ -343,7 +347,7 @@ function ResultBody({ circle, icon, iconColor, title, lines, iconAnim = 'fade', 
         <img src={`${BASE}element-circle-${circle}.svg`} alt="" className="absolute inset-0 size-full" />
         <CdnIcon name={icon} size={40} color={iconColor} />
       </div>
-      <div className="flex flex-col gap-[4px] items-center justify-center w-full text-center" style={{ fontFamily: FONT }}>
+      <div role={alert ? 'alert' : undefined} className="flex flex-col gap-[4px] items-center justify-center w-full text-center" style={{ fontFamily: FONT }}>
         <p className="text-[20px] leading-[30px] tracking-[0.2px] w-full" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{title}</p>
         {lines.map((l) => (
           <p key={l} className="text-[14px] leading-[22px] tracking-[0.14px] w-full" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{l}</p>
@@ -352,6 +356,37 @@ function ResultBody({ circle, icon, iconColor, title, lines, iconAnim = 'fade', 
       </div>
     </div>
   );
+}
+
+/* ========== a11y 焦点工具 ========== */
+
+const FOCUS_SEL =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+/** 弹窗内真正可聚焦的元素：排除 aria-hidden 子树（屏外的列表/配置屏）与不可见元素 */
+function focusablesIn(root: HTMLElement | null): HTMLElement[] {
+  if (!root) return [];
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUS_SEL)).filter((el) => {
+    if (el.closest('[aria-hidden="true"]')) return false;
+    const s = getComputedStyle(el);
+    return s.visibility !== 'hidden' && s.display !== 'none';
+  });
+}
+
+/** Tab / Shift+Tab 在弹窗内循环，不让焦点逃出 */
+function trapTab(e: KeyboardEvent, root: HTMLElement | null) {
+  if (!root) return;
+  const nodes = focusablesIn(root);
+  if (nodes.length === 0) { e.preventDefault(); root.focus(); return; }
+  const first = nodes[0];
+  const last = nodes[nodes.length - 1];
+  const active = document.activeElement as HTMLElement | null;
+  const outside = !active || !root.contains(active);
+  if (e.shiftKey) {
+    if (outside || active === first) { e.preventDefault(); last.focus(); }
+  } else {
+    if (outside || active === last) { e.preventDefault(); first.focus(); }
+  }
 }
 
 /* ========== 主组件 ========== */
@@ -373,7 +408,14 @@ export function ConnectAccountModal({
   const [secret, setSecret] = useState('');
   const [countdown, setCountdown] = useState(3);
   const [closing, setClosing] = useState(false);
+  /* 展开/收起期间凭证区保持完整高度被"推走/拉回"，动画结束后才卸载 */
+  const [viewTransitioning, setViewTransitioning] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  /* a11y：弹窗内容容器（焦点陷阱范围）、Try again 按钮、打开前的触发元素 */
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const tryAgainRef = useRef<HTMLButtonElement | null>(null);
+  const lastFocusedRef = useRef<Element | null>(null);
 
   /* 跳屏高度动画（FLIP）：切屏前记录容器高度，渲染后从旧高度平滑过渡到新高度，
      避免列表↔详情切换时弹窗高度瞬跳 */
@@ -396,7 +438,7 @@ export function ConnectAccountModal({
     el.style.height = `${newH}px`;
     const t = setTimeout(() => { el.style.height = ''; el.style.transition = ''; }, 320);
     return () => clearTimeout(t);
-  }, [step]);
+  }, [step, viewTransitioning]);
 
   /* 出场：先播 0.18s 退场动效，再真正卸载 */
   const requestClose = () => {
@@ -417,15 +459,31 @@ export function ConnectAccountModal({
     setTradingType('Spot');
     setAddress(''); setApiKey(''); setSecret('');
     setClosing(false);
+
+    /* a11y：记下触发元素，打开后把焦点移入弹窗（WAI-ARIA dialog 模式） */
+    lastFocusedRef.current = document.activeElement;
+    const focusTimer = setTimeout(() => {
+      const root = wrapRef.current;
+      if (!root) return;
+      (focusablesIn(root)[0] ?? root).focus();
+    }, 60);
+
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') requestCloseRef.current(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { requestCloseRef.current(); return; }
+      if (e.key === 'Tab') trapTab(e, wrapRef.current);
+    };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);
+      clearTimeout(focusTimer);
       timers.current.forEach(clearTimeout);
       timers.current = [];
+      /* a11y：关闭后把焦点归还触发按钮，不让它掉到 body */
+      const last = lastFocusedRef.current as HTMLElement | null;
+      if (last && typeof last.focus === 'function') last.focus();
     };
   }, [open, initialStep, initialBrokerId, initialAccountType, onClose]);
 
@@ -441,15 +499,39 @@ export function ConnectAccountModal({
     return () => { clearInterval(iv); clearTimeout(done); };
   }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* a11y：结果态的焦点落点。失败 → Try again（主恢复动作）；其余结果态把焦点收回
+     容器，避免点 Continue 后按钮卸载、焦点掉到 body 而逃出陷阱 */
+  useEffect(() => {
+    if (!open) return;
+    const isResult = step === 'connecting' || step === 'success'
+      || step === 'cancelled' || step === 'failed' || step === 'timeout';
+    if (!isResult) return;
+    const t = setTimeout(() => {
+      if (step === 'failed' && tryAgainRef.current) { tryAgainRef.current.focus(); return; }
+      const root = wrapRef.current;
+      if (root && !root.contains(document.activeElement)) root.focus();
+    }, 80);
+    return () => clearTimeout(t);
+  }, [step, open]);
+
   if (!open) return null;
 
   const pickBroker = (b: BrokerDef) => { setBroker(b); setSetupView('configure'); goStep('configure'); };
-  const goSetupView = (v: 'configure' | 'credentials') => { setSetupView(v); setStep(v); };
+  const goSetupView = (v: 'configure' | 'credentials') => {
+    setSetupView(v);
+    setStep(v);
+    setViewTransitioning(true);
+    timers.current.push(setTimeout(() => {
+      /* 凭证区卸载会让内容高度骤减——卸载瞬间记录当前高度，交给 FLIP 平滑过渡到目标高度 */
+      if (sheetRef.current) pendingHRef.current = sheetRef.current.offsetHeight;
+      setViewTransitioning(false);
+    }, 340));
+  };
   const startConnect = () => {
-    setStep('connecting');
+    goStep('connecting');
     /* demo 剧本：Robinhood 分支演示失败链路，其余券商成功 */
     const willFail = broker?.id === 'robinhood';
-    timers.current.push(setTimeout(() => setStep(willFail ? 'failed' : 'success'), 1600));
+    timers.current.push(setTimeout(() => goStep(willFail ? 'failed' : 'success'), 1600));
   };
 
   const grid = (category: Category) => (
@@ -476,6 +558,14 @@ export function ConnectAccountModal({
   const screenBroker = broker ?? BROKERS[0];
   const inSetup = step === 'configure' || step === 'credentials';
   const isSnapTrade = screenBroker.auth === 'snaptrade';
+  /* a11y：屏幕阅读器播报（polite，随 step 变化一次性触发，不含每秒倒计时）。
+     失败态另由可见文案的 role="alert" 断言式播报，故此处留空避免重复。 */
+  const liveMessage =
+    step === 'connecting' ? `Connecting to ${screenBroker.name}…`
+    : step === 'success' ? 'Account connected.'
+    : step === 'cancelled' ? 'Connection cancelled. No account was added.'
+    : step === 'timeout' ? 'Connection timed out.'
+    : '';
   /* Robinhood 分支：Access level 两项均可选；其余券商 Read-only 灰置 */
   const accessSelectable = screenBroker.id === 'robinhood';
   const accountChip = accountType === 'live'
@@ -513,14 +603,19 @@ export function ConnectAccountModal({
         }
       `}</style>
       <div
+        ref={wrapRef}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className="connect-sheet-wrap max-sm:w-full flex justify-center"
         style={{
           opacity: closing ? 0 : 1,
           transform: closing ? 'translateY(8px) scale(0.98)' : 'none',
           transition: 'opacity 0.18s ease, transform 0.18s ease',
+          outline: 'none',
         }}
       >
+        {/* a11y：常驻的 polite live region —— 异步结果态变化时一次性播报给屏幕阅读器 */}
+        <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{liveMessage}</div>
 
         {/* ---- Step 1–3 · 同一弹窗，内部 push 跳屏：第二屏从右侧滑入，卡片列表后退 ---- */}
         {(step === 'select' || inSetup) && (
@@ -568,8 +663,9 @@ export function ConnectAccountModal({
                 transition: 'transform 0.3s ease, opacity 0.3s ease, visibility 0.3s',
               }}
             >
-            {/* 返回箭头任何子状态都直接回列表；重展开配置走 tag 行的铅笔 */}
-            <BrokerHeader broker={screenBroker} onBack={() => goStep('select')} onClose={requestClose} />
+            {/* 返回箭头任何子状态都直接回列表；同时把第二屏重置回 configure，
+                避免下次点卡片时残留的 credentials→configure 折叠动画与 FLIP 抢高度（崩坏） */}
+            <BrokerHeader broker={screenBroker} onBack={() => { setSetupView('configure'); goStep('select'); }} onClose={requestClose} />
             {/* 设计稿注释：表单需完整填写，按钮不置底，自然滚动到按钮 */}
             <div className={`flex flex-col gap-[20px] items-start ${setupView === 'configure' ? 'pt-[8px]' : 'pt-[12px]'} pb-[28px] px-[28px] w-full min-h-0 overflow-y-auto [&>*]:shrink-0 max-sm:px-[16px]`}>
 
@@ -633,9 +729,13 @@ export function ConnectAccountModal({
                   </div>
               </Collapse>
 
-              {/* 凭证区 — 展开态折叠隐藏 */}
-              <Collapse open={setupView === 'credentials'}>
-              <div className="flex flex-col gap-[20px] items-start w-full [&>*]:shrink-0">
+              {/* 凭证区 — 不做自身高度塌缩：过渡期间保持完整高度，被上方配置区推走/拉回，结束后卸载 */}
+              {(setupView === 'credentials' || viewTransitioning) && (
+              <div
+                className="flex flex-col gap-[20px] items-start w-full [&>*]:shrink-0"
+                aria-hidden={setupView !== 'credentials'}
+                style={setupView === 'credentials' ? undefined : { pointerEvents: 'none' }}
+              >
 
               <InfoCard steps={isSnapTrade ? SNAPTRADE_STEPS : apiKeySteps(screenBroker.name)} />
 
@@ -683,7 +783,7 @@ export function ConnectAccountModal({
               <PrimaryButton label="Continue to broker" onClick={startConnect} />
 
               </div>
-              </Collapse>
+              )}
             </div>
             </div>
 
@@ -692,22 +792,22 @@ export function ConnectAccountModal({
 
         {/* ---- 结果态 ---- */}
         {step === 'connecting' && (
-          <ResultShell onClose={requestClose}>
+          <ResultShell onClose={requestClose} containerRef={sheetRef}>
             <div className="flex flex-col gap-[12px] items-center justify-center">
-              <AlvaLoading size={56} />
+              <div aria-hidden="true"><AlvaLoading size={56} /></div>
               <p className="text-[16px] leading-[26px] tracking-[0.16px] text-center whitespace-nowrap" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Loading...</p>
             </div>
           </ResultShell>
         )}
 
         {step === 'success' && (
-          <ResultShell onClose={() => { onConnected?.(broker?.id ?? ''); requestClose(); }}>
+          <ResultShell onClose={() => { onConnected?.(broker?.id ?? ''); requestClose(); }} containerRef={sheetRef}>
             <ResultBody circle="success" icon="check-f2" iconColor="var(--main-m3, #2a9b7d)" title="Account Connected" lines={[`Closing in ${countdown}s`]} iconAnim="pop" />
           </ResultShell>
         )}
 
         {step === 'cancelled' && (
-          <ResultShell onClose={requestClose}>
+          <ResultShell onClose={requestClose} containerRef={sheetRef}>
             <ResultBody
               circle="warning" icon="warning-f" iconColor="var(--main-m5, #E6A91A)"
               title="Connection cancelled"
@@ -717,15 +817,17 @@ export function ConnectAccountModal({
         )}
 
         {step === 'failed' && (
-          <ResultShell onClose={requestClose}>
+          <ResultShell onClose={requestClose} containerRef={sheetRef}>
             <ResultBody
               circle="warning" icon="warning-f" iconColor="var(--main-m5, #E6A91A)"
               title="Connection failed"
               lines={['SnapTrade couldn’t reach your broker.', 'This is usually temporary.']}
+              alert
               action={
                 <button
+                  ref={tryAgainRef}
                   type="button"
-                  onClick={() => setStep('credentials')}
+                  onClick={() => { setSetupView('credentials'); goStep('credentials'); }}
                   className="border-none bg-transparent p-0 cursor-pointer text-[14px] leading-[22px] tracking-[0.14px] underline hover:opacity-70 transition-opacity"
                   style={{ fontFamily: FONT, color: 'var(--main-m1, #49A3A6)', textDecorationSkipInk: 'none', textUnderlinePosition: 'from-font' }}
                 >
@@ -737,7 +839,7 @@ export function ConnectAccountModal({
         )}
 
         {step === 'timeout' && (
-          <ResultShell onClose={requestClose}>
+          <ResultShell onClose={requestClose} containerRef={sheetRef}>
             <ResultBody
               circle="warning" icon="warning-f" iconColor="var(--main-m5, #E6A91A)"
               title="Connection timed out"
