@@ -64,6 +64,13 @@
     }
   }
 
+  function formatInterval(interval) {
+    var s = String(interval == null ? '' : interval).trim();
+    if (!s) return '';
+    // "20 Minutes" / "1 hour" → "Every 20 minutes" / "Every 1 hour"; "Daily" / "Weekly" stay as-is
+    return /^\d/.test(s) ? 'Every ' + s.toLowerCase() : s;
+  }
+
   function renderFeeds(feeds, lastUpdated) {
     if (!feeds.length) return '';
     var allPaused = feeds.every(function (f) { return f.paused; });
@@ -84,34 +91,34 @@
       var paused = !!f.paused;
       var cls = 'feeds-popover-row clickable' + (paused ? ' is-paused' : '');
       var extra = ' data-feed="' + esc(f.id || '') + '" role="button" tabindex="0"';
-      var chev = '<span class="feeds-popover-row-chev" aria-hidden="true"></span>';
-      var lastCell = paused ? 'Paused' : esc(f.lastRun);
+      var lastRunText = 'Last Run: ' + String(f.lastRun == null ? '' : f.lastRun);
+      var intervalText = formatInterval(f.interval);
       var toggleIcon = paused ? 'feeds-popover-row-toggle-icon ic-play' : 'feeds-popover-row-toggle-icon ic-pause';
       var toggleLabel = paused ? 'Resume' : 'Pause';
       return (
         '<div class="' + cls + '"' + extra + '>' +
-          '<div class="feeds-popover-cell-name">' +
-            '<span class="pb-freq-dot" aria-hidden="true"></span>' +
-            '<span>' + esc(f.name) + '</span>' +
+          '<div class="feeds-popover-row-main">' +
+            '<div class="feeds-popover-row-name">' +
+              '<span class="pb-freq-dot" aria-hidden="true"></span>' +
+              '<span class="feeds-popover-name-text">' + esc(f.name) + '</span>' +
+            '</div>' +
+            '<div class="feeds-popover-row-sub">' +
+              '<span class="feeds-popover-cell-last" data-last-run="' + esc(lastRunText) + '">' + (paused ? 'Paused' : esc(lastRunText)) + '</span>' +
+              (intervalText
+                ? '<span class="feeds-popover-sub-sep" aria-hidden="true"></span>' +
+                  '<span class="feeds-popover-cell-interval">' + esc(intervalText) + '</span>'
+                : '') +
+            '</div>' +
           '</div>' +
-          '<div class="feeds-popover-cell-interval">' + esc(f.interval) + '</div>' +
-          '<div class="feeds-popover-cell-last">' + lastCell + '</div>' +
           '<button type="button" class="feeds-popover-row-toggle" data-feed-toggle aria-label="' + toggleLabel + '" title="' + toggleLabel + '" aria-pressed="' + (paused ? 'true' : 'false') + '">' +
             '<span class="' + toggleIcon + '" aria-hidden="true"></span>' +
           '</button>' +
-          chev +
+          '<span class="feeds-popover-row-chev" aria-hidden="true"></span>' +
         '</div>'
       );
     }).join('');
     return (
       metaRow +
-      '<div class="feeds-popover-header">' +
-        '<div class="feeds-popover-cell-name">Automation</div>' +
-        '<div class="feeds-popover-cell-interval">Interval</div>' +
-        '<div class="feeds-popover-cell-last">Last Run</div>' +
-        '<span class="feeds-popover-row-toggle is-placeholder" aria-hidden="true"></span>' +
-        '<span class="feeds-popover-row-chev is-placeholder" aria-hidden="true"></span>' +
-      '</div>' +
       rows +
       '<div class="feeds-popover-viewall" role="button" tabindex="0">' +
         '<span class="feeds-popover-viewall-label">View all automations in Settings</span>' +
@@ -782,15 +789,7 @@
       row.classList.toggle('is-paused', paused);
       var lastCell = row.querySelector('.feeds-popover-cell-last');
       if (lastCell) {
-        if (paused) {
-          if (lastCell.getAttribute('data-last-run') == null) {
-            lastCell.setAttribute('data-last-run', lastCell.textContent || '');
-          }
-          lastCell.textContent = 'Paused';
-        } else {
-          var prev = lastCell.getAttribute('data-last-run');
-          if (prev != null) lastCell.textContent = prev;
-        }
+        lastCell.textContent = paused ? 'Paused' : (lastCell.getAttribute('data-last-run') || '');
       }
       var toggleBtn = row.querySelector('[data-feed-toggle]');
       if (toggleBtn) {
