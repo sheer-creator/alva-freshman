@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { CdnIcon } from '../shared/CdnIcon';
 import { ChatInput } from '../shared/ChatInput';
 import { Dropdown } from '../shared/Dropdown';
@@ -9,14 +9,12 @@ import { ChatEmptyState } from './PlaybookSuggestions';
 import { TodoListCard, ReviewPlanCard, AnswerQuestionCard } from './StreamingMessages';
 import type { ContextTagData } from '@/lib/chat-config';
 import { CONVERSATIONS, isPlaybookPage } from '@/lib/chat-config';
-import { AgentConnectedFeed } from './AgentConnectedFeed';
+import { ConceptA } from '../agent-channel/ConceptA';
+import { ExtraThread } from '../agent-channel/ExtraThread';
+import { useChannelChat } from '../agent-channel/useChannelChat';
+import '@/styles/agent-channel.css';
 
 const FONT = "font-['Delight',sans-serif]";
-
-const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
-  role: 'agent',
-  text: 'Hey! I\'m your Alva Agent, connected via Telegram. I\'m always-on and ready to help with market analysis, portfolio tracking, and playbook execution. What would you like to work on?',
-};
 
 function IconButton({ label, onClick, children }: { label: string; onClick?: () => void; children: React.ReactNode }) {
   return (
@@ -38,7 +36,6 @@ interface ChatPanelProps {
 
 export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
   const { hasInitialInput, activeConversationId, setActiveConversation, sendPrompt, overlay, dismissOverlay, activePage } = useChatContext();
-  const [, setAgentMessages] = useState([INITIAL_AGENT_MESSAGE]);
   const [injectSignal, setInjectSignal] = useState<{ text: string; seq: number } | null>(null);
   const agentScrollRef = useRef<HTMLDivElement>(null);
 
@@ -61,21 +58,21 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
     }
   };
 
-  const handleAgentSend = useCallback((text: string) => {
-    setAgentMessages(prev => [...prev, { role: 'user' as const, text }]);
-    setTimeout(() => {
-      setAgentMessages(prev => [
-        ...prev,
-        { role: 'agent' as const, text: `I'll look into "${text}" right away. I've also logged this as a new chat in your history for reference.` },
-      ]);
-      setTimeout(() => {
-        agentScrollRef.current?.scrollTo({ top: agentScrollRef.current.scrollHeight, behavior: 'smooth' });
-      }, 50);
-    }, 1200);
-    setTimeout(() => {
-      agentScrollRef.current?.scrollTo({ top: agentScrollRef.current.scrollHeight, behavior: 'smooth' });
-    }, 50);
-  }, []);
+  // Alva Agent 会话与频道页共享同一全局 store — 这里是同一份内容的窄栏视图
+  const channel = useChannelChat();
+  const { extra } = channel;
+  useEffect(() => {
+    if (isAgent && extra.length && agentScrollRef.current) {
+      const el = agentScrollRef.current;
+      requestAnimationFrame(() => { el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' }); });
+    }
+  }, [isAgent, extra]);
+
+  // 频道内跳转（Tasks/Alerts/Files）：收起面板，去频道页对应 tab
+  const goChannelTab = useCallback((tab: string) => {
+    onClose();
+    window.location.hash = tab === 'chat' ? 'agent' : `agent?tab=${tab}`;
+  }, [onClose]);
 
   return (
     <div className="flex items-center pl-[8px] pr-[8px] py-[8px] h-full shrink-0 w-full">
@@ -170,9 +167,20 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
           {isAgent ? (
             <>
               <div ref={agentScrollRef} className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px] pb-[48px]">
-                <AgentConnectedFeed />
+                <div className="agent-channel panel-thread">
+                  {/* 与频道 Chat tab（Concept A）同一份 onboarding — 新用户从任何页面开面板都能被 onboard */}
+                  <ConceptA onPrompt={channel.onPrompt} onStartTask={channel.onStartTask} onSubscribed={channel.onSubscribed} />
+                  <ExtraThread
+                    extra={extra}
+                    subtle
+                    onGoTasks={() => goChannelTab('tasks')}
+                    onGoAlerts={() => goChannelTab('alerts')}
+                    onGoFiles={() => goChannelTab('files')}
+                    onConnectIm={(im) => { if (im) channel.connectIm(im); else goChannelTab('chat'); }}
+                  />
+                </div>
               </div>
-              <ChatInput contextTag={inputContextTag} allowReferences={isPlaybookContext} onSend={handleAgentSend} autoFocus />
+              <ChatInput contextTag={inputContextTag} allowReferences={isPlaybookContext} onSend={channel.onPrompt} autoFocus />
             </>
           ) : (
             <>

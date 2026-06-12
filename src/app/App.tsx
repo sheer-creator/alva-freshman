@@ -8,7 +8,7 @@ export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | 
 
 const NewChat = lazy(() => import("@/pages/NewChat"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
-const Agent = lazy(() => import("@/pages/Agent"));
+const AgentChannel = lazy(() => import("@/pages/AgentChannel"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
 
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
@@ -41,7 +41,9 @@ const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
   if (hash.startsWith('thread/')) return hash as Page;
-  return VALID_PAGES.includes(hash as Page) ? (hash as Page) : "new-chat";
+  // 频道深链形如 #agent?concept=K&tab=tasks，路由只认 ? 之前的部分
+  const base = hash.split('?')[0];
+  return VALID_PAGES.includes(base as Page) ? (base as Page) : "agent";
 }
 
 export function getThreadId(page: Page): string | null {
@@ -102,7 +104,7 @@ export default function App() {
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} />}
         {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
-        {currentPage === "agent" && <Agent key={agentKey} onNavigate={navigate} />}
+        {currentPage === "agent" && <AgentChannel key={agentKey} onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
         {currentPage === "account" && <Account onNavigate={navigate} />}
         {currentPage === "alva-agent" && <AlvaAgentSettings onNavigate={navigate} />}

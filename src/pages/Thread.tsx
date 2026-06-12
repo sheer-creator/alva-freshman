@@ -37,8 +37,10 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
   const hasContent = currentThreadId !== 'new' && CONVERSATIONS.some(c => c.id === currentThreadId);
 
   const handleSwitcherSelect = useCallback((id: string) => {
+    // Alva Agent 是独立频道页，不是线程内视图 — 与 NewChat 的入口行为一致
+    if (id === '__agent__') { onNavigate('agent'); return; }
     setActiveView(id);
-  }, []);
+  }, [onNavigate]);
 
   const handleAgentSend = useCallback((text: string) => {
     setAgentMessages(prev => [...prev, { role: 'user', text }]);
