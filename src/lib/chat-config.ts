@@ -49,7 +49,7 @@ export const PAGE_TITLES: Record<string, string> = {
   explore: 'Explore',
   'explore-2': 'Explore',
   portfolio: 'Portfolio',
-  agent: 'Agent',
+  agent: 'Alva Agent',
   'alva-skills': 'Alva Skill',
   account: 'Account',
   'user-profile': 'Profile',

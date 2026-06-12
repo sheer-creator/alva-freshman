@@ -247,7 +247,8 @@ export function ChatProvider({
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [hasInitialInput, setHasInitialInput] = useState(false);
-  const [activeConversationId, setActiveConversationId] = useState('new');
+  // 全局 Ask 面板默认定位到 Alva Agent（频道在面板里的化身）；点 New chat 可随时切回空态
+  const [activeConversationId, setActiveConversationId] = useState('__agent__');
   const [streamingState, setStreamingState] = useState<StreamingState | null>(null);
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const [overlay, setOverlay] = useState<OverlayData | null>(null);
