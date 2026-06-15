@@ -1,6 +1,6 @@
 /**
- * [INPUT]: Figma Page/Agent/Memory(7911:134917)Body 区 + Markdown/M 组件(H1 18 / H2 16 / H3 14 Medium / 正文 14 / bullet)
- * [OUTPUT]: Agent 页 Memory tab — 左侧 memory 文件列表(200px)+ 右侧 md 阅读视图;edit 切纯文本编辑态(check-l2 + Save)
+ * [INPUT]: Figma Page/Agent/Memory(7930:184929)Body 区 + Markdown/M 组件(H1 18 / H2 16 / H3 14 Medium / 正文 14 / bullet)
+ * [OUTPUT]: Agent 页 Memory tab — 左侧 memory 文件树(200px,文件夹可展开)+ 右侧 md 阅读视图;edit 切纯文本编辑态(Cancel + Save,按钮 32 高)
  * [POS]: AgentNewSession tab==='memory' 时渲染;spec(alva-agent)口径 memory 为用户可见可编辑文件
  */
 
@@ -269,10 +269,78 @@ function MdBlock({ block }: { block: MemoryBlock }) {
   );
 }
 
+/* ========== 左侧文件树 — 文件夹(可展开/收起,不可选)+ 文件(可选),按层级缩进 ========== */
+
+function TreeRows({
+  nodes,
+  depth,
+  activeId,
+  expanded,
+  onSelect,
+  onToggle,
+}: {
+  nodes: MemoryNode[];
+  depth: number;
+  activeId: string;
+  expanded: Record<string, boolean>;
+  onSelect: (id: string) => void;
+  onToggle: (key: string) => void;
+}) {
+  /* Figma Memory Item:每层缩进 16px(arrow@depth*16);行高 40(py-9),gap-4,rounded-4 */
+  const indent = depth * 16;
+  return (
+    <>
+      {nodes.map((node, i) => {
+        if (node.kind === 'folder') {
+          const key = `${depth}/${i}/${node.name}`;
+          const open = expanded[key] ?? true;
+          return (
+            <div key={key} className="flex w-full flex-col">
+              <button
+                className="flex w-full cursor-pointer items-center gap-[4px] rounded-[4px] bg-transparent py-[9px] pr-[12px] text-left"
+                style={{ border: 'none', paddingLeft: indent }}
+                onClick={() => onToggle(key)}
+              >
+                <CdnIcon name={open ? 'arrow-down-f2' : 'arrow-right-f2'} size={12} color="var(--text-n2, rgba(0,0,0,0.2))" />
+                <CdnIcon name="folder-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+                <span className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                  {node.name}
+                </span>
+              </button>
+              {open && (
+                <TreeRows nodes={node.children} depth={depth + 1} activeId={activeId} expanded={expanded} onSelect={onSelect} onToggle={onToggle} />
+              )}
+            </div>
+          );
+        }
+        const file = MEMORY_FILES.find((f) => f.id === node.id);
+        if (!file) return null;
+        const isActive = file.id === activeId;
+        return (
+          <button
+            key={node.id}
+            className="flex w-full cursor-pointer items-center rounded-[4px] bg-transparent py-[9px] pr-[12px] text-left transition-colors"
+            style={{ border: 'none', paddingLeft: indent, background: isActive ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent' }}
+            onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'var(--b-r02, rgba(0,0,0,0.02))'; }}
+            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+            onClick={() => onSelect(file.id)}
+          >
+            <span className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              {file.name}
+            </span>
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
 /* ========== 主组件 ========== */
 
 export function AgentMemory() {
   const [activeId, setActiveId] = useState(MEMORY_FILES[0].id);
+  /* 文件夹展开态(key = depth/index/name),默认全部展开 */
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   /* 本 session 内的内容覆盖(保存后生效) */
   const [contents, setContents] = useState<Record<string, string>>({});
   /* 编辑草稿;null = 阅读态 */
@@ -287,6 +355,10 @@ export function AgentMemory() {
     setDraft(null);
   };
 
+  const toggleFolder = (key: string) => {
+    setExpanded((prev) => ({ ...prev, [key]: !(prev[key] ?? true) }));
+  };
+
   const save = () => {
     if (draft === null) return;
     setContents((prev) => ({ ...prev, [active.id]: draft }));
@@ -296,26 +368,9 @@ export function AgentMemory() {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto px-[28px]">
       <div className="mx-auto flex w-full max-w-[960px] items-start gap-[28px] py-[28px]">
-        {/* 文件列表 — Figma list group:200px,选中 br05 */}
+        {/* 文件树 — Figma list group:200px,文件夹可展开/收起,文件选中 br03 */}
         <div className="flex w-[200px] shrink-0 flex-col">
-          {MEMORY_FILES.map((f) => {
-            const isActive = f.id === activeId;
-            return (
-              <button
-                key={f.id}
-                className="flex w-full cursor-pointer items-center gap-[4px] rounded-[4px] bg-transparent px-[12px] py-[9px] text-left transition-colors"
-                style={{ border: 'none', background: isActive ? 'var(--b-r03, rgba(0,0,0,0.03))' : 'transparent' }}
-                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'var(--b-r02, rgba(0,0,0,0.02))'; }}
-                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-                onClick={() => selectFile(f.id)}
-              >
-                <CdnIcon name="disclaimer-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-                <span className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                  {f.name}
-                </span>
-              </button>
-            );
-          })}
+          <TreeRows nodes={MEMORY_TREE} depth={0} activeId={activeId} expanded={expanded} onSelect={selectFile} onToggle={toggleFolder} />
         </div>
 
         {/* 阅读 / 编辑视图 — 标题行 + md content 卡 */}
@@ -325,17 +380,29 @@ export function AgentMemory() {
               {active.name}
             </p>
             {editing ? (
-              /* 编辑态:仅保留实心 Save 按钮,隐藏 Last Updated 与删除(Figma 7930:185393)*/
-              <button
-                className="flex shrink-0 cursor-pointer items-center justify-center gap-[4px] rounded-[4px] border-none px-[12px] py-[4px]"
-                style={{ background: 'var(--main-m1, #49A3A6)' }}
-                onClick={save}
-              >
-                <CdnIcon name="check-f2" size={12} color="#fff" />
-                <span className="text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white" style={{ fontFamily: FONT }}>
-                  Save
-                </span>
-              </button>
+              /* 编辑态:Cancel(描边)+ Save(实心),按钮 32 高,间距 8,隐藏 Last Updated 与删除(Figma 7930:184929)*/
+              <div className="flex shrink-0 items-center gap-[8px]">
+                <button
+                  className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px]"
+                  style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+                  onClick={() => setDraft(null)}
+                >
+                  <CdnIcon name="close-f2" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
+                  <span className="text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                    Cancel
+                  </span>
+                </button>
+                <button
+                  className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] border-none px-[12px]"
+                  style={{ background: 'var(--button-b-btn-primary, #49A3A6)' }}
+                  onClick={save}
+                >
+                  <CdnIcon name="check-f2" size={14} color="#fff" />
+                  <span className="text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white" style={{ fontFamily: FONT }}>
+                    Save
+                  </span>
+                </button>
+              </div>
             ) : (
               <>
                 <p className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
