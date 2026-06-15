@@ -44,9 +44,12 @@ export function ConnectAppList({
       onConnect(id);
     }, 900);
   };
+  const ordered = [...rows].sort(
+    (a, b) => Number(connectedIds.includes(b.id)) - Number(connectedIds.includes(a.id)),
+  );
   return (
     <div className="flex w-full flex-col gap-[16px]">
-      {rows.map((row) => {
+      {ordered.map((row) => {
         const connected = connectedIds.includes(row.id);
         const isActive = connected && activeId === row.id;
         const switchable = connected && !isActive;

@@ -39,7 +39,8 @@ function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed
       : interactive
         ? `text-white ${hoverBg}`
         : 'text-white';
-  const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : channelAccent ? 'var(--main-m1, #49A3A6)' : '#ffffff';
+  // 仅选中态图标转绿(文字保持白);未选中为白
+  const iconColor = deprecated ? 'rgba(255,255,255,0.35)' : active ? 'var(--main-m1, #49A3A6)' : '#ffffff';
   return (
     <div
       className={`content-stretch flex h-[36px] items-center overflow-clip relative rounded-[4px] shrink-0 w-full transition-colors ${collapsed ? 'justify-center px-0' : 'gap-[8px] px-[8px] py-[4px]'} ${textClass} ${interactive ? 'cursor-pointer' : ''}`}
@@ -157,7 +158,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
         <NavItem label="Alva Agent" icon="sidebar-agent-normal" channelAccent active={activePage === 'agent'} collapsed={collapsed} onClick={() => onNavigate('agent')} />
-        <div className="my-[4px] h-[0.5px] w-full shrink-0 bg-white/10" aria-hidden />
+        <NavItem label="Alva Agent (Design)" icon="sidebar-agent-normal" channelAccent active={activePage === 'agent-design'} collapsed={collapsed} onClick={() => onNavigate('agent-design')} />
         <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore'} collapsed={collapsed} onClick={() => onNavigate('explore')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} collapsed={collapsed} onClick={() => onNavigate('alva-skills')} />

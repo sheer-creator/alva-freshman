@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 
-export type AgentPlatform = 'telegram' | 'discord';
+export type AgentPlatform = 'telegram' | 'discord' | 'slack' | 'whatsapp';
 
 const PLATFORMS_KEY = 'agentPlatforms';
 const ACTIVE_KEY = 'agentActivePlatform';
@@ -8,7 +8,7 @@ const LEGACY_PLATFORM_KEY = 'agentPlatform';
 const LEGACY_CONNECTED_KEY = 'agentConnected';
 const EVENT = 'agent-connected-change';
 
-const ALL: readonly AgentPlatform[] = ['telegram', 'discord'];
+const ALL: readonly AgentPlatform[] = ['telegram', 'discord', 'slack', 'whatsapp'];
 
 type State = { platforms: AgentPlatform[]; active: AgentPlatform | null };
 

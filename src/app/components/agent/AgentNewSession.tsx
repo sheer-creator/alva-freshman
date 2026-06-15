@@ -10,6 +10,7 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { AgentMemory } from '@/app/components/agent/AgentMemory';
 import { AgentTasksPanel, AGENT_TASKS } from '@/app/components/agent/AgentTasksPanel';
 import { AgentArtifactsPanel, AGENT_ARTIFACTS } from '@/app/components/agent/AgentArtifactsPanel';
+import { AgentAlertsPanel, AGENT_ALERTS } from '@/app/components/agent/AgentAlertsPanel';
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { SkillChip } from '@/app/components/shared/SkillChip';
@@ -327,8 +328,8 @@ const TABS: { id: string; label: string; icon: string; count?: number }[] = [
   { id: 'chat', label: 'Chat', icon: 'chat-l1' },
   { id: 'tasks', label: 'Tasks', icon: 'step-l', count: AGENT_TASKS.length },
   { id: 'memory', label: 'Memory', icon: 'brain-l' },
-  { id: 'alerts', label: 'Alerts', icon: 'notification-l', count: 8 },
-  { id: 'artifacts', label: 'Artifacts', icon: 'folder-l', count: AGENT_ARTIFACTS.length },
+  { id: 'alerts', label: 'Alerts', icon: 'notification-l', count: AGENT_ALERTS.length },
+  { id: 'artifacts', label: 'Files', icon: 'folder-l', count: AGENT_ARTIFACTS.length },
 ];
 
 /* ========== 原子组件 ========== */
@@ -864,6 +865,8 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
         <AgentTasksPanel />
       ) : tab === 'memory' ? (
         <AgentMemory />
+      ) : tab === 'alerts' ? (
+        <AgentAlertsPanel />
       ) : tab === 'artifacts' ? (
         <AgentArtifactsPanel />
       ) : (
