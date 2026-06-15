@@ -193,7 +193,7 @@ export function AgentTaskDetail({ task, onBack }: { task: AgentTask; onBack: () 
       {/* 固定底部 composer — Content gap-0,正文 pb-28 提供间隔;外层 pb-28 = Body 底 padding */}
       <div className="shrink-0 px-[28px] pb-[28px]">
         <div className="mx-auto w-full max-w-[960px]">
-          <ChatInput shadow allowReferences={false} placeholder="Ask Alva anything. @ for context, / for skills" />
+          <ChatInput shadow subtleBorder allowReferences={false} placeholder="Ask Alva anything. @ for context, / for skills" />
         </div>
       </div>
     </div>

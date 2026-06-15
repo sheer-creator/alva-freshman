@@ -61,6 +61,8 @@ export interface FeedDetailModalProps {
   history?: FeedRunHistoryItem[];
   /** Alerts tab — 来源的推送完整内容(复用 push 卡的渲染) */
   alerts?: PushCardData[];
+  /** 主态(owner)显示 pause / settings 图标;客态(subscriber)隐藏。默认 false(客态) */
+  owner?: boolean;
   /** 点击设置图标 — 传入时跳转到 Settings Automations */
   onManage?: () => void;
 }
@@ -298,6 +300,7 @@ export function FeedDetailModal({
   stats = DEFAULT_STATS,
   history = DEFAULT_HISTORY,
   alerts,
+  owner = false,
   onManage,
 }: FeedDetailModalProps) {
   const [tab, setTab] = useState<TabKey>('alerts');
@@ -361,23 +364,25 @@ export function FeedDetailModal({
                 {feedName}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setPaused((p) => !p)}
-              aria-label={paused ? 'Resume' : 'Pause'}
-              className="shrink-0 flex items-center justify-center size-[18px] cursor-pointer bg-transparent border-none outline-none p-0 hover:opacity-70 transition-opacity"
-            >
-              <CdnIcon name={paused ? 'play-f' : 'pause-l2'} size={18} color="var(--text-n7, rgba(0,0,0,0.7))" />
-            </button>
-            {onManage && (
-              <button
-                type="button"
-                onClick={onManage}
-                aria-label="Settings"
-                className="shrink-0 flex items-center justify-center size-[18px] cursor-pointer bg-transparent border-none outline-none p-0 hover:opacity-70 transition-opacity"
-              >
-                <CdnIcon name="settings-l" size={18} color="var(--text-n7, rgba(0,0,0,0.7))" />
-              </button>
+            {owner && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setPaused((p) => !p)}
+                  aria-label={paused ? 'Resume' : 'Pause'}
+                  className="shrink-0 flex items-center justify-center size-[18px] cursor-pointer bg-transparent border-none outline-none p-0 hover:opacity-70 transition-opacity"
+                >
+                  <CdnIcon name={paused ? 'play-f' : 'pause-l2'} size={18} color="var(--text-n7, rgba(0,0,0,0.7))" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onManage?.()}
+                  aria-label="Settings"
+                  className="shrink-0 flex items-center justify-center size-[18px] cursor-pointer bg-transparent border-none outline-none p-0 hover:opacity-70 transition-opacity"
+                >
+                  <CdnIcon name="settings-l" size={18} color="var(--text-n7, rgba(0,0,0,0.7))" />
+                </button>
+              </>
             )}
           </div>
           <div className="flex gap-[8px] items-center w-full whitespace-nowrap font-['Delight',sans-serif] leading-[20px] text-[12px] text-[var(--text-n5)] tracking-[0.12px]">

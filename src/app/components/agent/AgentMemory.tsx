@@ -158,6 +158,52 @@ How pushes should read across Web and Telegram. The goal: a 5-second scan tells 
 - Telegram: keep under 12 lines — long analysis links back to the Web thread.
 - Web: full cards with charts welcome; group same-source pushes into one message.`,
   },
+  {
+    id: 'components',
+    name: 'components.md',
+    lastUpdated: '03/01/2026',
+    content: `## Components
+
+Reusable building blocks Alva references when assembling a dashboard or report for you.
+
+### Charts
+- Bar chart for quarterly series; line chart for trend with a highlighted current value.
+- Always label the latest point and the comparison band.
+
+### Tables
+- Lead with the ranked column; right-align numbers, color deltas (+/-).`,
+  },
+  {
+    id: 'widgets',
+    name: 'widgets.md',
+    lastUpdated: '02/24/2026',
+    content: `## Widgets
+
+Default widget catalog and the layout rules Alva follows on the canvas.
+
+### Layout
+- Prefer a 3-widget grid: trend, ratio, comparison.
+- Keep KPI numbers ≥ 24px; charts fill the remaining height.`,
+  },
+];
+
+/* ========== 文件树 — 文件夹(可展开/收起,不可选)+ 文件(可选)========== */
+
+type MemoryNode = { kind: 'folder'; name: string; children: MemoryNode[] } | { kind: 'file'; id: string };
+
+const MEMORY_TREE: MemoryNode[] = [
+  {
+    kind: 'folder',
+    name: 'User',
+    children: [
+      { kind: 'file', id: 'user' },
+      { kind: 'folder', name: 'references', children: [{ kind: 'file', id: 'components' }, { kind: 'file', id: 'widgets' }] },
+    ],
+  },
+  { kind: 'folder', name: 'core-basket', children: [{ kind: 'file', id: 'core-basket' }] },
+  { kind: 'folder', name: 'risk-rules', children: [{ kind: 'file', id: 'risk-rules' }] },
+  { kind: 'folder', name: 'verified-theses', children: [{ kind: 'file', id: 'verified-theses' }] },
+  { kind: 'folder', name: 'alert-style', children: [{ kind: 'file', id: 'alert-style' }] },
 ];
 
 /* ========== 纯文本 markdown → 块(# / ## / ### / - / 段落,空行分块) ========== */

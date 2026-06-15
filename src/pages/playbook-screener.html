@@ -2463,6 +2463,7 @@ window.__ALVA_OFFLINE_DATA__ = {
       lastRun: '15m',
       runEvery: 'Every 5 minutes',
       totalRuns: 142,
+      owner: false,
       instruction:
         'I want to set up a Project monitor automation. Briefly explain how automations work in Alva, then ask me what project to watch, what changes matter, and when it should check in.',
       alerts: [
@@ -2609,6 +2610,9 @@ window.__ALVA_OFFLINE_DATA__ = {
     document.getElementById('feed-stat-failed').textContent = d.stats.failed;
     document.getElementById('feed-detail-instruction').textContent = d.instruction || d.description || '';
     document.getElementById('feed-history-count').textContent = (d.history && d.history.length) || 0;
+    var owner = d.owner === true;
+    document.getElementById('feed-detail-pause').style.display = owner ? '' : 'none';
+    document.getElementById('feed-detail-settings').style.display = owner ? '' : 'none';
     renderFeedAlerts(d.alerts);
     renderFeedHistory(d.history);
     activateFeedTab('alerts');

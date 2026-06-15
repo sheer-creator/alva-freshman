@@ -231,6 +231,7 @@ export function AgentAlertsPanel() {
         alerts={activeAlert ? buildAlertPushes(activeAlert) : undefined}
         instruction={ALERT_INSTRUCTION}
         description={ALERT_INSTRUCTION}
+        owner={activeAlert?.kind === 'owned'}
       />
     </div>
   );

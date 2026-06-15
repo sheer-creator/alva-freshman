@@ -265,6 +265,7 @@ export function PlaybookInfoPopup({
           totalRuns={activeFeed.detail.totalRuns}
           stats={activeFeed.detail.stats}
           history={activeFeed.detail.history}
+          owner
           onManage={onNavigate ? () => {
             setActiveFeed(null);
             onNavigate('automations');
