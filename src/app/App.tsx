@@ -8,7 +8,7 @@ export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | 
 
 const NewChat = lazy(() => import("@/pages/NewChat"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
-const AgentChannel = lazy(() => import("@/pages/AgentChannel"));
+const Agent = lazy(() => import("@/pages/Agent"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
 
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
@@ -104,7 +104,7 @@ export default function App() {
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} />}
         {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
-        {currentPage === "agent" && <AgentChannel key={agentKey} onNavigate={navigate} />}
+        {currentPage === "agent" && <Agent key={agentKey} onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
         {currentPage === "account" && <Account onNavigate={navigate} />}
         {currentPage === "alva-agent" && <AlvaAgentSettings onNavigate={navigate} />}
