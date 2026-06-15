@@ -220,6 +220,15 @@
   .modal-x:hover { background: var(--b-r05); }
   .modal-x svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; transform: rotate(45deg); }
   .modal-body { overflow-y: auto; padding: 8px; }
+  .login-modal { width: 440px; }
+  .login-body { display: flex; flex-direction: column; gap: 12px; padding: 8px; }
+  .login-card { border: 0.5px solid var(--line-l07); border-radius: 12px; background: var(--wash); padding: 14px; }
+  .login-card strong { display: block; font-size: 14px; color: var(--text-n9); font-weight: 400; }
+  .login-card span { display: block; margin-top: 5px; font-size: 12.5px; line-height: 18px; color: var(--text-n5); }
+  .login-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .login-actions button { height: 36px; padding: 0 13px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; }
+  .login-actions .primary { background: var(--main-m1); color: #fff; }
+  .login-actions .secondary { border: 0.5px solid var(--line-l12); color: var(--text-n7); background: #fff; }
   .member { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 11px; align-items: center; padding: 8px 10px; border-radius: 9px; }
   .member:hover { background: var(--b-r02); }
   .m-ava { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; color: #fff; overflow: hidden; flex: 0 0 auto; }
@@ -447,6 +456,11 @@
   .dg-take { font-size: 13px; line-height: 19px; color: var(--text-n7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dg-kol { font-size: 11.5px; color: var(--text-n3); white-space: nowrap; }
   .dg-foot { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--b-r02); border-top: 0.5px solid var(--line-l05); }
+  .dg-foot .dg-open { flex: 0 0 auto; }
+  .dg-automation-link { margin-left: auto; min-width: 0; display: inline-flex; align-items: center; gap: 6px; color: var(--text-n5); font-size: 11.5px; padding: 6px 7px; border-radius: 8px; transition: background 140ms ease, color 140ms ease; }
+  .dg-automation-link:hover { background: #fff; color: var(--main-m1); }
+  .dg-automation-link span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dg-automation-link svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.7; flex: 0 0 auto; }
   .dg-bdot { width: 6px; height: 6px; border-radius: 50%; background: var(--main-m1); flex: 0 0 auto; }
 
   /* source tag — which automation / playbook produced this push */
@@ -745,6 +759,9 @@
   .kc-inline-head button:hover { background: var(--b-r02); color: var(--text-n9); }
   .kc-inline-head input, .kc-inline-head select { min-width: 150px; border: 0.5px solid var(--line-l12); border-radius: 9px; background: #fff; outline: none; font-size: 13px; color: var(--text-n9); padding: 8px 10px; }
   .kc-inline-body { margin-top: 13px; }
+  .kc-advanced-toggle { height: 32px; padding: 0 11px; border-radius: 8px; border: 0.5px solid var(--line-l12); color: var(--text-n7); font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; }
+  .kc-advanced-toggle:hover { background: var(--b-r02); color: var(--text-n9); }
+  .kc-advanced-toggle svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
   .kc-refresh-note { margin-top: 12px; border: 0.5px solid rgba(73,163,166,0.22); background: var(--main-m1-10); border-radius: 11px; padding: 12px; }
   .kc-refresh-note strong { display: block; font-size: 13.5px; color: var(--text-n9); font-weight: 400; }
   .kc-refresh-note span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 18px; color: var(--text-n5); }
@@ -2744,6 +2761,15 @@ function memoryDraftChanged(draft, saved) {
     || normalizeTemplate(draft.template) !== normalizeTemplate(saved.template)
     || (draft.publishTime != null && saved.publishTime != null && draft.publishTime !== saved.publishTime);
 }
+function digestContentDraftChanged(draft, saved) {
+  return sourceStateChanged(draft.source, saved.source)
+    || draft.language !== saved.language
+    || draft.analysisMode !== saved.analysisMode
+    || normalizeTemplate(draft.template) !== normalizeTemplate(saved.template);
+}
+function publishTimeDraftChanged(draft, saved) {
+  return draft.publishTime != null && saved.publishTime != null && draft.publishTime !== saved.publishTime;
+}
 function digestFilesFrom(lastDigest) {
   if (!lastDigest) return [];
   const date = digestFileDateLabel();
@@ -3009,7 +3035,7 @@ function KolPickerModal({ selectedSource, onChange, onClose }) {
   const removeHandle = (handle) => onChange(makeSourceState(source.handles.filter((h) => h !== handle), source.packs));
   const removePack = (packId) => onChange(makeSourceState(source.handles, source.packs.filter((id) => id !== packId)));
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay report-overlay" onClick={onClose}>
       <div className="modal kol-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-h">
           <div>
@@ -3420,9 +3446,10 @@ function KolDigestModal({ digest, onClose }) {
   );
 }
 
-function KolDigestPreview({ digest, onOpenDigest }) {
+function KolDigestPreview({ digest, onOpenDigest, onOpenAutomation }) {
   if (!digest) return null;
   const copy = KOL_DIGEST_COPY[digest.language] || KOL_DIGEST_COPY.en;
+  const autoLabel = digest.language === 'zh' ? '由 Daily KOL AI digest automation 生成' : 'Generated by Daily KOL AI digest automation';
   return (
     <div className="digest digest-preview">
       <div className="dg-h">
@@ -3444,6 +3471,10 @@ function KolDigestPreview({ digest, onOpenDigest }) {
       </div>
       <div className="dg-foot">
         <button className="dg-open" onClick={() => onOpenDigest(digest)}><Icon name="enter" size={14} /> {digest.language === 'zh' ? '打开完整报告' : 'Open full report'}</button>
+        <button className="dg-automation-link" onClick={onOpenAutomation}>
+          <Icon name="automation" size={13} />
+          <span>{autoLabel}</span>
+        </button>
       </div>
     </div>
   );
@@ -3589,6 +3620,34 @@ function KolConnectModal({ channel, connected, onConnected, onClose }) {
   );
 }
 
+function LoginModal({ onLogin, onClose }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal login-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">Log in to generate your digest</div>
+            <div className="modal-s">KOL selection can happen before login. Automation creation needs an Alva account.</div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
+        </div>
+        <div className="modal-body">
+          <div className="login-body">
+            <div className="login-card">
+              <strong>Continue as Furycom</strong>
+              <span>For this demo, one click signs in and continues the KOL AI Digest onboarding with the selected KOL list.</span>
+            </div>
+            <div className="login-actions">
+              <button className="secondary" onClick={onClose}>Cancel</button>
+              <button className="primary" onClick={onLogin}><Icon name="check" size={14} /> Continue as Furycom</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function KolIMStep({ connectedIMs, onConnected, onComplete }) {
   const options = [
     ['telegram', 'Telegram', 'Connect Telegram bot'],
@@ -3640,7 +3699,7 @@ function KolDoneCard({ connectedIMs }) {
   );
 }
 
-function KolTimelineItem({ item, onOpenDigest }) {
+function KolTimelineItem({ item, onOpenDigest, onOpenAutomation }) {
   if (item.type === 'intro') {
     return <AgentMsg persona="subtle"><KolIntroStep /></AgentMsg>;
   }
@@ -3650,7 +3709,7 @@ function KolTimelineItem({ item, onOpenDigest }) {
   if (item.type === 'digest') {
     return (
       <AgentMsg persona="full" time="now">
-        <KolDigestPreview digest={item.digest} onOpenDigest={onOpenDigest} />
+        <KolDigestPreview digest={item.digest} onOpenDigest={onOpenDigest} onOpenAutomation={onOpenAutomation} />
       </AgentMsg>
     );
   }
@@ -3660,13 +3719,13 @@ function KolTimelineItem({ item, onOpenDigest }) {
   return null;
 }
 
-function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSources, onSelectKols, connectedIMs, onConnectedIM, onboardingDone, onCompleteOnboarding, onGenerate, generating, timeline, lastDigest, onOpenDigest, extra, onGoArtifacts, language, onLanguage, draftLanguage, onDraftLanguage, publishTime, onPublishTime }) {
+function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSources, onSelectKols, connectedIMs, onConnectedIM, onboardingDone, onCompleteOnboarding, onGenerate, generating, timeline, lastDigest, onOpenDigest, onOpenAutomationEditor, extra, onGoArtifacts, language, onLanguage, draftLanguage, onDraftLanguage, publishTime, onPublishTime }) {
   const hasDigest = !!lastDigest;
   const selectedTotal = sourceCount(selectedSource);
   const showSourceStep = !onboardingDone && !selectedTotal;
   return (
     <div className="stage-inner kol-chat" style={{ maxWidth: 760 }}>
-      {timeline.map((item) => <KolTimelineItem item={item} key={item.id} onOpenDigest={onOpenDigest} />)}
+      {timeline.map((item) => <KolTimelineItem item={item} key={item.id} onOpenDigest={onOpenDigest} onOpenAutomation={onOpenAutomationEditor} />)}
 
       {showSourceStep && (
         <AgentMsg persona="subtle">
@@ -3905,12 +3964,26 @@ function KolArtifactFiles({ files, onOpenFile }) {
   );
 }
 
-function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSelectKols, publishTime, draftPublishTime, onDraftPublishTime, draftLanguage, onDraftLanguage, draftAnalysisMode, onDraftAnalysisMode, draftTemplate, onDraftTemplate, onSaveAndGenerate, generating, savedMemory }) {
+function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSelectKols, publishTime, draftPublishTime, onDraftPublishTime, draftLanguage, onDraftLanguage, draftAnalysisMode, onDraftAnalysisMode, draftTemplate, onDraftTemplate, onSaveAutomation, generating, savedMemory }) {
+  const [templateOpen, setTemplateOpen] = useState(false);
+  useEffect(() => {
+    if (open) setTemplateOpen(false);
+  }, [open]);
   if (!open) return null;
   const mode = modeById(draftAnalysisMode);
   const editorPublishTime = draftPublishTime || publishTime;
   const draftMemory = { source: draftSource, language: draftLanguage, analysisMode: draftAnalysisMode, template: draftTemplate, publishTime: editorPublishTime };
   const hasUnsaved = memoryDraftChanged(draftMemory, savedMemory);
+  const contentChanged = digestContentDraftChanged(draftMemory, savedMemory);
+  const timeChanged = publishTimeDraftChanged(draftMemory, savedMemory);
+  const saveAction = contentChanged ? 'preview' : timeChanged ? 'save' : 'none';
+  const saveTitle = saveAction === 'preview'
+    ? 'Save automation changes and generate a new preview.'
+    : 'Save publish time change.';
+  const saveHint = saveAction === 'preview'
+    ? 'KOL list, language, or template changes affect digest content, so Alva will run a preview after saving.'
+    : 'Only the delivery time changed, so the next daily push will use the new time without generating a new preview.';
+  const buttonLabel = generating ? 'Generating...' : saveAction === 'preview' ? 'Save & generate preview' : 'Save';
   return (
     <div className="modal-overlay report-overlay" onClick={onClose}>
       <div className="modal kol-modal" onClick={(e) => e.stopPropagation()}>
@@ -3962,34 +4035,44 @@ function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSele
             <section className="kc-inline-section kc-template">
               <div className="kc-inline-head">
                 <div>
-                  <h3>Analyze mode & Template</h3>
-                  <p>The automation first selects the mode, then uses its template to generate the digest.</p>
+                  <h3>Analyze mode</h3>
+                  <p>Select the analysis mode. Template editing is available as an advanced setting.</p>
                 </div>
                 <select value={draftAnalysisMode} onChange={(e) => onDraftAnalysisMode(e.target.value)}>
                   {KOL_ANALYSIS_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
                 </select>
               </div>
               <div className="kc-inline-body">
-                <div className="kc-head" style={{ marginBottom: 9 }}>
-                  <div>
-                    <h3>{mode.label} template</h3>
-                    <p>{mode.desc}</p>
+                <button className="kc-advanced-toggle" onClick={() => setTemplateOpen((open) => !open)}>
+                  <Icon name={templateOpen ? 'chevdown' : 'edit'} size={14} />
+                  {templateOpen ? 'Hide template' : 'Advanced: edit template'}
+                </button>
+                {templateOpen && (
+                  <div style={{ marginTop: 12 }}>
+                    <div className="kc-head" style={{ marginBottom: 9 }}>
+                      <div>
+                        <h3>{mode.label} template</h3>
+                        <p>{mode.desc}</p>
+                      </div>
+                      <button onClick={() => onDraftTemplate(mode.template)}>Reset</button>
+                    </div>
+                    <textarea value={draftTemplate} onChange={(e) => onDraftTemplate(e.target.value)} />
                   </div>
-                  <button onClick={() => onDraftTemplate(mode.template)}>Reset</button>
-                </div>
-                <textarea value={draftTemplate} onChange={(e) => onDraftTemplate(e.target.value)} />
+                )}
               </div>
             </section>
 
-            <form className="kc-save-bar" onSubmit={(e) => { e.preventDefault(); onSaveAndGenerate(); onClose(); }}>
-              <div>
-                <strong>{hasUnsaved ? 'Save automation changes and generate a new preview.' : 'Generate a test preview from the current automation settings.'}</strong>
-                <span>{hasUnsaved ? 'The next daily push will use these settings after saving.' : 'This keeps the automation settings unchanged and shows the latest preview in Chat.'}</span>
-              </div>
-              <button type="submit" disabled={generating || !sourceCount(draftSource)}>
-                {generating ? 'Generating...' : 'Save & generate preview'}<Icon name="spark" size={15} />
-              </button>
-            </form>
+            {hasUnsaved && (
+              <form className="kc-save-bar" onSubmit={(e) => { e.preventDefault(); onSaveAutomation({ generatePreview: saveAction === 'preview' }); onClose(); }}>
+                <div>
+                  <strong>{saveTitle}</strong>
+                  <span>{saveHint}</span>
+                </div>
+                <button type="submit" disabled={generating || !sourceCount(draftSource)}>
+                  {buttonLabel}{saveAction === 'preview' && <Icon name="spark" size={15} />}
+                </button>
+              </form>
+            )}
             {generating && <div className="kg-loading"><span className="kg-spinner"></span><span>Saving automation settings, reading recent KOL posts, and generating a preview digest.</span></div>}
           </div>
         </div>
@@ -4123,6 +4206,9 @@ function App() {
   const [kolDraftPublishTime, setKolDraftPublishTime] = useState('07:30 ET');
   const [kolOnboardingDone, setKolOnboardingDone] = useState(false);
   const [kolAutomationEditorOpen, setKolAutomationEditorOpen] = useState(false);
+  const [kolLoginOpen, setKolLoginOpen] = useState(false);
+  const [kolLoggedIn, setKolLoggedIn] = useState(false);
+  const [kolPendingGenerate, setKolPendingGenerate] = useState(null);
   const [kolPromptDismissed, setKolPromptDismissed] = useState([]);
   const stageRef = useRef(null);
   const idRef = useRef(0);
@@ -4304,18 +4390,56 @@ function App() {
     if (!sourceCount(kolDraftSource) || kolGenerating) return;
     const nextSource = sourceState(kolDraftSource);
     const nextLanguage = kolDraftLanguage || kolLanguage;
+    const nextSettings = { source: nextSource, language: nextLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolPublishTime };
+    if (!kolLoggedIn) {
+      setKolPendingGenerate(nextSettings);
+      setKolLoginOpen(true);
+      return;
+    }
     setKolSource(nextSource);
     setKolLanguage(nextLanguage);
     pushKolTimeline({ type: 'selected-summary', source: nextSource });
-    runKolGenerate({ source: nextSource, language: nextLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolPublishTime }, { saveMemory: true });
-  }, [kolDraftSource, kolGenerating, pushKolTimeline, runKolGenerate, kolDraftLanguage, kolLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime]);
+    runKolGenerate(nextSettings, { saveMemory: true });
+  }, [kolDraftSource, kolGenerating, pushKolTimeline, runKolGenerate, kolDraftLanguage, kolLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime, kolLoggedIn]);
   const onKolGenerate = useCallback(() => {
     runKolGenerate({ source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime });
   }, [runKolGenerate, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolPublishTime]);
-  const onKolSaveAndGenerate = useCallback(() => {
-    setTab('chat');
-    runKolGenerate({ source: kolDraftSource, language: kolDraftLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolDraftPublishTime }, { saveMemory: true });
-  }, [runKolGenerate, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolDraftPublishTime]);
+  const saveKolAutomationMemory = useCallback((settings) => {
+    const savedSource = sourceState(settings.source);
+    setKolSource(savedSource);
+    setKolDraftSource(savedSource);
+    setKolLanguage(settings.language);
+    setKolDraftLanguage(settings.language);
+    setKolAnalysisMode(settings.analysisMode);
+    setKolDraftAnalysisMode(settings.analysisMode);
+    setKolTemplate(settings.template);
+    setKolDraftTemplate(settings.template);
+    if (settings.publishTime) {
+      setKolPublishTime(settings.publishTime);
+      setKolDraftPublishTime(settings.publishTime);
+    }
+  }, []);
+  const onKolSaveAutomation = useCallback(({ generatePreview = false } = {}) => {
+    const settings = { source: kolDraftSource, language: kolDraftLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolDraftPublishTime };
+    if (generatePreview) {
+      setTab('chat');
+      runKolGenerate(settings, { saveMemory: true });
+      return;
+    }
+    saveKolAutomationMemory(settings);
+  }, [runKolGenerate, saveKolAutomationMemory, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolDraftPublishTime]);
+  const onKolLogin = useCallback(() => {
+    setKolLoggedIn(true);
+    setKolLoginOpen(false);
+    const settings = kolPendingGenerate;
+    setKolPendingGenerate(null);
+    if (settings) {
+      setKolSource(sourceState(settings.source));
+      setKolLanguage(settings.language);
+      pushKolTimeline({ type: 'selected-summary', source: settings.source });
+      runKolGenerate(settings, { saveMemory: true });
+    }
+  }, [kolPendingGenerate, pushKolTimeline, runKolGenerate]);
   const onKolConnectedIM = useCallback((id) => {
     setKolConnectedIMs((prev) => prev.includes(id) ? prev : prev.concat(id));
   }, []);
@@ -4348,7 +4472,7 @@ function App() {
     draftTemplate: kolDraftTemplate,
     onDraftTemplate: setKolDraftTemplate,
     onGenerate: onKolGenerate,
-    onSaveAndGenerate: onKolSaveAndGenerate,
+    onSaveAutomation: onKolSaveAutomation,
     generating: kolGenerating,
     digestRuns: kolDigestRuns,
     timeline: kolTimeline,
@@ -4363,7 +4487,10 @@ function App() {
     onDraftPublishTime: setKolDraftPublishTime,
     onboardingDone: kolOnboardingDone,
     onCompleteOnboarding: onKolCompleteOnboarding,
-    onOpenAutomationEditor: () => setKolAutomationEditorOpen(true),
+    onOpenAutomationEditor: () => {
+      if (kolOnboardingDone) setTab('alerts');
+      setKolAutomationEditorOpen(true);
+    },
   };
 
   const handlers = { onSkill, onPrompt, onCard, onStartTask };
@@ -4431,6 +4558,10 @@ function App() {
           open={kolAutomationEditorOpen}
           onClose={() => setKolAutomationEditorOpen(false)}
           {...kolProps} />
+
+        {kolLoginOpen && <LoginModal
+          onLogin={onKolLogin}
+          onClose={() => setKolLoginOpen(false)} />}
 
         {kolPickerOpen && <KolPickerModal
           selectedSource={kolDraftSource}
