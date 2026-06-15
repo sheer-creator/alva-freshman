@@ -1449,14 +1449,10 @@ const AUTOMATIONS = [
   { id: 'a5', name: 'Earnings-Surprise-Radar', status: 'paused', lastRun: '—', runEvery: 'Every 5 minutes', runs: 142, usedBy: [['maya', 'gas-turbine-supply']] },
 ];
 
-/* Channels — Alva Agent pinned (bot mark), topic channels use #, groups use brand icons */
+/* V1 exposes one user-facing channel. KOL Digest is a specialized onboarding
+   variant inside Alva Agent, not its own channel. */
 const CHANNELS = [
   { id: 'agent', kind: 'agent', cls: 'ch-me', ico: 'agent', label: 'Alva Agent', desc: 'Your always-on investing co-pilot — turn any idea into a live playbook.' },
-  { id: 'kol-digest', kind: 'kol', cls: 'ch-me', ico: 'hash', label: 'KOLs · AI Digest', desc: 'Organizes trusted FinTwit voices into daily and weekly digest reports with reusable analysis templates.' },
-  { id: 'semis', kind: 'topic', cls: 'ch-me', ico: 'hash', label: 'Semis Deep Research', desc: 'A focused workspace for semiconductor research — scoped chat, tasks, and memory.' },
-  { id: 'crypto-macro', kind: 'topic', cls: 'ch-me', ico: 'hash', label: 'Crypto Macro', desc: 'Crypto liquidity, flows, and macro read-through, kept separate from your equity work.' },
-  { id: 'btc-room', kind: 'group', cls: 'ch-tg', ico: 'telegram', label: 'BTC Macro Room', desc: 'BTC macro, ETF flows, and liquidity. Alva is in the room — @ it to run anything.' },
-  { id: 'defi-desk', kind: 'group', cls: 'ch-dc', ico: 'discord', label: 'DeFi Research Desk', desc: 'DeFi yields, L2 market share, and protocol revenue, tracked on-chain by Alva.' },
 ];
 
 /* Recommended KOLs for digest source onboarding */
@@ -1715,12 +1711,11 @@ const KOL_CHANNEL_CONFIG = {
 const KOL_CHANNEL_ARTIFACTS = {
   digest: {
     title: 'Digest automations',
-    desc: 'Runs the multi-KOL digest from your Digest Sources and writes the same output back into this channel.',
+    desc: 'Runs the multi-KOL digest from your Digest Sources and writes the same output back into Alva Agent.',
     automationLabel: 'Digest automations',
     filesLabel: 'Digest files',
     autos: [
       { id: 'ka-daily', cadence: 'daily', name: 'Daily KOL AI digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] },
-      { id: 'ka-weekly', cadence: 'weekly', name: 'Weekly KOL AI digest', status: 'active', lastRun: 'Sun', runEvery: 'Weekly · Sunday', runs: 18, usedBy: [] },
     ],
     files: [],
   },
@@ -2488,18 +2483,14 @@ function kolPromptAnswer(text, lastDigest) {
 /* ===================== Workspace tab bar + panels ===================== */
 const TABS = [
   { id: 'chat', label: 'Chat', icon: 'chat' },
-  { id: 'tasks', label: 'Tasks', icon: 'tasks', count: TASKS.length },
   { id: 'memory', label: 'Memory', icon: 'layers' },
-  { id: 'skills', label: 'Skills', icon: 'skill', count: SKILLS.length },
+  { id: 'alerts', label: 'Alerts', icon: 'alert' },
   { id: 'artifacts', label: 'Artifacts', icon: 'file', count: PLAYBOOKS.length + AUTOMATIONS.length + ARTIFACTS.length },
 ];
 
-function TabBar({ tab, onTab, channelKind, kolArtifactCount = 0, kolOnboardingDone = false }) {
-  const tabs = channelKind === 'kol'
-    ? TABS
-      .filter((t) => t.id === 'chat' || (kolOnboardingDone && (t.id === 'memory' || t.id === 'artifacts')))
-      .map((t) => t.id === 'artifacts' ? { ...t, count: kolArtifactCount } : t)
-    : TABS;
+function TabBar({ tab, onTab, kolArtifactCount = 0, kolOnboardingDone = false }) {
+  if (!kolOnboardingDone) return null;
+  const tabs = TABS.map((t) => t.id === 'artifacts' ? { ...t, count: kolArtifactCount } : t);
   return (
     <div className="tabbar">
       {tabs.map((t) => (
@@ -2750,7 +2741,8 @@ function memoryDraftChanged(draft, saved) {
   return sourceStateChanged(draft.source, saved.source)
     || draft.language !== saved.language
     || draft.analysisMode !== saved.analysisMode
-    || normalizeTemplate(draft.template) !== normalizeTemplate(saved.template);
+    || normalizeTemplate(draft.template) !== normalizeTemplate(saved.template)
+    || (draft.publishTime != null && saved.publishTime != null && draft.publishTime !== saved.publishTime);
 }
 function digestFilesFrom(lastDigest) {
   if (!lastDigest) return [];
@@ -3085,13 +3077,12 @@ function KolMemoryPanel({ draftSource, onSelectKols, draftLanguage, onDraftLangu
   const selectedCount = sourceCount(draftSource);
   const draftMemory = { source: draftSource, language: draftLanguage, analysisMode: draftAnalysisMode, template: draftTemplate };
   const hasUnsaved = memoryDraftChanged(draftMemory, savedMemory);
-  const mode = modeById(draftAnalysisMode);
   const sourceChanged = !!lastDigest && sourceStateChanged(draftSource, lastDigest.source || { handles: lastDigest.selectedHandles || [] });
   return (
     <div className="panel kol-memory">
       <div className="panel-head">
         <h2>KOL Digest Memory</h2>
-        <p>Everything Alva needs to remember for this digest channel: selected KOLs, output preferences, and advanced template settings.</p>
+        <p>The KOL list Alva remembers for this specialized onboarding. Add or remove sources here; Alert settings control language, schedule, and template.</p>
       </div>
 
       <div className="kc-stack">
@@ -3099,47 +3090,12 @@ function KolMemoryPanel({ draftSource, onSelectKols, draftLanguage, onDraftLangu
           <div className="kc-inline-head">
             <div>
               <h3>Digest Sources</h3>
-              <p>KOLs used for the multi-voice daily and weekly digest.</p>
+              <p>KOLs used for the multi-voice daily digest.</p>
             </div>
             <button onClick={onSelectKols}>Edit</button>
           </div>
           <div className="kc-inline-body">
-            {selectedCount ? <KolSourceSummary source={draftSource} /> : <div className="empty-note">No KOLs selected yet. Use Edit to choose the voices this channel should read.</div>}
-          </div>
-        </section>
-
-        <section className="kc-inline-section">
-          <div className="kc-inline-head">
-            <div>
-              <h3>Language</h3>
-              <p>Used for generated digest copy.</p>
-            </div>
-            <select value={draftLanguage} onChange={(e) => onDraftLanguage(e.target.value)}>
-              <option value="en">English</option>
-              <option value="zh">中文</option>
-            </select>
-          </div>
-        </section>
-
-        <section className="kc-inline-section kc-template">
-          <div className="kc-inline-head">
-            <div>
-              <h3>Analyze mode & Template</h3>
-              <p>Choose an analysis mode, then review or edit the template used by that mode.</p>
-            </div>
-            <select value={draftAnalysisMode} onChange={(e) => onDraftAnalysisMode(e.target.value)}>
-              {KOL_ANALYSIS_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
-            </select>
-          </div>
-          <div className="kc-inline-body">
-            <div className="kc-head" style={{ marginBottom: 9 }}>
-              <div>
-                <h3>{mode.label} template</h3>
-                <p>{mode.desc}</p>
-              </div>
-              <button onClick={() => onDraftTemplate(mode.template)}>Reset</button>
-            </div>
-            <textarea value={draftTemplate} onChange={(e) => onDraftTemplate(e.target.value)} />
+            {selectedCount ? <KolSourceSummary source={draftSource} /> : <div className="empty-note">No KOLs selected yet. Use Edit to choose the voices this digest should read.</div>}
           </div>
         </section>
 
@@ -3147,7 +3103,7 @@ function KolMemoryPanel({ draftSource, onSelectKols, draftLanguage, onDraftLangu
           <form className="kc-save-bar" onSubmit={(e) => { e.preventDefault(); onSaveAndGenerate(); }}>
             <div>
               <strong>{hasUnsaved ? 'Save changes and generate a new sample.' : 'Generate a sample from the current memory.'}</strong>
-              <span>{hasUnsaved ? 'Future pushes will use the saved settings. Alva will run a test preview and return to Chat.' : 'Run a recent-day preview so you can see this channel output.'}</span>
+              <span>{hasUnsaved ? 'Future pushes will use the saved settings. Alva will run a test preview and return to Chat.' : 'Run a recent-day preview so you can see this digest output.'}</span>
             </div>
             <button type="submit" disabled={!selectedCount || generating || (!hasUnsaved && !!lastDigest)}>
               {generating ? 'Generating...' : 'Save & generate sample'}<Icon name="spark" size={15} />
@@ -3484,7 +3440,7 @@ function KolIntroStep() {
   return (
     <div className="kol-intro-card">
       <p className="lead">Build your personal KOL AI Digest.</p>
-      <p className="sub">Choose the traders and analysts Alva should read. I’ll merge their latest views into a daily or weekly report with an overall market read, hot tickers, KOL direction, source links, and follow-up questions you can ask.</p>
+      <p className="sub">Choose the traders and analysts Alva should read. I’ll create your Daily KOL AI Digest automation, run it once on the last 24 hours of real KOL data, and send the sample to your connected social accounts.</p>
     </div>
   );
 }
@@ -3545,7 +3501,7 @@ function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfi
         <SourceSelectionList source={source} onToggleHandle={toggle} onTogglePack={togglePackage} />
       </div>
       <div className="onboard-actions source-footer">
-        <button className="onboard-primary" disabled={!selectedTotal} onClick={onConfirm}>Continue with {selectedTotal || 0} KOLs<Icon name="check" size={15} /></button>
+        <button className="onboard-primary" disabled={!selectedTotal} onClick={onConfirm}>Generate digest with {selectedTotal || 0} KOLs<Icon name="spark" size={15} /></button>
       </div>
     </div>
   );
@@ -3555,49 +3511,9 @@ function KolSelectedSummary({ source }) {
   const count = sourceCount(source);
   return (
     <div className="onboard-card compact">
-      <div className="onboard-title">Digest sources saved.</div>
-      <div className="onboard-sub">Alva will use this KOL list for the first sample. You can edit it later in Memory.</div>
+      <div className="onboard-title">Daily digest automation created.</div>
+      <div className="onboard-sub">Alva saved this KOL list, created your Daily KOL AI Digest automation, and is running it once on the last 24 hours of real KOL data.</div>
       <div className="selected-strip"><KolSourceSummary source={source} /></div>
-    </div>
-  );
-}
-
-function KolCadenceSummary({ cadence }) {
-  const label = cadenceLabelFrom(cadence);
-  return (
-    <div className="onboard-card compact">
-      <div className="onboard-title">{label} digest selected.</div>
-      <div className="onboard-sub">Alva will generate the first sample from the saved KOL list now.</div>
-    </div>
-  );
-}
-
-function KolCadenceStep({ cadence, onCadence, onGenerate, generating }) {
-  const options = [
-    ['daily', 'Daily digest', 'Every market day'],
-    ['weekly', 'Weekly digest', 'One weekly recap'],
-  ];
-  const selectedItems = cadenceItemsFrom(cadence);
-  const toggleCadence = (id) => {
-    const has = selectedItems.includes(id);
-    const next = has ? selectedItems.filter((item) => item !== id) : selectedItems.concat(id);
-    if (next.length) onCadence(next);
-  };
-  return (
-    <div className="onboard-card">
-      <div className="onboard-title">How often should Alva prepare this digest?</div>
-      <div className="onboard-sub">Daily and Weekly are selected by default. Keep both, or turn off one cadence before generating the sample.</div>
-      <div className="cadence-grid">
-        {options.map(([id, title, sub]) => (
-          <button className={`choice-card ${selectedItems.includes(id) ? 'active' : ''}`} key={id} onClick={() => toggleCadence(id)}>
-            <span className="choice-top"><strong>{title}</strong><span className="choice-check"><Icon name="check" size={12} /></span></span>
-            <span>{sub}</span>
-          </button>
-        ))}
-      </div>
-      <div className="onboard-actions">
-        <button className="onboard-primary" disabled={generating || !selectedItems.length} onClick={onGenerate}>Generate digest<Icon name="spark" size={15} /></button>
-      </div>
     </div>
   );
 }
@@ -3639,65 +3555,93 @@ function KolConnectModal({ channel, connected, onConnected, onClose }) {
   );
 }
 
-function KolIMStep({ selectedIM, onSelectIM, connectedIM, onConnected, onComplete }) {
+function KolIMStep({ connectedIMs, onConnected, onSampleSent }) {
   const options = [
     ['telegram', 'Telegram', 'Connect Telegram bot'],
     ['discord', 'Discord', 'Authorize Discord app'],
     ['whatsapp', 'WhatsApp', 'Connect WhatsApp alerts'],
   ];
   const [connectOpen, setConnectOpen] = useState(null);
-  const [sendState, setSendState] = useState({});
-  const trySend = (id) => {
-    onSelectIM(id);
-    setSendState((prev) => ({ ...prev, [id]: 'sending' }));
+  const [sendState, setSendState] = useState('idle');
+  const connected = connectedIMs || [];
+  const connectedLabels = options.filter(([id]) => connected.includes(id)).map(([, title]) => title);
+  const sendLabel = connectedLabels.join(', ');
+  const trySend = () => {
+    if (!connected.length) return;
+    setSendState('sending');
     setTimeout(() => {
-      setSendState((prev) => ({ ...prev, [id]: 'sent' }));
-      onConnected(id);
-      onComplete(id);
+      setSendState('sent');
+      onSampleSent(connected);
     }, 850);
   };
-  const connectedLabel = connectedIM === 'discord' ? 'Discord' : connectedIM === 'whatsapp' ? 'WhatsApp' : 'Telegram';
   return (
     <div className="onboard-card">
-      <div className="onboard-title">Where should Alva send future alerts?</div>
-      <div className="onboard-sub">Connect one destination first. Once connected, send yourself this sample digest to complete setup.</div>
+      <div className="onboard-title">Send the sample to your social accounts.</div>
+      <div className="onboard-sub">Connect at least one account. If you connect more than one, Alva sends this sample digest to all connected destinations.</div>
       <div className="im-grid">
         {options.map(([id, title, sub]) => {
-          const connected = connectedIM === id;
+          const isConnected = connected.includes(id);
           return (
-            <div className={`im-card ${selectedIM === id ? 'active' : ''} ${connected ? 'connected' : ''}`} key={id}>
-              <button className="im-main" onClick={() => { onSelectIM(id); setConnectOpen(id); }}>
+            <div className={`im-card ${isConnected ? 'active connected' : ''}`} key={id}>
+              <button className="im-main" onClick={() => setConnectOpen(id)}>
                 <span className="im-icon" style={{ color: id === 'telegram' ? '#2f7fc4' : id === 'discord' ? '#6f55c9' : '#2d8f61', background: id === 'telegram' ? 'rgba(109,189,255,0.14)' : id === 'discord' ? 'rgba(166,141,255,0.14)' : 'rgba(45,143,97,0.12)' }}><Icon name={id} size={17} /></span>
                 <span>
                   <span className="im-name">{title}</span>
-                  <span className="im-sub">{connected ? 'Connected successfully' : sub}</span>
+                  <span className="im-sub">{isConnected ? 'Connected successfully' : sub}</span>
                 </span>
               </button>
-              {connected && <span className="im-success"><Icon name="check" size={12} /> Success</span>}
+              {isConnected && <span className="im-success"><Icon name="check" size={12} /> Success</span>}
             </div>
           );
         })}
       </div>
-      {connectedIM && (
+      {connected.length > 0 && (
         <div className="onboard-actions">
-          <button className="onboard-primary" disabled={sendState[connectedIM] === 'sending'} onClick={() => trySend(connectedIM)}>
-            <Icon name={sendState[connectedIM] === 'sending' ? 'send2' : connectedIM} size={15} />
-            {sendState[connectedIM] === 'sending' ? `Sending sample to ${connectedLabel}` : `Send sample to ${connectedLabel}`}
+          <button className="onboard-primary" disabled={sendState === 'sending'} onClick={trySend}>
+            <Icon name="send2" size={15} />
+            {sendState === 'sending' ? `Sending sample to ${sendLabel}` : `Send sample to ${sendLabel}`}
           </button>
         </div>
       )}
-      {connectOpen && <KolConnectModal channel={connectOpen} connected={connectedIM === connectOpen} onConnected={() => onConnected(connectOpen)} onClose={() => setConnectOpen(null)} />}
+      {sendState === 'sent' && <div className="im-status ready">Sample delivered. Choose your daily settings to finish setup.</div>}
+      {connectOpen && <KolConnectModal channel={connectOpen} connected={connected.includes(connectOpen)} onConnected={() => onConnected(connectOpen)} onClose={() => setConnectOpen(null)} />}
     </div>
   );
 }
 
-function KolDoneCard({ selectedIM }) {
-  const label = selectedIM === 'discord' ? 'Discord' : selectedIM === 'whatsapp' ? 'WhatsApp' : 'Telegram';
+function KolPublishSettingsStep({ language, onLanguage, publishTime, onPublishTime, onComplete }) {
+  return (
+    <div className="onboard-card">
+      <div className="onboard-title">Choose your daily delivery settings.</div>
+      <div className="onboard-sub">Alva will use these settings for the Daily KOL AI Digest automation. You can edit them later in Alerts.</div>
+      <div className="cadence-grid">
+        <label className="choice-card active">
+          <span className="choice-top"><strong>Publish time</strong><span className="choice-check"><Icon name="clock" size={12} /></span></span>
+          <input value={publishTime} onChange={(e) => onPublishTime(e.target.value)} style={{ marginTop: 12, width: '100%', border: '1px solid var(--line-l12)', borderRadius: 6, padding: '9px 10px', fontFamily: 'inherit' }} />
+        </label>
+        <label className="choice-card active">
+          <span className="choice-top"><strong>Language</strong><span className="choice-check"><Icon name="check" size={12} /></span></span>
+          <select value={language} onChange={(e) => onLanguage(e.target.value)} style={{ marginTop: 12, width: '100%', border: '1px solid var(--line-l12)', borderRadius: 6, padding: '9px 10px', fontFamily: 'inherit', background: '#fff' }}>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </label>
+      </div>
+      <div className="onboard-actions">
+        <button className="onboard-primary" onClick={onComplete}>Confirm and finish setup<Icon name="check" size={15} /></button>
+      </div>
+    </div>
+  );
+}
+
+function KolDoneCard({ connectedIMs }) {
+  const labelMap = { telegram: 'Telegram', discord: 'Discord', whatsapp: 'WhatsApp' };
+  const label = (connectedIMs || []).map((id) => labelMap[id] || id).join(', ') || 'your connected accounts';
   return (
     <div className="onboard-card compact done-card">
       <span className="done-mark"><Icon name="check" size={16} /></span>
       <div className="onboard-title">KOL AI Digest is ready.</div>
-      <div className="onboard-sub">Alva will keep this channel updated and send future alerts to {label}. Use the prompts below to dig into the latest report, compare KOL views, or surface new opportunities.</div>
+      <div className="onboard-sub">Your Daily KOL AI Digest is active and will be sent to {label}. You can edit the KOL list in Memory, change template or language in Alerts, and use the prompts below to dig into the latest report.</div>
     </div>
   );
 }
@@ -3709,9 +3653,6 @@ function KolTimelineItem({ item, onOpenDigest }) {
   if (item.type === 'selected-summary') {
     return <AgentMsg persona="subtle"><KolSelectedSummary source={item.source || { handles: item.handles || [], packs: [] }} /></AgentMsg>;
   }
-  if (item.type === 'cadence-summary') {
-    return <AgentMsg persona="subtle"><KolCadenceSummary cadence={item.cadence} /></AgentMsg>;
-  }
   if (item.type === 'digest') {
     return (
       <AgentMsg persona="full" time="now">
@@ -3720,16 +3661,15 @@ function KolTimelineItem({ item, onOpenDigest }) {
     );
   }
   if (item.type === 'done') {
-    return <AgentMsg persona="subtle"><KolDoneCard selectedIM={item.selectedIM} /></AgentMsg>;
+    return <AgentMsg persona="subtle"><KolDoneCard connectedIMs={item.connectedIMs} /></AgentMsg>;
   }
   return null;
 }
 
-function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSources, onSelectKols, cadence, onCadence, selectedIM, onSelectIM, connectedIM, onConnectedIM, onboardingDone, onCompleteOnboarding, onGenerate, generating, timeline, lastDigest, onOpenDigest, extra, onGoArtifacts }) {
+function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSources, onSelectKols, connectedIMs, onConnectedIM, sampleSent, onSampleSent, onboardingDone, onCompleteOnboarding, onGenerate, generating, timeline, lastDigest, onOpenDigest, extra, onGoArtifacts, language, onLanguage, publishTime, onPublishTime }) {
   const hasDigest = !!lastDigest;
   const selectedTotal = sourceCount(selectedSource);
   const showSourceStep = !onboardingDone && !selectedTotal;
-  const showCadenceStep = !onboardingDone && selectedTotal > 0 && !hasDigest && !generating;
   return (
     <div className="stage-inner kol-chat" style={{ maxWidth: 760 }}>
       {timeline.map((item) => <KolTimelineItem item={item} key={item.id} onOpenDigest={onOpenDigest} />)}
@@ -3741,19 +3681,19 @@ function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSo
         </AgentMsg>
       )}
 
-      {showCadenceStep && (
+      {generating && (
+        <AgentMsg persona="subtle"><div className="kg-loading"><span className="kg-spinner"></span><span>Creating your Daily KOL AI Digest automation, reading the last 24 hours of selected KOL posts, and preparing Hot Tickers.</span></div></AgentMsg>
+      )}
+
+      {hasDigest && !sampleSent && !onboardingDone && (
         <AgentMsg persona="subtle">
-          <KolCadenceStep cadence={cadence} onCadence={onCadence} onGenerate={onGenerate} generating={generating} />
+          <KolIMStep connectedIMs={connectedIMs} onConnected={onConnectedIM} onSampleSent={onSampleSent} />
         </AgentMsg>
       )}
 
-      {generating && (
-        <AgentMsg persona="subtle"><div className="kg-loading"><span className="kg-spinner"></span><span>Reading selected KOLs, merging viewpoints, and preparing Hot Tickers.</span></div></AgentMsg>
-      )}
-
-      {hasDigest && !onboardingDone && (
+      {hasDigest && sampleSent && !onboardingDone && (
         <AgentMsg persona="subtle">
-          <KolIMStep selectedIM={selectedIM} onSelectIM={onSelectIM} connectedIM={connectedIM} onConnected={onConnectedIM} onComplete={onCompleteOnboarding} />
+          <KolPublishSettingsStep language={language} onLanguage={onLanguage} publishTime={publishTime} onPublishTime={onPublishTime} onComplete={onCompleteOnboarding} />
         </AgentMsg>
       )}
 
@@ -3976,6 +3916,78 @@ function KolArtifactFiles({ files, onOpenFile }) {
   );
 }
 
+function KolAlertsPanel({ publishTime, onPublishTime, draftLanguage, onDraftLanguage, draftAnalysisMode, onDraftAnalysisMode, draftTemplate, onDraftTemplate, onSaveAndGenerate, generating, lastDigest, savedMemory }) {
+  const mode = modeById(draftAnalysisMode);
+  const draftMemory = { source: savedMemory.source, language: draftLanguage, analysisMode: draftAnalysisMode, template: draftTemplate, publishTime };
+  const hasUnsaved = memoryDraftChanged(draftMemory, savedMemory);
+  return (
+    <div className="panel kol-memory">
+      <div className="panel-head">
+        <h2>Daily KOL AI Digest Alert</h2>
+        <p>Settings for the daily automation created during KOL Digest onboarding. Changes are saved here, then Alva runs a sample so the user can preview the next push.</p>
+      </div>
+
+      <div className="kc-stack">
+        <section className="kc-inline-section">
+          <div className="kc-inline-head">
+            <div>
+              <h3>Publish time</h3>
+              <p>When Alva should prepare and send the Daily KOL AI Digest.</p>
+            </div>
+            <input value={publishTime} onChange={(e) => onPublishTime(e.target.value)} style={{ minWidth: 150, border: '0.5px solid var(--line-l12)', borderRadius: 9, background: '#fff', outline: 'none', fontSize: 13, color: 'var(--text-n9)', padding: '8px 10px' }} />
+          </div>
+        </section>
+
+        <section className="kc-inline-section">
+          <div className="kc-inline-head">
+            <div>
+              <h3>Language</h3>
+              <p>Language for future digest pushes and regenerated samples.</p>
+            </div>
+            <select value={draftLanguage} onChange={(e) => onDraftLanguage(e.target.value)}>
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+            </select>
+          </div>
+        </section>
+
+        <section className="kc-inline-section kc-template">
+          <div className="kc-inline-head">
+            <div>
+              <h3>Analyze mode & Template</h3>
+              <p>The automation first selects the mode, then uses its template to generate the digest.</p>
+            </div>
+            <select value={draftAnalysisMode} onChange={(e) => onDraftAnalysisMode(e.target.value)}>
+              {KOL_ANALYSIS_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+            </select>
+          </div>
+          <div className="kc-inline-body">
+            <div className="kc-head" style={{ marginBottom: 9 }}>
+              <div>
+                <h3>{mode.label} template</h3>
+                <p>{mode.desc}</p>
+              </div>
+              <button onClick={() => onDraftTemplate(mode.template)}>Reset</button>
+            </div>
+            <textarea value={draftTemplate} onChange={(e) => onDraftTemplate(e.target.value)} />
+          </div>
+        </section>
+
+        <form className="kc-save-bar" onSubmit={(e) => { e.preventDefault(); onSaveAndGenerate(); }}>
+          <div>
+            <strong>{hasUnsaved ? 'Save alert changes and generate a new sample.' : 'Generate a test sample from the current alert settings.'}</strong>
+            <span>{hasUnsaved ? 'The next daily push will use these settings after saving.' : 'This keeps the automation settings unchanged and shows the latest preview in Chat.'}</span>
+          </div>
+          <button type="submit" disabled={generating}>
+            {generating ? 'Generating...' : 'Save & generate sample'}<Icon name="spark" size={15} />
+          </button>
+        </form>
+        {generating && <div className="kg-loading"><span className="kg-spinner"></span><span>Saving Alert settings, reading recent KOL posts, and generating a sample digest.</span></div>}
+      </div>
+    </div>
+  );
+}
+
 function KolArtifactsPanel({ digestRuns, onOpenDigest }) {
   const [seg, setSeg] = useState('automations');
   const digest = KOL_CHANNEL_ARTIFACTS.digest;
@@ -3989,8 +4001,8 @@ function KolArtifactsPanel({ digestRuns, onOpenDigest }) {
   return (
     <div className="panel">
       <div className="panel-head">
-        <h2>KOL channel artifacts</h2>
-        <p>Automations and generated digest files for this channel. Artifacts appear after the first generated report.</p>
+        <h2>Daily KOL AI Digest</h2>
+        <p>Artifacts created by the KOL Digest onboarding: the active daily automation and every generated digest file.</p>
       </div>
       <div className="panel-bar">
         <div className="seg">
@@ -4002,13 +4014,13 @@ function KolArtifactsPanel({ digestRuns, onOpenDigest }) {
       {seg === 'automations' && (
         <div className="ka-bucket">
           {hasDigestArtifacts ? (
-            <KolArtifactSubsection title="Digest automations" desc="Scheduled daily and weekly digest generation for the current KOL list. Add more time windows here when they are supported.">
+            <KolArtifactSubsection title="Daily digest automation" desc="Scheduled daily digest generation for the current KOL list. Alert settings control schedule, language, and template.">
               <AutomationRows items={digest.autos} />
             </KolArtifactSubsection>
           ) : (
             <div className="artifact-empty">
-              <h3>No automations yet</h3>
-              <p>This demo does not create scheduled automation until the user has selected KOLs and generated a digest preview.</p>
+              <h3>No automation yet</h3>
+              <p>The Daily KOL AI Digest automation appears after the user selects KOLs and generates the first digest.</p>
             </div>
           )}
         </div>
@@ -4017,7 +4029,7 @@ function KolArtifactsPanel({ digestRuns, onOpenDigest }) {
       {seg === 'files' && (
         <div className="ka-bucket">
           {hasDigestArtifacts ? (
-            <KolArtifactSubsection title="Digest history files" desc="Each generated daily or weekly digest is saved with a readable date-based filename.">
+            <KolArtifactSubsection title="Digest history files" desc="Each generated daily digest is saved with a readable date-based filename.">
               <KolArtifactFiles files={files} onOpenFile={(file) => onOpenDigest(file.digest)} />
             </KolArtifactSubsection>
           ) : (
@@ -4074,7 +4086,8 @@ const CONCEPTS = [
 ];
 
 function App() {
-  const [channel, setChannel] = useState('kol-digest');
+  const [channel, setChannel] = useState('agent');
+  const [kolSpecialOnboarding, setKolSpecialOnboarding] = useState(true);
   const [concept, setConcept] = useState('A');
   const [tab, setTab] = useState('chat');
   const [extra, setExtra] = useState([]); // appended interaction messages
@@ -4090,10 +4103,10 @@ function App() {
   const [kolGenerating, setKolGenerating] = useState(false);
   const [kolDigestRuns, setKolDigestRuns] = useState([]);
   const [kolTimeline, setKolTimeline] = useState([]);
-  const [kolCadence, setKolCadence] = useState(['daily', 'weekly']);
   const [kolOpenDigest, setKolOpenDigest] = useState(null);
-  const [kolSelectedIM, setKolSelectedIM] = useState('');
-  const [kolConnectedIM, setKolConnectedIM] = useState('');
+  const [kolConnectedIMs, setKolConnectedIMs] = useState([]);
+  const [kolSampleSent, setKolSampleSent] = useState(false);
+  const [kolPublishTime, setKolPublishTime] = useState('07:30 ET');
   const [kolOnboardingDone, setKolOnboardingDone] = useState(false);
   const [kolPromptDismissed, setKolPromptDismissed] = useState([]);
   const stageRef = useRef(null);
@@ -4115,14 +4128,14 @@ function App() {
     }
   }, [extra]);
   useEffect(() => {
-    if (cur.kind === 'kol' && tab === 'chat' && stageRef.current) {
+    if ((kolSpecialOnboarding || kolDigest) && tab === 'chat' && stageRef.current) {
       const el = stageRef.current;
       requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
     }
-  }, [cur.kind, tab, sourceCount(kolSource), kolDigest, kolOnboardingDone, kolTimeline.length]);
+  }, [kolSpecialOnboarding, tab, sourceCount(kolSource), kolDigest, kolOnboardingDone, kolTimeline.length]);
   useEffect(() => {
-    if (cur.kind === 'kol' && !kolOnboardingDone && tab !== 'chat') setTab('chat');
-  }, [cur.kind, kolOnboardingDone, tab]);
+    if (kolSpecialOnboarding && !kolOnboardingDone && tab !== 'chat') setTab('chat');
+  }, [kolSpecialOnboarding, kolOnboardingDone, tab]);
 
   const respond = useCallback((userText, reply) => {
     setTab('chat');
@@ -4148,7 +4161,7 @@ function App() {
     respond(`Open “${p.title}”`, { kind: 'building', title: `Opening ${p.title}`, sub: `Loading the latest run from ${p.creator}. You can remix it once it's ready.` });
   }, [respond]);
   const onSend = useCallback((text) => {
-    if (cur.kind === 'kol' && kolDigest) {
+    if (kolDigest) {
       const latest = kolDigest.items[kolDigest.items.length - 1];
       const basePrompt = normalizeKolPrompt(text, latest);
       if (basePrompt) {
@@ -4158,7 +4171,7 @@ function App() {
       return;
     }
     respond(text, { kind: 'building', title: 'On it', sub: 'Researching, then building a playbook you can run and tweak.' });
-  }, [respond, respondPlain, cur.kind, kolDigest]);
+  }, [respond, respondPlain, kolDigest]);
 
   // Clicking a skill (or its suggested prompt / CTA) starts a new Task, shaped by skill.kind
   const onStartTask = useCallback((skill) => {
@@ -4178,16 +4191,11 @@ function App() {
   const pushKolTimeline = useCallback((item) => {
     setKolTimeline((prev) => prev.concat({ id: `${Date.now()}-${prev.length}-${Math.random().toString(36).slice(2, 7)}`, ...item }));
   }, []);
-  const onKolConfirmSources = useCallback(() => {
-    if (!sourceCount(kolDraftSource)) return;
-    setKolSource(sourceState(kolDraftSource));
-    pushKolTimeline({ type: 'selected-summary', source: sourceState(kolDraftSource) });
-  }, [kolDraftSource, pushKolTimeline]);
   const buildKolDigest = useCallback((settings) => {
     const mode = modeById(settings.analysisMode);
-    const cadenceItems = cadenceItemsFrom(kolCadence);
+    const cadenceItems = ['daily'];
     const isZh = settings.language === 'zh';
-    const cadenceLabel = cadenceLabelFrom(kolCadence, isZh);
+    const cadenceLabel = cadenceLabelFrom(cadenceItems, isZh);
     const modeLabelsZh = {
       market_digest: '市场综述',
       idea_scout: '投资标的建议',
@@ -4241,7 +4249,7 @@ function App() {
       template: settings.template,
       items,
     };
-  }, [kolCadence]);
+  }, []);
   const runKolGenerate = useCallback((settings, { saveMemory = false } = {}) => {
     if (!sourceCount(settings.source) || kolGenerating) return;
     setTab('chat');
@@ -4254,6 +4262,7 @@ function App() {
           setKolLanguage(settings.language);
           setKolAnalysisMode(settings.analysisMode);
           setKolTemplate(settings.template);
+          if (settings.publishTime) setKolPublishTime(settings.publishTime);
         }
         setKolPromptDismissed([]);
         setKolDigestRuns((prev) => prev.concat(digest));
@@ -4268,22 +4277,46 @@ function App() {
       }
     }, 2600);
   }, [kolGenerating, buildKolDigest]);
+  const onKolConfirmSources = useCallback(() => {
+    if (!sourceCount(kolDraftSource) || kolGenerating) return;
+    const nextSource = sourceState(kolDraftSource);
+    setKolSource(nextSource);
+    setKolLanguage('en');
+    pushKolTimeline({ type: 'selected-summary', source: nextSource });
+    runKolGenerate({ source: nextSource, language: 'en', analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime }, { saveMemory: true });
+  }, [kolDraftSource, kolGenerating, pushKolTimeline, runKolGenerate, kolAnalysisMode, kolTemplate, kolPublishTime]);
   const onKolGenerate = useCallback(() => {
-    if (!kolDigest) pushKolTimeline({ type: 'cadence-summary', cadence: cadenceItemsFrom(kolCadence) });
-    runKolGenerate({ source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate });
-  }, [runKolGenerate, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolDigest, pushKolTimeline, kolCadence]);
+    runKolGenerate({ source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime });
+  }, [runKolGenerate, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolPublishTime]);
   const onKolSaveAndGenerate = useCallback(() => {
     setTab('chat');
-    runKolGenerate({ source: kolDraftSource, language: kolDraftLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate }, { saveMemory: true });
-  }, [runKolGenerate, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate]);
+    runKolGenerate({ source: kolDraftSource, language: kolDraftLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolPublishTime }, { saveMemory: true });
+  }, [runKolGenerate, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime]);
+  const onKolConnectedIM = useCallback((id) => {
+    setKolConnectedIMs((prev) => prev.includes(id) ? prev : prev.concat(id));
+  }, []);
+  const onKolSampleSent = useCallback(() => {
+    setKolSampleSent(true);
+  }, []);
+  const onKolPublishLanguage = useCallback((language) => {
+    setKolLanguage(language);
+    setKolDraftLanguage(language);
+  }, []);
+  const onKolCompleteOnboarding = useCallback(() => {
+    setKolOnboardingDone(true);
+    setKolSpecialOnboarding(false);
+    setTab('chat');
+    pushKolTimeline({ type: 'done', connectedIMs: kolConnectedIMs.slice() });
+  }, [kolConnectedIMs, pushKolTimeline]);
   const kolProps = {
     selectedSource: kolSource,
     draftSource: kolDraftSource,
     onDraftSource: setKolDraftSource,
     onConfirmSources: onKolConfirmSources,
     onSelectKols: () => setKolPickerOpen(true),
-    savedMemory: { source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate },
+    savedMemory: { source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime },
     language: kolLanguage,
+    onLanguage: onKolPublishLanguage,
     draftLanguage: kolDraftLanguage,
     onDraftLanguage: setKolDraftLanguage,
     analysisMode: kolAnalysisMode,
@@ -4300,18 +4333,14 @@ function App() {
     lastDigest: kolDigest,
     openDigest: kolOpenDigest,
     onOpenDigest: setKolOpenDigest,
-    cadence: kolCadence,
-    onCadence: setKolCadence,
-    selectedIM: kolSelectedIM,
-    onSelectIM: setKolSelectedIM,
-    connectedIM: kolConnectedIM,
-    onConnectedIM: setKolConnectedIM,
+    connectedIMs: kolConnectedIMs,
+    onConnectedIM: onKolConnectedIM,
+    sampleSent: kolSampleSent,
+    onSampleSent: onKolSampleSent,
+    publishTime: kolPublishTime,
+    onPublishTime: setKolPublishTime,
     onboardingDone: kolOnboardingDone,
-    onCompleteOnboarding: (channelId = 'telegram') => {
-      setKolSelectedIM(channelId);
-      setKolOnboardingDone(true);
-      pushKolTimeline({ type: 'done', selectedIM: channelId });
-    },
+    onCompleteOnboarding: onKolCompleteOnboarding,
   };
 
   const handlers = { onSkill, onPrompt, onCard, onStartTask };
@@ -4337,7 +4366,7 @@ function App() {
             </div>
           </div>
           <div className="topbar-right">
-            {isAgent && (
+            {isAgent && kolOnboardingDone && (
               <div className="switcher">
                 {CONCEPTS.map((c) => (
                   <button key={c.id} className={concept === c.id ? 'active' : ''} onClick={() => switchConcept(c.id)}>
@@ -4354,15 +4383,16 @@ function App() {
         </div>
         {membersOpen && <MembersModal channel={cur} roster={roster} onClose={() => setMembersOpen(false)} />}
 
-        <TabBar tab={tab} onTab={setTab} channelKind={cur.kind} kolOnboardingDone={kolOnboardingDone} kolArtifactCount={kolDigest ? KOL_CHANNEL_ARTIFACTS.digest.autos.length + digestHistoryFilesFrom(kolDigestRuns).length : 0} />
+        <TabBar tab={tab} onTab={setTab} kolOnboardingDone={kolOnboardingDone} kolArtifactCount={kolDigest ? KOL_CHANNEL_ARTIFACTS.digest.autos.length + digestHistoryFilesFrom(kolDigestRuns).length : 0} />
 
         <div className="stage" ref={stageRef}>
-          {tab === 'tasks' && cur.kind !== 'kol' && <TasksPanel onPrompt={onPrompt} tasks={scoped ? scoped.tasks : TASKS} isGroup={!!groupData} channelLabel={cur.label} />}
-          {tab === 'memory' && (cur.kind === 'kol' ? <KolMemoryPanel {...kolProps} /> : <MemoryPanel groupMem={scoped ? scoped.memory : null} channelLabel={cur.label} />)}
-          {tab === 'skills' && cur.kind !== 'kol' && <SkillsPanel onSkill={onSkill} />}
-          {tab === 'artifacts' && (cur.kind === 'kol' ? <KolArtifactsPanel digestRuns={kolDigestRuns} onOpenDigest={setKolOpenDigest} /> : <ArtifactsPanel onCard={onCard} files={scoped ? scoped.files : ARTIFACTS} autos={scoped ? scoped.autos : AUTOMATIONS} playbooks={scoped ? (scoped.playbooks || []) : PLAYBOOKS} isGroup={!!groupData} />)}
+          {tab === 'memory' && kolOnboardingDone && <KolMemoryPanel {...kolProps} />}
+          {tab === 'alerts' && kolOnboardingDone && <KolAlertsPanel {...kolProps} />}
+          {tab === 'artifacts' && kolOnboardingDone && <KolArtifactsPanel digestRuns={kolDigestRuns} onOpenDigest={setKolOpenDigest} />}
 
-          {onChat && (isAgent ? (
+          {onChat && (kolSpecialOnboarding || kolDigest ? (
+            <KolDigestView {...kolProps} extra={extra} onGoArtifacts={() => setTab('artifacts')} />
+          ) : isAgent ? (
             <div className="stage-inner" style={{ maxWidth: cfg.width }}>
               {concept === 'A' && <ConceptA {...handlers} />}
               {concept === 'B' && <ConceptB {...handlers} />}
@@ -4371,10 +4401,10 @@ function App() {
 
               <ExtraThread extra={extra} subtle={concept === 'A' || concept === 'D'} onGoTasks={() => setTab('tasks')} onGoArtifacts={() => setTab('artifacts')} />
             </div>
-          ) : cur.kind === 'kol' ? <KolDigestView {...kolProps} extra={extra} onGoArtifacts={() => setTab('artifacts')} /> : cur.kind === 'group' ? <GroupChannelView channel={cur} onGoTasks={() => setTab('tasks')} /> : <TopicChannelView channel={cur} />)}
+          ) : cur.kind === 'group' ? <GroupChannelView channel={cur} onGoTasks={() => setTab('tasks')} /> : <TopicChannelView channel={cur} />)}
         </div>
 
-        {kolPickerOpen && cur.kind === 'kol' && <KolPickerModal
+        {kolPickerOpen && <KolPickerModal
           selectedSource={kolDraftSource}
           onChange={(next) => {
             setKolDraftSource(next);
@@ -4382,16 +4412,12 @@ function App() {
           }}
           onClose={() => setKolPickerOpen(false)} />}
 
-        {kolOpenDigest && cur.kind === 'kol' && <KolDigestModal digest={kolOpenDigest} onClose={() => setKolOpenDigest(null)} />}
+        {kolOpenDigest && <KolDigestModal digest={kolOpenDigest} onClose={() => setKolOpenDigest(null)} />}
 
-        {onChat && !(cur.kind === 'kol' && !kolOnboardingDone) && (
+        {onChat && kolOnboardingDone && (
           <Composer
-            placeholder={cur.kind === 'kol' ? 'Ask about this digest, add a source, or change the template' : cur.kind === 'group' ? `Message ${cur.label} —  @Alva to run anything` : null}
-            quickReplies={cur.kind === 'kol'
-              ? kolFollowupPrompts(kolDigest, kolPromptDismissed)
-              : isAgent && concept === 'C'
-                ? ['Summarize today\u2019s macro', 'What\u2019s moving NVDA?', 'Build me a screener']
-                : null}
+            placeholder={kolDigest ? 'Ask about this digest, compare KOL views, or edit the setup' : null}
+            quickReplies={kolDigest ? kolFollowupPrompts(kolDigest, kolPromptDismissed) : null}
             onSend={onSend} />
         )}
       </div>
