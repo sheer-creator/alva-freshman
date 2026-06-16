@@ -325,7 +325,7 @@ function TreeRows({
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
             onClick={() => onSelect(file.id)}
           >
-            <span className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+            <span className={`min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px] ${isActive ? 'font-medium' : ''}`} style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
               {file.name}
             </span>
           </button>
