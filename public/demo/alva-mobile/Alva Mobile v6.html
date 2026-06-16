@@ -1,0 +1,3113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="zyfayes">
+<meta name="description" content="在 v5 单频道 MVP 基础上做完整移动端使用流程：顶部文字 Tab + 横滑切换、底部 Ask 输入框唤起 chat 浮层（半屏 / 全屏两态）、新用户欢迎卡与各 tab 空态、老用户 Playbooks / Chats，以及广告用户 FinTwit AI Digest 选号 → 登录 → digest 逐段生成的完整承接流程。右上角可切换 新用户 / 老用户 / 广告 三个场景。">
+<title>Alva — Mobile v6 (三场景 · 新用户 / 老用户 / 广告进入)</title>
+<style>
+  /* ============ Delight 字体（用户提供，全局生效） ============ */
+  @font-face { font-family: 'Delight'; src: url('fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: block; }
+  @font-face { font-family: 'Delight'; src: url('fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: block; }
+  @font-face { font-family: 'Delight'; src: url('fonts/Delight-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: block; }
+  @font-face { font-family: 'Delight'; src: url('fonts/Delight-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: block; }
+
+  /* ============ Alva tokens (from Figma Draft / DJ9Acp13FruTilsTdrE0id) ============ */
+  :root {
+    --main-m1: #49a3a6;            /* brand teal */
+    --bg-page: #f6f6f6;            /* screen background */
+    --bg-card: #fcfcfc;
+    --text-n9: rgba(0,0,0,0.9);
+    --text-n7: rgba(0,0,0,0.7);
+    --text-n6: rgba(0,0,0,0.6);
+    --text-n5: rgba(0,0,0,0.5);
+    --text-n3: rgba(0,0,0,0.3);
+    --border-soft: rgba(0,0,0,0.08);
+    --ios-blue: #007aff;
+    --font-alva: 'Delight', 'Delight Medium', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: var(--font-alva);
+    background:
+      radial-gradient(1200px 600px at 70% -10%, rgba(73,163,166,0.10), transparent 60%),
+      radial-gradient(900px 500px at 10% 110%, rgba(73,163,166,0.07), transparent 60%),
+      #eceff0;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ============ Demo stage chrome ============ */
+  .stage-header {
+    flex: none;
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-start;     /* 大标题靠左上，避免被右侧场景 tab 遮挡 */
+    gap: 12px;
+    padding: 28px 24px 0;
+  }
+  .stage-header .brand {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: var(--text-n9);
+  }
+  .stage-header .brand em { font-style: normal; color: var(--main-m1); }
+  .stage-header .sub {
+    font-size: 13px;
+    color: var(--text-n5);
+    letter-spacing: 0.3px;
+  }
+  /* 两个用户场景切换（分段控件，取代原「重置」按钮） */
+  .mode-tabs {
+    position: absolute; right: 28px; top: 22px;
+    display: flex; gap: 2px;
+    background: rgba(0,0,0,0.05); border-radius: 8px; padding: 3px;
+  }
+  .mode-tab {
+    border: none; background: transparent;
+    padding: 6px 13px; border-radius: 6px;
+    font-family: var(--font-alva); font-size: 13px; letter-spacing: 0.2px;
+    color: var(--text-n5); cursor: pointer;
+    transition: color .15s ease, background .15s ease;
+  }
+  .mode-tab.on { background: #fff; color: var(--text-n9); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  /* 新用户：首页只有欢迎卡（空）；老用户：首页有 Playbooks/Chats，无欢迎卡 */
+  .mode-new .ret-only { display: none; }
+  .mode-returning #homeWelcome { display: none; }
+  .mode-returning .new-only { display: none; }
+  /* 空状态（新用户的 Agent / Portfolio） */
+  .empty-state { min-height: 100%; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .empty-state .es-ic { width: 56px; height: 56px; border-radius: 12px; background: #f1f3f4; color: var(--text-n5); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .empty-state .es-t { font-size: 16px; letter-spacing: 0.16px; color: var(--text-n9); }
+  .empty-state .es-d { margin-top: 8px; font-size: 13.5px; line-height: 1.55; letter-spacing: 0.13px; color: var(--text-n5); max-width: 250px; }
+
+  .stage {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    min-height: 0;
+  }
+
+  .nav-arrow {
+    flex: none;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.10);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .18s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .nav-arrow:hover:not(:disabled) { background: #fff; border-color: var(--main-m1); transform: scale(1.06); }
+  .nav-arrow:disabled { opacity: 0.3; cursor: default; }
+  .nav-arrow svg { width: 18px; height: 18px; stroke: var(--text-n7); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .nav-arrow:hover:not(:disabled) svg { stroke: var(--main-m1); }
+
+  .stage-footer {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px 26px;
+  }
+  .screen-caption {
+    font-size: 14px;
+    color: var(--text-n7);
+    letter-spacing: 0.2px;
+    text-align: center;
+  }
+  .screen-caption b { color: var(--text-n9); font-weight: 600; margin-right: 8px; }
+  .dots { display: flex; gap: 8px; align-items: center; }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: all .2s ease;
+    border: none; padding: 0;
+  }
+  .dot.active { background: var(--main-m1); width: 22px; border-radius: 4px; }
+
+  /* ============ Phone mockup (iPhone 15 Pro, 393×852 logical) ============ */
+  .phone-scaler { flex: none; }
+
+  .phone {
+    position: relative;
+    width: 393px;
+    height: 852px;
+    border-radius: 55px;
+    background: #f6f6f6;
+    /* titanium frame */
+    box-shadow:
+      0 0 0 11px #1c1c1e,
+      0 0 0 13px #3a3a3c,
+      0 0 0 13.8px #8e8e93,
+      0 30px 80px -20px rgba(20,40,42,0.45),
+      0 10px 30px rgba(20,40,42,0.18);
+    overflow: hidden;
+  }
+  /* side buttons */
+  .phone::before {
+    content: '';
+    position: absolute; left: -16px; top: 180px;
+    width: 3px; height: 200px; pointer-events: none;
+    background:
+      linear-gradient(#5a5a5e, #5a5a5e) 0 0 / 3px 32px no-repeat,
+      linear-gradient(#5a5a5e, #5a5a5e) 0 56px / 3px 62px no-repeat,
+      linear-gradient(#5a5a5e, #5a5a5e) 0 138px / 3px 62px no-repeat;
+    border-radius: 2px;
+  }
+  .phone::after {
+    content: '';
+    position: absolute; right: -16px; top: 230px;
+    width: 3px; height: 100px; pointer-events: none;
+    background: #5a5a5e;
+    border-radius: 2px;
+  }
+
+  .phone-viewport {
+    position: absolute;
+    inset: 0;
+    border-radius: 47px;
+    overflow: hidden;
+    background: var(--bg-page);
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+  }
+  .screen.active { display: flex; }
+
+  /* ---- shared iOS status bar ---- */
+  .statusbar {
+    flex: none;
+    height: 59px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 32px 0 38px;
+    z-index: 40;                 /* 系统状态栏始终在最上层（全屏浮层之上也不被遮挡） */
+  }
+  .statusbar .time {
+    font-size: 17px;
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.2px;
+    font-family: -apple-system, 'SF Pro Text', var(--font-alva);
+  }
+  .dynamic-island {
+    position: absolute;
+    top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 125px; height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 31;
+  }
+  .statusbar .right { display: flex; align-items: center; gap: 7px; }
+  .statusbar svg { display: block; }
+
+  /* ---- shared Safari bottom chrome ---- */
+  .safari {
+    flex: none;
+    position: relative;
+    padding: 8px 24px 0;
+    background: rgba(246,246,246,0.88);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(0,0,0,0.07);
+    z-index: 30;
+  }
+  .safari .addressbar {
+    height: 46px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+  .safari .aA {
+    font-size: 15px;
+    color: #000;
+    font-family: -apple-system, 'SF Pro Text', sans-serif;
+  }
+  .safari .aA .small { font-size: 11.5px; }
+  .safari .url {
+    font-size: 16px;
+    color: #000;
+    letter-spacing: 0.1px;
+    font-family: -apple-system, 'SF Pro Text', sans-serif;
+  }
+  .safari .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 8px 6px;
+  }
+  .safari .toolbar svg { display: block; }
+  .home-indicator {
+    width: 140px; height: 5px;
+    background: #000;
+    border-radius: 2px;
+    margin: 8px auto 9px;
+  }
+
+  /* ---- screen body (between statusbar & safari) ---- */
+  .page-body {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ============ Screen 01 · Landing = alva.ai 真实页面快照 ============ */
+  .landing {
+    position: absolute;
+    top: 44px; left: 0; right: 0; bottom: 0;   /* 给置顶公告条让出 44px，内容整体下挤 */
+    background: #fff;
+    overflow: hidden;
+  }
+  .landing iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #fff;
+  }
+
+  /* ============ Screen 01 · Login overlay (full-bleed, behind status & safari bars) ============ */
+  .login-overlay {
+    position: absolute;
+    inset: 0;                      /* 通顶：盖住整块屏幕，状态栏/Safari 栏绘制在其上 */
+    z-index: 35;                   /* 高于 chat 浮层(30)，低于系统状态栏(40) */
+    display: flex;
+    flex-direction: column;
+    padding-top: 59px;             /* 状态栏高度 */
+    padding-bottom: 117px;         /* Safari 栏高度，JS 会精确校正 */
+    background: linear-gradient(rgba(246,246,246,0.60), rgba(246,246,246,0.78));
+    -webkit-backdrop-filter: blur(24px) saturate(1.15);
+    backdrop-filter: blur(24px) saturate(1.15);
+    /* 全屏弹窗：中间弹出（scale + fade），非底部上滑 */
+    transition: opacity .32s ease, transform .32s cubic-bezier(.2,.9,.3,1.2);
+    transform-origin: 50% 46%;
+  }
+  .login-overlay.dismissed {
+    opacity: 0;
+    transform: scale(0.92);
+    pointer-events: none;
+  }
+
+  .login-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0 28px;
+  }
+
+  .login-later {
+    align-self: flex-end;
+    margin: 14px 0 6px;
+    font-size: 15px;
+    color: var(--main-m1);
+    letter-spacing: 0.15px;
+    cursor: pointer;
+  }
+
+  .login-title {
+    margin-top: 18px;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.42;
+    letter-spacing: 0.24px;
+    color: var(--text-n9);
+    text-align: center;
+  }
+  .login-sub {
+    margin-top: 12px;
+    font-size: 14px;
+    letter-spacing: 0.14px;
+    color: var(--text-n5);
+    text-align: center;
+  }
+
+  .promo {
+    margin: 22px 10px 0;
+    background: rgba(73,163,166,0.13);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .promo .gift { font-size: 26px; line-height: 1; }
+  .promo .lines { display: flex; flex-direction: column; gap: 3px; }
+  .promo .l1 { font-size: 14px; font-weight: 500; letter-spacing: 0.14px; color: var(--main-m1); }
+  .promo .l2 { font-size: 12px; letter-spacing: 0.12px; color: var(--main-m1); opacity: 0.85; }
+
+  .login-spacer { flex: 1; }
+
+  .btn-social {
+    height: 48px;
+    flex: none;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--font-alva);
+    font-size: 16px;
+    letter-spacing: 0.16px;
+    color: var(--text-n9);
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .btn-social:hover { background: #fafafa; }
+  .btn-social + .btn-social { margin-top: 12px; }
+  .btn-social svg { flex: none; }
+
+  .or-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .or-divider::before, .or-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.12));
+  }
+  .or-divider::after { background: linear-gradient(90deg, rgba(0,0,0,0.12), transparent); }
+  .or-divider span { font-size: 12px; color: var(--text-n5); letter-spacing: 0.12px; }
+
+  .input-email {
+    height: 48px;
+    width: 100%;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 12px;
+    padding: 0 16px;
+    font-family: var(--font-alva);
+    font-size: 16px;
+    letter-spacing: 0.16px;
+    color: var(--text-n9);
+    outline: none;
+  }
+  .input-email::placeholder { color: var(--text-n3); }
+  .input-email:focus { border-color: var(--main-m1); }
+
+  .turnstile {
+    margin-top: 14px;
+    height: 66px;
+    background: #fafafa;
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+  }
+  .turnstile .left { display: flex; align-items: center; gap: 12px; }
+  .turnstile .checkbox {
+    width: 24px; height: 24px;
+    background: #fff;
+    border: 2px solid #b8b8b8;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    flex: none;
+  }
+  .turnstile .checkbox.checked { background: var(--main-m1); border-color: var(--main-m1); }
+  .turnstile .checkbox.checked::after {
+    content: '';
+    position: absolute;
+    left: 6px; top: 2px;
+    width: 6px; height: 11px;
+    border: solid #fff;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+  }
+  .turnstile .label { font-size: 14px; color: #232323; font-family: -apple-system, 'SF Pro Text', sans-serif; }
+  .turnstile .cf { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .turnstile .cf .logo { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: #404041; font-family: -apple-system, sans-serif; }
+  .turnstile .cf .links { font-size: 8px; color: #999; font-family: -apple-system, sans-serif; }
+
+  .login-legal {
+    margin: 18px 6px 16px;
+    font-size: 12px;
+    line-height: 1.7;
+    letter-spacing: 0.12px;
+    color: var(--text-n6);
+    text-align: center;
+  }
+  .login-legal a { color: var(--text-n9); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+
+  /* ============ Screen 02 · 首页（克制版：圆角≤12，结论型副标题，中性质感） ============ */
+  .screen.s-home { background: #fff; }
+  .s-home .page-body { overflow: visible; }   /* 允许 .home 顶到状态栏后面 */
+
+  .home {
+    position: absolute;
+    inset: 0;                      /* 状态栏之下；公告条置顶后内容整体下挤 */
+    background: #fff;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  .home-top {
+    flex: none;
+    height: 56px;                  /* 状态栏已在 page-body 之上，无需再留 59 */
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+  }
+  .home-top svg { display: block; }
+
+  /* 顶部文字 Tab 条（无 icon、横向可滑、激活 teal 下划线） */
+  .home-tabs {
+    position: relative;            /* 容纳滑动下划线指示条 */
+    flex: none;
+    display: flex; gap: 24px;
+    padding: 0 18px;
+    overflow-x: auto; scrollbar-width: none;
+    background: #fff;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .home-tabs::-webkit-scrollbar { display: none; }
+  .h-tab {
+    flex: none;
+    padding: 11px 0 12px;
+    font-size: 15px; letter-spacing: 0.15px;
+    color: var(--text-n5);
+    cursor: pointer; white-space: nowrap;
+    transition: color .2s ease;
+  }
+  .h-tab.on { color: var(--text-n9); }
+  /* 单条滑动下划线：位置与宽度跟随激活 tab 平滑过渡（取代各 tab 各自的 border，避免闪烁） */
+  .h-tab-ind {
+    position: absolute; left: 0; bottom: 0;
+    width: 0; height: 2px; border-radius: 2px;
+    background: var(--main-m1);
+    transform: translateX(0);
+    transition: transform .26s cubic-bezier(.4,0,.2,1), width .26s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+  }
+
+  /* 横滑面板：每个 tab 一个全宽面板，左右滑动切换 */
+  .home-panels {
+    flex: 1; min-height: 0;
+    display: flex;
+    overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .home-panels::-webkit-scrollbar { display: none; }
+  .home-panel {
+    flex: none; width: 100%;
+    scroll-snap-align: start;
+    overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+    padding: 4px 16px 96px;          /* 底部仅留够清开输入框，内容短时不再产生空滚动 */
+  }
+  .home-panel::-webkit-scrollbar { display: none; }
+  .home-panel.grab { cursor: grabbing; }
+
+  /* ---- 新用户首屏：Alva 先说话（浅色通透卡，大留白 / 无渐变 / 右上关闭） ---- */
+  .welcome {
+    position: relative;
+    margin: 12px 0 16px;            /* 顶部间距与左右一致(面板内边距4 + 此12 = 16) */
+    background: #f5f9f8;            /* 极淡 teal 平涂底，干净不廉价 */
+    border: 1px solid rgba(73,163,166,0.16);
+    border-radius: 12px;
+    padding: 26px 22px 22px;        /* 充足内边距，不堵 */
+  }
+  .welcome .w-close {
+    position: absolute; top: 14px; right: 14px;
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-n5); cursor: pointer;
+  }
+  .welcome .w-close:hover { background: rgba(0,0,0,0.05); color: var(--text-n9); }
+  .welcome .w-h { font-size: 24px; letter-spacing: 0.2px; line-height: 1.2; color: var(--text-n9); padding-right: 30px; }
+  .welcome .w-sub { margin-top: 12px; font-size: 14px; line-height: 1.6; letter-spacing: 0.14px; color: var(--text-n7); }
+  .welcome .w-list { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .w-job {
+    display: flex; align-items: center; gap: 13px;
+    background: #fff; border: 1px solid rgba(0,0,0,0.07); border-radius: 12px;
+    padding: 15px 16px; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(16,24,32,0.04);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .w-job:hover { border-color: rgba(73,163,166,0.5); box-shadow: 0 5px 16px rgba(16,24,32,0.07); }
+  .w-job .n { flex: none; width: 28px; height: 28px; border-radius: 8px; background: rgba(73,163,166,0.12); color: var(--main-m1); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .w-job .jt { font-size: 14.5px; letter-spacing: 0.14px; color: var(--text-n9); line-height: 1.4; }
+  .home-right { display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .icon-btn:hover { background: rgba(0,0,0,0.06); }
+  .home-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 0 1.5px #fff, 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+    flex: none;
+  }
+  .home-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* 公告条（与落地页同款，置于首页内容最顶部） */
+  .home-banner {
+    margin: 8px 0 0;
+    height: 44px;
+    background: #6cb4b6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    cursor: pointer;
+  }
+  .home-banner .txt {
+    font-size: 15px;
+    letter-spacing: 0.15px;
+    color: #2a2a38;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .home-banner svg { flex: none; }
+  .home-banner .close { margin-left: auto; display: flex; padding: 4px; cursor: pointer; }
+  .home-banner.hidden { display: none; }
+
+  /* ---- 顶部公告条组件（可复用：首页 + landing；置顶、可关闭） ---- */
+  .top-banner {
+    flex: none;
+    display: flex; align-items: center; gap: 8px;
+    height: 44px; padding: 0 16px;
+    background: #6cb4b6; color: #2a2a38;
+    font-size: 15px; letter-spacing: 0.15px;
+    cursor: pointer;
+  }
+  .top-banner .txt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-banner svg { flex: none; }
+  .top-banner .tb-close { margin-left: auto; display: flex; padding: 4px; cursor: pointer; }
+  .top-banner.hidden { display: none; }
+  /* landing 上以 overlay 形式置顶（盖在快照最上方，状态栏之下） */
+  .top-banner--overlay { position: absolute; top: 0; left: 0; right: 0; z-index: 5; }
+
+  .home-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 28px 4px 8px;
+  }
+  .home-top + .home-label-row { margin-top: 12px; }
+  .home-banner + .home-label-row { margin-top: 20px; }
+  .home-label-row h3 {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--text-n9);
+  }
+  .home-more {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 13px;
+    letter-spacing: 0.13px;
+    color: var(--text-n5);
+    cursor: pointer;
+  }
+  .home-more:hover { color: var(--text-n9); }
+
+  .group-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .home-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 -8px;
+    padding: 10px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .home-row:active { background: rgba(0,0,0,0.04); }
+  .row-main { flex: 1; min-width: 0; }
+  .home-row .nm {
+    font-size: 16px;
+    letter-spacing: 0.16px;
+    color: var(--text-n9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .home-row .sub {
+    margin-top: 3px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    letter-spacing: 0.12px;
+    color: var(--text-n5);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* 副标题内的结构化元素 */
+  .sub .tk {
+    display: inline-block;
+    padding: 0 5px;
+    margin-right: 2px;
+    border-radius: 4px;
+    background: #eef1f1;
+    color: var(--text-n7);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    line-height: 17px;
+    vertical-align: 1px;
+  }
+  .sub .pos { color: #16855b; }
+  .sub .neg { color: #c64545; }
+  .sub .lvl { color: var(--text-n7); }
+
+  .pb-ava {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    flex: none;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.08);
+    margin-top: 2px;
+  }
+  .pb-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .chat-ic {
+    width: 36px; height: 36px;
+    flex: none;
+    border-radius: 8px;
+    background: #f1f3f4;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+  }
+  .row-meta { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; padding-top: 5px; }
+  .dot-new {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #2bb673;
+  }
+  .row-time { font-size: 12px; color: var(--text-n3); letter-spacing: 0.12px; }
+  .unread {
+    min-width: 18px; height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--main-m1);
+    color: #fff;
+    font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .upgrade-card {
+    position: relative;
+    margin: 24px 0 0;
+    padding: 16px;
+    border-radius: 8px;
+    background: linear-gradient(120deg, #11302b 0%, #16413a 70%, #1a4d42 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(17,48,43,0.25);
+  }
+  .upgrade-card::after {
+    content: '';
+    position: absolute;
+    right: -36px; top: -36px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(108,219,213,0.35), transparent 70%);
+    pointer-events: none;
+  }
+  .up-ic {
+    width: 34px; height: 34px;
+    border-radius: 6px;
+    background: rgba(108,219,213,0.18);
+    display: flex; align-items: center; justify-content: center;
+    flex: none;
+  }
+  .up-body { flex: 1; }
+  .up-t1 { font-size: 15px; letter-spacing: 0.15px; color: #fff; }
+  .up-t2 { margin-top: 2px; font-size: 12.5px; line-height: 1.5; letter-spacing: 0.12px; color: rgba(255,255,255,0.55); }
+  .up-cta {
+    flex: none;
+    height: 30px;
+    padding: 0 13px;
+    border-radius: 6px;
+    background: #6cdbd5;
+    color: #0f2e29;
+    font-size: 12.5px;
+    display: flex; align-items: center;
+  }
+
+  /* ---- 底部悬浮区 ---- */
+  .dock {
+    position: absolute;
+    left: 14px; right: 14px; bottom: 12px;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .dock::before {
+    content: '';
+    position: absolute;
+    inset: -36px -14px -12px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.96) 55%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .chat-entry {
+    height: 46px;
+    background: #fff;
+    border: 1.3px solid #14161a;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(16,24,32,0.10);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    cursor: pointer;
+  }
+  .chat-entry .ph { flex: 1; font-size: 15px; letter-spacing: 0.15px; color: var(--text-n3); }
+  .tabbar-float {
+    height: 58px;
+    background: rgba(255,255,255,0.88);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    backdrop-filter: blur(20px) saturate(1.5);
+    border: 0.5px solid rgba(0,0,0,0.05);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(16,24,32,0.04), 0 14px 36px rgba(16,24,32,0.16);
+    display: flex;
+    padding: 5px;
+    gap: 2px;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 10px;
+    letter-spacing: 0.2px;
+    color: #8a8a93;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .tab svg { stroke: #8a8a93; }
+  .tab.active {
+    background: rgba(73,163,166,0.10);
+    color: #357f82;
+  }
+  .tab.active svg { stroke: #357f82; }
+
+
+  /* ============ Screen 03 · Playbook 详情（Build 6352:133028） ============ */
+  .screen.s-pd { background: #fff; }
+  .s-pd .page-body { overflow: visible; }
+  .pd {
+    position: absolute;
+    inset: -59px 0 0 0;
+    background: #fff;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    padding: 0 16px 160px;
+  }
+  .pd::-webkit-scrollbar { display: none; }
+  .pd-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 115px;                 /* 与首页一致：59 状态栏 + 56 顶栏 */
+    margin: 0 -16px;
+    padding: 59px 18px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.85);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    border-bottom: 0.5px solid transparent;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .pd-top.scrolled { border-bottom-color: rgba(0,0,0,0.07); }
+  .pd-top .back { display: flex; padding: 6px; margin-left: -6px; cursor: pointer; }
+  /* 标题滚出内容区后，头像+小标题在返回键旁由下向上渐显（如同被推上来），点击回到顶部 */
+  .pd-top-tg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .22s ease, transform .22s ease;
+    pointer-events: none;
+    cursor: pointer;
+  }
+  .pd-top-tg.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .pd-top-tg img {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    flex: none;
+    box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.08);
+  }
+  .pd-top-tg .t {
+    font-size: 15px;
+    letter-spacing: 0.15px;
+    color: var(--text-n9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pd-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+  .pd-act {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .pd-act:hover { background: rgba(0,0,0,0.06); }
+  /* 底部悬浮两行：大输入框独占一行，下面三个按钮等分 */
+  .pd-views {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    letter-spacing: 0.12px;
+    color: var(--text-n7);
+    margin-right: 4px;
+  }
+  .pd-ask {
+    height: 46px;
+    background: #fff;
+    border: 1.3px solid #14161a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(16,24,32,0.10);
+  }
+  .pd-ask .ph {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    letter-spacing: 0.14px;
+    color: var(--text-n3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .pd-ask .ph.swap { opacity: 0; transform: translateY(-7px); }
+  .pd-cta-row { display: flex; gap: 8px; }
+  .pd-cta-row button {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+    font-family: var(--font-alva);
+    font-size: 13.5px;
+    letter-spacing: 0.13px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .btn-remix, .btn-share {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.15);
+    color: var(--text-n9);
+    box-shadow: 0 6px 20px rgba(16,24,32,0.08);
+  }
+  .btn-remix .ct { color: var(--text-n5); }
+  .btn-sub {
+    background: var(--main-m1);
+    border: none;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(73,163,166,0.35);
+  }
+  .btn-sub:hover { filter: brightness(1.05); }
+  .pd-title-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .pd-title { font-size: 20px; letter-spacing: 0.2px; color: var(--text-n9); }
+  .pd-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .pill {
+    height: 28px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #f4f5f6;
+    font-size: 12px;
+    letter-spacing: 0.12px;
+    color: var(--text-n7);
+    cursor: pointer;
+  }
+  .pill img { width: 16px; height: 16px; border-radius: 50%; }
+  .pill .tdot { width: 6px; height: 6px; border-radius: 50%; background: var(--main-m1); }
+  .pill.dashed { background: #fff; border: 1px dashed rgba(0,0,0,0.18); }
+  .pill .coin { width: 14px; height: 14px; border-radius: 50%; background: #f7931a; }
+  .pd-desc { margin-top: 12px; font-size: 14px; line-height: 1.55; letter-spacing: 0.14px; color: var(--text-n7); }
+  .pd-desc .more { color: var(--text-n9); cursor: pointer; white-space: nowrap; }
+  .pd-tabs {
+    display: flex; gap: 22px;
+    position: sticky;
+    top: 114px;                 /* 比顶部栏(115)高1px，吸顶时与其重叠，杜绝接缝/缝隙 */
+    z-index: 9;
+    margin: 16px -16px 0;
+    padding: 0 16px;
+    background: transparent;    /* 未吸顶时在白色内容区，透明即可 */
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+    box-shadow: 0 8px 24px rgba(16,24,32,0);
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  /* tab 行吸顶贴合顶部栏后：与顶部栏用同一块实色白，连成一体，不再靠半透明（避免内容透色发灰） */
+  .pd-tabs.stuck {
+    background: #fff;
+    border-bottom-color: rgba(0,0,0,0.07);
+    box-shadow: 0 8px 24px rgba(16,24,32,0.05);
+  }
+  .pd-tab {
+    padding: 9px 0 10px;
+    font-size: 15px;
+    letter-spacing: 0.15px;
+    color: var(--text-n5);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -0.5px;
+  }
+  .pd-tab.on { color: var(--text-n9); border-bottom-color: var(--main-m1); }
+  .pd-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pd-chip {
+    height: 26px;
+    display: flex; align-items: center;
+    padding: 0 9px;
+    border-radius: 6px;
+    background: #f4f5f6;
+    font-size: 12px;
+    letter-spacing: 0.12px;
+    color: var(--text-n5);
+  }
+  .pd-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px 14px; margin-top: 20px; }
+  .stat .lb { display: flex; align-items: center; gap: 3px; font-size: 12px; color: var(--text-n5); }
+  .stat .vl { margin-top: 3px; font-size: 21px; letter-spacing: 0.2px; color: #1f9d6d; }
+  .stat .vl.neg { color: #e25555; }
+  .stat svg { margin-top: 5px; display: block; }
+  .pd-ab { display: flex; gap: 24px; margin-top: 16px; font-size: 14px; color: var(--text-n5); }
+  .pd-ab b { color: var(--text-n9); font-weight: 400; margin-left: 5px; }
+  .pd-h2-row { display: flex; align-items: center; justify-content: space-between; margin: 30px 0 0; }
+  .pd-h2 { font-size: 18px; letter-spacing: 0.18px; color: var(--text-n9); }
+  .pd-sel { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-n5); cursor: pointer; }
+  .pd-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--text-n5); }
+  .pd-legend i { display: inline-block; width: 14px; height: 2px; margin-right: 5px; vertical-align: 3px; }
+  .pd-legend .l1 { border-top: 2px dotted #9aa0a6; height: 0; }
+  .pd-legend .l2 { background: #7c83e0; }
+  .pd-legend .l3 { background: #f0a13a; }
+  .pd-bench { margin-top: 8px; font-size: 13px; color: var(--text-n5); }
+  .pd-bench b { color: var(--text-n9); font-weight: 400; }
+  .pd-chart { margin-top: 10px; }
+  .pd-chart svg { display: block; width: 100%; }
+  .sym-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .sym {
+    height: 30px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 11px;
+    border-radius: 6px;
+    background: #f4f5f6;
+    font-size: 12.5px;
+    color: var(--text-n9);
+    cursor: pointer;
+  }
+  .sym .c { width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px; }
+  .sym .st { width: 5px; height: 5px; border-radius: 50%; background: #2bb673; }
+  .pd-price-row { display: flex; align-items: baseline; gap: 7px; margin-top: 16px; flex-wrap: wrap; }
+  .pd-price-row .sym-name { font-size: 16px; color: var(--text-n9); }
+  .pd-price-row .px { font-size: 16px; color: #1f9d6d; }
+  .pd-price-row .chg { font-size: 12px; color: #1f9d6d; }
+  .pd-price-row .src { margin-left: auto; font-size: 12px; color: var(--text-n5); }
+  .tv-bar {
+    display: flex; align-items: center; gap: 14px;
+    margin-top: 10px;
+    padding: 7px 0;
+    border-top: 0.5px solid rgba(0,0,0,0.07);
+    border-bottom: 0.5px solid rgba(0,0,0,0.07);
+    font-size: 12.5px;
+    color: var(--text-n7);
+  }
+  .tv-bar .sep { width: 0.5px; height: 14px; background: rgba(0,0,0,0.12); }
+  .tv-ohlc { margin-top: 8px; font-size: 11.5px; color: var(--text-n7); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .tv-ohlc .gdot { width: 7px; height: 7px; border-radius: 50%; background: #2bb673; }
+  .tv-ohlc .r { color: #e25555; }
+  .tv-ohlc .g { color: #1f9d6d; }
+  .tv-vol { margin-top: 4px; font-size: 11.5px; color: var(--text-n7); }
+  .tv-vol .r { color: #e25555; }
+  .pos-table { margin-top: 12px; }
+  .pos-table .tr { display: flex; align-items: center; padding: 11px 10px; font-size: 13.5px; color: var(--text-n9); }
+  .pos-table .tr.hd { background: #f4f5f6; border-radius: 6px; font-size: 12px; color: var(--text-n5); padding: 8px 10px; }
+  .pos-table .tr + .tr { border-top: 0.5px solid rgba(0,0,0,0.05); }
+  .pos-table .tr.hd + .tr { border-top: none; }
+  .pos-table .c1 { flex: 1.1; }
+  .pos-table .c2 { flex: 1; }
+  .pos-table .c3 { flex: 1.2; text-align: right; }
+  .side {
+    display: inline-flex; align-items: center;
+    height: 22px; padding: 0 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    color: #fff;
+  }
+  .side.long { background: #2a9b7d; }
+  .side.short { background: #e25555; }
+
+
+  /* ---- tab panes ---- */
+  .pd-pane.hide { display: none; }
+
+  /* ---- Analytics 图卡 ---- */
+  .an-block { margin-top: 26px; }
+  .an-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .an-t { font-size: 16px; letter-spacing: 0.16px; color: var(--text-n9); cursor: pointer; }
+  .an-leg { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-n5); }
+  .an-leg i { display: inline-block; width: 13px; height: 2px; }
+  .an-card {
+    margin-top: 10px;
+    background: #fbfcfc;
+    border: 0.5px solid rgba(0,0,0,0.05);
+    border-radius: 8px;
+    padding: 10px 6px 6px;
+    background-image: radial-gradient(rgba(0,0,0,0.06) 0.8px, transparent 0.9px);
+    background-size: 9px 9px;
+  }
+  .an-card svg { display: block; width: 100%; }
+
+  /* ---- Strategy ---- */
+  .strat-p {
+    margin-top: 12px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    letter-spacing: 0.14px;
+    color: var(--text-n9);
+  }
+  .strat-sub {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 14px 0 0;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .ss-tab {
+    padding: 7px 0 9px;
+    font-size: 14px;
+    letter-spacing: 0.14px;
+    color: var(--text-n5);
+    cursor: pointer;
+    border-bottom: 1.5px solid transparent;
+    margin-bottom: -0.5px;
+  }
+  .ss-tab.on { color: var(--text-n9); border-bottom-color: var(--main-m1); }
+  .ss-log { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-n7); cursor: pointer; }
+  .sw {
+    width: 34px; height: 20px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.12);
+    position: relative;
+    transition: background .2s ease;
+  }
+  .sw .knob {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    transition: left .2s ease;
+  }
+  .sw.on { background: var(--main-m1); }
+  .sw.on .knob { left: 16px; }
+  .strat-card {
+    margin-top: 14px;
+    background: #f7f8f8;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .strat-card.hide { display: none; }
+  .sc-h { font-size: 15px; letter-spacing: 0.15px; color: var(--text-n9); margin: 16px 0 8px; }
+  .sc-h:first-child { margin-top: 0; }
+  .sc-p { font-size: 14px; line-height: 1.6; color: var(--text-n9); margin: 6px 0; }
+  .sc-ul { margin: 0 0 0 18px; padding: 0; }
+  .sc-ul li { font-size: 14px; line-height: 1.6; letter-spacing: 0.14px; color: var(--text-n9); margin: 6px 0; }
+  .strat-card.code pre {
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--text-n9);
+    white-space: pre-wrap;
+  }
+
+  /* ---- Feed ---- */
+  .feed-list { margin-top: 18px; }
+  .feed-item { padding: 14px 0 16px; }
+  .feed-item + .feed-item { border-top: 0.5px solid rgba(0,0,0,0.07); }
+  .fi-head { display: flex; align-items: center; gap: 8px; }
+  .fi-head img { width: 24px; height: 24px; border-radius: 50%; }
+  .fi-name { font-size: 13.5px; color: var(--text-n9); }
+  .fi-time { margin-left: auto; font-size: 12px; color: var(--text-n5); }
+  .fi-body { margin: 8px 0 0 32px; }
+  .fi-row { display: flex; align-items: center; gap: 6px; font-size: 13.5px; letter-spacing: 0.13px; color: var(--text-n9); margin: 7px 0; }
+  .fi-row .ci { width: 16px; height: 16px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; }
+  .fi-row .tk2 { color: #3a9396; }
+  .fi-row .tr-up { color: #1f9d6d; }
+  .fi-row .tr-dn { color: #e25555; }
+  .fi-p { font-size: 13.5px; line-height: 1.55; color: var(--text-n9); margin: 8px 0; }
+  .fi-ul { margin: 4px 0 0 16px; }
+  .fi-ul li { font-size: 13.5px; line-height: 1.6; color: var(--text-n9); margin: 3px 0; }
+
+  /* ---- 双 bar：顶栏柔影 + 底部全宽模糊条（扁平按钮，双状态） ---- */
+  .pd-top.scrolled { box-shadow: 0 8px 24px rgba(16,24,32,0.05); }
+  /* tab 行吸顶后，抹掉顶部栏与 tab 行之间的接缝（边线+投影），让两者无缝连成一体 */
+  .pd-top.merged { background: #fff; border-bottom-color: transparent; box-shadow: none; }
+  .pd-views svg { width: 19px; height: 19px; }
+  .pd-views { font-size: 14px; color: var(--text-n7); gap: 5px; }
+  .pd-dock {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 6;
+    padding: 26px 14px 12px;
+    background: linear-gradient(to top, rgba(255,255,255,0.9) 55%, rgba(255,255,255,0.35) 80%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-mask: linear-gradient(to top, #000 70%, transparent);
+    mask: linear-gradient(to top, #000 70%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: opacity .14s ease;
+  }
+  .pd-dock.fading { opacity: 0; }
+  .pd-dock .pd-ask {
+    height: 46px;
+    box-shadow: none;
+    background: #fff;
+    transition: height .2s ease;
+    gap: 8px;
+  }
+  .pd-cta-row { display: flex; gap: 8px; }
+  .pd-cta-row button {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    font-family: var(--font-alva);
+    font-size: 14px;
+    letter-spacing: 0.14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: height .2s ease;
+  }
+  .btn-remix {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.14);
+    color: var(--text-n9);
+  }
+  .btn-remix .ct { color: var(--text-n5); }
+  .btn-sub {
+    background: var(--main-m1);
+    border: none;
+    color: #fff;
+  }
+  .btn-sub:hover { filter: brightness(1.05); }
+  /* 下滑收起态：按钮只剩 icon 方形，输入框移到左侧同行 */
+  .pd-dock.mini { flex-direction: row; align-items: center; }
+  .pd-dock.mini .pd-ask { flex: 1; min-width: 0; height: 40px; overflow: hidden; }
+  .pd-dock.mini .pd-cta-row { flex: none; }
+  .pd-dock.mini .pd-cta-row button { flex: none; width: 40px; height: 40px; padding: 0; }
+  .pd-dock.mini .bt, .pd-dock.mini .ct { display: none; }
+
+  /* ---- 输入框点击 → 底部磨砂浮层 sheet（参考 Alva-Library 24380:6610 Bottom Sheet） ---- */
+  /* 遮罩：轻压暗 + 背景模糊，露出顶部一截页面，体现"临时浮层" */
+  .composer-ov {
+    position: absolute; top: -59px; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: rgba(16,20,28,0.22);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .24s ease;
+  }
+  .composer-ov.open { opacity: 1; pointer-events: auto; }
+  /* sheet 本体：磨砂半透明、顶部圆角、从底部上滑 */
+  .composer-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; top: 100px;
+    display: flex; flex-direction: column;
+    background: #ffffff;
+    -webkit-backdrop-filter: blur(30px) saturate(1.5); backdrop-filter: blur(30px) saturate(1.5);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -10px 40px rgba(16,24,32,0.18);
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.2,.85,.25,1), top .3s cubic-bezier(.2,.85,.25,1), border-radius .3s ease;
+    overflow: hidden;
+  }
+  .composer-ov.open .composer-sheet { transform: translateY(0); }
+  /* 全屏态：顶到最上沿、直角；保留小横线(下移到状态栏下方，同 Apple Music)，其下是详情页式顶栏 */
+  .composer-sheet.full { top: 0; border-radius: 0; }
+  .composer-sheet.full .cv-grab { margin-top: 60px; }              /* 小横线落在状态栏下方 */
+  .composer-sheet.full .cv-head { padding-top: 6px; }              /* 抓手已让出状态栏高度，顶栏小间距即可 */
+  .cv-head { transition: padding-top .3s cubic-bezier(.2,.85,.25,1); }
+  .cv-grab { transition: margin-top .3s cubic-bezier(.2,.85,.25,1); }
+  /* 顶部抓手 */
+  .cv-grab { width: 36px; height: 5px; border-radius: 2px; background: rgba(0,0,0,0.16); margin: 8px auto 0; flex: none; }
+  /* 顶部 header：左侧关闭按钮 + 标题 */
+  .cv-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px 10px; flex: none;
+  }
+  .cv-close {
+    width: 32px; height: 32px; margin-left: -6px; flex: none;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: var(--text-n9); cursor: pointer;
+  }
+  .cv-close:hover { background: rgba(0,0,0,0.06); }
+  .cv-title {
+    font-size: 16px; letter-spacing: 0.16px; color: var(--text-n9);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* 浮层顶部 tab：Chat / Tasks / Artifacts / Memory（参考 Alva Mobile v5） */
+  .cv-tabs { flex: none; display: flex; gap: 22px; padding: 0 16px; border-bottom: 0.5px solid rgba(0,0,0,0.08); }
+  .cv-tab { padding: 8px 0 10px; font-size: 14px; letter-spacing: 0.14px; color: var(--text-n5); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color .15s ease; }
+  .cv-tab.on { color: var(--text-n9); border-bottom-color: var(--main-m1); }
+  /* Tasks / Artifacts / Memory 内容区 */
+  .cv-aux { display: none; flex: 1; min-height: 0; overflow-y: auto; padding: 8px 16px 16px; scrollbar-width: none; }
+  .cv-aux::-webkit-scrollbar { display: none; }
+  .composer-sheet.tab-aux .cv-thread, .composer-sheet.tab-aux .cv-foot { display: none; }
+  .composer-sheet.tab-aux .cv-aux { display: block; }
+  .aux-sec { font-size: 12px; letter-spacing: 0.12px; color: var(--text-n5); margin: 16px 0 4px; }
+  .aux-sec:first-child { margin-top: 6px; }
+  .aux-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); }
+  .aux-ic { flex: none; width: 30px; height: 30px; border-radius: 8px; background: #f1f3f4; color: var(--text-n7); display: flex; align-items: center; justify-content: center; font-size: 10.5px; letter-spacing: 0.2px; }
+  .aux-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .aux-main .at { font-size: 14px; letter-spacing: 0.14px; color: var(--text-n9); }
+  .aux-main .ad { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
+  .aux-tag { flex: none; font-size: 11px; padding: 2px 8px; border-radius: 6px; background: rgba(73,163,166,0.12); color: var(--main-m1); }
+  /* 广告/campaign 落地：FinTwit AI Digest 选择流 */
+  .cv-campaign { display: none; flex: 1; min-height: 0; overflow-y: auto; padding: 8px 16px 12px; scrollbar-width: none; }
+  .cv-campaign::-webkit-scrollbar { display: none; }
+  .cmp-by { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .cmp-by .av { width: 22px; height: 22px; }
+  .cmp-by .nm { font-size: 13px; letter-spacing: 0.13px; color: var(--text-n7); }
+  .cmp-h { font-size: 20px; letter-spacing: 0.2px; color: var(--text-n9); }
+  .cmp-d { margin-top: 8px; font-size: 13.5px; line-height: 1.55; letter-spacing: 0.13px; color: var(--text-n7); }
+  .cmp-list { margin-top: 16px; display: flex; flex-direction: column; }
+  .cmp-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); overflow: hidden; max-height: 80px; transition: max-height .28s ease, opacity .22s ease, transform .22s ease, padding .28s ease; }
+  .cmp-row.removing { max-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0; transform: translateY(-10px); border-bottom-color: transparent; }
+  .cmp-row img { width: 36px; height: 36px; border-radius: 8px; flex: none; object-fit: cover; }
+  .cmp-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .cmp-main .cn { font-size: 14.5px; letter-spacing: 0.14px; color: var(--text-n9); }
+  .cmp-main .ch { font-size: 12px; color: var(--text-n5); margin-top: 1px; }
+  .cmp-win { flex: none; display: flex; flex-direction: column; align-items: flex-end; font-size: 10.5px; color: var(--text-n5); margin-right: 4px; }
+  .cmp-win b { font-size: 14px; font-weight: 600; color: #1f9d6d; }
+  .cmp-add { flex: none; width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid rgba(73,163,166,0.45); background: #fff; color: var(--main-m1); font-size: 19px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .15s ease, color .15s ease; }
+  .cmp-row.on .cmp-add { background: var(--main-m1); border-color: var(--main-m1); color: #fff; }
+  .cmp-more { padding: 16px 0 6px; font-size: 13.5px; color: var(--main-m1); cursor: pointer; text-align: center; }
+  /* Top 50 榜单 check 选项 */
+  .cmp-opt { display: flex; align-items: center; gap: 11px; padding: 12px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); cursor: pointer; }
+  .cmp-stack { flex: none; display: flex; }
+  .cmp-stack img { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
+  .cmp-stack img:not(:first-child) { margin-left: -10px; }
+  .cmp-opt .cmp-check { flex: none; width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid rgba(0,0,0,0.25); background: #fff; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .cmp-opt .cmp-check svg { display: none; width: 15px; height: 15px; }
+  .cmp-opt.on .cmp-check { background: var(--main-m1); border-color: var(--main-m1); }
+  .cmp-opt.on .cmp-check svg { display: block; }
+  /* campaign 态：暂不显示左上关闭 */
+  .composer-sheet.campaign .cv-close { display: none; }
+  .cv-cta { display: none; flex: none; flex-direction: column; gap: 10px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); border-top: 0.5px solid rgba(0,0,0,0.07); }
+  .cv-cta .cta-meta { font-size: 12.5px; letter-spacing: 0.12px; color: var(--text-n5); text-align: center; }   /* 计数文字：上方居中 */
+  .cta-row { display: flex; align-items: center; gap: 8px; }       /* 一行三按钮 */
+  .cta-set { flex: none; height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: var(--text-n9); font-family: var(--font-alva); font-size: 13px; letter-spacing: 0.13px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; white-space: nowrap; transition: border-color .15s ease; }  /* 白色下拉：hug 宽度 */
+  .cta-set:hover { border-color: rgba(73,163,166,0.5); }
+  .cv-cta .cta-btn { flex: 1; height: 44px; border-radius: 8px; border: none; background: var(--main-m1); color: #fff; font-family: var(--font-alva); font-size: 14.5px; letter-spacing: 0.15px; cursor: pointer; }   /* 绿按钮：fill 占满剩余 */
+  .cv-cta .cta-btn:disabled { background: rgba(0,0,0,0.10); color: rgba(0,0,0,0.32); cursor: default; }
+  /* 登录后 digest 结果（chat 内） */
+  .dg-card { border: 1px solid rgba(0,0,0,0.10); border-radius: 8px; padding: 12px 14px; margin: 6px 0 10px; }
+  .dg-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .dg-head .dg-t { font-size: 14px; letter-spacing: 0.14px; color: var(--text-n9); }
+  .dg-head .dg-link { font-size: 12px; color: var(--main-m1); white-space: nowrap; cursor: pointer; }
+  .dg-meta { margin-top: 4px; font-size: 12px; letter-spacing: 0.12px; color: var(--text-n5); }
+  .dg-body { margin: 8px 0 0 !important; font-size: 13.5px; line-height: 1.55; color: var(--text-n7); }
+  .dg-alerts { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 12px; }
+  .dg-q { font-size: 13px; letter-spacing: 0.13px; color: var(--text-n9); margin-bottom: 10px; }
+  .dg-sub { font-size: 12px; line-height: 1.5; letter-spacing: 0.12px; color: var(--text-n5); margin: -4px 0 10px; }
+  .dg-btns { display: flex; gap: 8px; }
+  .dg-b { flex: 1; height: 38px; border-radius: 8px; border: none; color: #fff; font-family: var(--font-alva); font-size: 12.5px; letter-spacing: 0.12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .dg-b svg { width: 15px; height: 15px; flex: none; }
+  .dg-b.tg { background: #2aabee; } .dg-b.dc { background: #5865f2; } .dg-b.wa { background: #25d366; }
+  /* 登录后内容逐段揭示（像 AI 一段段回答） */
+  .dg-piece { opacity: 0; transform: translateY(8px); transition: opacity .3s ease, transform .3s ease; }
+  .dg-piece.in { opacity: 1; transform: none; }
+  /* campaign → digest 过渡编排：① 原内容向上消失 ② 顶部渐显 + 输入框上滑进入 */
+  .cv-campaign, .cv-cta { transition: opacity .28s ease, transform .28s ease; }
+  .composer-sheet.campaign-out .cv-campaign, .composer-sheet.campaign-out .cv-cta { opacity: 0; transform: translateY(-24px); }
+  .cv-tabs, .cv-head .cv-close { transition: opacity .3s ease; }
+  .cv-foot { transition: opacity .3s ease, transform .34s cubic-bezier(.2,.85,.25,1); }
+  .composer-sheet.digest-in .cv-tabs, .composer-sheet.digest-in .cv-head .cv-close { opacity: 0; }
+  .composer-sheet.digest-in .cv-foot { opacity: 0; transform: translateY(26px); }
+  /* campaign 态：隐藏对话/输入/tab，显示选择流 + CTA */
+  .composer-sheet.campaign .cv-tabs, .composer-sheet.campaign .cv-thread, .composer-sheet.campaign .cv-aux, .composer-sheet.campaign .cv-foot { display: none; }
+  .composer-sheet.campaign .cv-campaign { display: block; }
+  .composer-sheet.campaign .cv-cta { display: flex; }
+  /* 对话区（白；发送后用户内容飘上来形成对话） */
+  .cv-thread {
+    flex: 1; min-height: 0; overflow-y: auto;
+    padding: 16px 14px 8px;
+    display: flex; flex-direction: column; gap: 14px;
+    scrollbar-width: none;
+  }
+  .cv-thread::-webkit-scrollbar { display: none; }
+  .cv-msg { max-width: 82%; font-size: 14.5px; line-height: 1.5; letter-spacing: 0.14px; }
+  .cv-msg.user {
+    align-self: flex-end; background: #1f2329; color: #fff;
+    padding: 10px 14px; border-radius: 12px 4px 12px 12px;   /* 小圆角在右上角 */
+  }
+  /* Alva 回复：头像 + 名字一行，正文在下方左右撑满 */
+  .cv-msg.ai { align-self: stretch; max-width: none; display: flex; flex-direction: column; gap: 8px; color: var(--text-n9); }
+  /* chat 相关 Alva 头像统一用 Alva logo */
+  .av { flex: none; border-radius: 4px; background: #2a2a38; color: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .av svg { width: 62%; height: 62%; }
+  .cv-msg.ai .ai-by { display: flex; align-items: center; gap: 9px; }
+  .cv-msg.ai .ai-by .av { width: 30px; height: 30px; }
+  .cv-msg.ai .ai-by .nm { font-size: 14px; letter-spacing: 0.14px; color: var(--text-n9); }
+  .cv-msg.ai .tx { padding-top: 0; }
+  /* 底部容器：建议 tag + composer */
+  .cv-foot { flex: none; padding: 0 12px calc(12px + env(safe-area-inset-bottom)); }
+  /* 建议 tag：描边即可、无阴影；横向滚动；点击填入输入框 */
+  .composer-sugs { display: flex; gap: 8px; overflow-x: auto; margin: 0 -12px; padding: 0 12px 10px; scrollbar-width: none; }
+  .composer-sugs::-webkit-scrollbar { display: none; }
+  .composer-sugs.hide { display: none; }
+  .sug {
+    flex: none; height: 34px; display: flex; align-items: center;
+    padding: 0 14px; border-radius: 12px;
+    background: #fff; border: 1px solid rgba(0,0,0,0.14);
+    box-shadow: none;
+    font-family: var(--font-alva); font-size: 13px; letter-spacing: 0.12px;
+    color: var(--text-n9); white-space: nowrap; cursor: pointer;
+    transition: border-color .15s ease, transform .1s ease;
+  }
+  .sug:hover { border-color: rgba(0,0,0,0.30); }
+  .sug:active { transform: scale(0.97); }
+  /* composer 主体 */
+  .composer-box {
+    background: #fff; border: 1px solid rgba(0,0,0,0.14); border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(16,24,32,0.07);
+    padding: 10px 12px 8px;
+  }
+  /* 顶部：本 playbook 名称的 context 标签（带 ✕ 关闭） */
+  .composer-ctx { display: flex; }
+  .cc-chip {
+    display: inline-flex; align-items: center; gap: 7px; max-width: 100%;
+    height: 28px; padding: 0 4px 0 6px; border-radius: 8px; background: #f1f3f4;
+    font-size: 12.5px; letter-spacing: 0.12px; color: var(--text-n9);
+  }
+  .cc-chip.hide { display: none; }
+  .cc-chip .cc-ico { width: 16px; height: 16px; border-radius: 4px; flex: none; object-fit: cover; }
+  .cc-chip .cc-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cc-x { flex: none; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-n5); }
+  .cc-x:hover { background: rgba(0,0,0,0.10); }
+  .composer-input {
+    width: 100%; border: none; outline: none; resize: none;
+    font-family: var(--font-alva); font-size: 15px; line-height: 1.5; letter-spacing: 0.15px;
+    color: var(--text-n9); background: transparent;
+    margin-top: 9px; min-height: 46px; max-height: 140px;
+  }
+  .composer-input::placeholder { color: var(--text-n3); }
+  /* 底部工具行 */
+  .composer-bar { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .composer-bar .cb-ic { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-n7); }
+  .composer-bar .cb-ic:hover { background: rgba(0,0,0,0.05); }
+  .composer-bar .cb-model { font-size: 12px; color: var(--text-n5); display: flex; align-items: center; gap: 3px; cursor: pointer; }
+  .composer-bar .cb-send { margin-left: auto; width: 34px; height: 34px; border-radius: 50%; background: var(--main-m1); display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+
+  /* ---- AI 结构化回答 ---- */
+  .cv-msg.ai .tx { padding-top: 1px; }
+  .ai-meta { font-size: 12px; color: var(--text-n5); margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+  .ai-meta::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--main-m1); flex: none; }
+  .cv-msg.ai .tx p { margin: 0 0 7px; }
+  .ai-ul { margin: 0 0 8px; padding-left: 2px; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .ai-ul li { position: relative; padding-left: 16px; line-height: 1.5; }
+  .ai-ul li::before { content: ''; position: absolute; left: 4px; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: rgba(0,0,0,0.45); }
+  .ai-ul li b { font-weight: 400; color: var(--main-m1); }
+  .ai-take { background: rgba(73,163,166,0.08); border-radius: 8px; padding: 9px 11px; margin: 2px 0 8px !important; }
+  .ai-take b { color: var(--main-m1); font-weight: 400; }
+  .ai-src { font-size: 12px; color: var(--text-n5); display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  /* ---- thinking 指示器（10s 思考态） ---- */
+  .thinking { display: inline-flex; align-items: center; gap: 8px; color: var(--text-n7); font-size: 14px; }
+  .thinking .lbl { background: linear-gradient(90deg,rgba(0,0,0,0.32),rgba(0,0,0,0.7),rgba(0,0,0,0.32)); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 1.6s linear infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .dots { display: inline-flex; gap: 3px; }
+  .dots i { width: 4px; height: 4px; border-radius: 50%; background: var(--main-m1); animation: dotb 1.4s infinite both; }
+  .dots i:nth-child(2) { animation-delay: .2s; }
+  .dots i:nth-child(3) { animation-delay: .4s; }
+  @keyframes dotb { 0%,80%,100% { opacity: .2; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }
+  /* ---- 输入框入口左侧 Alva 头像：灰圆底 + logo（与 chat 浮层一致）/ thinking 转圈 / 已回复 New reply 气泡 ---- */
+  .ask-av { position: relative; width: 26px; height: 26px; flex: none; border-radius: 4px; background: #2a2a38; display: flex; align-items: center; justify-content: center; }
+  .ask-av .ask-logo { width: 62%; height: 62%; color: #fff; display: block; }
+  .ask-av .ask-spin { display: none; width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid rgba(0,0,0,0.10); border-top-color: var(--main-m1); animation: askspin .8s linear infinite; }
+  @keyframes askspin { to { transform: rotate(360deg); } }
+  .ask-av .ask-badge {
+    display: none; position: absolute; top: -16px; left: 14px;
+    height: 26px; padding: 0 12px; border-radius: 13px;   /* 特例：胶囊全圆，比全局圆角大 */
+    background: var(--main-m1); color: #fff;
+    font-size: 12.5px; font-weight: 600; line-height: 1; letter-spacing: 0.1px;
+    white-space: nowrap; align-items: center; justify-content: center;
+    box-shadow: 0 3px 9px rgba(73,163,166,0.42);
+  }
+  .ask-trigger.thinking .ask-logo { display: none; }
+  .ask-trigger.thinking .ask-av { background: transparent; }   /* 转圈时去灰底，纯 loading */
+  .ask-trigger.thinking .ask-spin { display: block; }
+  .ask-trigger.replied .ask-badge { display: flex; }
+  /* thinking 时：隐藏轮换占位，显示独立「Thinking…」文案 */
+  .ask-trigger .ph-think { display: none; }
+  .ask-trigger.thinking .ph { display: none; }
+  .ask-trigger.thinking .ph-think { display: block; flex: 1; min-width: 0; font-size: 14.5px; letter-spacing: 0.15px; color: var(--text-n3); }
+  /* 首页输入框占位符切换动效（与详情页一致） */
+  .chat-entry .ph { transition: opacity .25s ease, transform .25s ease; }
+  .chat-entry .ph.swap { opacity: 0; transform: translateY(-7px); }
+
+  /* ---- 登录后首页加载骨架屏 ---- */
+  .home-skel {
+    position: absolute;
+    inset: -59px 0 0 0;
+    z-index: 22;
+    background: #fff;
+    padding: 70px 16px 0;
+    transition: opacity .35s ease;
+  }
+  .home-skel.off { opacity: 0; pointer-events: none; }
+  .sk {
+    border-radius: 6px;
+    background: linear-gradient(90deg, #eef0f1 25%, #f7f8f8 37%, #eef0f1 63%);
+    background-size: 400% 100%;
+    animation: skSh 1.2s ease infinite;
+  }
+  @keyframes skSh { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+  .sk-top { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .sk-row { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+  .sk-c { border-radius: 50%; flex: none; }
+  .sk-lines { flex: 1; }
+
+  /* placeholder screen template for future steps */
+  .placeholder-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text-n3);
+  }
+  .placeholder-body .num { font-size: 40px; font-weight: 500; color: rgba(73,163,166,0.4); }
+  .placeholder-body .hint { font-size: 14px; letter-spacing: 0.3px; }
+</style>
+</head>
+<body>
+<p style="display:none" data-demo-summary>移动端完整使用流程：顶部文字 Tab 横滑切换、底部 Ask 输入框唤起 chat 浮层（半屏/全屏）、新用户欢迎卡与各 tab 空态、老用户 Playbooks/Chats，以及广告用户 FinTwit AI Digest 选号 → 登录 → digest 逐段生成的完整承接流程。右上角切换 新用户 / 老用户 / 广告 三个场景。</p>
+
+  <!-- Alva 真实 logo 矢量（取自 alva.ai）：teal 弧形块 + 深色瓷砖，wordmark 单独引用 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="alvamark" viewBox="0 0 52 52">
+      <path fill="#49A3A6" d="M35.29 1.088a38.7 38.7 0 0 1 11.063 0c.294.042.589.09 1.178.183l.383.067a2.98 2.98 0 0 1 2.26 2.26c.02.088.036.187.067.383.095.59.141.884.184 1.178.53 3.669.53 7.394 0 11.063-.043.293-.09.589-.184 1.178a7 7 0 0 1-.067.383 2.98 2.98 0 0 1-2.26 2.26c-.088.02-.186.035-.383.066-.59.095-.884.143-1.178.185a39 39 0 0 1-5.53.396c-11.046 0-20 8.955-20 20a39 39 0 0 1-.397 5.532c-.043.294-.09.589-.185 1.178-.031.197-.047.295-.066.383a2.98 2.98 0 0 1-2.26 2.26c-.088.02-.186.035-.383.066-.59.095-.885.142-1.178.185-3.669.53-7.395.53-11.063 0-.294-.042-.588-.09-1.178-.185-.196-.031-.295-.047-.383-.066a2.98 2.98 0 0 1-2.26-2.26c-.02-.088-.035-.186-.067-.383-.094-.59-.14-.884-.183-1.178a38.7 38.7 0 0 1 0-11.063c.042-.294.089-.589.183-1.178.032-.197.047-.295.067-.383a2.98 2.98 0 0 1 2.26-2.26c.088-.02.187-.035.383-.067.59-.094.884-.14 1.178-.183a39 39 0 0 1 5.531-.398v-.002c10.873 0 19.72-8.675 19.993-19.482l.007-.516c0-1.849.132-3.697.397-5.53.042-.295.09-.59.184-1.179.032-.196.047-.295.067-.383a2.98 2.98 0 0 1 2.26-2.26c.088-.02.186-.035.382-.067.59-.094.884-.14 1.178-.183"/>
+      <path fill="currentColor" d="M46.353 31.087a38.7 38.7 0 0 0-11.063 0c-.294.042-.588.09-1.177.184h-.002c-.196.032-.294.047-.383.067a2.98 2.98 0 0 0-2.26 2.26c-.019.088-.034.186-.066.383-.094.589-.14.884-.183 1.178a38.7 38.7 0 0 0 0 11.063c.042.293.09.588.183 1.177.032.197.047.296.067.384a2.98 2.98 0 0 0 2.26 2.26c.088.02.187.035.383.066.59.095.884.142 1.178.184 3.669.53 7.394.53 11.063 0 .293-.042.588-.09 1.177-.184.197-.031.296-.046.384-.066a2.98 2.98 0 0 0 2.26-2.26c.02-.088.035-.187.066-.384.094-.589.141-.884.184-1.177.53-3.669.53-7.394 0-11.063-.043-.294-.09-.589-.184-1.178-.031-.197-.047-.295-.066-.383a2.98 2.98 0 0 0-2.26-2.26c-.088-.02-.187-.035-.384-.067-.589-.094-.884-.142-1.178-.184m-26.18-27.49a2.98 2.98 0 0 0-2.259-2.26 7 7 0 0 0-.383-.066 79 79 0 0 0-1.177-.184 38.7 38.7 0 0 0-11.064 0c-.294.042-.588.09-1.178.184-.196.032-.294.047-.383.067a2.98 2.98 0 0 0-2.26 2.26c-.019.088-.035.186-.067.382-.094.59-.14.885-.183 1.18a38.7 38.7 0 0 0 0 11.062c.042.293.09.588.183 1.177.032.197.048.296.068.384a2.98 2.98 0 0 0 2.26 2.26c.087.02.186.035.382.066.59.095.884.142 1.178.184 3.669.53 7.395.53 11.064 0 .293-.042.588-.09 1.177-.184.197-.031.295-.046.383-.066a2.98 2.98 0 0 0 2.26-2.26c.02-.088.036-.187.067-.384.095-.589.141-.884.184-1.177.53-3.669.53-7.394 0-11.063a79 79 0 0 0-.184-1.179 7 7 0 0 0-.067-.382"/>
+    </symbol>
+  </defs></svg>
+
+  <header class="stage-header">
+    <span class="brand"><em>Alva</em> Mobile 重构</span>
+    <span class="sub">使用流程 Demo · alva.ai</span>
+    <div class="mode-tabs" id="modeTabs" title="切换用户场景（切换即重置该场景到初始）">
+      <button class="mode-tab on" data-mode="new">New user</button>
+      <button class="mode-tab" data-mode="returning">Returning user</button>
+      <button class="mode-tab" data-mode="ad">From ad</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <button class="nav-arrow" id="prevBtn" aria-label="上一屏">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <div class="phone-scaler" id="phoneScaler">
+      <div class="phone">
+        <div class="phone-viewport" id="viewport">
+
+          <!-- ================= Screen 01 · Login ================= -->
+          <section class="screen active" data-title="01 · 首页 / 登录" data-note="初始为 alva.ai 真实页面（快照）；点顶栏菜单按钮唤起登录浮层，Later 关闭；页面可滚动，右上「重置」回到初始">
+            <!-- iOS status bar -->
+            <div class="statusbar">
+              <span class="time">9:41</span>
+              <div class="dynamic-island"></div>
+              <span class="right">
+                <!-- signal -->
+                <svg width="19" height="12" viewBox="0 0 19 12"><g fill="#000"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g></svg>
+                <!-- wifi -->
+                <svg width="17" height="12" viewBox="0 0 17 12" fill="#000"><path d="M8.5 9.6a2 2 0 0 1 1.7.9L8.5 12 6.8 10.5a2 2 0 0 1 1.7-.9zM8.5 5.8c1.6 0 3.1.6 4.2 1.7l-1.4 1.5a3.9 3.9 0 0 0-5.6 0L4.3 7.5a6 6 0 0 1 4.2-1.7zM8.5 2c2.7 0 5.2 1 7.1 2.8l-1.4 1.4A8.2 8.2 0 0 0 8.5 4c-2.2 0-4.2.8-5.7 2.2L1.4 4.8A10.2 10.2 0 0 1 8.5 2z"/></svg>
+                <!-- battery -->
+                <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="rgba(0,0,0,0.4)" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/><path d="M25.5 4.5v4a2.2 2.2 0 0 0 0-4z" fill="rgba(0,0,0,0.4)"/></svg>
+              </span>
+            </div>
+
+            <!-- page body -->
+            <div class="page-body">
+
+              <!-- 全局置顶公告条（与列表页同款 .top-banner 组件；快照自带的已隐藏） -->
+              <div class="top-banner top-banner--overlay" id="lpBanner">
+                <span class="txt">Which FinTwit accounts make money?</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2a2a38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+                <span class="tb-close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2a2a38" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+              </div>
+
+              <!-- ======== Landing page · alva.ai mobile (initial state) ======== -->
+              <div class="landing" id="landing">
+                <iframe id="lpFrame" src="alva-snapshot.htm" title="alva.ai mobile"></iframe>
+              </div><!-- /.landing -->
+            </div><!-- /.page-body -->
+
+            <!-- ======== Login overlay（通顶毛玻璃，状态栏/Safari 栏绘制在其上） ======== -->
+            <div class="login-overlay dismissed" id="loginOverlay">
+              <div class="login-content">
+                <span class="login-later" id="laterBtn">Later</span>
+
+                <h1 class="login-title">Turn ideas into live investing<br>playbooks in minutes</h1>
+                <p class="login-sub">Log in to build, remix, and trade.</p>
+
+                <div class="promo">
+                  <span class="gift">🎁</span>
+                  <span class="lines">
+                    <span class="l1">Sign up to unlock 3-day Pro</span>
+                    <span class="l2">$8 credits · Full data access</span>
+                  </span>
+                </div>
+
+                <div class="login-spacer"></div>
+
+                <button class="btn-social">
+                  <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3a12 12 0 1 1-3.4-13l5.7-5.7A20 20 0 1 0 44 24c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8A12 12 0 0 1 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7A20 20 0 0 0 6.3 14.7z"/><path fill="#4CAF50" d="M24 44a19.9 19.9 0 0 0 13.4-5.2l-6.2-5.2A11.9 11.9 0 0 1 12.7 28l-6.5 5A20 20 0 0 0 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+                  Login with Google
+                </button>
+                <button class="btn-social">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="#000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  Login with X
+                </button>
+
+                <div class="or-divider"><span>or</span></div>
+
+                <input class="input-email" type="email" placeholder="Login with Email">
+
+                <div class="turnstile">
+                  <span class="left">
+                    <span class="checkbox" id="cfCheck"></span>
+                    <span class="label">Verify you are human</span>
+                  </span>
+                  <span class="cf">
+                    <span class="logo">
+                      <svg width="18" height="9" viewBox="0 0 26 12"><path fill="#F6821F" d="M17.7 11.1c.2-.6.1-1.2-.2-1.6-.3-.4-.8-.6-1.4-.7l-11-.1c-.1 0-.1 0-.2-.1v-.2c0-.1.1-.1.2-.1l11.1-.2c1.3-.1 2.7-1.1 3.2-2.4l.6-1.6v-.3A7.2 7.2 0 0 0 6.2 2.7 3.2 3.2 0 0 0 1.3 6c-.8.2-1.3.9-1.3 1.7 0 .1 0 .2.2.2h16.3c.1 0 .2 0 .2-.1l1-2.7z"/><path fill="#FBAD41" d="M21.3 4.3h-.3c-.1 0-.1.1-.2.1l-.4 1.5c-.2.6-.1 1.2.2 1.6.3.4.8.6 1.4.7l2.4.1c.1 0 .1 0 .2.1v.2c0 .1-.1.1-.2.1l-2.5.2c-1.4.1-2.8 1.1-3.3 2.4l-.1.4c0 .1 0 .2.1.2h8.6c.1 0 .2 0 .2-.2a6.2 6.2 0 0 0-6.1-7.4z"/></svg>
+                      Cloudflare
+                    </span>
+                    <span class="links">Privacy · Terms</span>
+                  </span>
+                </div>
+
+                <p class="login-legal">By signing in, you agree to the <a>Terms of Service</a> and <a>Privacy&nbsp;Policy</a></p>
+              </div>
+            </div><!-- /.login-overlay -->
+
+            <!-- Safari chrome -->
+            <div class="safari">
+              <div class="addressbar">
+                <span class="aA">A<span class="small">A</span></span>
+                <span class="url">alva.ai</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M18.5 2.5v4h-4" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="toolbar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 5 7.5 12 14.5 19"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c7c7cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5 5 16.5 12 9.5 19"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14V3"/><polyline points="8 6.5 12 2.8 16 6.5"/><path d="M7 10H5.5v10.5h13V10H17"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5C10.5 4 8.5 3.5 6 3.5c-1 0-2 .2-3 .5v15c1-.3 2-.5 3-.5 2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2 1 0 2 .2 3 .5v-15c-1-.3-2-.5-3-.5-2.5 0-4.5.5-6 2z"/><path d="M12 5.5v15"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="7" width="13" height="13" rx="2.5"/><path d="M17 7V6a2.5 2.5 0 0 0-2.5-2.5h-8A2.5 2.5 0 0 0 4 6v8A2.5 2.5 0 0 0 6.5 16.5h.5"/></svg>
+              </div>
+              <div class="home-indicator"></div>
+            </div>
+          </section>
+
+          <!-- ================= Screen 02 · 首页（已登录，白色主题） ================= -->
+          <section class="screen s-home" data-title="02 · 首页（已登录）" data-note="侧边栏适配为白色首页：悬浮 Tab Bar + 全局 chat 入口；搜索收进 icon，账号在右上头像">
+            <!-- iOS status bar -->
+            <div class="statusbar">
+              <span class="time">9:41</span>
+              <div class="dynamic-island"></div>
+              <span class="right">
+                <svg width="19" height="12" viewBox="0 0 19 12"><g fill="#000"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g></svg>
+                <svg width="17" height="12" viewBox="0 0 17 12" fill="#000"><path d="M8.5 9.6a2 2 0 0 1 1.7.9L8.5 12 6.8 10.5a2 2 0 0 1 1.7-.9zM8.5 5.8c1.6 0 3.1.6 4.2 1.7l-1.4 1.5a3.9 3.9 0 0 0-5.6 0L4.3 7.5a6 6 0 0 1 4.2-1.7zM8.5 2c2.7 0 5.2 1 7.1 2.8l-1.4 1.4A8.2 8.2 0 0 0 8.5 4c-2.2 0-4.2.8-5.7 2.2L1.4 4.8A10.2 10.2 0 0 1 8.5 2z"/></svg>
+                <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="rgba(0,0,0,0.4)" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/><path d="M25.5 4.5v4a2.2 2.2 0 0 0 0-4z" fill="rgba(0,0,0,0.4)"/></svg>
+              </span>
+            </div>
+
+            <div class="page-body">
+              <div class="home">
+                <!-- 置顶公告条（组件 .top-banner，全局置顶、可关闭，内容整体下挤） -->
+                <div class="top-banner" id="homeBanner">
+                  <span class="txt">Which FinTwit accounts make money?</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2a2a38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+                  <span class="tb-close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2a2a38" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+                </div>
+                <!-- header：logo + 搜索 icon + 账号头像 -->
+                <div class="home-top">
+                  <svg width="79" height="20" viewBox="0 0 204 52" style="color:#16161a"><use href="#alvamark" width="52" height="52"></use><path fill="currentColor" d="M184.856 11.092q4.354 0 7.781 1.136 3.443 1.136 5.821 3.287 2.395 2.15 3.654 5.262 1.259 3.113 1.259 7.046v22.868h-8.776V40.586q-.683 2.587-2.064 4.668a13.7 13.7 0 0 1-3.339 3.514q-1.975 1.433-4.493 2.203-2.5.77-5.437.77-3.06 0-5.577-.84-2.5-.822-4.284-2.326a10.4 10.4 0 0 1-2.762-3.619q-.961-2.133-.961-4.72 0-2.691 1.066-4.825 1.066-2.133 3.06-3.619 2.01-1.486 4.894-2.273 2.885-.805 6.504-.804h13.393v-.892q0-2.185-.683-3.916a8.06 8.06 0 0 0-1.975-2.972q-1.276-1.225-3.112-1.87-1.836-.648-4.143-.648-2.344 0-4.075.542-1.713.525-2.832 1.504a6 6 0 0 0-1.661 2.36q-.541 1.38-.541 3.094h-8.76q.001-3.41 1.259-6.153a13 13 0 0 1 3.584-4.668q2.343-1.941 5.683-2.973 3.357-1.03 7.517-1.031m-75.151 39.6h-9.79l-3.934-11.766H74.406l-4.003 11.766h-9.58L78.76.69h13.252zm12.291 0h-8.776V.69h8.776zm23.64-5.49 10.699-33.06h8.969l-13.392 38.55h-12.763l-13.27-38.55h9.179zm36.073-10.333q-3.601 0-5.454 1.206-1.836 1.206-1.836 3.567 0 2.482 2.011 3.811 2.028 1.312 5.839 1.312 2.692 0 4.948-.648 2.272-.664 3.898-1.836 1.644-1.17 2.553-2.779a7 7 0 0 0 .927-3.532v-1.1zM77.064 31.094h16.294L85.264 6.932z"></path></svg>
+                  <span class="home-right">
+                    <span class="icon-btn" title="Search">
+                      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+                    </span>
+                    <span class="home-avatar" title="Alva Intern"><img src="img/ava-1.png" alt="Alva Intern"></span>
+                  </span>
+                </div>
+
+                <!-- 顶部文字 Tab（横滑切换，无 icon） -->
+                <div class="home-tabs" id="homeTabs">
+                  <span class="h-tab on">Home</span>
+                  <span class="h-tab">Explore</span>
+                  <span class="h-tab">Agent</span>
+                  <span class="h-tab">Portfolio</span>
+                  <span class="h-tab">Skill</span>
+                  <span class="h-tab-ind" id="homeTabInd"></span>
+                </div>
+
+                <!-- 横滑面板：每个 tab 一屏 -->
+                <div class="home-panels" id="homePanels">
+                <div class="home-panel" data-tab="Home">
+
+                  <!-- 新用户首次进入：Alva 先说话（一个真实任务起步） -->
+                  <div class="welcome" id="homeWelcome">
+                    <span class="w-close" id="welcomeClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+                    <div class="w-h">Start with one real job.</div>
+                    <div class="w-sub">Ask, build, or watch. Alva keeps the work in this channel and turns useful context into visible memory.</div>
+                    <div class="w-list">
+                      <div class="w-job" data-prompt="Build my first AI infra watchlist"><span class="n">1</span><span class="jt">Build my first AI infra watchlist</span></div>
+                      <div class="w-job" data-prompt="Explain what you can do with my portfolio"><span class="n">2</span><span class="jt">Explain what you can do with my portfolio</span></div>
+                      <div class="w-job" data-prompt="Send a daily market brief in Telegram"><span class="n">3</span><span class="jt">Send a daily market brief in Telegram</span></div>
+                    </div>
+                  </div>
+
+                  <!-- 关闭欢迎卡后的 Home 空状态 -->
+                  <div class="empty-state new-only" id="homeEmpty" style="display:none">
+                    <span class="es-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
+                    <div class="es-t">Your channel is ready</div>
+                    <div class="es-d">Ask Alva anything in the box below — your playbooks, chats and tasks will collect here as you work.</div>
+                  </div>
+
+                <div class="home-label-row ret-only">
+                  <h3>Playbooks</h3>
+                  <span class="home-more">View all
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+                  </span>
+                </div>
+                <div class="group-card ret-only">
+                  <div class="home-row">
+                    <span class="pb-ava"><img src="img/ava-6.png" alt=""></span>
+                    <span class="row-main">
+                      <div class="nm">FinTwit Bulls &amp; Bears</div>
+                      <div class="sub"><span class="tk">NVDA</span>bulls at <span class="pos">68%</span> — strongest bullish tilt in 3 weeks across covered accounts</div>
+                    </span>
+                    <span class="row-meta"><span class="dot-new"></span></span>
+                  </div>
+                  <div class="home-row">
+                    <span class="pb-ava"><img src="img/ava-4.png" alt=""></span>
+                    <span class="row-main">
+                      <div class="nm">Investor Roundtable</div>
+                      <div class="sub"><span class="tk">AMD</span><span class="pos">+119.4%</span> · roundtable verdict <span class="lvl">NEUTRAL</span> — 7/10 see AI compute moat priced in</div>
+                    </span>
+                  </div>
+                  <div class="home-row">
+                    <span class="pb-ava"><img src="img/ava-2.png" alt=""></span>
+                    <span class="row-main">
+                      <div class="nm">BTC Price Tracker</div>
+                      <div class="sub"><span class="tk">BTC</span>104.2k <span class="pos">+1.8%</span> 24h · momentum cooling at range resistance</div>
+                    </span>
+                    <span class="row-meta"><span class="dot-new"></span></span>
+                  </div>
+                  <div class="home-row">
+                    <span class="pb-ava"><img src="img/ava-5.png" alt=""></span>
+                    <span class="row-main">
+                      <div class="nm">LAB Short War Room</div>
+                      <div class="sub"><span class="tk">LABUSDT</span>squeeze risk <span class="neg">HIGH</span> · funding <span class="neg">-1.2%/8h</span> still favors shorts</div>
+                    </span>
+                  </div>
+                  <div class="home-row">
+                    <span class="pb-ava"><img src="img/ava-3.png" alt=""></span>
+                    <span class="row-main">
+                      <div class="nm">HL Funding Explorer</div>
+                      <div class="sub">top carry <span class="tk">HYPE</span><span class="pos">+38% APR</span> · cross-asset funding spread widening</div>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="home-label-row ret-only">
+                  <h3>Chats</h3>
+                  <span class="home-more">View all
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+                  </span>
+                </div>
+                <div class="group-card ret-only">
+                  <div class="home-row">
+                    <span class="chat-ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
+                    <span class="row-main"><div class="nm">Crypto Price + AI Trend Pulse</div><div class="sub">BTC holding 104k — momentum cooling…</div></span>
+                    <span class="row-meta"><span class="row-time">2m</span><span class="unread">3</span></span>
+                  </div>
+                  <div class="home-row">
+                    <span class="chat-ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
+                    <span class="row-main"><div class="nm">Heartbeat Run Counter</div><div class="sub">Run #128 completed · all green</div></span>
+                    <span class="row-meta"><span class="row-time">1h</span></span>
+                  </div>
+                </div>
+
+                <!-- Upgrade to Pro -->
+                <div class="upgrade-card ret-only">
+                  <span class="up-ic">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6cdbd5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11.5 12 5.5l6 6"/></svg>
+                  </span>
+                  <span class="up-body">
+                    <div class="up-t1">Upgrade to Pro</div>
+                    <div class="up-t2">Unlock unlimited playbooks · full data access</div>
+                  </span>
+                  <span class="up-cta">7-day free</span>
+                </div>
+                </div><!-- /.home-panel Home -->
+
+                <!-- Explore -->
+                <div class="home-panel" data-tab="Explore">
+                  <div class="home-label-row"><h3>Trending</h3><span class="home-more">View all
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></div>
+                  <div class="group-card">
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-2.png" alt=""></span><span class="row-main"><div class="nm">NVDA Momentum Engine</div><div class="sub"><span class="tk">NVDA</span>breakout confirmed · <span class="pos">+6.2%</span> since signal</div></span><span class="row-meta"><span class="dot-new"></span></span></div>
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-3.png" alt=""></span><span class="row-main"><div class="nm">Crypto Macro Pulse</div><div class="sub"><span class="tk">BTC</span>risk-on regime · alts beta rotating in</div></span></div>
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-5.png" alt=""></span><span class="row-main"><div class="nm">Options Flow Radar</div><div class="sub"><span class="tk">SPY</span>unusual call sweeps at <span class="pos">+0.8%</span> OTM</div></span></div>
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-6.png" alt=""></span><span class="row-main"><div class="nm">Dividend Compounders</div><div class="sub">yield-on-cost screen · 12 names refreshed</div></span></div>
+                  </div>
+                  <div class="home-label-row"><h3>Categories</h3></div>
+                  <div class="group-card">
+                    <div class="home-row"><span class="row-main"><div class="nm">Equities</div><div class="sub">428 playbooks</div></span></div>
+                    <div class="home-row"><span class="row-main"><div class="nm">Crypto</div><div class="sub">301 playbooks</div></span></div>
+                    <div class="home-row"><span class="row-main"><div class="nm">Macro &amp; Rates</div><div class="sub">96 playbooks</div></span></div>
+                  </div>
+                </div>
+
+                <!-- Agent -->
+                <div class="home-panel" data-tab="Agent">
+                  <div class="empty-state new-only">
+                    <span class="es-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="12" rx="3"/><path d="M12 7V4M8.5 3.5h7"/><circle cx="9.5" cy="13" r="0.6" fill="currentColor"/><circle cx="14.5" cy="13" r="0.6" fill="currentColor"/></svg></span>
+                    <div class="es-t">No agents yet</div>
+                    <div class="es-d">Ask Alva to build a watchlist, daily brief, or watcher — your agents will show up here.</div>
+                  </div>
+                  <div class="home-label-row ret-only"><h3>Your Agents</h3><span class="home-more">New
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span></div>
+                  <div class="group-card ret-only">
+                    <div class="home-row"><span class="chat-ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span><span class="row-main"><div class="nm">Daily Market Brief</div><div class="sub">Runs 7:30am · last: 3 movers flagged</div></span><span class="row-meta"><span class="row-time">7:30a</span></span></div>
+                    <div class="home-row"><span class="chat-ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span><span class="row-main"><div class="nm">Earnings Watcher</div><div class="sub">3 reports tonight · NVDA, CRM, SNOW</div></span><span class="row-meta"><span class="unread">3</span></span></div>
+                    <div class="home-row"><span class="chat-ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span><span class="row-main"><div class="nm">Risk Sentinel</div><div class="sub">portfolio drawdown within limits</div></span><span class="row-meta"><span class="row-time">1h</span></span></div>
+                  </div>
+                </div>
+
+                <!-- Portfolio -->
+                <div class="home-panel" data-tab="Portfolio">
+                  <div class="empty-state new-only">
+                    <span class="es-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16 14h2"/></svg></span>
+                    <div class="es-t">No holdings yet</div>
+                    <div class="es-d">Connect a brokerage or add positions to track performance and signals here.</div>
+                  </div>
+                  <div class="home-label-row ret-only"><h3>Holdings</h3><span class="home-more">Total $128,420</span></div>
+                  <div class="group-card ret-only">
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-2.png" alt=""></span><span class="row-main"><div class="nm">NVIDIA · NVDA</div><div class="sub">42 sh · $5,240 · <span class="pos">+18.4%</span></div></span></div>
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-3.png" alt=""></span><span class="row-main"><div class="nm">Bitcoin · BTC</div><div class="sub">0.8 BTC · $83,360 · <span class="pos">+4.1%</span></div></span></div>
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-5.png" alt=""></span><span class="row-main"><div class="nm">Apple · AAPL</div><div class="sub">60 sh · $13,980 · <span class="neg">-1.2%</span></div></span></div>
+                    <div class="home-row"><span class="pb-ava"><img src="img/ava-6.png" alt=""></span><span class="row-main"><div class="nm">Cash</div><div class="sub">$25,840 · 20% allocation</div></span></div>
+                  </div>
+                </div>
+
+                <!-- Skill -->
+                <div class="home-panel" data-tab="Skill">
+                  <div class="home-label-row"><h3>Skills</h3><span class="home-more">Browse
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></div>
+                  <div class="group-card">
+                    <div class="home-row"><span class="chat-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></span><span class="row-main"><div class="nm">Backtest Engine</div><div class="sub">simulate any strategy on 10y history</div></span></div>
+                    <div class="home-row"><span class="chat-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg></span><span class="row-main"><div class="nm">Screener Builder</div><div class="sub">filter by factor, momentum, sentiment</div></span></div>
+                    <div class="home-row"><span class="chat-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14 18 8z"/><path d="M10 19a2.2 2.2 0 0 0 4 0"/></svg></span><span class="row-main"><div class="nm">Alert Composer</div><div class="sub">price, indicator &amp; news triggers</div></span></div>
+                  </div>
+                </div>
+
+                </div><!-- /.home-panels -->
+              </div><!-- /.home -->
+
+              <!-- 登录后加载骨架屏 -->
+              <div class="home-skel off" id="homeSkel">
+                <div class="sk-top">
+                  <span class="sk" style="width:78px;height:20px"></span>
+                  <span style="display:flex;gap:10px;align-items:center"><span class="sk sk-c" style="width:24px;height:24px"></span><span class="sk sk-c" style="width:32px;height:32px"></span></span>
+                </div>
+                <div class="sk" style="height:44px;margin-top:8px"></div>
+                <div class="sk" style="width:110px;height:20px;margin-top:26px"></div>
+                <div class="sk-row"><span class="sk sk-c" style="width:32px;height:32px"></span><span class="sk-lines"><div class="sk" style="height:14px;width:62%"></div><div class="sk" style="height:11px;width:88%;margin-top:7px"></div></span></div>
+                <div class="sk-row"><span class="sk sk-c" style="width:32px;height:32px"></span><span class="sk-lines"><div class="sk" style="height:14px;width:55%"></div><div class="sk" style="height:11px;width:80%;margin-top:7px"></div></span></div>
+                <div class="sk-row"><span class="sk sk-c" style="width:32px;height:32px"></span><span class="sk-lines"><div class="sk" style="height:14px;width:68%"></div><div class="sk" style="height:11px;width:84%;margin-top:7px"></div></span></div>
+                <div class="sk-row"><span class="sk sk-c" style="width:32px;height:32px"></span><span class="sk-lines"><div class="sk" style="height:14px;width:50%"></div><div class="sk" style="height:11px;width:76%;margin-top:7px"></div></span></div>
+                <div class="sk" style="width:90px;height:20px;margin-top:30px"></div>
+                <div class="sk-row"><span class="sk" style="width:32px;height:32px;border-radius:8px"></span><span class="sk-lines"><div class="sk" style="height:14px;width:64%"></div><div class="sk" style="height:11px;width:82%;margin-top:7px"></div></span></div>
+                <div class="sk-row"><span class="sk" style="width:32px;height:32px;border-radius:8px"></span><span class="sk-lines"><div class="sk" style="height:14px;width:58%"></div><div class="sk" style="height:11px;width:70%;margin-top:7px"></div></span></div>
+              </div>
+
+              <!-- 底部悬浮区：全局 chat 入口（点击进 chat 页）+ 苹果式悬浮 Tab Bar -->
+              <div class="dock">
+                <div class="chat-entry ask-trigger" id="homeAsk" data-title="Ask Alva" data-default="full" title="Ask Alva">
+                  <span class="ask-av">
+                    <svg class="ask-logo" viewBox="0 0 52 52"><use href="#alvamark" width="52" height="52"></use></svg>
+                    <span class="ask-spin"></span>
+                    <span class="ask-badge">New reply</span>
+                  </span>
+                  <span class="ph" id="homeAskPh" data-ph0="Ask Alva anything…">Ask Alva anything…</span>
+                  <span class="ph-think">Thinking…</span>
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
+                </div>
+                <!-- 底部只保留输入框；原底部 Tab 栏已移到顶部文字 Tab -->
+              </div>
+            </div>
+
+            <!-- Safari chrome -->
+            <div class="safari">
+              <div class="addressbar">
+                <span class="aA">A<span class="small">A</span></span>
+                <span class="url">alva.ai</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M18.5 2.5v4h-4" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="toolbar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 5 7.5 12 14.5 19"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c7c7cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5 5 16.5 12 9.5 19"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14V3"/><polyline points="8 6.5 12 2.8 16 6.5"/><path d="M7 10H5.5v10.5h13V10H17"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5C10.5 4 8.5 3.5 6 3.5c-1 0-2 .2-3 .5v15c1-.3 2-.5 3-.5 2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2 1 0 2 .2 3 .5v-15c-1-.3-2-.5-3-.5-2.5 0-4.5.5-6 2z"/><path d="M12 5.5v15"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="7" width="13" height="13" rx="2.5"/><path d="M17 7V6a2.5 2.5 0 0 0-2.5-2.5h-8A2.5 2.5 0 0 0 4 6v8A2.5 2.5 0 0 0 6.5 16.5h.5"/></svg>
+              </div>
+              <div class="home-indicator"></div>
+            </div>
+          </section>
+
+          <!-- ================= Screen 03 · Playbook 详情（Build 6352:133028） ================= -->
+          <section class="screen s-pd" data-title="03 · Playbook 详情" data-note="点击首页 Playbook 进入：指标总览、Equity Curve、K 线、持仓与盈亏；← 返回首页">
+            <div class="statusbar">
+              <span class="time">9:41</span>
+              <div class="dynamic-island"></div>
+              <span class="right">
+                <svg width="19" height="12" viewBox="0 0 19 12"><g fill="#000"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g></svg>
+                <svg width="17" height="12" viewBox="0 0 17 12" fill="#000"><path d="M8.5 9.6a2 2 0 0 1 1.7.9L8.5 12 6.8 10.5a2 2 0 0 1 1.7-.9zM8.5 5.8c1.6 0 3.1.6 4.2 1.7l-1.4 1.5a3.9 3.9 0 0 0-5.6 0L4.3 7.5a6 6 0 0 1 4.2-1.7zM8.5 2c2.7 0 5.2 1 7.1 2.8l-1.4 1.4A8.2 8.2 0 0 0 8.5 4c-2.2 0-4.2.8-5.7 2.2L1.4 4.8A10.2 10.2 0 0 1 8.5 2z"/></svg>
+                <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="rgba(0,0,0,0.4)" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/><path d="M25.5 4.5v4a2.2 2.2 0 0 0 0-4z" fill="rgba(0,0,0,0.4)"/></svg>
+              </span>
+            </div>
+
+            <div class="page-body">
+              <div class="pd" id="pdScroll">
+                <div class="pd-top" id="pdTop">
+                  <span class="back" id="pdBack">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a1a24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+                  </span>
+                  <span class="pd-top-tg" id="pdTopTitle">
+                    <img src="img/ava-4.png" alt="">
+                    <span class="t">Quality Value Stock Screener</span>
+                  </span>
+                  <span class="pd-actions">
+                    <span class="pd-views"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg>6</span>
+                    <span class="pd-act"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14V3"/><polyline points="8 6.5 12 2.8 16 6.5"/><path d="M7 10H5.5v10.5h13V10H17"/></svg></span>
+                  </span>
+                </div>
+
+                <div class="pd-title-row">
+                  <span class="pd-title">Quality Value Stock Screener</span>
+                </div>
+
+                <div class="pd-pills">
+                  <span class="pill"><img src="img/ava-4.png" alt="">YGGYLL</span>
+                  <span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>README</span>
+                  <span class="pill"><span class="tdot"></span>3 Automations · 15m ago</span>
+                </div>
+                <div class="pd-pills">
+                  <span class="pill dashed">Built on: <span class="coin"></span>BTC Ultimate AI Trad…</span>
+                </div>
+
+                <div class="pd-desc">Tracks the AI infrastructure investment thesis across silicon, networking, hyperscal… <span class="more">Show more</span></div>
+
+                <div class="pd-tabs" id="pdTabs">
+                  <span class="pd-tab on" data-pane="ov">Overview</span>
+                  <span class="pd-tab" data-pane="an">Analytics</span>
+                  <span class="pd-tab" data-pane="st">Strategy</span>
+                  <span class="pd-tab" data-pane="fd">Feed</span>
+                </div>
+
+                <div class="pd-pane" data-pane="ov">
+                <div class="pd-chips">
+                  <span class="pd-chip">Last Updated: 11/20/2025</span>
+                  <span class="pd-chip">Interval: 1d</span>
+                  <span class="pd-chip">Start Date: 06/12/2023</span>
+                  <span class="pd-chip">Initial Amount: 1M USD</span>
+                </div>
+
+                <div class="pd-stats">
+                  <div class="stat"><span class="lb">Total Return <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg></span><div class="vl">18.4%</div><svg id="sp1" width="92" height="28"></svg></div>
+                  <div class="stat"><span class="lb">Annualized Return <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg></span><div class="vl">49.32%</div><svg id="sp2" width="92" height="28"></svg></div>
+                  <div class="stat"><span class="lb">Volatility <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg></span><div class="vl">22.4%</div><svg id="sp3" width="92" height="28"></svg></div>
+                  <div class="stat"><span class="lb">Sharpe Ratio <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg></span><div class="vl">5.54</div><svg id="sp4" width="92" height="28"></svg></div>
+                  <div class="stat"><span class="lb">Sortino Ratio <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg></span><div class="vl">1.45</div><svg id="sp5" width="92" height="28"></svg></div>
+                  <div class="stat"><span class="lb">Max Drawdown <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg></span><div class="vl neg">-9.6%</div><svg id="sp6" width="92" height="28"></svg></div>
+                </div>
+
+                <div class="pd-ab"><span>Alpha <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg><b>9.45%</b></span><span>Beta <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg><b>0.56</b></span></div>
+
+                <div class="pd-h2-row"><span class="pd-h2">Equity Curve</span><span class="pd-sel">USD <svg width="9" height="6" viewBox="0 0 10 6" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l4 4 4-4"/></svg></span></div>
+                <div class="pd-legend"><span><i class="l1"></i>Initial Amount</span><span><i class="l2"></i>This Playbook</span><span><i class="l3"></i>BTC</span></div>
+                <div class="pd-bench">Benchmark Attribution: Alpha <b>9.45%</b> Beta <b>1.2</b></div>
+                <div class="pd-chart"><svg id="eqChart" viewBox="0 0 361 200"></svg></div>
+
+                <div class="pd-h2-row"><span class="pd-h2">Traded Symbols</span>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg>
+                </div>
+                <div class="sym-chips">
+                  <span class="sym"><span class="c" style="background:#f7931a">₿</span>BTC<span class="st"></span></span>
+                  <span class="sym"><span class="c" style="background:#627eea">Ξ</span>ETH<span class="st"></span></span>
+                  <span class="sym"><span class="c" style="background:#16161a">S</span>SOL<span class="st"></span></span>
+                  <span class="sym"><span class="c" style="background:#f3ba2f">B</span>BNB</span>
+                </div>
+
+                <div class="pd-price-row">
+                  <span class="sym-name">Bitcoin</span>
+                  <span class="px">90634.34</span>
+                  <span class="chg">+1.84% +1427.46 USD</span>
+                  <span class="src">Binance ⤢</span>
+                </div>
+                <div class="tv-bar">
+                  <span>1H</span><span>4H</span><span style="color:rgba(0,0,0,0.9)">1D ▾</span>
+                  <span class="sep"></span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.6" stroke-linecap="round"><path d="M8 6v12M8 9H5v6h3M16 4v16M16 7h-3v8h3"/></svg>
+                  <span style="font-style:italic">fx</span>
+                  <span class="sep"></span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M9 7l1.5-2.5h3L15 7"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.6" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.8-1.6L13.3 2h-2.6l-.4 2.9a7 7 0 0 0-2.8 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.8 1.6l.4 2.9h2.6l.4-2.9a7 7 0 0 0 2.8-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z"/></svg>
+                </div>
+                <div class="tv-ohlc"><span class="gdot"></span><span>O <span class="r">118,420.66</span></span><span>H <span class="g">118,527.99</span></span><span>L <span class="r">114,750.00</span></span><span>C <span class="r">116,280.56</span></span><span class="r">−2,140.10 (−1.81%)</span></div>
+                <div class="tv-vol">Volume <span class="r">5.87 K</span></div>
+                <div class="pd-chart"><svg id="cdChart" viewBox="0 0 361 240"></svg></div>
+
+                <div class="pd-h2-row"><span class="pd-h2">Current Positions</span></div>
+                <div class="pos-table">
+                  <div class="tr hd"><span class="c1">Symbol</span><span class="c2">Side</span><span class="c3">Quantity</span></div>
+                  <div class="tr"><span class="c1">AAPL</span><span class="c2"><span class="side long">LONG</span></span><span class="c3">100</span></div>
+                  <div class="tr"><span class="c1">GOOGL</span><span class="c2"><span class="side long">LONG</span></span><span class="c3">400</span></div>
+                  <div class="tr"><span class="c1">BTC</span><span class="c2"><span class="side short">SHORT</span></span><span class="c3">8.6799380431</span></div>
+                  <div class="tr"><span class="c1">MSFT</span><span class="c2"><span class="side long">LONG</span></span><span class="c3">12</span></div>
+                </div>
+
+                <div class="pd-h2-row"><span class="pd-h2">Daily P&amp;L</span><span class="pd-sel">USD <svg width="9" height="6" viewBox="0 0 10 6" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l4 4 4-4"/></svg></span></div>
+                <div class="pd-chart"><svg id="plChart" viewBox="0 0 361 150"></svg></div>
+
+                <div class="pd-h2-row"><span class="pd-h2">Drawdown</span></div>
+                <div class="pd-chart"><svg id="ddChart" viewBox="0 0 361 110"></svg></div>
+                </div><!-- /pane ov -->
+
+                <!-- ============ Analytics ============ -->
+                <div class="pd-pane hide" data-pane="an">
+                  <div class="pd-chips">
+                    <span class="pd-chip">Last Updated: 11/20/2025</span>
+                    <span class="pd-chip">Interval: 1d</span>
+                  </div>
+                  <div class="an-block">
+                    <div class="an-head"><span class="an-t">Single Line Chart ›</span><span class="an-leg"><i style="background:#f0a13a"></i>Show Price ▾</span></div>
+                    <div class="an-card"><svg class="anc" id="an1" viewBox="0 0 329 250"></svg></div>
+                  </div>
+                  <div class="an-block">
+                    <div class="an-head"><span class="an-t">Multi Lines Chart ›</span><span class="an-leg"><i style="background:#f0a13a"></i>Show Price ▾</span></div>
+                    <div class="an-card"><svg class="anc" id="an2" viewBox="0 0 329 250"></svg></div>
+                  </div>
+                  <div class="an-block">
+                    <div class="an-head"><span class="an-t">Multi Lines Chart ›</span><span class="an-leg"><i style="background:#f0a13a"></i>Show Price ▾</span></div>
+                    <div class="an-card"><svg class="anc" id="an3" viewBox="0 0 329 250"></svg></div>
+                  </div>
+                  <div class="an-block">
+                    <div class="an-head"><span class="an-t">Single Line Chart ›</span><span class="an-leg"><i style="background:#f0a13a"></i>Show Price ▾</span></div>
+                    <div class="an-card"><svg class="anc" id="an4" viewBox="0 0 329 250"></svg></div>
+                  </div>
+                </div>
+
+                <!-- ============ Strategy ============ -->
+                <div class="pd-pane hide" data-pane="st">
+                  <div class="pd-h2-row"><span class="pd-h2">Objective</span>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(0,0,0,0.3)"><path d="M5 15 12 8l7 7z"/></svg>
+                  </div>
+                  <p class="strat-p">The strategy triggers whenever BTC long liquidations exceed $300M within any rolling 24-hour window, then identifies the top 10 non-stablecoin tokens (from the top 100 by market cap) that deliver the highest 7-day excess return versus BTC from the next UTC 00:00 open.</p>
+                  <div class="pd-h2-row"><span class="pd-h2">Strategy</span>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(0,0,0,0.3)"><path d="M5 15 12 8l7 7z"/></svg>
+                  </div>
+                  <div class="strat-sub">
+                    <span class="ss-tab on" data-ss="idea">Idea</span>
+                    <span class="ss-tab" data-ss="code">Code</span>
+                    <span class="ss-log">
+                      <span class="sw"><span class="knob"></span></span>Log
+                    </span>
+                  </div>
+                  <div class="strat-card" id="ssIdea">
+                    <div class="sc-h">Signal Generation</div>
+                    <ul class="sc-ul">
+                      <li>Wait until the next UTC 00:00 open.</li>
+                      <li>Compute the 7-day forward return for BTC and all top-100 crypto assets (excluding stablecoins).</li>
+                      <li>Select the top 10 tokens with the highest 7-day excess return vs BTC historically (based on your analysis dataset).</li>
+                    </ul>
+                    <div class="sc-h">Entry Rule</div>
+                    <ul class="sc-ul">
+                      <li>Buy an equal-weighted basket of the top 3 outperformer tokens (i.e., the three tokens with the highest historical average 7-day excess return after such events).</li>
+                      <li>Allocate capital equally</li>
+                    </ul>
+                    <div class="sc-h">Exit Rule</div>
+                    <p class="sc-p">At the end of the 7-day holding window:</p>
+                    <ul class="sc-ul">
+                      <li>Sell all tokens</li>
+                      <li>Realize the basket return</li>
+                      <li>Return to cash until the next liquidation-trigger event</li>
+                    </ul>
+                  </div>
+                  <div class="strat-card code hide" id="ssCode"><pre>on btc_liquidations(window=24h) &gt; 300_000_000:
+  at next_utc_open():
+    universe = top100_by_mcap() - stablecoins
+    ranked   = rank(universe,
+                 key=excess_return_7d_vs(BTC))
+    basket   = equal_weight(ranked[:3])
+    buy(basket)
+    hold(days=7)
+    sell_all(); to_cash()</pre></div>
+                </div>
+
+                <!-- ============ Feed ============ -->
+                <div class="pd-pane hide" data-pane="fd">
+                  <div class="sym-chips" style="margin-top:14px">
+                    <span class="sym"><span class="c" style="background:#f7931a">₿</span>BTC<span class="st"></span></span>
+                    <span class="sym"><span class="c" style="background:#627eea">Ξ</span>ETH<span class="st"></span></span>
+                    <span class="sym"><span class="c" style="background:#16161a">S</span>SOL<span class="st"></span></span>
+                    <span class="sym"><span class="c" style="background:#f3ba2f">B</span>BNB</span>
+                    <span class="sym">⋯</span>
+                  </div>
+                  <div class="pd-price-row">
+                    <span class="sym-name">Bitcoin</span>
+                    <span class="px">90634.34</span>
+                    <span class="chg">+1.84% +1427.46 USD</span>
+                    <span class="src">NASDAQ ⤢</span>
+                  </div>
+                  <div class="tv-bar">
+                    <span>1H</span><span>4H</span><span>1D</span><span>1W</span><span>1M</span><span style="color:rgba(0,0,0,0.9)">1m ▾</span>
+                    <span class="sep"></span>
+                    <span style="font-style:italic">fx</span>
+                  </div>
+                  <div class="tv-ohlc"><span class="gdot"></span><span>O <span class="r">118,420.66</span></span><span>H <span class="g">118,527.99</span></span><span>L <span class="r">114,750.00</span></span><span>C <span class="r">116,280.56</span></span></div>
+                  <div class="pd-chart"><svg id="fdChart" viewBox="0 0 361 210"></svg></div>
+
+                  <div class="feed-list" id="feedList"></div>
+                </div>
+              </div>
+
+              <!-- 底部悬浮：大输入框（占位符随 playbook 轮换）+ 三等分按钮 -->
+              <div class="pd-dock" id="pdDock">
+                <div class="pd-ask ask-trigger" id="pdAsk" title="Ask about this playbook">
+                  <span class="ask-av">
+                    <svg class="ask-logo" viewBox="0 0 52 52"><use href="#alvamark" width="52" height="52"></use></svg>
+                    <span class="ask-spin"></span>
+                    <span class="ask-badge">New reply</span>
+                  </span>
+                  <span class="ph" id="pdAskPh" data-ph0="Why is the verdict NEUTRAL on AMD?">Why is the verdict NEUTRAL on AMD?</span>
+                  <span class="ph-think">Thinking…</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
+                </div>
+                <div class="pd-cta-row">
+                  <button class="btn-remix">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                    <span class="bt">Remix</span> <span class="ct">6</span>
+                  </button>
+                  <button class="btn-sub">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 15 18 9z"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>
+                    <span class="bt">Subscribe</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 输入框点击 → 底部磨砂浮层 sheet -->
+              <div class="composer-ov" id="composerOv">
+                <div class="composer-sheet">
+                <div class="cv-grab"></div>
+                <!-- 顶部 header：左侧关闭 + 标题 -->
+                <div class="cv-head">
+                  <span class="cv-close" id="composerClose" title="关闭">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                  </span>
+                  <span class="cv-title" id="composerTitle">Quality Value Stock Screener</span>
+                </div>
+                <!-- 浮层顶部 tab -->
+                <div class="cv-tabs" id="cvTabs">
+                  <span class="cv-tab on" data-tab="chat">Chat</span>
+                  <span class="cv-tab" data-tab="tasks">Tasks</span>
+                  <span class="cv-tab" data-tab="artifacts">Artifacts</span>
+                  <span class="cv-tab" data-tab="memory">Memory</span>
+                </div>
+                <!-- 对话区（发送后用户内容飘上来） -->
+                <div class="cv-thread" id="composerThread"></div>
+                <!-- Tasks / Artifacts / Memory 内容区 -->
+                <div class="cv-aux" id="cvAux"></div>
+                <!-- 广告/campaign 落地：FinTwit AI Digest 选择流（无输入框，底部 Generate CTA） -->
+                <div class="cv-campaign" id="cvCampaign">
+                  <div class="cmp-by"><span class="av"><svg viewBox="0 0 52 52"><use href="#alvamark" width="52" height="52"></use></svg></span><span class="nm">Alva</span></div>
+                  <div class="cmp-h">Build your FinTwit AI Digest</div>
+                  <div class="cmp-d">Pick the traders &amp; analysts Alva should read. We’ll run it on the last 24h of real FinTwit data and send you a sample digest.</div>
+                  <div class="cmp-list" id="cmpList">
+                    <div class="cmp-opt"><span class="cmp-stack"><img src="img/ava-2.png" alt=""><img src="img/ava-4.png" alt=""><img src="img/ava-6.png" alt=""></span><span class="cmp-main"><span class="cn">Leaderboard · Win Rate Top 50</span><span class="ch">Highest win-rate · 50 KOLs</span></span><span class="cmp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg></span></div>
+                    <div class="cmp-opt"><span class="cmp-stack"><img src="img/ava-3.png" alt=""><img src="img/ava-5.png" alt=""><img src="img/ava-1.png" alt=""></span><span class="cmp-main"><span class="cn">Leaderboard · Best ROI Top 50</span><span class="ch">Strongest returns · 50 KOLs</span></span><span class="cmp-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg></span></div>
+                    <div class="cmp-row"><img src="img/ava-2.png" alt=""><span class="cmp-main"><span class="cn">Crypto Wizard</span><span class="ch">@cryptowizardd</span></span><span class="cmp-win"><b>60%</b>win</span><button class="cmp-add" type="button">+</button></div>
+                    <div class="cmp-row"><img src="img/ava-3.png" alt=""><span class="cmp-main"><span class="cn">Gainzy</span><span class="ch">@gainzy222</span></span><span class="cmp-win"><b>63%</b>win</span><button class="cmp-add" type="button">+</button></div>
+                    <div class="cmp-row"><img src="img/ava-4.png" alt=""><span class="cmp-main"><span class="cn">Puru Saxena</span><span class="ch">@saxena_puru</span></span><span class="cmp-win"><b>57.4%</b>win</span><button class="cmp-add" type="button">+</button></div>
+                    <div class="cmp-row"><img src="img/ava-5.png" alt=""><span class="cmp-main"><span class="cn">Dave H Contrarian</span><span class="ch">@davehcontrarian</span></span><span class="cmp-win"><b>52.2%</b>win</span><button class="cmp-add" type="button">+</button></div>
+                    <div class="cmp-row"><img src="img/ava-6.png" alt=""><span class="cmp-main"><span class="cn">Arthur Hayes</span><span class="ch">@cryptohayes</span></span><span class="cmp-win"><b>45%</b>win</span><button class="cmp-add" type="button">+</button></div>
+                    <div class="cmp-row"><img src="img/ava-1.png" alt=""><span class="cmp-main"><span class="cn">Ming-Chi Kuo</span><span class="ch">@mingchikuo</span></span><span class="cmp-win"><b>46%</b>win</span><button class="cmp-add" type="button">+</button></div>
+                    <div class="cmp-more">Select more</div>
+                  </div>
+                </div>
+                <div class="cv-cta" id="cvCta">
+                  <div class="cta-meta"><span id="cmpCount">0</span> FinTwits covered</div>
+                  <div class="cta-row">
+                    <button class="cta-set" type="button">7:30 AM <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                    <button class="cta-set" type="button">English <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                    <button class="cta-btn" id="cmpGen" type="button" disabled>Generate digest</button>
+                  </div>
+                </div>
+                <!-- 底部：建议 tag + composer -->
+                <div class="cv-foot">
+                  <div class="composer-sugs" id="composerSugs"></div>
+                  <div class="composer-box">
+                    <div class="composer-ctx">
+                      <span class="cc-chip" id="composerCtxChip">
+                        <img class="cc-ico" src="img/ava-1.png" alt="">
+                        <span class="cc-t" id="composerCtxName">Quality Value Stock Screener</span>
+                        <span class="cc-x" id="composerCtxX" title="移除上下文">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                        </span>
+                      </span>
+                    </div>
+                    <textarea class="composer-input" id="composerInput" rows="1" placeholder="Ask Alva anything…   @ for context, / for skills"></textarea>
+                    <div class="composer-bar">
+                      <span class="cb-ic" title="Attach"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                      <span class="cb-ic" title="Voice"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></span>
+                      <span class="cb-model">GPT 5.5 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                      <span class="cb-send" id="composerSend" title="Send"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><polyline points="6 11 12 5 18 11"/></svg></span>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Safari chrome -->
+            <div class="safari">
+              <div class="addressbar">
+                <span class="aA">A<span class="small">A</span></span>
+                <span class="url">alva.ai</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M18.5 2.5v4h-4" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="toolbar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 5 7.5 12 14.5 19"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c7c7cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5 5 16.5 12 9.5 19"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14V3"/><polyline points="8 6.5 12 2.8 16 6.5"/><path d="M7 10H5.5v10.5h13V10H17"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5C10.5 4 8.5 3.5 6 3.5c-1 0-2 .2-3 .5v15c1-.3 2-.5 3-.5 2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2 1 0 2 .2 3 .5v-15c-1-.3-2-.5-3-.5-2.5 0-4.5.5-6 2z"/><path d="M12 5.5v15"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="7" width="13" height="13" rx="2.5"/><path d="M17 7V6a2.5 2.5 0 0 0-2.5-2.5h-8A2.5 2.5 0 0 0 4 6v8A2.5 2.5 0 0 0 6.5 16.5h.5"/></svg>
+              </div>
+              <div class="home-indicator"></div>
+            </div>
+          </section>
+
+          <!-- ============ 后续屏幕：复制下面模板并修改 ============
+          <section class="screen" data-title="02 · 标题" data-note="说明文字">
+            ...复用 .statusbar / .page-body / .safari 结构...
+          </section>
+          ============================================================= -->
+
+        </div>
+      </div>
+    </div>
+
+    <button class="nav-arrow" id="nextBtn" aria-label="下一屏">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </main>
+
+  <footer class="stage-footer">
+    <div class="dots" id="dots"></div>
+    <div class="screen-caption" id="caption"></div>
+  </footer>
+
+<script>
+  // ============ flow navigation ============
+  const screens = Array.from(document.querySelectorAll('.screen'));
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dotsEl  = document.getElementById('dots');
+  const caption = document.getElementById('caption');
+  let current = 0;
+
+  screens.forEach((s, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot';
+    d.setAttribute('aria-label', s.dataset.title || ('Screen ' + (i + 1)));
+    d.addEventListener('click', () => go(i));
+    dotsEl.appendChild(d);
+  });
+
+  function go(i) {
+    current = Math.max(0, Math.min(screens.length - 1, i));
+    screens.forEach((s, j) => s.classList.toggle('active', j === current));
+    dotsEl.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('active', j === current));
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === screens.length - 1;
+    const s = screens[current];
+    caption.innerHTML = '<b>' + (s.dataset.title || '') + '</b>' + (s.dataset.note || '');
+  }
+
+  prevBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => go(current + 1));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') go(current - 1);
+    if (e.key === 'ArrowRight') go(current + 1);
+  });
+
+  // ============ fit phone to viewport ============
+  const scaler = document.getElementById('phoneScaler');
+  function fit() {
+    const stage = document.querySelector('.stage');
+    const avail = stage.clientHeight - 24;
+    const scale = Math.min(1, avail / 880);
+    scaler.style.transform = 'scale(' + scale + ')';
+    scaler.style.margin = (-(880 * (1 - scale)) / 2) + 'px ' + (-(421 * (1 - scale)) / 2) + 'px';
+  }
+  window.addEventListener('resize', fit);
+
+  // ============ small interactions ============
+  document.getElementById('cfCheck').addEventListener('click', function () {
+    this.classList.toggle('checked');
+  });
+
+  // overlay padding-bottom 精确对齐 Safari 栏高度（通顶但内容不被遮住）
+  const loginOverlay = document.getElementById('loginOverlay');
+  const loginOrigParent = loginOverlay.parentElement;   // 登录屏 page-body（广告流程借用后归位）
+  const safariBar = document.querySelector('.screen .safari');
+  if (safariBar) loginOverlay.style.paddingBottom = safariBar.offsetHeight + 'px';
+
+  // 登录浮层：快照内点击「Log in」头像 → postMessage 唤起；Later → 关闭
+  document.getElementById('laterBtn').addEventListener('click', () => {
+    loginOverlay.classList.add('dismissed');
+  });
+  window.addEventListener('message', (e) => {
+    if (e.data === 'alva-open-login') loginOverlay.classList.remove('dismissed');
+  });
+
+  // 点击弹窗内任一登录按钮（除 Later 外）→ 视为登录成功 → 进入首页
+  function loginSuccess() {
+    loginOverlay.classList.add('dismissed');
+    if (window._pendingDigest) {   // 广告用户登录后：登录原地渐隐 → 页面变形、内容分片揭示
+      window._pendingDigest = false;
+      setTimeout(() => { if (window.AlvaChat) window.AlvaChat.enterDigest(); if (loginOrigParent) loginOrigParent.appendChild(loginOverlay); }, 340);
+      return;
+    }
+    setTimeout(() => {
+      go(1);
+      const sk = document.getElementById('homeSkel');
+      if (sk) {
+        sk.classList.remove('off');
+        setTimeout(() => sk.classList.add('off'), 1100);   // 骨架屏 → 内容
+      }
+    }, 240);
+  }
+  document.querySelectorAll('.btn-social').forEach(b => b.addEventListener('click', loginSuccess));
+  document.querySelector('.input-email').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loginSuccess();
+  });
+
+  // ============ 重置：回到初始状态 ============
+  function resetAll() {
+    go(0);
+    loginOverlay.classList.add('dismissed');            // 初始 = 落地页，无浮层
+    document.getElementById('cfCheck').classList.remove('checked');
+    const f = document.getElementById('lpFrame');
+    if (f) f.src = f.getAttribute('src');          // 重新加载快照，回到页面顶部
+    document.querySelectorAll('.top-banner').forEach(b => b.classList.remove('hidden'));  // 公告条复位
+    const wel = document.getElementById('homeWelcome'); if (wel) wel.style.display = '';  // 欢迎卡复位
+    const we = document.getElementById('homeEmpty'); if (we) we.style.display = 'none';   // Home 空态复位
+    if (window.AlvaChat) window.AlvaChat.reset();        // chat 浮层/对话复位
+    const sk = document.getElementById('homeSkel');
+    if (sk) sk.classList.add('off');
+    const pdd = document.getElementById('pdDock');
+    if (pdd) pdd.classList.remove('mini');
+    const home = document.querySelector('.home');
+    if (home) home.scrollTo({ top: 0 });
+    const hp = document.getElementById('homePanels'); if (hp) hp.scrollLeft = 0;          // 回到 Home tab
+  }
+
+  // ============ 两个用户场景：New user / Returning user（切换即重置该场景） ============
+  const viewport = document.getElementById('viewport');
+  let userMode = 'new';
+  function setMode(mode) {
+    userMode = mode;
+    const ret = (mode === 'returning');
+    if (viewport) { viewport.classList.toggle('mode-new', !ret); viewport.classList.toggle('mode-returning', ret); }   // new & ad 用新用户首页
+    document.querySelectorAll('#modeTabs .mode-tab').forEach(t => t.classList.toggle('on', t.dataset.mode === mode));
+    resetAll();
+    if (mode === 'ad' && window.AlvaChat) { go(1); window.AlvaChat.openCampaign(); }   // 广告用户：直接进首页并打开全屏 campaign
+  }
+  document.querySelectorAll('#modeTabs .mode-tab').forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
+  if (viewport) viewport.classList.add('mode-new');     // 默认新用户场景
+  // 公告条组件：任意 .tb-close 关闭其所在的 .top-banner（首页 + landing 复用）
+  document.querySelectorAll('.tb-close').forEach(c => c.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.top-banner').forEach(b => b.classList.add('hidden')); // 全局关闭，刷新前不再出现
+  }));
+
+  // 欢迎卡关闭
+  (function () { const wc = document.getElementById('welcomeClose'); if (wc) wc.addEventListener('click', () => { const w = document.getElementById('homeWelcome'); if (w) w.style.display = 'none'; const e = document.getElementById('homeEmpty'); if (e) e.style.display = 'flex'; }); })();
+  // 新用户欢迎卡 starter：点击 → 打开 chat 浮层并预填该任务
+  document.querySelectorAll('.w-job').forEach(j => j.addEventListener('click', () => {
+    const homeAsk = document.getElementById('homeAsk');
+    if (window.AlvaChat && homeAsk) {
+      window.AlvaChat.open(homeAsk);
+      const inp = document.getElementById('composerInput');
+      if (inp) { inp.value = j.getAttribute('data-prompt') || ''; inp.dispatchEvent(new Event('input')); setTimeout(() => inp.focus(), 140); }
+    }
+  }));
+
+  // 首页顶部文字 Tab + 横滑面板：点 tab 切换 / 横滑同步 / 鼠标拖拽
+  (function () {
+    const tabsWrap = document.getElementById('homeTabs');
+    const panels = document.getElementById('homePanels');
+    if (!tabsWrap || !panels) return;
+    const tabs = Array.from(tabsWrap.querySelectorAll('.h-tab'));
+    const ind = document.getElementById('homeTabInd');
+    // 单条下划线：滑到激活 tab 下方，宽度跟随该 tab
+    function moveInd() { const at = tabsWrap.querySelector('.h-tab.on'); if (!at || !ind) return; ind.style.width = at.offsetWidth + 'px'; ind.style.transform = 'translateX(' + at.offsetLeft + 'px)'; }
+    // 只滚动 Tab 条自身把激活项带进视野，绝不用 scrollIntoView（会冒泡滚动祖先、导致整页偏移）
+    function centerTab(i, smooth) { const at = tabs[i]; if (!at) return; const target = at.offsetLeft - (tabsWrap.clientWidth - at.offsetWidth) / 2; tabsWrap.scrollTo({ left: Math.max(0, target), behavior: smooth ? 'smooth' : 'auto' }); }
+    function markActive(i) { tabs.forEach((t, idx) => t.classList.toggle('on', idx === i)); moveInd(); centerTab(i, true); }
+    tabs.forEach((t, i) => t.addEventListener('click', () => { panels.scrollTo({ left: i * panels.clientWidth, behavior: 'smooth' }); markActive(i); }));
+    let raf;
+    panels.addEventListener('scroll', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const i = Math.round(panels.scrollLeft / panels.clientWidth);
+        tabs.forEach((t, idx) => t.classList.toggle('on', idx === i));
+        moveInd(); centerTab(i, false);
+      });
+    }, { passive: true });
+    // 鼠标拖拽横滑（触屏/触控板原生支持）
+    let down = false, sx = 0, sl = 0;
+    panels.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { down = true; sx = e.clientX; sl = panels.scrollLeft; } });
+    panels.addEventListener('pointermove', e => { if (down) panels.scrollLeft = sl - (e.clientX - sx); });
+    function endDrag() { if (!down) return; down = false; const i = Math.max(0, Math.min(tabs.length - 1, Math.round(panels.scrollLeft / panels.clientWidth))); panels.scrollTo({ left: i * panels.clientWidth, behavior: 'smooth' }); markActive(i); }
+    panels.addEventListener('pointerup', endDrag);
+    panels.addEventListener('pointercancel', endDrag);
+    panels.addEventListener('pointerleave', endDrag);
+    // 初始定位 + 首页变可见时重算（首页初始隐藏，offsetWidth 为 0）
+    moveInd();
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) moveInd(); })).observe(tabsWrap);
+    }
+  })();
+
+
+  // ============ Screen 03 · 图表渲染（SVG，确定性数据） ============
+  (function () {
+    const NS = 'http://www.w3.org/2000/svg';
+    function pts(data, w, h, pad) {
+      const mn = Math.min(...data), mx = Math.max(...data);
+      return data.map((v, i) => [pad + i * (w - 2 * pad) / (data.length - 1), h - pad - (v - mn) / (mx - mn || 1) * (h - 2 * pad)]);
+    }
+    function spark(id, data, color) {
+      const el = document.getElementById(id); if (!el) return;
+      const p = pts(data, 92, 28, 2).map(q => q.join(',')).join(' ');
+      el.innerHTML = '<polyline points="' + p + '" fill="none" stroke="' + color + '" stroke-width="1.4" stroke-linejoin="round"/>';
+    }
+    spark('sp1', [2,4,3,6,5,8,6,9,8,11,9,12], '#4cbe8f');
+    spark('sp2', [3,5,4,7,9,7,11,10,13,11,15,16], '#4cbe8f');
+    spark('sp3', [5,8,4,9,6,10,5,11,7,12,8,13], '#4cbe8f');
+    spark('sp4', [4,6,5,8,6,7,9,8,10,9,12,11], '#4cbe8f');
+    spark('sp5', [3,4,6,5,7,6,8,9,8,10,11,12], '#4cbe8f');
+    spark('sp6', [-1,-3,-2,-5,-3,-7,-4,-8,-5,-9,-6,-8], '#ef8a8a');
+
+    // Equity Curve
+    (function () {
+      const el = document.getElementById('eqChart'); if (!el) return;
+      const W = 361, H = 200, L = 34, B = 18, T = 6;
+      const pb = [100,101,99,103,102,106,104,108,111,109,113,110,114,117,115,112,116,119,117,121,118,116,120,118,122,119,117,116,118,118.4];
+      const btc = [100,98,103,101,97,102,106,103,99,104,108,105,110,107,103,108,104,109,106,111,108,104,107,103,106,102,105,103,101,104];
+      const mn = 80, mx = 120;
+      const X = i => L + i * (W - L - 6) / (pb.length - 1);
+      const Y = v => T + (mx - v) / (mx - mn) * (H - T - B);
+      function area(data, color, fill) {
+        const line = data.map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' ');
+        return '<path d="' + line + ' L' + X(data.length - 1).toFixed(1) + ' ' + Y(mn) + ' L' + X(0) + ' ' + Y(mn) + ' Z" fill="' + fill + '"/>' +
+               '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5"/>';
+      }
+      let s = '';
+      [120,110,100,90,80].forEach(v => {
+        s += '<line x1="' + L + '" y1="' + Y(v) + '" x2="' + (W-6) + '" y2="' + Y(v) + '" stroke="rgba(0,0,0,0.05)"/>' +
+             '<text x="' + (L-5) + '" y="' + (Y(v)+3.5) + '" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">' + (v/100).toFixed(1) + 'M</text>';
+      });
+      s += '<line x1="' + L + '" y1="' + Y(100) + '" x2="' + (W-6) + '" y2="' + Y(100) + '" stroke="#9aa0a6" stroke-width="1" stroke-dasharray="2 3"/>';
+      s += area(btc, '#f0a13a', 'rgba(240,161,58,0.14)');
+      s += area(pb, '#7c83e0', 'rgba(124,131,224,0.14)');
+      ['11/01','11/07','11/13','11/19','11/25','12/01'].forEach((t2, i) => {
+        s += '<text x="' + (L + i * (W-L-6) / 5) + '" y="' + (H-4) + '" text-anchor="middle" font-size="10" fill="rgba(0,0,0,0.4)">' + t2 + '</text>';
+      });
+      el.innerHTML = s;
+    })();
+
+    // K 线
+    (function () {
+      const el = document.getElementById('cdChart'); if (!el) return;
+      const W = 361, H = 240, R = 42, B = 30, T = 8, VH = 42;
+      const o = [233.31,233.29,233.33,233.30,233.27,233.31,233.28,233.25,233.29,233.33,233.30,233.35,233.32,233.29,233.34,233.31,233.36,233.33,233.30,233.35,233.38,233.34,233.31,233.37,233.40,233.36,233.41,233.39];
+      const c = [233.29,233.33,233.30,233.27,233.31,233.28,233.25,233.29,233.33,233.30,233.35,233.32,233.29,233.34,233.31,233.36,233.33,233.30,233.35,233.38,233.34,233.31,233.37,233.40,233.36,233.41,233.39,233.43];
+      const mn = 233.22, mx = 233.47;
+      const Y = v => T + (mx - v) / (mx - mn) * (H - T - B - VH);
+      const cw = (W - R - 8) / o.length;
+      let s = '';
+      [233.45,233.40,233.35,233.30,233.25].forEach(v => {
+        s += '<line x1="6" y1="' + Y(v) + '" x2="' + (W-R) + '" y2="' + Y(v) + '" stroke="rgba(0,0,0,0.05)"/>' +
+             '<text x="' + (W-R+5) + '" y="' + (Y(v)+3.5) + '" font-size="10" fill="rgba(0,0,0,0.45)">' + v.toFixed(2) + '</text>';
+      });
+      const vols = [3,5,2,6,4,3,7,4,2,5,3,6,4,2,5,3,4,6,3,5,8,4,3,5,9,4,6,5];
+      o.forEach((ov, i) => {
+        const cv = c[i], up = cv >= ov;
+        const x = 6 + i * cw + cw / 2;
+        const hi = Math.max(ov, cv) + 0.015, lo = Math.min(ov, cv) - 0.015;
+        const col = up ? '#2ebd85' : '#f6655a';
+        s += '<line x1="' + x + '" y1="' + Y(hi) + '" x2="' + x + '" y2="' + Y(lo) + '" stroke="' + col + '" stroke-width="1"/>';
+        s += '<rect x="' + (x - cw*0.32) + '" y="' + Y(Math.max(ov,cv)) + '" width="' + (cw*0.64) + '" height="' + Math.max(1.5, Math.abs(Y(ov)-Y(cv))) + '" fill="' + col + '"/>';
+        const vh = vols[i] / 9 * VH;
+        s += '<rect x="' + (x - cw*0.32) + '" y="' + (H - B - vh) + '" width="' + (cw*0.64) + '" height="' + vh + '" fill="' + (up ? 'rgba(46,189,133,0.35)' : 'rgba(246,101,90,0.35)') + '"/>';
+      });
+      // B / S 标记
+      s += '<circle cx="' + (6 + 7*cw + cw/2) + '" cy="' + (Y(233.25)-12) + '" r="8" fill="#1f7a5c"/><text x="' + (6 + 7*cw + cw/2) + '" y="' + (Y(233.25)-8.5) + '" text-anchor="middle" font-size="10" fill="#fff">B</text>';
+      s += '<circle cx="' + (6 + 20*cw + cw/2) + '" cy="' + (Y(233.38)-14) + '" r="8" fill="#e25555"/><text x="' + (6 + 20*cw + cw/2) + '" y="' + (Y(233.38)-10.5) + '" text-anchor="middle" font-size="10" fill="#fff">S</text>';
+      // 现价标签
+      s += '<rect x="' + (W-R+1) + '" y="' + (Y(233.43)-7) + '" width="38" height="14" rx="2" fill="#2ebd85"/><text x="' + (W-R+20) + '" y="' + (Y(233.43)+3.5) + '" text-anchor="middle" font-size="10" fill="#fff">233.50</text>';
+      ['17:15','17:30','17:45','18:00','18:15','18:30'].forEach((t2, i) => {
+        s += '<text x="' + (20 + i * (W-R-30) / 5) + '" y="' + (H-12) + '" text-anchor="middle" font-size="10" fill="rgba(0,0,0,0.4)">' + t2 + '</text>';
+      });
+      el.innerHTML = s;
+    })();
+
+    // Daily P&L
+    (function () {
+      const el = document.getElementById('plChart'); if (!el) return;
+      const W = 361, H = 150, L = 26, B = 18, T = 6;
+      const v = [420,-280,650,380,-520,720,310,-190,840,460,-630,290,550,-410,930,370,-260,680,420,-740,510,330,-450,860,390,-310,620,440,-580,750,280,-220,560,910,-350,470,-660,530,360,-480];
+      const mx = 1000;
+      const Y0 = T + (H - T - B) / 2;
+      const sc = (H - T - B) / 2 / mx;
+      let s = '<text x="' + (L-5) + '" y="' + (T+8) + '" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">1K</text>' +
+              '<text x="' + (L-5) + '" y="' + (Y0+3) + '" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">0</text>' +
+              '<text x="' + (L-5) + '" y="' + (H-B) + '" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">-1K</text>' +
+              '<line x1="' + L + '" y1="' + Y0 + '" x2="' + (W-6) + '" y2="' + Y0 + '" stroke="rgba(0,0,0,0.12)"/>';
+      const bw = (W - L - 10) / v.length;
+      v.forEach((x, i) => {
+        const h2 = Math.abs(x) * sc;
+        s += '<rect x="' + (L + 2 + i*bw) + '" y="' + (x > 0 ? Y0 - h2 : Y0) + '" width="' + (bw*0.62) + '" height="' + h2 + '" fill="' + (x > 0 ? '#2a9b7d' : '#e25555') + '" rx="1"/>';
+      });
+      ['11/01','11/07','11/13','11/19','11/25','12/01'].forEach((t2, i) => {
+        s += '<text x="' + (L + i*(W-L-10)/5) + '" y="' + (H-4) + '" text-anchor="middle" font-size="10" fill="rgba(0,0,0,0.4)">' + t2 + '</text>';
+      });
+      el.innerHTML = s;
+    })();
+
+    // Drawdown
+    (function () {
+      const el = document.getElementById('ddChart'); if (!el) return;
+      const W = 361, H = 110, L = 26, B = 16, T = 10;
+      const v = [-2,-4,-1,-5,-3,-6,-2,-7,-4,-8,-3,-5,-9,-4,-6,-2,-7,-3,-8,-5,-4,-9,-6,-3,-7,-4,-5,-8,-3,-6,-2,-5,-7,-4,-6,-3,-8,-5,-4,-6];
+      const sc = (H - T - B) / 10;
+      let s = '<text x="' + (L-5) + '" y="' + (T+3) + '" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">0%</text>' +
+              '<line x1="' + L + '" y1="' + T + '" x2="' + (W-6) + '" y2="' + T + '" stroke="rgba(0,0,0,0.12)"/>';
+      const bw = (W - L - 10) / v.length;
+      v.forEach((x, i) => {
+        s += '<rect x="' + (L + 2 + i*bw) + '" y="' + T + '" width="' + (bw*0.62) + '" height="' + (Math.abs(x)*sc) + '" fill="#ef8a8a" rx="1"/>';
+      });
+      el.innerHTML = s;
+    })();
+
+    // 输入框占位符轮换（详情页 + 首页复用；thinking 时暂停，避免覆盖 Thinking…）
+    (function () {
+      const SETS = [
+        { id: 'pdAskPh', qs: [
+          'Why is the verdict NEUTRAL on AMD?',
+          'What is the top holding right now?',
+          'Biggest risk to the AI thesis?',
+          'How does it perform vs BTC?',
+          'Explain the -9.6% max drawdown'
+        ]},
+        { id: 'homeAskPh', qs: [
+          'Ask Alva anything…',
+          'Build my first AI infra watchlist',
+          'Send a daily market brief in Telegram',
+          'What can you do with my portfolio?',
+          'Track unusual options flow on NVDA'
+        ]}
+      ];
+      SETS.forEach(s => {
+        const ph = document.getElementById(s.id); if (!ph) return;
+        const entry = ph.closest('.ask-trigger');
+        let i = 0;
+        setInterval(() => {
+          if (entry && entry.classList.contains('thinking')) return;   // thinking 时不轮换
+          ph.classList.add('swap');
+          setTimeout(() => {
+            i = (i + 1) % s.qs.length;
+            ph.textContent = s.qs[i];
+            ph.style.transition = 'none'; ph.style.transform = 'translateY(7px)'; ph.offsetHeight;
+            ph.style.transition = ''; ph.classList.remove('swap'); ph.style.transform = '';
+          }, 260);
+        }, 5000);
+      });
+    })();
+
+    // 详情页顶栏：分割线 + 小标题渐显（大标题滚出后，由下向上推入）
+    const pd = document.getElementById('pdScroll'), pdTop = document.getElementById('pdTop');
+    const pdTitle = document.querySelector('.pd-title-row'), pdTopTitle = document.getElementById('pdTopTitle');
+    const pdDock = document.getElementById('pdDock');
+    const pdTabs = document.getElementById('pdTabs');
+    let lastY = 0;
+    if (pd && pdTop) pd.addEventListener('scroll', () => {
+      pdTop.classList.toggle('scrolled', pd.scrollTop > 2);
+      // tab 行吸顶贴合顶部栏时：tab 行换上顶部栏样式，顶部栏抹掉接缝，两者融为一体
+      if (pdTabs) {
+        const stuck = pd.scrollTop >= pdTabs.offsetTop - 115 - 0.5;
+        pdTabs.classList.toggle('stuck', stuck);
+        pdTop.classList.toggle('merged', stuck);
+      }
+      if (pdTitle && pdTopTitle) {
+        const gone = pd.scrollTop > pdTitle.offsetTop + pdTitle.offsetHeight - 115;
+        pdTopTitle.classList.toggle('show', gone);
+      }
+      // 下滑收起 / 上滑展开（交叉淡入，避免重排跳变）
+      if (pdDock) {
+        const dy = pd.scrollTop - lastY;
+        const want = dy > 6 && pd.scrollTop > 60 ? true : (dy < -6 ? false : null);
+        if (want !== null && want !== pdDock.classList.contains('mini') && !pdDock._anim) {
+          pdDock._anim = true;
+          pdDock.classList.add('fading');
+          setTimeout(() => {
+            pdDock.classList.toggle('mini', want);
+            pdDock.classList.remove('fading');
+            setTimeout(() => { pdDock._anim = false; }, 160);
+          }, 140);
+        }
+      }
+      lastY = pd.scrollTop;
+    }, { passive: true });
+  })();
+
+  // 首页 Playbook 行 → 详情页；详情页 ← 返回首页
+  document.querySelectorAll('.s-home .group-card')[0].querySelectorAll('.home-row').forEach(r => {
+    r.addEventListener('click', () => {
+      go(2);
+      const pd = document.getElementById('pdScroll');
+      if (pd) pd.scrollTo({ top: 0 });
+    });
+  });
+  document.getElementById('pdBack').addEventListener('click', () => go(1));
+  // 点击顶栏头像/标题 → 回到页面顶部
+  document.getElementById('pdTopTitle').addEventListener('click', () => {
+    document.getElementById('pdScroll').scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+
+  // ============ 详情页 tab 切换 + Analytics / Feed 渲染 ============
+  (function () {
+    // ---- tab 切换 ----
+    const tabs = document.querySelectorAll('#pdTabs .pd-tab');
+    const panes = document.querySelectorAll('.pd-pane');
+    const pdEl = document.getElementById('pdScroll');
+    tabs.forEach(t => t.addEventListener('click', () => {
+      tabs.forEach(x => x.classList.toggle('on', x === t));
+      panes.forEach(p => p.classList.toggle('hide', p.dataset.pane !== t.dataset.pane));
+      const tabsTop = document.getElementById('pdTabs').offsetTop - 115;
+      if (pdEl.scrollTop > tabsTop) pdEl.scrollTo({ top: tabsTop });
+    }));
+
+    // ---- Strategy：Idea / Code 子 tab + Log 开关 ----
+    document.querySelectorAll('.ss-tab').forEach(t => t.addEventListener('click', () => {
+      document.querySelectorAll('.ss-tab').forEach(x => x.classList.toggle('on', x === t));
+      document.getElementById('ssIdea').classList.toggle('hide', t.dataset.ss !== 'idea');
+      document.getElementById('ssCode').classList.toggle('hide', t.dataset.ss !== 'code');
+    }));
+    const sw = document.querySelector('.ss-log .sw');
+    if (sw) sw.parentElement.addEventListener('click', () => sw.classList.toggle('on'));
+
+    // ---- 确定性伪随机波形 ----
+    function wave(seed, len, base, amp, drift) {
+      let s = seed, out = [], v = base;
+      for (let i = 0; i < len; i++) {
+        s = (s * 16807) % 2147483647;
+        v += (s / 2147483647 - 0.5) * amp + drift;
+        out.push(v);
+      }
+      return out;
+    }
+    const W = 329, H = 250, L = 34, R2 = 30, B = 26, T = 22;
+    function axisY(labels, withRight) {
+      let s = '';
+      labels.forEach((lb, i) => {
+        const y = T + i * (H - T - B) / (labels.length - 1);
+        s += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - (withRight ? R2 : 8)) + '" y2="' + y + '" stroke="rgba(0,0,0,0.05)"/>' +
+             '<text x="' + (L - 5) + '" y="' + (y + 3.5) + '" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">' + lb + '</text>';
+      });
+      return s;
+    }
+    function axisX(labels, withRight) {
+      let s = '';
+      labels.forEach((lb, i) => {
+        s += '<text x="' + (L + i * (W - L - (withRight ? R2 : 8)) / (labels.length - 1)) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="10" fill="rgba(0,0,0,0.4)">' + lb + '</text>';
+      });
+      return s;
+    }
+    function lineOf(data, color, fill, withRight) {
+      const mn = Math.min(...data), mx = Math.max(...data);
+      const X = i => L + i * (W - L - (withRight ? R2 : 8)) / (data.length - 1);
+      const Y = v => T + (mx - v) / (mx - mn) * (H - T - B);
+      const ln = data.map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' ');
+      let s = '';
+      if (fill) s += '<path d="' + ln + ' L' + X(data.length - 1).toFixed(1) + ' ' + (H - B) + ' L' + L + ' ' + (H - B) + ' Z" fill="' + fill + '"/>';
+      s += '<path d="' + ln + '" fill="none" stroke="' + color + '" stroke-width="1.4"/>';
+      return s;
+    }
+    const wm = '<text x="' + (L + 2) + '" y="' + (H - B - 8) + '" font-size="13" fill="rgba(0,0,0,0.18)">⠿ Alva</text>';
+    function priceLbl(withRight) {
+      return '<text x="' + L + '" y="12" font-size="10" fill="rgba(0,0,0,0.4)">Price (USD)</text>' +
+        (withRight ? '<text x="' + (W - 4) + '" y="12" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">Vol / Drawdown (%)</text>' : '');
+    }
+    function legend(items) {
+      let x = W - 8, s = '';
+      items.slice().reverse().forEach(it => {
+        s += '<text x="' + x + '" y="12" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.55)">Xxxxxx</text>';
+        x -= 48;
+        s += '<rect x="' + (x + 2) + '" y="9" width="12" height="2" fill="' + it + '"/>';
+        x -= 18;
+      });
+      return s;
+    }
+    function rightAxis() {
+      let s = '';
+      ['80','60','40','20','0'].forEach((lb, i) => {
+        const y = T + i * (H - T - B) / 4;
+        s += '<text x="' + (W - 4) + '" y="' + (y + 3.5) + '" text-anchor="end" font-size="10" fill="rgba(0,0,0,0.4)">' + lb + '</text>';
+      });
+      return s;
+    }
+    const an1 = document.getElementById('an1');
+    if (an1) {
+      an1.innerHTML = priceLbl(false) + legend(['#2a9b7d']) + axisY(['220','200','160','120','80'], false) +
+        lineOf(wave(7, 60, 200, 6, 0.45), '#2a9b7d', 'rgba(42,155,125,0.10)', false) +
+        axisX(['07/2025','08/2025','09/2025','10/2025','11/2025'], false) + wm;
+      document.getElementById('an2').innerHTML = priceLbl(true) + legend(['#f0a13a','#7c83e0','#e06ba8','#2a9b7d']) +
+        axisY(['220','200','160','120','80'], true) + rightAxis() +
+        lineOf(wave(11, 70, 208, 5, 0.12), '#2a9b7d', null, true) +
+        lineOf(wave(23, 70, 178, 7, 0.05), '#e06ba8', null, true) +
+        lineOf(wave(37, 70, 142, 6, 0.02), '#7c83e0', null, true) +
+        lineOf(wave(53, 70, 120, 7, 0.10), '#f0a13a', null, true) +
+        axisX(['Mar','May','Jul','Sep','Nov','2026'], true) + wm;
+      document.getElementById('an3').innerHTML = priceLbl(true) + legend(['#d9534f','#4a90d9']) +
+        axisY(['220','200','160','120','80'], true) + rightAxis() +
+        lineOf(wave(61, 70, 182, 7, -0.02), '#d9534f', null, true) +
+        lineOf(wave(83, 70, 140, 5, -0.15), '#4a90d9', null, true) +
+        axisX(['Mar','May','Jul','Sep','Nov','2026'], true) + wm;
+      document.getElementById('an4').innerHTML = priceLbl(false) + legend(['#7c83e0']) +
+        axisY(['220','200','160','120','80'], false) +
+        lineOf(wave(97, 60, 200, 6, 0.4), '#7c83e0', 'rgba(124,131,224,0.10)', false) +
+        axisX(['07/2025','08/2025','09/2025','10/2025','11/2025'], false) + wm;
+    }
+
+    // ---- Feed：折线行情图 + 信号流 ----
+    const fd = document.getElementById('fdChart');
+    if (fd) {
+      const FW = 361, FH = 210, FR = 44, FB = 38, FT = 8, VH = 30;
+      const data = wave(5, 80, 233.32, 0.035, 0.0012);
+      const mn = 233.20, mx = 233.52;
+      const X = i => 6 + i * (FW - FR - 12) / (data.length - 1);
+      const Y = v => FT + (mx - v) / (mx - mn) * (FH - FT - FB - VH);
+      let s = '';
+      [233.50,233.45,233.40,233.35,233.30,233.25,233.20].forEach(v => {
+        s += '<line x1="6" y1="' + Y(v) + '" x2="' + (FW-FR) + '" y2="' + Y(v) + '" stroke="rgba(0,0,0,0.05)"/>' +
+             '<text x="' + (FW-FR+5) + '" y="' + (Y(v)+3.5) + '" font-size="10" fill="rgba(0,0,0,0.45)">' + v.toFixed(2) + '</text>';
+      });
+      const cut = 18;
+      const seg = (arr, off, color) => arr.map((v, i) => (i ? 'L' : 'M') + X(i + off).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' ');
+      s += '<path d="' + seg(data, 0, '') + ' L' + X(data.length-1) + ' ' + (FH-FB-VH+18) + ' L' + X(0) + ' ' + (FH-FB-VH+18) + ' Z" fill="rgba(42,155,125,0.08)"/>';
+      s += '<path d="' + seg(data.slice(0, cut+1), 0) + '" fill="none" stroke="#e25555" stroke-width="1.4"/>';
+      s += '<path d="' + seg(data.slice(cut), cut) + '" fill="none" stroke="#2a9b7d" stroke-width="1.4"/>';
+      s += '<circle cx="' + X(data.length-1) + '" cy="' + Y(data[data.length-1]) + '" r="3" fill="#2a9b7d"/>';
+      s += '<rect x="' + (FW-FR+1) + '" y="' + (Y(data[data.length-1])-7) + '" width="40" height="14" rx="2" fill="#2ebd85"/><text x="' + (FW-FR+21) + '" y="' + (Y(data[data.length-1])+3.5) + '" text-anchor="middle" font-size="10" fill="#fff">233.50</text>';
+      const vols = wave(31, 80, 5, 3, 0);
+      vols.forEach((v, i) => {
+        const vh = Math.max(1, Math.abs(v) % 6) / 6 * VH;
+        s += '<rect x="' + (X(i)-1.4) + '" y="' + (FH-FB-vh) + '" width="2.8" height="' + vh + '" fill="' + (i % 3 ? 'rgba(246,101,90,0.30)' : 'rgba(46,189,133,0.30)') + '"/>';
+      });
+      ['16:15','16:30','16:45','17:00','17:15','17:30','17:45','18:00','18:15','18:30'].forEach((t2, i) => {
+        s += '<text x="' + (16 + i * (FW-FR-32) / 9) + '" y="' + (FH-22) + '" text-anchor="middle" font-size="10" fill="rgba(0,0,0,0.4)">' + t2 + '</text>';
+      });
+      s += '<text x="10" y="' + (FH-FB-6) + '" font-size="14" fill="rgba(0,0,0,0.25)">TV</text>';
+      fd.innerHTML = s;
+
+      // 信号流
+      const items = [
+        ['11/22/2025 16:30'], ['20 minutes ago'], ['11/22/2025 16:30']
+      ];
+      const coin = (bg, ch) => '<span class="ci" style="background:' + bg + '">' + ch + '</span>';
+      const up = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1f9d6d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 10 11l4 3 6-7"/><path d="M20 12V7h-5"/></svg>';
+      const dn = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#e25555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l6 6 4-3 6 7"/><path d="M20 12v5h-5"/></svg>';
+      document.getElementById('feedList').innerHTML = items.map(([time]) =>
+        '<div class="feed-item">' +
+          '<div class="fi-head"><img src="img/ava-1.png" alt=""><span class="fi-name">YLLYGG</span><span class="fi-time">' + time + '</span></div>' +
+          '<div class="fi-body">' +
+            '<div class="fi-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 20 4M20 9V4h-5"/></svg>Attribution Analysis Strategy for Price Trends</div>' +
+            '<div class="fi-row">' + coin('#16161a','') + '<span class="tk2">AAPL</span>Increase from 4.5% → 8.0% ' + up + '</div>' +
+            '<div class="fi-row">' + coin('#2775ca','❄') + '<span class="tk2">WMT</span>Reduce from 6.0% → 2.0% ' + dn + '</div>' +
+            '<div class="fi-row">' + coin('#f0750a','') + '<span class="tk2">AMZN</span>Increase from 4.5% → 8.0% ' + dn + '</div>' +
+            '<p class="fi-p">Multi-signal update: Portfolio rebalanced across multiple assets based on new factor readings.</p>' +
+            '<ul class="fi-ul"><li>BTC RSI is 81.64 &gt; 35</li><li>BTC price is at Bollinger Upper Band.</li></ul>' +
+          '</div>' +
+        '</div>').join('');
+    }
+  })();
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'r' || e.key === 'R') resetAll();   // R 键重置当前场景
+  });
+
+  // ============ Chat 浮层组件（可复用：详情页 / 首页 / 任意 .ask-trigger 统一调用）============
+  (function () {
+    const ov = document.getElementById('composerOv');
+    if (!ov) return;
+    const input = document.getElementById('composerInput');
+    const sugWrap = document.getElementById('composerSugs');
+    const thread = document.getElementById('composerThread');
+    const closeBtn = document.getElementById('composerClose');
+    const sendBtn = document.getElementById('composerSend');
+    const ctxX = document.getElementById('composerCtxX');
+    const ctxChip = document.getElementById('composerCtxChip');
+    const ctxName = document.getElementById('composerCtxName');
+    const cvTitle = document.getElementById('composerTitle');
+    const cvTabs = document.getElementById('cvTabs');
+    const cvAux = document.getElementById('cvAux');
+    const sheet = ov.querySelector('.composer-sheet');
+    let trigger = null;                 // 当前触发入口
+    const THINK_MS = 10000;            // demo：强制思考 10 秒
+
+    const SUGS = [
+      'Why is the verdict NEUTRAL on AMD?',
+      'Summarize the latest trading signals',
+      'How does it compare to the S&P 500?',
+      "What's the max drawdown this year?",
+      'Explain the entry & exit rules',
+      'Backtest this since 2020'
+    ];
+    // 每次 Alva 回答后，轮换出现一组「更新的」后续建议
+    const FOLLOWUPS = [
+      ['Show the 7-day forward returns', 'Compare AMD vs NVDA', 'What would flip the verdict?'],
+      ['Set a price alert on this', 'Add AMD to my portfolio', 'Show the backtest equity curve'],
+      ['Summarize the key risks', 'What are peers doing now?', 'Draft a trade plan']
+    ];
+    let fIdx = 0;
+    function renderSugs(list) { sugWrap.innerHTML = list.map(s => '<button class="sug" type="button">' + s + '</button>').join(''); }
+    renderSugs(SUGS);
+
+    // 浮层顶部 tab：Chat 显示对话；Tasks/Artifacts/Memory 显示对应列表
+    const AUX = {
+      tasks: ['Tasks', [['T', 'Activate AI Digest', 'step 2 of 4 · running', 'Live'], ['R', 'Build AI infra watchlist', 'waiting for tickers', 'Input']]],
+      artifacts: ['Artifacts', [['PB', 'AI Infra starter playbook', 'from onboarding preset', 'Ready'], ['SRC', 'KOL source list', 'editable source pack', 'Draft']]],
+      memory: ['Memory', [['M', 'Focus: AI infrastructure', 'candidate from campaign', 'Review'], ['M', 'Alert style: short, sourced', 'default seed', 'Saved']]]
+    };
+    function renderAux(key) {
+      const sec = AUX[key]; if (!sec || !cvAux) return;
+      cvAux.innerHTML = '<div class="aux-sec">' + sec[0] + '</div>' + sec[1].map(r =>
+        '<div class="aux-row"><span class="aux-ic">' + r[0] + '</span><span class="aux-main"><span class="at">' + r[1] + '</span><span class="ad">' + r[2] + '</span></span><span class="aux-tag">' + r[3] + '</span></div>'
+      ).join('');
+    }
+    function setTab(key) {
+      if (cvTabs) cvTabs.querySelectorAll('.cv-tab').forEach(x => x.classList.toggle('on', x.getAttribute('data-tab') === key));
+      if (key === 'chat') { if (sheet) sheet.classList.remove('tab-aux'); }
+      else { renderAux(key); if (sheet) sheet.classList.add('tab-aux'); }
+    }
+    if (cvTabs) cvTabs.querySelectorAll('.cv-tab').forEach(t => t.addEventListener('click', () => setTab(t.getAttribute('data-tab'))));
+
+    const AVA = '<span class="av"><svg viewBox="0 0 52 52"><use href="#alvamark" width="52" height="52"></use></svg></span>';
+    const THINK = '<span class="thinking"><span class="lbl">Thinking</span><span class="dots"><i></i><i></i><i></i></span></span>';
+    // 结构化答案（参考设计稿：过程行 + 分点 + takeaway + 来源）
+    function answerInner(name) {
+      return '<div class="ai-meta">Ran 5 commands · searched signals · read the strategy</div>' +
+        '<p>Here’s what I found for <b>' + name + '</b>:</p>' +
+        '<ul class="ai-ul">' +
+          '<li><b>Verdict</b> — NEUTRAL on AMD; momentum has cooled but the trend hasn’t broken down.</li>' +
+          '<li><b>Drivers</b> — data-center demand stays structural; forward P/E sits ~15% above INTC.</li>' +
+          '<li><b>Risk</b> — max drawdown this cycle −12.4%, inside the strategy’s historical band.</li>' +
+        '</ul>' +
+        '<p class="ai-take"><b>Takeaway</b> — hold the basket; re-evaluate if 7-day excess return vs BTC turns negative.</p>' +
+        '<span class="ai-src">Source: ' + name + ' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>';
+    }
+
+    let thinking = false, thinkTimer = null, thinkNode = null;
+    function curName() { return (cvTitle && cvTitle.textContent.trim()) || 'this playbook'; }
+    function autoGrow() { if (!input) return; input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; }
+    function scrollDown() { if (thread) thread.scrollTop = thread.scrollHeight; }
+
+    // —— 触发入口被替换为「对话最新状态」(thinking / 已回复)，组件复用 ——
+    // 输入框入口：thinking → 头像转圈 + 「Thinking…」(纯 class 切换，文案由 CSS 控制)；已回复 → New reply 气泡
+    function trigThinking() { if (!trigger) return; trigger.classList.add('thinking'); trigger.classList.remove('replied'); }
+    function trigReplied() { if (!trigger) return; trigger.classList.remove('thinking'); trigger.classList.add('replied'); }
+    function trigClear(el) { if (el) el.classList.remove('thinking', 'replied'); }
+
+    function finishAnswer() {
+      thinking = false; thinkTimer = null;
+      if (thinkNode) {
+        const tx = thinkNode.querySelector('.tx');
+        if (tx) tx.innerHTML = answerInner(curName());
+        if (ov.classList.contains('open')) scrollDown();
+      }
+      // 回答后：输入框上方重新出现「更新内容」的建议 tag
+      renderSugs(FOLLOWUPS[fIdx % FOLLOWUPS.length]); fIdx++;
+      sugWrap.classList.remove('hide');
+      if (ov.classList.contains('open')) scrollDown();
+      if (!ov.classList.contains('open')) trigReplied();
+    }
+    function send() {
+      const v = (input.value || '').trim();
+      if (!v || thinking) return;
+      const u = document.createElement('div'); u.className = 'cv-msg user'; u.textContent = v;
+      thread.appendChild(u);
+      input.value = ''; autoGrow();
+      sugWrap.classList.add('hide');
+      thinkNode = document.createElement('div'); thinkNode.className = 'cv-msg ai';
+      thinkNode.innerHTML = '<div class="ai-by">' + AVA + '<span class="nm">Alva</span></div><div class="tx">' + THINK + '</div>';
+      thread.appendChild(thinkNode);
+      scrollDown();
+      thinking = true;
+      thinkTimer = setTimeout(finishAnswer, THINK_MS);
+    }
+    // —— 公开 API：open(triggerEl) / close() / reset()，任意入口统一调用 ——
+    function open(trg) {
+      if (trg) trigger = trg;
+      const host = (trigger && trigger.closest('.page-body')) || ov.parentElement;
+      if (host && ov.parentElement !== host) host.appendChild(ov);   // 单实例移入当前屏
+      let ctx = trigger && trigger.getAttribute('data-context');
+      if (ctx === '') ctx = null;
+      if (ctx == null && trigger && trigger.id === 'pdAsk') { const pt = document.querySelector('.s-pd .pd-title'); ctx = pt ? pt.textContent.trim() : null; }
+      const title = (trigger && trigger.getAttribute('data-title')) || ctx || 'New chat';
+      if (cvTitle) cvTitle.textContent = title;
+      if (sheet) { sheet.classList.remove('campaign', 'campaign-out', 'digest-in'); sheet.classList.toggle('full', trigger && trigger.getAttribute('data-default') === 'full'); }   // 首屏默认全屏，详情页默认半屏
+      setTab('chat');                    // 每次打开默认回到 Chat tab
+      if (ctx) { if (ctxName) ctxName.textContent = ctx; ctxChip.classList.remove('hide'); }
+      else { ctxChip.classList.add('hide'); }
+      if (thread.children.length === 0) { renderSugs(SUGS); fIdx = 0; sugWrap.classList.remove('hide'); }
+      else { sugWrap.classList.remove('hide'); }
+      trigClear(trigger);
+      ov.classList.remove('open');
+      void ov.offsetWidth;            // 强制重排：移入新宿主后仍能触发上滑入场动效
+      ov.classList.add('open');
+      setTimeout(() => input && input.focus(), 130);
+    }
+    function close() {
+      ov.classList.remove('open');
+      if (input) input.blur();
+      if (thinking) trigThinking();
+      else if (thread.querySelector('.cv-msg')) trigReplied();
+      else trigClear(trigger);
+    }
+    function resetConv() {
+      if (thinkTimer) { clearTimeout(thinkTimer); thinkTimer = null; }
+      thinking = false; thinkNode = null;
+      thread.innerHTML = ''; if (input) { input.value = ''; autoGrow(); }
+      renderSugs(SUGS); fIdx = 0; sugWrap.classList.remove('hide');
+      trigClear(trigger); ov.classList.remove('open');
+      if (sheet) sheet.classList.remove('campaign', 'full', 'campaign-out', 'digest-in');
+    }
+    // campaign 全屏（广告用户）：FinTwit Digest 选择流，无输入框
+    function openCampaign() {
+      const host = document.querySelector('.s-home .page-body');
+      if (host && ov.parentElement !== host) host.appendChild(ov);
+      if (cvTitle) cvTitle.textContent = 'FinTwits · AI Digest';
+      if (ctxChip) ctxChip.classList.add('hide');
+      trigger = null;
+      resetCampaign();                 // 每次进入重置选择/计数/人选
+      sheet.classList.remove('campaign-out', 'digest-in');
+      sheet.classList.add('full'); sheet.classList.add('campaign');
+      ov.classList.remove('open'); void ov.offsetWidth; ov.classList.add('open');
+    }
+    // 登录后：digest 已生成的 chat 状态（出现 tabs / 输入框 / 关闭）
+    function enterDigest() {
+      const host = document.querySelector('.s-home .page-body');
+      if (host && ov.parentElement !== host) host.appendChild(ov);
+      ov.classList.add('open');
+      sheet.classList.add('campaign-out');               // ① 原 campaign 内容向上淡出消失
+      setTimeout(() => {
+        sheet.classList.remove('campaign', 'campaign-out'); sheet.classList.add('full', 'digest-in');
+        if (cvTitle) cvTitle.textContent = 'FinTwits · AI Digest';
+        if (ctxChip) ctxChip.classList.add('hide');
+        trigger = null; setTab('chat'); thread.innerHTML = ''; sugWrap.classList.add('hide');
+        void sheet.offsetWidth;
+        requestAnimationFrame(() => sheet.classList.remove('digest-in'));   // ② 顶部渐显 + 输入框上滑进入
+        const msg = document.createElement('div'); msg.className = 'cv-msg ai';
+        msg.innerHTML = '<div class="ai-by">' + AVA + '<span class="nm">Alva</span></div><div class="tx"></div>';
+        thread.appendChild(msg);
+        const tx = msg.querySelector('.tx');
+        const pieces = [
+          '<p>Daily digest automation created. I saved your FinTwit list, built your <b>Daily FinTwit AI Digest</b> automation, and ran it on the last 24 hours of real FinTwit data.</p>',
+          '<div class="dg-card"><div class="dg-head"><span class="dg-t">Daily Digest · Market Digest</span><span class="dg-link">Open full report ↗</span></div><div class="dg-meta">English · Jun 15 · Daily Digest · Based on 53 FinTwits</div><p class="dg-body">AI infrastructure and cloud names dominate, with <b>NVDA</b> drawing repeated attention while <b>AVGO</b> shows up as a possible funding short.</p><p class="dg-body">Most calls still need confirmation from price action, volume, and follow-up posts before they become high-conviction trade ideas.</p></div>',
+          '<div class="dg-alerts"><div class="dg-q">Where should Alva send alerts?</div><div class="dg-sub">Connect one destination first. Once connected, send yourself this sample digest to finish setup.</div><div class="dg-btns"><button class="dg-b tg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>Telegram</button><button class="dg-b dc" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="6"/><path d="M8 12h.01M16 12h.01"/></svg>Discord</button><button class="dg-b wa" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h3l1.2 4-1.8 1.3a11 11 0 0 0 5 5l1.3-1.8 4 1.2v3a2 2 0 0 1-2 2 15 15 0 0 1-13.7-13.7 2 2 0 0 1 2-2z"/></svg>WhatsApp</button></div></div>'
+        ];
+        let i = 0;
+        function reveal() {
+          if (i >= pieces.length) { renderSugs(['What changed vs yesterday’s digest?', 'How did sentiment shift this week?', 'Separate the FinTwit views by sector']); sugWrap.classList.remove('hide'); scrollDown(); return; }
+          const w = document.createElement('div'); w.className = 'dg-piece'; w.innerHTML = pieces[i];
+          tx.appendChild(w); requestAnimationFrame(() => w.classList.add('in')); scrollDown(); i++;
+          setTimeout(reveal, 520);
+        }
+        setTimeout(reveal, 340);                          // ③ 顶部/输入框入场后，新内容再逐段出现
+      }, 300);
+    }
+    window.AlvaChat = { open, close, reset: resetConv, openCampaign, enterDigest };
+    // ===== campaign（广告全屏）FinTwit 选择交互 =====
+    const cmpList = document.getElementById('cmpList');
+    const cmpCount = document.getElementById('cmpCount');
+    const POOL = [
+      ['Crypto Wizard', '@cryptowizardd', '60%', 2], ['Gainzy', '@gainzy222', '63%', 3],
+      ['Puru Saxena', '@saxena_puru', '57.4%', 4], ['Dave H Contrarian', '@davehcontrarian', '52.2%', 5],
+      ['Arthur Hayes', '@cryptohayes', '45%', 6], ['Ming-Chi Kuo', '@mingchikuo', '46%', 1],
+      ['Alex', '@aleabitcoindidi', '53%', 2], ['Mike Alfred', '@mikealfred', '33%', 3],
+      ['Raoul Pal', '@raoulgmi', '58%', 4], ['Willy Woo', '@woonomic', '51%', 5],
+      ['Pentoshi', '@pentosh1', '55%', 6], ['CryptoCred', '@cryptocred', '49%', 1]
+    ];
+    let cmpPicked = 0, cmpGroup = 0, cmpPool = 6;
+    let avaTick = 0; function nextAva() { avaTick++; return (avaTick % 6) + 1; }   // 轮换头像，保证每次换人头像都变
+    function cmpFill(row, c, ava) { row.querySelector('img').src = 'img/ava-' + ava + '.png'; row.querySelector('.cn').textContent = c[0]; row.querySelector('.ch').textContent = c[1]; row.querySelector('.cmp-win b').textContent = c[2]; }
+    function makeRow(c, ava) { const r = document.createElement('div'); r.className = 'cmp-row'; r.innerHTML = '<img src="img/ava-' + ava + '.png" alt=""><span class="cmp-main"><span class="cn">' + c[0] + '</span><span class="ch">' + c[1] + '</span></span><span class="cmp-win"><b>' + c[2] + '</b>win</span><button class="cmp-add" type="button">+</button>'; return r; }
+    function cmpUpdate() { const n = cmpGroup + cmpPicked; if (cmpCount) cmpCount.textContent = n; const gen = document.getElementById('cmpGen'); if (gen) gen.disabled = n === 0; }
+    function resetCampaign() {
+      if (!cmpList) return;
+      cmpPicked = 0; cmpGroup = 0; cmpPool = 6; avaTick = 0;
+      cmpList.querySelectorAll('.cmp-opt').forEach(o => o.classList.remove('on'));
+      cmpList.querySelectorAll('.cmp-row').forEach((r, i) => { r.classList.remove('removing'); r.style.opacity = ''; r.style.transition = ''; cmpFill(r, POOL[i % POOL.length], POOL[i % POOL.length][3]); const a = r.querySelector('.cmp-add'); if (a) a.textContent = '+'; });
+      cmpUpdate();
+    }
+    if (cmpList) cmpList.addEventListener('click', e => {
+      const opt = e.target.closest('.cmp-opt');
+      if (opt) {   // Top 50：可复选；两个都选有重叠，实际人数 <100
+        opt.classList.toggle('on');
+        const onN = cmpList.querySelectorAll('.cmp-opt.on').length;
+        cmpGroup = onN === 2 ? 86 : (onN === 1 ? 50 : 0);
+        if (opt.classList.contains('on')) cmpList.querySelectorAll('.cmp-row').forEach(r => { cmpFill(r, POOL[cmpPool % POOL.length], nextAva()); cmpPool++; });   // 选上 → 下面整组换人
+        cmpUpdate(); return;
+      }
+      const b = e.target.closest('.cmp-add');
+      if (b) {   // 加号：当前卡向上缩小消失，下面补位，最下方新增一张
+        const row = b.closest('.cmp-row');
+        if (row.classList.contains('removing')) return;
+        cmpPicked++; cmpUpdate();
+        const nr = makeRow(POOL[cmpPool % POOL.length], nextAva()); cmpPool++;   // 新卡加到最下方
+        const more = cmpList.querySelector('.cmp-more');
+        nr.style.opacity = '0'; cmpList.insertBefore(nr, more);
+        requestAnimationFrame(() => { nr.style.transition = 'opacity .25s ease'; nr.style.opacity = '1'; });
+        setTimeout(() => { nr.style.transition = ''; nr.style.opacity = ''; }, 300);   // 清内联，统一回样式表过渡（保证后续移除也能缩小折叠）
+        row.classList.add('removing');                                            // 当前卡向上缩小消失
+        setTimeout(() => row.remove(), 320);
+        return;
+      }
+    });
+    const ctaBtn = document.querySelector('.cv-cta .cta-btn');
+    if (ctaBtn) ctaBtn.addEventListener('click', () => {   // 广告用户：Generate → 登录弹窗（原地盖在 campaign 之上，不跳屏）
+      window._pendingDigest = true;
+      const lo = document.getElementById('loginOverlay');
+      const host = document.querySelector('.s-home');     // 登录浮层是 screen 的直接子节点（非 page-body）
+      if (lo && host) { host.appendChild(lo); void lo.offsetWidth; lo.classList.remove('dismissed'); }
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    // 顶部拖拽：上滑 → 全屏；从全屏下滑 → 收回半屏；从半屏下滑 → 关闭
+    (function () {
+      const grab = sheet && sheet.querySelector('.cv-grab');
+      const head = sheet && sheet.querySelector('.cv-head');
+      let y0 = null, moved = false;
+      function down(e) { y0 = e.clientY; moved = false; }
+      [grab, head].forEach(el => { if (el) { el.style.touchAction = 'none'; el.addEventListener('pointerdown', down); } });
+      window.addEventListener('pointermove', e => { if (y0 != null && Math.abs(e.clientY - y0) > 6) moved = true; });
+      window.addEventListener('pointerup', e => {
+        if (y0 == null) return; const dy = e.clientY - y0; y0 = null;
+        if (dy < -36) sheet.classList.add('full');
+        else if (dy > 36) { if (sheet.classList.contains('full')) sheet.classList.remove('full'); else close(); }
+        else if (!moved && grab && e.target === grab) sheet.classList.toggle('full');   // 点一下小横线 → 切换全屏
+      });
+    })();
+    if (sendBtn) sendBtn.addEventListener('click', send);
+    sugWrap.addEventListener('click', e => { const b = e.target.closest('.sug'); if (!b) return; input.value = b.textContent.trim(); input.focus(); autoGrow(); });
+    if (ctxX) ctxX.addEventListener('click', () => ctxChip && ctxChip.classList.add('hide'));
+    if (input) {
+      input.addEventListener('input', autoGrow);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+    }
+    // 绑定所有入口（详情 pd-ask + 首页 chat-entry + 任意 .ask-trigger）
+    document.querySelectorAll('.ask-trigger').forEach(tr => tr.addEventListener('click', () => open(tr)));
+    const back = document.getElementById('pdBack');
+    if (back) back.addEventListener('click', resetConv);
+    const reset = document.getElementById('resetBtn');
+    if (reset) reset.addEventListener('click', resetConv);
+  })();
+
+  go(0);
+  fit();
+</script>
+    <script src="/demo/_switcher.js" defer></script>
+  </body>
+</html>
