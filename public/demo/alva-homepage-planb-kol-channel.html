@@ -1564,7 +1564,7 @@ const KOL_DEFAULT_TEMPLATE = KOL_ANALYSIS_MODES.find((m) => m.id === KOL_DEFAULT
 
 /* Aggregated all-in-one digest — a morning roundup rolling up several FinTwit accounts */
 const KOL_DIGEST_AGG = {
-  title: 'Daily FinTwit AI Digest',
+  title: 'Daily FinTwit Digest',
   meta: 'Scheduled · Jun 9 · 6 posts from 4 digest sources · 07:30 ET',
   summary: 'Net read: AI-infra conviction is rising into the capex cycle. 4 of 6 fresh posts lean bullish, concentrated in NVDA / AVGO; one trim (TSM) is position-management, not a thesis change.',
   rows: [
@@ -1716,7 +1716,7 @@ const KOL_CHANNEL_CONFIG = {
   digestSettings: [
     { k: 'Language', v: 'English', b: 'Pushes and generated reports use English.' },
     { k: 'Cadence', v: 'Daily 07:30 ET + Weekly Sunday', b: 'Daily digest appears in chat; weekly recap is saved as a file.' },
-    { k: 'Analysis template', v: 'Market Digest', b: 'Overall summary, hot tickers, view direction, and source links.' },
+    { k: 'Digest template', v: 'Market Digest', b: 'Overall summary, hot tickers, view direction, and source links.' },
     { k: 'After edits', v: 'Ask to generate now', b: 'When sources change, Alva prompts you to run a fresh preview.' },
   ],
   delivery: [
@@ -1732,7 +1732,7 @@ const KOL_CHANNEL_ARTIFACTS = {
     automationLabel: 'Digest automations',
     filesLabel: 'Digest files',
     autos: [
-      { id: 'ka-daily', cadence: 'daily', name: 'Daily FinTwit AI Digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] },
+      { id: 'ka-daily', cadence: 'daily', name: 'Daily FinTwit Digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] },
     ],
     files: [],
   },
@@ -1885,9 +1885,9 @@ function PlaybookCard({ p, onClick }) {
 const CHANNEL_DATA = {
   'kol-digest': {
     tasks: [
-      { id: 'k1', type: 'Automation', tone: 'amber', title: 'Automation: Daily AI Digest', status: 'running', meta: 'live · runs 07:30 ET daily',
+      { id: 'k1', type: 'Automation', tone: 'amber', title: 'Automation: Daily FinTwit Digest', status: 'running', meta: 'live · runs 07:30 ET daily',
         steps: [{ t: 'Read digest sources overnight', done: true }, { t: 'Score, dedupe, and rank posts', now: true }, { t: 'Post the morning roundup here', done: false }] },
-      { id: 'k2', type: 'Automation', tone: 'amber', title: 'Automation: Weekly AI Digest', status: 'running', meta: 'live · runs Sunday',
+      { id: 'k2', type: 'Automation', tone: 'amber', title: 'Automation: Weekly FinTwit Digest', status: 'running', meta: 'live · runs Sunday',
         steps: [{ t: 'Collect the weekly source set', now: true }, { t: 'Merge repeated FinTwit views', done: false }, { t: 'Save weekly recap file', done: false }] },
       { id: 'k3', type: 'Research', tone: 'blue', title: 'Deep Dive: AVGO networking attach rate', status: 'done', meta: 'from weekly digest · 1h ago', output: 'AVGO Networking Note.pdf' },
     ],
@@ -1896,8 +1896,8 @@ const CHANNEL_DATA = {
       theses: [{ t: 'AI-infra conviction rising into the capex cycle', status: 'verified', b: '4 of 6 fresh posts lean bullish, concentrated in NVDA / AVGO.', by: 'digest consensus' }, { t: 'TSM trims are size-management, not thesis', status: 'active', b: 'Puru Saxena’s trim flagged as position-management.', by: 'Alva' }, { t: 'Watch SMH call skew for pullback risk', status: 'watch', b: 'Vol Whisperer flagged stretched call skew.', by: 'Vol Whisperer' }],
       log: [{ date: 'Today', items: [{ t: 'Serenity added to NVDA / AVGO into the capex cycle.', by: 'Serenity' }, { t: 'Vol Whisperer flagged stretched SMH call skew.', by: 'Vol Whisperer' }] }, { date: 'This week', items: [{ t: 'Evergreen: Azure AI revenue inflecting ahead of models.', by: 'Evergreen Capital' }] }],
     },
-    files: [{ kind: 'PDF', tone: 'red', t: 'AI Digest — Weekly Recap', b: 'Rollup of weekly digest posts · posted Sundays', badge: 'New', badgeKind: 'green' }, { kind: 'CSV', tone: 'blue', t: 'fintwit-digest-posts.csv', b: 'Posts used for digest generation', badge: '0.6 MB', badgeKind: '' }, { kind: 'SRC', tone: 'orange', t: 'Digest sources', b: '4 handles · hit-rates & benchmarks', badge: 'Edit', badgeKind: 'amber' }],
-    autos: [{ id: 'ka1', name: 'Daily-FinTwit-AI-Digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] }, { id: 'ka2', name: 'Weekly-FinTwit-Recap', status: 'active', lastRun: 'Sun', runEvery: 'Weekly · Sunday', runs: 18, usedBy: [] }],
+    files: [{ kind: 'PDF', tone: 'red', t: 'FinTwit Digest — Weekly Recap', b: 'Rollup of weekly digest posts · posted Sundays', badge: 'New', badgeKind: 'green' }, { kind: 'CSV', tone: 'blue', t: 'fintwit-digest-posts.csv', b: 'Posts used for digest generation', badge: '0.6 MB', badgeKind: '' }, { kind: 'SRC', tone: 'orange', t: 'Digest sources', b: '4 handles · hit-rates & benchmarks', badge: 'Edit', badgeKind: 'amber' }],
+    autos: [{ id: 'ka1', name: 'Daily-FinTwit-Digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] }, { id: 'ka2', name: 'Weekly-FinTwit-Recap', status: 'active', lastRun: 'Sun', runEvery: 'Weekly · Sunday', runs: 18, usedBy: [] }],
     playbooks: [],
   },
   'semis': {
@@ -3047,7 +3047,7 @@ function KolPickerModal({ selectedSource, onChange, onClose }) {
         <div className="modal-body">
           <div className="kol-picker">
             <div className="kp-selected">
-              <div className="kp-selected-head"><span>Selected · {selectedCount} accounts</span><span>Click a tag to remove it</span></div>
+              <div className="kp-selected-head"><span>Chosen · {selectedCount} accounts</span><span>Click a tag to remove it</span></div>
               <div className="kp-tags">
                 <SourceSelectionList source={source} onToggleHandle={removeHandle} onTogglePack={removePack} />
               </div>
@@ -3119,13 +3119,13 @@ ${groups}
 ${handles}
 
 ## Daily digest settings
-- **Publish time** — ${publishTime}
+- **Alert time** — ${publishTime}
 - **Language** — ${language === 'zh' ? '中文' : 'English'}
 
 ## Edit location
 - Open **Alerts**.
-- Find **Daily FinTwit AI Digest**.
-- Click the edit icon to change the FinTwit list, publish time, language, or template.`;
+- Find **Daily FinTwit Digest**.
+- Click the edit icon to change the FinTwit list, alert time, language, or template.`;
 }
 
 function KolMemoryPanel({ selectedSource, language, publishTime }) {
@@ -3134,7 +3134,7 @@ function KolMemoryPanel({ selectedSource, language, publishTime }) {
     <div className="panel">
       <div className="panel-head">
         <h2>What Alva remembers</h2>
-        <p>FinTwit Digest memory is kept as readable markdown. Edit the live list and delivery settings from the Daily FinTwit AI Digest automation in Alerts.</p>
+        <p>FinTwit Digest memory is kept as readable markdown. Edit the live list and alert settings from the Daily FinTwit Digest in Alerts.</p>
       </div>
       <div className="mem-split">
         <div className="mem-tree">
@@ -3449,7 +3449,7 @@ function KolDigestModal({ digest, onClose }) {
 function KolDigestPreview({ digest, onOpenDigest, onOpenAutomation }) {
   if (!digest) return null;
   const copy = KOL_DIGEST_COPY[digest.language] || KOL_DIGEST_COPY.en;
-  const autoLabel = digest.language === 'zh' ? '由 Daily FinTwit AI Digest 生成' : 'Generated by Daily FinTwit AI Digest';
+  const autoLabel = digest.language === 'zh' ? '由 Daily FinTwit Digest 生成' : 'Generated by Daily FinTwit Digest';
   return (
     <div className="digest digest-preview">
       <div className="dg-h">
@@ -3483,7 +3483,7 @@ function KolDigestPreview({ digest, onOpenDigest, onOpenAutomation }) {
 function KolIntroStep() {
   return (
     <div className="kol-intro-card">
-      <p className="lead">Build your personal FinTwit AI Digest.</p>
+      <p className="lead">Build your personal FinTwit Digest.</p>
       <p className="sub">Choose the traders and analysts you want Alva to read. Alva will summarize their latest posts into one daily market digest and send it to you automatically.</p>
     </div>
   );
@@ -3493,7 +3493,7 @@ function KolOnboardingSettings({ language, onLanguage, publishTime, onPublishTim
   return (
     <div className="kol-settings-grid">
       <div className="kol-setting-card">
-        <label>Daily publish time</label>
+        <label>Daily alert time</label>
         <input value={publishTime} onChange={(e) => onPublishTime(e.target.value)} />
         <p>You can change this later in Alerts.</p>
       </div>
@@ -3527,7 +3527,7 @@ function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfi
   return (
     <div className="onboard-card">
       <div className="onboard-title">Choose the FinTwit accounts you want Alva to read.</div>
-      <div className="onboard-sub">Start from a preset group or pick accounts one by one. Selected accounts move below, and new suggestions fill the open spots.</div>
+      <div className="onboard-sub">Choose a preset group, add individual accounts, or use both. You can adjust this list later.</div>
       <div className="kol-pack-grid">
         {KOL_SOURCE_PACKS.map((pack) => (
           <button className={`kol-pack ${source.packs.includes(pack.id) ? 'active' : ''}`} key={pack.id} onClick={() => togglePackage(pack.id)}>
@@ -3560,7 +3560,7 @@ function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfi
       ) : (
         <div className="source-empty">All suggested demo accounts are already selected. Choose more or remove a selected tag below to refine the list.</div>
       )}
-      <div className="picked-title">Selected · {selectedTotal} FinTwit accounts</div>
+      <div className="picked-title">Chosen · {selectedTotal} FinTwit accounts</div>
       <div className="picked-list">
         <SourceSelectionList source={source} onToggleHandle={toggle} onTogglePack={togglePackage} />
       </div>
@@ -3606,9 +3606,9 @@ function KolConnectModal({ channel, connected, onConnected, onClose }) {
               <span>In production, Alva would finish the OAuth or bot-link flow. Here, the click completes the connection state directly.</span>
             </div>
             <div className="im-connect-card">
-              <strong>2. Complete setup</strong>
-              <span>After connecting, setup is complete and future FinTwit digests can be delivered here.</span>
-              <div className={`im-status ${connected ? 'ready' : ''}`}>{connected ? `${label} connected successfully.` : 'Continue to complete setup.'}</div>
+              <strong>2. Receive future alerts</strong>
+              <span>After connecting, future FinTwit digests can be delivered here.</span>
+              <div className={`im-status ${connected ? 'ready' : ''}`}>{connected ? `${label} connected successfully.` : 'Continue to connect.'}</div>
             </div>
             <div className="im-connect-actions">
               <button className="primary" onClick={finishConnect}><Icon name={channel} size={14} /> Continue to {label}</button>
@@ -3635,7 +3635,7 @@ function LoginModal({ onLogin, onClose }) {
           <div className="login-body">
             <div className="login-card">
               <strong>Continue as Furycom</strong>
-              <span>For this demo, one click signs in and continues setup with your selected FinTwit list.</span>
+              <span>For this demo, one click signs in and continues with your chosen FinTwit list.</span>
             </div>
             <div className="login-actions">
               <button className="secondary" onClick={onClose}>Cancel</button>
@@ -3664,7 +3664,7 @@ function KolIMStep({ connectedIMs, onConnected, onComplete }) {
   return (
     <div className="onboard-card">
       <div className="onboard-title">Connect where you want to receive it.</div>
-      <div className="onboard-sub">Connect one destination to finish setup. Future digests will be delivered there.</div>
+      <div className="onboard-sub">Connect Telegram, Discord, or WhatsApp so Alva can send future alerts there.</div>
       <div className="im-grid">
         {options.map(([id, title, sub]) => {
           const isConnected = connected.includes(id);
@@ -3693,8 +3693,8 @@ function KolDoneCard({ connectedIMs }) {
   return (
     <div className="onboard-card compact done-card">
       <span className="done-mark"><Icon name="check" size={16} /></span>
-      <div className="onboard-title">FinTwit AI Digest is ready.</div>
-      <div className="onboard-sub">Your Daily FinTwit AI Digest is active and will be sent to {label}. Edit the FinTwit list, publish time, language, and template from Alerts.</div>
+      <div className="onboard-title">FinTwit Digest is ready.</div>
+      <div className="onboard-sub">Your Daily FinTwit Digest is active and will be sent to {label}. Edit the FinTwit list, alert time, language, and template from Alerts.</div>
     </div>
   );
 }
@@ -3979,17 +3979,17 @@ function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSele
   const saveAction = contentChanged ? 'preview' : timeChanged ? 'save' : 'none';
   const saveTitle = saveAction === 'preview'
     ? 'Save changes and generate a new preview.'
-    : 'Save new publish time.';
+    : 'Save new alert time.';
   const saveHint = saveAction === 'preview'
     ? 'Your FinTwit list, language, or template changed, so Alva will show a fresh sample after saving.'
-    : 'Only the delivery time changed, so the next daily digest will use the new time.';
+    : 'Only the alert time changed, so the next daily digest will use the new time.';
   const buttonLabel = generating ? 'Generating...' : saveAction === 'preview' ? 'Save & generate preview' : 'Save';
   return (
     <div className="modal-overlay report-overlay" onClick={onClose}>
       <div className="modal kol-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-h">
           <div>
-            <div className="modal-t">Edit Daily FinTwit AI Digest</div>
+            <div className="modal-t">Edit Daily FinTwit Digest</div>
             <div className="modal-s">Choose who Alva reads, when it sends, and how the digest is written.</div>
           </div>
           <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
@@ -4012,7 +4012,7 @@ function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSele
             <section className="kc-inline-section">
               <div className="kc-inline-head">
                 <div>
-                  <h3>Publish time</h3>
+                  <h3>Alert time</h3>
                   <p>When Alva should prepare and send the daily digest.</p>
                 </div>
                 <input value={editorPublishTime} onChange={(e) => onDraftPublishTime(e.target.value)} />
@@ -4035,8 +4035,8 @@ function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSele
             <section className="kc-inline-section kc-template">
               <div className="kc-inline-head">
                 <div>
-                  <h3>Analyze mode</h3>
-                  <p>Choose the report style. Advanced users can edit the template.</p>
+                  <h3>Digest template</h3>
+                  <p>Choose the format Alva should use for this digest.</p>
                 </div>
                 <select value={draftAnalysisMode} onChange={(e) => onDraftAnalysisMode(e.target.value)}>
                   {KOL_ANALYSIS_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
@@ -4045,7 +4045,7 @@ function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSele
               <div className="kc-inline-body">
                 <button className="kc-advanced-toggle" onClick={() => setTemplateOpen((open) => !open)}>
                   <Icon name={templateOpen ? 'chevdown' : 'edit'} size={14} />
-                  {templateOpen ? 'Hide template' : 'Advanced template'}
+                  {templateOpen ? 'Hide custom prompt' : 'Customize prompt'}
                 </button>
                 {templateOpen && (
                   <div style={{ marginTop: 12 }}>
@@ -4096,7 +4096,7 @@ function KolAlertsPanel({ digestRuns, onOpenEditor, publishTime }) {
       ) : (
         <div className="artifact-empty">
           <h3>No automation yet</h3>
-          <p>The Daily FinTwit AI Digest appears after you choose accounts and generate the first digest.</p>
+          <p>The Daily FinTwit Digest appears after you choose accounts and generate the first digest.</p>
         </div>
       )}
     </div>
