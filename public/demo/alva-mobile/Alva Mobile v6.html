@@ -81,15 +81,24 @@
     transition: color .15s ease, background .15s ease;
   }
   .mode-tab.on { background: #fff; color: var(--text-n9); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-  /* 新用户：首页只有欢迎卡（空）；老用户：首页有 Playbooks/Chats，无欢迎卡 */
-  .mode-new .ret-only { display: none; }
-  .mode-returning #homeWelcome { display: none; }
-  .mode-returning .new-only { display: none; }
-  /* 空状态（新用户的 Agent / Portfolio） */
+  /* 三场景可见性：new(新用户) / ad(广告进入) / returning(老用户)
+     - .ret-only  仅老用户                       - .new-only  仅新用户
+     - .ad-only   仅广告进入                      - .empty-both 新用户+广告共用的空态(Playbooks) */
+  .mode-new .ret-only,       .mode-ad .ret-only        { display: none; }
+  .mode-returning #homeWelcome, .mode-ad #homeWelcome  { display: none; }   /* 欢迎卡仅新用户 */
+  .mode-returning .new-only, .mode-ad .new-only        { display: none; }
+  .mode-new .ad-only,        .mode-returning .ad-only  { display: none; }
+  .mode-returning .empty-both                          { display: none; }
+  /* 全屏居中空态（Agent / Portfolio tab 用） */
   .empty-state { min-height: 100%; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
   .empty-state .es-ic { width: 56px; height: 56px; border-radius: 12px; background: #f1f3f4; color: var(--text-n5); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
   .empty-state .es-t { font-size: 16px; letter-spacing: 0.16px; color: var(--text-n9); }
   .empty-state .es-d { margin-top: 8px; font-size: 13.5px; line-height: 1.55; letter-spacing: 0.13px; color: var(--text-n5); max-width: 250px; }
+  /* 模块级空态卡（首页 Playbooks / Chats 各自一个，跟着 group-card 的横向边距） */
+  .empty-card { margin: 0 4px; background: #fafafa; border: 1px dashed rgba(0,0,0,0.13); border-radius: 12px; padding: 22px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .empty-card .ec-ic { width: 44px; height: 44px; border-radius: 10px; background: #f1f3f4; color: var(--text-n5); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .empty-card .ec-t { font-size: 14.5px; letter-spacing: 0.14px; color: var(--text-n9); }
+  .empty-card .ec-d { margin-top: 6px; font-size: 12.5px; line-height: 1.5; letter-spacing: 0.12px; color: var(--text-n5); max-width: 244px; }
 
   .stage {
     flex: 1;
@@ -186,6 +195,10 @@
     border-radius: 47px;
     overflow: hidden;
     background: var(--bg-page);
+    /* 强制独立合成层：圆角在 backdrop-filter 合成之后再裁剪，
+       消除磨砂层(顶部 header / 底部 safari / chat 浮层)在四个圆角处吐黑三角的渲染 bug */
+    transform: translateZ(0);
+    isolation: isolate;
   }
 
   .screen {
@@ -735,6 +748,53 @@
     font-size: 11px;
     display: flex; align-items: center; justify-content: center;
   }
+
+  /* ============ Explore：横向卡片列表（左 16:9 真实封面 + 右内容，对齐 alva.ai/explore） ============ */
+  .home-panel[data-tab="Explore"] { padding-top: 0; }
+  .ex-bar { position: sticky; top: 0; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0 10px; background: #fff; }
+  .ex-filter { order: 1; flex: none; height: 30px; padding: 0 11px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.10); background: #fff; color: var(--text-n9); font-family: var(--font-alva); font-size: 13px; letter-spacing: 0.13px; display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; }
+  .ex-filter svg { width: 11px; height: 11px; flex: none; }
+  .ex-tags { order: 2; flex: 1; min-width: 0; display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent); }
+  .ex-tags::-webkit-scrollbar { display: none; }
+  .ex-caret { order: 3; flex: none; width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.10); background: #fff; color: var(--text-n7); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .ex-caret svg { width: 14px; height: 14px; transition: transform .18s ease; }
+  .ex-caret.open svg { transform: rotate(180deg); }
+  /* 全量分类浮层（与线上一致的 6 个分类） */
+  .ex-pop { position: absolute; top: 44px; right: 0; z-index: 6; width: 200px; padding: 6px; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; box-shadow: 0 12px 32px rgba(20,40,42,0.16); display: flex; flex-direction: column; gap: 2px; }
+  .ex-pop[hidden] { display: none; }
+  .ex-pop-h { font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-n4, #9aa0a6); padding: 6px 10px 4px; }
+  .ex-pop-i { text-align: left; height: 36px; padding: 0 10px; border: none; border-radius: 8px; background: none; color: var(--text-n8, var(--text-n9)); font-family: var(--font-alva); font-size: 14px; letter-spacing: 0.14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+  .ex-pop-i:hover { background: rgba(0,0,0,0.04); }
+  .ex-pop-i.on { color: var(--main-m1); font-weight: 500; }
+  .ex-pop-i.on::after { content: ''; flex: none; width: 6px; height: 11px; margin: -2px 3px 0 8px; border: solid var(--main-m1); border-width: 0 2px 2px 0; transform: rotate(45deg); box-sizing: border-box; }
+  /* 图片加载失败兜底：封面渐变+标签，头像首字母 */
+  .ex-cover.ph { display: flex; align-items: center; justify-content: center; padding: 8px; background: linear-gradient(135deg, #2a3340, #49555f); }
+  .ex-cover.ph .ph-tk { font-family: var(--font-alva); font-size: 12.5px; font-weight: 600; letter-spacing: 0.4px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.28); }
+  .ex-av.ph, .pb-ava .ph { display: flex; align-items: center; justify-content: center; background: #c2c8cd; color: #fff; font-weight: 600; }
+  .ex-av.ph { font-size: 9px; }
+  .pb-ava .ph { width: 100%; height: 100%; font-size: 14px; }
+  .ex-tag { flex: none; height: 30px; padding: 0 13px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.10); background: #fff; color: var(--text-n7); font-family: var(--font-alva); font-size: 13px; letter-spacing: 0.13px; cursor: pointer; white-space: nowrap; transition: background .15s ease, color .15s ease, border-color .15s ease; }
+  .ex-tag.on { background: var(--text-n9); border-color: var(--text-n9); color: #fff; }
+  /* 新闻流式版式：无卡片描边，细分割线分隔；上行=缩略图+大号粗标题，下面整行 meta */
+  .ex-list { display: flex; flex-direction: column; transition: opacity .2s ease; }
+  .ex-card { display: flex; flex-direction: column; gap: 11px; padding: 17px 2px; border-bottom: 1px solid rgba(0,0,0,0.09); cursor: pointer; }
+  .ex-card:last-child { border-bottom: none; }
+  .ex-card:active { background: rgba(0,0,0,0.02); }
+  .ex-top { display: flex; gap: 13px; align-items: flex-start; }
+  .ex-cover { flex: none; width: 124px; height: 70px; border-radius: 6px; overflow: hidden; background: #f1f3f4; border: 1px solid rgba(0,0,0,0.12); }   /* 124×70 = 16:9，独立圆角缩略图 + 描边 */
+  .ex-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ex-head { flex: 1; min-width: 0; padding-top: 1px; }
+  .ex-title { font-size: 16px; font-weight: 500; line-height: 1.28; letter-spacing: 0.1px; color: var(--text-n9); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ex-desc { margin-top: 5px; font-size: 12.5px; line-height: 1.4; letter-spacing: 0.12px; color: var(--text-n5); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ex-meta { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-n5); letter-spacing: 0.1px; min-width: 0; }
+  .ex-av { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.08); }
+  .ex-au { color: var(--text-n7); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+  .ex-sep { flex: none; width: 1px; height: 12px; background: rgba(0,0,0,0.14); }   /* 作者 ｜ 分类 分隔竖线 */
+  .ex-cat { color: var(--text-n5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-stats { margin-left: auto; flex: none; display: flex; align-items: center; gap: 12px; }   /* 统计组合右对齐 */
+  .ex-stat { display: inline-flex; align-items: center; gap: 3px; }
+  .ex-stat svg { width: 14px; height: 14px; color: #9aa0a6; fill: currentColor; }
+  .ex-empty { padding: 40px 24px; text-align: center; font-size: 13px; color: var(--text-n5); }
 
   .upgrade-card {
     position: relative;
@@ -1376,6 +1436,10 @@
   .dg-b { flex: 1; height: 38px; border-radius: 8px; border: none; color: #fff; font-family: var(--font-alva); font-size: 12.5px; letter-spacing: 0.12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
   .dg-b svg { width: 15px; height: 15px; flex: none; }
   .dg-b.tg { background: #2aabee; } .dg-b.dc { background: #5865f2; } .dg-b.wa { background: #25d366; }
+  .dg-b.connected { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.65); }
+  /* 绑定成功后的弱 CTA：文字链而非实心按钮 */
+  .dg-home { margin-top: 2px; align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; background: none; border: none; padding: 6px 0 2px; color: var(--main-m1); font-family: var(--font-alva); font-size: 13.5px; letter-spacing: 0.14px; cursor: pointer; }
+  .dg-home:hover { opacity: 0.78; }
   /* 登录后内容逐段揭示（像 AI 一段段回答） */
   .dg-piece { opacity: 0; transform: translateY(8px); transition: opacity .3s ease, transform .3s ease; }
   .dg-piece.in { opacity: 1; transform: none; }
@@ -1544,7 +1608,6 @@
 </style>
 </head>
 <body>
-<p style="display:none" data-demo-summary>移动端完整使用流程：顶部文字 Tab 横滑切换、底部 Ask 输入框唤起 chat 浮层（半屏/全屏）、新用户欢迎卡与各 tab 空态、老用户 Playbooks/Chats，以及广告用户 FinTwit AI Digest 选号 → 登录 → digest 逐段生成的完整承接流程。右上角切换 新用户 / 老用户 / 广告 三个场景。</p>
 
   <!-- Alva 真实 logo 矢量（取自 alva.ai）：teal 弧形块 + 深色瓷砖，wordmark 单独引用 -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -1552,6 +1615,9 @@
       <path fill="#49A3A6" d="M35.29 1.088a38.7 38.7 0 0 1 11.063 0c.294.042.589.09 1.178.183l.383.067a2.98 2.98 0 0 1 2.26 2.26c.02.088.036.187.067.383.095.59.141.884.184 1.178.53 3.669.53 7.394 0 11.063-.043.293-.09.589-.184 1.178a7 7 0 0 1-.067.383 2.98 2.98 0 0 1-2.26 2.26c-.088.02-.186.035-.383.066-.59.095-.884.143-1.178.185a39 39 0 0 1-5.53.396c-11.046 0-20 8.955-20 20a39 39 0 0 1-.397 5.532c-.043.294-.09.589-.185 1.178-.031.197-.047.295-.066.383a2.98 2.98 0 0 1-2.26 2.26c-.088.02-.186.035-.383.066-.59.095-.885.142-1.178.185-3.669.53-7.395.53-11.063 0-.294-.042-.588-.09-1.178-.185-.196-.031-.295-.047-.383-.066a2.98 2.98 0 0 1-2.26-2.26c-.02-.088-.035-.186-.067-.383-.094-.59-.14-.884-.183-1.178a38.7 38.7 0 0 1 0-11.063c.042-.294.089-.589.183-1.178.032-.197.047-.295.067-.383a2.98 2.98 0 0 1 2.26-2.26c.088-.02.187-.035.383-.067.59-.094.884-.14 1.178-.183a39 39 0 0 1 5.531-.398v-.002c10.873 0 19.72-8.675 19.993-19.482l.007-.516c0-1.849.132-3.697.397-5.53.042-.295.09-.59.184-1.179.032-.196.047-.295.067-.383a2.98 2.98 0 0 1 2.26-2.26c.088-.02.186-.035.382-.067.59-.094.884-.14 1.178-.183"/>
       <path fill="currentColor" d="M46.353 31.087a38.7 38.7 0 0 0-11.063 0c-.294.042-.588.09-1.177.184h-.002c-.196.032-.294.047-.383.067a2.98 2.98 0 0 0-2.26 2.26c-.019.088-.034.186-.066.383-.094.589-.14.884-.183 1.178a38.7 38.7 0 0 0 0 11.063c.042.293.09.588.183 1.177.032.197.047.296.067.384a2.98 2.98 0 0 0 2.26 2.26c.088.02.187.035.383.066.59.095.884.142 1.178.184 3.669.53 7.394.53 11.063 0 .293-.042.588-.09 1.177-.184.197-.031.296-.046.384-.066a2.98 2.98 0 0 0 2.26-2.26c.02-.088.035-.187.066-.384.094-.589.141-.884.184-1.177.53-3.669.53-7.394 0-11.063-.043-.294-.09-.589-.184-1.178-.031-.197-.047-.295-.066-.383a2.98 2.98 0 0 0-2.26-2.26c-.088-.02-.187-.035-.384-.067-.589-.094-.884-.142-1.178-.184m-26.18-27.49a2.98 2.98 0 0 0-2.259-2.26 7 7 0 0 0-.383-.066 79 79 0 0 0-1.177-.184 38.7 38.7 0 0 0-11.064 0c-.294.042-.588.09-1.178.184-.196.032-.294.047-.383.067a2.98 2.98 0 0 0-2.26 2.26c-.019.088-.035.186-.067.382-.094.59-.14.885-.183 1.18a38.7 38.7 0 0 0 0 11.062c.042.293.09.588.183 1.177.032.197.048.296.068.384a2.98 2.98 0 0 0 2.26 2.26c.087.02.186.035.382.066.59.095.884.142 1.178.184 3.669.53 7.395.53 11.064 0 .293-.042.588-.09 1.177-.184.197-.031.295-.046.383-.066a2.98 2.98 0 0 0 2.26-2.26c.02-.088.036-.187.067-.384.095-.589.141-.884.184-1.177.53-3.669.53-7.394 0-11.063a79 79 0 0 0-.184-1.179 7 7 0 0 0-.067-.382"/>
     </symbol>
+    <!-- Explore 统计图标：直接取自 alva.ai/explore 线上图标（views / remix），未自绘 -->
+    <symbol id="ic-views" viewBox="0 0 21 20"><path d="M10.5 2.5c3.753 0 6.378 1.845 8.047 3.662a14.3 14.3 0 0 1 1.828 2.494 12 12 0 0 1 .549 1.063l.028.065.008.019.002.006v.002L20.5 10c.443.18.462.189.463.19l-.001.001-.002.006-.008.019-.028.065-.11.237a14.328 14.328 0 0 1-2.267 3.32c-1.67 1.817-4.294 3.662-8.047 3.662s-6.378-1.845-8.047-3.662a14.3 14.3 0 0 1-1.828-2.494 12 12 0 0 1-.577-1.128l-.008-.019-.002-.006H.037v-.002L.5 10c-.457-.186-.463-.19-.463-.19v-.001l.003-.006.036-.084q.038-.085.11-.237c.097-.201.242-.486.439-.826.393-.68.994-1.586 1.828-2.494C4.122 4.345 6.746 2.5 10.5 2.5m0 1c-3.39 0-5.766 1.655-7.31 3.338a13.3 13.3 0 0 0-2.103 3.078l-.04.084.04.084c.087.181.221.444.404.76a13.3 13.3 0 0 0 1.698 2.318C4.734 14.845 7.11 16.5 10.5 16.5c3.39 0 5.766-1.655 7.311-3.338a13.3 13.3 0 0 0 2.103-3.078L19.95 10l-.038-.084a13.314 13.314 0 0 0-2.102-3.078C16.264 5.155 13.888 3.5 10.5 3.5m0 3a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7m0 1a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M.5 10l-.463.188a.5.5 0 0 1 0-.376zm20.463-.188a.5.5 0 0 1 0 .377L20.5 10z"/></symbol>
+    <symbol id="ic-remix" viewBox="0 0 20 20"><path d="M2 4.5c2.034 0 3.642.252 5.007 1.071 1.366.82 2.42 2.166 3.44 4.205.98 1.961 1.927 3.115 3.06 3.795.878.527 1.91.792 3.243.886l-1.104-1.104a.5.5 0 1 1 .707-.707l2 2q.05.052.082.113a.5.5 0 0 1 .055.339.5.5 0 0 1-.054.142.5.5 0 0 1-.082.114l-2 2a.5.5 0 0 1-.707-.707l1.18-1.181c-1.496-.091-2.743-.383-3.834-1.037-1.366-.82-2.42-2.166-3.44-4.205-.98-1.961-1.927-3.115-3.06-3.795C5.358 5.748 3.966 5.5 2 5.5a.5.5 0 0 1 0-1m6.417 7.21a.5.5 0 0 1 .814.58c-.88 1.236-1.85 2.054-3.044 2.553-1.183.493-2.547.657-4.187.657a.5.5 0 0 1 0-1c1.586 0 2.797-.16 3.802-.58.992-.414 1.822-1.097 2.615-2.21m7.23-9.064a.5.5 0 0 1 .707 0l2 2q.05.052.082.113a.5.5 0 0 1 .054.339.5.5 0 0 1-.054.142.5.5 0 0 1-.082.113l-2 2a.5.5 0 0 1-.707-.707l1.104-1.105c-1 .07-1.83.237-2.553.539-.992.414-1.822 1.097-2.615 2.21a.5.5 0 0 1-.814-.58c.88-1.236 1.85-2.054 3.044-2.553.889-.37 1.88-.556 3.012-.625l-1.178-1.179a.5.5 0 0 1 0-.707"/></symbol>
   </defs></svg>
 
   <header class="stage-header">
@@ -1730,22 +1796,16 @@
                     </div>
                   </div>
 
-                  <!-- 关闭欢迎卡后的 Home 空状态 -->
-                  <div class="empty-state new-only" id="homeEmpty" style="display:none">
-                    <span class="es-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
-                    <div class="es-t">Your channel is ready</div>
-                    <div class="es-d">Ask Alva anything in the box below — your playbooks, chats and tasks will collect here as you work.</div>
-                  </div>
-
+                <!-- Playbooks 模块（老用户：列表 / 新用户·广告：空态） -->
                 <div class="home-label-row ret-only">
                   <h3>Playbooks</h3>
                   <span class="home-more">View all
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
                   </span>
                 </div>
-                <div class="group-card ret-only">
+                <div class="group-card ret-only" id="pbGroup">
                   <div class="home-row">
-                    <span class="pb-ava"><img src="img/ava-6.png" alt=""></span>
+                    <span class="pb-ava"><img referrerpolicy="no-referrer" src="img/av-zet.jpeg" alt=""></span>
                     <span class="row-main">
                       <div class="nm">FinTwit Bulls &amp; Bears</div>
                       <div class="sub"><span class="tk">NVDA</span>bulls at <span class="pos">68%</span> — strongest bullish tilt in 3 weeks across covered accounts</div>
@@ -1753,14 +1813,14 @@
                     <span class="row-meta"><span class="dot-new"></span></span>
                   </div>
                   <div class="home-row">
-                    <span class="pb-ava"><img src="img/ava-4.png" alt=""></span>
+                    <span class="pb-ava"><img referrerpolicy="no-referrer" src="img/av-lake.jpeg" alt=""></span>
                     <span class="row-main">
                       <div class="nm">Investor Roundtable</div>
                       <div class="sub"><span class="tk">AMD</span><span class="pos">+119.4%</span> · roundtable verdict <span class="lvl">NEUTRAL</span> — 7/10 see AI compute moat priced in</div>
                     </span>
                   </div>
                   <div class="home-row">
-                    <span class="pb-ava"><img src="img/ava-2.png" alt=""></span>
+                    <span class="pb-ava"><img referrerpolicy="no-referrer" src="img/av-bruce.jpeg" alt=""></span>
                     <span class="row-main">
                       <div class="nm">BTC Price Tracker</div>
                       <div class="sub"><span class="tk">BTC</span>104.2k <span class="pos">+1.8%</span> 24h · momentum cooling at range resistance</div>
@@ -1768,21 +1828,30 @@
                     <span class="row-meta"><span class="dot-new"></span></span>
                   </div>
                   <div class="home-row">
-                    <span class="pb-ava"><img src="img/ava-5.png" alt=""></span>
+                    <span class="pb-ava"><img referrerpolicy="no-referrer" src="img/av-snarketh.jpeg" alt=""></span>
                     <span class="row-main">
                       <div class="nm">LAB Short War Room</div>
                       <div class="sub"><span class="tk">LABUSDT</span>squeeze risk <span class="neg">HIGH</span> · funding <span class="neg">-1.2%/8h</span> still favors shorts</div>
                     </span>
                   </div>
                   <div class="home-row">
-                    <span class="pb-ava"><img src="img/ava-3.png" alt=""></span>
+                    <span class="pb-ava"><img referrerpolicy="no-referrer" src="img/av-jaxoxyz.jpeg" alt=""></span>
                     <span class="row-main">
-                      <div class="nm">HL Funding Explorer</div>
-                      <div class="sub">top carry <span class="tk">HYPE</span><span class="pos">+38% APR</span> · cross-asset funding spread widening</div>
+                      <div class="nm">BTC Bet Scanner</div>
+                      <div class="sub"><span class="tk">BTC</span>Polymarket daily-close · <span class="pos">3</span> squeeze trifectas flagged today</div>
                     </span>
                   </div>
                 </div>
 
+                <!-- Playbooks 空态：新用户 + 广告进入共用 -->
+                <div class="home-label-row empty-both"><h3>Playbooks</h3></div>
+                <div class="empty-card empty-both">
+                  <span class="ec-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2 2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 1 20 5.5V18a1 1 0 0 1-1 1h-5a2 2 0 0 0-2 2 2 2 0 0 0-2-2H5a1 1 0 0 1-1-1z"/></svg></span>
+                  <div class="ec-t">No playbooks yet</div>
+                  <div class="ec-d">Ask Alva to screen, backtest, or track an idea — your playbooks collect here.</div>
+                </div>
+
+                <!-- Chats 模块（老用户：列表 / 新用户：空态 / 广告：1 条 Digest 对话） -->
                 <div class="home-label-row ret-only">
                   <h3>Chats</h3>
                   <span class="home-more">View all
@@ -1802,6 +1871,29 @@
                   </div>
                 </div>
 
+                <!-- Chats 空态：仅新用户 -->
+                <div class="home-label-row new-only"><h3>Chats</h3></div>
+                <div class="empty-card new-only">
+                  <span class="ec-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
+                  <div class="ec-t">No chats yet</div>
+                  <div class="ec-d">Start one from the box below — every conversation lands here.</div>
+                </div>
+
+                <!-- Chats：广告进入后已有 1 条 Digest 对话 -->
+                <div class="home-label-row ad-only">
+                  <h3>Chats</h3>
+                  <span class="home-more">View all
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+                  </span>
+                </div>
+                <div class="group-card ad-only">
+                  <div class="home-row ask-trigger" id="adDigestChat" data-title="FinTwits · AI Digest" data-default="full"><!-- 点击：带着已生成的 digest 对话重新全屏打开 -->
+                    <span class="chat-ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
+                    <span class="row-main"><div class="nm">FinTwit · AI Digest</div><div class="sub">Daily 7:30 AM · 53 FinTwits · automation ready</div></span>
+                    <span class="row-meta"><span class="row-time">now</span><span class="dot-new"></span></span>
+                  </div>
+                </div>
+
                 <!-- Upgrade to Pro -->
                 <div class="upgrade-card ret-only">
                   <span class="up-ic">
@@ -1817,19 +1909,92 @@
 
                 <!-- Explore -->
                 <div class="home-panel" data-tab="Explore">
-                  <div class="home-label-row"><h3>Trending</h3><span class="home-more">View all
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></div>
-                  <div class="group-card">
-                    <div class="home-row"><span class="pb-ava"><img src="img/ava-2.png" alt=""></span><span class="row-main"><div class="nm">NVDA Momentum Engine</div><div class="sub"><span class="tk">NVDA</span>breakout confirmed · <span class="pos">+6.2%</span> since signal</div></span><span class="row-meta"><span class="dot-new"></span></span></div>
-                    <div class="home-row"><span class="pb-ava"><img src="img/ava-3.png" alt=""></span><span class="row-main"><div class="nm">Crypto Macro Pulse</div><div class="sub"><span class="tk">BTC</span>risk-on regime · alts beta rotating in</div></span></div>
-                    <div class="home-row"><span class="pb-ava"><img src="img/ava-5.png" alt=""></span><span class="row-main"><div class="nm">Options Flow Radar</div><div class="sub"><span class="tk">SPY</span>unusual call sweeps at <span class="pos">+0.8%</span> OTM</div></span></div>
-                    <div class="home-row"><span class="pb-ava"><img src="img/ava-6.png" alt=""></span><span class="row-main"><div class="nm">Dividend Compounders</div><div class="sub">yield-on-cost screen · 12 names refreshed</div></span></div>
+                  <!-- 顶部：左侧排序筛选 + 分类 tag（More 展开看全量）；切 tag / 换筛选都会刷新列表 -->
+                  <div class="ex-bar" id="exBar">
+                    <button class="ex-filter" id="exFilter" type="button"><span class="ex-flabel">Trending</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                    <div class="ex-tags" id="exTags">
+                      <button class="ex-tag on" type="button" data-cat="all">Popular</button>
+                      <button class="ex-tag" type="button" data-cat="screener">Smart Screener</button>
+                      <button class="ex-tag" type="button" data-cat="theme">Theme Tracker</button>
+                      <button class="ex-tag" type="button" data-cat="backtest">Backtest</button>
+                      <button class="ex-tag" type="button" data-cat="digest">AI Digest</button>
+                      <button class="ex-tag" type="button" data-cat="deepdive">Asset Deepdive</button>
+                    </div>
+                    <button class="ex-caret" id="exCaret" type="button" aria-label="All categories"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                    <div class="ex-pop" id="exPop" hidden>
+                      <div class="ex-pop-h">Categories</div>
+                      <button class="ex-pop-i on" type="button" data-cat="all">Popular</button>
+                      <button class="ex-pop-i" type="button" data-cat="screener">Smart Screener</button>
+                      <button class="ex-pop-i" type="button" data-cat="theme">Theme Tracker</button>
+                      <button class="ex-pop-i" type="button" data-cat="backtest">Backtest</button>
+                      <button class="ex-pop-i" type="button" data-cat="digest">AI Digest</button>
+                      <button class="ex-pop-i" type="button" data-cat="deepdive">Asset Deepdive</button>
+                    </div>
                   </div>
-                  <div class="home-label-row"><h3>Categories</h3></div>
-                  <div class="group-card">
-                    <div class="home-row"><span class="row-main"><div class="nm">Equities</div><div class="sub">428 playbooks</div></span></div>
-                    <div class="home-row"><span class="row-main"><div class="nm">Crypto</div><div class="sub">301 playbooks</div></span></div>
-                    <div class="home-row"><span class="row-main"><div class="nm">Macro &amp; Rates</div><div class="sub">96 playbooks</div></span></div>
+                  <div class="ex-list" id="exList">
+                    <div class="ex-card" data-cat="deepdive" data-views="23417">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-lab.webp" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">LAB Short War Room</span><span class="ex-desc">Live short-seller console for LABUSDT — squeeze risk, funding cost, short-PnL calculator.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-snarketh.jpeg" alt=""><span class="ex-au">snarketh</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>23.4k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>12</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="deepdive" data-views="1420">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-roundtable.webp" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">Investor Roundtable</span><span class="ex-desc">Convene ten legendary investors to debate any stock — live verdict + full snapshot.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-lake.jpeg" alt=""><span class="ex-au">lake</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>1.4k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>2</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="screener" data-views="14158">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-btcbet.webp" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">BTC Polymarket Daily-Close Bet Scanner with 4-Way Probability Blend &amp; Squeeze Trifecta Flags</span><span class="ex-desc">Scans Polymarket BTC daily-close markets every minute · 4-way probability blend.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-jaxoxyz.jpeg" alt=""><span class="ex-au">jaxoxyz</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>14.2k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>8</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="screener backtest" data-views="5750">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-alpha.png" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">FinTwit Alpha Leaderboard</span><span class="ex-desc">Ranks public FinTwit creators by simulated signal performance.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-zet.jpeg" alt=""><span class="ex-au">zet</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>5.8k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>9</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="theme" data-views="1603">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-citrini.webp" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">Citrini Operating System — Six-Module Macro Framework with Live Megatrend Tracker &amp; NVDA Pivot Timeline</span><span class="ex-desc">A navigable filter cascade — live macro indicators + megatrend tracker.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-lake.jpeg" alt=""><span class="ex-au">lake</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>1.6k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>3</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="digest" data-views="1188">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-bulls.png" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">FinTwit Bulls &amp; Bears</span><span class="ex-desc">Ticker view of bullish &amp; bearish tweet signals from covered accounts.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-zet.jpeg" alt=""><span class="ex-au">zet</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>1.2k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>1</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="deepdive" data-views="828">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-amd.webp" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">AMD Deep-Dive</span><span class="ex-desc">Auto-updating financials, analyst actions, catalysts + AI-chip news.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-lake.jpeg" alt=""><span class="ex-au">lake</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>828</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>0</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="deepdive" data-views="1816">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-btcprice.webp" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">BTC Price Tracker</span><span class="ex-desc">Live BTC/USDT spot tracker with 5-minute candles + 24h snapshot.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-bruce.jpeg" alt=""><span class="ex-au">bruce</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>1.8k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>2</span></span></div>
+                    </div>
+                    <div class="ex-card" data-cat="theme" data-views="1026">
+                      <div class="ex-top">
+                        <span class="ex-cover"><img referrerpolicy="no-referrer" src="img/cover-humanoid.webp" alt="" loading="lazy"></span>
+                        <span class="ex-head"><span class="ex-title">Theme Tracker · Humanoid Robots</span><span class="ex-desc">75 names across 9 supply-chain layers, scored daily on fresh data.</span></span>
+                      </div>
+                      <div class="ex-meta"><img class="ex-av" referrerpolicy="no-referrer" src="img/av-lake.jpeg" alt=""><span class="ex-au">lake</span><span class="ex-stats"><span class="ex-stat"><svg viewBox="0 0 21 20"><use href="#ic-views"/></svg>1.0k</span><span class="ex-stat"><svg viewBox="0 0 20 20"><use href="#ic-remix"/></svg>1</span></span></div>
+                    </div>
                   </div>
                 </div>
 
@@ -2378,7 +2543,8 @@
     if (f) f.src = f.getAttribute('src');          // 重新加载快照，回到页面顶部
     document.querySelectorAll('.top-banner').forEach(b => b.classList.remove('hidden'));  // 公告条复位
     const wel = document.getElementById('homeWelcome'); if (wel) wel.style.display = '';  // 欢迎卡复位
-    const we = document.getElementById('homeEmpty'); if (we) we.style.display = 'none';   // Home 空态复位
+    const adSub = document.querySelector('#adDigestChat .sub');                            // 广告 Digest 对话副标题复位
+    if (adSub) adSub.textContent = 'Daily 7:30 AM · 53 FinTwits · automation ready';
     if (window.AlvaChat) window.AlvaChat.reset();        // chat 浮层/对话复位
     const sk = document.getElementById('homeSkel');
     if (sk) sk.classList.add('off');
@@ -2395,7 +2561,11 @@
   function setMode(mode) {
     userMode = mode;
     const ret = (mode === 'returning');
-    if (viewport) { viewport.classList.toggle('mode-new', !ret); viewport.classList.toggle('mode-returning', ret); }   // new & ad 用新用户首页
+    if (viewport) {                                   // 三场景互斥：new / ad / returning
+      viewport.classList.toggle('mode-new', mode === 'new');
+      viewport.classList.toggle('mode-ad', mode === 'ad');
+      viewport.classList.toggle('mode-returning', ret);
+    }
     document.querySelectorAll('#modeTabs .mode-tab').forEach(t => t.classList.toggle('on', t.dataset.mode === mode));
     resetAll();
     if (mode === 'ad' && window.AlvaChat) { go(1); window.AlvaChat.openCampaign(); }   // 广告用户：直接进首页并打开全屏 campaign
@@ -2409,7 +2579,7 @@
   }));
 
   // 欢迎卡关闭
-  (function () { const wc = document.getElementById('welcomeClose'); if (wc) wc.addEventListener('click', () => { const w = document.getElementById('homeWelcome'); if (w) w.style.display = 'none'; const e = document.getElementById('homeEmpty'); if (e) e.style.display = 'flex'; }); })();
+  (function () { const wc = document.getElementById('welcomeClose'); if (wc) wc.addEventListener('click', () => { const w = document.getElementById('homeWelcome'); if (w) w.style.display = 'none'; }); })();   // 关闭欢迎卡：两个模块空态本就常驻，留在原处即可
   // 新用户欢迎卡 starter：点击 → 打开 chat 浮层并预填该任务
   document.querySelectorAll('.w-job').forEach(j => j.addEventListener('click', () => {
     const homeAsk = document.getElementById('homeAsk');
@@ -2651,7 +2821,7 @@
   })();
 
   // 首页 Playbook 行 → 详情页；详情页 ← 返回首页
-  document.querySelectorAll('.s-home .group-card')[0].querySelectorAll('.home-row').forEach(r => {
+  document.getElementById('pbGroup').querySelectorAll('.home-row').forEach(r => {
     r.addEventListener('click', () => {
       go(2);
       const pd = document.getElementById('pdScroll');
@@ -2659,6 +2829,53 @@
     });
   });
   document.getElementById('pdBack').addEventListener('click', () => go(1));
+
+  // ============ Explore：tag 筛选 + 排序，切换刷新列表；卡片点击进详情 ============
+  (function () {
+    const list = document.getElementById('exList');
+    const tags = document.getElementById('exTags');
+    const fbtn = document.getElementById('exFilter');
+    if (!list || !tags || !fbtn) return;
+    const flabel = fbtn.querySelector('.ex-flabel');
+    const orig = [...list.querySelectorAll('.ex-card')];
+    const SORTS = ['Trending', 'Most followed', 'Newest'];
+    let sortIdx = 0, cat = 'all';
+    const views = c => +(c.dataset.views || 0);
+    function render() {
+      const oldEmpty = list.querySelector('.ex-empty'); if (oldEmpty) oldEmpty.remove();
+      let arr = orig.slice();
+      if (SORTS[sortIdx] === 'Most followed') arr.sort((a, b) => views(b) - views(a));
+      else if (SORTS[sortIdx] === 'Newest') arr = orig.slice().reverse();
+      let shown = 0;
+      arr.forEach(c => { list.appendChild(c); const ok = (cat === 'all' || (c.dataset.cat || '').split(' ').includes(cat)); c.style.display = ok ? '' : 'none'; if (ok) shown++; });
+      if (!shown) { const e = document.createElement('div'); e.className = 'ex-empty'; e.textContent = 'No playbooks in this category yet.'; list.appendChild(e); }
+      list.style.opacity = '0'; void list.offsetWidth; list.style.opacity = '1';   // 刷新感
+    }
+    const pop = document.getElementById('exPop'), caret = document.getElementById('exCaret');
+    function syncTags() { tags.querySelectorAll('.ex-tag').forEach(x => x.classList.toggle('on', x.dataset.cat === cat)); if (pop) pop.querySelectorAll('.ex-pop-i').forEach(x => x.classList.toggle('on', x.dataset.cat === cat)); }
+    function setCat(c) { cat = c; syncTags(); render(); }
+    tags.addEventListener('click', e => { const t = e.target.closest('.ex-tag'); if (t) setCat(t.dataset.cat); });
+    fbtn.addEventListener('click', () => { sortIdx = (sortIdx + 1) % SORTS.length; flabel.textContent = SORTS[sortIdx]; render(); });
+    // 右侧下拉箭头 → 全量分类浮层（与线上一致的 6 个分类）
+    if (caret && pop) {
+      caret.addEventListener('click', e => { e.stopPropagation(); const open = pop.hidden; pop.hidden = !open; caret.classList.toggle('open', open); });
+      pop.addEventListener('click', e => { const i = e.target.closest('.ex-pop-i'); if (!i) return; setCat(i.dataset.cat); pop.hidden = true; caret.classList.remove('open'); });
+      document.addEventListener('click', e => { if (!pop.hidden && !pop.contains(e.target) && !caret.contains(e.target)) { pop.hidden = true; caret.classList.remove('open'); } });
+    }
+    list.addEventListener('click', e => { if (e.target.closest('.ex-card')) { go(2); const pd = document.getElementById('pdScroll'); if (pd) pd.scrollTo({ top: 0 }); } });
+    // 图片兜底：CDN 不可达时封面降级为渐变+标签、头像降级为首字母,绝不出现裂图
+    function exFallback() {
+      document.querySelectorAll('.ex-cover img').forEach(img => {
+        const fail = () => { const cov = img.closest('.ex-cover'); if (!cov || cov.classList.contains('ph')) return; const t = cov.parentElement.querySelector('.ex-title'); const lbl = t ? t.textContent.trim().split(/[\s·]/)[0].slice(0, 7) : ''; cov.classList.add('ph'); cov.innerHTML = '<span class="ph-tk">' + lbl + '</span>'; };
+        img.addEventListener('error', fail); if (img.complete && img.naturalWidth === 0) fail();
+      });
+      document.querySelectorAll('.ex-av, .pb-ava img').forEach(img => {
+        const fail = () => { if (img.dataset.ph) return; img.dataset.ph = '1'; const au = img.parentElement.querySelector('.ex-au') || (img.closest('.home-row') && img.closest('.home-row').querySelector('.nm')); const ch = (au ? au.textContent.trim()[0] : '?').toUpperCase(); const sp = document.createElement('span'); sp.className = (img.className + ' ph').trim(); sp.textContent = ch; img.replaceWith(sp); };
+        img.addEventListener('error', fail); if (img.complete && img.naturalWidth === 0) fail();
+      });
+    }
+    exFallback();
+  })();
   // 点击顶栏头像/标题 → 回到页面顶部
   document.getElementById('pdTopTitle').addEventListener('click', () => {
     document.getElementById('pdScroll').scrollTo({ top: 0, behavior: 'smooth' });
@@ -3017,6 +3234,33 @@
         setTimeout(reveal, 340);                          // ③ 顶部/输入框入场后，新内容再逐段出现
       }, 300);
     }
+    // —— digest 投递目标点击 → Alva 回执「绑定成功」+ 弱 CTA 返回首页 ——
+    thread.addEventListener('click', (e) => {
+      const b = e.target.closest('.dg-b');
+      if (b && !thread.querySelector('.bind-reply')) {
+        const app = b.textContent.trim();                       // 用户选择的 app = 所点彩色按钮
+        const grp = b.closest('.dg-btns');
+        if (grp) grp.querySelectorAll('.dg-b').forEach(x => { x.disabled = true; if (x !== b) x.style.opacity = '0.38'; });
+        b.classList.add('connected');
+        const adSub = document.querySelector('#adDigestChat .sub');   // 首页那条对话的副标题带上目标 app
+        if (adSub) adSub.textContent = 'Daily 7:30 AM · 53 FinTwits · sample sent to ' + app;
+        const node = document.createElement('div'); node.className = 'cv-msg ai bind-reply';
+        node.innerHTML = '<div class="ai-by">' + AVA + '<span class="nm">Alva</span></div><div class="tx">' + THINK + '</div>';
+        thread.appendChild(node); scrollDown();
+        setTimeout(() => {
+          node.querySelector('.tx').innerHTML =
+            '<div class="dg-piece">' +
+            '<p><b>' + app + ' connected.</b> I just sent the sample digest there — take a look. From tomorrow your <b>Daily FinTwit AI Digest</b> arrives at 7:30 AM, and every alert from these FinTwits is pushed straight to ' + app + '.</p>' +
+            '<p>This conversation now lives in your home channel — reopen it anytime under <b>Chats</b>.</p>' +
+            '<button class="dg-home" type="button">Find it on home <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>' +
+            '</div>';
+          requestAnimationFrame(() => { const p = node.querySelector('.dg-piece'); if (p) p.classList.add('in'); });
+          scrollDown();
+        }, 1300);
+        return;
+      }
+      if (e.target.closest('.dg-home')) { close(); if (typeof go === 'function') go(1); }   // 关闭对话框 → 进入首页
+    });
     window.AlvaChat = { open, close, reset: resetConv, openCampaign, enterDigest };
     // ===== campaign（广告全屏）FinTwit 选择交互 =====
     const cmpList = document.getElementById('cmpList');
