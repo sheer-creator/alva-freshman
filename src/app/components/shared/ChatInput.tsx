@@ -273,7 +273,7 @@ const SKILL_PICKER_ITEMS: ChatPickerItem[] = [
     type: 'skill',
     label: 'Theme Tracker',
     insertText: 'Theme Tracker',
-    icon: 'buld-l',
+    icon: 'bulb-l',
     avatar: 'Alva',
     preview: {
       kind: 'skill',

@@ -74,7 +74,7 @@ interface SkillData {
 
 const SKILLS: SkillData[] = [
   {
-    id: 'theme-tracker', label: 'Theme Tracker', icon: 'buld-l', kind: 'playbook',
+    id: 'theme-tracker', label: 'Theme Tracker', icon: 'bulb-l', kind: 'playbook',
     prompts: [
       'Build a theme tracker for AI infrastructure — NVDA, AVGO, TSM, and power-grid names',
       'Track the GLP-1 / obesity theme — LLY, NVO, and the supply chain around them',

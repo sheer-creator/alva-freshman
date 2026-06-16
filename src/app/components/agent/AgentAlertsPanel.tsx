@@ -1,10 +1,10 @@
 /**
- * [INPUT]: Figma Page/Agent/Alerts(7913:138060)— Body + Agent List Item(owned / subscribed 两型)
- * [OUTPUT]: Agent 页 Alerts tab — All/Active/Paused 过滤 + Created 开关 + New Alerts;卡片分「我创建的」与「订阅别人的」
- * [POS]: AgentNewSession tab==='alerts' 渲染;数量驱动页级 tab 计数
+ * [INPUT]: Figma Page/Agent/Alerts(7913:138060)— Body + Playbook 分组卡 + 单条 Alert 卡(created / subscribed)
+ * [OUTPUT]: Agent 页 Alerts tab — All/Active/Paused 过滤 + Created 开关 + New Alerts;订阅整个 playbook 收成分组卡(组头 Unsubscribe + 行内 toggle),单条 alert 自成一卡(创建=edit/pause/delete + Unsubscribe;订阅=仅 Unsubscribe)
+ * [POS]: AgentNewSession tab==='alerts' 渲染;alert 总数驱动页级 tab 计数
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { ToggleSwitch } from '@/app/components/shell/settings-ui';
@@ -14,32 +14,50 @@ import type { PushCardData } from '@/app/components/shared/AutomationCard';
 const FONT = "'Delight', sans-serif";
 
 export type AgentAlertStatus = 'active' | 'paused';
-/** owned = 我创建的(可 edit/pause/delete,展示订阅者);subscribed = 订阅别人的(可 Unsubscribe,展示来源) */
-export type AgentAlertKind = 'owned' | 'subscribed';
+/** created = 我创建的(可 edit/pause/delete);subscribed = 订阅别人的(仅 Unsubscribe) */
+export type AgentAlertSource = 'created' | 'subscribed';
 
 export interface AgentAlert {
   id: string;
-  title: string;
+  name: string;
+  /** 创建者 — meta 行头像 + 名字 */
+  creator: string;
   lastRun: string;
+  runEvery: string;
+  runs: number;
   status: AgentAlertStatus;
-  kind: AgentAlertKind;
-  /** owned:订阅了我这条 alert 的人 */
-  usedBy?: string[];
-  /** subscribed:这条 alert 来自谁(可选) */
-  from?: string;
+  source: AgentAlertSource;
+  /** 该 alert 订阅自哪个 playbook;有值则收进对应分组卡 */
+  playbookId?: string;
 }
 
-export const AGENT_ALERTS: AgentAlert[] = [
-  { id: 'a1', title: 'capacity-monitor', lastRun: '15m', status: 'active', kind: 'owned', usedBy: ['@leo/BTC Ultimate AI Trader', '@sarah/ETH Swing Setup'] },
-  { id: 'a2', title: 'shanghaojin-tweet-trader-v2', lastRun: '15m', status: 'active', kind: 'subscribed' },
-  { id: 'a3', title: 'ai-chip-supply-chain', lastRun: '15m', status: 'active', kind: 'subscribed', from: '@leo/BTC Ultimate AI Trader' },
-  { id: 'a4', title: 'earnings-surprise-radar', lastRun: '15m', status: 'active', kind: 'subscribed' },
-  { id: 'a5', title: 'alessiotmad-tweet-tracker', lastRun: '15m', status: 'active', kind: 'owned', usedBy: ['@leo/BTC Ultimate AI Trader', '@sarah/ETH Swing Setup', '@yggyll/SOL DeFi Hunter', '@alex/Stablecoin Yield Farm', '@mike/Altcoin Momentum'] },
-  { id: 'a6', title: 'funding-rate-watcher', lastRun: '15m', status: 'paused', kind: 'owned', usedBy: ['@leo/BTC Ultimate AI Trader'] },
-  { id: 'a7', title: 'funding-rate-watcher', lastRun: '15m', status: 'active', kind: 'subscribed' },
+export interface AlertPlaybookGroup {
+  id: string;
+  playbook: string;
+  /** 组头头像 — 传 Avatar name */
+  avatar: string;
+}
+
+/* 订阅自整个 playbook → 渲染成分组卡(组头带 Unsubscribe,行内带 toggle) */
+export const AGENT_ALERT_GROUPS: AlertPlaybookGroup[] = [
+  { id: 'pb-attribution', playbook: 'Attribution Analysis Strategy', avatar: 'Sheer' },
+  { id: 'pb-bulls-bears', playbook: 'FinTwit Bulls & Bears', avatar: 'Caleb Frost' },
 ];
 
-/* 状态点 — 14px 浅底环 + 6px 实心点;active 绿(dot-green)/ paused 灰(dot-grey) */
+export const AGENT_ALERTS: AgentAlert[] = [
+  { id: 'a1', name: 'space-rs-rotation-1', creator: 'Sheer', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created', playbookId: 'pb-attribution' },
+  { id: 'a2', name: 'space-rs-rotation-2', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'paused', source: 'created', playbookId: 'pb-attribution' },
+  { id: 'a3', name: 'space-rs-rotation-3', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'subscribed', playbookId: 'pb-attribution' },
+  { id: 'a4', name: 'space-rs-rotation-4', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'paused', source: 'subscribed', playbookId: 'pb-attribution' },
+  { id: 'a5', name: 'nvda-macd-hft-notify', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'subscribed' },
+  { id: 'a6', name: 'manual-push-ping', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created' },
+  { id: 'a7', name: 'us-macro-pulse', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created' },
+  { id: 'a8', name: 'semi-catalyst-weekly-narrative', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created' },
+  { id: 'a9', name: 'bull-bear-sentiment', creator: 'Caleb Frost', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created', playbookId: 'pb-bulls-bears' },
+  { id: 'a10', name: 'whale-flow-alert', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'paused', source: 'subscribed', playbookId: 'pb-bulls-bears' },
+];
+
+/* 状态点 — 14px 浅底环 + 6px 实心点;active 绿 / paused 灰 */
 function StatusDot({ status }: { status: AgentAlertStatus }) {
   const paused = status === 'paused';
   return (
@@ -52,93 +70,81 @@ function StatusDot({ status }: { status: AgentAlertStatus }) {
   );
 }
 
-/* Tag/Default — Figma 7930:184185:br03 圆角 4,px-6 py-px,gap-4,14px 头像 + 名称 */
-function AuthorTag({ name }: { name: string }) {
+/* meta 行 — 创建者头像 + 名(n3) | Last Run | Every | Runs;分隔符 n2 */
+function AlertMeta({ alert }: { alert: AgentAlert }) {
+  const sep = <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>;
   return (
-    <div className="flex shrink-0 items-center justify-center gap-[4px] rounded-[4px] px-[6px] py-px" style={{ background: 'var(--b-r03, rgba(0,0,0,0.03))' }}>
-      <Avatar name={name} size={14} />
-      <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-        {name}
+    <div className="flex flex-wrap items-center gap-[8px] text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
+      <span className="flex items-center gap-[4px]">
+        <Avatar name={alert.creator} size={16} />
+        {alert.creator}
       </span>
+      {sep}
+      <span className="whitespace-nowrap">Last Run: {alert.lastRun}</span>
+      {sep}
+      <span className="whitespace-nowrap">{alert.runEvery}</span>
+      {sep}
+      <span className="whitespace-nowrap">{alert.runs} Runs</span>
     </div>
   );
 }
 
-/* owned 卡的操作图标 — edit / pause(暂停态显示 play-f)/ delete */
-function OwnedActions({ status }: { status: AgentAlertStatus }) {
-  const icons = ['edit-l1', status === 'paused' ? 'play-f' : 'pause-l2', 'delete-l'];
+/* 操作图标 — CDN 同名 icon;颜色取 Figma fill(n9) */
+function RowActions({ status, onToggleStatus }: { status: AgentAlertStatus; onToggleStatus: () => void }) {
   return (
     <div className="flex shrink-0 items-center gap-[12px]">
-      {icons.map((ic) => (
-        <button key={ic} aria-label={ic} onClick={(e) => e.stopPropagation()} className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70">
-          <CdnIcon name={ic} size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-        </button>
-      ))}
+      <button aria-label="Edit" onClick={(e) => e.stopPropagation()} className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70">
+        <CdnIcon name="edit-l1" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+      </button>
+      <button aria-label={status === 'paused' ? 'Resume' : 'Pause'} onClick={(e) => { e.stopPropagation(); onToggleStatus(); }} className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70">
+        <CdnIcon name={status === 'paused' ? 'play-f' : 'pause-l2'} size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+      </button>
+      <button aria-label="Delete" onClick={(e) => e.stopPropagation()} className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70">
+        <CdnIcon name="delete-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+      </button>
     </div>
   );
 }
 
-/* 订阅卡片 — Figma 7930:184577:border 0.5 l2 / 圆角 8 / p-20 / gap-12 */
-function AlertCard({ alert, onOpen }: { alert: AgentAlert; onOpen: () => void }) {
-  const owned = alert.kind === 'owned';
+/* 折叠箭头 — CDN arrow-down-f2(实心三角);Figma fill = rgba(0,0,0,0.2)=n2;原生指下,展开 none,收起转右 */
+function GroupArrow({ open }: { open: boolean }) {
   return (
-    <div
-      onClick={onOpen}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
-      className="flex w-full cursor-pointer flex-col gap-[12px] rounded-[8px] p-[20px] transition-shadow hover:shadow-xs"
-      style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
-    >
-      <div className="flex w-full items-center gap-[24px]">
-        <div className="flex min-w-0 flex-1 items-center gap-[8px]">
-          <StatusDot status={alert.status} />
-          <p className="min-w-0 flex-1 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-            {alert.title}
-          </p>
-        </div>
-        {/* meta — Last Run | Every 5 minutes | 142 Runs */}
-        <div className="flex shrink-0 items-center gap-[8px] text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT }}>
-          <span style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>Last Run: {alert.lastRun}</span>
-          <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>
-          <span style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>Every 5 minutes</span>
-          <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>
-          <span style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>142 Runs</span>
-        </div>
-        {/* 右侧操作 — owned 三图标 / subscribed 取消订阅 */}
-        {owned ? (
-          <OwnedActions status={alert.status} />
-        ) : (
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-[72px] shrink-0 cursor-pointer border-none bg-transparent p-0 text-right text-[12px] leading-[20px] tracking-[0.12px] text-[color:var(--text-n9,rgba(0,0,0,0.9))] transition-colors hover:text-[color:var(--main-m4,#E5484D)]"
-            style={{ fontFamily: FONT }}
-          >
-            Unsubscribe
-          </button>
-        )}
-      </div>
+    <span className="flex size-[14px] shrink-0 items-center justify-center" style={{ transform: open ? 'none' : 'rotate(-90deg)', transition: 'transform 0.12s ease' }}>
+      <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2, rgba(0,0,0,0.2))" />
+    </span>
+  );
+}
 
-      {/* 第二行 — owned: Used By + 订阅者们;subscribed: From + 来源(可选) */}
-      {owned && alert.usedBy && alert.usedBy.length > 0 && (
-        <div className="flex w-full flex-wrap items-center gap-[8px]">
-          <span className="shrink-0 text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-            Used By
-          </span>
-          {alert.usedBy.map((u) => (
-            <AuthorTag key={u} name={u} />
-          ))}
-        </div>
-      )}
-      {!owned && alert.from && (
-        <div className="flex w-full flex-wrap items-center gap-[8px]">
-          <span className="shrink-0 text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-            From
-          </span>
-          <AuthorTag name={alert.from} />
-        </div>
-      )}
-    </div>
+function UnsubscribeBtn() {
+  return (
+    <button
+      onClick={(e) => e.stopPropagation()}
+      className="shrink-0 cursor-pointer whitespace-nowrap border-none bg-transparent p-0 text-right text-[12px] font-medium leading-[20px] tracking-[0.12px] text-[color:var(--text-n9,rgba(0,0,0,0.9))] transition-colors hover:text-[color:var(--main-m4,#E5484D)]"
+      style={{ fontFamily: FONT }}
+    >
+      Unsubscribe
+    </button>
+  );
+}
+
+/* 单 alert 主体 — dot + (name + meta) + 右侧控件;controls 由调用方传入(toggle / unsubscribe) */
+function AlertBody({ alert, status, onOpen, controls }: { alert: AgentAlert; status: AgentAlertStatus; onOpen: () => void; controls: React.ReactNode }) {
+  return (
+    <>
+      <span className="flex h-[26px] shrink-0 items-center">
+        <StatusDot status={status} />
+      </span>
+      <button
+        onClick={onOpen}
+        className="flex min-w-0 flex-1 cursor-pointer flex-col items-start gap-[2px] border-none bg-transparent p-0 text-left"
+      >
+        <span className="max-w-full truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+          {alert.name}
+        </span>
+        <AlertMeta alert={alert} />
+      </button>
+      <div className="flex shrink-0 items-center gap-[12px] self-center">{controls}</div>
+    </>
   );
 }
 
@@ -150,7 +156,7 @@ const FILTERS: { id: AlertFilter; label: string }[] = [
   { id: 'paused', label: 'Paused' },
 ];
 
-/* 点击 alert → 详情弹窗的 Alerts tab 内容(按该 alert 构造的最近推送) */
+/* 点击 alert → 详情弹窗的最近推送 */
 function buildAlertPushes(alert: AgentAlert): PushCardData[] {
   const bullets = [
     'Top of basket: ALL (Allstate) holds #1 at Score 95 — ROE 39.5%, P/E 5.64; leadership in Insurance — Property & Casualty continues.',
@@ -159,8 +165,8 @@ function buildAlertPushes(alert: AgentAlert): PushCardData[] {
   ];
   const title = 'AMD to Entrust 2nm Production to Samsung Foundry — Samsung Electronics has entered into substantive discussions with AMD';
   return [
-    { id: `${alert.id}-p1`, kind: 'normal', timestamp: 'May 8, 12:00 PM', source: alert.title, feedName: alert.title, title, bullets },
-    { id: `${alert.id}-p2`, kind: 'normal', timestamp: 'May 7, 12:00 PM', source: alert.title, feedName: alert.title, title, bullets },
+    { id: `${alert.id}-p1`, kind: 'normal', timestamp: 'May 8, 12:00 PM', source: alert.name, feedName: alert.name, title, bullets },
+    { id: `${alert.id}-p2`, kind: 'normal', timestamp: 'May 7, 12:00 PM', source: alert.name, feedName: alert.name, title, bullets },
   ];
 }
 
@@ -171,16 +177,37 @@ export function AgentAlertsPanel() {
   const [filter, setFilter] = useState<AlertFilter>('all');
   const [createdOnly, setCreatedOnly] = useState(false);
   const [activeAlert, setActiveAlert] = useState<AgentAlert | null>(null);
-  const alerts = AGENT_ALERTS.filter((a) => {
-    if (filter !== 'all' && a.status !== filter) return false;
-    if (createdOnly && a.kind !== 'owned') return false;
+  const [statusMap, setStatusMap] = useState<Record<string, AgentAlertStatus>>(() =>
+    Object.fromEntries(AGENT_ALERTS.map((a) => [a.id, a.status])),
+  );
+  /* playbook 组默认收起;记录被展开的 id */
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  const statusOf = (a: AgentAlert) => statusMap[a.id] ?? a.status;
+  const toggleStatus = (id: string) =>
+    setStatusMap((prev) => ({ ...prev, [id]: (prev[id] ?? 'active') === 'active' ? 'paused' : 'active' }));
+
+  const visible = (a: AgentAlert) => {
+    if (filter !== 'all' && statusOf(a) !== filter) return false;
+    if (createdOnly && a.source !== 'created') return false;
     return true;
-  });
+  };
+
+  const groups = useMemo(
+    () =>
+      AGENT_ALERT_GROUPS.map((g) => ({
+        group: g,
+        total: AGENT_ALERTS.filter((a) => a.playbookId === g.id).length,
+        alerts: AGENT_ALERTS.filter((a) => a.playbookId === g.id && visible(a)),
+      })).filter((g) => g.alerts.length > 0),
+    [filter, createdOnly, statusMap],
+  );
+  const standalone = useMemo(() => AGENT_ALERTS.filter((a) => !a.playbookId && visible(a)), [filter, createdOnly, statusMap]);
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-[28px]">
       <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[16px]">
-        {/* 顶部行 — 左侧过滤 pills(medium)+ 右侧 Created 开关 + New Alerts */}
+        {/* 顶部行 — 过滤 pills + Created 开关 + New Alerts */}
         <div className="flex w-full items-center gap-[20px]">
           <div className="flex flex-1 flex-wrap items-center gap-[12px]">
             {FILTERS.map((f) => {
@@ -201,7 +228,6 @@ export function AgentAlertsPanel() {
               );
             })}
           </div>
-          {/* Created 开关 — 滑块在左,文字在右 */}
           <div className="flex shrink-0 items-center gap-[8px]">
             <ToggleSwitch on={createdOnly} onClick={() => setCreatedOnly((v) => !v)} />
             <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -217,21 +243,109 @@ export function AgentAlertsPanel() {
           </button>
         </div>
 
-        {alerts.map((a) => (
-          <AlertCard key={a.id} alert={a} onOpen={() => setActiveAlert(a)} />
-        ))}
+        {/* 分组卡 — 订阅自整个 playbook;可折叠 */}
+        {groups.map(({ group, alerts, total }) => {
+          const open = !!expanded[group.id];
+          return (
+          <div key={group.id} className="w-full overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+            {/* 组头 — 三角 + 头像 + (名 / meta) + Unsubscribe;点击展开收起 */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setExpanded((p) => ({ ...p, [group.id]: !open }))}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((p) => ({ ...p, [group.id]: !open })); } }}
+              className="flex w-full cursor-pointer items-center gap-[8px] p-[20px]"
+              style={{ background: 'var(--b-r02, rgba(0,0,0,0.02))' }}
+            >
+              <GroupArrow open={open} />
+              <Avatar name={group.avatar} size={30} />
+              <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                <span className="min-w-0 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                  {group.playbook}
+                </span>
+                <span className="flex items-center gap-[8px] text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
+                  <span className="whitespace-nowrap">{total} Automations</span>
+                  <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>
+                  <span className="whitespace-nowrap">Last Run: {alerts[0]?.lastRun ?? '15m'}</span>
+                </span>
+              </div>
+              <UnsubscribeBtn />
+            </div>
+            {/* 行列表 — px-20,行间分隔线 l12 */}
+            {open && (
+            <div className="flex w-full flex-col px-[20px]">
+              {alerts.map((a, i) => {
+                const st = statusOf(a);
+                return (
+                  <div
+                    key={a.id}
+                    className="group flex w-full items-start gap-[8px] py-[12px]"
+                    style={{ borderTop: i > 0 ? '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' : 'none' }}
+                  >
+                    <AlertBody
+                      alert={a}
+                      status={st}
+                      onOpen={() => setActiveAlert(a)}
+                      controls={
+                        a.source === 'created' ? (
+                          <>
+                            <RowActions status={st} onToggleStatus={() => toggleStatus(a.id)} />
+                            <ToggleSwitch on={st === 'active'} onClick={() => toggleStatus(a.id)} />
+                          </>
+                        ) : (
+                          <ToggleSwitch on={st === 'active'} onClick={() => toggleStatus(a.id)} />
+                        )
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            )}
+          </div>
+          );
+        })}
+
+        {/* 单条卡 */}
+        {standalone.map((a) => {
+          const st = statusOf(a);
+          const created = a.source === 'created';
+          return (
+            <div
+              key={a.id}
+              className="group flex w-full items-start gap-[8px] rounded-[8px] p-[20px]"
+              style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+            >
+              <AlertBody
+                alert={a}
+                status={st}
+                onOpen={() => setActiveAlert(a)}
+                controls={
+                  created ? (
+                    <>
+                      <RowActions status={st} onToggleStatus={() => toggleStatus(a.id)} />
+                      <UnsubscribeBtn />
+                    </>
+                  ) : (
+                    <UnsubscribeBtn />
+                  )
+                }
+              />
+            </div>
+          );
+        })}
       </div>
 
       <FeedDetailModal
         open={!!activeAlert}
         onClose={() => setActiveAlert(null)}
-        feedName={activeAlert?.title ?? ''}
+        feedName={activeAlert?.name ?? ''}
         lastRun={activeAlert?.lastRun ?? '15m'}
-        runEvery="Every 5 minutes"
+        runEvery={activeAlert?.runEvery ?? 'Every 5 minutes'}
         alerts={activeAlert ? buildAlertPushes(activeAlert) : undefined}
         instruction={ALERT_INSTRUCTION}
         description={ALERT_INSTRUCTION}
-        owner={activeAlert?.kind === 'owned'}
+        owner={activeAlert?.source === 'created'}
       />
     </div>
   );
