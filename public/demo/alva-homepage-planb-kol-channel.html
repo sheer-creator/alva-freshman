@@ -444,8 +444,6 @@
   .dg-mark { width: 32px; height: 32px; border-radius: 9px; overflow: hidden; flex: 0 0 auto; }
   .dg-mark img { width: 100%; height: 100%; display: block; }
   .dg-t { font-size: 17px; color: var(--text-n9); letter-spacing: 0; }
-  .dg-m { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
-  .dg-badge { font-size: 10.5px; letter-spacing: 0; text-transform: uppercase; color: var(--main-m1); border: 0.5px solid rgba(73,163,166,0.3); background: var(--main-m1-10); border-radius: 999px; padding: 3px 9px; white-space: nowrap; flex: 0 0 auto; }
   .dg-summary { padding: 13px 16px 14px; font-size: 14px; line-height: 22px; color: var(--text-n9); }
   .dg-rows { border-top: 0.5px solid var(--line-l05); }
   .dg-row { display: grid; grid-template-columns: 24px 50px 8px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 9px 16px; border-bottom: 0.5px solid var(--line-l05); }
@@ -588,13 +586,6 @@
   .dp-summary li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--main-m1); }
   .dp-tickers { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
   .dp-tickers span { height: 22px; display: inline-flex; align-items: center; padding: 0 7px; border-radius: 999px; border: 0.5px solid var(--line-l05); background: #fff; font-size: 11px; color: var(--text-n5); }
-  .digest-meta-line { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; color: var(--text-n5); font-size: 12px; margin-top: 2px; }
-  .digest-meta-copy { min-width: 0; }
-  .digest-source-inline { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
-  .digest-source-inline .kol-source-stack .kol-avatar { width: 20px; height: 20px; border-width: 1.5px; margin-left: -5px; }
-  .digest-source-inline .kol-source-stack .kol-avatar:first-child { margin-left: 0; }
-  .digest-source-inline .kol-source-plus { width: 20px; height: 20px; border-width: 1.5px; margin-left: -5px; font-size: 8px; }
-  .digest-modal .digest-meta-line { margin-top: 4px; }
   .kol-source-stack { display: flex; align-items: center; min-width: 0; }
   .kol-source-stack .kol-avatar { width: 28px; height: 28px; border: 2px solid #fff; margin-left: -8px; box-shadow: 0 2px 5px rgba(20,26,26,0.08); }
   .kol-source-stack .kol-avatar:first-child { margin-left: 0; }
@@ -1739,8 +1730,7 @@ const KOL_CHANNEL_ARTIFACTS = {
 };
 
 const KOL_REAL_DIGEST_SAMPLE = {
-  title: 'Daily Digest · Market Digest',
-  tag: 'Generated',
+  title: 'FinTwit Digest',
   window: 'Previous day',
   summary: [
     'Top-ranked traders clustered around $NVDA, $000660.KS, $AKAM, $AMPG, and $AVGO in this window.',
@@ -2751,6 +2741,13 @@ function digestKindLabel(kind, language = 'en') {
   if (language === 'zh') return kind === 'weekly' ? '周报' : '日报';
   return kind === 'weekly' ? 'Weekly Digest' : 'Daily Digest';
 }
+function fintwitDigestTitle(language = 'en') {
+  return `${digestDateLabel(language)} FinTwit Digest`;
+}
+function fintwitDigestRequestText(language = 'en') {
+  if (language === 'zh') return '请基于我选择的 FinTwit list 创建今天的 FinTwit Digest。';
+  return "Create today's FinTwit Digest from my chosen FinTwit list.";
+}
 function normalizeTemplate(src = '') {
   return src.trim().replace(/\s+/g, ' ');
 }
@@ -2823,8 +2820,7 @@ const KOL_WEEKLY_SUMMARY_EN = [
   'Weekly conviction improves only when the same ticker appears across multiple FinTwit accounts or repeats across several sessions.',
 ];
 const KOL_DAILY_DIGEST_ZH = {
-  title: 'Daily Digest · Market Digest',
-  tag: 'Generated',
+  title: 'FinTwit Digest',
   window: '前一日',
   summary: [
     '这一期被选中的 FinTwit 账号主要集中讨论 $NVDA、$000660.KS、$AKAM、$AMPG 和 $AVGO，核心线索仍然围绕 AI 基建、云服务修复和半导体供应链。',
@@ -2889,6 +2885,7 @@ const KOL_DAILY_DIGEST_ZH = {
     ['$AVGO', [['Frank trading', 'https://x.com/Franktradinglog/status/2062315092994363435']]],
   ],
 };
+const KOL_DIGEST_GENERATION_DELAY_MS = 40000;
 const KOL_WEEKLY_SUMMARY_ZH = [
   '过去一周，被选中的 FinTwit 账号反复回到 AI 基建、云服务修复和半导体供应链受益者这几条主线。',
   '周度层面最清晰的方向仍是 AI 基建多头，但 $AVGO 的看空框架让整体结论不适合解读为单边乐观。',
@@ -2941,35 +2938,6 @@ function KolAvatar({ kol, className = '' }) {
         ? <img src={kol.avatar} alt="" onError={() => setFailed(true)} />
         : <KolPortrait kol={kol} />}
     </span>
-  );
-}
-function displayKolsForDigest(digest) {
-  if (digest?.sourceHandles?.length) return kolRows(digest.sourceHandles);
-  return KOL_RECOMMENDED.slice(0, Math.max(5, digest?.sourceCount || 12));
-}
-function KolSourceAvatars({ rows, total, compact = false }) {
-  const shown = (rows || []).slice(0, compact ? 3 : 5);
-  const count = total || (rows || []).length;
-  const more = Math.max(0, count - shown.length);
-  return (
-    <div className="kol-source-stack">
-      {shown.map((row) => <KolAvatar kol={row} key={row.handle} />)}
-      {more > 0 && <span className="kol-source-plus">+{more}</span>}
-    </div>
-  );
-}
-function DigestMetaLine({ digest }) {
-  const rows = displayKolsForDigest(digest);
-  const total = digest?.sourceCount || rows.length;
-  const label = digest?.language === 'zh' ? `基于 ${total} 个 FinTwit 账号` : `Based on ${total} FinTwit accounts`;
-  return (
-    <div className="digest-meta-line">
-      <span className="digest-meta-copy">{digest.meta}</span>
-      <span className="digest-source-inline">
-        <span>{label}</span>
-        <KolSourceAvatars rows={rows} total={total} compact />
-      </span>
-    </div>
   );
 }
 function KolTagList({ rows, onRemove }) {
@@ -3434,7 +3402,6 @@ function KolDigestModal({ digest, onClose }) {
         <div className="modal-h">
           <div>
             <div className="modal-t">{digest.title}</div>
-            <DigestMetaLine digest={digest} />
           </div>
           <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
         </div>
@@ -3456,9 +3423,7 @@ function KolDigestPreview({ digest, onOpenDigest, onOpenAutomation }) {
         <span className="dg-mark"><img src="../logo-portrait.svg" alt="Alva" /></span>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="dg-t">{digest.title}</div>
-          <DigestMetaLine digest={digest} />
         </div>
-        <span className="dg-badge">{digest.tag}</span>
       </div>
       <div className="dp-preview">
         <div className="dp-section-title">{copy.overall}</div>
@@ -3703,6 +3668,9 @@ function KolTimelineItem({ item, onOpenDigest, onOpenAutomation }) {
   if (item.type === 'intro') {
     return <AgentMsg persona="subtle"><KolIntroStep /></AgentMsg>;
   }
+  if (item.type === 'user') {
+    return <UserMsg text={item.text} />;
+  }
   if (item.type === 'selected-summary') {
     return <AgentMsg persona="subtle"><KolSelectedSummary source={item.source || { handles: item.handles || [], packs: [] }} /></AgentMsg>;
   }
@@ -3735,7 +3703,12 @@ function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSo
       )}
 
       {generating && (
-        <AgentMsg persona="subtle"><div className="kg-loading"><span className="kg-spinner"></span><span>Reading the last 24 hours of selected FinTwit posts and preparing your digest.</span></div></AgentMsg>
+        <AgentMsg persona="subtle">
+          <div className="kg-loading">
+            <span className="kg-spinner"></span>
+            <span><strong>Generating...</strong><br />This usually takes 30-60 seconds. Please wait.</span>
+          </div>
+        </AgentMsg>
       )}
 
       {hasDigest && !onboardingDone && (
@@ -4219,6 +4192,7 @@ function App() {
   const groupData = cur.kind === 'group' ? GROUP_DATA[cur.id] : null;
   const scoped = groupData || CHANNEL_DATA[cur.id] || null;
   const kolDigest = kolDigestRuns.length ? kolDigestRuns[kolDigestRuns.length - 1] : null;
+  const kolWorkspaceReady = kolOnboardingDone || kolGenerating || !!kolDigest || sourceCount(kolSource) > 0;
 
   // scroll behaviour: top on concept/tab/channel switch, bottom on new interaction
   useEffect(() => { if (stageRef.current) stageRef.current.scrollTop = 0; }, [concept, tab, channel]);
@@ -4233,10 +4207,10 @@ function App() {
       const el = stageRef.current;
       requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
     }
-  }, [kolSpecialOnboarding, tab, sourceCount(kolSource), kolDigest, kolOnboardingDone, kolTimeline.length]);
+  }, [kolSpecialOnboarding, tab, sourceCount(kolSource), kolDigest, kolWorkspaceReady, kolTimeline.length]);
   useEffect(() => {
-    if (kolSpecialOnboarding && !kolOnboardingDone && tab !== 'chat') setTab('chat');
-  }, [kolSpecialOnboarding, kolOnboardingDone, tab]);
+    if (kolSpecialOnboarding && !kolWorkspaceReady && tab !== 'chat') setTab('chat');
+  }, [kolSpecialOnboarding, kolWorkspaceReady, tab]);
 
   const respond = useCallback((userText, reply) => {
     setTab('chat');
@@ -4292,42 +4266,24 @@ function App() {
   const pushKolTimeline = useCallback((item) => {
     setKolTimeline((prev) => prev.concat({ id: `${Date.now()}-${prev.length}-${Math.random().toString(36).slice(2, 7)}`, ...item }));
   }, []);
+  const appendKolGenerateRequest = useCallback((settings) => {
+    pushKolTimeline({ type: 'intro' });
+    pushKolTimeline({ type: 'selected-summary', source: settings.source });
+    pushKolTimeline({ type: 'user', text: fintwitDigestRequestText(settings.language) });
+  }, [pushKolTimeline]);
   const buildKolDigest = useCallback((settings) => {
     const mode = modeById(settings.analysisMode);
     const cadenceItems = ['daily'];
-    const isZh = settings.language === 'zh';
-    const cadenceLabel = cadenceLabelFrom(cadenceItems, isZh);
-    const modeLabelsZh = {
-      market_digest: '市场综述',
-      idea_scout: '投资标的建议',
-      consensus_map: '共识地图',
-      risk_watch: '风险观察',
-      custom: '自定义分析',
-    };
-    const modeLabel = isZh ? (modeLabelsZh[mode.id] || mode.label) : mode.label;
     const templateEdited = normalizeTemplate(settings.template) !== normalizeTemplate(mode.template);
     const selectedHandles = expandSourceState(settings.source);
     const sourceTotal = sourceCount(settings.source);
     const items = cadenceItems.map((kind) => {
       const sample = makeDigestSample(settings.language, kind);
-      const label = kind === 'weekly' ? 'Weekly' : 'Daily';
-      const titleLabel = isZh ? (kind === 'weekly' ? '周报' : '日报') : `${label} Digest`;
-      const windowLabel = kind === 'weekly'
-        ? (isZh ? '过去一周' : 'Past week')
-        : sample.window;
-      const customLabel = templateEdited ? (isZh ? '自定义模板' : 'Custom template') : null;
-      const metaParts = [
-        isZh ? '中文' : 'English',
-        digestDateLabel(settings.language),
-        digestKindLabel(kind, settings.language),
-        windowLabel,
-      ];
-      if (customLabel) metaParts.push(customLabel);
       const digest = {
         ...sample,
         kind,
-        title: `${titleLabel} · ${modeLabel}`,
-        meta: metaParts.join(' · '),
+        title: fintwitDigestTitle(settings.language),
+        meta: '',
         cadence: kind,
         language: settings.language,
         analysisMode: mode.id,
@@ -4339,9 +4295,8 @@ function App() {
     });
     return {
       id: Date.now(),
-      title: `${cadenceLabel} Digest`,
-      meta: `${isZh ? '中文' : 'English'} · ${digestDateLabel(settings.language)} · ${cadenceLabel} · ${isZh ? '最新预览' : KOL_REAL_DIGEST_SAMPLE.window}`,
-      tag: 'Generated',
+      title: fintwitDigestTitle(settings.language),
+      meta: '',
       cadence: cadenceItems.slice(),
       selectedHandles: selectedHandles.slice(),
       source: sourceState(settings.source),
@@ -4351,7 +4306,7 @@ function App() {
       items,
     };
   }, []);
-  const runKolGenerate = useCallback((settings, { saveMemory = false } = {}) => {
+  const runKolGenerate = useCallback((settings, { saveMemory = false, delayMs = KOL_DIGEST_GENERATION_DELAY_MS } = {}) => {
     if (!sourceCount(settings.source) || kolGenerating) return;
     setTab('chat');
     setKolGenerating(true);
@@ -4384,7 +4339,7 @@ function App() {
       } finally {
         setKolGenerating(false);
       }
-    }, 2600);
+    }, delayMs);
   }, [kolGenerating, buildKolDigest]);
   const onKolConfirmSources = useCallback(() => {
     if (!sourceCount(kolDraftSource) || kolGenerating) return;
@@ -4397,10 +4352,19 @@ function App() {
       return;
     }
     setKolSource(nextSource);
+    setKolDraftSource(nextSource);
     setKolLanguage(nextLanguage);
-    pushKolTimeline({ type: 'selected-summary', source: nextSource });
+    setKolDraftLanguage(nextLanguage);
+    setKolAnalysisMode(nextSettings.analysisMode);
+    setKolDraftAnalysisMode(nextSettings.analysisMode);
+    setKolTemplate(nextSettings.template);
+    setKolDraftTemplate(nextSettings.template);
+    setKolPublishTime(nextSettings.publishTime);
+    setKolDraftPublishTime(nextSettings.publishTime);
+    setKolSpecialOnboarding(false);
+    appendKolGenerateRequest(nextSettings);
     runKolGenerate(nextSettings, { saveMemory: true });
-  }, [kolDraftSource, kolGenerating, pushKolTimeline, runKolGenerate, kolDraftLanguage, kolLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime, kolLoggedIn]);
+  }, [kolDraftSource, kolGenerating, appendKolGenerateRequest, runKolGenerate, kolDraftLanguage, kolLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime, kolLoggedIn]);
   const onKolGenerate = useCallback(() => {
     runKolGenerate({ source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime });
   }, [runKolGenerate, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolPublishTime]);
@@ -4434,12 +4398,22 @@ function App() {
     const settings = kolPendingGenerate;
     setKolPendingGenerate(null);
     if (settings) {
-      setKolSource(sourceState(settings.source));
+      const savedSource = sourceState(settings.source);
+      setKolSource(savedSource);
+      setKolDraftSource(savedSource);
       setKolLanguage(settings.language);
-      pushKolTimeline({ type: 'selected-summary', source: settings.source });
+      setKolDraftLanguage(settings.language);
+      setKolAnalysisMode(settings.analysisMode);
+      setKolDraftAnalysisMode(settings.analysisMode);
+      setKolTemplate(settings.template);
+      setKolDraftTemplate(settings.template);
+      setKolPublishTime(settings.publishTime);
+      setKolDraftPublishTime(settings.publishTime);
+      setKolSpecialOnboarding(false);
+      appendKolGenerateRequest(settings);
       runKolGenerate(settings, { saveMemory: true });
     }
-  }, [kolPendingGenerate, pushKolTimeline, runKolGenerate]);
+  }, [kolPendingGenerate, appendKolGenerateRequest, runKolGenerate]);
   const onKolConnectedIM = useCallback((id) => {
     setKolConnectedIMs((prev) => prev.includes(id) ? prev : prev.concat(id));
   }, []);
@@ -4488,7 +4462,7 @@ function App() {
     onboardingDone: kolOnboardingDone,
     onCompleteOnboarding: onKolCompleteOnboarding,
     onOpenAutomationEditor: () => {
-      if (kolOnboardingDone) setTab('alerts');
+      if (kolWorkspaceReady) setTab('alerts');
       setKolAutomationEditorOpen(true);
     },
   };
@@ -4533,14 +4507,14 @@ function App() {
         </div>
         {membersOpen && <MembersModal channel={cur} roster={roster} onClose={() => setMembersOpen(false)} />}
 
-        <TabBar tab={tab} onTab={setTab} kolOnboardingDone={kolOnboardingDone} kolArtifactCount={kolDigest ? digestHistoryFilesFrom(kolDigestRuns).length : 0} />
+        <TabBar tab={tab} onTab={setTab} kolOnboardingDone={kolWorkspaceReady} kolArtifactCount={kolDigest ? digestHistoryFilesFrom(kolDigestRuns).length : 0} />
 
         <div className="stage" ref={stageRef}>
-          {tab === 'memory' && kolOnboardingDone && <KolMemoryPanel {...kolProps} />}
-          {tab === 'alerts' && kolOnboardingDone && <KolAlertsPanel {...kolProps} onOpenEditor={() => setKolAutomationEditorOpen(true)} />}
-          {tab === 'artifacts' && kolOnboardingDone && <KolArtifactsPanel digestRuns={kolDigestRuns} onOpenDigest={setKolOpenDigest} />}
+          {tab === 'memory' && kolWorkspaceReady && <KolMemoryPanel {...kolProps} />}
+          {tab === 'alerts' && kolWorkspaceReady && <KolAlertsPanel {...kolProps} onOpenEditor={() => setKolAutomationEditorOpen(true)} />}
+          {tab === 'artifacts' && kolWorkspaceReady && <KolArtifactsPanel digestRuns={kolDigestRuns} onOpenDigest={setKolOpenDigest} />}
 
-          {onChat && (kolSpecialOnboarding || kolDigest ? (
+          {onChat && (kolSpecialOnboarding || kolWorkspaceReady ? (
             <KolDigestView {...kolProps} extra={extra} onGoArtifacts={() => setTab('artifacts')} />
           ) : isAgent ? (
             <div className="stage-inner" style={{ maxWidth: cfg.width }}>
@@ -4573,7 +4547,7 @@ function App() {
 
         {kolOpenDigest && <KolDigestModal digest={kolOpenDigest} onClose={() => setKolOpenDigest(null)} />}
 
-        {onChat && kolOnboardingDone && (
+        {onChat && kolWorkspaceReady && (
           <Composer
             placeholder={kolDigest ? 'Ask about this digest, compare FinTwit views, or edit the setup' : null}
             quickReplies={kolDigest ? kolFollowupPrompts(kolDigest, kolPromptDismissed) : null}
