@@ -444,6 +444,7 @@
   .dg-mark { width: 32px; height: 32px; border-radius: 9px; overflow: hidden; flex: 0 0 auto; }
   .dg-mark img { width: 100%; height: 100%; display: block; }
   .dg-t { font-size: 17px; color: var(--text-n9); letter-spacing: 0; }
+  .dg-sub { margin-top: 3px; font-size: 12px; line-height: 16px; color: var(--text-n4); }
   .dg-summary { padding: 13px 16px 14px; font-size: 14px; line-height: 22px; color: var(--text-n9); }
   .dg-rows { border-top: 0.5px solid var(--line-l05); }
   .dg-row { display: grid; grid-template-columns: 24px 50px 8px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 9px 16px; border-bottom: 0.5px solid var(--line-l05); }
@@ -2748,6 +2749,10 @@ function fintwitDigestRequestText(language = 'en') {
   if (language === 'zh') return '请基于我选择的 FinTwit list 创建今天的 FinTwit Digest。';
   return "Create today's FinTwit Digest from my chosen FinTwit list.";
 }
+function digestAlertTimeText(digest) {
+  if (!digest?.publishTime) return '';
+  return `${digest.language === 'zh' ? '发送时间' : 'Alert time'} · ${digest.publishTime}`;
+}
 function normalizeTemplate(src = '') {
   return src.trim().replace(/\s+/g, ' ');
 }
@@ -3402,6 +3407,7 @@ function KolDigestModal({ digest, onClose }) {
         <div className="modal-h">
           <div>
             <div className="modal-t">{digest.title}</div>
+            {digestAlertTimeText(digest) && <div className="modal-s">{digestAlertTimeText(digest)}</div>}
           </div>
           <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
         </div>
@@ -3423,6 +3429,7 @@ function KolDigestPreview({ digest, onOpenDigest, onOpenAutomation }) {
         <span className="dg-mark"><img src="../logo-portrait.svg" alt="Alva" /></span>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="dg-t">{digest.title}</div>
+          {digestAlertTimeText(digest) && <div className="dg-sub">{digestAlertTimeText(digest)}</div>}
         </div>
       </div>
       <div className="dp-preview">
@@ -3537,12 +3544,13 @@ function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfi
   );
 }
 
-function KolSelectedSummary({ source }) {
-  const count = sourceCount(source);
+function KolSelectedSummary({ source, language, publishTime }) {
   return (
     <div className="onboard-card compact">
-      <div className="onboard-title">Your daily digest is being prepared.</div>
-      <div className="onboard-sub">Alva saved your FinTwit list and is reading the last 24 hours of posts to create a preview.</div>
+      <div className="onboard-title">FinTwit list selected.</div>
+      <div className="onboard-sub">
+        Alva will create a daily FinTwit Digest from this list{publishTime ? ` and send future alerts at ${publishTime}` : ''}{language === 'zh' ? ' in Chinese.' : ' in English.'}
+      </div>
       <div className="selected-strip"><KolSourceSummary source={source} /></div>
     </div>
   );
@@ -3672,7 +3680,7 @@ function KolTimelineItem({ item, onOpenDigest, onOpenAutomation }) {
     return <UserMsg text={item.text} />;
   }
   if (item.type === 'selected-summary') {
-    return <AgentMsg persona="subtle"><KolSelectedSummary source={item.source || { handles: item.handles || [], packs: [] }} /></AgentMsg>;
+    return <AgentMsg persona="subtle"><KolSelectedSummary source={item.source || { handles: item.handles || [], packs: [] }} language={item.language} publishTime={item.publishTime} /></AgentMsg>;
   }
   if (item.type === 'digest') {
     return (
@@ -4266,9 +4274,11 @@ function App() {
   const pushKolTimeline = useCallback((item) => {
     setKolTimeline((prev) => prev.concat({ id: `${Date.now()}-${prev.length}-${Math.random().toString(36).slice(2, 7)}`, ...item }));
   }, []);
-  const appendKolGenerateRequest = useCallback((settings) => {
-    pushKolTimeline({ type: 'intro' });
-    pushKolTimeline({ type: 'selected-summary', source: settings.source });
+  const appendKolGenerateRequest = useCallback((settings, { includeSetup = false } = {}) => {
+    if (includeSetup) {
+      pushKolTimeline({ type: 'intro' });
+      pushKolTimeline({ type: 'selected-summary', source: settings.source, language: settings.language, publishTime: settings.publishTime });
+    }
     pushKolTimeline({ type: 'user', text: fintwitDigestRequestText(settings.language) });
   }, [pushKolTimeline]);
   const buildKolDigest = useCallback((settings) => {
@@ -4287,6 +4297,7 @@ function App() {
         cadence: kind,
         language: settings.language,
         analysisMode: mode.id,
+        publishTime: settings.publishTime,
         sourceCount: sourceTotal,
         sourceHandles: selectedHandles.slice(),
         templateEdited,
@@ -4302,6 +4313,7 @@ function App() {
       source: sourceState(settings.source),
       language: settings.language,
       analysisMode: settings.analysisMode,
+      publishTime: settings.publishTime,
       template: settings.template,
       items,
     };
@@ -4362,12 +4374,14 @@ function App() {
     setKolPublishTime(nextSettings.publishTime);
     setKolDraftPublishTime(nextSettings.publishTime);
     setKolSpecialOnboarding(false);
-    appendKolGenerateRequest(nextSettings);
+    appendKolGenerateRequest(nextSettings, { includeSetup: !kolOnboardingDone });
     runKolGenerate(nextSettings, { saveMemory: true });
-  }, [kolDraftSource, kolGenerating, appendKolGenerateRequest, runKolGenerate, kolDraftLanguage, kolLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime, kolLoggedIn]);
+  }, [kolDraftSource, kolGenerating, appendKolGenerateRequest, runKolGenerate, kolDraftLanguage, kolLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime, kolLoggedIn, kolOnboardingDone]);
   const onKolGenerate = useCallback(() => {
-    runKolGenerate({ source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime });
-  }, [runKolGenerate, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolPublishTime]);
+    const settings = { source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime };
+    appendKolGenerateRequest(settings);
+    runKolGenerate(settings);
+  }, [runKolGenerate, appendKolGenerateRequest, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolPublishTime]);
   const saveKolAutomationMemory = useCallback((settings) => {
     const savedSource = sourceState(settings.source);
     setKolSource(savedSource);
@@ -4387,11 +4401,12 @@ function App() {
     const settings = { source: kolDraftSource, language: kolDraftLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolDraftPublishTime };
     if (generatePreview) {
       setTab('chat');
+      appendKolGenerateRequest(settings);
       runKolGenerate(settings, { saveMemory: true });
       return;
     }
     saveKolAutomationMemory(settings);
-  }, [runKolGenerate, saveKolAutomationMemory, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolDraftPublishTime]);
+  }, [runKolGenerate, saveKolAutomationMemory, appendKolGenerateRequest, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolDraftPublishTime]);
   const onKolLogin = useCallback(() => {
     setKolLoggedIn(true);
     setKolLoginOpen(false);
@@ -4410,7 +4425,7 @@ function App() {
       setKolPublishTime(settings.publishTime);
       setKolDraftPublishTime(settings.publishTime);
       setKolSpecialOnboarding(false);
-      appendKolGenerateRequest(settings);
+      appendKolGenerateRequest(settings, { includeSetup: true });
       runKolGenerate(settings, { saveMemory: true });
     }
   }, [kolPendingGenerate, appendKolGenerateRequest, runKolGenerate]);
