@@ -420,6 +420,44 @@
   & .tw-text { font-size: 14.5px; line-height: 22px; color: var(--text-n9); }
   & .tw-note { margin-top: 7px; padding-left: 2px; font-size: 13px; line-height: 20px; color: var(--text-n5); max-width: 560px; }
 
+  /* ====== Portfolio Watch（Concept P） ====== */
+  /* 入口引导条 */
+  & .entryband { display: flex; align-items: center; gap: 10px; max-width: 660px; padding: 10px 14px; border: 0.5px solid rgba(73, 163, 166, 0.25); background: var(--main-m1-10); border-radius: 11px; font-size: 12.5px; line-height: 18px; color: var(--text-n7); }
+  & .entryband .eb-ico { width: 26px; height: 26px; border-radius: 7px; background: #fff; color: var(--main-m1); display: grid; place-items: center; flex: 0 0 auto; }
+  & .entryband b { color: var(--text-n9); font-weight: 500; }
+  /* digest 行的权重/盈亏列（holdings 态，复用 dg-row 最后一列） */
+  & .dg-wt { font-size: 12px; color: var(--text-n5); white-space: nowrap; }
+  & .dg-wt .up { color: var(--main-m3); }
+  & .dg-wt .down { color: var(--main-m4); }
+  /* Broker 折叠次级入口 */
+  & .pf-broker { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; margin-top: 12px; padding: 11px 13px; border: 0.5px dashed var(--line-l3); border-radius: 11px; background: var(--wash); transition: border-color 140ms ease, background 140ms ease; }
+  & .pf-broker:hover { border-color: var(--main-m1); background: #fff; }
+  & .pf-broker.on { border-style: solid; border-color: rgba(45, 143, 97, 0.4); background: rgba(45, 143, 97, 0.06); }
+  & .pf-broker-ico { width: 32px; height: 32px; border-radius: 8px; background: #fff; color: var(--main-m1); display: grid; place-items: center; flex: 0 0 auto; border: 0.5px solid var(--line-l07); }
+  & .pf-broker-tx { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  & .pf-broker-tx b { font-size: 13.5px; color: var(--text-n9); font-weight: 500; }
+  & .pf-broker-tx span { font-size: 11.5px; color: var(--text-n5); }
+  & .pf-broker-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--main-m3); white-space: nowrap; flex: 0 0 auto; }
+  /* automation 勾选组 */
+  & .pf-label { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-n3); margin: 18px 0 8px; }
+  & .pf-autos { display: flex; flex-direction: column; gap: 7px; }
+  & .pf-auto { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; text-align: left; padding: 10px 12px; border: 0.5px solid var(--line-l07); border-radius: 11px; background: #fff; transition: border-color 140ms ease, background 140ms ease; }
+  & .pf-auto.on { border-color: rgba(73, 163, 166, 0.4); background: var(--main-m1-10); }
+  & .pf-switch { position: relative; width: 34px; height: 20px; border-radius: 999px; background: var(--line-l2); flex: 0 0 auto; transition: background 160ms ease; }
+  & .pf-auto.on .pf-switch { background: var(--main-m1); }
+  & .pf-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); transition: transform 160ms ease; }
+  & .pf-auto.on .pf-knob { transform: translateX(14px); }
+  & .pf-auto-ico { width: 30px; height: 30px; border-radius: 8px; background: var(--wash); color: var(--text-n7); display: grid; place-items: center; flex: 0 0 auto; }
+  & .pf-auto.on .pf-auto-ico { background: #fff; color: var(--main-m1); }
+  & .pf-auto-tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  & .pf-auto-n { font-size: 13.5px; color: var(--text-n9); }
+  & .pf-auto-d { font-size: 11.5px; line-height: 16px; color: var(--text-n5); }
+  & .pf-auto-cad { font-size: 11px; color: var(--text-n5); white-space: nowrap; flex: 0 0 auto; }
+  /* CTA disabled */
+  & .ko-cta:disabled { opacity: 0.45; cursor: default; filter: none; }
+  & .ko-cta.done { background: rgba(45, 143, 97, 0.10); color: var(--main-m3); cursor: default; }
+  & .ko-cta.done svg { stroke: var(--main-m3); }
+
   /* ====== 一键 follow onboarding（planc 629-658 行） ====== */
   & .kol-onboard { max-width: 660px; margin-top: 12px; border: 0.5px solid var(--line-l12); border-radius: 14px; background: #fff; box-shadow: var(--shadow-xs); padding: 16px; }
   & .ko-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }

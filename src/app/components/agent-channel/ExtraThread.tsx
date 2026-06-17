@@ -11,6 +11,7 @@ import { TONE_BG, TONE_FG } from '@/data/agent-channel/types';
 import type { ExtraMsg, ImId, Reply } from '@/data/agent-channel/types';
 import { ChannelIcon } from './ChannelIcon';
 import { AgentMsg, UserMsg, rich } from './ChannelMessage';
+import { PortfolioBriefCard } from './portfolio/PortfolioBriefCard';
 
 /* ========== 推送来源标签（点击跳到 Alerts tab） ========== */
 
@@ -91,6 +92,14 @@ export function ExtraThread({ extra, subtle, onGoTasks, onGoAlerts, onGoFiles, o
         if (m.role !== 'agent' || !m.reply) return null;
         const reply = m.reply;
 
+        // Portfolio Watch 首条产物 — 晨间组合简报（holdings 态带权重/盈亏）
+        if (reply.kind === 'portfolio-brief') {
+          return (
+            <AgentMsg key={m.id} persona="full" push time="now">
+              <PortfolioBriefCard title={reply.title} meta={reply.meta} summary={reply.summary} rows={reply.rows} holdings={reply.holdings} badge={reply.badge} onGoAlerts={onGoAlerts} />
+            </AgentMsg>
+          );
+        }
         // 简单问题的直接回答 — 对话式，不走 loader
         if (reply.kind === 'answer') {
           return (

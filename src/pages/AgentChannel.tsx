@@ -18,15 +18,15 @@ import { ExtraThread } from '@/app/components/agent-channel/ExtraThread';
 import { KolDigestView } from '@/app/components/agent-channel/kol/KolDigestView';
 import { ImConnectModal } from '@/app/components/agent-channel/modals/ImConnectModal';
 import { MembersModal } from '@/app/components/agent-channel/modals/MembersModal';
+import { PortfolioWatchView } from '@/app/components/agent-channel/portfolio/PortfolioWatchView';
 import { AlertsPanel } from '@/app/components/agent-channel/tabs/AlertsPanel';
 import { FilesPanel } from '@/app/components/agent-channel/tabs/FilesPanel';
 import { MemoryPanel } from '@/app/components/agent-channel/tabs/MemoryPanel';
 import { TasksPanel } from '@/app/components/agent-channel/tabs/TasksPanel';
 import { useChannelChat } from '@/app/components/agent-channel/useChannelChat';
-import type { AutomationDraft } from '@/app/components/agent-channel/modals/AutomationModal';
-import { ARTIFACTS, AUTOMATIONS } from '@/data/agent-channel/artifacts';
+import { ARTIFACTS } from '@/data/agent-channel/artifacts';
 import { CONCEPTS } from '@/data/agent-channel/channel-meta';
-import type { Automation, ConceptId, ImId, TabId } from '@/data/agent-channel/types';
+import type { ConceptId, ImId, TabId } from '@/data/agent-channel/types';
 import '@/styles/agent-channel.css';
 
 /* ========== hash 参数（#agent?concept=K&tab=alerts） ========== */
@@ -75,30 +75,13 @@ export default function AgentChannel({ onNavigate }: AgentChannelProps) {
   const [tab, setTab] = useState<TabId>(init?.tab ?? 'chat');
   const stageRef = useRef<HTMLDivElement>(null);
 
-  // Alerts 在页面层 — 新建/暂停即时反映到 badge（不突变模块数组）
-  const [autos, setAutos] = useState<Automation[]>(AUTOMATIONS);
-  const saveAuto = useCallback((existing: Automation | null, draft: AutomationDraft) => {
-    if (existing) {
-      setAutos((prev) => prev.map((a) => (a.id === existing.id ? { ...a, ...draft } : a)));
-      return;
-    }
-    setAutos((prev) => {
-      let id = 'ua-' + draft.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      while (prev.some((x) => x.id === id)) id += '-2';
-      return [{ id, status: 'active', lastRun: '—', runs: 0, usedBy: [], ...draft }, ...prev];
-    });
-  }, []);
-  const toggleAuto = useCallback((a: Automation) => {
-    setAutos((prev) => prev.map((x) => (x.id === a.id ? { ...x, status: x.status === 'active' ? 'paused' : 'active' } : x)));
-  }, []);
-
   // 顶栏弹层：members / IM 连接（true = 列表，ImId = 直连该 IM）
   const [membersOpen, setMembersOpen] = useState(false);
   const [imOpen, setImOpen] = useState<boolean | ImId>(false);
 
-  // 聊天内容在全局 store — 与右侧 Ask 面板共享同一份会话
+  // 聊天 + Alerts 内容都在全局 store — 与右侧 Ask 面板共享同一份会话
   const chat = useChannelChat({ onActivity: useCallback(() => setTab('chat'), []) });
-  const { extra, tasks, taskThreads, sendToTask, clearExtra } = chat;
+  const { extra, tasks, taskThreads, autos, sendToTask, clearExtra, saveAuto, toggleAuto } = chat;
 
   const goAlerts = useCallback(() => setTab('alerts'), []);
   const goFiles = useCallback(() => setTab('files'), []);
@@ -157,7 +140,17 @@ export default function AgentChannel({ onNavigate }: AgentChannelProps) {
           counts={{ tasks: tasks.length, alerts: autos.length, files: ARTIFACTS.length }}
         />
         <div className="stage" ref={stageRef}>
-          {onChat && (concept === 'K' ? (
+          {onChat && concept === 'P' && (
+            <PortfolioWatchView
+              extra={extra}
+              onSetup={chat.onPortfolioSetup}
+              onGoTasks={goTasks}
+              onGoAlerts={goAlerts}
+              onGoFiles={goFiles}
+              onConnectIm={(im) => setImOpen(im ?? true)}
+            />
+          )}
+          {onChat && concept !== 'P' && (concept === 'K' ? (
             <KolDigestView
               onDigest={chat.onDigestAutomation}
               extra={extra}
@@ -188,7 +181,11 @@ export default function AgentChannel({ onNavigate }: AgentChannelProps) {
         {onChat && (
           <ChannelComposer
             onSend={chat.onPrompt}
-            placeholder={concept === 'K' ? 'Ask about any call, add a KOL, or tune this digest' : null}
+            placeholder={
+              concept === 'K' ? 'Ask about any call, add a KOL, or tune this digest'
+              : concept === 'P' ? 'Ask about a holding, add a ticker, or tune these alerts'
+              : null
+            }
             quickReplies={concept === 'R' ? CONCEPT_R_QUICK_REPLIES : null}
           />
         )}

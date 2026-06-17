@@ -8,10 +8,12 @@
  */
 
 import { useSyncExternalStore } from 'react';
+import { AUTOMATIONS } from '@/data/agent-channel/artifacts';
 import { IMS, IM_LINKS, IM_REC_SHOWN } from '@/data/agent-channel/channel-meta';
 import { routeReply } from '@/data/agent-channel/chat-routes';
 import { TASKS, taskAck } from '@/data/agent-channel/tasks';
-import type { ExtraMsg, ImId, Reply, Skill, SubpushItem, Task, TaskThreadMsg } from '@/data/agent-channel/types';
+import type { AutomationDraft } from '@/app/components/agent-channel/modals/AutomationModal';
+import type { Automation, ExtraMsg, ImId, PortfolioAuto, PortfolioHolding, Reply, Skill, SubpushItem, Task, TaskThreadMsg } from '@/data/agent-channel/types';
 
 export type TaskReply = Extract<Reply, { kind: 'task' }>;
 
@@ -21,9 +23,10 @@ export interface ChannelChatState {
   extra: ExtraMsg[];
   tasks: Task[];
   taskThreads: Record<string, TaskThreadMsg[]>;
+  autos: Automation[];
 }
 
-let state: ChannelChatState = { extra: [], tasks: TASKS, taskThreads: {} };
+let state: ChannelChatState = { extra: [], tasks: TASKS, taskThreads: {}, autos: AUTOMATIONS };
 let nextId = 0;
 const listeners = new Set<() => void>();
 
@@ -127,6 +130,83 @@ export function disconnectIm(imId: ImId) {
 
 export function clearExtra() {
   setState({ extra: [] });
+}
+
+/* ========== Alerts（automation 列表，与 Alerts tab 共享） ========== */
+
+export function saveAuto(existing: Automation | null, draft: AutomationDraft) {
+  if (existing) {
+    setState({ autos: state.autos.map((a) => (a.id === existing.id ? { ...a, ...draft } : a)) });
+    return;
+  }
+  let id = 'ua-' + draft.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  while (state.autos.some((x) => x.id === id)) id += '-2';
+  setState({ autos: [{ id, status: 'active', lastRun: '—', runs: 0, usedBy: [], ...draft }, ...state.autos] });
+}
+
+export function toggleAuto(a: Automation) {
+  setState({ autos: state.autos.map((x) => (x.id === a.id ? { ...x, status: x.status === 'active' ? 'paused' : 'active' } : x)) });
+}
+
+/* ========== Portfolio Watch — 一次创建一组平行 alert ========== */
+
+export function onPortfolioSetup(tickers: string[], autos: PortfolioAuto[], hasBroker: boolean, holdings: PortfolioHolding[], onActivity?: () => void) {
+  onActivity?.();
+  const uid = ++nextId;
+  const nT = tickers.length;
+  const label = `Set up my Portfolio Watch — ${nT} ${nT === 1 ? 'ticker' : 'tickers'} · ${autos.length} ${autos.length === 1 ? 'alert' : 'alerts'}`;
+  const names = autos.map((a) => a.name).join(', ');
+  const para = hasBroker
+    ? `Done — your Portfolio Watch is live on ${nT} ${nT === 1 ? 'holding' : 'holdings'}. ${names} now running and pushing to this channel; I’ll weight every read by your position size. Here’s today’s brief:`
+    : `Done — watching ${nT} ${nT === 1 ? 'ticker' : 'tickers'}. ${names} now running and pushing to this channel. Connect a brokerage any time to make it position-aware. Here’s today’s brief:`;
+
+  // 首条产物：真正的晨间简报（连 broker 则 holdings 态带权重/盈亏）
+  const briefReply: Reply = {
+    kind: 'portfolio-brief',
+    title: 'Your Morning Portfolio Brief',
+    meta: `${holdings.length} ${hasBroker ? 'holdings' : 'names'} · pre-market · 07:30`,
+    summary: hasBroker
+      ? 'Book is steady pre-market. Largest positions in focus; the swing factors and catalysts for today are flagged per name below.'
+      : 'Pre-market read across your watchlist — sentiment, catalysts, and what changes the thesis on each name today.',
+    rows: holdings.slice(0, 6),
+    holdings: hasBroker,
+    badge: hasBroker ? 'Live portfolio' : 'Live · watchlist',
+  };
+
+  // 每个 automation：一条聊天 task 卡 + 一条 Alerts 条目
+  const taskMsgs: ExtraMsg[] = autos.map((a, i) => ({
+    id: uid + 0.61 + i * 0.01, role: 'agent',
+    reply: { kind: 'task', taskType: 'Automation', tone: 'amber', title: a.name, sub: a.desc },
+  }));
+  const newAlerts: Automation[] = autos.map((a) => ({
+    id: `pf-${uid}-${a.id}`, name: a.name, status: 'active', lastRun: '—', runEvery: a.cadence, runs: 0, usedBy: [],
+  }));
+  const newTasks: Task[] = autos.map((a) => ({
+    id: `pf-${uid}-${a.id}`, type: 'Automation', tone: 'amber', title: a.name, status: 'running', meta: 'started just now',
+    steps: [{ t: 'Wire the rule and watchlist', now: true }, { t: 'Backfill current state', done: false }, { t: 'Activate the push', done: false }],
+  }));
+
+  setState({ extra: [...state.extra, { id: uid, role: 'user', text: label }, { id: uid + 0.5, role: 'typing' }] });
+  setTimeout(() => {
+    setState({
+      extra: state.extra.filter((m) => m.id !== uid + 0.5).concat(
+        { id: uid + 0.6, role: 'agent', reply: { kind: 'answer', paras: [para] } },
+        { id: uid + 0.605, role: 'agent', reply: briefReply },
+        ...taskMsgs,
+      ),
+      tasks: [...newTasks, ...state.tasks],
+      autos: [...newAlerts, ...state.autos],
+    });
+    // 4.5s 后整组转 Live
+    setTimeout(() => {
+      const ids = new Set(newTasks.map((t) => t.id));
+      const msgIds = new Set(taskMsgs.map((m) => m.id));
+      setState({
+        extra: state.extra.map((m) => (msgIds.has(m.id) && m.reply?.kind === 'task' ? { ...m, reply: { ...m.reply, status: 'done' as const } } : m)),
+        tasks: state.tasks.map((t) => (ids.has(t.id) ? { ...t, status: 'done' as const, meta: 'live just now', steps: undefined } : t)),
+      });
+    }, 4500);
+  }, 1000);
 }
 
 /* ========== 任务内 mini thread ========== */
