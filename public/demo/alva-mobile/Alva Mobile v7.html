@@ -50,10 +50,10 @@
     flex: none;
     width: 100%;
     display: flex;
-    align-items: baseline;
-    justify-content: flex-start;     /* 大标题靠左上，避免被右侧场景 tab 遮挡 */
+    align-items: center;
+    justify-content: flex-start;
     gap: 12px;
-    padding: 28px 24px 0;
+    padding: 24px 24px 0;
   }
   .stage-header .brand {
     font-size: 18px;
@@ -69,7 +69,7 @@
   }
   /* 两个用户场景切换（分段控件，取代原「重置」按钮） */
   .mode-tabs {
-    position: absolute; right: 28px; top: 22px;
+    margin-left: auto;               /* 推到右侧，与 Chat in app 开关同排不重叠 */
     display: flex; gap: 2px;
     background: rgba(0,0,0,0.05); border-radius: 8px; padding: 3px;
   }
@@ -81,6 +81,34 @@
     transition: color .15s ease, background .15s ease;
   }
   .mode-tab.on { background: #fff; color: var(--text-n9); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  /* 网页右上角：Chat in app 开关（默认 on；off → 所有输入框变 Connect Telegram 按钮） */
+  .chat-toggle { display: inline-flex; align-items: center; gap: 9px; margin-left: 16px; font-size: 13px; letter-spacing: 0.13px; color: #4a4f57; cursor: pointer; user-select: none; }
+  .chat-toggle input { display: none; }
+  .chat-toggle .sw { flex: none; width: 38px; height: 22px; border-radius: 11px; background: #c8ccd2; position: relative; transition: background .2s ease; }
+  .chat-toggle .sw::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.22); transition: transform .2s ease; }
+  .chat-toggle input:checked + .sw { background: var(--main-m1); }
+  .chat-toggle input:checked + .sw::after { transform: translateX(16px); }
+  /* Connect Telegram 覆盖按钮：chat-off 时盖住每个输入框 */
+  .tg-cta { display: none; }
+  #viewport.chat-off .ask-trigger > :not(.tg-cta),
+  #viewport.chat-off .composer-box > :not(.tg-cta) { display: none !important; }
+  #viewport.chat-off .ask-trigger,
+  #viewport.chat-off .composer-box {
+    height: auto !important; min-height: 0 !important; padding: 0 !important;
+    background: transparent !important; border: 0 !important; box-shadow: none !important;
+  }
+  #viewport.chat-off .tg-cta {
+    display: flex; width: 100%; height: 48px; box-sizing: border-box;
+    align-items: center; justify-content: center; gap: 8px;
+    background: #2a2f3a; border: 0; border-radius: 12px; cursor: pointer;
+    color: #fff; font-family: var(--font-alva); font-size: 15px; font-weight: 500; letter-spacing: 0.15px;
+  }
+  .tg-cta .tg-logo { flex: none; width: 22px; height: 22px; }
+  #viewport.chat-off .composer-sugs { display: none !important; }   /* chat-off：不展示推荐 prompt */
+  /* chat-off：侧边栏悬浮按钮文字左侧换成 Telegram logo（点击无反应） */
+  .menu-fab .fab-tg { display: none; flex: none; width: 20px; height: 20px; }
+  #viewport.chat-off .menu-fab .fab-tg { display: block; }
+  #viewport.chat-off .menu-fab .mi-img { display: none; }
   /* 三场景可见性：new(新用户) / ad(广告进入) / returning(老用户)
      - .ret-only  仅老用户                       - .new-only  仅新用户
      - .ad-only   仅广告进入                      - .empty-both 新用户+广告共用的空态(Playbooks) */
@@ -1149,7 +1177,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* 顶部栏右侧动作区（对齐设计 7169:132272）：share · views6 · chat6 · remix6 · swap · Subscribe；仅登录态 */
   .pd-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+  .pd-ico { display: flex; align-items: center; gap: 4px; height: 32px; padding: 0 6px; border: 0; background: none; border-radius: 4px; color: var(--text-n9); font-family: var(--font-alva); font-size: 12px; letter-spacing: 0.12px; line-height: 1; cursor: pointer; }
+  .pd-ico svg { width: 16px; height: 16px; }
+  .pd-ico:active { background: rgba(0,0,0,0.05); }
+  .pd-tbtn { display: flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border-radius: 4px; font-family: var(--font-alva); font-size: 12px; font-weight: 500; letter-spacing: 0.12px; line-height: 1; white-space: nowrap; cursor: pointer; }
+  .pd-tbtn.sub { background: var(--main-m1); border: 0; color: #fff; margin-left: 6px; }
+  .pd-tbtn.sub .ct { color: rgba(255,255,255,0.72); }
   .pd-act {
     width: 40px; height: 40px;
     border-radius: 50%;
@@ -1216,6 +1251,7 @@
     box-shadow: 0 6px 20px rgba(73,163,166,0.35);
   }
   .btn-sub:hover { filter: brightness(1.05); }
+  .btn-sub .ct { color: rgba(255,255,255,0.7); }
   .pd-title-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
   .pd-title { font-size: 20px; letter-spacing: 0.2px; color: var(--text-n9); }
   .pd-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -1480,6 +1516,7 @@
     gap: 8px;
   }
   .pd-cta-row { display: flex; gap: 8px; }
+  .pd-cta-top { margin: 14px 0 4px; }   /* Remix/Subscribe 提到顶部内容区 */
   .pd-cta-row button {
     flex: 1;
     height: 44px;
@@ -1503,6 +1540,7 @@
     color: #fff;
   }
   .btn-sub:hover { filter: brightness(1.05); }
+  .btn-sub .ct { color: rgba(255,255,255,0.7); }
   /* 下滑收起态：按钮只剩 icon 方形，输入框移到左侧同行 */
   .pd-dock.mini { flex-direction: row; align-items: center; }
   .pd-dock.mini .pd-ask { flex: 1; min-width: 0; height: 40px; overflow: hidden; }
@@ -1724,6 +1762,8 @@
   .btn-spin { width: 15px; height: 15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.45); border-top-color: #fff; animation: dgspin .7s linear infinite; }
   /* campaign 态：隐藏对话/输入/tab，显示选择流 + CTA */
   .composer-sheet.campaign .cv-tabs, .composer-sheet.campaign .cv-thread, .composer-sheet.campaign .cv-aux, .composer-sheet.campaign .cv-foot { display: none; }
+  /* 新用户简版：落地只有 AI 开场 + starter 选项，无顶部 tab、无底部输入；选完选项后再出现 */
+  .composer-sheet.nw-simple .cv-tabs, .composer-sheet.nw-simple .cv-foot { display: none; }
   .composer-sheet.campaign .cv-campaign { display: block; }
   .composer-sheet.campaign .cv-cta { display: flex; }
   /* 对话区（白；发送后用户内容飘上来形成对话） */
@@ -1798,7 +1838,7 @@
   .composer-bar .cb-ic { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-n7); }
   .composer-bar .cb-ic svg { width: 16px; height: 16px; }
   .composer-bar .cb-model { margin-left: auto; font-size: 12px; color: var(--text-n5); display: flex; align-items: center; gap: 4px; cursor: pointer; }
-  .composer-bar .cb-send { width: 28px; height: 28px; border-radius: 4px; background: rgba(0,0,0,0.05); color: var(--text-n9); display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+  .composer-bar .cb-send { width: 28px; height: 28px; border-radius: 4px; background: var(--main-m1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
   .composer-bar .cb-send svg { width: 14px; height: 14px; }
 
   /* ---- AI 结构化回答 ---- */
@@ -1828,8 +1868,8 @@
   .ask-av .ask-spin { display: none; width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid rgba(0,0,0,0.10); border-top-color: var(--main-m1); animation: askspin .8s linear infinite; }
   @keyframes askspin { to { transform: rotate(360deg); } }
   .ask-av .ask-badge {
-    display: none; position: absolute; top: -16px; left: 14px;
-    height: 26px; padding: 0 12px; border-radius: 12px;   /* 特例：胶囊全圆，比全局圆角大 */
+    display: none; position: absolute; top: -24px; left: 14px;
+    height: 24px; padding: 0 10px; border-radius: 6px;   /* 扁平：小圆角，不再做全圆胶囊 */
     background: var(--main-m1); color: #fff;
     font-size: 12.5px; font-weight: 500; line-height: 1; letter-spacing: 0.1px;
     white-space: nowrap; align-items: center; justify-content: center;
@@ -1940,6 +1980,7 @@
       <button class="mode-tab" data-mode="returning">Returning user</button>
       <button class="mode-tab" data-mode="pb">From playbook</button>
     </div>
+    <label class="chat-toggle" title="Chat in app">Chat in app<input type="checkbox" id="chatToggle" checked><span class="sw"></span></label>
   </header>
 
   <main class="stage">
@@ -2392,6 +2433,7 @@
                   <span class="ph" id="homeAskPh" data-ph0="Ask Alva anything…">Ask Alva anything…</span>
                   <span class="ph-think">Thinking…</span>
                   <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
+                  <button class="tg-cta" type="button"><svg class="tg-logo" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#2AABEE"/><path fill="#fff" d="M5.49 11.86c3.78-1.65 6.3-2.73 7.57-3.26 3.6-1.5 4.35-1.76 4.84-1.77.1 0 .35.03.5.16.13.1.16.25.18.35.02.1.04.33.02.5-.2 2.06-1.04 7.07-1.47 9.38-.18.98-.54 1.3-.88 1.34-.75.07-1.32-.5-2.04-.97-1.13-.74-1.77-1.2-2.86-1.93-1.27-.84-.45-1.3.28-2.05.19-.2 3.5-3.2 3.56-3.48.01-.03.01-.16-.06-.23s-.18-.04-.26-.02c-.11.02-1.9 1.2-5.36 3.55-.51.35-.97.52-1.38.51-.46-.01-1.33-.26-1.98-.47-.8-.26-1.43-.4-1.38-.85.03-.23.35-.47.95-.71z"/></svg>Connect Telegram to chat</button>
                 </div>
                 <!-- 底部只保留输入框；原底部 Tab 栏已移到顶部文字 Tab -->
               </div>
@@ -2431,15 +2473,17 @@
               <div class="pd" id="pdScroll">
                 <div class="pd-top" id="pdTop">
                   <span class="back" id="pdBack">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a1a24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M1.6619 8.11331C1.50572 7.9571 1.5057 7.70383 1.6619 7.54763L7.31876 1.89077C7.47496 1.73468 7.72827 1.73463 7.88444 1.89077C8.04061 2.04694 8.04054 2.30023 7.88444 2.45645L2.91038 7.43051L14.0573 7.43051C14.2782 7.43051 14.4572 7.60958 14.4572 7.83046C14.4572 8.05138 14.2782 8.23042 14.0573 8.23042L2.91038 8.23043L7.88444 13.2045C8.04061 13.3607 8.04054 13.6139 7.88444 13.7702C7.72823 13.9264 7.47496 13.9264 7.31875 13.7702L1.6619 8.11331Z" fill="currentColor"/></svg>
                   </span>
                   <span class="pd-top-tg" id="pdTopTitle">
                     <img src="img/ava-4.png" alt="">
                     <span class="t">Quality Value Stock Screener</span>
                   </span>
                   <span class="pd-actions">
-                    <span class="pd-views"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg>6</span>
-                    <span class="pd-act"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14V3"/><polyline points="8 6.5 12 2.8 16 6.5"/><path d="M7 10H5.5v10.5h13V10H17"/></svg></span>
+                    <button class="pd-ico" aria-label="Share"><svg viewBox="10.2 9.8 11.7 12.3" fill="none"><path d="M21.4298 18.5914C21.6507 18.5914 21.8298 18.7705 21.8298 18.9914V20.9555C21.8297 21.6181 21.2925 22.1555 20.6298 22.1555H11.3704C10.7078 22.1553 10.1705 21.618 10.1704 20.9555V18.9914C10.1704 18.7706 10.3496 18.5915 10.5704 18.5914C10.7913 18.5914 10.9704 18.7705 10.9704 18.9914V20.9555C10.9705 21.1762 11.1497 21.3554 11.3704 21.3555H20.6298C20.8506 21.3555 21.0297 21.1763 21.0298 20.9555V18.9914C21.0298 18.7706 21.209 18.5915 21.4298 18.5914ZM15.4345 10.0797C15.7469 9.76738 16.2533 9.76744 16.5657 10.0797L19.8829 13.3969C20.0389 13.5531 20.0391 13.8064 19.8829 13.9625C19.7267 14.1183 19.4734 14.1184 19.3173 13.9625L16.4001 11.0453V18.0797C16.3998 18.3003 16.2208 18.4796 16.0001 18.4797C15.7795 18.4795 15.6004 18.3003 15.6001 18.0797V11.0453L12.6829 13.9625C12.5267 14.1183 12.2734 14.1184 12.1173 13.9625C11.9613 13.8064 11.9615 13.5531 12.1173 13.3969L15.4345 10.0797Z" fill="currentColor"/></svg></button>
+                    <button class="pd-ico"><svg viewBox="6 10.3 16 11.4" fill="none"><path d="M14 10.3C16.9 10.3 18.9 11.7 20.1 13.1C20.8 13.8 21.2 14.5 21.5 15C21.7 15.2 21.8 15.4 21.9 15.6C21.9 15.7 21.9 15.7 21.9 15.8C22 15.8 22 15.8 22 15.8C22 15.8 22 15.8 22 15.8C22 15.8 22 15.8 22 15.8L22 15.8V15.8C22 15.9 21.9 15.9 21.6 16L22 16.2V16.2L22 16.2C22 16.2 22 16.2 22 16.2C22 16.2 22 16.2 22 16.2C22 16.2 22 16.2 21.9 16.2C21.9 16.3 21.9 16.3 21.9 16.4C21.8 16.6 21.7 16.8 21.5 17C21.2 17.5 20.8 18.2 20.1 18.9C18.9 20.3 16.9 21.7 14 21.7C11.1 21.7 9.1 20.3 7.9 18.9C7.2 18.2 6.8 17.5 6.5 17C6.3 16.8 6.2 16.6 6.1 16.4C6.1 16.3 6.1 16.3 6.1 16.2C6 16.2 6 16.2 6 16.2C6 16.2 6 16.2 6 16.2C6 16.2 6 16.2 6 16.2L6 16.2V16.2C6 16.1 6 15.9 6 15.8V15.8L6 15.8C6 15.8 6 15.8 6 15.8C6 15.8 6 15.8 6 15.8C6 15.8 6 15.8 6.1 15.8C6.1 15.7 6.1 15.7 6.1 15.6C6.2 15.4 6.3 15.2 6.5 15C6.8 14.5 7.2 13.8 7.9 13.1C9.1 11.7 11.1 10.3 14 10.3ZM14 11.1C11.4 11.1 9.6 12.3 8.5 13.6C7.9 14.2 7.4 14.9 7.2 15.4C7 15.6 6.9 15.8 6.9 15.9C6.9 16 6.8 16 6.8 16C6.8 16 6.9 16 6.9 16.1C6.9 16.2 7 16.4 7.2 16.6C7.4 17.1 7.9 17.8 8.5 18.4C9.6 19.7 11.4 20.9 14 20.9C16.6 20.9 18.4 19.7 19.5 18.4C20.1 17.8 20.6 17.1 20.8 16.6C21 16.4 21.1 16.2 21.1 16.1C21.1 16 21.2 16 21.2 16C21.2 16 21.1 16 21.1 15.9C21.1 15.8 21 15.6 20.8 15.4C20.6 14.9 20.1 14.2 19.5 13.6C18.4 12.3 16.6 11.1 14 11.1ZM14 13.3C15.5 13.3 16.7 14.5 16.7 16C16.7 17.5 15.5 18.7 14 18.7C12.5 18.7 11.3 17.5 11.3 16C11.3 14.5 12.5 13.3 14 13.3ZM14 14.1C13 14.1 12.1 15 12.1 16C12.1 17 13 17.9 14 17.9C15 17.9 15.9 17 15.9 16C15.9 15 15 14.1 14 14.1ZM22 15.8C22 15.9 22 16.1 22 16.2L21.6 16L22 15.8Z" fill="currentColor"/></svg><span class="ct">6</span></button>
+                    <button class="pd-ico"><svg viewBox="7.2 10 13.6 12" fill="none"><path d="M7.6 11.6C9.2 11.6 10.5 11.8 11.6 12.5C12.7 13.1 13.5 14.2 14.4 15.8C15.1 17.4 15.9 18.3 16.8 18.9C17.5 19.3 18.3 19.5 19.4 19.6L18.5 18.7C18.4 18.5 18.4 18.3 18.5 18.1C18.7 18 18.9 18 19.1 18.1L20.7 19.7C20.7 19.7 20.7 19.8 20.7 19.8C20.8 19.8 20.8 19.9 20.8 19.9C20.8 20 20.8 20 20.8 20.1C20.8 20.1 20.8 20.2 20.7 20.2C20.7 20.2 20.7 20.3 20.7 20.3L19.1 21.9C18.9 22 18.7 22 18.5 21.9C18.4 21.7 18.4 21.5 18.5 21.3L19.5 20.4C18.3 20.3 17.3 20.1 16.4 19.5C15.3 18.9 14.5 17.8 13.6 16.2C12.9 14.6 12.1 13.7 11.2 13.1C10.3 12.6 9.2 12.4 7.6 12.4C7.4 12.4 7.2 12.2 7.2 12C7.2 11.8 7.4 11.6 7.6 11.6ZM12.7 17.4C12.9 17.2 13.1 17.1 13.3 17.3C13.5 17.4 13.5 17.7 13.4 17.8C12.7 18.8 11.9 19.5 10.9 19.9C10 20.3 8.9 20.4 7.6 20.4C7.4 20.4 7.2 20.2 7.2 20C7.2 19.8 7.4 19.6 7.6 19.6C8.9 19.6 9.8 19.5 10.6 19.1C11.4 18.8 12.1 18.3 12.7 17.4ZM18.5 10.1C18.7 10 18.9 10 19.1 10.1L20.7 11.7C20.7 11.7 20.7 11.8 20.7 11.8C20.8 11.8 20.8 11.9 20.8 11.9C20.8 12 20.8 12 20.8 12.1C20.8 12.1 20.8 12.2 20.7 12.2C20.7 12.2 20.7 12.3 20.7 12.3L19.1 13.9C18.9 14 18.7 14 18.5 13.9C18.4 13.7 18.4 13.5 18.5 13.3L19.4 12.4C18.6 12.5 17.9 12.6 17.4 12.9C16.6 13.2 15.9 13.7 15.3 14.6C15.1 14.8 14.9 14.9 14.7 14.7C14.5 14.6 14.5 14.3 14.6 14.2C15.3 13.2 16.1 12.5 17.1 12.1C17.8 11.8 18.6 11.7 19.5 11.6L18.5 10.7C18.4 10.5 18.4 10.3 18.5 10.1Z" fill="currentColor"/></svg><span class="ct">6</span></button>
+                    <button class="pd-tbtn sub">Subscribe <span class="ct">128</span></button>
                   </span>
                   <!-- From-playbook 访客顶栏（对齐 7142-193868）：Alva·Beta logo + share + Login，复用 pd-top 的吸顶结构 -->
                   <span class="pd-vbar">
@@ -2652,16 +2696,7 @@
                   <span class="ph" id="pdAskPh" data-ph0="Why is the verdict NEUTRAL on AMD?">Why is the verdict NEUTRAL on AMD?</span>
                   <span class="ph-think">Thinking…</span>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
-                </div>
-                <div class="pd-cta-row">
-                  <button class="btn-remix">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-                    <span class="bt">Remix</span> <span class="ct">6</span>
-                  </button>
-                  <button class="btn-sub">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 15 18 9z"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>
-                    <span class="bt">Subscribe</span>
-                  </button>
+                  <button class="tg-cta" type="button"><svg class="tg-logo" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#2AABEE"/><path fill="#fff" d="M5.49 11.86c3.78-1.65 6.3-2.73 7.57-3.26 3.6-1.5 4.35-1.76 4.84-1.77.1 0 .35.03.5.16.13.1.16.25.18.35.02.1.04.33.02.5-.2 2.06-1.04 7.07-1.47 9.38-.18.98-.54 1.3-.88 1.34-.75.07-1.32-.5-2.04-.97-1.13-.74-1.77-1.2-2.86-1.93-1.27-.84-.45-1.3.28-2.05.19-.2 3.5-3.2 3.56-3.48.01-.03.01-.16-.06-.23s-.18-.04-.26-.02c-.11.02-1.9 1.2-5.36 3.55-.51.35-.97.52-1.38.51-.46-.01-1.33-.26-1.98-.47-.8-.26-1.43-.4-1.38-.85.03-.23.35-.47.95-.71z"/></svg>Connect Telegram to chat</button>
                 </div>
               </div>
 
@@ -2756,6 +2791,7 @@
                       <span class="cb-model">GPT 5.5 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
                       <span class="cb-send" id="composerSend" title="Send"><svg viewBox="0 0 20 20"><use href="#ic-send-arrow"/></svg></span>
                     </div>
+                    <button class="tg-cta" type="button"><svg class="tg-logo" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#2AABEE"/><path fill="#fff" d="M5.49 11.86c3.78-1.65 6.3-2.73 7.57-3.26 3.6-1.5 4.35-1.76 4.84-1.77.1 0 .35.03.5.16.13.1.16.25.18.35.02.1.04.33.02.5-.2 2.06-1.04 7.07-1.47 9.38-.18.98-.54 1.3-.88 1.34-.75.07-1.32-.5-2.04-.97-1.13-.74-1.77-1.2-2.86-1.93-1.27-.84-.45-1.3.28-2.05.19-.2 3.5-3.2 3.56-3.48.01-.03.01-.16-.06-.23s-.18-.04-.26-.02c-.11.02-1.9 1.2-5.36 3.55-.51.35-.97.52-1.38.51-.46-.01-1.33-.26-1.98-.47-.8-.26-1.43-.4-1.38-.85.03-.23.35-.47.95-.71z"/></svg>Connect Telegram to chat</button>
                   </div>
                 </div>
                 </div>
@@ -2918,7 +2954,7 @@
               <div class="m-row new-only"><span class="ci"><svg class="mi-img"><use href="#ic-chat"/></svg></span><span class="nm">Alva Agent</span></div>
               <div class="m-row ad-only"><span class="ci"><svg class="mi-img"><use href="#ic-chat"/></svg></span><span class="nm">Daily FinTwit AI Digest</span></div>
             </div>
-            <button class="menu-fab" id="menuNewChat" type="button"><svg class="mi-img"><use href="#ic-nav-agent"/></svg>Alva Agent</button>
+            <button class="menu-fab" id="menuNewChat" type="button"><svg class="fab-tg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#2AABEE"/><path fill="#fff" d="M5.49 11.86c3.78-1.65 6.3-2.73 7.57-3.26 3.6-1.5 4.35-1.76 4.84-1.77.1 0 .35.03.5.16.13.1.16.25.18.35.02.1.04.33.02.5-.2 2.06-1.04 7.07-1.47 9.38-.18.98-.54 1.3-.88 1.34-.75.07-1.32-.5-2.04-.97-1.13-.74-1.77-1.2-2.86-1.93-1.27-.84-.45-1.3.28-2.05.19-.2 3.5-3.2 3.56-3.48.01-.03.01-.16-.06-.23s-.18-.04-.26-.02c-.11.02-1.9 1.2-5.36 3.55-.51.35-.97.52-1.38.51-.46-.01-1.33-.26-1.98-.47-.8-.26-1.43-.4-1.38-.85.03-.23.35-.47.95-.71z"/></svg><svg class="mi-img"><use href="#ic-nav-agent"/></svg>Alva Agent</button>
             <!-- Safari 栏占位（与其他屏一致；真实 chrome 由持久 .sys-bottom 绘制） -->
             <div class="safari">
               <div class="addressbar">
@@ -3159,6 +3195,12 @@
   }
   document.querySelectorAll('#modeTabs .mode-tab').forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
   setMode('new');                                       // 默认新用户场景：进 landing 并直接弹出登录页（不是停在 landing）
+  // Chat in app 开关：off → 所有 chat 输入框变 Connect Telegram 按钮（默认 on）
+  (function () {
+    const ct = document.getElementById('chatToggle');
+    if (ct) ct.addEventListener('change', () => { if (viewport) viewport.classList.toggle('chat-off', !ct.checked); });
+    document.querySelectorAll('.tg-cta').forEach(b => b.addEventListener('click', e => e.stopPropagation()));
+  })();
   // 公告条组件：任意 .tb-close 关闭其所在的 .top-banner（首页 + landing 复用）
   document.querySelectorAll('.tb-close').forEach(c => c.addEventListener('click', e => {
     e.stopPropagation();
@@ -3389,20 +3431,6 @@
         const gone = pd.scrollTop > pdTitle.offsetTop + pdTitle.offsetHeight - 115;
         pdTopTitle.classList.toggle('show', gone);
       }
-      // 下滑收起 / 上滑展开（交叉淡入，避免重排跳变）
-      if (pdDock) {
-        const dy = pd.scrollTop - lastY;
-        const want = dy > 6 && pd.scrollTop > 60 ? true : (dy < -6 ? false : null);
-        if (want !== null && want !== pdDock.classList.contains('mini') && !pdDock._anim) {
-          pdDock._anim = true;
-          pdDock.classList.add('fading');
-          setTimeout(() => {
-            pdDock.classList.toggle('mini', want);
-            pdDock.classList.remove('fading');
-            setTimeout(() => { pdDock._anim = false; }, 160);
-          }, 140);
-        }
-      }
       lastY = pd.scrollTop;
     }, { passive: true });
   })();
@@ -3430,6 +3458,7 @@
     const openChat = (title) => { slideToChat(); if (window.AlvaChat) window.AlvaChat.openFull(title); };
     const nc = document.getElementById('menuNewChat');
     if (nc) nc.addEventListener('click', () => {   // 点 Alva Agent：滑入右侧 chat，保留其之前的状态
+      if (viewport && viewport.classList.contains('chat-off')) return;   // chat-off：悬浮按钮无反应
       slideToChat();
       const hasChat = document.querySelector('.composer-sheet .cv-thread .cv-msg, .composer-sheet .cv-thread .cv-userbubble');
       if (hasChat && window.AlvaChat) window.AlvaChat.reopen();
@@ -3874,7 +3903,7 @@
     function enterNew() {
       const host = document.querySelector('.s-home .page-body');
       if (host && ov.parentElement !== host) host.appendChild(ov);
-      sheet.classList.add('full'); sheet.classList.remove('pre-input', 'campaign', 'campaign-out', 'digest-in');
+      sheet.classList.add('full', 'nw-simple'); sheet.classList.remove('pre-input', 'campaign', 'campaign-out', 'digest-in');   // 简版：无 tab / 无输入框，选完 starter 再出现
       ov.classList.add('open');
       if (cvTitle) cvTitle.textContent = 'Alva Agent';
       { const ct = document.getElementById('cvCtxTitle'); if (ct) ct.textContent = 'Alva Agent'; }
@@ -3887,13 +3916,23 @@
         'Explain what you can do with my portfolio': 'Connect a portfolio and I can run attribution, flag concentration and drawdown risk, surface unusual moves, and turn any of it into a daily brief. Want to connect one now?',
         'Send a daily market brief in Telegram': 'I can send you a daily market brief — indices, your watchlist and the FinTwit voices you follow — straight to Telegram before the open. What time should it land?'
       };
+      const NW_FOLLOWUPS = {
+        'Build my first AI infra watchlist': ['Rank by momentum', 'Add power & cooling names', 'Set a price alert'],
+        'Explain what you can do with my portfolio': ['Connect my brokerage', 'Run a concentration risk check', 'Turn it into a daily brief'],
+        'Send a daily market brief in Telegram': ['Set it for 8:00 AM ET', 'Include my watchlist', 'Add the FinTwits I follow']
+      };
       function onPick(txt, grp) {
         if (grp) grp.remove();
+        // 选了选项 → tab 自上而下、输入框自下而上渐入（复用 from-ad 的 digest-in 过渡）
+        sheet.classList.remove('nw-simple');
+        sheet.classList.add('digest-in');
+        void sheet.offsetWidth;
+        requestAnimationFrame(() => sheet.classList.remove('digest-in'));
         const u = document.createElement('div'); u.className = 'cv-msg user'; u.textContent = txt; thread.appendChild(u); scrollDown();
         const ai = document.createElement('div'); ai.className = 'cv-msg ai';
         ai.innerHTML = '<div class="ai-by">' + AVA + '<span class="nm">Alva Agent</span><span class="tm">Just now</span></div><div class="tx">' + THINK + '</div>';
         thread.appendChild(ai); scrollDown();
-        setTimeout(() => { const t = ai.querySelector('.tx'); t.innerHTML = '<p class="nw-r"></p>'; stream(t.querySelector('.nw-r'), REPLIES[txt] || 'Got it — let me work on that.'); }, 2000);
+        setTimeout(() => { const t = ai.querySelector('.tx'); t.innerHTML = '<p class="nw-r"></p>'; stream(t.querySelector('.nw-r'), REPLIES[txt] || 'Got it — let me work on that.', () => { renderSugs(NW_FOLLOWUPS[txt] || SUGS.slice(0, 3)); sugWrap.classList.remove('hide'); sugWrap.classList.add('sugs-in'); scrollDown(); }); }, 2000);
       }
       const a = document.createElement('div'); a.className = 'cv-msg ai';
       a.innerHTML = '<div class="ai-by">' + AVA + '<span class="nm">Alva Agent</span><span class="tm">Just now</span></div><div class="tx">' + THINK + '</div>';   // 先 thinking
@@ -3919,7 +3958,7 @@
       thread.innerHTML = ''; if (input) { input.value = ''; autoGrow(); }
       renderSugs(SUGS); fIdx = 0; sugWrap.classList.remove('hide');
       trigClear(trigger); ov.classList.remove('open');
-      if (sheet) sheet.classList.remove('campaign', 'full', 'campaign-out', 'digest-in');
+      if (sheet) sheet.classList.remove('campaign', 'full', 'campaign-out', 'digest-in', 'nw-simple');
     }
     // campaign 全屏（广告用户）：FinTwit Digest 选择流，无输入框
     function openCampaign() {
