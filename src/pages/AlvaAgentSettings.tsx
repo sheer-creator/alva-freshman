@@ -20,6 +20,8 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 const PLATFORMS: { id: AgentPlatform; name: string; detail: string; description: string; logo: string }[] = [
   { id: 'telegram', name: 'Telegram', detail: 'Sheerruan', description: 'Sheerruan', logo: `${import.meta.env.BASE_URL}logo-social-telegram.svg` },
   { id: 'discord', name: 'Discord', detail: 'Join the community and chat with other traders.', description: 'Join the community and chat with other traders.', logo: `${import.meta.env.BASE_URL}logo-social-discord.svg` },
+  { id: 'slack', name: 'Slack', detail: '@sheerruan · alva-hq', description: 'Alva app in your workspace', logo: `${import.meta.env.BASE_URL}logo-social-slack.svg` },
+  { id: 'whatsapp', name: 'WhatsApp', detail: '+1 ··· 4821', description: 'Business account DM', logo: `${import.meta.env.BASE_URL}logo-social-whatsapp.svg` },
 ];
 
 function ReceiverSelect({ active }: { active: AgentPlatform | null }) {

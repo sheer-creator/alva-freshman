@@ -570,10 +570,10 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     z-index: 50;
     display: flex;
     flex-direction: column;
-    width: 480px;
+    width: 600px;
     background: #fff;
     border: 0.5px solid rgba(0,0,0,0.2);
-    border-radius: var(--radius-pop-popover, 8px);
+    border-radius: var(--radius-pop-popover, 6px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.04);
     overflow: hidden;
     /* hover 浮现：默认隐藏，.open 时淡入 + 轻微上浮 */
@@ -653,15 +653,15 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 .feeds-popover-row.clickable:hover { background: var(--b-r03); }
 .feeds-popover-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .feeds-popover-row-name {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
+    display: flex; align-items: center; gap: 4px;
+    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
     color: var(--text-n9);
 }
 .feeds-popover-name-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .feeds-popover-row-sub {
     display: flex; align-items: center; gap: 8px;
-    padding-left: 20px; /* dot 14px + gap 6px — sub line aligns with the name text */
-    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    padding-left: 18px; /* dot 14px + gap 4px — sub line aligns with the name text */
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: var(--text-n5, rgba(0,0,0,0.5));
 }
 .feeds-popover-cell-last { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -712,8 +712,8 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 .feeds-popover-row.is-paused .feeds-popover-row-name { color: var(--text-n5); }
 .feeds-popover-viewall {
     display: flex; align-items: center; gap: 8px;
-    padding: 8px 20px;
-    font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
+    padding: 8px 20px 10px;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: rgba(0,0,0,0.5);
     cursor: pointer;
     transition: background .15s;
@@ -722,7 +722,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 .feeds-popover-viewall:hover { background: rgba(0,0,0,0.02); }
 .feeds-popover-viewall-label { flex: 1; min-width: 0; }
 .feeds-popover-viewall-chev {
-    width: 12px; height: 12px; flex-shrink: 0;
+    width: 10px; height: 10px; flex-shrink: 0;
     background-color: rgba(0,0,0,0.5);
     -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg');
             mask-image: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg');

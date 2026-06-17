@@ -1071,6 +1071,70 @@
     color: rgba(0,0,0,0.5); white-space: pre-wrap;
   }
 
+  /* ── Feed Detail — 3-tab redesign ─────────────────────────── */
+  .feed-modal-header-top { gap: 12px; }
+  .feed-modal-act {
+    width: 18px; height: 18px; padding: 0; border: none; background: transparent;
+    cursor: pointer; flex-shrink: 0; transition: opacity 0.15s ease;
+  }
+  .feed-modal-act:hover { opacity: 0.7; }
+  .feed-modal-act::before {
+    content:''; display:block; width:100%; height:100%;
+    background-color: rgba(0,0,0,0.7);
+    -webkit-mask-position:center; mask-position:center;
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+    -webkit-mask-size:contain; mask-size:contain;
+  }
+  .feed-modal-act.pause::before { -webkit-mask-image:url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg'); mask-image:url('https://alva-ai-static.b-cdn.net/icons/pause-l2.svg'); }
+  .feed-modal-act.paused::before { -webkit-mask-image:url('https://alva-ai-static.b-cdn.net/icons/play-f.svg'); mask-image:url('https://alva-ai-static.b-cdn.net/icons/play-f.svg'); }
+  .feed-modal-act.settings::before { -webkit-mask-image:url('https://alva-ai-static.b-cdn.net/icons/settings-l.svg'); mask-image:url('https://alva-ai-static.b-cdn.net/icons/settings-l.svg'); }
+
+  .feed-modal-tabs { display:flex; gap:16px; width:100%; border-bottom:1px solid rgba(0,0,0,0.07); }
+  .feed-modal-tab {
+    padding:0 0 6px; margin-bottom:-1px; background:transparent; border:none;
+    border-bottom:2px solid transparent; cursor:pointer;
+    font-size:14px; line-height:22px; letter-spacing:0.14px; color:rgba(0,0,0,0.7);
+  }
+  .feed-modal-tab.active { color:rgba(0,0,0,0.9); font-weight:500; border-bottom-color:#49a3a6; }
+
+  .feed-tab-panel { display:none; width:100%; flex-direction:column; gap:16px; }
+  .feed-tab-panel.active { display:flex; }
+
+  #feed-alerts-list { display:flex; flex-direction:column; gap:8px; width:100%; }
+  .feed-alert-card { background:#fafafa; border-radius:8px; padding:16px; width:100%; display:flex; flex-direction:column; gap:8px; }
+  .feed-alert-meta { font-size:12px; line-height:20px; letter-spacing:0.12px; color:rgba(0,0,0,0.5); }
+  .feed-alert-title { font-size:14px; line-height:22px; letter-spacing:0.14px; font-weight:500; color:rgba(0,0,0,0.9); }
+  .feed-alert-bullets { margin:0; padding-left:18px; display:flex; flex-direction:column; gap:4px; }
+  .feed-alert-bullets li { font-size:14px; line-height:22px; letter-spacing:0.14px; color:rgba(0,0,0,0.9); }
+  .feed-alert-empty { font-size:14px; line-height:22px; letter-spacing:0.14px; color:rgba(0,0,0,0.5); padding:8px 0; }
+
+  .feed-instruction-head { display:flex; align-items:center; gap:12px; width:100%; }
+  .feed-instruction-label { flex:1; min-width:0; font-size:14px; line-height:22px; letter-spacing:0.14px; color:rgba(0,0,0,0.7); }
+  .feed-instruction-copy { width:16px; height:16px; padding:0; border:none; background:transparent; cursor:pointer; flex-shrink:0; transition:opacity 0.15s ease; }
+  .feed-instruction-copy:hover { opacity:0.7; }
+  .feed-instruction-copy::before {
+    content:''; display:block; width:100%; height:100%; background-color:rgba(0,0,0,0.7);
+    -webkit-mask:url('https://alva-ai-static.b-cdn.net/icons/copy-l.svg') center/contain no-repeat;
+            mask:url('https://alva-ai-static.b-cdn.net/icons/copy-l.svg') center/contain no-repeat;
+  }
+  .feed-instruction-copy.copied::before {
+    background-color:#2a9b7d;
+    -webkit-mask-image:url('https://alva-ai-static.b-cdn.net/icons/check-f2.svg'); mask-image:url('https://alva-ai-static.b-cdn.net/icons/check-f2.svg');
+  }
+  .feed-instruction-box {
+    width:100%; min-height:200px; box-sizing:border-box;
+    background:#fff; border:0.5px solid rgba(0,0,0,0.3); border-radius:6px; padding:12px;
+    font-size:14px; line-height:22px; letter-spacing:0.14px; color:rgba(0,0,0,0.9); white-space:pre-wrap;
+  }
+
+  .feed-stat-cols { display:flex; gap:16px; align-items:center; width:100%; }
+  .feed-stat-col { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .feed-stat-col .feed-stat-label { font-size:12px; line-height:20px; letter-spacing:0.12px; color:rgba(0,0,0,0.5); }
+  .feed-stat-col .feed-stat-value { font-size:20px; line-height:30px; letter-spacing:0.2px; color:rgba(0,0,0,0.9); }
+  .feed-stat-col .feed-stat-value.success { color:#2a9b7d; }
+  .feed-stat-col .feed-stat-value.failed  { color:#e6a91a; }
+  .feed-stat-divider { width:0.5px; align-self:stretch; flex-shrink:0; background:rgba(0,0,0,0.12); }
+
 </style>
 </head>
 <body>
@@ -1457,33 +1521,42 @@
             <div class="feed-modal-header-top">
               <span class="feed-status-dot" aria-hidden="true"></span>
               <span id="feed-detail-title">Feed</span>
+              <button type="button" class="feed-modal-act pause" id="feed-detail-pause" aria-label="Pause"></button>
+              <button type="button" class="feed-modal-act settings" id="feed-detail-settings" aria-label="Settings"></button>
             </div>
             <div class="feed-modal-meta">
               <span>Last Run: <span id="feed-detail-last-run">&mdash;</span></span>
               <span class="sep">|</span>
               <span id="feed-detail-every">&mdash;</span>
-              <span class="sep">|</span>
-              <span><span id="feed-detail-total-runs">0</span> Runs</span>
             </div>
           </div>
-          <div class="feed-modal-desc" id="feed-detail-desc-wrap">
-            <div class="feed-modal-desc-label">What This Feed Does</div>
-            <div id="feed-detail-desc"></div>
-            <div class="feed-desc-toggle">
-              <div class="feed-desc-toggle-gradient"></div>
-              <button type="button" class="feed-desc-toggle-btn" id="feed-desc-toggle-btn" aria-label="Expand description">
-                <span class="feed-desc-toggle-icon"></span>
-              </button>
+          <div class="feed-modal-tabs" role="tablist">
+            <button type="button" class="feed-modal-tab active" data-feedtab="alerts">Alerts</button>
+            <button type="button" class="feed-modal-tab" data-feedtab="overview">Overview</button>
+            <button type="button" class="feed-modal-tab" data-feedtab="runs">Runs</button>
+          </div>
+          <div class="feed-tab-panel active" data-feedpanel="alerts">
+            <div id="feed-alerts-list"></div>
+          </div>
+          <div class="feed-tab-panel" data-feedpanel="overview">
+            <div class="feed-instruction-head">
+              <span class="feed-instruction-label">Instruction</span>
+              <button type="button" class="feed-instruction-copy" id="feed-instruction-copy" aria-label="Copy instruction"></button>
             </div>
+            <div class="feed-instruction-box" id="feed-detail-instruction"></div>
           </div>
-          <div class="feed-modal-stats">
-            <div class="feed-stat-card"><span class="feed-stat-label">Total Runs</span><span class="feed-stat-value" id="feed-stat-total">&mdash;</span></div>
-            <div class="feed-stat-card"><span class="feed-stat-label">Success</span><span class="feed-stat-value success" id="feed-stat-success">&mdash;</span></div>
-            <div class="feed-stat-card"><span class="feed-stat-label">Failed</span><span class="feed-stat-value failed" id="feed-stat-failed">&mdash;</span></div>
-          </div>
-          <div class="feed-modal-history">
-            <div class="feed-history-header">Recent 10 Runs</div>
-            <div id="feed-history-list"></div>
+          <div class="feed-tab-panel" data-feedpanel="runs">
+            <div class="feed-stat-cols">
+              <div class="feed-stat-col"><span class="feed-stat-label">Total Runs</span><span class="feed-stat-value" id="feed-stat-total">&mdash;</span></div>
+              <div class="feed-stat-divider"></div>
+              <div class="feed-stat-col"><span class="feed-stat-label">Success</span><span class="feed-stat-value success" id="feed-stat-success">&mdash;</span></div>
+              <div class="feed-stat-divider"></div>
+              <div class="feed-stat-col"><span class="feed-stat-label">Failed</span><span class="feed-stat-value failed" id="feed-stat-failed">&mdash;</span></div>
+            </div>
+            <div class="feed-modal-history">
+              <div class="feed-history-header">Recent <span id="feed-history-count">10</span> Runs</div>
+              <div id="feed-history-list"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -2390,6 +2463,29 @@ window.__ALVA_OFFLINE_DATA__ = {
       lastRun: '15m',
       runEvery: 'Every 5 minutes',
       totalRuns: 142,
+      owner: false,
+      instruction:
+        'I want to set up a Project monitor automation. Briefly explain how automations work in Alva, then ask me what project to watch, what changes matter, and when it should check in.',
+      alerts: [
+        {
+          meta: 'May 8, 12:00 PM · ai-chip-supply-chain',
+          title: 'AMD to Entrust 2nm Production to Samsung Foundry — Samsung Electronics has entered into substantive discussions with AMD',
+          bullets: [
+            'Top of basket: ALL (Allstate) holds #1 at Score 95 — ROE 39.5%, P/E 5.64; leadership in Insurance — Property & Casualty continues.',
+            'New entries: BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.',
+            'Dropouts: TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.'
+          ]
+        },
+        {
+          meta: 'May 8, 12:00 PM · ai-chip-supply-chain',
+          title: 'AMD to Entrust 2nm Production to Samsung Foundry — Samsung Electronics has entered into substantive discussions with AMD',
+          bullets: [
+            'Top of basket: ALL (Allstate) holds #1 at Score 95 — ROE 39.5%, P/E 5.64; leadership in Insurance — Property & Casualty continues.',
+            'New entries: BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.',
+            'Dropouts: TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.'
+          ]
+        }
+      ],
       description:
         '**Signal Generation**\nMonitors BTC/USDT on the 1-hour timeframe using MACD(12, 26, 9). A bullish crossover (MACD line crossing above signal line) triggers a long entry; a bearish crossover triggers an exit. Only one position is held at a time. The histogram slope is used as a secondary filter — flat or declining histograms after a crossover are treated as low-confidence and may be skipped.\n\n' +
         '**Risk Management**\nEach trade risks a maximum of 2% of portfolio equity. A trailing stop-loss is placed at 1.5× ATR(14) below the entry price and tightens as the position moves into profit. If the drawdown exceeds 5% from the local equity peak, the feed pauses new entries until the next confirmed crossover. Position sizing is dynamically adjusted based on 30-day realized volatility.\n\n' +
@@ -2425,44 +2521,59 @@ window.__ALVA_OFFLINE_DATA__ = {
     }
   };
 
-  function renderFeedDescription(desc) {
-    var host = document.getElementById('feed-detail-desc');
+  function renderFeedAlerts(alerts) {
+    var host = document.getElementById('feed-alerts-list');
     host.innerHTML = '';
-    desc.split('\n\n').forEach(function(block){
-      var m = block.match(/^\*\*(.+?)\*\*\n?([\s\S]*)$/);
-      var wrap = document.createElement('div');
-      wrap.className = 'feed-modal-desc-block';
-      if (m) {
-        var h = document.createElement('div'); h.className = 'feed-desc-h'; h.textContent = m[1]; wrap.appendChild(h);
-        if (m[2]) { var p = document.createElement('div'); p.className = 'feed-desc-p'; p.textContent = m[2]; wrap.appendChild(p); }
-      } else {
-        var p2 = document.createElement('div'); p2.className = 'feed-desc-p'; p2.textContent = block; wrap.appendChild(p2);
+    if (!alerts || !alerts.length) {
+      var e = document.createElement('div'); e.className = 'feed-alert-empty'; e.textContent = 'No alerts pushed yet.';
+      host.appendChild(e); return;
+    }
+    alerts.forEach(function(a){
+      var card = document.createElement('div'); card.className = 'feed-alert-card';
+      var meta = document.createElement('div'); meta.className = 'feed-alert-meta'; meta.textContent = a.meta; card.appendChild(meta);
+      if (a.title) { var t = document.createElement('div'); t.className = 'feed-alert-title'; t.textContent = a.title; card.appendChild(t); }
+      if (a.bullets && a.bullets.length) {
+        var ul = document.createElement('ul'); ul.className = 'feed-alert-bullets';
+        a.bullets.forEach(function(b){ var li = document.createElement('li'); li.textContent = b; ul.appendChild(li); });
+        card.appendChild(ul);
       }
-      host.appendChild(wrap);
-    });
-    var wrap = document.getElementById('feed-detail-desc-wrap');
-    if (!wrap) return;
-    wrap.classList.remove('expanded', 'overflows');
-    wrap.style.maxHeight = '';
-  }
-
-  function measureFeedDescOverflow() {
-    var wrap = document.getElementById('feed-detail-desc-wrap');
-    if (!wrap) return;
-    requestAnimationFrame(function(){
-      var overflows = wrap.scrollHeight > 280;
-      wrap.classList.toggle('overflows', overflows);
+      host.appendChild(card);
     });
   }
 
-  function setupFeedDescToggle() {
-    var btn = document.getElementById('feed-desc-toggle-btn');
-    var wrap = document.getElementById('feed-detail-desc-wrap');
-    if (!btn || !wrap) return;
-    btn.addEventListener('click', function(){
-      var expanded = wrap.classList.toggle('expanded');
-      wrap.style.maxHeight = expanded ? (wrap.scrollHeight + 'px') : '280px';
-      btn.setAttribute('aria-label', expanded ? 'Collapse description' : 'Expand description');
+  function activateFeedTab(key) {
+    var modal = document.getElementById('feed-detail-modal');
+    if (!modal) return;
+    modal.querySelectorAll('.feed-modal-tab').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-feedtab') === key); });
+    modal.querySelectorAll('.feed-tab-panel').forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-feedpanel') === key); });
+  }
+
+  function setupFeedTabs() {
+    var modal = document.getElementById('feed-detail-modal');
+    if (!modal) return;
+    modal.querySelectorAll('.feed-modal-tab').forEach(function(btn){
+      btn.addEventListener('click', function(){ activateFeedTab(btn.getAttribute('data-feedtab')); });
+    });
+  }
+
+  function setupFeedActions() {
+    var pause = document.getElementById('feed-detail-pause');
+    if (pause) pause.addEventListener('click', function(){
+      var paused = pause.classList.toggle('paused');
+      pause.classList.toggle('pause', !paused);
+      pause.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
+    });
+    var copy = document.getElementById('feed-instruction-copy');
+    if (copy) copy.addEventListener('click', function(){
+      var txt = document.getElementById('feed-detail-instruction').textContent || '';
+      try { if (navigator.clipboard) navigator.clipboard.writeText(txt); } catch(e){}
+      copy.classList.add('copied');
+      setTimeout(function(){ copy.classList.remove('copied'); }, 1500);
+    });
+    var settings = document.getElementById('feed-detail-settings');
+    if (settings) settings.addEventListener('click', function(){
+      try { var top = window.top || window.parent; if (top && top !== window.self) { top.location.hash = 'automations'; return; } } catch(e){}
+      window.location.hash = 'automations';
     });
   }
 
@@ -2494,21 +2605,28 @@ window.__ALVA_OFFLINE_DATA__ = {
     document.getElementById('feed-detail-title').textContent = d.name;
     document.getElementById('feed-detail-last-run').textContent = d.lastRun;
     document.getElementById('feed-detail-every').textContent = d.runEvery;
-    document.getElementById('feed-detail-total-runs').textContent = d.totalRuns;
     document.getElementById('feed-stat-total').textContent = d.stats.total;
     document.getElementById('feed-stat-success').textContent = d.stats.success;
     document.getElementById('feed-stat-failed').textContent = d.stats.failed;
-    renderFeedDescription(d.description);
+    document.getElementById('feed-detail-instruction').textContent = d.instruction || d.description || '';
+    document.getElementById('feed-history-count').textContent = (d.history && d.history.length) || 0;
+    var owner = d.owner === true;
+    document.getElementById('feed-detail-pause').style.display = owner ? '' : 'none';
+    document.getElementById('feed-detail-settings').style.display = owner ? '' : 'none';
+    renderFeedAlerts(d.alerts);
     renderFeedHistory(d.history);
+    activateFeedTab('alerts');
+    var pause = document.getElementById('feed-detail-pause');
+    if (pause) { pause.classList.remove('paused'); pause.classList.add('pause'); pause.setAttribute('aria-label', 'Pause'); }
     openModal('feed-detail-modal');
-    measureFeedDescOverflow();
   }
 
   function init() {
     setupTabs();
     setupModals();
     setupFeedsPopover();
-    setupFeedDescToggle();
+    setupFeedTabs();
+    setupFeedActions();
     var resizeTimer;
     window.addEventListener('resize', function(){
       clearTimeout(resizeTimer);

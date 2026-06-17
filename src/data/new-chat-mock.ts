@@ -133,7 +133,7 @@ export const PRIMARY_TEMPLATES: NewChatTemplate[] = [
   {
     id: 'theme-tracker',
     label: 'Theme Tracker',
-    icon: 'buld-l',
+    icon: 'bulb-l',
     creator: 'Alva',
     description: 'Build a live tracker for any market theme — surfaces sentiment, earnings, and policy catalysts across the basket weekly.',
     prompts: [

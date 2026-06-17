@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>KOL Digest Channel</title>
+<title>FinTwit Digest Channel</title>
 <style>
   @font-face {
     font-family: 'Delight';
@@ -220,6 +220,15 @@
   .modal-x:hover { background: var(--b-r05); }
   .modal-x svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; transform: rotate(45deg); }
   .modal-body { overflow-y: auto; padding: 8px; }
+  .login-modal { width: 440px; }
+  .login-body { display: flex; flex-direction: column; gap: 12px; padding: 8px; }
+  .login-card { border: 0.5px solid var(--line-l07); border-radius: 12px; background: var(--wash); padding: 14px; }
+  .login-card strong { display: block; font-size: 14px; color: var(--text-n9); font-weight: 400; }
+  .login-card span { display: block; margin-top: 5px; font-size: 12.5px; line-height: 18px; color: var(--text-n5); }
+  .login-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .login-actions button { height: 36px; padding: 0 13px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; }
+  .login-actions .primary { background: var(--main-m1); color: #fff; }
+  .login-actions .secondary { border: 0.5px solid var(--line-l12); color: var(--text-n7); background: #fff; }
   .member { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 11px; align-items: center; padding: 8px 10px; border-radius: 9px; }
   .member:hover { background: var(--b-r02); }
   .m-ava { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; color: #fff; overflow: hidden; flex: 0 0 auto; }
@@ -435,8 +444,7 @@
   .dg-mark { width: 32px; height: 32px; border-radius: 9px; overflow: hidden; flex: 0 0 auto; }
   .dg-mark img { width: 100%; height: 100%; display: block; }
   .dg-t { font-size: 17px; color: var(--text-n9); letter-spacing: 0; }
-  .dg-m { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
-  .dg-badge { font-size: 10.5px; letter-spacing: 0; text-transform: uppercase; color: var(--main-m1); border: 0.5px solid rgba(73,163,166,0.3); background: var(--main-m1-10); border-radius: 999px; padding: 3px 9px; white-space: nowrap; flex: 0 0 auto; }
+  .dg-sub { margin-top: 3px; font-size: 12px; line-height: 16px; color: var(--text-n4); }
   .dg-summary { padding: 13px 16px 14px; font-size: 14px; line-height: 22px; color: var(--text-n9); }
   .dg-rows { border-top: 0.5px solid var(--line-l05); }
   .dg-row { display: grid; grid-template-columns: 24px 50px 8px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 9px 16px; border-bottom: 0.5px solid var(--line-l05); }
@@ -447,6 +455,11 @@
   .dg-take { font-size: 13px; line-height: 19px; color: var(--text-n7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dg-kol { font-size: 11.5px; color: var(--text-n3); white-space: nowrap; }
   .dg-foot { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--b-r02); border-top: 0.5px solid var(--line-l05); }
+  .dg-foot .dg-open { flex: 0 0 auto; }
+  .dg-automation-link { margin-left: auto; min-width: 0; display: inline-flex; align-items: center; gap: 6px; color: var(--text-n5); font-size: 11.5px; padding: 6px 7px; border-radius: 8px; transition: background 140ms ease, color 140ms ease; }
+  .dg-automation-link:hover { background: #fff; color: var(--main-m1); }
+  .dg-automation-link span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dg-automation-link svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.7; flex: 0 0 auto; }
   .dg-bdot { width: 6px; height: 6px; border-radius: 50%; background: var(--main-m1); flex: 0 0 auto; }
 
   /* source tag — which automation / playbook produced this push */
@@ -543,7 +556,7 @@
   .kol-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 12px; }
   .kol-setting-card { border: 0.5px solid var(--line-l07); border-radius: 11px; background: #fff; padding: 12px; }
   .kol-setting-card label { display: block; font-size: 11px; letter-spacing: 0; text-transform: uppercase; color: var(--text-n3); margin-bottom: 7px; }
-  .kol-setting-card select, .kol-setting-card textarea { width: 100%; border: 0.5px solid var(--line-l12); border-radius: 9px; background: #fff; outline: none; font-size: 13px; color: var(--text-n9); padding: 8px 10px; }
+  .kol-setting-card input, .kol-setting-card select, .kol-setting-card textarea { width: 100%; border: 0.5px solid var(--line-l12); border-radius: 9px; background: #fff; outline: none; font-size: 13px; color: var(--text-n9); padding: 8px 10px; }
   .kol-setting-card textarea { min-height: 104px; resize: vertical; line-height: 19px; }
   .kol-setting-card p { font-size: 12px; line-height: 17px; color: var(--text-n5); margin-top: 7px; }
   .kol-generate-card { border: 0.5px solid rgba(73,163,166,0.24); border-radius: 14px; background: var(--main-m1-10); padding: 14px; margin-top: 12px; }
@@ -574,13 +587,6 @@
   .dp-summary li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--main-m1); }
   .dp-tickers { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
   .dp-tickers span { height: 22px; display: inline-flex; align-items: center; padding: 0 7px; border-radius: 999px; border: 0.5px solid var(--line-l05); background: #fff; font-size: 11px; color: var(--text-n5); }
-  .digest-meta-line { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; color: var(--text-n5); font-size: 12px; margin-top: 2px; }
-  .digest-meta-copy { min-width: 0; }
-  .digest-source-inline { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
-  .digest-source-inline .kol-source-stack .kol-avatar { width: 20px; height: 20px; border-width: 1.5px; margin-left: -5px; }
-  .digest-source-inline .kol-source-stack .kol-avatar:first-child { margin-left: 0; }
-  .digest-source-inline .kol-source-plus { width: 20px; height: 20px; border-width: 1.5px; margin-left: -5px; font-size: 8px; }
-  .digest-modal .digest-meta-line { margin-top: 4px; }
   .kol-source-stack { display: flex; align-items: center; min-width: 0; }
   .kol-source-stack .kol-avatar { width: 28px; height: 28px; border: 2px solid #fff; margin-left: -8px; box-shadow: 0 2px 5px rgba(20,26,26,0.08); }
   .kol-source-stack .kol-avatar:first-child { margin-left: 0; }
@@ -743,8 +749,11 @@
   .kc-inline-head p { font-size: 12.5px; line-height: 18px; color: var(--text-n5); margin-top: 4px; }
   .kc-inline-head button { height: 30px; padding: 0 12px; border-radius: 8px; border: 0.5px solid var(--line-l12); color: var(--text-n7); font-size: 12.5px; flex: 0 0 auto; }
   .kc-inline-head button:hover { background: var(--b-r02); color: var(--text-n9); }
-  .kc-inline-head select { min-width: 150px; border: 0.5px solid var(--line-l12); border-radius: 9px; background: #fff; outline: none; font-size: 13px; color: var(--text-n9); padding: 8px 10px; }
+  .kc-inline-head input, .kc-inline-head select { min-width: 150px; border: 0.5px solid var(--line-l12); border-radius: 9px; background: #fff; outline: none; font-size: 13px; color: var(--text-n9); padding: 8px 10px; }
   .kc-inline-body { margin-top: 13px; }
+  .kc-advanced-toggle { height: 32px; padding: 0 11px; border-radius: 8px; border: 0.5px solid var(--line-l12); color: var(--text-n7); font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; }
+  .kc-advanced-toggle:hover { background: var(--b-r02); color: var(--text-n9); }
+  .kc-advanced-toggle svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
   .kc-refresh-note { margin-top: 12px; border: 0.5px solid rgba(73,163,166,0.22); background: var(--main-m1-10); border-radius: 11px; padding: 12px; }
   .kc-refresh-note strong { display: block; font-size: 13.5px; color: var(--text-n9); font-weight: 400; }
   .kc-refresh-note span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 18px; color: var(--text-n5); }
@@ -1449,48 +1458,44 @@ const AUTOMATIONS = [
   { id: 'a5', name: 'Earnings-Surprise-Radar', status: 'paused', lastRun: '—', runEvery: 'Every 5 minutes', runs: 142, usedBy: [['maya', 'gas-turbine-supply']] },
 ];
 
-/* Channels — Alva Agent pinned (bot mark), topic channels use #, groups use brand icons */
+/* V1 exposes one user-facing channel. FinTwit Digest is a specialized onboarding
+   variant inside Alva Agent, not its own channel. */
 const CHANNELS = [
   { id: 'agent', kind: 'agent', cls: 'ch-me', ico: 'agent', label: 'Alva Agent', desc: 'Your always-on investing co-pilot — turn any idea into a live playbook.' },
-  { id: 'kol-digest', kind: 'kol', cls: 'ch-me', ico: 'hash', label: 'KOLs · AI Digest', desc: 'Organizes trusted FinTwit voices into daily and weekly digest reports with reusable analysis templates.' },
-  { id: 'semis', kind: 'topic', cls: 'ch-me', ico: 'hash', label: 'Semis Deep Research', desc: 'A focused workspace for semiconductor research — scoped chat, tasks, and memory.' },
-  { id: 'crypto-macro', kind: 'topic', cls: 'ch-me', ico: 'hash', label: 'Crypto Macro', desc: 'Crypto liquidity, flows, and macro read-through, kept separate from your equity work.' },
-  { id: 'btc-room', kind: 'group', cls: 'ch-tg', ico: 'telegram', label: 'BTC Macro Room', desc: 'BTC macro, ETF flows, and liquidity. Alva is in the room — @ it to run anything.' },
-  { id: 'defi-desk', kind: 'group', cls: 'ch-dc', ico: 'discord', label: 'DeFi Research Desk', desc: 'DeFi yields, L2 market share, and protocol revenue, tracked on-chain by Alva.' },
 ];
 
-/* Recommended KOLs for digest source onboarding */
+/* Recommended FinTwit accounts for digest source onboarding */
 const KOL_RECOMMENDED = [
-  { name: 'Crypto Wizard', handle: '@cryptowizardd', focus: 'Crypto momentum', stat: 'Top 30 KOL', bestWin: '69%', bestRoi: '+84.0%', subscribers: 214, avatar: 'https://unavatar.io/twitter/cryptowizardd', followed: false },
-  { name: 'Arthur Hayes', handle: '@cryptohayes', focus: 'Crypto macro', stat: 'Top 30 KOL', bestWin: '67%', bestRoi: '+78.4%', subscribers: 238, avatar: 'https://unavatar.io/twitter/cryptohayes', followed: false },
-  { name: 'Alea', handle: '@aleabitoreddit', focus: 'Crypto cycles', stat: 'Top 30 KOL', bestWin: '63%', bestRoi: '+61.2%', subscribers: 177, avatar: 'https://unavatar.io/twitter/aleabitoreddit', followed: false },
-  { name: 'Puru Saxena', handle: '@saxena_puru', focus: 'Growth equities', stat: 'Top 30 KOL', bestWin: '64%', bestRoi: '+52.1%', subscribers: 129, avatar: 'https://unavatar.io/twitter/saxena_puru', followed: false },
-  { name: 'Mike Alfred', handle: '@mikealfred', focus: 'Bitcoin · miners', stat: 'Top 30 KOL', bestWin: '66%', bestRoi: '+49.5%', subscribers: 165, avatar: 'https://unavatar.io/twitter/mikealfred', followed: false },
-  { name: 'Dave H Contrarian', handle: '@davehcontrarian', focus: 'Contrarian macro', stat: 'Top 30 KOL', bestWin: '58%', bestRoi: '+46.8%', subscribers: 144, avatar: 'https://unavatar.io/twitter/davehcontrarian', followed: false },
-  { name: 'Gainzy', handle: '@gainzy222', focus: 'Crypto trading', stat: 'Top 30 KOL', bestWin: '61%', bestRoi: '+71.0%', subscribers: 201, avatar: 'https://unavatar.io/twitter/gainzy222', followed: false },
-  { name: 'Ming-Chi Kuo', handle: '@mingchikuo', focus: 'Apple · supply chain', stat: 'Top 30 KOL', bestWin: '70%', bestRoi: '+33.6%', subscribers: 188, avatar: 'https://unavatar.io/twitter/mingchikuo', followed: false },
-  { name: 'James Altucher', handle: '@jaltucher', focus: 'Crypto · tech', stat: 'Top 30 KOL', bestWin: '57%', bestRoi: '+38.7%', subscribers: 122, avatar: 'https://unavatar.io/twitter/jaltucher', followed: false },
-  { name: 'AC Investor Blog', handle: '@acinvestorblog', focus: 'Small caps', stat: 'Top 30 KOL', bestWin: '62%', bestRoi: '+57.4%', subscribers: 98, avatar: 'https://unavatar.io/twitter/acinvestorblog', followed: false },
-  { name: 'Marco Polo', handle: '@marcopolomaps', focus: 'Macro maps', stat: 'Top 30 KOL', bestWin: '60%', bestRoi: '+41.0%', subscribers: 116, avatar: 'https://unavatar.io/twitter/marcopolomaps', followed: false },
-  { name: 'The Bubble Bubble', handle: '@thebubblebubble', focus: 'Bubbles · macro', stat: 'Top 30 KOL', bestWin: '59%', bestRoi: '+36.2%', subscribers: 109, avatar: 'https://unavatar.io/twitter/thebubblebubble', followed: false },
-  { name: 'Philakone', handle: '@philakonecrypto', focus: 'Crypto TA', stat: 'Top 30 KOL', bestWin: '65%', bestRoi: '+68.8%', subscribers: 154, avatar: 'https://unavatar.io/twitter/philakonecrypto', followed: false },
-  { name: 'Qullamaggie', handle: '@qullamaggie', focus: 'Momentum equities', stat: 'Top 30 KOL', bestWin: '72%', bestRoi: '+82.5%', subscribers: 221, avatar: 'https://unavatar.io/twitter/qullamaggie', followed: false },
-  { name: 'Jordi Visser', handle: '@jvisserlabs', focus: 'Macro · AI', stat: 'Top 30 KOL', bestWin: '63%', bestRoi: '+44.1%', subscribers: 137, avatar: 'https://unavatar.io/twitter/jvisserlabs', followed: false },
-  { name: 'BuySellShort', handle: '@buysellshort', focus: 'Trading desk', stat: 'Top 30 KOL', bestWin: '61%', bestRoi: '+39.9%', subscribers: 103, avatar: 'https://unavatar.io/twitter/buysellshort', followed: false },
-  { name: 'Zephyr', handle: '@zephyr_z9', focus: 'Crypto alpha', stat: 'Top 30 KOL', bestWin: '66%', bestRoi: '+74.7%', subscribers: 196, avatar: 'https://unavatar.io/twitter/zephyr_z9', followed: false },
-  { name: 'Teddy Cleps', handle: '@teddycleps', focus: 'Crypto research', stat: 'Top 30 KOL', bestWin: '60%', bestRoi: '+50.4%', subscribers: 141, avatar: 'https://unavatar.io/twitter/teddycleps', followed: false },
-  { name: 'Ophir Gottlieb', handle: '@ophirgottlieb', focus: 'Options · earnings', stat: 'Top 30 KOL', bestWin: '68%', bestRoi: '+47.8%', subscribers: 127, avatar: 'https://unavatar.io/twitter/ophirgottlieb', followed: false },
-  { name: 'ConvertBond', handle: '@convertbond', focus: 'Credit · convertibles', stat: 'Top 30 KOL', bestWin: '64%', bestRoi: '+29.2%', subscribers: 89, avatar: 'https://unavatar.io/twitter/convertbond', followed: false },
-  { name: 'DamskoTrades', handle: '@damskotrades', focus: 'Momentum trading', stat: 'Top 30 KOL', bestWin: '62%', bestRoi: '+58.5%', subscribers: 132, avatar: 'https://unavatar.io/twitter/damskotrades', followed: false },
-  { name: 'Jukan', handle: '@jukan05', focus: 'Crypto cycles', stat: 'Top 30 KOL', bestWin: '63%', bestRoi: '+56.8%', subscribers: 147, avatar: 'https://unavatar.io/twitter/jukan05', followed: false },
-  { name: 'Ecommerce Shares', handle: '@ecommerceshares', focus: 'Consumer internet', stat: 'Top 30 KOL', bestWin: '59%', bestRoi: '+35.0%', subscribers: 92, avatar: 'https://unavatar.io/twitter/ecommerceshares', followed: false },
-  { name: 'TradeX Whisperer', handle: '@tradexwhisperer', focus: 'Trading signals', stat: 'Top 30 KOL', bestWin: '61%', bestRoi: '+42.6%', subscribers: 118, avatar: 'https://unavatar.io/twitter/tradexwhisperer', followed: false },
-  { name: '0xSnulet', handle: '@0xsnulet', focus: 'On-chain · DeFi', stat: 'Top 30 KOL', bestWin: '57%', bestRoi: '+63.3%', subscribers: 128, avatar: 'https://unavatar.io/twitter/0xsnulet', followed: false },
-  { name: 'Matt in Web3', handle: '@mattinweb3', focus: 'Web3 infra', stat: 'Top 30 KOL', bestWin: '58%', bestRoi: '+40.8%', subscribers: 95, avatar: 'https://unavatar.io/twitter/mattinweb3', followed: false },
-  { name: 'Reformed Trader', handle: '@reformed_trader', focus: 'Trading psychology', stat: 'Top 30 KOL', bestWin: '60%', bestRoi: '+31.5%', subscribers: 111, avatar: 'https://unavatar.io/twitter/reformed_trader', followed: false },
-  { name: 'Oliver Kell', handle: '@oliverkell_', focus: 'US equities', stat: 'Top 30 KOL', bestWin: '73%', bestRoi: '+53.1%', subscribers: 164, avatar: 'https://unavatar.io/twitter/oliverkell_', followed: false },
-  { name: 'Fiskantes', handle: '@fiskantes', focus: 'Crypto trading', stat: 'Top 30 KOL', bestWin: '64%', bestRoi: '+67.9%', subscribers: 173, avatar: 'https://unavatar.io/twitter/fiskantes', followed: false },
-  { name: 'Sun X Liao', handle: '@sunxliao', focus: 'Asia tech · AI', stat: 'Top 30 KOL', bestWin: '62%', bestRoi: '+45.2%', subscribers: 136, avatar: 'https://unavatar.io/twitter/sunxliao', followed: false },
+  { name: 'Crypto Wizard', handle: '@cryptowizardd', focus: 'Crypto momentum', stat: 'Top 30 FinTwit', bestWin: '69%', bestRoi: '+84.0%', subscribers: 214, avatar: 'https://unavatar.io/twitter/cryptowizardd', followed: false },
+  { name: 'Arthur Hayes', handle: '@cryptohayes', focus: 'Crypto macro', stat: 'Top 30 FinTwit', bestWin: '67%', bestRoi: '+78.4%', subscribers: 238, avatar: 'https://unavatar.io/twitter/cryptohayes', followed: false },
+  { name: 'Alea', handle: '@aleabitoreddit', focus: 'Crypto cycles', stat: 'Top 30 FinTwit', bestWin: '63%', bestRoi: '+61.2%', subscribers: 177, avatar: 'https://unavatar.io/twitter/aleabitoreddit', followed: false },
+  { name: 'Puru Saxena', handle: '@saxena_puru', focus: 'Growth equities', stat: 'Top 30 FinTwit', bestWin: '64%', bestRoi: '+52.1%', subscribers: 129, avatar: 'https://unavatar.io/twitter/saxena_puru', followed: false },
+  { name: 'Mike Alfred', handle: '@mikealfred', focus: 'Bitcoin · miners', stat: 'Top 30 FinTwit', bestWin: '66%', bestRoi: '+49.5%', subscribers: 165, avatar: 'https://unavatar.io/twitter/mikealfred', followed: false },
+  { name: 'Dave H Contrarian', handle: '@davehcontrarian', focus: 'Contrarian macro', stat: 'Top 30 FinTwit', bestWin: '58%', bestRoi: '+46.8%', subscribers: 144, avatar: 'https://unavatar.io/twitter/davehcontrarian', followed: false },
+  { name: 'Gainzy', handle: '@gainzy222', focus: 'Crypto trading', stat: 'Top 30 FinTwit', bestWin: '61%', bestRoi: '+71.0%', subscribers: 201, avatar: 'https://unavatar.io/twitter/gainzy222', followed: false },
+  { name: 'Ming-Chi Kuo', handle: '@mingchikuo', focus: 'Apple · supply chain', stat: 'Top 30 FinTwit', bestWin: '70%', bestRoi: '+33.6%', subscribers: 188, avatar: 'https://unavatar.io/twitter/mingchikuo', followed: false },
+  { name: 'James Altucher', handle: '@jaltucher', focus: 'Crypto · tech', stat: 'Top 30 FinTwit', bestWin: '57%', bestRoi: '+38.7%', subscribers: 122, avatar: 'https://unavatar.io/twitter/jaltucher', followed: false },
+  { name: 'AC Investor Blog', handle: '@acinvestorblog', focus: 'Small caps', stat: 'Top 30 FinTwit', bestWin: '62%', bestRoi: '+57.4%', subscribers: 98, avatar: 'https://unavatar.io/twitter/acinvestorblog', followed: false },
+  { name: 'Marco Polo', handle: '@marcopolomaps', focus: 'Macro maps', stat: 'Top 30 FinTwit', bestWin: '60%', bestRoi: '+41.0%', subscribers: 116, avatar: 'https://unavatar.io/twitter/marcopolomaps', followed: false },
+  { name: 'The Bubble Bubble', handle: '@thebubblebubble', focus: 'Bubbles · macro', stat: 'Top 30 FinTwit', bestWin: '59%', bestRoi: '+36.2%', subscribers: 109, avatar: 'https://unavatar.io/twitter/thebubblebubble', followed: false },
+  { name: 'Philakone', handle: '@philakonecrypto', focus: 'Crypto TA', stat: 'Top 30 FinTwit', bestWin: '65%', bestRoi: '+68.8%', subscribers: 154, avatar: 'https://unavatar.io/twitter/philakonecrypto', followed: false },
+  { name: 'Qullamaggie', handle: '@qullamaggie', focus: 'Momentum equities', stat: 'Top 30 FinTwit', bestWin: '72%', bestRoi: '+82.5%', subscribers: 221, avatar: 'https://unavatar.io/twitter/qullamaggie', followed: false },
+  { name: 'Jordi Visser', handle: '@jvisserlabs', focus: 'Macro · AI', stat: 'Top 30 FinTwit', bestWin: '63%', bestRoi: '+44.1%', subscribers: 137, avatar: 'https://unavatar.io/twitter/jvisserlabs', followed: false },
+  { name: 'BuySellShort', handle: '@buysellshort', focus: 'Trading desk', stat: 'Top 30 FinTwit', bestWin: '61%', bestRoi: '+39.9%', subscribers: 103, avatar: 'https://unavatar.io/twitter/buysellshort', followed: false },
+  { name: 'Zephyr', handle: '@zephyr_z9', focus: 'Crypto alpha', stat: 'Top 30 FinTwit', bestWin: '66%', bestRoi: '+74.7%', subscribers: 196, avatar: 'https://unavatar.io/twitter/zephyr_z9', followed: false },
+  { name: 'Teddy Cleps', handle: '@teddycleps', focus: 'Crypto research', stat: 'Top 30 FinTwit', bestWin: '60%', bestRoi: '+50.4%', subscribers: 141, avatar: 'https://unavatar.io/twitter/teddycleps', followed: false },
+  { name: 'Ophir Gottlieb', handle: '@ophirgottlieb', focus: 'Options · earnings', stat: 'Top 30 FinTwit', bestWin: '68%', bestRoi: '+47.8%', subscribers: 127, avatar: 'https://unavatar.io/twitter/ophirgottlieb', followed: false },
+  { name: 'ConvertBond', handle: '@convertbond', focus: 'Credit · convertibles', stat: 'Top 30 FinTwit', bestWin: '64%', bestRoi: '+29.2%', subscribers: 89, avatar: 'https://unavatar.io/twitter/convertbond', followed: false },
+  { name: 'DamskoTrades', handle: '@damskotrades', focus: 'Momentum trading', stat: 'Top 30 FinTwit', bestWin: '62%', bestRoi: '+58.5%', subscribers: 132, avatar: 'https://unavatar.io/twitter/damskotrades', followed: false },
+  { name: 'Jukan', handle: '@jukan05', focus: 'Crypto cycles', stat: 'Top 30 FinTwit', bestWin: '63%', bestRoi: '+56.8%', subscribers: 147, avatar: 'https://unavatar.io/twitter/jukan05', followed: false },
+  { name: 'Ecommerce Shares', handle: '@ecommerceshares', focus: 'Consumer internet', stat: 'Top 30 FinTwit', bestWin: '59%', bestRoi: '+35.0%', subscribers: 92, avatar: 'https://unavatar.io/twitter/ecommerceshares', followed: false },
+  { name: 'TradeX Whisperer', handle: '@tradexwhisperer', focus: 'Trading signals', stat: 'Top 30 FinTwit', bestWin: '61%', bestRoi: '+42.6%', subscribers: 118, avatar: 'https://unavatar.io/twitter/tradexwhisperer', followed: false },
+  { name: '0xSnulet', handle: '@0xsnulet', focus: 'On-chain · DeFi', stat: 'Top 30 FinTwit', bestWin: '57%', bestRoi: '+63.3%', subscribers: 128, avatar: 'https://unavatar.io/twitter/0xsnulet', followed: false },
+  { name: 'Matt in Web3', handle: '@mattinweb3', focus: 'Web3 infra', stat: 'Top 30 FinTwit', bestWin: '58%', bestRoi: '+40.8%', subscribers: 95, avatar: 'https://unavatar.io/twitter/mattinweb3', followed: false },
+  { name: 'Reformed Trader', handle: '@reformed_trader', focus: 'Trading psychology', stat: 'Top 30 FinTwit', bestWin: '60%', bestRoi: '+31.5%', subscribers: 111, avatar: 'https://unavatar.io/twitter/reformed_trader', followed: false },
+  { name: 'Oliver Kell', handle: '@oliverkell_', focus: 'US equities', stat: 'Top 30 FinTwit', bestWin: '73%', bestRoi: '+53.1%', subscribers: 164, avatar: 'https://unavatar.io/twitter/oliverkell_', followed: false },
+  { name: 'Fiskantes', handle: '@fiskantes', focus: 'Crypto trading', stat: 'Top 30 FinTwit', bestWin: '64%', bestRoi: '+67.9%', subscribers: 173, avatar: 'https://unavatar.io/twitter/fiskantes', followed: false },
+  { name: 'Sun X Liao', handle: '@sunxliao', focus: 'Asia tech · AI', stat: 'Top 30 FinTwit', bestWin: '62%', bestRoi: '+45.2%', subscribers: 136, avatar: 'https://unavatar.io/twitter/sunxliao', followed: false },
 ];
 
 const KOL_SOURCE_PACKS = [
@@ -1498,7 +1503,7 @@ const KOL_SOURCE_PACKS = [
     id: 'win_top50',
     label: 'Leaderboard Win Rate Top 50',
     shortLabel: 'Win Rate Top 50',
-    desc: 'Highest historical win-rate KOL group from the leaderboard.',
+    desc: 'Top FinTwit accounts ranked by historical win rate.',
     metric: 'bestWin',
     count: 50,
     coverCount: 12,
@@ -1507,7 +1512,7 @@ const KOL_SOURCE_PACKS = [
     id: 'roi_top50',
     label: 'Leaderboard Best ROI Top 50',
     shortLabel: 'Best ROI Top 50',
-    desc: 'Strongest historical return profile KOL group from the leaderboard.',
+    desc: 'Top FinTwit accounts ranked by historical ROI.',
     metric: 'bestRoi',
     count: 50,
     coverCount: 12,
@@ -1518,40 +1523,40 @@ const KOL_ANALYSIS_MODES = [
   {
     id: 'market_digest',
     label: 'Market Digest',
-    desc: 'Overall summary, Hot Tickers, KOL direction split, and source links.',
-    template: 'Write a Markdown FinTwit Alpha market digest from the selected KOL list. Start with Overall Summary. Then show Hot Tickers with ticker, mentioned KOLs, direction, merged view, and tweet links. Keep it concise and evidence-grounded.',
+    desc: 'Overall summary, hot tickers, view direction, and source links.',
+    template: 'Write a Markdown FinTwit Alpha market digest from the selected FinTwit list. Start with Overall Summary. Then show Hot Tickers with ticker, mentioned FinTwit accounts, direction, merged view, and tweet links. Keep it concise and evidence-grounded.',
   },
   {
     id: 'idea_scout',
     label: 'Idea Scout',
     desc: 'Surface investable setups with thesis, catalyst, and risk.',
-    template: 'Extract investable ideas from the selected KOL list. Prioritize tickers with enough KOL support, fresh catalyst, clear upside/downside setup, and identifiable risk. Return ranked ideas with evidence links.',
+    template: 'Extract investable ideas from the selected FinTwit list. Prioritize tickers with enough support, fresh catalysts, clear upside/downside setup, and identifiable risk. Return ranked ideas with evidence links.',
   },
   {
     id: 'consensus_map',
     label: 'Consensus Map',
-    desc: 'Map where selected KOLs agree, diverge, or change tone.',
-    template: 'Map consensus and disagreement across the selected KOL list. Group by ticker or theme. Make the KOL direction split explicit and note where conviction changed versus the previous window.',
+    desc: 'See where selected FinTwit voices agree, diverge, or change tone.',
+    template: 'Map consensus and disagreement across the selected FinTwit list. Group by ticker or theme. Make the direction split explicit and note where conviction changed versus the previous window.',
   },
   {
     id: 'risk_watch',
     label: 'Risk Watch',
     desc: 'Focus on bearish, crowded, stretched, or reversal signals.',
-    template: 'Build a risk-focused read from the selected KOL list. Highlight downside calls, crowded positioning, stretched sentiment, and tickers where bullish consensus weakened. Include source links.',
+    template: 'Build a risk-focused read from the selected FinTwit list. Highlight downside calls, crowded positioning, stretched sentiment, and tickers where bullish consensus weakened. Include source links.',
   },
   {
     id: 'custom',
     label: 'Custom',
-    desc: 'Use the editable template in Memory.',
-    template: 'Analyze the selected KOL evidence using my custom instructions. Return a structured report with summary, relevant tickers, KOL direction evidence, and source links.',
+    desc: 'Use your own report instructions.',
+    template: 'Analyze the selected FinTwit evidence using my custom instructions. Return a structured report with summary, relevant tickers, direction evidence, and source links.',
   },
 ];
 const KOL_DEFAULT_ANALYSIS_MODE = 'market_digest';
 const KOL_DEFAULT_TEMPLATE = KOL_ANALYSIS_MODES.find((m) => m.id === KOL_DEFAULT_ANALYSIS_MODE).template;
 
-/* Aggregated all-in-one digest — a morning roundup rolling up several KOLs */
+/* Aggregated all-in-one digest — a morning roundup rolling up several FinTwit accounts */
 const KOL_DIGEST_AGG = {
-  title: 'Daily KOL AI Digest',
+  title: 'Daily FinTwit Digest',
   meta: 'Scheduled · Jun 9 · 6 posts from 4 digest sources · 07:30 ET',
   summary: 'Net read: AI-infra conviction is rising into the capex cycle. 4 of 6 fresh posts lean bullish, concentrated in NVDA / AVGO; one trim (TSM) is position-management, not a thesis change.',
   rows: [
@@ -1703,7 +1708,7 @@ const KOL_CHANNEL_CONFIG = {
   digestSettings: [
     { k: 'Language', v: 'English', b: 'Pushes and generated reports use English.' },
     { k: 'Cadence', v: 'Daily 07:30 ET + Weekly Sunday', b: 'Daily digest appears in chat; weekly recap is saved as a file.' },
-    { k: 'Analysis template', v: 'Market Digest', b: 'Overall summary, Hot Tickers, KOL direction split, and source links.' },
+    { k: 'Digest template', v: 'Market Digest', b: 'Overall summary, hot tickers, view direction, and source links.' },
     { k: 'After edits', v: 'Ask to generate now', b: 'When sources change, Alva prompts you to run a fresh preview.' },
   ],
   delivery: [
@@ -1715,20 +1720,18 @@ const KOL_CHANNEL_CONFIG = {
 const KOL_CHANNEL_ARTIFACTS = {
   digest: {
     title: 'Digest automations',
-    desc: 'Runs the multi-KOL digest from your Digest Sources and writes the same output back into this channel.',
+    desc: 'Reads your FinTwit list, creates the daily digest, and posts it back into Alva Agent.',
     automationLabel: 'Digest automations',
     filesLabel: 'Digest files',
     autos: [
-      { id: 'ka-daily', cadence: 'daily', name: 'Daily KOL AI digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] },
-      { id: 'ka-weekly', cadence: 'weekly', name: 'Weekly KOL AI digest', status: 'active', lastRun: 'Sun', runEvery: 'Weekly · Sunday', runs: 18, usedBy: [] },
+      { id: 'ka-daily', cadence: 'daily', name: 'Daily FinTwit Digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] },
     ],
     files: [],
   },
 };
 
 const KOL_REAL_DIGEST_SAMPLE = {
-  title: 'Daily Digest · Market Digest',
-  tag: 'Generated',
+  title: 'FinTwit Digest',
   window: 'Previous day',
   summary: [
     'Top-ranked traders clustered around $NVDA, $000660.KS, $AKAM, $AMPG, and $AVGO in this window.',
@@ -1740,7 +1743,7 @@ const KOL_REAL_DIGEST_SAMPLE = {
       ticker: '$NVDA',
       name: 'NVIDIA',
       side: 'mixed',
-      view: 'KOLs framed $NVDA as the main beneficiary after $AVGO earnings, while one trader also referenced adding shorts again. Net read: important but not one-directional.',
+      view: 'FinTwit framed $NVDA as the main beneficiary after $AVGO earnings, while one trader also referenced adding shorts again. Net read: important, but not one-directional.',
       direction: 'Frank trading · mixed',
       risk: 'Watch whether follow-up posts confirm long demand or short positioning becomes the dominant read.',
       links: [
@@ -1763,14 +1766,14 @@ const KOL_REAL_DIGEST_SAMPLE = {
       side: 'bullish',
       view: 'The trader grouped $AKAM with cloud names that were wrongly sold off inside IGV and said speculation is acceptable.',
       direction: 'Frank trading · bullish',
-      risk: 'Treat as a speculative recovery view until there is stronger cross-KOL agreement.',
+      risk: 'Treat as a speculative recovery view until more FinTwit accounts confirm it.',
       links: [['Frank trading', 'https://x.com/i/status/2061888322230993123']],
     },
     {
       ticker: '$AMPG',
       name: 'AmpliTech',
       side: 'bullish',
-      view: 'A KOL liked $AMPG as a speculative lottery-ticket setup built around RF hardware technology.',
+      view: 'One FinTwit account liked $AMPG as a speculative lottery-ticket setup built around RF hardware technology.',
       direction: 'RocketMan · bullish',
       risk: 'Low-liquidity speculative idea; position sizing and confirmation matter more than headline direction.',
       links: [['RocketMan', 'https://x.com/RKLBMan/status/2061971997714706799']],
@@ -1802,7 +1805,7 @@ const TASK_TRANSCRIPT = {
     { role: 'event', text: 'Defined basket scope — 14 names across compute, networking, foundry, and grid.' },
     { role: 'event', text: 'Pulled fundamentals and last-4Q capex for all names.' },
     { role: 'tool', text: 'sentiment.scan(sources=142, window=7d)' },
-    { role: 'agent', text: 'Scoring sentiment across 142 sources now — earnings calls, filings, and tracked KOLs. This is the slow step; about a minute left.' },
+    { role: 'agent', text: 'Scoring sentiment across 142 sources now — earnings calls, filings, and tracked FinTwit accounts. This is the slow step; about a minute left.' },
   ],
   g1: [
     { role: 'user', text: '@Alva keep an eye on funding so we get a heads-up if it flips. — mai_t' },
@@ -1824,7 +1827,7 @@ const ARTIFACTS = [
   { kind: 'PDF', tone: 'red', t: 'AI Infra Weekly Memo', b: 'Generated from your Theme Tracker run · 2.4 MB', badge: 'New', badgeKind: 'green' },
   { kind: 'SK', tone: 'teal', t: 'my-semis-screener.skill', b: 'Custom factor screen you built and saved', badge: 'Active', badgeKind: 'green' },
   { kind: 'CSV', tone: 'blue', t: 'mag7-backtest-results.csv', b: '10Y equal-weight backtest output', badge: '1.1 MB', badgeKind: '' },
-  { kind: 'SRC', tone: 'orange', t: 'KOL source pack', b: 'Tracked handles, benchmarks, and freshness rules', badge: 'Review', badgeKind: 'amber' },
+  { kind: 'SRC', tone: 'orange', t: 'FinTwit source pack', b: 'Tracked handles, benchmarks, and freshness rules', badge: 'Review', badgeKind: 'amber' },
 ];
 
 /* ============ Reusable presentation pieces ============ */
@@ -1873,10 +1876,10 @@ function PlaybookCard({ p, onClick }) {
 const CHANNEL_DATA = {
   'kol-digest': {
     tasks: [
-      { id: 'k1', type: 'Automation', tone: 'amber', title: 'Automation: Daily AI Digest', status: 'running', meta: 'live · runs 07:30 ET daily',
+      { id: 'k1', type: 'Automation', tone: 'amber', title: 'Automation: Daily FinTwit Digest', status: 'running', meta: 'live · runs 07:30 ET daily',
         steps: [{ t: 'Read digest sources overnight', done: true }, { t: 'Score, dedupe, and rank posts', now: true }, { t: 'Post the morning roundup here', done: false }] },
-      { id: 'k2', type: 'Automation', tone: 'amber', title: 'Automation: Weekly AI Digest', status: 'running', meta: 'live · runs Sunday',
-        steps: [{ t: 'Collect the weekly source set', now: true }, { t: 'Merge repeated KOL views', done: false }, { t: 'Save weekly recap file', done: false }] },
+      { id: 'k2', type: 'Automation', tone: 'amber', title: 'Automation: Weekly FinTwit Digest', status: 'running', meta: 'live · runs Sunday',
+        steps: [{ t: 'Collect the weekly source set', now: true }, { t: 'Merge repeated FinTwit views', done: false }, { t: 'Save weekly recap file', done: false }] },
       { id: 'k3', type: 'Research', tone: 'blue', title: 'Deep Dive: AVGO networking attach rate', status: 'done', meta: 'from weekly digest · 1h ago', output: 'AVGO Networking Note.pdf' },
     ],
     memory: {
@@ -1884,8 +1887,8 @@ const CHANNEL_DATA = {
       theses: [{ t: 'AI-infra conviction rising into the capex cycle', status: 'verified', b: '4 of 6 fresh posts lean bullish, concentrated in NVDA / AVGO.', by: 'digest consensus' }, { t: 'TSM trims are size-management, not thesis', status: 'active', b: 'Puru Saxena’s trim flagged as position-management.', by: 'Alva' }, { t: 'Watch SMH call skew for pullback risk', status: 'watch', b: 'Vol Whisperer flagged stretched call skew.', by: 'Vol Whisperer' }],
       log: [{ date: 'Today', items: [{ t: 'Serenity added to NVDA / AVGO into the capex cycle.', by: 'Serenity' }, { t: 'Vol Whisperer flagged stretched SMH call skew.', by: 'Vol Whisperer' }] }, { date: 'This week', items: [{ t: 'Evergreen: Azure AI revenue inflecting ahead of models.', by: 'Evergreen Capital' }] }],
     },
-    files: [{ kind: 'PDF', tone: 'red', t: 'AI Digest — Weekly Recap', b: 'Rollup of weekly digest posts · posted Sundays', badge: 'New', badgeKind: 'green' }, { kind: 'CSV', tone: 'blue', t: 'kol-digest-posts.csv', b: 'Posts used for digest generation', badge: '0.6 MB', badgeKind: '' }, { kind: 'SRC', tone: 'orange', t: 'Digest sources', b: '4 handles · hit-rates & benchmarks', badge: 'Edit', badgeKind: 'amber' }],
-    autos: [{ id: 'ka1', name: 'Daily-KOL-AI-Digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] }, { id: 'ka2', name: 'Weekly-KOL-Recap', status: 'active', lastRun: 'Sun', runEvery: 'Weekly · Sunday', runs: 18, usedBy: [] }],
+    files: [{ kind: 'PDF', tone: 'red', t: 'FinTwit Digest — Weekly Recap', b: 'Rollup of weekly digest posts · posted Sundays', badge: 'New', badgeKind: 'green' }, { kind: 'CSV', tone: 'blue', t: 'fintwit-digest-posts.csv', b: 'Posts used for digest generation', badge: '0.6 MB', badgeKind: '' }, { kind: 'SRC', tone: 'orange', t: 'Digest sources', b: '4 handles · hit-rates & benchmarks', badge: 'Edit', badgeKind: 'amber' }],
+    autos: [{ id: 'ka1', name: 'Daily-FinTwit-Digest', status: 'active', lastRun: '2h', runEvery: 'Daily · 07:30 ET', runs: 96, usedBy: [] }, { id: 'ka2', name: 'Weekly-FinTwit-Recap', status: 'active', lastRun: 'Sun', runEvery: 'Weekly · Sunday', runs: 18, usedBy: [] }],
     playbooks: [],
   },
   'semis': {
@@ -1942,7 +1945,7 @@ function Sidebar({ channel, onChannel }) {
     { ico: 'portfolio', label: 'Portfolio' },
     { ico: 'skill', label: 'Alva Skill', tealIco: true },
   ];
-  const playbooks = ['Semi Value Screener', 'Hot Mic: Jensen × Trump', 'KOL Performance Explorer · Crypto', 'Evergreen Capital Tweet Tracker'];
+  const playbooks = ['Semi Value Screener', 'Hot Mic: Jensen × Trump', 'FinTwit Performance Explorer · Crypto', 'Evergreen Capital Tweet Tracker'];
   const chats = ['Identifying Undervalued Semis', '绘制 BTC K 线图 · TradingView', 'Convert Image Content into…'];
   return (
     <aside className="sidebar">
@@ -2397,9 +2400,9 @@ const KOL_FOLLOWUP_BANK = {
     { scope: 'daily', text: 'From the Daily Digest, which idea deserves a deeper follow-up?' },
     { scope: 'weekly', text: 'Based on this Weekly Digest, how did sentiment shift from last week?' },
     { scope: 'free', text: 'Which hot ticker looks crowded, and which one still feels early?' },
-    { scope: 'free', text: 'Separate the KOL views into consensus, debate, and one-off noise.' },
+    { scope: 'free', text: 'Separate the FinTwit views into consensus, debate, and one-off noise.' },
     { scope: 'free', text: 'What would invalidate the strongest opportunity here?' },
-    { scope: 'free', text: 'Which KOLs changed tone most sharply compared with their usual view?' },
+    { scope: 'free', text: 'Which FinTwit voices changed tone most sharply?' },
     { scope: 'free', text: 'Find the second-order winners behind the hottest ticker.' },
     { scope: 'free', text: 'Turn this into a watchlist with entry triggers and risk checks.' },
     { scope: 'free', text: 'What should I monitor tomorrow to confirm or reject this thesis?' },
@@ -2409,9 +2412,9 @@ const KOL_FOLLOWUP_BANK = {
     { scope: 'daily', text: '从 Daily Digest 里看，哪条机会最值得深挖？' },
     { scope: 'weekly', text: '基于这份 Weekly Digest，对比上周市场情绪有什么变化？' },
     { scope: 'free', text: '哪个热门标的已经拥挤，哪个还偏早期？' },
-    { scope: 'free', text: '把 KOL 观点拆成共识、分歧和一次性噪音。' },
+    { scope: 'free', text: '把 FinTwit 观点拆成共识、分歧和一次性噪音。' },
     { scope: 'free', text: '最强机会在什么情况下会被证伪？' },
-    { scope: 'free', text: '哪些 KOL 的语气相比平时变化最大？' },
+    { scope: 'free', text: '哪些 FinTwit 账号的语气变化最大？' },
     { scope: 'free', text: '围绕最热门标的，挖一下二阶受益机会。' },
     { scope: 'free', text: '把这份内容转成观察清单：触发条件和风险点。' },
     { scope: 'free', text: '明天应该观察什么来确认或否定这个 thesis？' },
@@ -2457,49 +2460,45 @@ function kolPromptAnswer(text, lastDigest) {
   const hasRisk = /invalidate|risk|证伪|风险/i.test(text);
   if (isZh) {
     if (hasSentiment) {
-      return `基于 ${date} 的 ${kind}，情绪变化更像是从“追 AI 主线”转向“寻找未被充分定价的高弹性机会”。和上周相比，KOL 讨论不只是集中在大盘龙头，而是开始扩散到 ${ticker} 这类新热度标的。关键差异是：上周偏确认已有趋势，本周更偏挖早期轮动。`;
+      return `基于 ${date} 的 ${kind}，情绪变化更像是从“追 AI 主线”转向“寻找未被充分定价的高弹性机会”。和上周相比，FinTwit 讨论不只是集中在大盘龙头，而是开始扩散到 ${ticker} 这类新热度标的。关键差异是：上周偏确认已有趋势，本周更偏挖早期轮动。`;
     }
     if (hasCrowded) {
-      return `${ticker} 现在更像偏早期的热度线索，而不是已经拥挤的共识交易。拥挤度高的部分仍在大票和 AI 基建主线；${ticker} 的优势是关注刚开始聚集，劣势是确认度不够，需要看后续是否有第二轮 KOL 提及和成交量跟进。`;
+      return `${ticker} 现在更像偏早期的热度线索，而不是已经拥挤的共识交易。拥挤度高的部分仍在大票和 AI 基建主线；${ticker} 的优势是关注刚开始聚集，劣势是确认度不够，需要看后续是否有第二轮 FinTwit 提及和成交量跟进。`;
     }
     if (hasNoise) {
-      return `这份 Digest 里可以拆成三层：共识是 AI/高弹性叙事仍在；分歧是大票是否还有足够空间；噪音则是单个 KOL 临时提到、但没有后续验证的名字。${ticker} 目前介于“早期分歧”和“潜在共识”之间，还不能直接当作强信号。`;
+      return `这份 Digest 里可以拆成三层：共识是 AI/高弹性叙事仍在；分歧是大票是否还有足够空间；噪音则是单个 FinTwit 账号临时提到、但没有后续验证的名字。${ticker} 目前介于“早期分歧”和“潜在共识”之间，还不能直接当作强信号。`;
     }
     if (hasWatchlist || hasRisk) {
-      return `我会把它转成三个观察点：第一，${ticker} 是否被同一批 KOL 连续提及；第二，价格和成交量是否同步放大；第三，相关小盘或同叙事标的是否联动。如果这三点都没有出现，这条机会就应该停留在 watchlist，而不是升级成交易计划。`;
+      return `我会把它转成三个观察点：第一，${ticker} 是否被同一批 FinTwit 账号连续提及；第二，价格和成交量是否同步放大；第三，相关小盘或同叙事标的是否联动。如果这三点都没有出现，这条机会就应该停留在 watchlist，而不是升级成交易计划。`;
     }
-    return `${date} 的 ${kind} 里，值得深挖的不是某个单点结论，而是 KOL 讨论从“大票确认”向“早期机会筛选”的迁移。${ticker} 可以作为这个迁移的样本：有热度，但还需要重复提及、成交量和相关标的联动来确认。`;
+    return `${date} 的 ${kind} 里，值得深挖的不是某个单点结论，而是 FinTwit 讨论从“大票确认”向“早期机会筛选”的迁移。${ticker} 可以作为这个迁移的样本：有热度，但还需要重复提及、成交量和相关标的联动来确认。`;
   }
   if (hasSentiment) {
-    return `Based on the ${date} ${kind}, the sentiment shift is from “confirm the obvious AI leaders” toward “hunt for earlier high-beta rotation.” Compared with last week, KOL attention is less concentrated in mega-cap confirmation and more willing to test names like ${ticker}. That makes the setup more exploratory, but also more sensitive to follow-through.`;
+    return `Based on the ${date} ${kind}, the sentiment shift is from “confirm the obvious AI leaders” toward “hunt for earlier high-beta rotation.” Compared with last week, FinTwit attention is less concentrated in mega-cap confirmation and more willing to test names like ${ticker}. That makes the setup more exploratory, but also more sensitive to follow-through.`;
   }
   if (hasCrowded) {
-    return `${ticker} reads as earlier than crowded. The crowded part of the digest is still the large AI infrastructure complex; ${ticker} has rising attention but not enough repetition to be consensus. The next signal is whether it gets a second wave of KOL mentions plus cleaner volume follow-through.`;
+    return `${ticker} reads as earlier than crowded. The crowded part of the digest is still the large AI infrastructure complex; ${ticker} has rising attention but not enough repetition to be consensus. The next signal is whether it gets a second wave of FinTwit mentions plus cleaner volume follow-through.`;
   }
   if (hasNoise) {
     return `I would split this digest into three buckets: consensus is still AI/high-beta risk appetite, debate is whether the obvious large caps have enough upside left, and noise is one-off ticker mentions with no repeat confirmation. ${ticker} sits between early debate and potential consensus, so it deserves monitoring, not blind conviction.`;
   }
   if (hasWatchlist || hasRisk) {
-    return `I would turn it into three checks: repeated KOL mentions, volume expanding with price, and adjacent names moving with the same theme. If those fail to appear, ${ticker} stays a watchlist signal rather than an actionable setup. If they appear together, it becomes a stronger candidate for a focused follow-up.`;
+    return `I would turn it into three checks: repeated FinTwit mentions, volume expanding with price, and adjacent names moving with the same theme. If those fail to appear, ${ticker} stays a watchlist signal rather than an actionable setup. If they appear together, it becomes a stronger candidate for a focused follow-up.`;
   }
-  return `The deeper read from the ${date} ${kind} is not a single ticker call; it is a migration in KOL behavior from confirming known leaders to scouting earlier opportunities. ${ticker} is useful as a marker of that shift: interesting enough to track, but still dependent on repeat mentions, volume, and adjacent-name confirmation.`;
+  return `The deeper read from the ${date} ${kind} is not a single ticker call; it is a migration in FinTwit behavior from confirming known leaders to scouting earlier opportunities. ${ticker} is useful as a marker of that shift: interesting enough to track, but still dependent on repeat mentions, volume, and adjacent-name confirmation.`;
 }
 
 /* ===================== Workspace tab bar + panels ===================== */
 const TABS = [
   { id: 'chat', label: 'Chat', icon: 'chat' },
-  { id: 'tasks', label: 'Tasks', icon: 'tasks', count: TASKS.length },
   { id: 'memory', label: 'Memory', icon: 'layers' },
-  { id: 'skills', label: 'Skills', icon: 'skill', count: SKILLS.length },
+  { id: 'alerts', label: 'Alerts', icon: 'alert' },
   { id: 'artifacts', label: 'Artifacts', icon: 'file', count: PLAYBOOKS.length + AUTOMATIONS.length + ARTIFACTS.length },
 ];
 
-function TabBar({ tab, onTab, channelKind, kolArtifactCount = 0, kolOnboardingDone = false }) {
-  const tabs = channelKind === 'kol'
-    ? TABS
-      .filter((t) => t.id === 'chat' || (kolOnboardingDone && (t.id === 'memory' || t.id === 'artifacts')))
-      .map((t) => t.id === 'artifacts' ? { ...t, count: kolArtifactCount } : t)
-    : TABS;
+function TabBar({ tab, onTab, kolArtifactCount = 0, kolOnboardingDone = false }) {
+  if (!kolOnboardingDone) return null;
+  const tabs = TABS.map((t) => t.id === 'artifacts' ? { ...t, count: kolArtifactCount } : t);
   return (
     <div className="tabbar">
       {tabs.map((t) => (
@@ -2743,6 +2742,17 @@ function digestKindLabel(kind, language = 'en') {
   if (language === 'zh') return kind === 'weekly' ? '周报' : '日报';
   return kind === 'weekly' ? 'Weekly Digest' : 'Daily Digest';
 }
+function fintwitDigestTitle(language = 'en') {
+  return `${digestDateLabel(language)} FinTwit Digest`;
+}
+function fintwitDigestRequestText(language = 'en') {
+  if (language === 'zh') return '请基于我选择的 FinTwit list 创建今天的 FinTwit Digest。';
+  return "Create today's FinTwit Digest from my chosen FinTwit list.";
+}
+function digestAlertTimeText(digest) {
+  if (!digest?.publishTime) return '';
+  return `${digest.language === 'zh' ? '发送时间' : 'Alert time'} · ${digest.publishTime}`;
+}
 function normalizeTemplate(src = '') {
   return src.trim().replace(/\s+/g, ' ');
 }
@@ -2750,7 +2760,17 @@ function memoryDraftChanged(draft, saved) {
   return sourceStateChanged(draft.source, saved.source)
     || draft.language !== saved.language
     || draft.analysisMode !== saved.analysisMode
+    || normalizeTemplate(draft.template) !== normalizeTemplate(saved.template)
+    || (draft.publishTime != null && saved.publishTime != null && draft.publishTime !== saved.publishTime);
+}
+function digestContentDraftChanged(draft, saved) {
+  return sourceStateChanged(draft.source, saved.source)
+    || draft.language !== saved.language
+    || draft.analysisMode !== saved.analysisMode
     || normalizeTemplate(draft.template) !== normalizeTemplate(saved.template);
+}
+function publishTimeDraftChanged(draft, saved) {
+  return draft.publishTime != null && saved.publishTime != null && draft.publishTime !== saved.publishTime;
 }
 function digestFilesFrom(lastDigest) {
   if (!lastDigest) return [];
@@ -2759,9 +2779,9 @@ function digestFilesFrom(lastDigest) {
   return lastDigest.items.map((item) => {
     const isZh = item.language === 'zh';
     const label = item.kind === 'weekly' ? 'Weekly' : 'Daily';
-    const fileLabel = isZh ? (item.kind === 'weekly' ? 'Weekly KOL 周报' : 'Daily KOL 日报') : `${label} KOL Digest`;
+    const fileLabel = isZh ? (item.kind === 'weekly' ? 'Weekly FinTwit 周报' : 'Daily FinTwit 日报') : `${label} FinTwit Digest`;
     const tickerLabel = isZh ? '热门标的' : 'hot tickers';
-    const sourceLabel = isZh ? `来自 ${digestSourceCount} 位 KOL` : `generated from ${digestSourceCount} KOLs`;
+    const sourceLabel = isZh ? `来自 ${digestSourceCount} 个 FinTwit 账号` : `from ${digestSourceCount} FinTwit accounts`;
     return {
       kind: 'MD',
       digest: item,
@@ -2783,7 +2803,7 @@ const KOL_DIGEST_COPY = {
   en: {
     overall: 'Overall Summary',
     hotTickers: 'Hot Tickers',
-    kolDirection: 'KOL direction',
+    kolDirection: 'FinTwit view',
     sourceLinks: 'Source links',
     risk: 'Risk / Watch',
     footnote: 'AI-derived from public FinTwit/X posts. Not financial advice.',
@@ -2792,7 +2812,7 @@ const KOL_DIGEST_COPY = {
   zh: {
     overall: '整体总结',
     hotTickers: '热门标的',
-    kolDirection: 'KOL 方向',
+    kolDirection: 'FinTwit 观点',
     sourceLinks: '推文来源',
     risk: '风险 / 观察',
     footnote: '内容由公开 FinTwit/X 帖子生成，不构成投资建议。',
@@ -2800,25 +2820,24 @@ const KOL_DIGEST_COPY = {
   },
 };
 const KOL_WEEKLY_SUMMARY_EN = [
-  'Across the week, selected KOLs repeatedly returned to AI infrastructure, cloud recovery, and semicap supply-chain beneficiaries.',
+  'Across the week, selected FinTwit accounts repeatedly returned to AI infrastructure, cloud recovery, and semicap supply-chain beneficiaries.',
   'The clearest weekly cluster is still long AI infrastructure, but the bearish $AVGO read keeps the group from being one-way bullish.',
-  'Weekly conviction improves only when the same ticker appears across multiple KOLs or repeats across several sessions.',
+  'Weekly conviction improves only when the same ticker appears across multiple FinTwit accounts or repeats across several sessions.',
 ];
 const KOL_DAILY_DIGEST_ZH = {
-  title: 'Daily Digest · Market Digest',
-  tag: 'Generated',
+  title: 'FinTwit Digest',
   window: '前一日',
   summary: [
-    '这一期被选中的 KOL 主要集中讨论 $NVDA、$000660.KS、$AKAM、$AMPG 和 $AVGO，核心线索仍然围绕 AI 基建、云服务修复和半导体供应链。',
+    '这一期被选中的 FinTwit 账号主要集中讨论 $NVDA、$000660.KS、$AKAM、$AMPG 和 $AVGO，核心线索仍然围绕 AI 基建、云服务修复和半导体供应链。',
     '$NVDA 是最被反复提到的主线，但 $AVGO 同时出现了“潜在资金空头”的说法，所以整体不是单边看多，而是 AI 基建多头中带有分歧。',
-    '目前多数观点还停留在线索和交易假设阶段，需要继续观察价格、成交量以及后续 KOL 是否重复确认，才能升级为更高置信度的交易想法。',
+    '目前多数观点还停留在线索和交易假设阶段，需要继续观察价格、成交量以及后续 FinTwit 是否重复确认，才能升级为更高置信度的交易想法。',
   ],
   hotTickers: [
     {
       ticker: '$NVDA',
       name: 'NVIDIA',
       side: 'mixed',
-      view: '多位 KOL 把 $NVDA 放在 AI 基建受益主线中，但也有人提到重新增加空头。综合来看，$NVDA 是最重要的关注对象，但方向并不完全一致。',
+      view: '多位 FinTwit 账号把 $NVDA 放在 AI 基建受益主线中，但也有人提到重新增加空头。综合来看，$NVDA 是最重要的关注对象，但方向并不完全一致。',
       direction: 'Frank trading · 分歧',
       risk: '继续观察后续帖子是强化多头需求，还是空头仓位成为更主导的解读。',
       links: [
@@ -2830,7 +2849,7 @@ const KOL_DAILY_DIGEST_ZH = {
       ticker: '$000660.KS',
       name: 'SK Hynix',
       side: 'bullish',
-      view: '在持仓问答中，KOL 认为该标的有机会重新回到此前高点，是这一批样本里最明确的单股看多观点。',
+      view: '在持仓问答中，FinTwit 账号认为该标的有机会重新回到此前高点，是这一批样本里最明确的单股看多观点。',
       direction: 'Frank trading · 看多',
       risk: '需要半导体板块动能和韩国本地市场价格走势共同确认。',
       links: [['Frank trading', 'https://x.com/Franktradinglog/status/2063112905839780156']],
@@ -2839,16 +2858,16 @@ const KOL_DAILY_DIGEST_ZH = {
       ticker: '$AKAM',
       name: 'Akamai',
       side: 'bullish',
-      view: 'KOL 将 $AKAM 归入 IGV 中被错杀的云服务股票，并认为可以作为投机性修复交易观察。',
+      view: 'FinTwit 账号将 $AKAM 归入 IGV 中被错杀的云服务股票，并认为可以作为投机性修复交易观察。',
       direction: 'Frank trading · 看多',
-      risk: '目前更像单一 KOL 的修复假设，在出现更多 KOL 共识前应按投机仓位处理。',
+      risk: '目前更像单一 FinTwit 账号的修复假设，在出现更多 FinTwit 共识前应按投机仓位处理。',
       links: [['Frank trading', 'https://x.com/i/status/2061888322230993123']],
     },
     {
       ticker: '$AMPG',
       name: 'AmpliTech',
       side: 'bullish',
-      view: 'KOL 把 $AMPG 视为围绕射频硬件技术的高弹性投机机会，胜负更依赖题材兑现与流动性。',
+      view: 'FinTwit 账号把 $AMPG 视为围绕射频硬件技术的高弹性投机机会，胜负更依赖题材兑现与流动性。',
       direction: 'RocketMan · 看多',
       risk: '小盘低流动性标的，仓位控制和后续确认比方向本身更重要。',
       links: [['RocketMan', 'https://x.com/RKLBMan/status/2061971997714706799']],
@@ -2857,7 +2876,7 @@ const KOL_DAILY_DIGEST_ZH = {
       ticker: '$AVGO',
       name: 'Broadcom',
       side: 'bearish',
-      view: '一位 KOL 认为 $AVGO 可能成为下一阶段替代 $NVDA 的资金空头，是这组样本里最明确的看空观点。',
+      view: '一位 FinTwit 账号认为 $AVGO 可能成为下一阶段替代 $NVDA 的资金空头，是这组样本里最明确的看空观点。',
       direction: 'Frank trading · 看空',
       risk: '单一看空框架容易被财报解读或 AI 订单叙事反转，需要等待更多证据。',
       links: [['Frank trading', 'https://x.com/Franktradinglog/status/2062315092994363435']],
@@ -2871,10 +2890,11 @@ const KOL_DAILY_DIGEST_ZH = {
     ['$AVGO', [['Frank trading', 'https://x.com/Franktradinglog/status/2062315092994363435']]],
   ],
 };
+const KOL_DIGEST_GENERATION_DELAY_MS = 40000;
 const KOL_WEEKLY_SUMMARY_ZH = [
-  '过去一周，被选中的 KOL 反复回到 AI 基建、云服务修复和半导体供应链受益者这几条主线。',
+  '过去一周，被选中的 FinTwit 账号反复回到 AI 基建、云服务修复和半导体供应链受益者这几条主线。',
   '周度层面最清晰的方向仍是 AI 基建多头，但 $AVGO 的看空框架让整体结论不适合解读为单边乐观。',
-  '只有当同一标的被多个 KOL 提到，或者在多个交易日持续出现，周度置信度才更值得上调。',
+  '只有当同一标的被多个 FinTwit 账号提到，或者在多个交易日持续出现，周度置信度才更值得上调。',
 ];
 function makeDigestSample(language, kind) {
   const base = language === 'zh' ? KOL_DAILY_DIGEST_ZH : KOL_REAL_DIGEST_SAMPLE;
@@ -2889,7 +2909,7 @@ function makeDigestSample(language, kind) {
   };
 }
 function KolPortrait({ kol }) {
-  const label = kol?.handle || kol?.name || 'KOL';
+  const label = kol?.handle || kol?.name || 'FinTwit';
   const seed = Array.from(label).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
   const bg = ['#2f9a74', '#9261cf', '#c88c2a', '#3d8ac9', '#c05b76', '#6879d5'][seed % 6];
   const skin = ['#e6b489', '#d99b70', '#b77758', '#f0c29b', '#9a614b', '#c78562'][seed % 6];
@@ -2916,7 +2936,7 @@ function KolPortrait({ kol }) {
 }
 function KolAvatar({ kol, className = '' }) {
   const [failed, setFailed] = useState(false);
-  const label = kol?.name || kol?.handle || 'KOL';
+  const label = kol?.name || kol?.handle || 'FinTwit';
   return (
     <span className={`kol-avatar ${className}`} style={{ background: avaColor(label) }}>
       {kol?.avatar && !failed
@@ -2925,37 +2945,8 @@ function KolAvatar({ kol, className = '' }) {
     </span>
   );
 }
-function displayKolsForDigest(digest) {
-  if (digest?.sourceHandles?.length) return kolRows(digest.sourceHandles);
-  return KOL_RECOMMENDED.slice(0, Math.max(5, digest?.sourceCount || 12));
-}
-function KolSourceAvatars({ rows, total, compact = false }) {
-  const shown = (rows || []).slice(0, compact ? 3 : 5);
-  const count = total || (rows || []).length;
-  const more = Math.max(0, count - shown.length);
-  return (
-    <div className="kol-source-stack">
-      {shown.map((row) => <KolAvatar kol={row} key={row.handle} />)}
-      {more > 0 && <span className="kol-source-plus">+{more}</span>}
-    </div>
-  );
-}
-function DigestMetaLine({ digest }) {
-  const rows = displayKolsForDigest(digest);
-  const total = digest?.sourceCount || rows.length;
-  const label = digest?.language === 'zh' ? `基于 ${total} 位 KOL` : `Based on ${total} KOLs`;
-  return (
-    <div className="digest-meta-line">
-      <span className="digest-meta-copy">{digest.meta}</span>
-      <span className="digest-source-inline">
-        <span>{label}</span>
-        <KolSourceAvatars rows={rows} total={total} compact />
-      </span>
-    </div>
-  );
-}
 function KolTagList({ rows, onRemove }) {
-  if (!rows.length) return <div className="kp-empty">No KOLs selected yet.</div>;
+  if (!rows.length) return <div className="kp-empty">No FinTwit accounts selected yet.</div>;
   return (
     <div className="kp-tags">
       {rows.map((k) => (
@@ -2982,7 +2973,7 @@ function PackAvatarStack({ packId }) {
 function SourceSelectionList({ source, onToggleHandle, onTogglePack }) {
   const state = sourceState(source);
   const rows = kolRows(state.handles);
-  if (!state.packs.length && !rows.length) return <span className="picked-empty">No KOLs selected yet.</span>;
+  if (!state.packs.length && !rows.length) return <span className="picked-empty">No FinTwit accounts selected yet.</span>;
   return (
     <>
       {state.packs.map((packId) => {
@@ -3017,19 +3008,19 @@ function KolPickerModal({ selectedSource, onChange, onClose }) {
   const removeHandle = (handle) => onChange(makeSourceState(source.handles.filter((h) => h !== handle), source.packs));
   const removePack = (packId) => onChange(makeSourceState(source.handles, source.packs.filter((id) => id !== packId)));
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay report-overlay" onClick={onClose}>
       <div className="modal kol-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-h">
           <div>
-            <div className="modal-t">Select KOLs</div>
-            <div className="modal-s">Pick digest sources. Selected KOLs move into the top list; cancel one to return it to the card grid.</div>
+            <div className="modal-t">Choose FinTwit accounts</div>
+            <div className="modal-s">Pick who Alva should read. Selected accounts move to the top; remove one to bring it back to the list.</div>
           </div>
           <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
         </div>
         <div className="modal-body">
           <div className="kol-picker">
             <div className="kp-selected">
-              <div className="kp-selected-head"><span>Selected · {selectedCount} KOLs</span><span>Click a tag to remove it</span></div>
+              <div className="kp-selected-head"><span>Chosen · {selectedCount} accounts</span><span>Click a tag to remove it</span></div>
               <div className="kp-tags">
                 <SourceSelectionList source={source} onToggleHandle={removeHandle} onTogglePack={removePack} />
               </div>
@@ -3076,85 +3067,62 @@ function KolSourceSummary({ source }) {
       <div className="kc-avatar-stack">
         {shown.map((row) => <KolAvatar kol={row} className="kc-ava" key={row.handle} />)}
       </div>
-      <div className="kc-source-count"><strong>{total}</strong> KOLs covered{packLabels.length ? ` · ${packLabels.join(', ')}` : rows.length > shown.length ? ` · +${rows.length - shown.length} more` : ''}</div>
+      <div className="kc-source-count"><strong>{total}</strong> FinTwit accounts{packLabels.length ? ` · ${packLabels.join(', ')}` : rows.length > shown.length ? ` · +${rows.length - shown.length} more` : ''}</div>
     </div>
   );
 }
 
-function KolMemoryPanel({ draftSource, onSelectKols, draftLanguage, onDraftLanguage, draftAnalysisMode, onDraftAnalysisMode, draftTemplate, onDraftTemplate, onSaveAndGenerate, generating, lastDigest, savedMemory }) {
-  const selectedCount = sourceCount(draftSource);
-  const draftMemory = { source: draftSource, language: draftLanguage, analysisMode: draftAnalysisMode, template: draftTemplate };
-  const hasUnsaved = memoryDraftChanged(draftMemory, savedMemory);
-  const mode = modeById(draftAnalysisMode);
-  const sourceChanged = !!lastDigest && sourceStateChanged(draftSource, lastDigest.source || { handles: lastDigest.selectedHandles || [] });
+function kolMemoryMarkdown(source, language, publishTime) {
+  const state = sourceState(source);
+  const rows = kolRows(expandSourceState(state));
+  const packLabels = state.packs.map((id) => packById(id)?.label).filter(Boolean);
+  const handles = rows.map((row) => `- ${row.name} (${row.handle})`).join('\n') || '- No individual FinTwit account selected yet.';
+  const groups = packLabels.map((label) => `- ${label}`).join('\n') || '- No preset group selected.';
+  return `# FinTwit Digest Memory.md
+
+_This is a readable memory snapshot. Edit the live automation from Alerts._
+
+## FinTwit list
+- **Total covered** — ${sourceCount(state)} accounts
+
+## Preset groups
+${groups}
+
+## Individual FinTwit accounts
+${handles}
+
+## Daily digest settings
+- **Alert time** — ${publishTime}
+- **Language** — ${language === 'zh' ? '中文' : 'English'}
+
+## Edit location
+- Open **Alerts**.
+- Find **Daily FinTwit Digest**.
+- Click the edit icon to change the FinTwit list, alert time, language, or template.`;
+}
+
+function KolMemoryPanel({ selectedSource, language, publishTime }) {
+  const text = kolMemoryMarkdown(selectedSource, language, publishTime);
   return (
-    <div className="panel kol-memory">
+    <div className="panel">
       <div className="panel-head">
-        <h2>KOL Digest Memory</h2>
-        <p>Everything Alva needs to remember for this digest channel: selected KOLs, output preferences, and advanced template settings.</p>
+        <h2>What Alva remembers</h2>
+        <p>FinTwit Digest memory is kept as readable markdown. Edit the live list and alert settings from the Daily FinTwit Digest in Alerts.</p>
       </div>
-
-      <div className="kc-stack">
-        <section className="kc-inline-section">
-          <div className="kc-inline-head">
-            <div>
-              <h3>Digest Sources</h3>
-              <p>KOLs used for the multi-voice daily and weekly digest.</p>
-            </div>
-            <button onClick={onSelectKols}>Edit</button>
+      <div className="mem-split">
+        <div className="mem-tree">
+          <button className="tree-item active">
+            <span className="tfi"><Icon name="file" size={16} /></span>
+            <span className="tn">FinTwit Digest Memory.md</span>
+            <span className="tmeta">auto-synced from automation</span>
+          </button>
+        </div>
+        <div className="mem-doc">
+          <div className="doc-bar">
+            <span className="dn"><Icon name="file" size={15} /> FinTwit Digest Memory.md</span>
           </div>
-          <div className="kc-inline-body">
-            {selectedCount ? <KolSourceSummary source={draftSource} /> : <div className="empty-note">No KOLs selected yet. Use Edit to choose the voices this channel should read.</div>}
-          </div>
-        </section>
-
-        <section className="kc-inline-section">
-          <div className="kc-inline-head">
-            <div>
-              <h3>Language</h3>
-              <p>Used for generated digest copy.</p>
-            </div>
-            <select value={draftLanguage} onChange={(e) => onDraftLanguage(e.target.value)}>
-              <option value="en">English</option>
-              <option value="zh">中文</option>
-            </select>
-          </div>
-        </section>
-
-        <section className="kc-inline-section kc-template">
-          <div className="kc-inline-head">
-            <div>
-              <h3>Analyze mode & Template</h3>
-              <p>Choose an analysis mode, then review or edit the template used by that mode.</p>
-            </div>
-            <select value={draftAnalysisMode} onChange={(e) => onDraftAnalysisMode(e.target.value)}>
-              {KOL_ANALYSIS_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
-            </select>
-          </div>
-          <div className="kc-inline-body">
-            <div className="kc-head" style={{ marginBottom: 9 }}>
-              <div>
-                <h3>{mode.label} template</h3>
-                <p>{mode.desc}</p>
-              </div>
-              <button onClick={() => onDraftTemplate(mode.template)}>Reset</button>
-            </div>
-            <textarea value={draftTemplate} onChange={(e) => onDraftTemplate(e.target.value)} />
-          </div>
-        </section>
-
-        {(!lastDigest || hasUnsaved || sourceChanged) && (
-          <form className="kc-save-bar" onSubmit={(e) => { e.preventDefault(); onSaveAndGenerate(); }}>
-            <div>
-              <strong>{hasUnsaved ? 'Save changes and generate a new sample.' : 'Generate a sample from the current memory.'}</strong>
-              <span>{hasUnsaved ? 'Future pushes will use the saved settings. Alva will run a test preview and return to Chat.' : 'Run a recent-day preview so you can see this channel output.'}</span>
-            </div>
-            <button type="submit" disabled={!selectedCount || generating || (!hasUnsaved && !!lastDigest)}>
-              {generating ? 'Generating...' : 'Save & generate sample'}<Icon name="spark" size={15} />
-            </button>
-          </form>
-        )}
-        {generating && <div className="kg-loading"><span className="kg-spinner"></span><span>Saving Memory, reading selected KOL posts, and generating a sample digest.</span></div>}
+          <div className="doc-body"><div className="md">{renderMarkdown(text)}</div></div>
+        </div>
       </div>
     </div>
   );
@@ -3335,7 +3303,7 @@ function ExtraThread({ extra, subtle, onGoTasks, onGoArtifacts }) {
   });
 }
 
-/* ===================== KOL Digest channel view ===================== */
+/* ===================== FinTwit Digest channel view ===================== */
 const KOL_SIDE = {
   bullish: { c: 'var(--main-m3)', bg: 'rgba(45,143,97,0.10)', l: 'Bullish' },
   bearish: { c: 'var(--main-m4)', bg: 'rgba(224,83,87,0.10)', l: 'Bearish' },
@@ -3439,7 +3407,7 @@ function KolDigestModal({ digest, onClose }) {
         <div className="modal-h">
           <div>
             <div className="modal-t">{digest.title}</div>
-            <DigestMetaLine digest={digest} />
+            {digestAlertTimeText(digest) && <div className="modal-s">{digestAlertTimeText(digest)}</div>}
           </div>
           <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
         </div>
@@ -3451,18 +3419,18 @@ function KolDigestModal({ digest, onClose }) {
   );
 }
 
-function KolDigestPreview({ digest, onOpenDigest }) {
+function KolDigestPreview({ digest, onOpenDigest, onOpenAutomation }) {
   if (!digest) return null;
   const copy = KOL_DIGEST_COPY[digest.language] || KOL_DIGEST_COPY.en;
+  const autoLabel = digest.language === 'zh' ? '由 Daily FinTwit Digest 生成' : 'Generated by Daily FinTwit Digest';
   return (
     <div className="digest digest-preview">
       <div className="dg-h">
         <span className="dg-mark"><img src="../logo-portrait.svg" alt="Alva" /></span>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="dg-t">{digest.title}</div>
-          <DigestMetaLine digest={digest} />
+          {digestAlertTimeText(digest) && <div className="dg-sub">{digestAlertTimeText(digest)}</div>}
         </div>
-        <span className="dg-badge">{digest.tag}</span>
       </div>
       <div className="dp-preview">
         <div className="dp-section-title">{copy.overall}</div>
@@ -3475,6 +3443,10 @@ function KolDigestPreview({ digest, onOpenDigest }) {
       </div>
       <div className="dg-foot">
         <button className="dg-open" onClick={() => onOpenDigest(digest)}><Icon name="enter" size={14} /> {digest.language === 'zh' ? '打开完整报告' : 'Open full report'}</button>
+        <button className="dg-automation-link" onClick={onOpenAutomation}>
+          <Icon name="automation" size={13} />
+          <span>{autoLabel}</span>
+        </button>
       </div>
     </div>
   );
@@ -3483,13 +3455,33 @@ function KolDigestPreview({ digest, onOpenDigest }) {
 function KolIntroStep() {
   return (
     <div className="kol-intro-card">
-      <p className="lead">Build your personal KOL AI Digest.</p>
-      <p className="sub">Choose the traders and analysts Alva should read. I’ll merge their latest views into a daily or weekly report with an overall market read, hot tickers, KOL direction, source links, and follow-up questions you can ask.</p>
+      <p className="lead">Build your personal FinTwit Digest.</p>
+      <p className="sub">Choose the traders and analysts you want Alva to read. Alva will summarize their latest posts into one daily market digest and send it to you automatically.</p>
     </div>
   );
 }
 
-function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfirm }) {
+function KolOnboardingSettings({ language, onLanguage, publishTime, onPublishTime }) {
+  return (
+    <div className="kol-settings-grid">
+      <div className="kol-setting-card">
+        <label>Daily alert time</label>
+        <input value={publishTime} onChange={(e) => onPublishTime(e.target.value)} />
+        <p>You can change this later in Alerts.</p>
+      </div>
+      <div className="kol-setting-card">
+        <label>Digest language</label>
+        <select value={language} onChange={(e) => onLanguage(e.target.value)}>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+        <p>Your preview and future daily digests use this language.</p>
+      </div>
+    </div>
+  );
+}
+
+function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfirm, language, onLanguage, publishTime, onPublishTime }) {
   const source = sourceState(selectedSource);
   const selected = new Set(expandSourceState(source));
   const selectedTotal = sourceCount(source);
@@ -3506,8 +3498,8 @@ function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfi
   };
   return (
     <div className="onboard-card">
-      <div className="onboard-title">Choose the KOLs you want Alva to read.</div>
-      <div className="onboard-sub">Pick from the suggested list. Selected KOLs move below, and new candidates will fill the open spots automatically.</div>
+      <div className="onboard-title">Choose the FinTwit accounts you want Alva to read.</div>
+      <div className="onboard-sub">Choose a preset group, add individual accounts, or use both. You can adjust this list later.</div>
       <div className="kol-pack-grid">
         {KOL_SOURCE_PACKS.map((pack) => (
           <button className={`kol-pack ${source.packs.includes(pack.id) ? 'active' : ''}`} key={pack.id} onClick={() => togglePackage(pack.id)}>
@@ -3519,9 +3511,9 @@ function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfi
       </div>
       <div className="source-head">
         <div className="source-head-copy">
-          <span className="source-title">Suggested KOLs</span>
+          <span className="source-title">Suggested FinTwit accounts</span>
         </div>
-        <button className="kol-secondary source-more" onClick={onSelectMore}><Icon name="search" size={15} /> Select more</button>
+        <button className="kol-secondary source-more" onClick={onSelectMore}><Icon name="search" size={15} /> Choose more</button>
       </div>
       {suggested.length ? (
         <div className="source-list">
@@ -3538,66 +3530,28 @@ function KolSourceStep({ selectedSource, onChangeSelected, onSelectMore, onConfi
           })}
         </div>
       ) : (
-        <div className="source-empty">All suggested demo KOLs are already selected. Use Select more or remove a selected tag below to refine the list.</div>
+        <div className="source-empty">All suggested demo accounts are already selected. Choose more or remove a selected tag below to refine the list.</div>
       )}
-      <div className="picked-title">Selected sources · {selectedTotal} KOLs covered</div>
+      <div className="picked-title">Chosen · {selectedTotal} FinTwit accounts</div>
       <div className="picked-list">
         <SourceSelectionList source={source} onToggleHandle={toggle} onTogglePack={togglePackage} />
       </div>
+      <KolOnboardingSettings language={language} onLanguage={onLanguage} publishTime={publishTime} onPublishTime={onPublishTime} />
       <div className="onboard-actions source-footer">
-        <button className="onboard-primary" disabled={!selectedTotal} onClick={onConfirm}>Continue with {selectedTotal || 0} KOLs<Icon name="check" size={15} /></button>
+        <button className="onboard-primary" disabled={!selectedTotal} onClick={onConfirm}>Generate digest with {selectedTotal || 0} accounts<Icon name="spark" size={15} /></button>
       </div>
     </div>
   );
 }
 
-function KolSelectedSummary({ source }) {
-  const count = sourceCount(source);
+function KolSelectedSummary({ source, language, publishTime }) {
   return (
     <div className="onboard-card compact">
-      <div className="onboard-title">Digest sources saved.</div>
-      <div className="onboard-sub">Alva will use this KOL list for the first sample. You can edit it later in Memory.</div>
+      <div className="onboard-title">FinTwit list selected.</div>
+      <div className="onboard-sub">
+        Alva will create a daily FinTwit Digest from this list{publishTime ? ` and send future alerts at ${publishTime}` : ''}{language === 'zh' ? ' in Chinese.' : ' in English.'}
+      </div>
       <div className="selected-strip"><KolSourceSummary source={source} /></div>
-    </div>
-  );
-}
-
-function KolCadenceSummary({ cadence }) {
-  const label = cadenceLabelFrom(cadence);
-  return (
-    <div className="onboard-card compact">
-      <div className="onboard-title">{label} digest selected.</div>
-      <div className="onboard-sub">Alva will generate the first sample from the saved KOL list now.</div>
-    </div>
-  );
-}
-
-function KolCadenceStep({ cadence, onCadence, onGenerate, generating }) {
-  const options = [
-    ['daily', 'Daily digest', 'Every market day'],
-    ['weekly', 'Weekly digest', 'One weekly recap'],
-  ];
-  const selectedItems = cadenceItemsFrom(cadence);
-  const toggleCadence = (id) => {
-    const has = selectedItems.includes(id);
-    const next = has ? selectedItems.filter((item) => item !== id) : selectedItems.concat(id);
-    if (next.length) onCadence(next);
-  };
-  return (
-    <div className="onboard-card">
-      <div className="onboard-title">How often should Alva prepare this digest?</div>
-      <div className="onboard-sub">Daily and Weekly are selected by default. Keep both, or turn off one cadence before generating the sample.</div>
-      <div className="cadence-grid">
-        {options.map(([id, title, sub]) => (
-          <button className={`choice-card ${selectedItems.includes(id) ? 'active' : ''}`} key={id} onClick={() => toggleCadence(id)}>
-            <span className="choice-top"><strong>{title}</strong><span className="choice-check"><Icon name="check" size={12} /></span></span>
-            <span>{sub}</span>
-          </button>
-        ))}
-      </div>
-      <div className="onboard-actions">
-        <button className="onboard-primary" disabled={generating || !selectedItems.length} onClick={onGenerate}>Generate digest<Icon name="spark" size={15} /></button>
-      </div>
     </div>
   );
 }
@@ -3625,9 +3579,9 @@ function KolConnectModal({ channel, connected, onConnected, onClose }) {
               <span>In production, Alva would finish the OAuth or bot-link flow. Here, the click completes the connection state directly.</span>
             </div>
             <div className="im-connect-card">
-              <strong>2. Send yourself a sample</strong>
-              <span>After connecting, the next step lets you send the generated sample to the verified destination.</span>
-              <div className={`im-status ${connected ? 'ready' : ''}`}>{connected ? `${label} connected successfully.` : 'Send a sample to complete setup.'}</div>
+              <strong>2. Receive future alerts</strong>
+              <span>After connecting, future FinTwit digests can be delivered here.</span>
+              <div className={`im-status ${connected ? 'ready' : ''}`}>{connected ? `${label} connected successfully.` : 'Continue to connect.'}</div>
             </div>
             <div className="im-connect-actions">
               <button className="primary" onClick={finishConnect}><Icon name={channel} size={14} /> Continue to {label}</button>
@@ -3639,121 +3593,135 @@ function KolConnectModal({ channel, connected, onConnected, onClose }) {
   );
 }
 
-function KolIMStep({ selectedIM, onSelectIM, connectedIM, onConnected, onComplete }) {
+function LoginModal({ onLogin, onClose }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal login-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">Log in to generate your digest</div>
+            <div className="modal-s">You can choose FinTwit accounts before login. Saving the digest needs an Alva account.</div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
+        </div>
+        <div className="modal-body">
+          <div className="login-body">
+            <div className="login-card">
+              <strong>Continue as Furycom</strong>
+              <span>For this demo, one click signs in and continues with your chosen FinTwit list.</span>
+            </div>
+            <div className="login-actions">
+              <button className="secondary" onClick={onClose}>Cancel</button>
+              <button className="primary" onClick={onLogin}><Icon name="check" size={14} /> Continue as Furycom</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KolIMStep({ connectedIMs, onConnected, onComplete }) {
   const options = [
     ['telegram', 'Telegram', 'Connect Telegram bot'],
     ['discord', 'Discord', 'Authorize Discord app'],
     ['whatsapp', 'WhatsApp', 'Connect WhatsApp alerts'],
   ];
   const [connectOpen, setConnectOpen] = useState(null);
-  const [sendState, setSendState] = useState({});
-  const trySend = (id) => {
-    onSelectIM(id);
-    setSendState((prev) => ({ ...prev, [id]: 'sending' }));
-    setTimeout(() => {
-      setSendState((prev) => ({ ...prev, [id]: 'sent' }));
-      onConnected(id);
-      onComplete(id);
-    }, 850);
+  const connected = connectedIMs || [];
+  const completeConnection = (id) => {
+    const nextConnected = connected.includes(id) ? connected : connected.concat(id);
+    onConnected(id);
+    onComplete(nextConnected);
   };
-  const connectedLabel = connectedIM === 'discord' ? 'Discord' : connectedIM === 'whatsapp' ? 'WhatsApp' : 'Telegram';
   return (
     <div className="onboard-card">
-      <div className="onboard-title">Where should Alva send future alerts?</div>
-      <div className="onboard-sub">Connect one destination first. Once connected, send yourself this sample digest to complete setup.</div>
+      <div className="onboard-title">Connect where you want to receive it.</div>
+      <div className="onboard-sub">Connect Telegram, Discord, or WhatsApp so Alva can send future alerts there.</div>
       <div className="im-grid">
         {options.map(([id, title, sub]) => {
-          const connected = connectedIM === id;
+          const isConnected = connected.includes(id);
           return (
-            <div className={`im-card ${selectedIM === id ? 'active' : ''} ${connected ? 'connected' : ''}`} key={id}>
-              <button className="im-main" onClick={() => { onSelectIM(id); setConnectOpen(id); }}>
+            <div className={`im-card ${isConnected ? 'active connected' : ''}`} key={id}>
+              <button className="im-main" onClick={() => setConnectOpen(id)}>
                 <span className="im-icon" style={{ color: id === 'telegram' ? '#2f7fc4' : id === 'discord' ? '#6f55c9' : '#2d8f61', background: id === 'telegram' ? 'rgba(109,189,255,0.14)' : id === 'discord' ? 'rgba(166,141,255,0.14)' : 'rgba(45,143,97,0.12)' }}><Icon name={id} size={17} /></span>
                 <span>
                   <span className="im-name">{title}</span>
-                  <span className="im-sub">{connected ? 'Connected successfully' : sub}</span>
+                  <span className="im-sub">{isConnected ? 'Connected successfully' : sub}</span>
                 </span>
               </button>
-              {connected && <span className="im-success"><Icon name="check" size={12} /> Success</span>}
+              {isConnected && <span className="im-success"><Icon name="check" size={12} /> Success</span>}
             </div>
           );
         })}
       </div>
-      {connectedIM && (
-        <div className="onboard-actions">
-          <button className="onboard-primary" disabled={sendState[connectedIM] === 'sending'} onClick={() => trySend(connectedIM)}>
-            <Icon name={sendState[connectedIM] === 'sending' ? 'send2' : connectedIM} size={15} />
-            {sendState[connectedIM] === 'sending' ? `Sending sample to ${connectedLabel}` : `Send sample to ${connectedLabel}`}
-          </button>
-        </div>
-      )}
-      {connectOpen && <KolConnectModal channel={connectOpen} connected={connectedIM === connectOpen} onConnected={() => onConnected(connectOpen)} onClose={() => setConnectOpen(null)} />}
+      {connectOpen && <KolConnectModal channel={connectOpen} connected={connected.includes(connectOpen)} onConnected={() => completeConnection(connectOpen)} onClose={() => setConnectOpen(null)} />}
     </div>
   );
 }
 
-function KolDoneCard({ selectedIM }) {
-  const label = selectedIM === 'discord' ? 'Discord' : selectedIM === 'whatsapp' ? 'WhatsApp' : 'Telegram';
+function KolDoneCard({ connectedIMs }) {
+  const labelMap = { telegram: 'Telegram', discord: 'Discord', whatsapp: 'WhatsApp' };
+  const label = (connectedIMs || []).map((id) => labelMap[id] || id).join(', ') || 'your connected accounts';
   return (
     <div className="onboard-card compact done-card">
       <span className="done-mark"><Icon name="check" size={16} /></span>
-      <div className="onboard-title">KOL AI Digest is ready.</div>
-      <div className="onboard-sub">Alva will keep this channel updated and send future alerts to {label}. Use the prompts below to dig into the latest report, compare KOL views, or surface new opportunities.</div>
+      <div className="onboard-title">FinTwit Digest is ready.</div>
+      <div className="onboard-sub">Your Daily FinTwit Digest is active and will be sent to {label}. Edit the FinTwit list, alert time, language, and template from Alerts.</div>
     </div>
   );
 }
 
-function KolTimelineItem({ item, onOpenDigest }) {
+function KolTimelineItem({ item, onOpenDigest, onOpenAutomation }) {
   if (item.type === 'intro') {
     return <AgentMsg persona="subtle"><KolIntroStep /></AgentMsg>;
   }
-  if (item.type === 'selected-summary') {
-    return <AgentMsg persona="subtle"><KolSelectedSummary source={item.source || { handles: item.handles || [], packs: [] }} /></AgentMsg>;
+  if (item.type === 'user') {
+    return <UserMsg text={item.text} />;
   }
-  if (item.type === 'cadence-summary') {
-    return <AgentMsg persona="subtle"><KolCadenceSummary cadence={item.cadence} /></AgentMsg>;
+  if (item.type === 'selected-summary') {
+    return <AgentMsg persona="subtle"><KolSelectedSummary source={item.source || { handles: item.handles || [], packs: [] }} language={item.language} publishTime={item.publishTime} /></AgentMsg>;
   }
   if (item.type === 'digest') {
     return (
       <AgentMsg persona="full" time="now">
-        <KolDigestPreview digest={item.digest} onOpenDigest={onOpenDigest} />
+        <KolDigestPreview digest={item.digest} onOpenDigest={onOpenDigest} onOpenAutomation={onOpenAutomation} />
       </AgentMsg>
     );
   }
   if (item.type === 'done') {
-    return <AgentMsg persona="subtle"><KolDoneCard selectedIM={item.selectedIM} /></AgentMsg>;
+    return <AgentMsg persona="subtle"><KolDoneCard connectedIMs={item.connectedIMs} /></AgentMsg>;
   }
   return null;
 }
 
-function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSources, onSelectKols, cadence, onCadence, selectedIM, onSelectIM, connectedIM, onConnectedIM, onboardingDone, onCompleteOnboarding, onGenerate, generating, timeline, lastDigest, onOpenDigest, extra, onGoArtifacts }) {
+function KolDigestView({ selectedSource, draftSource, onDraftSource, onConfirmSources, onSelectKols, connectedIMs, onConnectedIM, onboardingDone, onCompleteOnboarding, onGenerate, generating, timeline, lastDigest, onOpenDigest, onOpenAutomationEditor, extra, onGoArtifacts, language, onLanguage, draftLanguage, onDraftLanguage, publishTime, onPublishTime }) {
   const hasDigest = !!lastDigest;
   const selectedTotal = sourceCount(selectedSource);
   const showSourceStep = !onboardingDone && !selectedTotal;
-  const showCadenceStep = !onboardingDone && selectedTotal > 0 && !hasDigest && !generating;
   return (
     <div className="stage-inner kol-chat" style={{ maxWidth: 760 }}>
-      {timeline.map((item) => <KolTimelineItem item={item} key={item.id} onOpenDigest={onOpenDigest} />)}
+      {timeline.map((item) => <KolTimelineItem item={item} key={item.id} onOpenDigest={onOpenDigest} onOpenAutomation={onOpenAutomationEditor} />)}
 
       {showSourceStep && (
         <AgentMsg persona="subtle">
           <KolIntroStep />
-          <KolSourceStep selectedSource={draftSource} onChangeSelected={onDraftSource} onSelectMore={onSelectKols} onConfirm={onConfirmSources} />
-        </AgentMsg>
-      )}
-
-      {showCadenceStep && (
-        <AgentMsg persona="subtle">
-          <KolCadenceStep cadence={cadence} onCadence={onCadence} onGenerate={onGenerate} generating={generating} />
+          <KolSourceStep selectedSource={draftSource} onChangeSelected={onDraftSource} onSelectMore={onSelectKols} onConfirm={onConfirmSources} language={draftLanguage || language} onLanguage={onDraftLanguage || onLanguage} publishTime={publishTime} onPublishTime={onPublishTime} />
         </AgentMsg>
       )}
 
       {generating && (
-        <AgentMsg persona="subtle"><div className="kg-loading"><span className="kg-spinner"></span><span>Reading selected KOLs, merging viewpoints, and preparing Hot Tickers.</span></div></AgentMsg>
+        <AgentMsg persona="subtle">
+          <div className="kg-loading">
+            <span className="kg-spinner"></span>
+            <span><strong>Generating...</strong><br />This usually takes 30-60 seconds. Please wait.</span>
+          </div>
+        </AgentMsg>
       )}
 
       {hasDigest && !onboardingDone && (
         <AgentMsg persona="subtle">
-          <KolIMStep selectedIM={selectedIM} onSelectIM={onSelectIM} connectedIM={connectedIM} onConnected={onConnectedIM} onComplete={onCompleteOnboarding} />
+          <KolIMStep connectedIMs={connectedIMs} onConnected={onConnectedIM} onComplete={onCompleteOnboarding} />
         </AgentMsg>
       )}
 
@@ -3861,7 +3829,7 @@ function SkillsPanel({ onSkill }) {
     </div>
   );
 }
-function AutomationRows({ items }) {
+function AutomationRows({ items, onEdit }) {
   return (
     <div className="auto-list">
       {items.map((a) => {
@@ -3871,6 +3839,7 @@ function AutomationRows({ items }) {
             <div className="auto-r1">
               <span className={`ad ${on ? 'on' : 'off'}`}></span>
               <span className="an">{a.name}</span>
+              {onEdit && <button className="aa" aria-label="Edit automation" onClick={() => onEdit(a)}><Icon name="edit" size={16} /></button>}
               <button className="aa" aria-label={on ? 'Pause' : 'Resume'}><Icon name={on ? 'pause' : 'play'} size={16} /></button>
               <button className="aa" aria-label="Delete"><Icon name="more" size={16} /></button>
             </div>
@@ -3976,54 +3945,175 @@ function KolArtifactFiles({ files, onOpenFile }) {
   );
 }
 
-function KolArtifactsPanel({ digestRuns, onOpenDigest }) {
-  const [seg, setSeg] = useState('automations');
+function KolAutomationEditor({ open, onClose, draftSource, onDraftSource, onSelectKols, publishTime, draftPublishTime, onDraftPublishTime, draftLanguage, onDraftLanguage, draftAnalysisMode, onDraftAnalysisMode, draftTemplate, onDraftTemplate, onSaveAutomation, generating, savedMemory }) {
+  const [templateOpen, setTemplateOpen] = useState(false);
+  useEffect(() => {
+    if (open) setTemplateOpen(false);
+  }, [open]);
+  if (!open) return null;
+  const mode = modeById(draftAnalysisMode);
+  const editorPublishTime = draftPublishTime || publishTime;
+  const draftMemory = { source: draftSource, language: draftLanguage, analysisMode: draftAnalysisMode, template: draftTemplate, publishTime: editorPublishTime };
+  const hasUnsaved = memoryDraftChanged(draftMemory, savedMemory);
+  const contentChanged = digestContentDraftChanged(draftMemory, savedMemory);
+  const timeChanged = publishTimeDraftChanged(draftMemory, savedMemory);
+  const saveAction = contentChanged ? 'preview' : timeChanged ? 'save' : 'none';
+  const saveTitle = saveAction === 'preview'
+    ? 'Save changes and generate a new preview.'
+    : 'Save new alert time.';
+  const saveHint = saveAction === 'preview'
+    ? 'Your FinTwit list, language, or template changed, so Alva will show a fresh sample after saving.'
+    : 'Only the alert time changed, so the next daily digest will use the new time.';
+  const buttonLabel = generating ? 'Generating...' : saveAction === 'preview' ? 'Save & generate preview' : 'Save';
+  return (
+    <div className="modal-overlay report-overlay" onClick={onClose}>
+      <div className="modal kol-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">
+          <div>
+            <div className="modal-t">Edit Daily FinTwit Digest</div>
+            <div className="modal-s">Choose who Alva reads, when it sends, and how the digest is written.</div>
+          </div>
+          <button className="modal-x" onClick={onClose} aria-label="Close"><Icon name="enter" size={16} /></button>
+        </div>
+        <div className="modal-body">
+          <div className="kc-stack">
+            <section className="kc-inline-section">
+              <div className="kc-inline-head">
+                <div>
+                  <h3>FinTwit list</h3>
+                  <p>The accounts Alva reads for your daily digest.</p>
+                </div>
+                <button onClick={onSelectKols}>Edit list</button>
+              </div>
+              <div className="kc-inline-body">
+                {sourceCount(draftSource) ? <KolSourceSummary source={draftSource} /> : <div className="empty-note">No FinTwit accounts selected yet.</div>}
+              </div>
+            </section>
+
+            <section className="kc-inline-section">
+              <div className="kc-inline-head">
+                <div>
+                  <h3>Alert time</h3>
+                  <p>When Alva should prepare and send the daily digest.</p>
+                </div>
+                <input value={editorPublishTime} onChange={(e) => onDraftPublishTime(e.target.value)} />
+              </div>
+            </section>
+
+            <section className="kc-inline-section">
+              <div className="kc-inline-head">
+                <div>
+                  <h3>Language</h3>
+                  <p>Used for future digests and previews.</p>
+                </div>
+                <select value={draftLanguage} onChange={(e) => onDraftLanguage(e.target.value)}>
+                  <option value="en">English</option>
+                  <option value="zh">中文</option>
+                </select>
+              </div>
+            </section>
+
+            <section className="kc-inline-section kc-template">
+              <div className="kc-inline-head">
+                <div>
+                  <h3>Digest template</h3>
+                  <p>Choose the format Alva should use for this digest.</p>
+                </div>
+                <select value={draftAnalysisMode} onChange={(e) => onDraftAnalysisMode(e.target.value)}>
+                  {KOL_ANALYSIS_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+                </select>
+              </div>
+              <div className="kc-inline-body">
+                <button className="kc-advanced-toggle" onClick={() => setTemplateOpen((open) => !open)}>
+                  <Icon name={templateOpen ? 'chevdown' : 'edit'} size={14} />
+                  {templateOpen ? 'Hide custom prompt' : 'Customize prompt'}
+                </button>
+                {templateOpen && (
+                  <div style={{ marginTop: 12 }}>
+                    <div className="kc-head" style={{ marginBottom: 9 }}>
+                      <div>
+                        <h3>{mode.label} template</h3>
+                        <p>{mode.desc}</p>
+                      </div>
+                      <button onClick={() => onDraftTemplate(mode.template)}>Reset</button>
+                    </div>
+                    <textarea value={draftTemplate} onChange={(e) => onDraftTemplate(e.target.value)} />
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {hasUnsaved && (
+              <form className="kc-save-bar" onSubmit={(e) => { e.preventDefault(); onSaveAutomation({ generatePreview: saveAction === 'preview' }); onClose(); }}>
+                <div>
+                  <strong>{saveTitle}</strong>
+                  <span>{saveHint}</span>
+                </div>
+                <button type="submit" disabled={generating || !sourceCount(draftSource)}>
+                  {buttonLabel}{saveAction === 'preview' && <Icon name="spark" size={15} />}
+                </button>
+              </form>
+            )}
+            {generating && <div className="kg-loading"><span className="kg-spinner"></span><span>Saving settings, reading recent FinTwit posts, and generating a preview.</span></div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KolAlertsPanel({ digestRuns, onOpenEditor, publishTime }) {
   const digest = KOL_CHANNEL_ARTIFACTS.digest;
+  const hasAutomation = digestRuns.length > 0;
+  const autos = digest.autos.map((a) => ({ ...a, runEvery: `Daily · ${publishTime}` }));
+  return (
+    <div className="panel">
+      <div className="panel-head">
+        <h2>Alerts</h2>
+        <p>Your daily FinTwit digest lives here. Open it to edit the account list, delivery time, language, and template.</p>
+      </div>
+      {hasAutomation ? (
+        <AutomationRows items={autos} onEdit={onOpenEditor} />
+      ) : (
+        <div className="artifact-empty">
+          <h3>No automation yet</h3>
+          <p>The Daily FinTwit Digest appears after you choose accounts and generate the first digest.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function KolArtifactsPanel({ digestRuns, onOpenDigest }) {
+  const [seg, setSeg] = useState('files');
   const lastDigest = digestRuns.length ? digestRuns[digestRuns.length - 1] : null;
   const hasDigestArtifacts = !!lastDigest;
   const files = hasDigestArtifacts ? digestHistoryFilesFrom(digestRuns) : [];
   const counts = {
-    automations: hasDigestArtifacts ? digest.autos.length : 0,
     files: files.length,
   };
   return (
     <div className="panel">
       <div className="panel-head">
-        <h2>KOL channel artifacts</h2>
-        <p>Automations and generated digest files for this channel. Artifacts appear after the first generated report.</p>
+        <h2>Files</h2>
+        <p>Every generated FinTwit digest is saved here as a readable file.</p>
       </div>
       <div className="panel-bar">
         <div className="seg">
-          <button className={seg === 'automations' ? 'active' : ''} onClick={() => setSeg('automations')}>Automations · {counts.automations}</button>
           <button className={seg === 'files' ? 'active' : ''} onClick={() => setSeg('files')}>Files · {counts.files}</button>
         </div>
       </div>
 
-      {seg === 'automations' && (
-        <div className="ka-bucket">
-          {hasDigestArtifacts ? (
-            <KolArtifactSubsection title="Digest automations" desc="Scheduled daily and weekly digest generation for the current KOL list. Add more time windows here when they are supported.">
-              <AutomationRows items={digest.autos} />
-            </KolArtifactSubsection>
-          ) : (
-            <div className="artifact-empty">
-              <h3>No automations yet</h3>
-              <p>This demo does not create scheduled automation until the user has selected KOLs and generated a digest preview.</p>
-            </div>
-          )}
-        </div>
-      )}
-
       {seg === 'files' && (
         <div className="ka-bucket">
           {hasDigestArtifacts ? (
-            <KolArtifactSubsection title="Digest history files" desc="Each generated daily or weekly digest is saved with a readable date-based filename.">
+            <KolArtifactSubsection title="Digest history files" desc="Each generated daily digest is saved with a readable date-based filename.">
               <KolArtifactFiles files={files} onOpenFile={(file) => onOpenDigest(file.digest)} />
             </KolArtifactSubsection>
           ) : (
             <div className="artifact-empty">
               <h3>No files yet</h3>
-              <p>Generated reports and source exports will appear after the first digest is generated.</p>
+              <p>Generated daily digest files will appear after the first digest is generated.</p>
             </div>
           )}
         </div>
@@ -4074,7 +4164,8 @@ const CONCEPTS = [
 ];
 
 function App() {
-  const [channel, setChannel] = useState('kol-digest');
+  const [channel, setChannel] = useState('agent');
+  const [kolSpecialOnboarding, setKolSpecialOnboarding] = useState(true);
   const [concept, setConcept] = useState('A');
   const [tab, setTab] = useState('chat');
   const [extra, setExtra] = useState([]); // appended interaction messages
@@ -4090,11 +4181,15 @@ function App() {
   const [kolGenerating, setKolGenerating] = useState(false);
   const [kolDigestRuns, setKolDigestRuns] = useState([]);
   const [kolTimeline, setKolTimeline] = useState([]);
-  const [kolCadence, setKolCadence] = useState(['daily', 'weekly']);
   const [kolOpenDigest, setKolOpenDigest] = useState(null);
-  const [kolSelectedIM, setKolSelectedIM] = useState('');
-  const [kolConnectedIM, setKolConnectedIM] = useState('');
+  const [kolConnectedIMs, setKolConnectedIMs] = useState([]);
+  const [kolPublishTime, setKolPublishTime] = useState('07:30 ET');
+  const [kolDraftPublishTime, setKolDraftPublishTime] = useState('07:30 ET');
   const [kolOnboardingDone, setKolOnboardingDone] = useState(false);
+  const [kolAutomationEditorOpen, setKolAutomationEditorOpen] = useState(false);
+  const [kolLoginOpen, setKolLoginOpen] = useState(false);
+  const [kolLoggedIn, setKolLoggedIn] = useState(false);
+  const [kolPendingGenerate, setKolPendingGenerate] = useState(null);
   const [kolPromptDismissed, setKolPromptDismissed] = useState([]);
   const stageRef = useRef(null);
   const idRef = useRef(0);
@@ -4105,6 +4200,7 @@ function App() {
   const groupData = cur.kind === 'group' ? GROUP_DATA[cur.id] : null;
   const scoped = groupData || CHANNEL_DATA[cur.id] || null;
   const kolDigest = kolDigestRuns.length ? kolDigestRuns[kolDigestRuns.length - 1] : null;
+  const kolWorkspaceReady = kolOnboardingDone || kolGenerating || !!kolDigest || sourceCount(kolSource) > 0;
 
   // scroll behaviour: top on concept/tab/channel switch, bottom on new interaction
   useEffect(() => { if (stageRef.current) stageRef.current.scrollTop = 0; }, [concept, tab, channel]);
@@ -4115,14 +4211,14 @@ function App() {
     }
   }, [extra]);
   useEffect(() => {
-    if (cur.kind === 'kol' && tab === 'chat' && stageRef.current) {
+    if ((kolSpecialOnboarding || kolDigest) && tab === 'chat' && stageRef.current) {
       const el = stageRef.current;
       requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
     }
-  }, [cur.kind, tab, sourceCount(kolSource), kolDigest, kolOnboardingDone, kolTimeline.length]);
+  }, [kolSpecialOnboarding, tab, sourceCount(kolSource), kolDigest, kolWorkspaceReady, kolTimeline.length]);
   useEffect(() => {
-    if (cur.kind === 'kol' && !kolOnboardingDone && tab !== 'chat') setTab('chat');
-  }, [cur.kind, kolOnboardingDone, tab]);
+    if (kolSpecialOnboarding && !kolWorkspaceReady && tab !== 'chat') setTab('chat');
+  }, [kolSpecialOnboarding, kolWorkspaceReady, tab]);
 
   const respond = useCallback((userText, reply) => {
     setTab('chat');
@@ -4148,7 +4244,7 @@ function App() {
     respond(`Open “${p.title}”`, { kind: 'building', title: `Opening ${p.title}`, sub: `Loading the latest run from ${p.creator}. You can remix it once it's ready.` });
   }, [respond]);
   const onSend = useCallback((text) => {
-    if (cur.kind === 'kol' && kolDigest) {
+    if (kolDigest) {
       const latest = kolDigest.items[kolDigest.items.length - 1];
       const basePrompt = normalizeKolPrompt(text, latest);
       if (basePrompt) {
@@ -4158,7 +4254,7 @@ function App() {
       return;
     }
     respond(text, { kind: 'building', title: 'On it', sub: 'Researching, then building a playbook you can run and tweak.' });
-  }, [respond, respondPlain, cur.kind, kolDigest]);
+  }, [respond, respondPlain, kolDigest]);
 
   // Clicking a skill (or its suggested prompt / CTA) starts a new Task, shaped by skill.kind
   const onStartTask = useCallback((skill) => {
@@ -4178,50 +4274,30 @@ function App() {
   const pushKolTimeline = useCallback((item) => {
     setKolTimeline((prev) => prev.concat({ id: `${Date.now()}-${prev.length}-${Math.random().toString(36).slice(2, 7)}`, ...item }));
   }, []);
-  const onKolConfirmSources = useCallback(() => {
-    if (!sourceCount(kolDraftSource)) return;
-    setKolSource(sourceState(kolDraftSource));
-    pushKolTimeline({ type: 'selected-summary', source: sourceState(kolDraftSource) });
-  }, [kolDraftSource, pushKolTimeline]);
+  const appendKolGenerateRequest = useCallback((settings, { includeSetup = false } = {}) => {
+    if (includeSetup) {
+      pushKolTimeline({ type: 'intro' });
+      pushKolTimeline({ type: 'selected-summary', source: settings.source, language: settings.language, publishTime: settings.publishTime });
+    }
+    pushKolTimeline({ type: 'user', text: fintwitDigestRequestText(settings.language) });
+  }, [pushKolTimeline]);
   const buildKolDigest = useCallback((settings) => {
     const mode = modeById(settings.analysisMode);
-    const cadenceItems = cadenceItemsFrom(kolCadence);
-    const isZh = settings.language === 'zh';
-    const cadenceLabel = cadenceLabelFrom(kolCadence, isZh);
-    const modeLabelsZh = {
-      market_digest: '市场综述',
-      idea_scout: '投资标的建议',
-      consensus_map: '共识地图',
-      risk_watch: '风险观察',
-      custom: '自定义分析',
-    };
-    const modeLabel = isZh ? (modeLabelsZh[mode.id] || mode.label) : mode.label;
+    const cadenceItems = ['daily'];
     const templateEdited = normalizeTemplate(settings.template) !== normalizeTemplate(mode.template);
     const selectedHandles = expandSourceState(settings.source);
     const sourceTotal = sourceCount(settings.source);
     const items = cadenceItems.map((kind) => {
       const sample = makeDigestSample(settings.language, kind);
-      const label = kind === 'weekly' ? 'Weekly' : 'Daily';
-      const titleLabel = isZh ? (kind === 'weekly' ? '周报' : '日报') : `${label} Digest`;
-      const windowLabel = kind === 'weekly'
-        ? (isZh ? '过去一周' : 'Past week')
-        : sample.window;
-      const customLabel = templateEdited ? (isZh ? '自定义模板' : 'Custom template') : null;
-      const metaParts = [
-        isZh ? '中文' : 'English',
-        digestDateLabel(settings.language),
-        digestKindLabel(kind, settings.language),
-        windowLabel,
-      ];
-      if (customLabel) metaParts.push(customLabel);
       const digest = {
         ...sample,
         kind,
-        title: `${titleLabel} · ${modeLabel}`,
-        meta: metaParts.join(' · '),
+        title: fintwitDigestTitle(settings.language),
+        meta: '',
         cadence: kind,
         language: settings.language,
         analysisMode: mode.id,
+        publishTime: settings.publishTime,
         sourceCount: sourceTotal,
         sourceHandles: selectedHandles.slice(),
         templateEdited,
@@ -4230,19 +4306,19 @@ function App() {
     });
     return {
       id: Date.now(),
-      title: `${cadenceLabel} Digest`,
-      meta: `${isZh ? '中文' : 'English'} · ${digestDateLabel(settings.language)} · ${cadenceLabel} · ${isZh ? '最新样本' : KOL_REAL_DIGEST_SAMPLE.window}`,
-      tag: 'Generated',
+      title: fintwitDigestTitle(settings.language),
+      meta: '',
       cadence: cadenceItems.slice(),
       selectedHandles: selectedHandles.slice(),
       source: sourceState(settings.source),
       language: settings.language,
       analysisMode: settings.analysisMode,
+      publishTime: settings.publishTime,
       template: settings.template,
       items,
     };
-  }, [kolCadence]);
-  const runKolGenerate = useCallback((settings, { saveMemory = false } = {}) => {
+  }, []);
+  const runKolGenerate = useCallback((settings, { saveMemory = false, delayMs = KOL_DIGEST_GENERATION_DELAY_MS } = {}) => {
     if (!sourceCount(settings.source) || kolGenerating) return;
     setTab('chat');
     setKolGenerating(true);
@@ -4250,10 +4326,19 @@ function App() {
       try {
         const digest = buildKolDigest(settings);
         if (saveMemory) {
-          setKolSource(sourceState(settings.source));
+          const savedSource = sourceState(settings.source);
+          setKolSource(savedSource);
+          setKolDraftSource(savedSource);
           setKolLanguage(settings.language);
+          setKolDraftLanguage(settings.language);
           setKolAnalysisMode(settings.analysisMode);
+          setKolDraftAnalysisMode(settings.analysisMode);
           setKolTemplate(settings.template);
+          setKolDraftTemplate(settings.template);
+          if (settings.publishTime) {
+            setKolPublishTime(settings.publishTime);
+            setKolDraftPublishTime(settings.publishTime);
+          }
         }
         setKolPromptDismissed([]);
         setKolDigestRuns((prev) => prev.concat(digest));
@@ -4266,24 +4351,107 @@ function App() {
       } finally {
         setKolGenerating(false);
       }
-    }, 2600);
+    }, delayMs);
   }, [kolGenerating, buildKolDigest]);
+  const onKolConfirmSources = useCallback(() => {
+    if (!sourceCount(kolDraftSource) || kolGenerating) return;
+    const nextSource = sourceState(kolDraftSource);
+    const nextLanguage = kolDraftLanguage || kolLanguage;
+    const nextSettings = { source: nextSource, language: nextLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolPublishTime };
+    if (!kolLoggedIn) {
+      setKolPendingGenerate(nextSettings);
+      setKolLoginOpen(true);
+      return;
+    }
+    setKolSource(nextSource);
+    setKolDraftSource(nextSource);
+    setKolLanguage(nextLanguage);
+    setKolDraftLanguage(nextLanguage);
+    setKolAnalysisMode(nextSettings.analysisMode);
+    setKolDraftAnalysisMode(nextSettings.analysisMode);
+    setKolTemplate(nextSettings.template);
+    setKolDraftTemplate(nextSettings.template);
+    setKolPublishTime(nextSettings.publishTime);
+    setKolDraftPublishTime(nextSettings.publishTime);
+    setKolSpecialOnboarding(false);
+    appendKolGenerateRequest(nextSettings, { includeSetup: !kolOnboardingDone });
+    runKolGenerate(nextSettings, { saveMemory: true });
+  }, [kolDraftSource, kolGenerating, appendKolGenerateRequest, runKolGenerate, kolDraftLanguage, kolLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolPublishTime, kolLoggedIn, kolOnboardingDone]);
   const onKolGenerate = useCallback(() => {
-    if (!kolDigest) pushKolTimeline({ type: 'cadence-summary', cadence: cadenceItemsFrom(kolCadence) });
-    runKolGenerate({ source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate });
-  }, [runKolGenerate, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolDigest, pushKolTimeline, kolCadence]);
-  const onKolSaveAndGenerate = useCallback(() => {
+    const settings = { source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime };
+    appendKolGenerateRequest(settings);
+    runKolGenerate(settings);
+  }, [runKolGenerate, appendKolGenerateRequest, kolSource, kolLanguage, kolAnalysisMode, kolTemplate, kolPublishTime]);
+  const saveKolAutomationMemory = useCallback((settings) => {
+    const savedSource = sourceState(settings.source);
+    setKolSource(savedSource);
+    setKolDraftSource(savedSource);
+    setKolLanguage(settings.language);
+    setKolDraftLanguage(settings.language);
+    setKolAnalysisMode(settings.analysisMode);
+    setKolDraftAnalysisMode(settings.analysisMode);
+    setKolTemplate(settings.template);
+    setKolDraftTemplate(settings.template);
+    if (settings.publishTime) {
+      setKolPublishTime(settings.publishTime);
+      setKolDraftPublishTime(settings.publishTime);
+    }
+  }, []);
+  const onKolSaveAutomation = useCallback(({ generatePreview = false } = {}) => {
+    const settings = { source: kolDraftSource, language: kolDraftLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate, publishTime: kolDraftPublishTime };
+    if (generatePreview) {
+      setTab('chat');
+      appendKolGenerateRequest(settings);
+      runKolGenerate(settings, { saveMemory: true });
+      return;
+    }
+    saveKolAutomationMemory(settings);
+  }, [runKolGenerate, saveKolAutomationMemory, appendKolGenerateRequest, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate, kolDraftPublishTime]);
+  const onKolLogin = useCallback(() => {
+    setKolLoggedIn(true);
+    setKolLoginOpen(false);
+    const settings = kolPendingGenerate;
+    setKolPendingGenerate(null);
+    if (settings) {
+      const savedSource = sourceState(settings.source);
+      setKolSource(savedSource);
+      setKolDraftSource(savedSource);
+      setKolLanguage(settings.language);
+      setKolDraftLanguage(settings.language);
+      setKolAnalysisMode(settings.analysisMode);
+      setKolDraftAnalysisMode(settings.analysisMode);
+      setKolTemplate(settings.template);
+      setKolDraftTemplate(settings.template);
+      setKolPublishTime(settings.publishTime);
+      setKolDraftPublishTime(settings.publishTime);
+      setKolSpecialOnboarding(false);
+      appendKolGenerateRequest(settings, { includeSetup: true });
+      runKolGenerate(settings, { saveMemory: true });
+    }
+  }, [kolPendingGenerate, appendKolGenerateRequest, runKolGenerate]);
+  const onKolConnectedIM = useCallback((id) => {
+    setKolConnectedIMs((prev) => prev.includes(id) ? prev : prev.concat(id));
+  }, []);
+  const onKolPublishLanguage = useCallback((language) => {
+    setKolLanguage(language);
+    setKolDraftLanguage(language);
+  }, []);
+  const onKolCompleteOnboarding = useCallback((connectedOverride) => {
+    const connected = Array.isArray(connectedOverride) && connectedOverride.length ? connectedOverride : kolConnectedIMs.slice();
+    setKolOnboardingDone(true);
+    setKolSpecialOnboarding(false);
     setTab('chat');
-    runKolGenerate({ source: kolDraftSource, language: kolDraftLanguage, analysisMode: kolDraftAnalysisMode, template: kolDraftTemplate }, { saveMemory: true });
-  }, [runKolGenerate, kolDraftSource, kolDraftLanguage, kolDraftAnalysisMode, kolDraftTemplate]);
+    pushKolTimeline({ type: 'done', connectedIMs: connected });
+  }, [kolConnectedIMs, pushKolTimeline]);
   const kolProps = {
     selectedSource: kolSource,
     draftSource: kolDraftSource,
     onDraftSource: setKolDraftSource,
     onConfirmSources: onKolConfirmSources,
     onSelectKols: () => setKolPickerOpen(true),
-    savedMemory: { source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate },
+    savedMemory: { source: kolSource, language: kolLanguage, analysisMode: kolAnalysisMode, template: kolTemplate, publishTime: kolPublishTime },
     language: kolLanguage,
+    onLanguage: onKolPublishLanguage,
     draftLanguage: kolDraftLanguage,
     onDraftLanguage: setKolDraftLanguage,
     analysisMode: kolAnalysisMode,
@@ -4293,24 +4461,24 @@ function App() {
     draftTemplate: kolDraftTemplate,
     onDraftTemplate: setKolDraftTemplate,
     onGenerate: onKolGenerate,
-    onSaveAndGenerate: onKolSaveAndGenerate,
+    onSaveAutomation: onKolSaveAutomation,
     generating: kolGenerating,
     digestRuns: kolDigestRuns,
     timeline: kolTimeline,
     lastDigest: kolDigest,
     openDigest: kolOpenDigest,
     onOpenDigest: setKolOpenDigest,
-    cadence: kolCadence,
-    onCadence: setKolCadence,
-    selectedIM: kolSelectedIM,
-    onSelectIM: setKolSelectedIM,
-    connectedIM: kolConnectedIM,
-    onConnectedIM: setKolConnectedIM,
+    connectedIMs: kolConnectedIMs,
+    onConnectedIM: onKolConnectedIM,
+    publishTime: kolPublishTime,
+    onPublishTime: setKolPublishTime,
+    draftPublishTime: kolDraftPublishTime,
+    onDraftPublishTime: setKolDraftPublishTime,
     onboardingDone: kolOnboardingDone,
-    onCompleteOnboarding: (channelId = 'telegram') => {
-      setKolSelectedIM(channelId);
-      setKolOnboardingDone(true);
-      pushKolTimeline({ type: 'done', selectedIM: channelId });
+    onCompleteOnboarding: onKolCompleteOnboarding,
+    onOpenAutomationEditor: () => {
+      if (kolWorkspaceReady) setTab('alerts');
+      setKolAutomationEditorOpen(true);
     },
   };
 
@@ -4337,7 +4505,7 @@ function App() {
             </div>
           </div>
           <div className="topbar-right">
-            {isAgent && (
+            {isAgent && kolOnboardingDone && (
               <div className="switcher">
                 {CONCEPTS.map((c) => (
                   <button key={c.id} className={concept === c.id ? 'active' : ''} onClick={() => switchConcept(c.id)}>
@@ -4354,15 +4522,16 @@ function App() {
         </div>
         {membersOpen && <MembersModal channel={cur} roster={roster} onClose={() => setMembersOpen(false)} />}
 
-        <TabBar tab={tab} onTab={setTab} channelKind={cur.kind} kolOnboardingDone={kolOnboardingDone} kolArtifactCount={kolDigest ? KOL_CHANNEL_ARTIFACTS.digest.autos.length + digestHistoryFilesFrom(kolDigestRuns).length : 0} />
+        <TabBar tab={tab} onTab={setTab} kolOnboardingDone={kolWorkspaceReady} kolArtifactCount={kolDigest ? digestHistoryFilesFrom(kolDigestRuns).length : 0} />
 
         <div className="stage" ref={stageRef}>
-          {tab === 'tasks' && cur.kind !== 'kol' && <TasksPanel onPrompt={onPrompt} tasks={scoped ? scoped.tasks : TASKS} isGroup={!!groupData} channelLabel={cur.label} />}
-          {tab === 'memory' && (cur.kind === 'kol' ? <KolMemoryPanel {...kolProps} /> : <MemoryPanel groupMem={scoped ? scoped.memory : null} channelLabel={cur.label} />)}
-          {tab === 'skills' && cur.kind !== 'kol' && <SkillsPanel onSkill={onSkill} />}
-          {tab === 'artifacts' && (cur.kind === 'kol' ? <KolArtifactsPanel digestRuns={kolDigestRuns} onOpenDigest={setKolOpenDigest} /> : <ArtifactsPanel onCard={onCard} files={scoped ? scoped.files : ARTIFACTS} autos={scoped ? scoped.autos : AUTOMATIONS} playbooks={scoped ? (scoped.playbooks || []) : PLAYBOOKS} isGroup={!!groupData} />)}
+          {tab === 'memory' && kolWorkspaceReady && <KolMemoryPanel {...kolProps} />}
+          {tab === 'alerts' && kolWorkspaceReady && <KolAlertsPanel {...kolProps} onOpenEditor={() => setKolAutomationEditorOpen(true)} />}
+          {tab === 'artifacts' && kolWorkspaceReady && <KolArtifactsPanel digestRuns={kolDigestRuns} onOpenDigest={setKolOpenDigest} />}
 
-          {onChat && (isAgent ? (
+          {onChat && (kolSpecialOnboarding || kolWorkspaceReady ? (
+            <KolDigestView {...kolProps} extra={extra} onGoArtifacts={() => setTab('artifacts')} />
+          ) : isAgent ? (
             <div className="stage-inner" style={{ maxWidth: cfg.width }}>
               {concept === 'A' && <ConceptA {...handlers} />}
               {concept === 'B' && <ConceptB {...handlers} />}
@@ -4371,10 +4540,19 @@ function App() {
 
               <ExtraThread extra={extra} subtle={concept === 'A' || concept === 'D'} onGoTasks={() => setTab('tasks')} onGoArtifacts={() => setTab('artifacts')} />
             </div>
-          ) : cur.kind === 'kol' ? <KolDigestView {...kolProps} extra={extra} onGoArtifacts={() => setTab('artifacts')} /> : cur.kind === 'group' ? <GroupChannelView channel={cur} onGoTasks={() => setTab('tasks')} /> : <TopicChannelView channel={cur} />)}
+          ) : cur.kind === 'group' ? <GroupChannelView channel={cur} onGoTasks={() => setTab('tasks')} /> : <TopicChannelView channel={cur} />)}
         </div>
 
-        {kolPickerOpen && cur.kind === 'kol' && <KolPickerModal
+        <KolAutomationEditor
+          open={kolAutomationEditorOpen}
+          onClose={() => setKolAutomationEditorOpen(false)}
+          {...kolProps} />
+
+        {kolLoginOpen && <LoginModal
+          onLogin={onKolLogin}
+          onClose={() => setKolLoginOpen(false)} />}
+
+        {kolPickerOpen && <KolPickerModal
           selectedSource={kolDraftSource}
           onChange={(next) => {
             setKolDraftSource(next);
@@ -4382,16 +4560,12 @@ function App() {
           }}
           onClose={() => setKolPickerOpen(false)} />}
 
-        {kolOpenDigest && cur.kind === 'kol' && <KolDigestModal digest={kolOpenDigest} onClose={() => setKolOpenDigest(null)} />}
+        {kolOpenDigest && <KolDigestModal digest={kolOpenDigest} onClose={() => setKolOpenDigest(null)} />}
 
-        {onChat && !(cur.kind === 'kol' && !kolOnboardingDone) && (
+        {onChat && kolWorkspaceReady && (
           <Composer
-            placeholder={cur.kind === 'kol' ? 'Ask about this digest, add a source, or change the template' : cur.kind === 'group' ? `Message ${cur.label} —  @Alva to run anything` : null}
-            quickReplies={cur.kind === 'kol'
-              ? kolFollowupPrompts(kolDigest, kolPromptDismissed)
-              : isAgent && concept === 'C'
-                ? ['Summarize today\u2019s macro', 'What\u2019s moving NVDA?', 'Build me a screener']
-                : null}
+            placeholder={kolDigest ? 'Ask about this digest, compare FinTwit views, or edit the setup' : null}
+            quickReplies={kolDigest ? kolFollowupPrompts(kolDigest, kolPromptDismissed) : null}
             onSend={onSend} />
         )}
       </div>

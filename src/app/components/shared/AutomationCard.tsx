@@ -39,6 +39,8 @@ interface TradePush extends PushBase {
 interface KolPush extends PushBase {
   kind: 'kol';
   kolName: string;
+  /** public/ 下头像文件名;缺省回落字母 Avatar */
+  kolAvatar?: string;
   headlineTicker: string;
   headlineText: string;
   quoteTicker: string;
@@ -148,7 +150,15 @@ function KolBody({ d }: { d: KolPush }) {
       {/* 原帖：头像 + X 角标 + 文本 */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
         <span style={{ position: 'relative', flexShrink: 0, width: 22, height: 22 }}>
-          <Avatar name={d.kolName} size={22} />
+          {d.kolAvatar ? (
+            <img
+              src={`${import.meta.env.BASE_URL}${d.kolAvatar}`}
+              alt=""
+              style={{ display: 'block', width: 22, height: 22, borderRadius: 999, objectFit: 'cover' }}
+            />
+          ) : (
+            <Avatar name={d.kolName} size={22} />
+          )}
           <span
             style={{
               position: 'absolute',
@@ -251,9 +261,16 @@ export function PushContent({ a }: { a: PushCardData }) {
   );
 }
 
-export function AutomationCard({ a, defaultOn = false }: { a: PushCardData; defaultOn?: boolean }) {
+export function AutomationCard({ a, defaultOn = false, on: onProp, onToggleOn }: {
+  a: PushCardData;
+  defaultOn?: boolean;
+  /** 受控订阅态(传入则忽略内部 state) */
+  on?: boolean;
+  onToggleOn?: () => void;
+}) {
   const [hovered, setHovered] = useState(false);
-  const [on, setOn] = useState(defaultOn);
+  const [onState, setOnState] = useState(defaultOn);
+  const on = onProp ?? onState;
 
   return (
     <div
@@ -335,7 +352,8 @@ export function AutomationCard({ a, defaultOn = false }: { a: PushCardData; defa
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            setOn((v) => !v);
+            if (onToggleOn) onToggleOn();
+            else setOnState((v) => !v);
           }}
           style={{
             display: 'inline-flex',

@@ -624,7 +624,7 @@ function templateLabel(t: ExplorePlaybook["cover"]["template"]): string {
 
 function templateIcon(t: ExplorePlaybook["cover"]["template"]): string {
   if (t === "screener") return "target-l2";
-  if (t === "thesis")   return "buld-l";
+  if (t === "thesis")   return "bulb-l";
   if (t === "what-if")  return "remix-l";
   return "researcher-l1";
 }
