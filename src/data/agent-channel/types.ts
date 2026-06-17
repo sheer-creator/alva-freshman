@@ -11,7 +11,7 @@
 /** demo 的语义色 tone（与 theme.css 的 --main-m* 值不同，因此用 TS 常量而非 CSS var） */
 export type Tone = 'teal' | 'blue' | 'orange' | 'green' | 'red' | 'amber';
 
-export type ConceptId = 'A' | 'R' | 'K';
+export type ConceptId = 'A' | 'R' | 'K' | 'P';
 export type TabId = 'chat' | 'tasks' | 'memory' | 'alerts' | 'files';
 
 /* ========== tone 色板（源自 demo planc 1846-1847 行） ========== */
@@ -82,6 +82,31 @@ export interface PickableEntity {
   stat?: string;
 }
 
+/* ========== Portfolio Watch（Concept P） ========== */
+
+export type PortfolioSide = 'bullish' | 'bearish' | 'neutral';
+
+/** digest 一行 — 手选态无 weight/pnlPct，连 broker 态有 */
+export interface PortfolioHolding {
+  symbol: string;
+  name?: string;
+  weight?: number;
+  pnlPct?: number;
+  side: PortfolioSide;
+  take: string;
+  tag: string;
+}
+
+/** onboarding 一次创建的一组平行 automation 之一 */
+export interface PortfolioAuto {
+  id: string;
+  name: string;
+  cadence: string;
+  desc: string;
+  defaultOn: boolean;
+  icon: string;
+}
+
 /* ========== Alerts（带推送的自动化）与 Files（生成的文件） ========== */
 
 export interface AutomationCustom {
@@ -149,7 +174,8 @@ export type Reply =
   | { kind: 'task'; taskType: TaskType; tone: Tone; title: string; sub?: string; steps?: string[]; status?: 'done'; doneNote?: string }
   | { kind: 'building'; title: string; sub: string }
   | { kind: 'imrec' }
-  | { kind: 'subpush'; item: SubpushItem; skillKind: SkillKind };
+  | { kind: 'subpush'; item: SubpushItem; skillKind: SkillKind }
+  | { kind: 'portfolio-brief'; title: string; meta: string; summary: string; rows: PortfolioHolding[]; holdings: boolean; badge?: string };
 
 export interface ExtraMsg {
   id: number;

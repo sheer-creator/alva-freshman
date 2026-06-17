@@ -21,6 +21,7 @@ export const CONCEPTS: ConceptMeta[] = [
   { id: 'A', label: 'New user', width: 720 },
   { id: 'R', label: 'Returning', width: 680 },
   { id: 'K', label: 'KOL Digest', width: 720 },
+  { id: 'P', label: 'Portfolio', width: 720 },
 ];
 
 export const ROSTER = [
