@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 import { ChatProvider } from "@/app/components/chat/ChatContext";
 
-export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "agent-design" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "automations" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
+export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "agent-design" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
@@ -27,7 +27,6 @@ const AlvaChatDetail = lazy(() => import("@/pages/AlvaChatDetail"));
 const ReferralLanding = lazy(() => import("@/pages/ReferralLanding"));
 const PlaybookReferral = lazy(() => import("@/pages/PlaybookReferral"));
 const Thread = lazy(() => import("@/pages/Thread"));
-const Automations = lazy(() => import("@/pages/Automations"));
 const Notifications = lazy(() => import("@/pages/Notifications"));
 const TemplateScreener = lazy(() => import("@/pages/TemplateScreener"));
 const TemplateThesis = lazy(() => import("@/pages/TemplateThesis"));
@@ -37,7 +36,7 @@ const Screener = lazy(() => import("@/pages/Screener"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore-2", "agent", "agent-design", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "creator-earnings", "automations", "notifications", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener"];
+const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore-2", "agent", "agent-design", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "creator-earnings", "notifications", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -54,7 +53,7 @@ export function getThreadId(page: Page): string | null {
 
 /* ========== App ========== */
 
-const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alva-agent", "automations", "notifications", "api-keys"];
+const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alva-agent", "notifications", "api-keys"];
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
@@ -115,7 +114,6 @@ export default function App() {
         {currentPage === "pricing" && <Pricing onNavigate={navigate} />}
         {currentPage === "billing" && <Billing onNavigate={navigate} />}
         {currentPage === "creator-earnings" && <CreatorEarnings onNavigate={navigate} />}
-        {currentPage === "automations" && <Automations onNavigate={navigate} />}
         {currentPage === "notifications" && <Notifications onNavigate={navigate} />}
         {currentPage === "alva-chat-detail" && <AlvaChatDetail onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "referral-landing" && <ReferralLanding onNavigate={navigate} />}
