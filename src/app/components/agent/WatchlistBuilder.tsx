@@ -222,22 +222,32 @@ export function WatchlistBuilder({
   onGenerate: (p: DigestPayload) => void;
   onEdit: () => void;
 }) {
-  const [asset, setAsset] = useState<AssetClass>('stocks');
+  const [assets, setAssets] = useState<Set<AssetClass>>(new Set());
   const [pickedTickers, setPickedTickers] = useState<Set<string>>(new Set());
   const [pickedBaskets, setPickedBaskets] = useState<Set<string>>(new Set());
   const [alertTime, setAlertTime] = useState(ALERT_TIMES[1]);
   const [language, setLanguage] = useState(LANGUAGES[0]);
   const [autos, setAutos] = useState<Record<string, boolean>>({ brief: true, watch: true });
 
-  const visibleTickers = useMemo(() => TICKERS.filter((t) => t.asset === asset), [asset]);
+  // Asset 多选筛选：默认（空选）只预览前 8 行（23 个 + Choose more = 24 格 = 8×3），选中后按并集全量筛选
+  const visibleTickers = useMemo(
+    () => (assets.size === 0 ? TICKERS.slice(0, 23) : TICKERS.filter((t) => assets.has(t.asset))),
+    [assets],
+  );
+  const toggleAsset = (id: AssetClass) =>
+    setAssets((prev) => {
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
 
   const basketList = BASKETS.filter((b) => pickedBaskets.has(b.id));
-  const basketMembers = useMemo(() => new Set(basketList.flatMap((b) => b.members)), [pickedBaskets]); // eslint-disable-line react-hooks/exhaustive-deps
-  const extraTickers = [...pickedTickers].filter((s) => !basketMembers.has(s));
-  const chosenCount = basketList.reduce((n, b) => n + b.count, 0) + extraTickers.length;
+  const tickerList = [...pickedTickers];
+  // 篮子与单独标的相互独立：行勾选 / 下方 chip 只反映用户单独点的 ticker，篮子按整体 count 计入
+  const chosenCount = basketList.reduce((n, b) => n + b.count, 0) + tickerList.length;
   const hasChosen = chosenCount > 0;
 
-  const isTickerSel = (s: string) => pickedTickers.has(s) || basketMembers.has(s);
+  const isTickerSel = (s: string) => pickedTickers.has(s);
 
   const toggleTicker = (s: string) =>
     setPickedTickers((prev) => {
@@ -253,8 +263,7 @@ export function WatchlistBuilder({
     });
 
   const handleGenerate = () => {
-    const all = new Set<string>([...pickedTickers, ...basketMembers]);
-    onGenerate({ count: chosenCount, tickers: [...all], baskets: [...pickedBaskets], alertTime, language });
+    onGenerate({ count: chosenCount, tickers: tickerList, baskets: [...pickedBaskets], alertTime, language });
   };
 
   /* ── 提交后：折叠确认条 ── */
@@ -289,7 +298,7 @@ export function WatchlistBuilder({
           <p style={tx(14, 22, N9)}>Asset</p>
           <div className="flex flex-wrap items-start gap-[12px]">
             {ASSETS.map((a) => (
-              <Pill key={a.id} label={a.label} active={asset === a.id} onClick={() => setAsset(a.id)} />
+              <Pill key={a.id} label={a.label} active={assets.has(a.id)} onClick={() => toggleAsset(a.id)} />
             ))}
           </div>
         </div>
@@ -434,7 +443,7 @@ export function WatchlistBuilder({
                   </button>
                 </span>
               ))}
-              {extraTickers.map((s) => (
+              {tickerList.map((s) => (
                 <span key={s} className="flex items-center gap-[8px]" style={{ background: BR03, borderRadius: 6, padding: '4px 8px' }}>
                   <RingLogo ticker={s} />
                   <span className="whitespace-nowrap" style={tx(12, 20, N9)}>{s}</span>
