@@ -58,7 +58,7 @@ const TICKERS: WatchTicker[] = [
   { symbol: 'MU', name: 'Micron Technology, Inc.', tag: 'US', asset: 'stocks', chg: 9.07 },
   { symbol: 'WDC', name: 'Western Digital Corporation', tag: 'US', asset: 'stocks', chg: 31.55 },
   { symbol: 'AMD', name: 'Advanced Micro Devices, Inc.', tag: 'US', asset: 'stocks', chg: 2.41 },
-  { symbol: 'AVGO', name: 'Broadcom Inc.', tag: 'US', asset: 'stocks', chg: 0.88 },
+  { symbol: 'NFLX', name: 'Netflix, Inc.', tag: 'US', asset: 'stocks', chg: 0.90 },
   { symbol: 'QQQ', name: 'Invesco QQQ Trust', tag: 'US', asset: 'etf', chg: 3.90 },
   { symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust', tag: 'US', asset: 'etf', chg: 0.21 },
   { symbol: 'IWM', name: 'iShares Russell 2000 ETF', tag: 'US', asset: 'etf', chg: 0.95 },
@@ -78,11 +78,11 @@ const TICKERS: WatchTicker[] = [
 
 const BASKETS: WatchBasket[] = [
   { id: 'mag7', name: 'Mag7', count: 7, desc: 'Track the Magnificent 7 mega-cap tech leaders for broad exposure to AI, cloud, consumer platforms, and growth momentum.', members: ['AAPL', 'NVDA', 'GOOGL', 'AMZN'] },
-  { id: 'crypto-majors', name: 'Crypto Majors', count: 10, desc: 'Focuses on leading crypto assets and related equities for core exposure to the digital asset market.', members: ['BTC', 'ETH', 'SOL', 'COIN'] },
+  { id: 'crypto-majors', name: 'Crypto Majors', count: 10, desc: 'Focuses on leading crypto assets and related equities for core exposure to the digital asset market.', members: ['BTC', 'ETH', 'SOL', 'BNB'] },
   { id: 'most-active', name: 'Most Active Today', count: 24, desc: "Tracks the day's most actively traded names to surface high-volume, high-attention market opportunities.", members: ['TSLA', 'NVDA', 'AMD', 'COIN'] },
   { id: 'ai-semis', name: 'AI & Semis', count: 16, desc: 'Covers AI infrastructure, chips, compute, and the semiconductor supply chain.', members: ['NVDA', 'AMD', 'TSM', 'MU'] },
-  { id: 'glp1', name: 'GLP-1', count: 9, desc: 'Focuses on companies tied to weight-loss and metabolic disease treatments, especially GLP-1 therapies.', members: ['LLY', 'NVO', 'AMGN', 'PFE'] },
-  { id: 'power-grid', name: 'Power & Grid', count: 11, desc: 'Covers the electrification and grid build-out — utilities, power equipment, and data-center energy demand.', members: ['VRT', 'GEV', 'ETN', 'CEG'] },
+  { id: 'glp1', name: 'GLP-1', count: 9, desc: 'Focuses on companies tied to weight-loss and metabolic disease treatments, especially GLP-1 therapies.', members: ['UNH', 'ABT', 'A', 'WMT'] },
+  { id: 'mega-tech', name: 'Mega-cap Tech', count: 8, desc: 'Large-cap internet, streaming, and platform leaders driving consumer technology.', members: ['NFLX', 'UBER', 'META', 'GOOGL'] },
 ];
 
 const AUTOMATIONS = [
