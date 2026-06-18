@@ -136,13 +136,9 @@ function BasketLogos({ members }: { members: string[] }) {
   );
 }
 
-/* 选中徽标：teal 实心圆 + 白勾（对齐 Figma check-f2） */
-function CheckBadge() {
-  return (
-    <span className="flex size-[16px] shrink-0 items-center justify-center rounded-full" style={{ background: TEAL }}>
-      <CdnIcon name="check-l1" size={11} color="#fff" />
-    </span>
-  );
+/* 选中徽标：直接用 Figma check-f2 资源 —— #2a9b7d 实心圆 + 镂空勾（透出底色），不染色保留原貌 */
+function CheckBadge({ size = 16 }: { size?: number }) {
+  return <CdnIcon name="check-f2" size={size} />;
 }
 
 /* asset pill（active = br7 实心 + 白字；inactive = br03 + n7） */
