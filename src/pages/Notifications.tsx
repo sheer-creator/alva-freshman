@@ -149,7 +149,7 @@ function AlertCard({ item, onToggleStatus, onDelete, onUnsub, onNavigate }: {
         <div className="flex shrink-0 items-center gap-[8px]" style={{ minHeight: 48 }}>
           {created && (
             <>
-              <IconButton icon="edit-l1" label="Edit" onClick={() => onNavigate('agent-design')} />
+              <IconButton icon="edit-l1" label="Edit" onClick={() => onNavigate('agent')} />
               <IconButton icon={item.status === 'active' ? 'pause-l2' : 'play-f'} label={item.status === 'active' ? 'Pause' : 'Resume'} onClick={onToggleStatus} />
               <IconButton icon="delete-l" label="Delete" onClick={onDelete} />
             </>
@@ -205,7 +205,7 @@ export default function Notifications({ onNavigate }: { onNavigate: (page: Page)
             <ToggleSwitch on={createdOnly} onClick={() => setCreatedOnly((v) => !v)} />
             <span className="whitespace-nowrap" style={{ ...META, color: N9 }}>Created</span>
           </div>
-          <OutlineButton onClick={() => onNavigate('agent-design')}>
+          <OutlineButton onClick={() => onNavigate('agent')}>
             <CdnIcon name="add-l2" size={14} color={N9} />
             New Alerts
           </OutlineButton>

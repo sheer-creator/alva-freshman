@@ -222,7 +222,7 @@ export function PlaybookFeedPreview({
 /* ── Alva Agent (Design) — 新版设计，与远程旧版 agent 页并存 ── */
 export default function AgentDesign({ onNavigate }: { onNavigate: (page: Page) => void }) {
   return (
-    <AppShell activePage="agent-design" onNavigate={onNavigate}>
+    <AppShell activePage="agent" onNavigate={onNavigate}>
       <div className="h-screen flex flex-col bg-white">
         <AgentNewSession onNavigate={onNavigate} />
       </div>

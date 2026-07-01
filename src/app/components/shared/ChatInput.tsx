@@ -30,6 +30,8 @@ interface ChatInputProps {
   placeholder?: string;
   contextTag?: ContextTagData | null;
   shadow?: boolean;
+  /** 投影档位:默认 --shadow-s;Agent composer 用 xs */
+  shadowSize?: 'xs' | 's';
   onSend?: (text: string) => void;
   bottomChip?: BottomChipData | null;
   injectText?: InjectTextSignal | null;
@@ -119,7 +121,12 @@ const PICKER_HEIGHT: Record<PickerKind, number> = {
   mention: 350,
   skill: 272,
 };
-const MODEL_OPTIONS = ['Sonnet 4.6', 'Opus 4.7'];
+/* 模型选择 — Figma 7676:74179:默认 GPT-5.5,每项 20px 品牌 logo + 名称 */
+const MODEL_OPTIONS: { name: string; logo: string }[] = [
+  { name: 'GPT-5.5', logo: 'logo-social-openai.svg' },
+  { name: 'Opus 4.8', logo: 'logo-social-claude.svg' },
+  { name: 'Sonnet 4.6', logo: 'logo-social-claude.svg' },
+];
 
 const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
   {
@@ -816,9 +823,10 @@ function ChatPickerPreview({
   );
 }
 
-export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector, allowReferences = true, autoFocus = false, subtleBorder = false }: ChatInputProps) {
+export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector, allowReferences = true, autoFocus = false, subtleBorder = false, shadowSize = 's' }: ChatInputProps) {
   const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes, streamingState, stopStreaming } = useChatContext();
   const [hasText, setHasText] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [quoteHover, setQuoteHover] = useState(false);
   const [popoverBottom, setPopoverBottom] = useState(0);
   const [chipPulse, setChipPulse] = useState(false);
@@ -828,7 +836,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(MODEL_OPTIONS[0]);
+  const [selectedModel, setSelectedModel] = useState(MODEL_OPTIONS[0].name);
   const [hoveredPickerItem, setHoveredPickerItem] = useState<ChatPickerItem | null>(null);
   const [previewPosition, setPreviewPosition] = useState<PreviewPosition | null>(null);
   const [selectedMentionItems, setSelectedMentionItems] = useState<ChatPickerItem[]>([]);
@@ -1268,8 +1276,11 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   }, [injectText?.seq]);
 
   const handleFocus = useCallback(() => {
+    setFocused(true);
     requestAnimationFrame(() => placeCursorAtEnd());
   }, [placeCursorAtEnd]);
+
+  const handleBlur = useCallback(() => setFocused(false), []);
 
   const isStreamingOutput = !!streamingState?.isStreaming;
   const sendButtonActive = hasText || isStreamingOutput;
@@ -1305,12 +1316,18 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const pickerItems = activePicker === 'mention' ? MENTION_PICKER_ITEMS : activePicker === 'skill' ? SKILL_PICKER_ITEMS : [];
   const selectedQuoteItems = selectedSkillItem ? [...selectedMentionItems, selectedSkillItem] : selectedMentionItems;
 
+  /* 描边用 inset box-shadow 画,不占布局 → 0.5px↔1px 切换不跳动;激活 1px n9,静息 0.5px l2/0.7 */
+  const ringShadow = focused
+    ? 'inset 0 0 0 1px var(--text-n9, rgba(0,0,0,0.9))'
+    : `inset 0 0 0 0.5px ${subtleBorder ? 'var(--line-l2, rgba(0,0,0,0.2))' : 'var(--line-l7, rgba(0,0,0,0.7))'}`;
+  const wrapperShadow = shadow ? `${ringShadow}, var(--shadow-${shadowSize})` : ringShadow;
+
   return (
     <>
       <div
         ref={wrapperRef}
         className="relative w-full shrink-0 flex flex-col gap-[12px] p-[16px] chat-input-wrapper"
-        style={{ background: 'var(--b0-container, #fff)', border: `0.5px solid ${subtleBorder ? 'var(--line-l2, rgba(0,0,0,0.2))' : 'rgba(0,0,0,0.7)'}`, borderRadius: 8, boxShadow: shadow ? 'var(--shadow-s)' : undefined }}
+        style={{ background: 'var(--b0-container, #fff)', borderRadius: 8, boxShadow: wrapperShadow }}
       >
       <input
         ref={fileInputRef}
@@ -1592,6 +1609,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
           onInput={handleInput}
           onFocus={handleFocus}
+          onBlur={handleBlur}
           onKeyDown={handleKeyDown}
         />
       </div>
@@ -1670,20 +1688,20 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           {modelMenuOpen && (
             <div
               ref={modelMenuRef}
-              className="absolute right-0 bottom-[30px] z-[120] flex w-[144px] flex-col overflow-hidden rounded-[8px] p-[4px]"
+              className="absolute right-0 bottom-[30px] z-[120] flex w-[240px] flex-col overflow-hidden rounded-[6px] p-[4px]"
               style={{
                 background: 'var(--b0-container, #fff)',
                 border: '0.5px solid var(--line-l2)',
                 boxShadow: 'var(--shadow-s)',
               }}
             >
-              {MODEL_OPTIONS.map((model) => {
-                const selected = model === selectedModel;
+              {MODEL_OPTIONS.map((m) => {
+                const selected = m.name === selectedModel;
                 return (
                   <button
-                    key={model}
+                    key={m.name}
                     type="button"
-                    className="flex h-[38px] w-full items-center rounded-[4px] px-[12px] py-[8px] text-left transition-colors"
+                    className="flex h-[38px] w-full items-center gap-[8px] rounded-[4px] px-[12px] py-[8px] text-left transition-colors"
                     style={{
                       background: selected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent',
                     }}
@@ -1693,13 +1711,14 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
                     onMouseLeave={(event) => {
                       event.currentTarget.style.background = selected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent';
                     }}
-                    onClick={() => selectModel(model)}
+                    onClick={() => selectModel(m.name)}
                   >
+                    <img src={`${import.meta.env.BASE_URL}${m.logo}`} alt="" className="size-[20px] shrink-0" />
                     <span
                       className="min-w-0 flex-1 truncate font-['Delight',sans-serif] text-[14px] font-normal leading-[22px] tracking-[0.14px]"
                       style={{ color: selected ? 'var(--main-m1)' : 'var(--text-n9)' }}
                     >
-                      {model}
+                      {m.name}
                     </span>
                   </button>
                 );

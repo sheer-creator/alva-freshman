@@ -2420,7 +2420,6 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
           {/* 输入框 */}
           <div className="nc-chatbox-wrap" style={{ width: '100%', maxWidth: HERO_WIDTH, position: 'relative', zIndex: 1 }}>
             <ChatInput
-              shadow
               hideSkill
               hideInspector
               allowReferences={false}
@@ -2481,7 +2480,6 @@ export default function NewChat({ onNavigate }: { onNavigate: (page: Page) => vo
                 flexWrap: 'wrap',
                 gap: 12,
                 justifyContent: 'center',
-                paddingTop: 12,
                 position: 'relative',
                 zIndex: 1,
                 width: '100%',

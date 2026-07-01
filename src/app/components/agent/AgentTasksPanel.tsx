@@ -10,6 +10,10 @@ import { AlvaLoading } from '@/app/components/shared/AlvaLoading';
 import { AgentTaskDetail } from '@/app/components/agent/AgentTaskDetail';
 
 const FONT = "'Delight', sans-serif";
+const BASE = import.meta.env.BASE_URL;
+
+/* 任务图标 — Figma step-f(填充,fill-opacity 0.2=n2);CDN 无 step-f,用导出 svg 直出 */
+const ICON_STEP = `${BASE}icon-task-step.svg`;
 
 export type AgentTaskStatus = 'running' | 'needs-input' | 'queued' | 'done' | 'paused';
 
@@ -135,11 +139,9 @@ function TaskRow({ task, onClick }: { task: AgentTask; onClick?: () => void }) {
       style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
       onClick={onClick}
     >
-      <div className="flex w-full items-start gap-[12px]">
-        {/* Icon — Figma 7913:137596:28px 方容器 br03 圆角 2,内嵌 16px step-l;hover 卡片 → 底 br07,图标不变色 */}
-        <div className="flex size-[28px] shrink-0 items-center justify-center rounded-[4px] bg-[var(--b-r03,rgba(0,0,0,0.03))] transition-colors group-hover:bg-[var(--b-r07,rgba(0,0,0,0.07))]">
-          <CdnIcon name="step-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-        </div>
+      <div className="flex w-full items-start gap-[8px]">
+        {/* Icon — Figma 8341:125838:裸 24px step-f(填充 n2),无容器 */}
+        <img src={ICON_STEP} alt="" className="size-[24px] shrink-0" />
         <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
           <p className="w-full text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
             {task.title}

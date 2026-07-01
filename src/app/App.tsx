@@ -2,13 +2,12 @@ import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 import { ChatProvider } from "@/app/components/chat/ChatContext";
 
-export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "agent-design" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
+export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "notifications" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
 const NewChat = lazy(() => import("@/pages/NewChat"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
-const AgentChannel = lazy(() => import("@/pages/AgentChannel"));
 const AgentDesign = lazy(() => import("@/pages/AgentDesign"));
 const OpenAlvaDocs = lazy(() => import("@/pages/OpenAlvaDocs"));
 
@@ -36,7 +35,7 @@ const Screener = lazy(() => import("@/pages/Screener"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore-2", "agent", "agent-design", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "creator-earnings", "notifications", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener"];
+const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "creator-earnings", "notifications", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-thesis", "template-whatif", "template-notification", "screener"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
@@ -58,7 +57,6 @@ const SETTINGS_PAGES: Page[] = ["account", "billing", "portfolio-settings", "alv
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [agentKey, setAgentKey] = useState(0);
   const [, startTransition] = useTransition();
 
   // 监听浏览器前进/后退 + 记录进入 settings 前的 page
@@ -89,7 +87,6 @@ export default function App() {
     window.location.hash = page;
     startTransition(() => {
       setCurrentPage(page);
-      if (page === 'agent') setAgentKey(k => k + 1);
     });
   };
 
@@ -104,8 +101,7 @@ export default function App() {
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} />}
         {currentPage === "explore-2" && <Explore2 onNavigate={navigate} onOpenSearch={openSearch} />}
-        {currentPage === "agent" && <AgentChannel key={agentKey} onNavigate={navigate} />}
-        {currentPage === "agent-design" && <AgentDesign onNavigate={navigate} />}
+        {currentPage === "agent" && <AgentDesign onNavigate={navigate} />}
         {currentPage === "user-profile" && <UserProfile onNavigate={navigate} />}
         {currentPage === "account" && <Account onNavigate={navigate} />}
         {currentPage === "alva-agent" && <AlvaAgentSettings onNavigate={navigate} />}

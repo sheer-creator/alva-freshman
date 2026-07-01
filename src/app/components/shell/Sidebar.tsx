@@ -8,6 +8,7 @@ import type { Page } from '@/app/App';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PLAYBOOK_NAV_ITEMS } from '@/data/playbooks';
+import type { ReactNode } from 'react';
 
 /* ========== 类型 ========== */
 
@@ -27,7 +28,35 @@ export const SIDEBAR_W_COLLAPSED = 56;
 
 /* ========== 导航项组件 ========== */
 
-function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed, channelAccent, onClick }: { label: string; icon?: string; avatarName?: string; badge?: string | number; active?: boolean; deprecated?: boolean; collapsed?: boolean; channelAccent?: boolean; onClick?: () => void }) {
+const ICON_CDN = 'https://alva-ai-static.b-cdn.net/icons';
+const FINTWIT_GRADIENT = 'linear-gradient(90deg, #6BDBD5 0%, #8FAFFF 42%, #C092F6 74%, #F5C579 100%)';
+
+function GradientCdnIcon({ name, size = 16 }: { name: string; size?: number }) {
+  const url = `${ICON_CDN}/${name}.svg`;
+  return (
+    <span
+      aria-hidden
+      className="block shrink-0"
+      style={{
+        width: size,
+        height: size,
+        backgroundImage: FINTWIT_GRADIENT,
+        WebkitMaskImage: `url(${url})`,
+        WebkitMaskSize: 'contain',
+        WebkitMaskRepeat: 'no-repeat',
+        WebkitMaskPosition: 'center',
+        maskImage: `url(${url})`,
+        maskSize: 'contain',
+        maskRepeat: 'no-repeat',
+        maskPosition: 'center',
+        maskMode: 'alpha',
+        WebkitMaskMode: 'alpha' as never,
+      }}
+    />
+  );
+}
+
+function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed, channelAccent, gradient, onClick }: { label: string; icon?: string; avatarName?: string; badge?: string | number; active?: boolean; deprecated?: boolean; collapsed?: boolean; channelAccent?: boolean; gradient?: boolean; onClick?: () => void }) {
   const interactive = Boolean(onClick);
   // channelAccent：demo planc 的 .ch-me 频道样式 — 青色图标 + 青色 active/hover 底
   const activeBg = channelAccent ? 'bg-[rgba(73,163,166,0.16)]' : 'bg-white/5';
@@ -51,6 +80,8 @@ function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed
         <div className="overflow-clip relative shrink-0 size-[16px] flex items-center justify-center">
           {avatarName ? (
             <Avatar name={avatarName} size={16} />
+          ) : icon && gradient ? (
+            <GradientCdnIcon name={icon} size={16} />
           ) : icon ? (
             <CdnIcon name={icon} size={16} color={iconColor} />
           ) : null}
@@ -58,7 +89,10 @@ function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed
       )}
       {!collapsed && (
         <>
-          <p className={`font-['Delight',sans-serif] leading-[22px] overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${badge != null ? 'shrink-0' : 'flex-[1_0_0] min-w-px'}`}>
+          <p
+            className={`font-['Delight',sans-serif] leading-[22px] overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${badge != null ? 'shrink-0' : 'flex-[1_0_0] min-w-px'} ${gradient ? 'text-transparent bg-clip-text' : ''}`}
+            style={gradient ? { backgroundImage: FINTWIT_GRADIENT } : undefined}
+          >
             {label}
           </p>
           {badge != null && (
@@ -77,15 +111,16 @@ function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed
   );
 }
 
-function SectionHeader({ label, collapsed }: { label: string; collapsed?: boolean }) {
+function SectionHeader({ label, collapsed, action }: { label: string; collapsed?: boolean; action?: ReactNode }) {
   if (collapsed) {
     return <div className="h-[12px] shrink-0 w-full" aria-hidden />;
   }
   return (
-    <div className="content-stretch flex gap-0 h-[36px] items-center overflow-clip px-[8px] py-[4px] relative rounded-[4px] shrink-0 w-full">
-      <p className="font-['Delight',sans-serif] font-normal leading-[20px] opacity-50 overflow-hidden relative shrink-0 text-[12px] text-ellipsis text-white tracking-[0.12px] whitespace-nowrap">
+    <div className="content-stretch flex gap-[4px] h-[36px] items-center overflow-clip px-[8px] py-[4px] relative rounded-[4px] shrink-0 w-full">
+      <p className="font-['Delight',sans-serif] font-normal leading-[20px] opacity-50 overflow-hidden relative flex-[1_0_0] min-w-px text-[12px] text-ellipsis text-white tracking-[0.12px] whitespace-nowrap">
         {label}
       </p>
+      {action && <div className="relative shrink-0 opacity-50">{action}</div>}
     </div>
   );
 }
@@ -157,11 +192,16 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* 主导航 */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
-        <NavItem label="Alva Agent" icon="sidebar-agent-normal" channelAccent active={activePage === 'agent'} collapsed={collapsed} onClick={() => onNavigate('agent')} />
-        <NavItem label="Alva Agent (Design)" icon="sidebar-agent-normal" channelAccent active={activePage === 'agent-design'} collapsed={collapsed} onClick={() => onNavigate('agent-design')} />
         <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore'} collapsed={collapsed} onClick={() => onNavigate('explore')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} collapsed={collapsed} onClick={() => onNavigate('alva-skills')} />
+        <NavItem label="FinTwit Alpha League" icon="smart-money-l" gradient collapsed={collapsed} />
+      </div>
+
+      {/* Channels */}
+      <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[6]">
+        <SectionHeader label="Channels" collapsed={collapsed} action={<CdnIcon name="add-l2" size={12} color="#ffffff" />} />
+        <NavItem label="Alva Agent" icon="sidebar-agent-normal" active={activePage === 'agent'} collapsed={collapsed} onClick={() => onNavigate('agent')} />
       </div>
 
       {/* Playbooks */}

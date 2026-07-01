@@ -17,6 +17,14 @@ export type ConnectAppRowData = {
   logo: string;
 };
 
+/** 链接式渠道行(如 iMessage)——不走连接/单选,点击跳转到独立流程,尾部箭头 */
+export type ConnectLinkRow = {
+  id: string;
+  name: string;
+  sub: string;
+  logo: string;
+};
+
 export function ConnectAppList({
   rows,
   connectedIds,
@@ -25,6 +33,8 @@ export function ConnectAppList({
   onDisconnect,
   onSetActive,
   interceptConnect,
+  linkRows,
+  onLinkRow,
 }: {
   rows: ConnectAppRowData[];
   connectedIds: string[];
@@ -34,6 +44,9 @@ export function ConnectAppList({
   onSetActive: (id: string) => void;
   /** 返回 true 表示由调用方接管连接流程(如 Discord 配对弹窗) */
   interceptConnect?: (id: string) => boolean;
+  /** 链接式渠道(如 iMessage)——固定排在列表末尾,尾部箭头,点击走 onLinkRow */
+  linkRows?: ConnectLinkRow[];
+  onLinkRow?: (id: string) => void;
 }) {
   const [pending, setPending] = useState<string | null>(null);
   const start = (id: string) => {
@@ -121,6 +134,28 @@ export function ConnectAppList({
           </div>
         );
       })}
+      {linkRows?.map((row) => (
+        <button
+          key={row.id}
+          type="button"
+          className="flex w-full cursor-pointer items-center gap-[12px] rounded-[var(--radius-ct-l,8px)] bg-white px-[16px] py-[12px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+          style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+          onClick={() => onLinkRow?.(row.id)}
+        >
+          <img src={row.logo} alt="" className="size-[36px] shrink-0 rounded-full" />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <p className="truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              {row.name}
+            </p>
+            <p className="truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+              {row.sub}
+            </p>
+          </div>
+          <span className="shrink-0">
+            <CdnIcon name="arrow-right-f2" size={14} color="var(--text-n2, rgba(0,0,0,0.2))" />
+          </span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -150,7 +185,7 @@ export function ConnectAppsModal({
               Connect
             </p>
             <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>
-              Choose the messaging app for your Alva Agent
+              Choose the messaging app for your Alva Agent.
             </p>
           </div>
           <button

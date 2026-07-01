@@ -26,9 +26,11 @@ interface DropdownProps {
   width?: number;
   maxHeight?: number;
   align?: 'left' | 'right';
+  /* 向上展开（触发器贴底、容器 overflow-hidden 会裁掉向下菜单时用） */
+  openUp?: boolean;
 }
 
-export function Dropdown({ items, sections, activeId, onSelect, trigger, width, maxHeight, align = 'left' }: DropdownProps) {
+export function Dropdown({ items, sections, activeId, onSelect, trigger, width, maxHeight, align = 'left', openUp = false }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -110,7 +112,7 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
       </div>
       {open && (
         <div
-          className="absolute top-full mt-[4px] z-50 flex flex-col"
+          className={`absolute z-50 flex flex-col ${openUp ? 'bottom-full mb-[4px]' : 'top-full mt-[4px]'}`}
           style={{
             backgroundColor: 'var(--b0-container, #fff)',
             padding: 4,

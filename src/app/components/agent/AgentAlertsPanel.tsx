@@ -173,12 +173,15 @@ function buildAlertPushes(alert: AgentAlert): PushCardData[] {
 const ALERT_INSTRUCTION =
   'I want to set up a Project monitor automation. Briefly explain how automations work in Alva, then ask me what project to watch, what changes matter, and when it should check in.';
 
-export function AgentAlertsPanel() {
+/* 顶部「Get Started」双卡(Figma 8341:126009):只在传入时渲染 */
+export interface AlertGetStartedCard { id: string; emoji: string; title: string; desc: string; onClick?: () => void }
+
+export function AgentAlertsPanel({ alerts = AGENT_ALERTS, getStarted }: { alerts?: AgentAlert[]; getStarted?: AlertGetStartedCard[] } = {}) {
   const [filter, setFilter] = useState<AlertFilter>('all');
   const [createdOnly, setCreatedOnly] = useState(false);
   const [activeAlert, setActiveAlert] = useState<AgentAlert | null>(null);
   const [statusMap, setStatusMap] = useState<Record<string, AgentAlertStatus>>(() =>
-    Object.fromEntries(AGENT_ALERTS.map((a) => [a.id, a.status])),
+    Object.fromEntries(alerts.map((a) => [a.id, a.status])),
   );
   /* playbook 组默认收起;记录被展开的 id */
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -193,20 +196,59 @@ export function AgentAlertsPanel() {
     return true;
   };
 
-  const groups = useMemo(
-    () =>
-      AGENT_ALERT_GROUPS.map((g) => ({
-        group: g,
-        total: AGENT_ALERTS.filter((a) => a.playbookId === g.id).length,
-        alerts: AGENT_ALERTS.filter((a) => a.playbookId === g.id && visible(a)),
-      })).filter((g) => g.alerts.length > 0),
-    [filter, createdOnly, statusMap],
-  );
-  const standalone = useMemo(() => AGENT_ALERTS.filter((a) => !a.playbookId && visible(a)), [filter, createdOnly, statusMap]);
+  /* 统一按数据顺序渲染:group 卡出现在其首个成员的位置,standalone 就地渲染 — 与 Figma 8341:126009 的交错顺序一致 */
+  const orderedItems = useMemo(() => {
+    const byId = new Map(AGENT_ALERT_GROUPS.map((g) => [g.id, g]));
+    const seen = new Set<string>();
+    const items: (
+      | { kind: 'group'; group: AlertPlaybookGroup; total: number; rows: AgentAlert[] }
+      | { kind: 'alert'; alert: AgentAlert }
+    )[] = [];
+    for (const a of alerts) {
+      const g = a.playbookId ? byId.get(a.playbookId) : undefined;
+      if (g) {
+        if (seen.has(g.id)) continue;
+        seen.add(g.id);
+        const rows = alerts.filter((x) => x.playbookId === g.id && visible(x));
+        if (rows.length === 0) continue;
+        items.push({ kind: 'group', group: g, total: alerts.filter((x) => x.playbookId === g.id).length, rows });
+      } else if (visible(a)) {
+        items.push({ kind: 'alert', alert: a });
+      }
+    }
+    return items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, createdOnly, statusMap, alerts]);
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-[28px]">
       <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[16px]">
+        {/* Get Started — Figma 9946:805301:标题(Regular16) + gap16 + 单卡容器内 2 个 flex-1 单元,中间竖分割线 */}
+        {getStarted && getStarted.length > 0 && (
+          <div className="mb-[24px] flex w-full flex-col gap-[16px]">
+            <p className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Get Started</p>
+            <div className="flex w-full items-stretch overflow-hidden rounded-[8px] bg-white" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+              {getStarted.map((c, i, arr) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={c.onClick}
+                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-[8px] border-none bg-transparent p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+                  style={{ borderRight: i < arr.length - 1 ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : undefined }}
+                >
+                  <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                    <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                      <span className="mr-[8px]">{c.emoji}</span>{c.title}
+                    </p>
+                    <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{c.desc}</p>
+                  </div>
+                  <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 顶部行 — 过滤 pills + Created 开关 + New Alerts */}
         <div className="flex w-full items-center gap-[20px]">
           <div className="flex flex-1 flex-wrap items-center gap-[12px]">
@@ -243,71 +285,71 @@ export function AgentAlertsPanel() {
           </button>
         </div>
 
-        {/* 分组卡 — 订阅自整个 playbook;可折叠 */}
-        {groups.map(({ group, alerts, total }) => {
-          const open = !!expanded[group.id];
-          return (
-          <div key={group.id} className="w-full overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
-            {/* 组头 — 三角 + 头像 + (名 / meta) + Unsubscribe;点击展开收起 */}
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setExpanded((p) => ({ ...p, [group.id]: !open }))}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((p) => ({ ...p, [group.id]: !open })); } }}
-              className="flex w-full cursor-pointer items-center gap-[8px] p-[20px]"
-              style={{ background: 'var(--b-r02, rgba(0,0,0,0.02))' }}
-            >
-              <GroupArrow open={open} />
-              <Avatar name={group.avatar} size={30} />
-              <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                <span className="min-w-0 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                  {group.playbook}
-                </span>
-                <span className="flex items-center gap-[8px] text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
-                  <span className="whitespace-nowrap">{total} Automations</span>
-                  <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>
-                  <span className="whitespace-nowrap">Last Run: {alerts[0]?.lastRun ?? '15m'}</span>
-                </span>
+        {/* 列表 — group 卡与 standalone 卡按数据顺序交错(Figma 8341:126009) */}
+        {orderedItems.map((it) => {
+          if (it.kind === 'group') {
+            const { group, rows, total } = it;
+            const open = !!expanded[group.id];
+            return (
+            <div key={group.id} className="w-full overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+              {/* 组头 — 三角 + 头像 + (名 / meta) + Unsubscribe;点击展开收起 */}
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setExpanded((p) => ({ ...p, [group.id]: !open }))}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((p) => ({ ...p, [group.id]: !open })); } }}
+                className="flex w-full cursor-pointer items-center gap-[8px] p-[20px]"
+                style={{ background: 'var(--b-r02, rgba(0,0,0,0.02))' }}
+              >
+                <GroupArrow open={open} />
+                <Avatar name={group.avatar} size={30} />
+                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                  <span className="min-w-0 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                    {group.playbook}
+                  </span>
+                  <span className="flex items-center gap-[8px] text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
+                    <span className="whitespace-nowrap">{total} Automations</span>
+                    <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>
+                    <span className="whitespace-nowrap">Last Run: {rows[0]?.lastRun ?? '15m'}</span>
+                  </span>
+                </div>
+                <UnsubscribeBtn />
               </div>
-              <UnsubscribeBtn />
-            </div>
-            {/* 行列表 — px-20,行间分隔线 l12 */}
-            {open && (
-            <div className="flex w-full flex-col px-[20px]">
-              {alerts.map((a, i) => {
-                const st = statusOf(a);
-                return (
-                  <div
-                    key={a.id}
-                    className="group flex w-full items-start gap-[8px] py-[12px]"
-                    style={{ borderTop: i > 0 ? '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' : 'none' }}
-                  >
-                    <AlertBody
-                      alert={a}
-                      status={st}
-                      onOpen={() => setActiveAlert(a)}
-                      controls={
-                        a.source === 'created' ? (
-                          <>
-                            <RowActions status={st} onToggleStatus={() => toggleStatus(a.id)} />
+              {/* 行列表 — px-20,行间分隔线 l12 */}
+              {open && (
+              <div className="flex w-full flex-col px-[20px]">
+                {rows.map((a, i) => {
+                  const st = statusOf(a);
+                  return (
+                    <div
+                      key={a.id}
+                      className="group flex w-full items-start gap-[8px] py-[12px]"
+                      style={{ borderTop: i > 0 ? '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' : 'none' }}
+                    >
+                      <AlertBody
+                        alert={a}
+                        status={st}
+                        onOpen={() => setActiveAlert(a)}
+                        controls={
+                          a.source === 'created' ? (
+                            <>
+                              <RowActions status={st} onToggleStatus={() => toggleStatus(a.id)} />
+                              <ToggleSwitch on={st === 'active'} onClick={() => toggleStatus(a.id)} />
+                            </>
+                          ) : (
                             <ToggleSwitch on={st === 'active'} onClick={() => toggleStatus(a.id)} />
-                          </>
-                        ) : (
-                          <ToggleSwitch on={st === 'active'} onClick={() => toggleStatus(a.id)} />
-                        )
-                      }
-                    />
-                  </div>
-                );
-              })}
+                          )
+                        }
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              )}
             </div>
-            )}
-          </div>
-          );
-        })}
-
-        {/* 单条卡 */}
-        {standalone.map((a) => {
+            );
+          }
+          const a = it.alert;
           const st = statusOf(a);
           const created = a.source === 'created';
           return (
