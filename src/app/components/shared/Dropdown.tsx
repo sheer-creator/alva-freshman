@@ -10,6 +10,8 @@ export interface DropdownItem {
   icon?: string;
   iconColor?: string;
   badge?: number;
+  /* hover 行时右侧浮现的操作(如 rename/delete);点击走 onAction、不触发选中 */
+  actions?: { id: string; icon: string; label: string }[];
 }
 
 export interface DropdownSection {
@@ -28,9 +30,11 @@ interface DropdownProps {
   align?: 'left' | 'right';
   /* 向上展开（触发器贴底、容器 overflow-hidden 会裁掉向下菜单时用） */
   openUp?: boolean;
+  /* 行内 hover 操作点击回调(itemId, actionId) */
+  onAction?: (itemId: string, actionId: string) => void;
 }
 
-export function Dropdown({ items, sections, activeId, onSelect, trigger, width, maxHeight, align = 'left', openUp = false }: DropdownProps) {
+export function Dropdown({ items, sections, activeId, onSelect, trigger, width, maxHeight, align = 'left', openUp = false, onAction }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -54,7 +58,7 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
     return (
       <div
         key={item.id}
-        className="relative flex h-[38px] w-full items-center gap-[8px] rounded-[4px] px-[12px] py-[8px]"
+        className="group relative flex h-[38px] w-full items-center gap-[8px] rounded-[4px] px-[12px] py-[8px]"
         style={{
           backgroundColor: selected ? DROPDOWN_ACTIVE_BACKGROUND : 'transparent',
           transition: 'background-color 0.12s ease',
@@ -101,6 +105,21 @@ export function Dropdown({ items, sections, activeId, onSelect, trigger, width, 
             </span>
           )}
         </span>
+        {item.actions && item.actions.length > 0 && (
+          <div className="flex shrink-0 items-center gap-[12px] opacity-0 transition-opacity group-hover:opacity-100">
+            {item.actions.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                aria-label={a.label}
+                className="flex size-[16px] items-center justify-center text-[var(--text-n5,rgba(0,0,0,0.5))] transition-colors hover:text-[var(--text-n9,rgba(0,0,0,0.9))]"
+                onClick={(e) => { e.stopPropagation(); onAction?.(item.id, a.id); }}
+              >
+                <CdnIcon name={a.icon} size={16} color="currentColor" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     );
   };

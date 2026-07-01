@@ -142,7 +142,7 @@ export function ActivityTrace({
   const resolvedSummary = summary || `Ran ${Math.max(steps.length, 1)} commands, searched code, read a file`;
 
   return (
-    <div className="flex w-full flex-col items-start gap-[12px]">
+    <div className="flex w-full flex-col items-start">
       <button
         type="button"
         className="flex w-full cursor-pointer items-center gap-[4px] border-0 bg-transparent p-0 text-left"
@@ -166,7 +166,8 @@ export function ActivityTrace({
         }}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="flex w-full flex-col items-start gap-[12px]">
+          {/* pt-12 提供展开后与 summary 的间距；折叠(0fr)时被 overflow 裁掉，避免折叠态占幽灵间距 */}
+          <div className="flex w-full flex-col items-start gap-[12px] pt-[12px]">
             {steps.map((step, index) => (
               <TraceStep
                 key={`${step.label}-${index}`}

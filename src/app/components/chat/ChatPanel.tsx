@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { CdnIcon } from '../shared/CdnIcon';
 import { ChatInput } from '../shared/ChatInput';
-import { Dropdown } from '../shared/Dropdown';
 import { ThreadSwitcherDropdown } from '../shared/ThreadSwitcherDropdown';
 import { useChatContext } from './ChatContext';
 import { ChatMessages } from './ChatMessages';
@@ -94,16 +93,10 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
               trigger={
                 isAgent ? (
                   <div className="flex items-center gap-[8px] min-w-0 cursor-pointer">
-                    <div className="relative shrink-0">
-                      <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva Agent" className="rounded-full" style={{ width: 20, height: 20 }} />
-                      <div
-                        className="absolute -bottom-[1px] right-[-3px] size-[8px] rounded-full border-[1.5px] border-white"
-                        style={{ background: 'var(--main-m1, #49A3A6)' }}
-                      />
-                    </div>
+                    <img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="Alva" className="shrink-0 rounded-[4px]" style={{ width: 22, height: 22 }} />
                     <div className="flex gap-[4px] items-center min-w-0">
-                      <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] truncate`}>
-                        Alva Agent
+                      <p className={`${FONT} text-[14px] font-medium leading-[22px] tracking-[0.14px] text-[rgba(0,0,0,0.9)] truncate`}>
+                        Alva
                       </p>
                       <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2)" />
                     </div>
@@ -143,17 +136,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                 <IconButton label="Open full view" onClick={handleFullscreen}>
                   <CdnIcon name="full-screen-l" size={16} />
                 </IconButton>
-                <Dropdown
-                  items={[{ id: 'rename', label: 'Rename', icon: 'edit-l1' }, { id: 'delete', label: 'Delete', icon: 'delete-l' }]}
-                  onSelect={() => {}}
-                  width={180}
-                  align="right"
-                  trigger={
-                    <div className="shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
-                      <CdnIcon name="more-l1" size={16} />
-                    </div>
-                  }
-                />
+                {/* rename/delete 已移至会话列表(ThreadSwitcherDropdown)行内 hover;顶栏不再放 ... 下拉 */}
                 <IconButton label="Collapse panel" onClick={onClose}>
                   <CdnIcon name="collapse-right-l" size={16} />
                 </IconButton>
@@ -169,7 +152,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
               <div ref={agentScrollRef} className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full px-[16px] pb-[48px]">
                 <div className="agent-channel panel-thread">
                   {/* 与频道 Chat tab（Concept A）同一份 onboarding — 新用户从任何页面开面板都能被 onboard */}
-                  <ConceptA onPrompt={channel.onPrompt} onStartTask={channel.onStartTask} onSubscribed={channel.onSubscribed} />
+                  <ConceptA onOpenFull={handleFullscreen} />
                   <ExtraThread
                     extra={extra}
                     subtle
@@ -180,7 +163,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                   />
                 </div>
               </div>
-              <ChatInput contextTag={inputContextTag} allowReferences={isPlaybookContext} onSend={channel.onPrompt} autoFocus />
+              <ChatInput contextTag={inputContextTag} allowReferences={isPlaybookContext} onSend={channel.onPrompt} subtleBorder autoFocus />
             </>
           ) : (
             <>
@@ -221,6 +204,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                     allowReferences={isPlaybookContext}
                     onSend={sendPrompt}
                     injectText={injectSignal}
+                    subtleBorder
                     autoFocus
                   />
                 </>

@@ -2,6 +2,7 @@ import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { AgentNewSession } from '@/app/components/agent/AgentNewSession';
+import { useChannels } from '@/app/state/channels';
 
 const FONT = "font-['Delight',sans-serif]";
 
@@ -221,10 +222,11 @@ export function PlaybookFeedPreview({
 
 /* ── Alva Agent (Design) — 新版设计，与远程旧版 agent 页并存 ── */
 export default function AgentDesign({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const { current } = useChannels();
   return (
     <AppShell activePage="agent" onNavigate={onNavigate}>
       <div className="h-screen flex flex-col bg-white">
-        <AgentNewSession onNavigate={onNavigate} />
+        <AgentNewSession onNavigate={onNavigate} channel={current} />
       </div>
     </AppShell>
   );

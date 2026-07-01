@@ -1,7 +1,7 @@
 /**
  * [INPUT]: Figma Page/Agent/Chat(8111:9397 / 8160:82896 / 8166:84016) — Build your watchlist 渐进流
- * [OUTPUT]: Agent 页 empty 态 — Header + 5 tab + daily-digest watchlist builder 开场 + composer
- *           Generate digest → 跑 automation 任务流并推首条 digest;聊天与 IM 解耦
+ * [OUTPUT]: Agent 页 empty 态 — Header + 5 tab + onboard 引导卡开场（不随连接切换）+ 常显 composer
+ *           聊天与 IM 解耦；连接 IM 仅点亮 Tasks/Files + 推 Connected 消息
  * [POS]: pages/AgentDesign.tsx 统一渲染本组件
  */
 
@@ -14,7 +14,6 @@ import { AgentArtifactsPanel, AGENT_ARTIFACTS } from '@/app/components/agent/Age
 import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/components/agent/AgentAlertsPanel';
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
-import { WatchlistBuilder, type DigestPayload } from '@/app/components/agent/WatchlistBuilder';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 
 const FONT = "'Delight', sans-serif";
@@ -188,14 +187,26 @@ function AlvaPortrait({ size = 32 }: { size?: number }) {
   );
 }
 
-function AgentMsg({ pushed, time = 'Thursday 7:22 PM', children }: { pushed?: boolean; time?: string; children: React.ReactNode }) {
+/* 频道头像：与 Alva 同款深色圆角方块，内嵌白色 channel 图标 */
+function ChannelPortrait({ size = 32 }: { size?: number }) {
+  return (
+    <span
+      className="flex shrink-0 items-center justify-center rounded-[4px]"
+      style={{ width: size, height: size, background: 'var(--b0-sidebar, #2a2a38)' }}
+    >
+      <CdnIcon name="sidebar-channel-normal" size={Math.round(size * 0.6)} color="#ffffff" />
+    </span>
+  );
+}
+
+function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva Agent', children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; children: React.ReactNode }) {
   return (
     <div className="flex w-full items-start gap-[8px]">
-      <AlvaPortrait size={22} />
+      {portrait ?? <AlvaPortrait size={22} />}
       {/* name 行与内容整体 gap 8;内容 div 内部(Markdown / widget 块之间)gap 12 */}
       <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
         <div className="flex items-center gap-[8px]">
-          <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Alva Agent</p>
+          <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{name}</p>
           {pushed && (
             <span
               className="rounded-[4px] px-[5px] text-[10px] leading-[16px] tracking-[0.3px]"
@@ -259,7 +270,7 @@ type ExtraMsg =
 
 /* ========== 主组件 ========== */
 
-export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => void }) {
+export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Page) => void; channel?: { id: string; name: string; description?: string } | null }) {
   const base = import.meta.env.BASE_URL;
   const [tab, setTab] = useState('chat');
   const [extra, setExtra] = useState<ExtraMsg[]>([]);
@@ -267,8 +278,6 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
   /* 谁接收 IM 推送 — 单 active channel,绑定/解绑随动(spec: 解绑 active 回退最早绑定) */
   const [imActive, setImActive] = useState<string | null>(null);
   const [imModalOpen, setImModalOpen] = useState(false);
-  /* digest builder 是否已提交（提交后卡片折叠为确认条） */
-  const [digestSubmitted, setDigestSubmitted] = useState(false);
   /* 会话是否已开始（Start Watching / 发过 prompt）：true 则收起 onboard 空态，进入真实对话 */
   const [started, setStarted] = useState(false);
   /* 会话产出的 alert（Start Watching 建一条 portfolio watch）→ 驱动 Alerts tab 计数 + 面板 */
@@ -290,8 +299,19 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
   const stageRef = useRef<HTMLDivElement>(null);
 
   const activeIm = imActive ? IMS.find((i) => i.id === imActive) ?? null : null;
-  /* 未连接 IM = onboarding 态:chat 显示引导卡片(Figma Onboard/Default);连接后走 WatchlistBuilder 流 */
+  /* 是否连过 IM（驱动 imrec 软推荐是否出现 + Tasks/Files 是否点亮）；不再影响开场 onboard 视图 */
   const connected = Object.values(imLinks).some(Boolean);
+
+  /* 切换频道（含默认 Alva Agent）时，视图与会话产出回到该频道的空态 onboard；
+     连接状态(imLinks/imActive)刻意不重置——右上角连接态在所有频道间与 Alva Agent 同步 */
+  useEffect(() => {
+    setTab('chat');
+    setPortfolioOpen(false);
+    setExtra([]);
+    setSessionAlerts([]);
+    setStarted(false);
+    imRecShownRef.current = false;
+  }, [channel?.id]);
 
   const scrollToEnd = useCallback(() => {
     requestAnimationFrame(() => {
@@ -342,38 +362,6 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
     }, 700);
   }, [scrollToEnd]);
 
-  /* Generate digest → 跑 automation 任务流，跑完推首条 daily digest（复用 task / subpush 机制）*/
-  const onGenerateDigest = useCallback((p: DigestPayload) => {
-    setTab('chat');
-    setDigestSubmitted(true);
-    const typingId = ++idRef.current;
-    setExtra((prev) => [...prev, { id: typingId, role: 'typing' }]);
-    scrollToEnd();
-    setTimeout(() => {
-      const taskId = ++idRef.current;
-      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: taskId, role: 'task', title: `Daily Digest · ${p.count} tickers`, kind: 'automation', state: 'running' }));
-      scrollToEnd();
-      setTimeout(() => {
-        setExtra((prev) => prev.map((m) => (m.id === taskId && m.role === 'task' ? { ...m, state: 'done' } : m)));
-        const lead = p.tickers.slice(0, 3).join(', ') || 'your watchlist';
-        const more = p.tickers.length > 3 ? ` +${p.tickers.length - 3} more` : '';
-        pushSubscribe(
-          'Daily Digest',
-          `Tomorrow ${p.alertTime}: first brief on ${lead}${more} — overnight catalysts, biggest movers, and what changed.`,
-          `Daily Digest · ${p.alertTime}`,
-        );
-        if (!Object.values(imLinksRef.current).some(Boolean) && !imRecShownRef.current) {
-          imRecShownRef.current = true;
-          setTimeout(() => {
-            setExtra((prev) => [...prev, { id: ++idRef.current, role: 'imrec' }]);
-            scrollToEnd();
-          }, 1600);
-        }
-      }, 4200);
-    }, 900);
-  }, [scrollToEnd, pushSubscribe]);
-
-  const onEditDigest = useCallback(() => setDigestSubmitted(false), []);
 
   /* Start Watching → 收起 builder + onboard 空态 → 一条 Alva 确认回复(内嵌「选择推送渠道」卡片,未连接才显示),无用户气泡 */
   const onStartWatching = useCallback((_picks: { symbol: string; qty: string }[]) => {
@@ -426,14 +414,24 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
-      {/* Agent Header — Figma 7885:108604 */}
+      {/* Agent Header — Figma 7885:108604；频道态：# 头像 + 频道名 + (有描述才显示描述行) */}
       <div className="flex shrink-0 items-center gap-[12px] px-[28px] py-[16px]">
-        <AlvaPortrait />
+        {channel ? <ChannelPortrait /> : <AlvaPortrait />}
         <div className="flex min-w-0 flex-1 flex-col">
-          <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Alva Agent</p>
-          <p className="truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-            Your AI investing agent. Ask me to research markets, build live Playbooks, or set up automations that watch the market for you.
+          <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+            {channel ? channel.name : 'Alva Agent'}
           </p>
+          {channel ? (
+            channel.description && (
+              <p className="truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                {channel.description}
+              </p>
+            )
+          ) : (
+            <p className="truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+              Your AI investing agent. Ask me to research markets, build live Playbooks, or set up automations that watch the market for you.
+            </p>
+          )}
         </div>
         {/* IM Select — Figma 7887:111979:hug 宽 gap-4 px-12 py-6,尾部 6px 状态点;未连接态(7904:195614)为主色实心 Connect;点击都打开连接 modal */}
         {activeIm ? (
@@ -510,7 +508,7 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
             <style>{MSG_IN_CSS}</style>
             <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
               <MsgIn>
-                <AgentMsg time="">
+                <AgentMsg time="" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
                   <div>
                     <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Hey, tell me what you hold and I'll help watch your portfolio 24/7.</p>
                     <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -528,27 +526,10 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
             <style>{MSG_IN_CSS}</style>
             <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
               {/* 会话未开始才显示 onboard 空态;Start Watching / 发消息后收起,进入真实对话 */}
-              {!started && (connected ? (
+              {/* 开场恒为 onboard 引导（不随连接切换），只要未创建过（!started）就一直显示 */}
+              {!started && (
               <MsgIn>
-              <AgentMsg>
-                <div>
-                  <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Set up your daily digest</p>
-                  <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                    Tell me what to watch — connect a portfolio to auto-fill from your holdings, tap a starter basket, or pick tickers by hand. Every morning I'll push the catalysts that move them, right here.
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Build your watchlist</p>
-                  <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                    Pick what Alva tracks — by asset, region, or name. Connect a portfolio to auto-fill from your holdings.
-                  </p>
-                </div>
-                <WatchlistBuilder submitted={digestSubmitted} onGenerate={onGenerateDigest} onEdit={onEditDigest} />
-              </AgentMsg>
-              </MsgIn>
-              ) : (
-              <MsgIn>
-              <AgentMsg time="">
+              <AgentMsg time="" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
                 <div>
                   <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Hey, I'm Alva, your AI investing agent.</p>
                   <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -576,7 +557,7 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
                 </div>
               </AgentMsg>
               </MsgIn>
-              ))}
+              )}
 
               {extra.map((m) => {
                 if (m.role === 'user') return <MsgIn key={m.id}><UserMsg text={m.text} /></MsgIn>;
@@ -701,14 +682,12 @@ export function AgentNewSession({ onNavigate }: { onNavigate: (page: Page) => vo
             </div>
           </div>
 
-          {/* 未连接 onboard 态显示 composer;会话开始(started)或 digest 生成后也常显,进入真实对话可继续聊天 */}
-          {(!connected || digestSubmitted || started) && (
-            <div className="shrink-0 px-[28px] pb-[28px]">
-              <div className="mx-auto w-full max-w-[960px]">
-                <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
-              </div>
+          {/* composer 常显：onboard / 已开始对话都可继续聊天 */}
+          <div className="shrink-0 px-[28px] pb-[28px]">
+            <div className="mx-auto w-full max-w-[960px]">
+              <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
             </div>
-          )}
+          </div>
         </>
         )
       ) : tab === 'tasks' ? (

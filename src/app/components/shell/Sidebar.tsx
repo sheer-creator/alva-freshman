@@ -8,7 +8,9 @@ import type { Page } from '@/app/App';
 import { Avatar } from '@/app/components/shared/Avatar';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PLAYBOOK_NAV_ITEMS } from '@/data/playbooks';
-import type { ReactNode } from 'react';
+import { channelsStore, useChannels } from '@/app/state/channels';
+import { NewChannelModal } from '@/app/components/shared/NewChannelModal';
+import { useState, type ReactNode } from 'react';
 
 /* ========== 类型 ========== */
 
@@ -120,7 +122,7 @@ function SectionHeader({ label, collapsed, action }: { label: string; collapsed?
       <p className="font-['Delight',sans-serif] font-normal leading-[20px] opacity-50 overflow-hidden relative flex-[1_0_0] min-w-px text-[12px] text-ellipsis text-white tracking-[0.12px] whitespace-nowrap">
         {label}
       </p>
-      {action && <div className="relative shrink-0 opacity-50">{action}</div>}
+      {action && <div className="relative shrink-0">{action}</div>}
     </div>
   );
 }
@@ -177,7 +179,15 @@ function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?
 
 export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, onOpenReferral, collapsed = false, onToggleCollapsed }: SidebarProps) {
   void onOpenSearch; void onOpenReferral; void onToggleCollapsed; // 保持已有签名
+  const { channels, currentId } = useChannels();
+  const [newChannelOpen, setNewChannelOpen] = useState(false);
+  const onAgent = activePage === 'agent';
+  const openChannel = (id: string | null) => {
+    channelsStore.setCurrent(id);
+    onNavigate('agent');
+  };
   return (
+    <>
     <div
       className="antialiased bg-[var(--b0-sidebar)] flex flex-col gap-0 h-screen fixed left-0 top-0 isolate items-start p-[8px] shrink-0 z-[2] overflow-y-auto overflow-x-hidden"
       style={{
@@ -200,8 +210,24 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
 
       {/* Channels */}
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[6]">
-        <SectionHeader label="Channels" collapsed={collapsed} action={<CdnIcon name="add-l2" size={12} color="#ffffff" />} />
-        <NavItem label="Alva Agent" icon="sidebar-agent-normal" active={activePage === 'agent'} collapsed={collapsed} onClick={() => onNavigate('agent')} />
+        <SectionHeader
+          label="Channels"
+          collapsed={collapsed}
+          action={
+            <button
+              type="button"
+              className="flex cursor-pointer items-center justify-center border-none bg-transparent p-0 opacity-50 transition-opacity hover:opacity-100"
+              onClick={() => setNewChannelOpen(true)}
+              aria-label="New channel"
+            >
+              <CdnIcon name="add-l2" size={12} color="#ffffff" />
+            </button>
+          }
+        />
+        <NavItem label="Alva Agent" icon="sidebar-agent-normal" active={onAgent && currentId === null} collapsed={collapsed} onClick={() => openChannel(null)} />
+        {channels.map((ch) => (
+          <NavItem key={ch.id} label={ch.name} icon="sidebar-channel-normal" active={onAgent && currentId === ch.id} collapsed={collapsed} onClick={() => openChannel(ch.id)} />
+        ))}
       </div>
 
       {/* Playbooks */}
@@ -292,5 +318,18 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         )}
       </div>
     </div>
+
+    {newChannelOpen && (
+      <NewChannelModal
+        onClose={() => setNewChannelOpen(false)}
+        nameExists={(n) => channelsStore.nameExists(n)}
+        onCreate={(name, description) => {
+          channelsStore.add(name, description);
+          setNewChannelOpen(false);
+          onNavigate('agent');
+        }}
+      />
+    )}
+    </>
   );
 }

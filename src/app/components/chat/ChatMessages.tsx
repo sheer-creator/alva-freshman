@@ -214,52 +214,89 @@ function BulletList({ items }: { items: { bold?: string; text: string }[] }) {
   );
 }
 
+/* Source 链接 — Figma 31129:18619:16px 圆形来源头像 + dotted 下划线链接(n7, 下划线色 rgba(0,0,0,0.5), skip-ink none)；无 "Source:" 前缀、无 go-l 箭头 */
 function SourceLink({ sourceThreadId }: { sourceThreadId?: string }) {
   return (
     <div className="flex items-center gap-[4px]">
-      <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]">Source:</span>
-      <div className="flex items-center gap-[2px]">
-        <span
-          className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] underline decoration-dotted cursor-pointer"
-          style={{ textDecorationColor: 'var(--text-n5)' }}
-          onClick={() => { if (sourceThreadId) sessionStorage.setItem('openChatWithThread', sourceThreadId); window.location.hash = 'trends'; }}
-        >
-          BTC Ultimate AI Trader
-        </span>
-        <CdnIcon name="go-l" size={14} />
-      </div>
+      <img src={`${import.meta.env.BASE_URL}source-avatar.png`} alt="" className="size-[16px] shrink-0 rounded-full object-cover" />
+      <span
+        className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)] underline decoration-dotted cursor-pointer whitespace-nowrap"
+        style={{ textDecorationColor: 'var(--text-n5, rgba(0,0,0,0.5))', textDecorationThickness: '8%', textUnderlineOffset: '35%', textDecorationSkipInk: 'none' }}
+        onClick={() => { if (sourceThreadId) sessionStorage.setItem('openChatWithThread', sourceThreadId); window.location.hash = 'trends'; }}
+      >
+        BTC Ultimate AI Trader
+      </span>
+    </div>
+  );
+}
+
+/* drawer answer 头部 — Figma 9888:764342:22px logo-portrait + Alva(medium 14) + 时间(n5 12)，gap8 */
+function DrawerAgentHeader({ time }: { time: string }) {
+  const FONT = "font-['Delight',sans-serif]";
+  return (
+    <div className="flex h-[22px] items-center gap-[8px] w-full">
+      <img
+        src={`${import.meta.env.BASE_URL}logo-portrait.svg`}
+        alt="Alva"
+        className="shrink-0 rounded-[4px]"
+        style={{ width: 22, height: 22 }}
+      />
+      <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] truncate`}>
+        <span className="font-medium">Alva</span>
+        <span className="text-[12px] leading-[20px] tracking-[0.12px] text-[var(--text-n5)]">{`  ${time}`}</span>
+      </p>
+    </div>
+  );
+}
+
+/* answer 末尾 copy 图标 — Figma 31129:18621:copy-l 16(n9) */
+function AnswerCopy({ text }: { text: string }) {
+  return (
+    <div className="flex w-full items-center">
+      <button
+        type="button"
+        aria-label="Copy"
+        className="flex size-[16px] shrink-0 cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-60"
+        onClick={() => { navigator.clipboard?.writeText(text).catch(() => {}); }}
+      >
+        <CdnIcon name="copy-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+      </button>
     </div>
   );
 }
 
 function DrawerConversation({ sourceThreadId }: { sourceThreadId?: string }) {
   const FONT = "font-['Delight',sans-serif]";
+  /* 每条 answer:头部整行 + pl-30 缩进内容块（对齐 Alva 文字，avatar22+gap8）；内容首项为 ActivityTrace，末项 copy */
   return (
-    <div className="flex flex-col gap-[16px] items-start w-full">
+    <div className="flex flex-col gap-[28px] items-start w-full pt-[8px]">
+      {/* Round 1 · user（气泡自适应宽度、右对齐，最宽填满容器） */}
       <div className="flex flex-col items-end w-full">
-        <div className="w-full px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
+        <div className="max-w-full px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>
           <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)]`}>{MOCK_USER_MSG}</p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-[4px] w-full pt-[4px]">
-        <AlvaLogo />
+      {/* Round 1 · answer */}
+      <div className="flex flex-col gap-[8px] items-start w-full">
+        <DrawerAgentHeader time="10:28 PM" />
+        <div className="flex flex-col gap-[12px] items-start w-full pl-[30px]">
+          <ActivityTrace />
+          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
+            Building the <span className="font-medium">3-Widget Grid</span> layout:
+          </p>
+          <BulletList items={MOCK_BULLETS.map(b => ({ bold: b.bold, text: b.text }))} />
+          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Dashboard is ready. Here's a summary:</p>
+          <SourceLink sourceThreadId={sourceThreadId} />
+          <PlaybookCard sourceThreadId={sourceThreadId} variant="drawer" />
+          <AnswerCopy text="Building the 3-Widget Grid layout. Dashboard is ready." />
+        </div>
       </div>
-      <ActivityTrace />
 
-      <div className="flex flex-col gap-[12px] items-start w-full">
-        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>
-          Building the <span className="font-medium">3-Widget Grid</span> layout:
-        </p>
-        <BulletList items={MOCK_BULLETS.map(b => ({ bold: b.bold, text: b.text }))} />
-        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Dashboard is ready. Here's a summary:</p>
-        <SourceLink sourceThreadId={sourceThreadId} />
-        <PlaybookCard sourceThreadId={sourceThreadId} variant="drawer" />
-      </div>
-
+      {/* Round 2 · user (Q&A)（气泡自适应宽度、右对齐） */}
       <div className="flex flex-col items-end w-full">
         <div
-          className={`${FONT} flex flex-col w-full px-[16px] py-[12px] text-[14px] leading-[22px] tracking-[0.14px]`}
+          className={`${FONT} flex flex-col max-w-full px-[16px] py-[12px] text-[14px] leading-[22px] tracking-[0.14px]`}
           style={{ background: 'var(--main-m1-10)', borderRadius: 8, gap: 12 }}
         >
           {MOCK_QA_PAIRS.map((pair, i) => (
@@ -271,16 +308,17 @@ function DrawerConversation({ sourceThreadId }: { sourceThreadId?: string }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-[4px] w-full pt-[4px]">
-        <AlvaLogo />
-      </div>
-      <ActivityTrace />
-
-      <div className="flex flex-col gap-[12px] items-start w-full">
-        <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Key takeaways:</p>
-        <BulletList items={MOCK_TAKEAWAYS.map(t => ({ text: t }))} />
-        <SourceLink sourceThreadId={sourceThreadId} />
-        <PlaybookCard sourceThreadId={sourceThreadId} variant="drawer" />
+      {/* Round 2 · answer */}
+      <div className="flex flex-col gap-[8px] items-start w-full">
+        <DrawerAgentHeader time="10:26 PM" />
+        <div className="flex flex-col gap-[12px] items-start w-full pl-[30px]">
+          <ActivityTrace />
+          <p className={`${FONT} text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] w-full`}>Key takeaways:</p>
+          <BulletList items={MOCK_TAKEAWAYS.map(t => ({ text: t }))} />
+          <SourceLink sourceThreadId={sourceThreadId} />
+          <PlaybookCard sourceThreadId={sourceThreadId} variant="drawer" />
+          <AnswerCopy text="Key takeaways on NVDA vs AMD forward P/E and gross margin." />
+        </div>
       </div>
     </div>
   );
