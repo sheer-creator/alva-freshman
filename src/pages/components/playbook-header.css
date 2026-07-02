@@ -1011,6 +1011,23 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     line-height: 20px; letter-spacing: 0.12px;
     color: #fff;
 }
+/* Subscribed 态：铃铛 + 计数（仅 is-on 显示；未订阅是青底 Subscribe，无图标/计数） */
+.pb-alerts-bell {
+    width: 14px; height: 14px; flex-shrink: 0;
+    display: none;
+    background-color: var(--text-n9);
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/notification-l.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/notification-l.svg') center / contain no-repeat;
+}
+.pb-alerts-count {
+    display: none;
+    font-family: inherit;
+    font-size: 12px; font-weight: 500;
+    line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n5, rgba(0,0,0,0.5));
+}
+.pb-alerts-btn.is-on .pb-alerts-bell { display: inline-block; }
+.pb-alerts-btn.is-on .pb-alerts-count { display: inline; }
 
 /* Alerts popover (opens from Star or Get Alerts) */
 .alerts-popover {
@@ -1181,6 +1198,21 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     display: flex; flex-direction: column; gap: var(--sp-s, 12px);
     width: 100%;
 }
+/* Unsubscribe — 全宽 outline 按钮（Subscribe 弹层底部） */
+.alerts-unsubscribe-btn {
+    width: 100%; height: 48px;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 9px var(--sp-l, 20px);
+    background: #fff;
+    border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
+    border-radius: var(--radius-ct-l, 8px);
+    font-family: inherit;
+    font-size: 14px; font-weight: 500; line-height: 22px; letter-spacing: 0.14px;
+    color: var(--text-n9);
+    cursor: pointer;
+    transition: background .15s;
+}
+.alerts-unsubscribe-btn:hover { background: var(--b-r03, rgba(0,0,0,0.03)); }
 .alerts-connected-head {
     display: flex; align-items: center; justify-content: space-between;
     width: 100%;

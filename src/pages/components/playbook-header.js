@@ -190,7 +190,7 @@
     var remix = host.getAttribute('remix') || '';
     var alertsEnabled = host.hasAttribute('get-alerts')
       && host.getAttribute('get-alerts') !== 'false';
-    var alertsLabel = host.getAttribute('alerts-label') || 'Get Alerts';
+    var alertsLabel = host.getAttribute('alerts-label') || 'Subscribe';
     var alertsStartConnected = host.hasAttribute('alerts-connected')
       && host.getAttribute('alerts-connected') !== 'false';
     var comments = host.getAttribute('comments') || '';
@@ -460,12 +460,14 @@
             '</div>' +
             (alertsEnabled
               ? '<div class="alerts-menu">' +
-                  '<button class="pb-alerts-btn' + (alertsStartConnected ? ' is-on' : '') + '" type="button" aria-label="' + esc(alertsLabel) + '" data-alerts-trigger aria-haspopup="dialog" aria-expanded="false">' +
-                    '<span class="pb-alerts-label">' + esc(alertsLabel) + '</span>' +
+                  '<button class="pb-alerts-btn' + (alertsStartConnected ? ' is-on' : '') + '" type="button" aria-label="' + (alertsStartConnected ? 'Subscribed' : esc(alertsLabel)) + '" data-alerts-trigger aria-haspopup="dialog" aria-expanded="false">' +
+                    '<span class="pb-alerts-bell" aria-hidden="true"></span>' +
+                    '<span class="pb-alerts-label">' + (alertsStartConnected ? 'Subscribed' : esc(alertsLabel)) + '</span>' +
+                    '<span class="pb-alerts-count">16</span>' +
                   '</button>' +
                   '<div class="alerts-popover' + (alertsStartConnected ? ' is-connected' : '') + '" data-alerts-popover role="dialog" aria-label="' + esc(alertsLabel) + '" aria-hidden="true">' +
                     '<div class="alerts-popover-initial" data-alerts-initial>' +
-                      '<p class="alerts-popover-title">Get Alerts</p>' +
+                      '<p class="alerts-popover-title">Subscribe</p>' +
                       '<div class="alerts-popover-card">' +
                         '<div class="alerts-popover-logo"><img src="/alva-infant/logo-portrait.svg" alt="" /></div>' +
                         '<p class="alerts-popover-subtitle">Connect Agents to Get Notified</p>' +
@@ -488,14 +490,11 @@
                       '</div>' +
                     '</div>' +
                     '<div class="alerts-popover-connected" data-alerts-connected>' +
-                      '<p class="alerts-popover-title">Get Alerts</p>' +
+                      '<p class="alerts-popover-title">Subscribe</p>' +
                       '<div class="alerts-connected-section">' +
                         '<div class="alerts-connected-head">' +
-                          '<span class="alerts-connected-head-label">Automations</span>' +
-                          '<div class="alerts-connected-toggle">' +
-                            '<span class="alerts-connected-toggle-label">Receive Alerts</span>' +
-                            '<button type="button" class="switch" data-alerts-switch role="switch" aria-checked="false"><span class="switch-thumb"></span></button>' +
-                          '</div>' +
+                          '<span class="alerts-connected-head-label">Receive Automations Alerts</span>' +
+                          '<button type="button" class="switch" data-alerts-switch role="switch" aria-checked="false"><span class="switch-thumb"></span></button>' +
                         '</div>' +
                         '<div class="alerts-automations-list" data-alerts-automations>' +
                           '<div class="alerts-automation-row">' +
@@ -531,6 +530,7 @@
                           '</div>' +
                         '</div>' +
                       '</div>' +
+                      '<button type="button" class="alerts-unsubscribe-btn" data-alerts-unsubscribe>Unsubscribe</button>' +
                     '</div>' +
                   '</div>' +
                 '</div>'
@@ -1083,10 +1083,10 @@
       var automationSwitches = Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
       if (alertsBtn) {
         alertsBtn.classList.toggle('is-on', on);
-        alertsBtn.setAttribute('aria-label', on ? 'Alert On' : 'Get Alerts');
+        alertsBtn.setAttribute('aria-label', on ? 'Subscribed' : 'Subscribe');
       }
       if (alertsBtnLabel) {
-        alertsBtnLabel.textContent = on ? 'Alert On' : 'Get Alerts';
+        alertsBtnLabel.textContent = on ? 'Subscribed' : 'Subscribe';
       }
       if (receiveSwitch) {
         receiveSwitch.classList.toggle('on', on);
@@ -1128,6 +1128,15 @@
       alertsBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         if (popover.classList.contains('open')) close(); else open();
+      });
+    }
+    // Unsubscribe：关订阅（总开关 + automations 置灰）后收起弹层
+    var unsubscribeBtn = popover.querySelector('[data-alerts-unsubscribe]');
+    if (unsubscribeBtn) {
+      unsubscribeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setReceiveAlertsState(false);
+        close();
       });
     }
     if (starBtn) {
