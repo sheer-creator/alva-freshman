@@ -88,10 +88,10 @@
   --radius-pop-popover: 8px;
   --radius-pop-toast: 8px;
   --radius-pop-tips: 8px;
-  --radius-btn-xs: 4px;
-  --radius-btn-s: 6px;
-  --radius-btn-m: 8px;
-  --radius-btn-l: 12px;
+  --radius-btn-xs: 2px;
+  --radius-btn-s: 4px;
+  --radius-btn-m: 6px;
+  --radius-btn-l: 8px;
 
   /* ── Text (Light) ── */
   --text-n9: rgba(0, 0, 0, 0.9);

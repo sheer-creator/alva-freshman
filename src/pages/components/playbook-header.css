@@ -177,7 +177,7 @@ playbook-header { display: contents; }
     width: 100%;
     background: var(--b0-container, #fff);
     border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
-    border-radius: var(--radius-btn-m, 8px);
+    border-radius: var(--radius-btn-m, 6px);
     font-family: inherit;
     font-size: 14px; font-weight: 400;
     line-height: 22px; letter-spacing: 0.14px;
@@ -854,7 +854,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     padding: 9px var(--sp-l, 20px);
     background: #fff;
     border: 0.5px solid var(--line-l3);
-    border-radius: var(--radius-btn-m, 8px);
+    border-radius: var(--radius-btn-m, 6px);
     font-family: inherit;
     font-size: 14px; font-weight: 500;
     line-height: 22px; letter-spacing: 0.14px;
@@ -929,7 +929,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     background: #24a1de;
     color: #fff;
     border: none;
-    border-radius: var(--radius-btn-m, 8px);
+    border-radius: var(--radius-btn-m, 6px);
     font-family: inherit;
     font-size: 14px; font-weight: 500;
     line-height: 22px; letter-spacing: 0.14px;
@@ -961,7 +961,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     padding: 9px var(--sp-l, 20px);
     background: transparent;
     border: 0.5px solid var(--line-l3);
-    border-radius: var(--radius-btn-m, 8px);
+    border-radius: var(--radius-btn-m, 6px);
     font-family: inherit;
     font-size: 14px; font-weight: 500;
     line-height: 22px; letter-spacing: 0.14px;
@@ -1089,20 +1089,23 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     width: 100%;
 }
 /* Unsubscribe — 全宽 outline 按钮（Subscribe 弹层底部） */
+/* btn-medium + btn-secondary 规范（src/styles/button.css）：40 高 / 9×20 / radius-btn-m / 14 medium */
 .alerts-unsubscribe-btn {
-    width: 100%; height: 48px;
+    width: 100%; height: 40px;
     display: inline-flex; align-items: center; justify-content: center;
+    gap: var(--sp-xs, 8px);
     padding: 9px var(--sp-l, 20px);
-    background: #fff;
+    background: transparent;
     border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
-    border-radius: var(--radius-ct-l, 8px);
+    border-radius: var(--radius-btn-m, 6px);
     font-family: inherit;
     font-size: 14px; font-weight: 500; line-height: 22px; letter-spacing: 0.14px;
     color: var(--text-n9);
     cursor: pointer;
-    transition: background .15s;
+    transition: border-color .15s, background .15s;
 }
-.alerts-unsubscribe-btn:hover { background: var(--b-r03, rgba(0,0,0,0.03)); }
+.alerts-unsubscribe-btn:hover { border-color: var(--text-n9, rgba(0,0,0,0.9)); }
+.alerts-unsubscribe-btn:active { border-color: var(--line-l3, rgba(0,0,0,0.3)); background: var(--b-r02, rgba(0,0,0,0.02)); }
 .alerts-connected-head {
     display: flex; align-items: center; justify-content: space-between;
     width: 100%;

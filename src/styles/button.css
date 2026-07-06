@@ -91,7 +91,7 @@
   height: 32px;
   padding: 6px var(--spacing-m);
   gap: 6px;
-  border-radius: var(--radius-btn-xs, 4px);
+  border-radius: var(--radius-btn-xs, 2px);
   font-size: 12px;
   line-height: 20px;
   letter-spacing: 0.12px;

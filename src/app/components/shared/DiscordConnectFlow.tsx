@@ -180,7 +180,7 @@ export function DiscordConnectFlow({ onPaired, onClose, className = '' }: Discor
             minWidth: 128,
             gap: 'var(--spacing-xs, 8px)',
             padding: '11px var(--spacing-l, 20px)',
-            borderRadius: 'var(--radius-btn-m, 8px)',
+            borderRadius: 'var(--radius-btn-m, 6px)',
             background: 'var(--main-m1, #49a3a6)',
             border: 'none',
           }}

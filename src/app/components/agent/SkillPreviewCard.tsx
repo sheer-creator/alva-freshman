@@ -95,7 +95,7 @@ export function SkillPreviewCard({ card, subscribed, onSubscribe, onRemix, onOpe
             </div>
             <div className="flex shrink-0 items-center gap-[8px]">
               <button
-                className="flex h-[32px] cursor-pointer items-center justify-center gap-[4px] rounded-[var(--radius-btn-s,4px)] bg-transparent px-[10px] py-[6px] transition-colors hover:bg-[var(--b-r02)]"
+                className="flex h-[32px] cursor-pointer items-center justify-center gap-[4px] rounded-[var(--radius-btn-s, 4px)] bg-transparent px-[10px] py-[6px] transition-colors hover:bg-[var(--b-r02)]"
                 style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
                 onClick={(e) => { e.stopPropagation(); onRemix?.(); }}
               >
@@ -103,12 +103,12 @@ export function SkillPreviewCard({ card, subscribed, onSubscribe, onRemix, onOpe
                 <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'rgba(0,0,0,0.5)' }}>{card.remixes}</span>
               </button>
               {subscribed ? (
-                <span className="flex h-[32px] items-center rounded-[var(--radius-btn-s,4px)] px-[10px]" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
+                <span className="flex h-[32px] items-center rounded-[var(--radius-btn-s, 4px)] px-[10px]" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
                   <span className="text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--main-m1, #49A3A6)' }}>Subscribed</span>
                 </span>
               ) : (
                 <button
-                  className="flex h-[32px] cursor-pointer items-center justify-center gap-[4px] rounded-[var(--radius-btn-s,4px)] border-none px-[10px] py-[6px] transition-opacity hover:opacity-90"
+                  className="flex h-[32px] cursor-pointer items-center justify-center gap-[4px] rounded-[var(--radius-btn-s, 4px)] border-none px-[10px] py-[6px] transition-opacity hover:opacity-90"
                   style={{ fontFamily: FONT, background: 'var(--main-m1, #49A3A6)' }}
                   onClick={(e) => { e.stopPropagation(); onSubscribe(); }}
                 >

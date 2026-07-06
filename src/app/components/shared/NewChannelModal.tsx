@@ -80,7 +80,7 @@ export function NewChannelModal({
             <span className="text-[16px] leading-[26px]" style={{ fontFamily: FONT, color: M4 }}>*</span>
           </div>
           <div className="flex w-full flex-col gap-[4px]">
-            <div className="flex h-[48px] w-full items-center rounded-[var(--radius-btn-m,6px)] bg-white px-[16px] py-[11px]" style={{ border: `0.5px solid ${showError ? M4 : L3}` }}>
+            <div className="flex h-[48px] w-full items-center rounded-[var(--radius-btn-m, 6px)] bg-white px-[16px] py-[11px]" style={{ border: `0.5px solid ${showError ? M4 : L3}` }}>
               <input
                 autoFocus
                 value={name}
@@ -101,7 +101,7 @@ export function NewChannelModal({
         {/* Description（选填，0/500） */}
         <div className="flex w-full flex-col gap-[12px]">
           <span className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: N7 }}>Description</span>
-          <div className="relative w-full rounded-[var(--radius-btn-m,6px)] bg-white p-[16px]" style={{ border: `0.5px solid ${L3}` }}>
+          <div className="relative w-full rounded-[var(--radius-btn-m, 6px)] bg-white p-[16px]" style={{ border: `0.5px solid ${L3}` }}>
             <textarea
               value={desc}
               maxLength={DESC_MAX}
@@ -122,7 +122,7 @@ export function NewChannelModal({
             type="button"
             disabled={!canCreate}
             onClick={submit}
-            className="flex min-w-0 flex-1 items-center justify-center gap-[8px] rounded-[var(--radius-btn-m,6px)] px-[20px] py-[11px] transition-[filter,background] hover:enabled:brightness-95"
+            className="flex min-w-0 flex-1 items-center justify-center gap-[8px] rounded-[var(--radius-btn-m, 6px)] px-[20px] py-[11px] transition-[filter,background] hover:enabled:brightness-95"
             style={{
               background: canCreate ? 'var(--main-m1, #49A3A6)' : 'white',
               border: canCreate ? 'none' : `0.5px solid ${L3}`,
