@@ -31,11 +31,11 @@ function TgGuide({ onDone }: { onDone: () => void }) {
             <span className="tgg-ava"><img src={`${import.meta.env.BASE_URL}logo-portrait.svg`} alt="" /></span>
             <div><div className="tgg-name">Alva</div><div className="tgg-sub">bot · one DM for all your channels</div></div>
           </div>
-          <div className="tgg-row" style={{ animationDelay: '120ms' }}><span className="tgg-i"><ChannelIcon name="agent" size={12} /></span>General<span className="tgg-n">Alva Agent</span></div>
+          <div className="tgg-row" style={{ animationDelay: '120ms' }}><span className="tgg-i"><ChannelIcon name="agent" size={12} /></span>General<span className="tgg-n">Alva</span></div>
         </div>
       )}
       <div className="tgg-created"><span className="tgg-i">#</span>{CHANNEL.label}<span className="tgg-n">just created as a topic in your Alva bot DM</span></div>
-      <div className="tgg-cap">One bot DM, a topic per channel — Telegram Threaded Mode. Reply inside a topic and it lands back in that channel; plain messages go to Alva Agent. <a href="https://core.telegram.org/bots#natively-integrate-ai-chatbots" target="_blank" rel="noreferrer">Official demo ↗</a></div>
+      <div className="tgg-cap">One bot DM, a topic per channel — Telegram Threaded Mode. Reply inside a topic and it lands back in that channel; plain messages go to Alva. <a href="https://core.telegram.org/bots#natively-integrate-ai-chatbots" target="_blank" rel="noreferrer">Official demo ↗</a></div>
       <button className="post-go" style={{ width: '100%', marginTop: 12 }} onClick={onDone}>Continue connecting</button>
     </div>
   );

@@ -199,7 +199,7 @@ function ChannelPortrait({ size = 32 }: { size?: number }) {
   );
 }
 
-function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva Agent', children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; children: React.ReactNode }) {
+function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; children: React.ReactNode }) {
   return (
     <div className="flex w-full items-start gap-[8px]">
       {portrait ?? <AlvaPortrait size={22} />}
@@ -419,7 +419,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         {channel ? <ChannelPortrait /> : <AlvaPortrait />}
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-            {channel ? channel.name : 'Alva Agent'}
+            {channel ? channel.name : 'Alva'}
           </p>
           {channel ? (
             channel.description && (

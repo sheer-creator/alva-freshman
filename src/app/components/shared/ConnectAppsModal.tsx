@@ -185,7 +185,7 @@ export function ConnectAppsModal({
               Connect
             </p>
             <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>
-              Choose the messaging app for your Alva Agent.
+              Choose the messaging app for your Alva.
             </p>
           </div>
           <button

@@ -1111,25 +1111,6 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
     color: var(--text-n7, rgba(0,0,0,0.7));
 }
-.alerts-connected-manage {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: transparent; border: none; padding: 0;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n5, rgba(0,0,0,0.5));
-    transition: color .15s;
-}
-.alerts-connected-manage:hover { color: var(--text-n9); }
-.alerts-connected-manage-chev {
-    width: 12px; height: 12px; display: inline-block;
-    background-color: currentColor;
-    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg');
-            mask-image: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg');
-    -webkit-mask-position: center; mask-position: center;
-    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-    -webkit-mask-size: contain; mask-size: contain;
-}
 .alerts-automations-list {
     display: flex; flex-direction: column; gap: var(--sp-xs, 8px);
     padding: var(--sp-m, 16px);
@@ -1147,26 +1128,109 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     color: var(--text-n9);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.alerts-connected-account {
-    display: flex; align-items: center; gap: 4px;
+/* Send alerts to + 频道选择（Figma 7447:139839，下拉 8869:68755） */
+.alerts-send-to {
+    display: flex; align-items: center; gap: var(--sp-xs, 8px);
     width: 100%;
 }
-.alerts-connected-avatar {
-    width: 16px; height: 16px;
-    display: inline-block;
-    flex-shrink: 0;
-    object-fit: contain;
-}
-.alerts-connected-name-label {
+.alerts-send-to-label {
     font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: var(--text-n5, rgba(0,0,0,0.5));
     white-space: nowrap; flex-shrink: 0;
 }
-.alerts-connected-name {
-    flex: 1 1 auto;
+.channel-select-menu { position: relative; display: inline-flex; flex-shrink: 0; }
+.channel-select {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent; border: none; padding: 0;
+    cursor: pointer; font-family: inherit;
+}
+.channel-select-logo {
+    width: 14px; height: 14px; flex-shrink: 0;
+    background: var(--b0-sidebar, #2A2A38);
+    border-radius: var(--radius-ct-min, 2px);
+    display: inline-flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+.channel-select-logo-icon {
+    width: 9px; height: 9px;
+    background-color: #fff;
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/sidebar-channel-normal.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/sidebar-channel-normal.svg') center / contain no-repeat;
+}
+/* 选中 Alva 时 logo 换成 logo-portrait 头像 */
+.channel-select-logo-img { width: 14px; height: 14px; display: none; }
+.channel-select-logo.is-agent .channel-select-logo-img { display: block; }
+.channel-select-logo.is-agent .channel-select-logo-icon { display: none; }
+.channel-select-name {
+    font-size: 12px; font-weight: 500; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n9, rgba(0,0,0,0.9));
+    white-space: nowrap;
+}
+.channel-select-arrow {
+    width: 12px; height: 12px; flex-shrink: 0;
+    background-color: var(--text-n2, rgba(0,0,0,0.2));
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-down-f2.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-down-f2.svg') center / contain no-repeat;
+}
+.channel-dropdown {
+    position: absolute;
+    top: calc(100% + 4px); left: 0;
+    z-index: 60;
+    width: 200px;
+    display: none;
+    flex-direction: column;
+    padding: 4px;
+    background: var(--b0-container, #fff);
+    border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2));
+    border-radius: var(--radius-pop-dropdown, 6px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.04);
+}
+.channel-dropdown.open { display: flex; }
+.channel-dropdown-item {
+    display: flex; align-items: center; gap: var(--sp-xs, 8px);
+    width: 100%;
+    padding: 4px 8px;
+    background: transparent; border: none;
+    border-radius: var(--radius-ct-s, 4px);
+    cursor: pointer; font-family: inherit;
+    text-align: left;
+    transition: background .15s;
+}
+.channel-dropdown-item:hover { background: var(--b-r03, rgba(0,0,0,0.03)); }
+.channel-dropdown-item.is-selected { background: rgba(73, 163, 166, 0.08); }
+.channel-dropdown-item-icon {
+    width: 16px; height: 16px; flex-shrink: 0;
+    background-color: var(--text-n9, rgba(0,0,0,0.9));
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/sidebar-channel-normal.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/sidebar-channel-normal.svg') center / contain no-repeat;
+}
+.channel-dropdown-item-icon.ic-agent {
+    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/sidebar-agent-normal.svg');
+            mask-image: url('https://alva-ai-static.b-cdn.net/icons/sidebar-agent-normal.svg');
+}
+.channel-dropdown-item.is-selected .channel-dropdown-item-icon { background-color: var(--main-m1, #49A3A6); }
+.channel-dropdown-item-name {
+    flex: 1 1 auto; min-width: 0;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n9, rgba(0,0,0,0.9));
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.channel-dropdown-item.is-selected .channel-dropdown-item-name { color: var(--main-m1, #49A3A6); }
+.alerts-view-channel {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-left: auto;
+    background: transparent; border: none; padding: 0;
+    cursor: pointer; font-family: inherit;
     font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
     color: var(--text-n5, rgba(0,0,0,0.5));
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: color .15s;
+}
+.alerts-view-channel:hover { color: var(--text-n9); }
+.alerts-view-channel-arrow {
+    width: 12px; height: 12px; display: inline-block;
+    background-color: currentColor;
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg') center / contain no-repeat;
 }
 .alerts-connected-toggle {
     display: inline-flex; align-items: center; gap: var(--sp-xs, 8px);

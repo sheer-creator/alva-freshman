@@ -180,6 +180,28 @@
       '3. If I don\'t specify what to change, ask me what I\'d like to customize.';
   }
 
+  /* 频道选择 mock 数据（Figma 8869:68755）：Alva agent 会话 + channel 列表，默认选 sheer-test-1 */
+  var ALERT_CHANNELS = [
+    { name: 'Alva', kind: 'agent' },
+    { name: 'sheer-test-1', kind: 'channel' },
+    { name: 'sheer-test-2', kind: 'channel' },
+    { name: 'sheer-test-3', kind: 'channel' },
+    { name: 'sheer-test-4', kind: 'channel' }
+  ];
+  var DEFAULT_CHANNEL = 'sheer-test-1';
+
+  function renderChannelOptions() {
+    return ALERT_CHANNELS.map(function (ch) {
+      var selected = ch.name === DEFAULT_CHANNEL;
+      return '<button class="channel-dropdown-item' + (selected ? ' is-selected' : '') + '" type="button" role="option"' +
+          ' aria-selected="' + (selected ? 'true' : 'false') + '"' +
+          ' data-channel-option="' + esc(ch.name) + '" data-channel-kind="' + ch.kind + '">' +
+          '<span class="channel-dropdown-item-icon' + (ch.kind === 'agent' ? ' ic-agent' : '') + '" aria-hidden="true"></span>' +
+          '<span class="channel-dropdown-item-name">' + esc(ch.name) + '</span>' +
+        '</button>';
+    }).join('');
+  }
+
   function render(host) {
     var title = host.getAttribute('title') || '';
     var freq = host.getAttribute('freq') || '';
@@ -485,13 +507,26 @@
                             '<button type="button" class="switch" data-alerts-automation-switch role="switch" aria-checked="false" disabled><span class="switch-thumb"></span></button>' +
                           '</div>' +
                         '</div>' +
-                        '<div class="alerts-connected-account" data-alerts-account>' +
-                          '<img class="alerts-connected-avatar" data-alerts-avatar src="https://alva-ai-static.b-cdn.net/icons/logo-social-telegram.svg" alt="" />' +
-                          '<span class="alerts-connected-name-label">Connected:</span>' +
-                          '<span class="alerts-connected-name" data-alerts-name>Sheer Ruan</span>' +
-                          '<button class="alerts-connected-manage" type="button" data-alerts-manage>' +
-                            '<span>Manage</span>' +
-                            '<span class="alerts-connected-manage-chev" aria-hidden="true"></span>' +
+                        // Send alerts to + 频道选择（Figma 7447:139839，下拉 8869:68755）
+                        '<div class="alerts-send-to" data-alerts-sendto>' +
+                          '<span class="alerts-send-to-label">Send alerts to</span>' +
+                          '<div class="channel-select-menu">' +
+                            '<button class="channel-select" type="button" data-channel-trigger aria-haspopup="listbox" aria-expanded="false">' +
+                              // 频道态 = 深底白 channel icon；Alva 态 = logo-portrait 头像
+                              '<span class="channel-select-logo" data-channel-logo>' +
+                                '<img class="channel-select-logo-img" src="/alva-infant/logo-portrait.svg" alt="" />' +
+                                '<span class="channel-select-logo-icon"></span>' +
+                              '</span>' +
+                              '<span class="channel-select-name" data-channel-name>sheer-test-1</span>' +
+                              '<span class="channel-select-arrow" aria-hidden="true"></span>' +
+                            '</button>' +
+                            '<div class="channel-dropdown" data-channel-dropdown role="listbox" aria-hidden="true">' +
+                              renderChannelOptions() +
+                            '</div>' +
+                          '</div>' +
+                          '<button class="alerts-view-channel" type="button" data-alerts-manage>' +
+                            '<span>View channel</span>' +
+                            '<span class="alerts-view-channel-arrow" aria-hidden="true"></span>' +
                           '</button>' +
                         '</div>' +
                       '</div>' +
@@ -1093,7 +1128,17 @@
       });
     };
 
+    function closeChannelDropdown() {
+      var dropdown = popover.querySelector('[data-channel-dropdown]');
+      var trigger = popover.querySelector('[data-channel-trigger]');
+      if (!dropdown) return;
+      dropdown.classList.remove('open');
+      dropdown.setAttribute('aria-hidden', 'true');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }
+
     function close() {
+      closeChannelDropdown();
       popover.classList.remove('open');
       popover.setAttribute('aria-hidden', 'true');
       if (alertsBtn) {
@@ -1157,16 +1202,49 @@
       });
     }
 
-    // Manage Accounts → navigate parent to Alva Agent settings
+    // View channel → navigate parent to the Alva channel page
     var manageBtn = popover.querySelector('[data-alerts-manage]');
     if (manageBtn) {
       manageBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         try {
-          (window.parent || window).postMessage({ type: 'alva:navigate', page: 'alva-agent' }, '*');
+          (window.parent || window).postMessage({ type: 'alva:navigate', page: 'agent' }, '*');
         } catch (_) {}
         close();
       });
+    }
+
+    // 频道选择下拉：点击展开，选项点击切换选中并回填 trigger
+    var channelTrigger = popover.querySelector('[data-channel-trigger]');
+    var channelDropdown = popover.querySelector('[data-channel-dropdown]');
+    if (channelTrigger && channelDropdown) {
+      channelTrigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (channelDropdown.classList.contains('open')) {
+          closeChannelDropdown();
+        } else {
+          channelDropdown.classList.add('open');
+          channelDropdown.setAttribute('aria-hidden', 'false');
+          channelTrigger.setAttribute('aria-expanded', 'true');
+        }
+      });
+      var channelName = popover.querySelector('[data-channel-name]');
+      var channelLogo = popover.querySelector('[data-channel-logo]');
+      var channelOptions = Array.prototype.slice.call(channelDropdown.querySelectorAll('[data-channel-option]'));
+      channelOptions.forEach(function (opt) {
+        opt.addEventListener('click', function (e) {
+          e.stopPropagation();
+          channelOptions.forEach(function (o) {
+            o.classList.toggle('is-selected', o === opt);
+            o.setAttribute('aria-selected', o === opt ? 'true' : 'false');
+          });
+          if (channelName) channelName.textContent = opt.getAttribute('data-channel-option');
+          if (channelLogo) channelLogo.classList.toggle('is-agent', opt.getAttribute('data-channel-kind') === 'agent');
+          closeChannelDropdown();
+        });
+      });
+      // 点弹层空白处只收起下拉，不关弹层
+      popover.addEventListener('click', function () { closeChannelDropdown(); });
     }
 
     // Receive Alerts toggle switch — 只切铃铛与 automations，不动 Subscribed

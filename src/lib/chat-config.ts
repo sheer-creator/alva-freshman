@@ -49,7 +49,7 @@ export const PAGE_TITLES: Record<string, string> = {
   explore: 'Explore',
   'explore-2': 'Explore',
   portfolio: 'Portfolio',
-  agent: 'Alva Agent',
+  agent: 'Alva',
   'alva-skills': 'Alva Skill',
   account: 'Account',
   'user-profile': 'Profile',
@@ -58,7 +58,7 @@ export const PAGE_TITLES: Record<string, string> = {
   'api-keys': 'API Keys',
   notifications: 'Notifications',
   billing: 'Billing',
-  'alva-agent': 'Alva Agent',
+  'alva-agent': 'Alva',
   'portfolio-settings': 'Portfolio',
   ...PLAYBOOK_TITLES,
 };

@@ -2,8 +2,8 @@ import { Dropdown } from './Dropdown';
 import { CONVERSATIONS } from '@/lib/chat-config';
 
 const AGENT_SECTION = {
-  title: 'Alva Agent',
-  items: [{ id: '__agent__', label: 'Alva Agent', icon: 'bot-l' }],
+  title: 'Alva',
+  items: [{ id: '__agent__', label: 'Alva', icon: 'bot-l' }],
 };
 
 /* Recent chats 行 hover 浮现 rename/delete(Figma 7684:79436);rename/delete 从顶栏 ... 下拉移到这里 */

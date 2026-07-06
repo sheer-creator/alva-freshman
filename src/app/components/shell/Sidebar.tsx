@@ -224,7 +224,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
             </button>
           }
         />
-        <NavItem label="Alva Agent" icon="sidebar-agent-normal" active={onAgent && currentId === null} collapsed={collapsed} onClick={() => openChannel(null)} />
+        <NavItem label="Alva" icon="sidebar-agent-normal" active={onAgent && currentId === null} collapsed={collapsed} onClick={() => openChannel(null)} />
         {channels.map((ch) => (
           <NavItem key={ch.id} label={ch.name} icon="sidebar-channel-normal" active={onAgent && currentId === ch.id} collapsed={collapsed} onClick={() => openChannel(ch.id)} />
         ))}

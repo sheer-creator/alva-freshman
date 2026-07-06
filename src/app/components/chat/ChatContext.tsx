@@ -393,7 +393,7 @@ export function ChatProvider({
         isWorking,
         label,
         tooltipLabel,
-        ariaLabel: `${waitReason}. Alva Agent is waiting for you.`,
+        ariaLabel: `${waitReason}. Alva is waiting for you.`,
         badge: { kind: 'needs-you', label },
       };
     }
@@ -404,7 +404,7 @@ export function ChatProvider({
         status: 'proactive',
         isWorking,
         label,
-        ariaLabel: `${proactiveUnreadCount === 1 ? '1 new alert' : `${proactiveUnreadCount} new alerts`} from Alva Agent.`,
+        ariaLabel: `${proactiveUnreadCount === 1 ? '1 new alert' : `${proactiveUnreadCount} new alerts`} from Alva.`,
         badge: { kind: 'proactive', count: proactiveUnreadCount, label },
       };
     }
@@ -415,7 +415,7 @@ export function ChatProvider({
         status: 'done',
         isWorking,
         label,
-        ariaLabel: `${doneUnreadCount === 1 ? 'Answer ready' : `${doneUnreadCount} answers ready`}. Open Alva Agent.`,
+        ariaLabel: `${doneUnreadCount === 1 ? 'Answer ready' : `${doneUnreadCount} answers ready`}. Open Alva.`,
         badge: { kind: 'done', count: doneUnreadCount, label },
       };
     }
@@ -427,7 +427,7 @@ export function ChatProvider({
         status: 'working',
         isWorking,
         label,
-        ariaLabel: `${ariaStatus}. Open active Alva Agent thread.`,
+        ariaLabel: `${ariaStatus}. Open active Alva thread.`,
         badge: null,
       };
     }
@@ -435,8 +435,8 @@ export function ChatProvider({
     return {
       status: 'idle',
       isWorking: false,
-      label: 'Alva Agent',
-      ariaLabel: 'Open Alva Agent',
+      label: 'Alva',
+      ariaLabel: 'Open Alva',
       badge: null,
     };
   }, [doneUnreadCount, isWaitingForUser, overlay?.type, proactiveUnreadCount, streamingState]);

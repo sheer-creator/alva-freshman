@@ -233,7 +233,7 @@ export function FloatingChatBarD() {
             <img src={symbolLogo} width={14} height={14} alt="Alva" />
           </div>
           <span className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] font-medium text-white whitespace-nowrap select-none">
-            Alva Agent
+            Alva
           </span>
         </div>
       </div>

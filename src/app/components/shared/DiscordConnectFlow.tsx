@@ -94,7 +94,7 @@ export function DiscordConnectFlow({ onPaired, onClose, className = '' }: Discor
           className="text-[16px] leading-[26px] tracking-[0.16px]"
           style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT }}
         >
-          Invite Alva Agent to your Server.
+          Invite Alva to your Server.
         </p>
         <a
           href={DISCORD_INVITE_URL}
@@ -122,7 +122,7 @@ export function DiscordConnectFlow({ onPaired, onClose, className = '' }: Discor
           className="flex-1 min-w-0 text-[16px] leading-[26px] tracking-[0.16px]"
           style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT }}
         >
-          In your server, mention <span style={{ fontWeight: 500 }}>@Alva Agent</span> to start pairing.
+          In your server, mention <span style={{ fontWeight: 500 }}>@Alva</span> to start pairing.
         </p>
       </div>
 
