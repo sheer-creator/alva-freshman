@@ -61,7 +61,7 @@ playbook-header { display: contents; }
 .pb-action {
     display: inline-flex; align-items: center; gap: 4px;
     height: 32px; padding: 6px 8px;
-    border: none; background: transparent; border-radius: 6px;
+    border: none; background: transparent; border-radius: 4px;
     cursor: pointer; font-family: inherit;
     color: var(--text-n9);
     transition: background .15s;
@@ -311,11 +311,11 @@ playbook-header { display: contents; }
 .pb-remix-wrap { padding-left: var(--sp-xs, 8px); }
 .pb-remix-btn {
     display: inline-flex; align-items: center; justify-content: center;
-    gap: 6px;
+    gap: 4px;
     height: 32px; padding: 6px 10px;
     background: transparent;
     border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
-    border-radius: 6px;
+    border-radius: 4px;
     font-family: inherit;
     cursor: pointer; white-space: nowrap;
     transition: background .15s, border-color .15s;
@@ -984,12 +984,12 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 .alerts-menu { position: relative; display: inline-flex; padding-left: var(--sp-xs, 8px); }
 .pb-alerts-btn {
     display: inline-flex; align-items: center; justify-content: center;
-    gap: 6px;
+    gap: 4px;
     height: 32px; padding: 6px 10px;
     background: var(--main-m1);
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     font-family: inherit;
     cursor: pointer; white-space: nowrap;
     transition: opacity .15s;
@@ -1011,7 +1011,9 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     line-height: 20px; letter-spacing: 0.12px;
     color: #fff;
 }
-/* Subscribed 态：铃铛 + 计数（仅 is-on 显示；未订阅是青底 Subscribe，无图标/计数） */
+/* 铃铛仅 Subscribed（is-on）显示，计数两种态都显示
+   铃铛跟随弹层里 Receive Automations Alerts 开关：开 = notification-l，关 = bell-off（is-muted）
+   注：CDN 暂无 notification-off-l.svg（404），先内嵌 notification-l 同笔触 + 斜线的 data-URI，CDN 上线后可替换 */
 .pb-alerts-bell {
     width: 14px; height: 14px; flex-shrink: 0;
     display: none;
@@ -1019,15 +1021,19 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/notification-l.svg') center / contain no-repeat;
             mask: url('https://alva-ai-static.b-cdn.net/icons/notification-l.svg') center / contain no-repeat;
 }
+.pb-alerts-btn.is-muted .pb-alerts-bell {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cmask%20id%3D%22a%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%2220%22%20height%3D%2220%22%3E%3Crect%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M3%203L17%2017%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url%28%23a%29%22%3E%3Cpath%20d%3D%22M10.9707%2017.2412C11.1093%2017.0026%2011.4155%2016.9211%2011.6543%2017.0596C11.8927%2017.1982%2011.9742%2017.5045%2011.8359%2017.7432C11.6496%2018.0643%2011.3812%2018.3312%2011.0596%2018.5166C10.738%2018.7017%2010.373%2018.7997%2010.002%2018.7998C9.63069%2018.7998%209.26511%2018.7018%208.94336%2018.5166C8.6217%2018.3313%208.35428%2018.0643%208.16797%2017.7432C8.02941%2017.5043%208.11076%2017.1981%208.34961%2017.0596C8.58841%2016.9213%208.89471%2017.0025%209.0332%2017.2412C9.13165%2017.4108%209.2734%2017.5515%209.44336%2017.6494C9.61326%2017.7471%209.80594%2017.7998%2010.002%2017.7998C10.1979%2017.7997%2010.3907%2017.7472%2010.5605%2017.6494C10.7304%2017.5515%2010.8723%2017.4108%2010.9707%2017.2412ZM10.001%202C11.637%202.00026%2013.2064%202.65074%2014.3633%203.80762C15.5201%204.96466%2016.1709%206.53377%2016.1709%208.16992V12.2197C16.1709%2012.7316%2016.3744%2013.223%2016.7363%2013.585C17.0982%2013.9466%2017.589%2014.1504%2018.1006%2014.1504C18.3765%2014.1507%2018.6006%2014.3744%2018.6006%2014.6504C18.6005%2014.9263%2018.3764%2015.1501%2018.1006%2015.1504H1.90039C1.62433%2015.1504%201.39955%2014.9264%201.39941%2014.6504C1.39941%2014.3742%201.62425%2014.1504%201.90039%2014.1504C2.41195%2014.1503%202.90284%2013.9466%203.26465%2013.585C3.62645%2013.223%203.83008%2012.7315%203.83008%2012.2197V8.16992C3.83012%206.53365%204.48072%204.96468%205.6377%203.80762C6.79478%202.65066%208.36469%202%2010.001%202ZM10.001%203C8.6299%203%207.31428%203.54523%206.34473%204.51465C5.37529%205.48417%204.83012%206.79887%204.83008%208.16992V12.2197C4.83008%2012.9328%204.56795%2013.6176%204.10059%2014.1504H15.9004C15.4329%2013.6176%2015.1709%2012.9329%2015.1709%2012.2197V8.16992C15.1709%206.79898%2014.6255%205.48415%2013.6562%204.51465C12.6869%203.5453%2011.3718%203.00026%2010.001%203Z%22%20fill%3D%22%23000%22%20fill-opacity%3D%220.9%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M3%203L17%2017%22%20stroke%3D%22%23000%22%20stroke-opacity%3D%220.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cmask%20id%3D%22a%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%2220%22%20height%3D%2220%22%3E%3Crect%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M3%203L17%2017%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url%28%23a%29%22%3E%3Cpath%20d%3D%22M10.9707%2017.2412C11.1093%2017.0026%2011.4155%2016.9211%2011.6543%2017.0596C11.8927%2017.1982%2011.9742%2017.5045%2011.8359%2017.7432C11.6496%2018.0643%2011.3812%2018.3312%2011.0596%2018.5166C10.738%2018.7017%2010.373%2018.7997%2010.002%2018.7998C9.63069%2018.7998%209.26511%2018.7018%208.94336%2018.5166C8.6217%2018.3313%208.35428%2018.0643%208.16797%2017.7432C8.02941%2017.5043%208.11076%2017.1981%208.34961%2017.0596C8.58841%2016.9213%208.89471%2017.0025%209.0332%2017.2412C9.13165%2017.4108%209.2734%2017.5515%209.44336%2017.6494C9.61326%2017.7471%209.80594%2017.7998%2010.002%2017.7998C10.1979%2017.7997%2010.3907%2017.7472%2010.5605%2017.6494C10.7304%2017.5515%2010.8723%2017.4108%2010.9707%2017.2412ZM10.001%202C11.637%202.00026%2013.2064%202.65074%2014.3633%203.80762C15.5201%204.96466%2016.1709%206.53377%2016.1709%208.16992V12.2197C16.1709%2012.7316%2016.3744%2013.223%2016.7363%2013.585C17.0982%2013.9466%2017.589%2014.1504%2018.1006%2014.1504C18.3765%2014.1507%2018.6006%2014.3744%2018.6006%2014.6504C18.6005%2014.9263%2018.3764%2015.1501%2018.1006%2015.1504H1.90039C1.62433%2015.1504%201.39955%2014.9264%201.39941%2014.6504C1.39941%2014.3742%201.62425%2014.1504%201.90039%2014.1504C2.41195%2014.1503%202.90284%2013.9466%203.26465%2013.585C3.62645%2013.223%203.83008%2012.7315%203.83008%2012.2197V8.16992C3.83012%206.53365%204.48072%204.96468%205.6377%203.80762C6.79478%202.65066%208.36469%202%2010.001%202ZM10.001%203C8.6299%203%207.31428%203.54523%206.34473%204.51465C5.37529%205.48417%204.83012%206.79887%204.83008%208.16992V12.2197C4.83008%2012.9328%204.56795%2013.6176%204.10059%2014.1504H15.9004C15.4329%2013.6176%2015.1709%2012.9329%2015.1709%2012.2197V8.16992C15.1709%206.79898%2014.6255%205.48415%2013.6562%204.51465C12.6869%203.5453%2011.3718%203.00026%2010.001%203Z%22%20fill%3D%22%23000%22%20fill-opacity%3D%220.9%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M3%203L17%2017%22%20stroke%3D%22%23000%22%20stroke-opacity%3D%220.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+}
+/* 计数两种态都显示，不加粗：青底 Subscribe 上用白 50%，Subscribed 描边态用 n5 */
 .pb-alerts-count {
-    display: none;
     font-family: inherit;
-    font-size: 12px; font-weight: 500;
+    font-size: 12px; font-weight: 400;
     line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n5, rgba(0,0,0,0.5));
+    color: rgba(255,255,255,0.5);
 }
 .pb-alerts-btn.is-on .pb-alerts-bell { display: inline-block; }
-.pb-alerts-btn.is-on .pb-alerts-count { display: inline; }
+.pb-alerts-btn.is-on .pb-alerts-count { color: var(--text-n5, rgba(0,0,0,0.5)); }
 
 /* Alerts popover (opens from Star or Get Alerts) */
 .alerts-popover {
@@ -1071,127 +1077,11 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     line-height: 26px; letter-spacing: 0.16px;
     color: var(--text-n9);
 }
-.alerts-popover-card {
-    display: flex; flex-direction: column; align-items: center;
-    gap: var(--sp-s, 12px);
-    padding: var(--sp-xl, 24px) var(--sp-l, 20px);
-    background: var(--b-r02, rgba(0,0,0,0.02));
-    border-radius: var(--radius-ct-l, 8px);
-    width: 100%;
-}
-.alerts-popover-logo {
-    width: 48px; height: 48px;
-    background: var(--b0-sidebar, #2A2A38);
-    border-radius: 960px;
-    display: inline-flex; align-items: center; justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-.alerts-popover-logo img { width: 48px; height: 48px; display: block; }
-.alerts-popover-subtitle {
-    margin: 0;
-    font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
-    color: var(--text-n9);
-    text-align: center;
-    width: 100%;
-}
-.alerts-popover-ctas {
-    display: flex; flex-direction: column; align-items: center;
-    gap: var(--sp-s, 12px);
-    width: 100%;
-}
-.alerts-popover-cta {
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: var(--sp-xs, 8px);
-    height: 40px; width: 280px;
-    padding: 9px var(--sp-m, 16px);
-    border-radius: var(--radius-ct-m, 6px);
-    font-family: inherit;
-    font-size: 14px; font-weight: 500;
-    line-height: 22px; letter-spacing: 0.14px;
-    cursor: pointer; white-space: nowrap;
-    text-decoration: none;
-    transition: opacity .15s, background .15s, border-color .15s;
-}
-.alerts-popover-cta--primary {
-    background: #24a1de;
-    color: #fff;
-    border: none;
-}
-.alerts-popover-cta--primary:hover { opacity: 0.9; }
-.alerts-popover-cta--secondary {
-    background: transparent;
-    color: var(--text-n9);
-    border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
-}
-.alerts-popover-cta--secondary:hover { background: var(--b-r03, rgba(0,0,0,0.03)); }
-.alerts-popover-cta-icon { width: 18px; height: 18px; flex-shrink: 0; display: block; }
-.alerts-popover-extra {
-    display: flex; flex-direction: column; align-items: center;
-    gap: var(--sp-xs, 8px);
-    padding-top: var(--sp-s, 12px);
-    width: 100%;
-}
-.alerts-popover-extra-label {
-    margin: 0;
-    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n5);
-    text-align: center;
-    width: 100%;
-}
-.alerts-popover-chips {
-    display: flex; align-items: center; justify-content: center;
-    gap: var(--sp-xs, 8px);
-}
-.alerts-popover-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 12px 4px 6px;
-    background: var(--b-r05, rgba(0,0,0,0.05));
-    border-radius: 960px;
-    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n9);
-    white-space: nowrap;
-}
-.alerts-popover-chip.is-disabled { background: var(--b-r03); color: var(--text-n3); }
-.alerts-popover-chip img { width: 18px; height: 18px; display: block; flex-shrink: 0; border-radius: 960px; }
-
-/* CTA loading spinner + disabled state */
-.alerts-popover-cta { position: relative; overflow: hidden; }
-.alerts-popover-cta-inner {
-    display: inline-flex; align-items: center; gap: var(--sp-xs, 8px);
-    transition: opacity .15s;
-}
-.alerts-popover-cta-spinner {
-    position: absolute;
-    top: 50%; left: 50%;
-    margin: -9px 0 0 -9px;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    border: 2px solid currentColor;
-    border-top-color: transparent;
-    opacity: 0;
-    pointer-events: none;
-    animation: alerts-spinner 0.8s linear infinite;
-}
-.alerts-popover-cta--primary .alerts-popover-cta-spinner { color: #fff; }
-.alerts-popover-cta--secondary .alerts-popover-cta-spinner { color: var(--text-n9); }
-.alerts-popover-cta.is-loading .alerts-popover-cta-inner { opacity: 0; }
-.alerts-popover-cta.is-loading .alerts-popover-cta-spinner { opacity: 1; }
-.alerts-popover-cta.is-loading { cursor: progress; }
-.alerts-popover-cta.is-disabled {
-    opacity: 0.5; pointer-events: none;
-}
-@keyframes alerts-spinner { to { transform: rotate(360deg); } }
-
-/* Two-state popover: toggle between initial and connected */
-.alerts-popover-initial,
+/* 弹层恒为 connected 态（未连接空态已随「默认已连接」移除） */
 .alerts-popover-connected {
     display: flex; flex-direction: column; gap: var(--sp-m, 16px);
     width: 100%;
 }
-.alerts-popover-connected { display: none; }
-.alerts-popover.is-connected .alerts-popover-initial { display: none; }
-.alerts-popover.is-connected .alerts-popover-connected { display: flex; }
 
 /* Connected state: header + account */
 .alerts-connected-section {

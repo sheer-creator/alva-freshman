@@ -458,37 +458,16 @@
                 '</div>' +
               '</div>' +
             '</div>' +
-            (alertsEnabled
-              ? '<div class="alerts-menu">' +
-                  '<button class="pb-alerts-btn' + (alertsStartConnected ? ' is-on' : '') + '" type="button" aria-label="' + (alertsStartConnected ? 'Subscribed' : esc(alertsLabel)) + '" data-alerts-trigger aria-haspopup="dialog" aria-expanded="false">' +
-                    '<span class="pb-alerts-bell" aria-hidden="true"></span>' +
-                    '<span class="pb-alerts-label">' + (alertsStartConnected ? 'Subscribed' : esc(alertsLabel)) + '</span>' +
-                    '<span class="pb-alerts-count">16</span>' +
-                  '</button>' +
-                  '<div class="alerts-popover' + (alertsStartConnected ? ' is-connected' : '') + '" data-alerts-popover role="dialog" aria-label="' + esc(alertsLabel) + '" aria-hidden="true">' +
-                    '<div class="alerts-popover-initial" data-alerts-initial>' +
-                      '<p class="alerts-popover-title">Subscribe</p>' +
-                      '<div class="alerts-popover-card">' +
-                        '<div class="alerts-popover-logo"><img src="/alva-infant/logo-portrait.svg" alt="" /></div>' +
-                        '<p class="alerts-popover-subtitle">Connect Agents to Get Notified</p>' +
-                        '<div class="alerts-popover-ctas">' +
-                          '<button type="button" class="alerts-popover-cta alerts-popover-cta--primary" data-connect-platform="telegram">' +
-                            '<span class="alerts-popover-cta-inner">' +
-                              '<img class="alerts-popover-cta-icon" src="https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg" alt="" />' +
-                              '<span>Connect Telegram</span>' +
-                            '</span>' +
-                            '<span class="alerts-popover-cta-spinner" aria-hidden="true"></span>' +
-                          '</button>' +
-                          '<button type="button" class="alerts-popover-cta alerts-popover-cta--secondary" data-connect-platform="discord">' +
-                            '<span class="alerts-popover-cta-inner">' +
-                              '<img class="alerts-popover-cta-icon" src="/alva-infant/logo-social-discord.svg" alt="" />' +
-                              '<span>Connect Discord</span>' +
-                            '</span>' +
-                            '<span class="alerts-popover-cta-spinner" aria-hidden="true"></span>' +
-                          '</button>' +
-                        '</div>' +
-                      '</div>' +
-                    '</div>' +
+            // Subscribe 按钮所有 playbook 都有；弹窗/铃铛只在有推送（get-alerts）时出现
+            '<div class="alerts-menu">' +
+              '<button class="pb-alerts-btn' + (alertsStartConnected ? ' is-on' : '') + '" type="button" aria-label="' + (alertsStartConnected ? 'Subscribed' : esc(alertsLabel)) + '" data-alerts-trigger' + (alertsEnabled ? ' aria-haspopup="dialog" aria-expanded="false"' : '') + '>' +
+                (alertsEnabled ? '<span class="pb-alerts-bell" aria-hidden="true"></span>' : '') +
+                '<span class="pb-alerts-label">' + (alertsStartConnected ? 'Subscribed' : esc(alertsLabel)) + '</span>' +
+                '<span class="pb-alerts-count">16</span>' +
+              '</button>' +
+              (alertsEnabled
+                // 未连接空态已移除：默认 agent 已连接，弹层恒为 connected 态
+                ? '<div class="alerts-popover is-connected" data-alerts-popover role="dialog" aria-label="' + esc(alertsLabel) + '" aria-hidden="true">' +
                     '<div class="alerts-popover-connected" data-alerts-connected>' +
                       '<p class="alerts-popover-title">Subscribe</p>' +
                       '<div class="alerts-connected-section">' +
@@ -532,9 +511,9 @@
                       '</div>' +
                       '<button type="button" class="alerts-unsubscribe-btn" data-alerts-unsubscribe>Unsubscribe</button>' +
                     '</div>' +
-                  '</div>' +
-                '</div>'
-              : '') +
+                  '</div>'
+                : '') +
+            '</div>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -1073,21 +1052,33 @@
   }
 
   function setupAlertsPopover(host) {
-    var popover = host.querySelector('[data-alerts-popover]');
-    if (!popover) return;
     var alertsBtn = host.querySelector('[data-alerts-trigger]');
-    var alertsBtnLabel = alertsBtn ? alertsBtn.querySelector('.pb-alerts-label') : null;
+    if (!alertsBtn) return;
+    var alertsBtnLabel = alertsBtn.querySelector('.pb-alerts-label');
+    var popover = host.querySelector('[data-alerts-popover]');
     var starBtn = host.querySelector('[data-star-trigger]');
-    var setReceiveAlertsState = function (on) {
+
+    var setSubscribed = function (on) {
+      alertsBtn.classList.toggle('is-on', on);
+      alertsBtn.setAttribute('aria-label', on ? 'Subscribed' : 'Subscribe');
+      if (alertsBtnLabel) alertsBtnLabel.textContent = on ? 'Subscribed' : 'Subscribe';
+    };
+
+    // 无推送 playbook：Subscribe ↔ Subscribed 直接切换，无弹层无铃铛
+    if (!popover) {
+      alertsBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setSubscribed(!alertsBtn.classList.contains('is-on'));
+      });
+      return;
+    }
+
+    // 有推送 playbook：Subscribed 与「Receive Automations Alerts」开关解耦——
+    // 开关只切铃铛（开=notification-l / 关=notification-off），退订走弹层 Unsubscribe
+    var setAlertsOn = function (on) {
       var receiveSwitch = popover.querySelector('[data-alerts-switch]');
       var automationSwitches = Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
-      if (alertsBtn) {
-        alertsBtn.classList.toggle('is-on', on);
-        alertsBtn.setAttribute('aria-label', on ? 'Subscribed' : 'Subscribe');
-      }
-      if (alertsBtnLabel) {
-        alertsBtnLabel.textContent = on ? 'Subscribed' : 'Subscribe';
-      }
+      alertsBtn.classList.toggle('is-muted', !on);
       if (receiveSwitch) {
         receiveSwitch.classList.toggle('on', on);
         receiveSwitch.classList.toggle('is-on', on);
@@ -1113,7 +1104,6 @@
     }
     function open() {
       closeOtherPopovers(host, close);
-      setReceiveAlertsState(true);
       popover.classList.add('open');
       popover.setAttribute('aria-hidden', 'false');
       if (alertsBtn) {
@@ -1124,18 +1114,26 @@
     }
     registerPopover(host, close);
 
-    if (alertsBtn) {
-      alertsBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (popover.classList.contains('open')) close(); else open();
-      });
-    }
-    // Unsubscribe：关订阅（总开关 + automations 置灰）后收起弹层
+    alertsBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (!alertsBtn.classList.contains('is-on')) {
+        // 首次订阅：置 Subscribed + 默认打开推送开关 + 弹出弹层
+        setSubscribed(true);
+        setAlertsOn(true);
+        open();
+      } else if (popover.classList.contains('open')) {
+        close();
+      } else {
+        open();
+      }
+    });
+    // Unsubscribe：退订（按钮回 Subscribe，总开关 + automations 置灰）后收起弹层
     var unsubscribeBtn = popover.querySelector('[data-alerts-unsubscribe]');
     if (unsubscribeBtn) {
       unsubscribeBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        setReceiveAlertsState(false);
+        setSubscribed(false);
+        setAlertsOn(false);
         close();
       });
     }
@@ -1159,41 +1157,6 @@
       });
     }
 
-    // ── Connect buttons: fake loading → connected state ──
-    var connectTimer = null;
-    var connectBtns = popover.querySelectorAll('[data-connect-platform]');
-    connectBtns.forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (btn.classList.contains('is-loading')) return;
-        if (popover.classList.contains('is-connected')) return;
-        // mark loading + disable all connect buttons
-        connectBtns.forEach(function (b) { b.classList.add('is-disabled'); });
-        btn.classList.remove('is-disabled');
-        btn.classList.add('is-loading');
-        btn.setAttribute('aria-busy', 'true');
-        if (connectTimer) clearTimeout(connectTimer);
-        connectTimer = setTimeout(function () {
-          // transition to connected state
-          var platform = btn.getAttribute('data-connect-platform') || 'telegram';
-          var avatarEl = popover.querySelector('[data-alerts-avatar]');
-          if (avatarEl) {
-            avatarEl.setAttribute('data-platform', platform);
-            var iconSrc = platform === 'discord'
-              ? '/alva-infant/logo-social-discord.svg'
-              : 'https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg';
-            if (avatarEl.tagName === 'IMG') avatarEl.setAttribute('src', iconSrc);
-          }
-          popover.classList.add('is-connected');
-          // reset loading (so if user re-opens, buttons are fresh)
-          btn.classList.remove('is-loading');
-          btn.removeAttribute('aria-busy');
-          connectBtns.forEach(function (b) { b.classList.remove('is-disabled'); });
-          connectTimer = null;
-        }, 1500);
-      });
-    });
-
     // Manage Accounts → navigate parent to Alva Agent settings
     var manageBtn = popover.querySelector('[data-alerts-manage]');
     if (manageBtn) {
@@ -1206,18 +1169,18 @@
       });
     }
 
-    // Receive Alerts toggle switch
+    // Receive Alerts toggle switch — 只切铃铛与 automations，不动 Subscribed
     var switchBtn = popover.querySelector('[data-alerts-switch]');
     var automationSwitches = Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
 
     if (switchBtn) {
       switchBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        var on = !switchBtn.classList.contains('on');
-        setReceiveAlertsState(on);
+        setAlertsOn(!switchBtn.classList.contains('on'));
       });
-      setReceiveAlertsState(switchBtn.classList.contains('on') || switchBtn.classList.contains('is-on'));
     }
+    // 初始态：alerts-connected 起始即 Subscribed 且开关打开
+    setAlertsOn(alertsBtn.classList.contains('is-on'));
 
     automationSwitches.forEach(function (automationSwitch) {
       automationSwitch.addEventListener('click', function (e) {
@@ -1228,10 +1191,6 @@
         automationSwitch.classList.toggle('is-on', on);
         automationSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
       });
-    });
-
-    host._pbHeaderCleanup = (host._pbHeaderCleanup || []).concat(function () {
-      if (connectTimer) { clearTimeout(connectTimer); connectTimer = null; }
     });
 
     var onDocClick = function (e) {
