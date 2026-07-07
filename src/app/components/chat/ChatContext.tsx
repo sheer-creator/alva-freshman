@@ -435,8 +435,8 @@ export function ChatProvider({
     return {
       status: 'idle',
       isWorking: false,
-      label: 'Alva',
-      ariaLabel: 'Open Alva',
+      label: 'Alva Agent',
+      ariaLabel: 'Open Alva Agent',
       badge: null,
     };
   }, [doneUnreadCount, isWaitingForUser, overlay?.type, proactiveUnreadCount, streamingState]);
