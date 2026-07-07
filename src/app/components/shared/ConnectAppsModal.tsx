@@ -122,7 +122,7 @@ export function ConnectAppList({
             ) : (
               <button
                 type="button"
-                className="flex h-[32px] w-[84px] shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-btn-s, 4px)] bg-transparent px-[16px] py-[6px] transition-colors hover:bg-[var(--b-r02)]"
+                className="flex h-[32px] w-[84px] shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-btn-s,4px)] bg-transparent px-[16px] py-[6px] transition-colors hover:bg-[var(--b-r02)]"
                 style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
                 onClick={() => !busy && start(row.id)}
               >
