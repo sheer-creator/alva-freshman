@@ -274,6 +274,16 @@ type ExtraMsg =
   /* Start Watching 的 Alva 确认回复:正文 + (未连接时)内嵌「选择推送渠道」卡片(Figma 8341:126245) */
   | { id: number; role: 'watchreply'; text: string };
 
+/* Onboard 两个独立 flow 的 URL 后缀：#agent?flow=portfolio / #agent?flow=fintwit，
+   支持刷新 / 深链直达；沿用本仓 #agent?tab= 的 query 后缀约定（App 路由只认 ? 之前的 agent） */
+type AgentFlow = 'portfolio' | 'fintwit';
+function getAgentFlow(): AgentFlow | null {
+  const query = window.location.hash.slice(1).split('?')[1];
+  if (!query) return null;
+  const flow = new URLSearchParams(query).get('flow');
+  return flow === 'portfolio' || flow === 'fintwit' ? flow : null;
+}
+
 /* ========== 主组件 ========== */
 
 export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Page) => void; channel?: { id: string; name: string; description?: string } | null }) {
@@ -288,26 +298,33 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const [started, setStarted] = useState(false);
   /* 会话产出的 alert（Start Watching 建一条 portfolio watch）→ 驱动 Alerts tab 计数 + 面板 */
   const [sessionAlerts, setSessionAlerts] = useState<AgentAlert[]>([]);
-  /* Onboard「Watch your portfolio 24/7」→ 进入 portfolio builder 视图（无 composer） */
-  const [portfolioOpen, setPortfolioOpen] = useState(false);
-  /* Onboard「Track FinTwit for alpha signals」→ 进入 Alpha Radar builder 视图（无 composer） */
-  const [alphaRadarOpen, setAlphaRadarOpen] = useState(false);
-  /* 打开独立 builder 时压一条 history，浏览器返回即收起视图回到 onboard（不改 hash，不切页） */
+  /* Onboard「Watch your portfolio 24/7」→ 进入 portfolio builder 视图（无 composer）；初值由 URL 后缀决定，支持深链直达 */
+  const [portfolioOpen, setPortfolioOpen] = useState(() => getAgentFlow() === 'portfolio');
+  /* Onboard「Track FinTwit for alpha signals」→ 进入 Alpha Radar builder 视图（无 composer）；初值由 URL 后缀决定 */
+  const [alphaRadarOpen, setAlphaRadarOpen] = useState(() => getAgentFlow() === 'fintwit');
+  /* flow 开关以 URL hash 后缀为准：open/close 同步改 hash + 本地 state（避免异步 hashchange 造成闪烁），
+     浏览器返回 / 前进即回到 onboard；hashchange 监听覆盖深链刷新与前进后退 */
+  const openFlow = useCallback((flow: AgentFlow) => {
+    window.location.hash = `agent?flow=${flow}`;
+    setPortfolioOpen(flow === 'portfolio');
+    setAlphaRadarOpen(flow === 'fintwit');
+  }, []);
+  const closeFlow = useCallback(() => {
+    if (getAgentFlow()) window.location.hash = 'agent';
+    setPortfolioOpen(false);
+    setAlphaRadarOpen(false);
+  }, []);
   useEffect(() => {
-    if (!portfolioOpen) return;
-    window.history.pushState({ portfolioOpen: true }, '');
-    const onPop = () => setPortfolioOpen(false);
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
-  }, [portfolioOpen]);
-  useEffect(() => {
-    if (!alphaRadarOpen) return;
-    window.history.pushState({ alphaRadarOpen: true }, '');
-    const onPop = () => setAlphaRadarOpen(false);
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
-  }, [alphaRadarOpen]);
+    const sync = () => {
+      const flow = getAgentFlow();
+      setPortfolioOpen(flow === 'portfolio');
+      setAlphaRadarOpen(flow === 'fintwit');
+    };
+    window.addEventListener('hashchange', sync);
+    return () => window.removeEventListener('hashchange', sync);
+  }, []);
   const idRef = useRef(0);
+  const didMountRef = useRef(false);
   const imRecShownRef = useRef(false);
   const imLinksRef = useRef(imLinks);
   imLinksRef.current = imLinks;
@@ -320,9 +337,10 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   /* 切换频道（含默认 Alva Agent）时，视图与会话产出回到该频道的空态 onboard；
      连接状态(imLinks/imActive)刻意不重置——右上角连接态在所有频道间与 Alva Agent 同步 */
   useEffect(() => {
+    // 首次挂载不重置：尊重 URL 里的 flow 深链（#agent?flow=...）；真正切换频道才回到该频道空态
+    if (!didMountRef.current) { didMountRef.current = true; return; }
     setTab('chat');
-    setPortfolioOpen(false);
-    setAlphaRadarOpen(false);
+    closeFlow();
     setExtra([]);
     setSessionAlerts([]);
     setStarted(false);
@@ -381,7 +399,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
   /* Start Watching → 收起 builder + onboard 空态 → 一条 Alva 确认回复(内嵌「选择推送渠道」卡片,未连接才显示),无用户气泡 */
   const onStartWatching = useCallback((_picks: { symbol: string; qty: string }[]) => {
-    window.history.back();
+    closeFlow();
     setStarted(true);
     /* mock 成 Figma 8341:126009 的 populated 列表:整套 AGENT_ALERTS(首项即 playbook 分组)+ 末尾追加本次新建的 portfolio watch */
     setSessionAlerts((prev) => (prev.length ? prev : [...AGENT_ALERTS, PORTFOLIO_WATCH_ALERT]));
@@ -397,7 +415,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       }));
       scrollToEnd();
     }, 900);
-  }, [scrollToEnd]);
+  }, [scrollToEnd, closeFlow]);
 
   const onAlphaRadarLive = useCallback((summary: AlphaRadarSummary) => {
     setStarted(true);
@@ -508,9 +526,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               style={{ border: 'none', borderBottom: active ? '2px solid var(--main-m1, #49A3A6)' : '2px solid transparent' }}
               onClick={() => {
                 setTab(t.id);
-                // 点 Chat 从 portfolio 独立流程回到默认引导（走 history.back 消费掉进入时压的记录，保持浏览器返回语义）
-                if (t.id === 'chat' && portfolioOpen) window.history.back();
-                if (t.id === 'chat' && alphaRadarOpen) window.history.back();
+                // 点 Chat 从独立 flow 回到默认引导：清掉 URL 后缀回到 #agent
+                if (t.id === 'chat' && (portfolioOpen || alphaRadarOpen)) closeFlow();
               }}
             >
               <CdnIcon name={t.icon} size={16} color={active ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n7, rgba(0,0,0,0.7))'} />
@@ -581,8 +598,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
                       style={{ border: 'none', borderBottom: i < arr.length - 1 ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : 'none' }}
                       onClick={() => {
-                        if (c.id === 'portfolio-digest') setPortfolioOpen(true);
-                        if (c.id === 'fintwit-digest') setAlphaRadarOpen(true);
+                        if (c.id === 'portfolio-digest') openFlow('portfolio');
+                        if (c.id === 'fintwit-digest') openFlow('fintwit');
                       }}
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
@@ -739,7 +756,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           <AgentAlertsPanel
             alerts={sessionAlerts.length ? sessionAlerts : undefined}
             getStarted={[
-              { id: 'gs-portfolio', emoji: '💼', title: 'Watch your portfolio 24/7', desc: "Tell me what you hold. I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.", onClick: () => { setTab('chat'); setPortfolioOpen(true); } },
+              { id: 'gs-portfolio', emoji: '💼', title: 'Watch your portfolio 24/7', desc: "Tell me what you hold. I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.", onClick: () => { setTab('chat'); openFlow('portfolio'); } },
               { id: 'gs-automations', emoji: '⚙️', title: 'Build your own automations', desc: 'Track the tickers you care about and get updates when price moves, news, or catalysts are worth attention.', onClick: () => setTab('chat') },
             ]}
           />
