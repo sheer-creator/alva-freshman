@@ -15,6 +15,7 @@ import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/component
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
+import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
 
 const FONT = "'Delight', sans-serif";
 
@@ -102,6 +103,11 @@ const IM_FALLBACK: Record<string, { label: string; handle: string }> = {
 const PORTFOLIO_WATCH_ALERT: AgentAlert = {
   id: 'portfolio-watch-24-7', name: 'portfolio-watch-24-7', creator: 'YGGYLL',
   lastRun: 'now', runEvery: 'Every hour', runs: 0, status: 'active', source: 'created',
+};
+
+const ALPHA_RADAR_ALERT: AgentAlert = {
+  id: 'fintwit-alpha-radar', name: 'fintwit-alpha-radar', creator: 'YGGYLL',
+  lastRun: 'now', runEvery: 'Every day at 8:00 AM ET', runs: 0, status: 'active', source: 'created',
 };
 
 /* 「Where should I send you alerts?」快捷渠道(Figma 10038:117496-8):品牌底色 + 白字 logo */
@@ -284,7 +290,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const [sessionAlerts, setSessionAlerts] = useState<AgentAlert[]>([]);
   /* Onboard「Watch your portfolio 24/7」→ 进入 portfolio builder 视图（无 composer） */
   const [portfolioOpen, setPortfolioOpen] = useState(false);
-  /* 打开 portfolio 时压一条 history，浏览器返回即收起视图回到 onboard（不改 hash，不切页） */
+  /* Onboard「Track FinTwit for alpha signals」→ 进入 Alpha Radar builder 视图（无 composer） */
+  const [alphaRadarOpen, setAlphaRadarOpen] = useState(false);
+  /* 打开独立 builder 时压一条 history，浏览器返回即收起视图回到 onboard（不改 hash，不切页） */
   useEffect(() => {
     if (!portfolioOpen) return;
     window.history.pushState({ portfolioOpen: true }, '');
@@ -292,6 +300,13 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [portfolioOpen]);
+  useEffect(() => {
+    if (!alphaRadarOpen) return;
+    window.history.pushState({ alphaRadarOpen: true }, '');
+    const onPop = () => setAlphaRadarOpen(false);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [alphaRadarOpen]);
   const idRef = useRef(0);
   const imRecShownRef = useRef(false);
   const imLinksRef = useRef(imLinks);
@@ -307,6 +322,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   useEffect(() => {
     setTab('chat');
     setPortfolioOpen(false);
+    setAlphaRadarOpen(false);
     setExtra([]);
     setSessionAlerts([]);
     setStarted(false);
@@ -382,6 +398,14 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       scrollToEnd();
     }, 900);
   }, [scrollToEnd]);
+
+  const onAlphaRadarLive = useCallback((summary: AlphaRadarSummary) => {
+    setStarted(true);
+    setSessionAlerts((prev) => {
+      if (prev.some((alert) => alert.id === ALPHA_RADAR_ALERT.id)) return prev;
+      return [...prev, { ...ALPHA_RADAR_ALERT, runEvery: `Every day at ${summary.digestTime}` }];
+    });
+  }, []);
 
   const connectIm = useCallback((imId: string) => {
     setImLinks((prev) => ({ ...prev, [imId]: true }));
@@ -486,6 +510,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                 setTab(t.id);
                 // 点 Chat 从 portfolio 独立流程回到默认引导（走 history.back 消费掉进入时压的记录，保持浏览器返回语义）
                 if (t.id === 'chat' && portfolioOpen) window.history.back();
+                if (t.id === 'chat' && alphaRadarOpen) window.history.back();
               }}
             >
               <CdnIcon name={t.icon} size={16} color={active ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n7, rgba(0,0,0,0.7))'} />
@@ -520,6 +545,18 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               </MsgIn>
             </div>
           </div>
+        ) : alphaRadarOpen ? (
+          /* Track FinTwit for alpha signals — Alpha Radar setup 视图（无 composer，可返回上一步） */
+          <div className="min-h-0 flex-1 overflow-y-auto px-[28px]">
+            <style>{MSG_IN_CSS}</style>
+            <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
+              <MsgIn>
+                <AgentMsg time="" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
+                  <AlphaRadarBuilder onLive={onAlphaRadarLive} />
+                </AgentMsg>
+              </MsgIn>
+            </div>
+          </div>
         ) : (
         <>
           <div ref={stageRef} className="min-h-0 flex-1 overflow-y-auto px-[28px]">
@@ -543,7 +580,10 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       key={c.id}
                       className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
                       style={{ border: 'none', borderBottom: i < arr.length - 1 ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : 'none' }}
-                      onClick={() => { if (c.id === 'portfolio-digest') setPortfolioOpen(true); }}
+                      onClick={() => {
+                        if (c.id === 'portfolio-digest') setPortfolioOpen(true);
+                        if (c.id === 'fintwit-digest') setAlphaRadarOpen(true);
+                      }}
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
                         <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
