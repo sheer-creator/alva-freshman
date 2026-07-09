@@ -317,7 +317,7 @@ function ExploreFilters({
         onChipToggle={onChipToggle}
         trailing={
           searchActive ? (
-            <div className="input input-xs explore-search-input">
+            <div className="input input-sm explore-search-input">
               <div className="input-border" />
               <CdnIcon name="search-l" size={14} color="var(--text-n3, rgba(0,0,0,0.3))" />
               <input
@@ -340,7 +340,7 @@ function ExploreFilters({
           ) : (
             <button
               type="button"
-              className="input input-xs explore-search-trigger"
+              className="input input-sm explore-search-trigger"
               onClick={() => setSearchActive(true)}
               aria-label="Search"
             >

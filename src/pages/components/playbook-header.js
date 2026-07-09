@@ -13,7 +13,7 @@
        last-updated="15 minutes ago"
        owner="YGGYLL"
        owner-seed="YGGYLL"
-       star="12" remix="56" comments="6"
+       views="6" remix="56" comments="6"
        description="...">
        <script type="application/json" class="pb-feeds-data">
          [
@@ -190,9 +190,10 @@
   ];
   var DEFAULT_CHANNEL = 'sheer-test-1';
 
-  function renderChannelOptions() {
+  function renderChannelOptions(selectedName) {
+    var sel = selectedName || DEFAULT_CHANNEL;
     return ALERT_CHANNELS.map(function (ch) {
-      var selected = ch.name === DEFAULT_CHANNEL;
+      var selected = ch.name === sel;
       return '<button class="channel-dropdown-item' + (selected ? ' is-selected' : '') + '" type="button" role="option"' +
           ' aria-selected="' + (selected ? 'true' : 'false') + '"' +
           ' data-channel-option="' + esc(ch.name) + '" data-channel-kind="' + ch.kind + '">' +
@@ -202,19 +203,58 @@
     }).join('');
   }
 
+  /* 单条 automation 行：独立开关（默认 ON）+ 名称 + 独立频道下拉（默认推到 Alva 站内 channel）
+     产品口径：有了 channel 后不连 social 也能在 Alva 站内收 Alerts；每条可单独设频道（Figma 29686:30891） */
+  function renderAutomationRow(name) {
+    return '<div class="alerts-automation-row">' +
+        '<button type="button" class="switch on is-on" data-alerts-automation-switch role="switch" aria-checked="true"><span class="switch-thumb"></span></button>' +
+        '<span class="alerts-automation-name">' + esc(name) + '</span>' +
+        '<div class="channel-select-menu">' +
+          '<button class="channel-select" type="button" data-channel-trigger aria-haspopup="listbox" aria-expanded="false">' +
+            '<span class="channel-select-logo is-agent" data-channel-logo>' +
+              '<img class="channel-select-logo-img" src="/alva-infant/logo-portrait.svg" alt="" />' +
+              '<span class="channel-select-logo-icon"></span>' +
+            '</span>' +
+            '<span class="channel-select-name" data-channel-name>Alva</span>' +
+            '<span class="channel-select-arrow" aria-hidden="true"></span>' +
+          '</button>' +
+          '<div class="channel-dropdown" data-channel-dropdown role="listbox" aria-hidden="true">' +
+            '<div class="channel-dropdown-title">Send alerts to</div>' +
+            renderChannelOptions('Alva') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* Recent Alerts 卡片（mock，Figma 29686:30891）——正文可滚，footer 吸底靠数量撑出滚动 */
+  function renderSignalCard() {
+    return '<div class="alerts-signal-card">' +
+        '<p class="alerts-signal-date">May 8, 12:00 PM &middot; ai-chip-supply-chain</p>' +
+        '<p class="alerts-signal-headline"><strong>AMD to Entrust 2nm Production to Samsung Foundry Samsung Electronics has entered into substantive discussions with AMD</strong></p>' +
+        '<ul class="alerts-signal-bullets">' +
+          '<li>Top of basket: ALL (Allstate) holds #1 at Score 95 &mdash; ROE 39.5%, P/E 5.64; leadership in Insurance &mdash; Property &amp; Casualty continues.</li>' +
+          '<li>New entries: BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.</li>' +
+          '<li>Dropouts: TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.</li>' +
+        '</ul>' +
+      '</div>';
+  }
+
   function render(host) {
     var title = host.getAttribute('title') || '';
     var freq = host.getAttribute('freq') || '';
     var lastUpdated = host.getAttribute('last-updated') || '';
     var owner = host.getAttribute('owner') || '';
     var ownerSeed = host.getAttribute('owner-seed') || owner;
-    var star = host.getAttribute('star') || '';
+    var views = host.getAttribute('views') || '';
     var remix = host.getAttribute('remix') || '';
     var alertsEnabled = host.hasAttribute('get-alerts')
       && host.getAttribute('get-alerts') !== 'false';
     var alertsLabel = host.getAttribute('alerts-label') || 'Subscribe';
     var alertsStartConnected = host.hasAttribute('alerts-connected')
       && host.getAttribute('alerts-connected') !== 'false';
+    /* social 连接态：默认未连（显示 Connect Telegram/Discord 吸底区）；连了则仅剩 Unsubscribe（Figma 29686:30915） */
+    var socialConnected = host.hasAttribute('social-connected')
+      && host.getAttribute('social-connected') !== 'false';
     var comments = host.getAttribute('comments') || '';
     var description = host.getAttribute('description') || '';
     var creator = host.hasAttribute('creator')
@@ -388,7 +428,10 @@
             '<div class="share-menu">' +
               '<button class="pb-action pb-action--icon-only" type="button" aria-label="Share" data-share-trigger aria-haspopup="dialog" aria-expanded="false"><span class="pb-action-icon ic-share"></span></button>' +
               '<div class="share-popover" data-share-popover role="dialog" aria-label="Share" aria-hidden="true">' +
-                '<h2 class="share-popover-title">Share</h2>' +
+                '<div class="share-popover-titlebar">' +
+                  '<h2 class="share-popover-title">Share</h2>' +
+                  '<button type="button" class="share-popover-close" data-share-close aria-label="Close"></button>' +
+                '</div>' +
                 '<div class="share-popover-group" role="radiogroup" aria-label="Share visibility">' +
                   '<button class="share-popover-row is-disabled" type="button" role="radio" aria-checked="false" aria-disabled="true" disabled data-share-option="private">' +
                     '<span class="share-popover-icon-badge"><span class="share-popover-icon ic-hide"></span></span>' +
@@ -423,30 +466,9 @@
                 '</button>' +
               '</div>' +
             '</div>' +
-            '<div class="star-menu">' +
-              '<button class="pb-action" type="button" aria-label="Star" data-star-trigger aria-haspopup="dialog" aria-expanded="false">' +
-                '<span class="pb-action-icon ic-star"></span>' +
-                (star ? '<span class="pb-action-count">' + esc(star) + '</span>' : '') +
-              '</button>' +
-              '<div class="star-popover" data-star-popover role="dialog" aria-label="Connect Agents to Get Notified" aria-hidden="true">' +
-                '<div class="star-popover-card">' +
-                  '<div class="star-popover-logo"><img src="/alva-infant/logo-portrait.svg" alt="" /></div>' +
-                  '<p class="star-popover-title">Connect Agents to Get Notified</p>' +
-                  '<a href="https://t.me/alva_ai_bot" target="_blank" rel="noopener" class="star-popover-cta">' +
-                    '<img class="star-popover-cta-icon" src="https://alva-ai-static.b-cdn.net/icons/logo-social-telegram2.svg" alt="" />' +
-                    '<span>Connect Telegram</span>' +
-                  '</a>' +
-                  '<div class="star-popover-socials">' +
-                    '<span class="star-popover-chip"><img src="/alva-infant/logo-social-discord.svg" alt="" /><span>Discord</span></span>' +
-                    '<span class="star-popover-chip is-disabled"><img src="/alva-infant/logo-social-slack.svg" alt="" /><span>Slack</span></span>' +
-                    '<span class="star-popover-chip is-disabled"><img src="/alva-infant/logo-social-whatsapp.svg" alt="" /><span>WhatsApp</span></span>' +
-                  '</div>' +
-                '</div>' +
-                '<button class="star-popover-footer" type="button" data-star-footer>' +
-                  '<span class="star-popover-footer-icon" aria-hidden="true"></span>' +
-                  '<span>Starred</span>' +
-                '</button>' +
-              '</div>' +
+            '<div class="pb-action pb-action--static" aria-label="Views">' +
+              '<span class="pb-action-icon ic-show"></span>' +
+              (views ? '<span class="pb-action-count">' + esc(views) + '</span>' : '') +
             '</div>' +
             '<button class="pb-action" type="button" aria-label="Comments" data-discuss-trigger aria-pressed="false"><span class="pb-action-icon ic-chat"></span>' + (comments ? '<span class="pb-action-count">' + esc(comments) + '</span>' : '') + '</button>' +
             '<div class="remix-menu pb-remix-wrap">' +
@@ -455,7 +477,10 @@
                 (remix ? '<span class="pb-remix-count">' + esc(remix) + '</span>' : '') +
               '</button>' +
               '<div class="remix-popover" data-remix-popover role="dialog" aria-label="Remix this Playbook" aria-hidden="true">' +
-                '<h2 class="remix-popover-title">Remix this Playbook</h2>' +
+                '<div class="remix-popover-titlebar">' +
+                  '<h2 class="remix-popover-title">Remix this Playbook</h2>' +
+                  '<button type="button" class="remix-popover-close" data-remix-close aria-label="Close"></button>' +
+                '</div>' +
                 '<p class="remix-popover-desc">Create your own version — customize the data, layout, and style to fit your needs. Your remix will be published under your account.</p>' +
                 '<button class="remix-popover-cta" type="button" data-remix-cta>' +
                   '<span class="remix-popover-cta-icon"></span>' +
@@ -488,63 +513,40 @@
                 '<span class="pb-alerts-count">16</span>' +
               '</button>' +
               (alertsEnabled
-                // 未连接空态已移除：默认 agent 已连接，弹层恒为 connected 态
-                ? '<div class="alerts-popover is-connected" data-alerts-popover role="dialog" aria-label="' + esc(alertsLabel) + '" aria-hidden="true">' +
-                    '<div class="alerts-popover-connected" data-alerts-connected>' +
-                      '<p class="alerts-popover-title">Subscribe</p>' +
+                // Figma 29686:30891/30915：顶部不吸顶，标题 + A&C + Recent Alerts 一起滚动，仅 footer 吸底
+                ? '<div class="alerts-popover' + (socialConnected ? ' is-agent-connected' : '') + '" data-alerts-popover role="dialog" aria-label="' + esc(alertsLabel) + '" aria-hidden="true">' +
+                    // 可滚区：标题栏 + Alerts & Channels + Recent Alerts 全部一起滚动
+                    '<div class="alerts-popover-body">' +
+                      '<div class="alerts-popover-titlebar">' +
+                        '<p class="alerts-popover-title">Subscribe</p>' +
+                        '<button type="button" class="alerts-popover-close" data-alerts-close aria-label="Close"></button>' +
+                      '</div>' +
                       '<div class="alerts-connected-section">' +
-                        '<div class="alerts-connected-head">' +
-                          '<span class="alerts-connected-head-label">Receive Automations Alerts</span>' +
-                          '<button type="button" class="switch" data-alerts-switch role="switch" aria-checked="false"><span class="switch-thumb"></span></button>' +
-                        '</div>' +
+                        '<span class="alerts-connected-head-label">Alerts &amp; Channels</span>' +
                         '<div class="alerts-automations-list" data-alerts-automations>' +
-                          '<div class="alerts-automation-row">' +
-                            '<span class="alerts-automation-name">ai-chip-supply-chain</span>' +
-                            '<button type="button" class="switch" data-alerts-automation-switch role="switch" aria-checked="false" disabled><span class="switch-thumb"></span></button>' +
-                          '</div>' +
-                          '<div class="alerts-automation-row">' +
-                            '<span class="alerts-automation-name">space-rotation-prices</span>' +
-                            '<button type="button" class="switch" data-alerts-automation-switch role="switch" aria-checked="false" disabled><span class="switch-thumb"></span></button>' +
-                          '</div>' +
-                        '</div>' +
-                        // Send alerts to + 频道选择（Figma 7447:139839，下拉 8869:68755）
-                        '<div class="alerts-send-to" data-alerts-sendto>' +
-                          '<span class="alerts-send-to-label">Send alerts to</span>' +
-                          '<div class="channel-select-menu">' +
-                            '<button class="channel-select" type="button" data-channel-trigger aria-haspopup="listbox" aria-expanded="false">' +
-                              // 频道态 = 深底白 channel icon；Alva 态 = logo-portrait 头像
-                              '<span class="channel-select-logo" data-channel-logo>' +
-                                '<img class="channel-select-logo-img" src="/alva-infant/logo-portrait.svg" alt="" />' +
-                                '<span class="channel-select-logo-icon"></span>' +
-                              '</span>' +
-                              '<span class="channel-select-name" data-channel-name>sheer-test-1</span>' +
-                              '<span class="channel-select-arrow" aria-hidden="true"></span>' +
-                            '</button>' +
-                            '<div class="channel-dropdown" data-channel-dropdown role="listbox" aria-hidden="true">' +
-                              renderChannelOptions() +
-                            '</div>' +
-                          '</div>' +
-                          '<button class="alerts-view-channel" type="button" data-alerts-manage>' +
-                            '<span>View channel</span>' +
-                            '<span class="alerts-view-channel-arrow" aria-hidden="true"></span>' +
-                          '</button>' +
+                          renderAutomationRow('ai-chip-supply-chain') +
+                          renderAutomationRow('space-rotation-prices') +
                         '</div>' +
                       '</div>' +
                       '<div class="alerts-signals-section">' +
                         '<p class="alerts-signals-title">Recent Alerts</p>' +
                         '<div class="alerts-signals-list">' +
-                          '<div class="alerts-signal-card">' +
-                            '<p class="alerts-signal-date">May 8, 12:00 PM &middot; ai-chip-supply-chain</p>' +
-                            '<p class="alerts-signal-headline"><strong>AMD to Entrust 2nm Production to Samsung Foundry Samsung Electronics has entered into substantive discussions with AMD</strong></p>' +
-                            '<ul class="alerts-signal-bullets">' +
-                              '<li>Top of basket: ALL (Allstate) holds #1 at Score 95 &mdash; ROE 39.5%, P/E 5.64; leadership in Insurance &mdash; Property &amp; Casualty continues.</li>' +
-                              '<li>New entries: BBVA (+7), PDD (+6), PBR (+3) rejoin the Top 20 on improved P/E and ROE reads.</li>' +
-                              '<li>Dropouts: TFC, SFNC fall out of Top 40 after D/E flags near 2.0 threshold.</li>' +
-                            '</ul>' +
-                          '</div>' +
+                          renderSignalCard() + renderSignalCard() + renderSignalCard() +
                         '</div>' +
                       '</div>' +
-                      '<button type="button" class="alerts-unsubscribe-btn" data-alerts-unsubscribe>Unsubscribe</button>' +
+                    '</div>' +
+                    // 吸底：未连 social 显示 Connect 区 + 分隔线；Unsubscribe 恒在（文字链）
+                    '<div class="alerts-popover-foot">' +
+                      '<div class="alerts-connect" data-alerts-connect>' +
+                        '<p class="alerts-connect-title">Connect Agents to Get Notified</p>' +
+                        '<div class="alerts-connect-btns">' +
+                          '<button type="button" class="alerts-connect-btn is-telegram" data-alerts-connect-social="telegram"><img class="alerts-connect-btn-icon" src="/alva-infant/logo-im-telegram.svg" alt="" /><span>Telegram</span></button>' +
+                          '<button type="button" class="alerts-connect-btn is-discord" data-alerts-connect-social="discord"><img class="alerts-connect-btn-icon" src="/alva-infant/logo-im-discord.svg" alt="" /><span>Discord</span></button>' +
+                          '<button type="button" class="alerts-connect-btn is-imessage" data-alerts-connect-social="imessage"><img class="alerts-connect-btn-icon" src="/alva-infant/logo-im-imessage.svg" alt="" /><span>iMessage</span></button>' +
+                        '</div>' +
+                      '</div>' +
+                      '<div class="alerts-foot-divider" data-alerts-connect-divider aria-hidden="true"></div>' +
+                      '<button type="button" class="alerts-unsubscribe" data-alerts-unsubscribe>Unsubscribe</button>' +
                     '</div>' +
                   '</div>'
                 : '') +
@@ -925,6 +927,14 @@
       document.removeEventListener('keydown', onKeydown);
     });
 
+    var remixCloseBtn = popover.querySelector('[data-remix-close]');
+    if (remixCloseBtn) {
+      remixCloseBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        close();
+      });
+    }
+
     var agentToggle = popover.querySelector('[data-remix-agent-toggle]');
     if (agentToggle) {
       agentToggle.addEventListener('click', function (e) {
@@ -1027,6 +1037,14 @@
       document.removeEventListener('keydown', onKeydown);
     });
 
+    var shareCloseBtn = popover.querySelector('[data-share-close]');
+    if (shareCloseBtn) {
+      shareCloseBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        close();
+      });
+    }
+
     var rows = popover.querySelectorAll('[data-share-option]');
     rows.forEach(function (row) {
       row.addEventListener('click', function (e) {
@@ -1067,31 +1085,11 @@
     }
   }
 
-  function setupStarPopover(host) {
-    var trigger = host.querySelector('[data-star-trigger]');
-    if (!trigger) return;
-    var alertsEnabled = host.hasAttribute('get-alerts')
-      && host.getAttribute('get-alerts') !== 'false';
-    var popover = host.querySelector('[data-star-popover]');
-    if (popover && popover.parentNode) popover.parentNode.removeChild(popover);
-    trigger.removeAttribute('aria-haspopup');
-    trigger.removeAttribute('aria-expanded');
-
-    if (alertsEnabled) return; // alerts variant handles star click in setupAlertsPopover
-
-    trigger.addEventListener('click', function (e) {
-      e.stopPropagation();
-      trigger.classList.toggle('is-starred');
-      trigger.setAttribute('aria-pressed', trigger.classList.contains('is-starred') ? 'true' : 'false');
-    });
-  }
-
   function setupAlertsPopover(host) {
     var alertsBtn = host.querySelector('[data-alerts-trigger]');
     if (!alertsBtn) return;
     var alertsBtnLabel = alertsBtn.querySelector('.pb-alerts-label');
     var popover = host.querySelector('[data-alerts-popover]');
-    var starBtn = host.querySelector('[data-star-trigger]');
 
     var setSubscribed = function (on) {
       alertsBtn.classList.toggle('is-on', on);
@@ -1108,44 +1106,43 @@
       return;
     }
 
-    // 有推送 playbook：Subscribed 与「Receive Automations Alerts」开关解耦——
-    // 开关只切铃铛（开=notification-l / 关=notification-off），退订走弹层 Unsubscribe
-    var setAlertsOn = function (on) {
-      var receiveSwitch = popover.querySelector('[data-alerts-switch]');
-      var automationSwitches = Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
-      alertsBtn.classList.toggle('is-muted', !on);
-      if (receiveSwitch) {
-        receiveSwitch.classList.toggle('on', on);
-        receiveSwitch.classList.toggle('is-on', on);
-        receiveSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
-      }
-      automationSwitches.forEach(function (automationSwitch) {
-        automationSwitch.classList.toggle('on', on);
-        automationSwitch.classList.toggle('is-on', on);
-        automationSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
-        automationSwitch.disabled = !on;
-        automationSwitch.classList.toggle('is-disabled', !on);
+    // 有推送 playbook：每条 automation 独立开关（各自推送频道）；铃铛 muted = 全部关闭；退订走 Unsubscribe
+    var getRowSwitches = function () {
+      return Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
+    };
+    var updateBell = function () {
+      var anyOn = getRowSwitches().some(function (s) {
+        return s.classList.contains('on') || s.classList.contains('is-on');
       });
+      alertsBtn.classList.toggle('is-muted', !anyOn);
+    };
+    var setAllRows = function (on) {
+      getRowSwitches().forEach(function (s) {
+        s.classList.toggle('on', on);
+        s.classList.toggle('is-on', on);
+        s.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+      updateBell();
     };
 
-    function closeChannelDropdown() {
-      var dropdown = popover.querySelector('[data-channel-dropdown]');
-      var trigger = popover.querySelector('[data-channel-trigger]');
-      if (!dropdown) return;
-      dropdown.classList.remove('open');
-      dropdown.setAttribute('aria-hidden', 'true');
-      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    function closeAllChannelDropdowns() {
+      Array.prototype.slice.call(popover.querySelectorAll('[data-channel-dropdown]')).forEach(function (dd) {
+        dd.classList.remove('open');
+        dd.setAttribute('aria-hidden', 'true');
+      });
+      Array.prototype.slice.call(popover.querySelectorAll('[data-channel-trigger]')).forEach(function (t) {
+        t.setAttribute('aria-expanded', 'false');
+      });
     }
 
     function close() {
-      closeChannelDropdown();
+      closeAllChannelDropdowns();
       popover.classList.remove('open');
       popover.setAttribute('aria-hidden', 'true');
       if (alertsBtn) {
         alertsBtn.setAttribute('aria-expanded', 'false');
         alertsBtn.classList.remove('is-open');
       }
-      if (starBtn) starBtn.setAttribute('aria-expanded', 'false');
     }
     function open() {
       closeOtherPopovers(host, close);
@@ -1155,16 +1152,15 @@
         alertsBtn.setAttribute('aria-expanded', 'true');
         alertsBtn.classList.add('is-open');
       }
-      if (starBtn) starBtn.setAttribute('aria-expanded', 'true');
     }
     registerPopover(host, close);
 
     alertsBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       if (!alertsBtn.classList.contains('is-on')) {
-        // 首次订阅：置 Subscribed + 默认打开推送开关 + 弹出弹层
+        // 首次订阅：置 Subscribed + 所有 automation 默认推到 Alva（全开）+ 弹出弹层
         setSubscribed(true);
-        setAlertsOn(true);
+        setAllRows(true);
         open();
       } else if (popover.classList.contains('open')) {
         close();
@@ -1172,110 +1168,89 @@
         open();
       }
     });
-    // Unsubscribe：退订（按钮回 Subscribe，总开关 + automations 置灰）后收起弹层
+    // 标题栏 × 关闭
+    var closeBtn = popover.querySelector('[data-alerts-close]');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        close();
+      });
+    }
+
+    // Unsubscribe：退订（按钮回 Subscribe，automations 全关）后收起弹层
     var unsubscribeBtn = popover.querySelector('[data-alerts-unsubscribe]');
     if (unsubscribeBtn) {
       unsubscribeBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         setSubscribed(false);
-        setAlertsOn(false);
-        close();
-      });
-    }
-    if (starBtn) {
-      var starOpenTimer = null;
-      starBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var nowStarred = !starBtn.classList.contains('is-starred');
-        starBtn.classList.toggle('is-starred', nowStarred);
-        starBtn.setAttribute('aria-pressed', nowStarred ? 'true' : 'false');
-        if (starOpenTimer) { clearTimeout(starOpenTimer); starOpenTimer = null; }
-        if (nowStarred) {
-          // Small delay so the star fill animates first, then the popover eases in.
-          starOpenTimer = setTimeout(function () { open(); starOpenTimer = null; }, 240);
-        } else {
-          close();
-        }
-      });
-      host._pbHeaderCleanup = (host._pbHeaderCleanup || []).concat(function () {
-        if (starOpenTimer) { clearTimeout(starOpenTimer); starOpenTimer = null; }
-      });
-    }
-
-    // View channel → navigate parent to the Alva channel page
-    var manageBtn = popover.querySelector('[data-alerts-manage]');
-    if (manageBtn) {
-      manageBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        try {
-          (window.parent || window).postMessage({ type: 'alva:navigate', page: 'agent' }, '*');
-        } catch (_) {}
+        setAllRows(false);
         close();
       });
     }
 
-    // 频道选择下拉：点击展开，选项点击切换选中并回填 trigger
-    var channelTrigger = popover.querySelector('[data-channel-trigger]');
-    var channelDropdown = popover.querySelector('[data-channel-dropdown]');
-    if (channelTrigger && channelDropdown) {
-      channelTrigger.addEventListener('click', function (e) {
+    // Connect Telegram / Discord → 连接 social 后切「已连接」态（隐藏 Connect 区，仅剩 Unsubscribe）
+    Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-connect-social]')).forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (channelDropdown.classList.contains('open')) {
-          closeChannelDropdown();
-        } else {
-          channelDropdown.classList.add('open');
-          channelDropdown.setAttribute('aria-hidden', 'false');
-          channelTrigger.setAttribute('aria-expanded', 'true');
+        if (btn.getAttribute('data-alerts-connect-social') === 'telegram') {
+          try { window.open('https://t.me/alva_ai_bot', '_blank', 'noopener'); } catch (_) {}
+        }
+        popover.classList.add('is-agent-connected');
+      });
+    });
+
+    // 每行频道选择：各自独立展开 / 选中回填（互斥展开，同一时刻只开一个）
+    Array.prototype.slice.call(popover.querySelectorAll('.channel-select-menu')).forEach(function (menu) {
+      var trigger = menu.querySelector('[data-channel-trigger]');
+      var dropdown = menu.querySelector('[data-channel-dropdown]');
+      if (!trigger || !dropdown) return;
+      var channelName = menu.querySelector('[data-channel-name]');
+      var channelLogo = menu.querySelector('[data-channel-logo]');
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var wasOpen = dropdown.classList.contains('open');
+        closeAllChannelDropdowns();
+        if (!wasOpen) {
+          dropdown.classList.add('open');
+          dropdown.setAttribute('aria-hidden', 'false');
+          trigger.setAttribute('aria-expanded', 'true');
         }
       });
-      var channelName = popover.querySelector('[data-channel-name]');
-      var channelLogo = popover.querySelector('[data-channel-logo]');
-      var channelOptions = Array.prototype.slice.call(channelDropdown.querySelectorAll('[data-channel-option]'));
-      channelOptions.forEach(function (opt) {
+      Array.prototype.slice.call(dropdown.querySelectorAll('[data-channel-option]')).forEach(function (opt) {
         opt.addEventListener('click', function (e) {
           e.stopPropagation();
-          channelOptions.forEach(function (o) {
+          Array.prototype.slice.call(dropdown.querySelectorAll('[data-channel-option]')).forEach(function (o) {
             o.classList.toggle('is-selected', o === opt);
             o.setAttribute('aria-selected', o === opt ? 'true' : 'false');
           });
           if (channelName) channelName.textContent = opt.getAttribute('data-channel-option');
           if (channelLogo) channelLogo.classList.toggle('is-agent', opt.getAttribute('data-channel-kind') === 'agent');
-          closeChannelDropdown();
+          closeAllChannelDropdowns();
         });
       });
-      // 点弹层空白处只收起下拉，不关弹层
-      popover.addEventListener('click', function () { closeChannelDropdown(); });
-    }
+    });
+    // 点弹层空白处只收起频道下拉，不关弹层（trigger/option/switch 均 stopPropagation）
+    popover.addEventListener('click', function () { closeAllChannelDropdowns(); });
 
-    // Receive Alerts toggle switch — 只切铃铛与 automations，不动 Subscribed
-    var switchBtn = popover.querySelector('[data-alerts-switch]');
-    var automationSwitches = Array.prototype.slice.call(popover.querySelectorAll('[data-alerts-automation-switch]'));
-
-    if (switchBtn) {
-      switchBtn.addEventListener('click', function (e) {
+    // 每行 automation 开关：独立切换 + 同步铃铛（不再有主开关，铃铛跟随「是否还有开着的行」）
+    getRowSwitches().forEach(function (rowSwitch) {
+      rowSwitch.addEventListener('click', function (e) {
         e.stopPropagation();
-        setAlertsOn(!switchBtn.classList.contains('on'));
-      });
-    }
-    // 初始态：alerts-connected 起始即 Subscribed 且开关打开
-    setAlertsOn(alertsBtn.classList.contains('is-on'));
-
-    automationSwitches.forEach(function (automationSwitch) {
-      automationSwitch.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (automationSwitch.disabled) return;
-        var on = !automationSwitch.classList.contains('on') && !automationSwitch.classList.contains('is-on');
-        automationSwitch.classList.toggle('on', on);
-        automationSwitch.classList.toggle('is-on', on);
-        automationSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+        var on = !(rowSwitch.classList.contains('on') || rowSwitch.classList.contains('is-on'));
+        rowSwitch.classList.toggle('on', on);
+        rowSwitch.classList.toggle('is-on', on);
+        rowSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+        updateBell();
       });
     });
+    // 初始态：已订阅 → 保持默认全开；未订阅 → 全关且铃铛静音（首次点 Subscribe 再全开）
+    if (alertsBtn.classList.contains('is-on')) updateBell();
+    else setAllRows(false);
 
     var onDocClick = function (e) {
       if (!popover.classList.contains('open')) return;
       if (popover.contains(e.target)) return;
       if (alertsBtn && alertsBtn.contains(e.target)) return;
-      if (starBtn && starBtn.contains(e.target)) return;
       close();
     };
     var onKeydown = function (e) { if (e.key === 'Escape') close(); };
@@ -1305,7 +1280,6 @@
         setupDescToggle(self);
         setupFeedsPopover(self);
         setupRemixPopover(self);
-        setupStarPopover(self);
         setupAlertsPopover(self);
         setupSharePopover(self);
         setupSettingsPopover(self);

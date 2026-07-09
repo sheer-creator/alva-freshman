@@ -61,14 +61,16 @@ playbook-header { display: contents; }
 .pb-action {
     display: inline-flex; align-items: center; gap: 4px;
     height: 32px; padding: 6px 8px;
-    border: none; background: transparent; border-radius: 4px;
+    border: none; background: transparent; border-radius: var(--radius-btn-s, 4px);
     cursor: pointer; font-family: inherit;
     color: var(--text-n9);
     transition: background .15s;
 }
 .pb-action--icon-only { width: 32px; padding: 6px; justify-content: center; }
 .pb-action:hover { background: rgba(0,0,0,0.04); }
-.pb-action.is-starred:hover { background: rgba(0,0,0,0.04); }
+/* views — display only, no interaction affordance */
+.pb-action--static { cursor: default; }
+.pb-action--static:hover { background: transparent; }
 .pb-action.is-active,
 .pb-action.is-open { background-color: var(--main-m1-10, rgba(73,163,166,0.1)); color: var(--main-m1); }
 .pb-action.is-active .pb-action-icon,
@@ -84,14 +86,7 @@ playbook-header { display: contents; }
     flex-shrink: 0;
 }
 .pb-action-icon.ic-share { -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/share-l.svg');  mask-image: url('https://alva-ai-static.b-cdn.net/icons/share-l.svg'); }
-.pb-action-icon.ic-star  { -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/star-l.svg');   mask-image: url('https://alva-ai-static.b-cdn.net/icons/star-l.svg'); }
-.pb-action.is-starred { background-color: transparent; color: var(--main-m1); }
-.pb-action.is-starred .pb-action-icon.ic-star {
-    background-color: var(--main-m1);
-    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/star-f.svg');
-            mask-image: url('https://alva-ai-static.b-cdn.net/icons/star-f.svg');
-}
-.pb-action.is-starred .pb-action-count { color: var(--main-m1); }
+.pb-action-icon.ic-show  { -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/show-l.svg');   mask-image: url('https://alva-ai-static.b-cdn.net/icons/show-l.svg'); }
 .pb-action-icon.ic-remix    { -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/remix-l.svg');     mask-image: url('https://alva-ai-static.b-cdn.net/icons/remix-l.svg'); }
 .pb-action-icon.ic-chat     { -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/chat-l1.svg');     mask-image: url('https://alva-ai-static.b-cdn.net/icons/chat-l1.svg'); }
 .pb-action-icon.ic-settings { -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/settings-l.svg');  mask-image: url('https://alva-ai-static.b-cdn.net/icons/settings-l.svg'); }
@@ -315,7 +310,7 @@ playbook-header { display: contents; }
     height: 32px; padding: 6px 10px;
     background: transparent;
     border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
-    border-radius: 4px;
+    border-radius: var(--radius-btn-s, 4px);
     font-family: inherit;
     cursor: pointer; white-space: nowrap;
     transition: background .15s, border-color .15s;
@@ -332,7 +327,7 @@ playbook-header { display: contents; }
     font-family: inherit;
     font-size: 12px; font-weight: 400;
     line-height: 20px; letter-spacing: 0.12px;
-    color: rgba(0,0,0,0.5);
+    color: var(--text-n5, rgba(0,0,0,0.5));
 }
 
 /* meta row — bordered pills */
@@ -749,8 +744,12 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 .share-popover.open { display: flex; }
+.share-popover-titlebar {
+    display: flex; align-items: center; gap: var(--sp-s, 12px);
+    width: 100%;
+}
 .share-popover-title {
-    margin: 0;
+    margin: 0; flex: 1 1 auto; min-width: 0;
     font-size: 16px; font-weight: 500;
     line-height: 26px; letter-spacing: 0.16px;
     color: var(--text-n9);
@@ -879,107 +878,6 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
             mask-image: url('https://alva-ai-static.b-cdn.net/icons/check-l1.svg');
 }
 
-/* star popover (Connect Agents to Get Notified) */
-.star-menu { position: relative; display: inline-flex; }
-.star-popover {
-    position: absolute;
-    top: calc(100% + 6px); right: 0;
-    z-index: 50;
-    display: none;
-    flex-direction: column;
-    gap: var(--sp-m, 16px);
-    width: 428px;
-    padding: var(--sp-l, 20px);
-    background: #fff;
-    border: 0.5px solid var(--line-l2);
-    border-radius: var(--radius-pop-popover);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.04);
-    font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-.star-popover.open { display: flex; }
-.star-popover-card {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: var(--sp-s, 12px);
-    padding: var(--sp-xl, 24px) var(--sp-l, 20px);
-    background: var(--b-r02);
-    border-radius: var(--radius-ct-l, 8px);
-    width: 100%;
-}
-.star-popover-logo {
-    width: 48px; height: 48px;
-    background: var(--b0-sidebar, #2A2A38);
-    border-radius: 960px;
-    display: inline-flex; align-items: center; justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-.star-popover-logo img { width: 48px; height: 48px; display: block; }
-.star-popover-title {
-    margin: 0;
-    font-size: 16px; line-height: 26px; letter-spacing: 0.16px;
-    color: var(--text-n9);
-    text-align: center;
-    width: 100%;
-}
-.star-popover-cta {
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: var(--sp-xs, 8px);
-    height: 40px;
-    padding: 9px var(--sp-m, 16px);
-    background: #24a1de;
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-btn-m, 6px);
-    font-family: inherit;
-    font-size: 14px; font-weight: 500;
-    line-height: 22px; letter-spacing: 0.14px;
-    cursor: pointer; white-space: nowrap;
-    text-decoration: none;
-    transition: opacity .15s;
-}
-.star-popover-cta:hover { opacity: 0.9; }
-.star-popover-cta-icon { width: 18px; height: 18px; flex-shrink: 0; display: block; filter: brightness(0) invert(1); }
-.star-popover-socials {
-    display: flex; align-items: center; gap: var(--sp-xs, 8px);
-    padding-top: var(--sp-s, 12px);
-}
-.star-popover-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 12px 4px 6px;
-    background: var(--b-r05);
-    border-radius: 960px;
-    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n9);
-    white-space: nowrap;
-}
-.star-popover-chip.is-disabled { background: var(--b-r03); color: var(--text-n3); }
-.star-popover-chip img { width: 18px; height: 18px; display: block; flex-shrink: 0; }
-.star-popover-footer {
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: var(--sp-xs, 8px);
-    height: 40px; width: 100%;
-    padding: 9px var(--sp-l, 20px);
-    background: transparent;
-    border: 0.5px solid var(--line-l3);
-    border-radius: var(--radius-btn-m, 6px);
-    font-family: inherit;
-    font-size: 14px; font-weight: 500;
-    line-height: 22px; letter-spacing: 0.14px;
-    color: var(--text-n9);
-    cursor: pointer;
-    transition: background .15s;
-}
-.star-popover-footer:hover { background: var(--b-r03); }
-.star-popover-footer-icon {
-    width: 18px; height: 18px; flex-shrink: 0;
-    background-color: var(--main-m1);
-    -webkit-mask-image: url('https://alva-ai-static.b-cdn.net/icons/star-f.svg');
-            mask-image: url('https://alva-ai-static.b-cdn.net/icons/star-f.svg');
-    -webkit-mask-position: center; mask-position: center;
-    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-    -webkit-mask-size: contain; mask-size: contain;
-}
-
 /* Get Alerts button (primary CTA — variant only) */
 .alerts-menu { position: relative; display: inline-flex; padding-left: var(--sp-xs, 8px); }
 .pb-alerts-btn {
@@ -989,7 +887,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     background: var(--main-m1);
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-btn-s, 4px);
     font-family: inherit;
     cursor: pointer; white-space: nowrap;
     transition: opacity .15s;
@@ -1012,14 +910,14 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     color: #fff;
 }
 /* 铃铛仅 Subscribed（is-on）显示，计数两种态都显示
-   铃铛跟随弹层里 Receive Automations Alerts 开关：开 = notification-l，关 = bell-off（is-muted）
+   铃铛跟随弹层里 Receive Automations Alerts 开关：开 = notification-check-l，关 = bell-off（is-muted）
    注：CDN 暂无 notification-off-l.svg（404），先内嵌 notification-l 同笔触 + 斜线的 data-URI，CDN 上线后可替换 */
 .pb-alerts-bell {
     width: 14px; height: 14px; flex-shrink: 0;
     display: none;
     background-color: var(--text-n9);
-    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/notification-l.svg') center / contain no-repeat;
-            mask: url('https://alva-ai-static.b-cdn.net/icons/notification-l.svg') center / contain no-repeat;
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/notification-check-l.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/notification-check-l.svg') center / contain no-repeat;
 }
 .pb-alerts-btn.is-muted .pb-alerts-bell {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cmask%20id%3D%22a%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%2220%22%20height%3D%2220%22%3E%3Crect%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M3%203L17%2017%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fmask%3E%3Cg%20mask%3D%22url%28%23a%29%22%3E%3Cpath%20d%3D%22M10.9707%2017.2412C11.1093%2017.0026%2011.4155%2016.9211%2011.6543%2017.0596C11.8927%2017.1982%2011.9742%2017.5045%2011.8359%2017.7432C11.6496%2018.0643%2011.3812%2018.3312%2011.0596%2018.5166C10.738%2018.7017%2010.373%2018.7997%2010.002%2018.7998C9.63069%2018.7998%209.26511%2018.7018%208.94336%2018.5166C8.6217%2018.3313%208.35428%2018.0643%208.16797%2017.7432C8.02941%2017.5043%208.11076%2017.1981%208.34961%2017.0596C8.58841%2016.9213%208.89471%2017.0025%209.0332%2017.2412C9.13165%2017.4108%209.2734%2017.5515%209.44336%2017.6494C9.61326%2017.7471%209.80594%2017.7998%2010.002%2017.7998C10.1979%2017.7997%2010.3907%2017.7472%2010.5605%2017.6494C10.7304%2017.5515%2010.8723%2017.4108%2010.9707%2017.2412ZM10.001%202C11.637%202.00026%2013.2064%202.65074%2014.3633%203.80762C15.5201%204.96466%2016.1709%206.53377%2016.1709%208.16992V12.2197C16.1709%2012.7316%2016.3744%2013.223%2016.7363%2013.585C17.0982%2013.9466%2017.589%2014.1504%2018.1006%2014.1504C18.3765%2014.1507%2018.6006%2014.3744%2018.6006%2014.6504C18.6005%2014.9263%2018.3764%2015.1501%2018.1006%2015.1504H1.90039C1.62433%2015.1504%201.39955%2014.9264%201.39941%2014.6504C1.39941%2014.3742%201.62425%2014.1504%201.90039%2014.1504C2.41195%2014.1503%202.90284%2013.9466%203.26465%2013.585C3.62645%2013.223%203.83008%2012.7315%203.83008%2012.2197V8.16992C3.83012%206.53365%204.48072%204.96468%205.6377%203.80762C6.79478%202.65066%208.36469%202%2010.001%202ZM10.001%203C8.6299%203%207.31428%203.54523%206.34473%204.51465C5.37529%205.48417%204.83012%206.79887%204.83008%208.16992V12.2197C4.83008%2012.9328%204.56795%2013.6176%204.10059%2014.1504H15.9004C15.4329%2013.6176%2015.1709%2012.9329%2015.1709%2012.2197V8.16992C15.1709%206.79898%2014.6255%205.48415%2013.6562%204.51465C12.6869%203.5453%2011.3718%203.00026%2010.001%203Z%22%20fill%3D%22%23000%22%20fill-opacity%3D%220.9%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M3%203L17%2017%22%20stroke%3D%22%23000%22%20stroke-opacity%3D%220.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E");
@@ -1042,12 +940,13 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     z-index: 50;
     display: flex;
     flex-direction: column;
-    gap: var(--sp-m, 16px);
+    gap: 0;
     width: 480px;
-    max-height: min(720px, calc(100vh - 80px));
-    padding: var(--sp-l, 20px);
+    /* 浮层最高为视口 80%，超出由内部 Recent Alerts 滚动（Figma 29686:30891） */
+    max-height: 80vh;
+    padding: 0;
     background: #fff;
-    overflow-y: auto;
+    overflow: hidden;
     overscroll-behavior: contain;
     border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2));
     border-radius: var(--radius-pop-popover, 8px);
@@ -1071,45 +970,105 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
                 transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
                 visibility 0s;
 }
+/* 三段式：固定头 / 可滚 Recent Alerts / 吸底 footer（Figma 29686:30891） */
+.alerts-popover-titlebar {
+    display: flex; align-items: center; gap: var(--sp-s, 12px);
+    width: 100%;
+}
 .alerts-popover-title {
-    margin: 0;
+    margin: 0; flex: 1 1 auto; min-width: 0;
     font-size: 16px; font-weight: 500;
     line-height: 26px; letter-spacing: 0.16px;
     color: var(--text-n9);
 }
-/* 弹层恒为 connected 态（未连接空态已随「默认已连接」移除） */
-.alerts-popover-connected {
+.alerts-popover-close,
+.remix-popover-close,
+.share-popover-close {
+    flex-shrink: 0;
+    width: 16px; height: 16px; padding: 0;
+    background-color: var(--text-n9, rgba(0,0,0,0.9));
+    border: none; cursor: pointer;
+    opacity: 0.9;
+    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/close-l1.svg') center / contain no-repeat;
+            mask: url('https://alva-ai-static.b-cdn.net/icons/close-l1.svg') center / contain no-repeat;
+    transition: opacity .15s;
+}
+.alerts-popover-close:hover,
+.remix-popover-close:hover,
+.share-popover-close:hover { opacity: 1; }
+.alerts-popover-body {
+    flex: 1 1 auto; min-height: 0;
     display: flex; flex-direction: column; gap: var(--sp-m, 16px);
-    width: 100%;
+    overflow-y: auto; overscroll-behavior: contain;
+    /* 顶部 20（Figma 容器内边距），底部 16 到吸底 footer 边线 */
+    padding: var(--sp-l, 20px) var(--sp-l, 20px) var(--sp-m, 16px);
+}
+.alerts-popover-foot {
+    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; gap: var(--sp-m, 16px);
+    padding: var(--sp-m, 16px) var(--sp-l, 20px);
+    border-top: 0.5px solid var(--line-l12, rgba(0,0,0,0.12));
 }
 
-/* Connected state: header + account */
+/* Alerts & Channels 区 */
 .alerts-connected-section {
     display: flex; flex-direction: column; gap: var(--sp-s, 12px);
     width: 100%;
 }
-/* Unsubscribe — 全宽 outline 按钮（Subscribe 弹层底部） */
-/* btn-medium + btn-secondary 规范（src/styles/button.css）：40 高 / 9×20 / radius-btn-m / 14 medium */
-.alerts-unsubscribe-btn {
-    width: 100%; height: 40px;
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: var(--sp-xs, 8px);
-    padding: 9px var(--sp-l, 20px);
-    background: transparent;
-    border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3));
-    border-radius: var(--radius-btn-m, 6px);
-    font-family: inherit;
-    font-size: 14px; font-weight: 500; line-height: 22px; letter-spacing: 0.14px;
-    color: var(--text-n9);
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-}
-.alerts-unsubscribe-btn:hover { border-color: var(--text-n9, rgba(0,0,0,0.9)); }
-.alerts-unsubscribe-btn:active { border-color: var(--line-l3, rgba(0,0,0,0.3)); background: var(--b-r02, rgba(0,0,0,0.02)); }
-.alerts-connected-head {
-    display: flex; align-items: center; justify-content: space-between;
+/* 吸底 Connect 区（未连 social 时的 upsell）：标题 + Telegram/Discord 双按钮 */
+.alerts-connect {
+    display: flex; flex-direction: column; gap: var(--sp-xs, 8px);
     width: 100%;
 }
+.alerts-connect-title {
+    margin: 0;
+    font-size: 14px; font-weight: 500; line-height: 22px; letter-spacing: 0.14px;
+    color: var(--text-n9); text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.alerts-connect-btns {
+    display: flex; justify-content: center; gap: var(--sp-xs, 8px);
+    width: 100%; height: 32px;
+}
+/* Button / Primary size-s（32 高）— Figma 30135:28629：h32 / py6 px12 / gap6 / radius-btn-s(4) / icon14 / Medium12 */
+.alerts-connect-btn {
+    flex: 1 1 0; min-width: 0;
+    height: 32px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 6px var(--sp-s, 12px);
+    border: none; border-radius: var(--radius-btn-s, 4px);
+    font-family: inherit;
+    font-size: 12px; font-weight: 500; line-height: 20px; letter-spacing: 0.12px;
+    color: #fff; cursor: pointer;
+    transition: opacity .15s;
+}
+.alerts-connect-btn:hover { opacity: 0.9; }
+.alerts-connect-btn.is-telegram { background: #229ED9; }
+.alerts-connect-btn.is-discord { background: #5865F2; }
+/* iMessage：Figma 30135:28629 底色 #0cbd2a，与 Telegram/Discord 同为 flex-1 */
+.alerts-connect-btn.is-imessage { background: #0CBD2A; }
+/* logo-im-* 为 fill=white 的 glyph，直接用即为白色（勿用圆底徽标 logo-social-*） */
+.alerts-connect-btn-icon {
+    width: 14px; height: 14px; flex-shrink: 0; display: block;
+}
+/* Connect 区与 Unsubscribe 之间的分隔线（仅未连接态出现）— Figma 31494:38486 = line/l12 0.5px */
+.alerts-foot-divider {
+    width: 100%; height: 0;
+    border-top: 0.5px solid var(--line-l12, rgba(0,0,0,0.12));
+}
+/* Unsubscribe — 居中文字链（Figma 29686:30891） */
+.alerts-unsubscribe {
+    width: 100%; padding: 0;
+    background: none; border: none;
+    font-family: inherit;
+    font-size: 14px; font-weight: 400; line-height: 22px; letter-spacing: 0.14px;
+    color: var(--text-n7, rgba(0,0,0,0.7)); text-align: center;
+    cursor: pointer; transition: color .15s;
+}
+.alerts-unsubscribe:hover { color: var(--text-n9, rgba(0,0,0,0.9)); }
+/* 已连接 social：隐藏 Connect 区与分隔线，footer 仅剩 Unsubscribe（Figma 29686:30915） */
+.alerts-popover.is-agent-connected .alerts-connect,
+.alerts-popover.is-agent-connected .alerts-foot-divider { display: none; }
 .alerts-connected-head-label {
     font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
     color: var(--text-n7, rgba(0,0,0,0.7));
@@ -1121,8 +1080,9 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     border-radius: var(--radius-ct-l, 8px);
     width: 100%;
 }
+/* 单行：开关 + 名称(占满) + 该行频道选择（Figma 29686:30891，gap 12） */
 .alerts-automation-row {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; gap: var(--sp-s, 12px);
     width: 100%;
 }
 .alerts-automation-name {
@@ -1130,16 +1090,6 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     font-size: 14px; line-height: 22px; letter-spacing: 0.14px;
     color: var(--text-n9);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-/* Send alerts to + 频道选择（Figma 7447:139839，下拉 8869:68755） */
-.alerts-send-to {
-    display: flex; align-items: center; gap: var(--sp-xs, 8px);
-    width: 100%;
-}
-.alerts-send-to-label {
-    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n5, rgba(0,0,0,0.5));
-    white-space: nowrap; flex-shrink: 0;
 }
 .channel-select-menu { position: relative; display: inline-flex; flex-shrink: 0; }
 .channel-select {
@@ -1177,7 +1127,8 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
 }
 .channel-dropdown {
     position: absolute;
-    top: calc(100% + 4px); left: 0;
+    /* 右对齐触发器向内（左）展开，避免被浮层 overflow:hidden 从右侧切割 */
+    top: calc(100% + 4px); right: 0; left: auto;
     z-index: 60;
     width: 200px;
     display: none;
@@ -1189,6 +1140,13 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     box-shadow: 0 6px 10px rgba(0,0,0,0.04);
 }
 .channel-dropdown.open { display: flex; }
+/* 下拉小标题「Send alerts to」（Figma 8869:68755，Regular 12 / n5 / pt6 pb4 px8） */
+.channel-dropdown-title {
+    padding: 6px 8px 4px;
+    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
+    color: var(--text-n5, rgba(0,0,0,0.5));
+    white-space: nowrap;
+}
 .channel-dropdown-item {
     display: flex; align-items: center; gap: var(--sp-xs, 8px);
     width: 100%;
@@ -1219,30 +1177,6 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .channel-dropdown-item.is-selected .channel-dropdown-item-name { color: var(--main-m1, #49A3A6); }
-.alerts-view-channel {
-    display: inline-flex; align-items: center; gap: 4px;
-    margin-left: auto;
-    background: transparent; border: none; padding: 0;
-    cursor: pointer; font-family: inherit;
-    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n5, rgba(0,0,0,0.5));
-    transition: color .15s;
-}
-.alerts-view-channel:hover { color: var(--text-n9); }
-.alerts-view-channel-arrow {
-    width: 12px; height: 12px; display: inline-block;
-    background-color: currentColor;
-    -webkit-mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg') center / contain no-repeat;
-            mask: url('https://alva-ai-static.b-cdn.net/icons/arrow-right-l2.svg') center / contain no-repeat;
-}
-.alerts-connected-toggle {
-    display: inline-flex; align-items: center; gap: var(--sp-xs, 8px);
-    flex-shrink: 0;
-}
-.alerts-connected-toggle-label {
-    font-size: 12px; line-height: 20px; letter-spacing: 0.12px;
-    color: var(--text-n5);
-}
 /* Alva Design System — Switch (medium) */
 .switch {
     position: relative;
@@ -1293,7 +1227,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     display: flex; flex-direction: column; gap: var(--sp-xs, 8px);
     padding: var(--sp-m, 16px);
     background: var(--grey-g01, #fafafa);
-    border-radius: var(--radius-ct-m, 6px);
+    border-radius: var(--radius-ct-l, 8px);
 }
 .alerts-signal-date {
     margin: 0;
@@ -1346,12 +1280,16 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     box-shadow: 0 6px 20px rgba(0,0,0,0.04);
 }
 .remix-popover.open { display: flex; }
+.remix-popover-titlebar {
+    display: flex; align-items: center; gap: var(--sp-s, 12px);
+    width: 100%;
+}
 .remix-popover-title {
     font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 16px; font-weight: 500;
     line-height: 26px; letter-spacing: 0.16px;
     color: rgba(0,0,0,0.9);
-    margin: 0;
+    margin: 0; flex: 1 1 auto; min-width: 0;
 }
 .remix-popover-desc {
     font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -1363,7 +1301,7 @@ button.pb-pill--readme:hover .pb-meta-icon { background-color: var(--text-n9); }
     display: flex; align-items: center; justify-content: center; gap: 8px;
     height: 40px; padding: 9px 20px;
     background: var(--main-m1); color: #fff;
-    border: none; border-radius: 8px;
+    border: none; border-radius: var(--radius-btn-m, 6px);
     font-family: inherit;
     font-size: 14px; font-weight: 500;
     line-height: 22px; letter-spacing: 0.14px;
