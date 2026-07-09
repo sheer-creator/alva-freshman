@@ -114,6 +114,7 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* 主导航 */}
       <div className="content-stretch flex flex-col items-start py-[4px] relative shrink-0 w-full z-[5]">
         <NavItem label="Home" active={activePage === 'home-v3'} onClick={() => onNavigate('home-v3')} />
+        <NavItem label="Agent" badge="Demo" active={activePage === 'agent'} onClick={() => onNavigate('agent')} />
         <NavItem label="Explore" active={activePage === 'explore'} onClick={() => onNavigate('explore-2' as any)} />
         <NavItem label="Portfolio" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} onClick={() => onNavigate('portfolio')} />
         <NavItem label="Alva Skill" badge="New" active={activePage === 'alva-skills'} onClick={() => onNavigate('alva-skills')} />

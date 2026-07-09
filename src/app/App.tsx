@@ -1,12 +1,13 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import SearchModal from "@/app/components/SearchModal";
 
-export type Page = "home" | "home-v3" | "docs" | "api-keys" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail";
+export type Page = "home" | "home-v3" | "docs" | "api-keys" | "agent" | "explore" | "explore-2" | "library" | "dashboard" | "workspace" | "nvda" | "tsla-overview" | "skills" | "alva-skills" | "user-profile" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "alva-chat" | "alva-chat-detail";
 
 /* ========== 按需加载页面 ========== */
 
 const Home = lazy(() => import("@/pages/Home"));
 const ApiKeys = lazy(() => import("@/pages/ApiKeys"));
+const Agent = lazy(() => import("@/pages/Agent"));
 const Explore = lazy(() => import("@/pages/Explore"));
 const Library = lazy(() => import("@/pages/Library"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -29,7 +30,7 @@ const AlvaChatDetail = lazy(() => import("@/pages/AlvaChatDetail"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail"];
+const VALID_PAGES: Page[] = ["home", "home-v3", "docs", "api-keys", "agent", "explore", "explore-2", "library", "dashboard", "workspace", "nvda", "tsla-overview", "skills", "alva-skills", "user-profile", "portfolio", "portfolio-settings", "pricing", "billing", "alva-chat", "alva-chat-detail"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1) as Page;
@@ -62,6 +63,7 @@ export default function App() {
         {currentPage === "home" && <Home onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "home-v3" && <HomeV3 onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "agent" && <Agent onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "skills" && <Skills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
