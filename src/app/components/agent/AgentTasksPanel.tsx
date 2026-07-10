@@ -5,7 +5,6 @@
  */
 
 import { useState } from 'react';
-import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { AlvaLoading } from '@/app/components/shared/AlvaLoading';
 import { AgentTaskDetail } from '@/app/components/agent/AgentTaskDetail';
 
@@ -92,50 +91,12 @@ function TaskTag({ status }: { status: AgentTaskStatus }) {
 /* 进行中状态行的文字脉冲(与 StreamingMessages 的 ThinkingIndicator 同口径) */
 const TASK_PULSE_CSS = '@keyframes agent-task-step { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.82; } }';
 
-/* ChatBox/Mini — Figma 7975:136670:每条 task 底部输入框;br03 底 / 圆角 4 / pl-12 pr-6 py-6 / gap-8
- * 右侧 24 发送按钮:有内容 → m1 青底白箭头可发;空 → br05 灰底浅箭头禁用 */
-function TaskChatInput() {
-  const [value, setValue] = useState('');
-  const canSend = value.trim().length > 0;
-  return (
-    <div
-      className="flex w-full items-center gap-[8px] rounded-[4px] py-[6px] pl-[12px] pr-[6px]"
-      style={{ background: 'var(--b-r03, rgba(0,0,0,0.03))' }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <input
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && canSend) {
-            e.preventDefault();
-            setValue('');
-          }
-        }}
-        placeholder="Message this task..."
-        className="min-w-0 flex-1 border-none bg-transparent text-[12px] leading-[20px] tracking-[0.12px] outline-none placeholder:text-[color:var(--text-n3,rgba(0,0,0,0.3))]"
-        style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
-      />
-      <button
-        type="button"
-        aria-label="Send"
-        disabled={!canSend}
-        onClick={() => canSend && setValue('')}
-        className={`flex size-[24px] shrink-0 items-center justify-center rounded-[4px] transition-colors ${canSend ? 'cursor-pointer' : 'cursor-default'}`}
-        style={{ background: canSend ? 'var(--main-m1, #49A3A6)' : 'var(--b-r05, rgba(0,0,0,0.05))' }}
-      >
-        <CdnIcon name="arrow-up-l1" size={12} color={canSend ? '#fff' : 'var(--text-n3, rgba(0,0,0,0.3))'} />
-      </button>
-    </div>
-  );
-}
-
 function TaskRow({ task, onClick }: { task: AgentTask; onClick?: () => void }) {
   const live = task.status === 'running' || task.status === 'needs-input';
-  /* 卡片 — Figma 7911:134316:border 0.5 l2 / 圆角 8 / flex-col gap-12 / p-20;上为信息行,下为输入框;点击进二级页 */
+  /* 卡片 — Figma 7911:134316:border 0.5 l2 / 圆角 8 / p-20;信息行(图标 + 标题/状态行 + tag);点击进二级页 */
   return (
     <div
-      className="group flex w-full cursor-pointer flex-col gap-[12px] rounded-[8px] p-[20px] transition-shadow hover:shadow-xs"
+      className="group flex w-full cursor-pointer flex-col rounded-[8px] p-[16px] transition-shadow hover:shadow-xs"
       style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
       onClick={onClick}
     >
@@ -163,8 +124,6 @@ function TaskRow({ task, onClick }: { task: AgentTask; onClick?: () => void }) {
         </div>
         <TaskTag status={task.status} />
       </div>
-
-      <TaskChatInput />
     </div>
   );
 }

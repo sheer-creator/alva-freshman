@@ -12,7 +12,16 @@ export interface Channel {
   description?: string;
 }
 
-let channels: Channel[] = [];
+/** 预置演示频道（Figma 10998:50677 alva-to-the-moon）— 聊天区/tab 计数在 AgentNewSession 按 seeded 分支渲染 */
+export const SEED_CHANNEL_ID = 'ch-alva-to-the-moon';
+
+let channels: Channel[] = [
+  {
+    id: SEED_CHANNEL_ID,
+    name: 'alva-to-the-moon',
+    description: 'Your AI investing agent. Ask me to research markets, build live Playbooks, or set up automations that watch the market for you.',
+  },
+];
 let currentId: string | null = null; // null = 默认 Alva Agent
 const listeners = new Set<() => void>();
 
@@ -39,6 +48,12 @@ export const channelsStore = {
   setCurrent(id: string | null) {
     if (currentId === id) return;
     currentId = id;
+    emit();
+  },
+  /** 更新频道描述（Edit Channel 弹窗）；去空白后为空则清掉 */
+  updateDescription(id: string, description: string) {
+    const desc = description.trim();
+    channels = channels.map((c) => (c.id === id ? { ...c, description: desc || undefined } : c));
     emit();
   },
   /** 名称是否已存在（用于 modal 校验，忽略大小写与首尾空白） */

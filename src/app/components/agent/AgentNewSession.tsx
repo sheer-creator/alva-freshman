@@ -16,6 +16,10 @@ import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
+import { ChannelSeedThread } from '@/app/components/agent/ChannelSeedThread';
+import { EMPTY_PROMPTS, EmptyPromptPill } from '@/app/components/chat/PlaybookSuggestions';
+import { SEED_CHANNEL_ID, channelsStore } from '@/app/state/channels';
+import { EditChannelModal } from '@/app/components/shared/EditChannelModal';
 
 const FONT = "'Delight', sans-serif";
 
@@ -82,6 +86,40 @@ const ONBOARD_CARDS: OnboardCard[] = [
     desc: "Describe any rule in plain English — a price trigger, a screener, a scheduled digest — and I'll run it for you and push every result here.",
     prompt: 'Help me build my own automation — I want to describe a rule and have you run it on a schedule',
     taskTitle: 'Automation: Custom',
+  },
+];
+
+/* Alerts tab「Get Started」5 卡 — Figma 10845:71203(For Alert 变体);portfolio/fintwit 两张接现有 flow,其余回 Chat */
+const ALERT_GET_STARTED_CARDS: { id: string; emoji: string; title: string; desc: string }[] = [
+  {
+    id: 'gs-portfolio',
+    emoji: '💼',
+    title: 'Watch your portfolio 24/7',
+    desc: "I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.",
+  },
+  {
+    id: 'gs-fintwit',
+    emoji: '📣',
+    title: 'Track FinTwit for alpha signals',
+    desc: "I'll scan X posts, filter out the noise, and send you a daily digest on alpha signals, conviction shifts, and debates that matter.",
+  },
+  {
+    id: 'gs-tickers',
+    emoji: '👀',
+    title: 'Follow tickers you care about',
+    desc: "Give me tickers you're curious about. I'll scan for meaningful moves, catalysts, and news so you don't have to keep checking.",
+  },
+  {
+    id: 'gs-screen',
+    emoji: '🔍',
+    title: 'Screen the market on your rules',
+    desc: "Set your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.",
+  },
+  {
+    id: 'gs-automations',
+    emoji: '⚙️',
+    title: 'Build you own automations',
+    desc: "Tell me what you want Alva to monitor and when it should run. I'll help shape it into a reliable automation.",
   },
 ];
 
@@ -294,6 +332,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   /* 谁接收 IM 推送 — 单 active channel,绑定/解绑随动(spec: 解绑 active 回退最早绑定) */
   const [imActive, setImActive] = useState<string | null>(null);
   const [imModalOpen, setImModalOpen] = useState(false);
+  /* 频道态右上角 settings → Edit Channel 弹窗(Figma 9732:448009);仅默认 Alva 跳设置页 */
+  const [editChannelOpen, setEditChannelOpen] = useState(false);
   /* 会话是否已开始（Start Watching / 发过 prompt）：true 则收起 onboard 空态，进入真实对话 */
   const [started, setStarted] = useState(false);
   /* 会话产出的 alert（Start Watching 建一条 portfolio watch）→ 驱动 Alerts tab 计数 + 面板 */
@@ -333,6 +373,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const activeIm = imActive ? IMS.find((i) => i.id === imActive) ?? null : null;
   /* 是否连过 IM（驱动 imrec 软推荐是否出现 + Tasks/Files 是否点亮）；不再影响开场 onboard 视图 */
   const connected = Object.values(imLinks).some(Boolean);
+  /* 预置演示频道（alva-to-the-moon）：聊天区显示预置对话（Figma 10998:50677），tabs 直接用连接后的产出 */
+  const seeded = channel?.id === SEED_CHANNEL_ID;
 
   /* 切换频道（含默认 Alva Agent）时，视图与会话产出回到该频道的空态 onboard；
      连接状态(imLinks/imActive)刻意不重置——右上角连接态在所有频道间与 Alva Agent 同步 */
@@ -401,7 +443,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const onStartWatching = useCallback((_picks: { symbol: string; qty: string }[]) => {
     closeFlow();
     setStarted(true);
-    /* mock 成 Figma 8341:126009 的 populated 列表:整套 AGENT_ALERTS(首项即 playbook 分组)+ 末尾追加本次新建的 portfolio watch */
+    /* mock 成 populated 列表:整套 AGENT_ALERTS + 末尾追加本次新建的 portfolio watch */
     setSessionAlerts((prev) => (prev.length ? prev : [...AGENT_ALERTS, PORTFOLIO_WATCH_ALERT]));
     setTab('chat');
     const typingId = ++idRef.current;
@@ -446,12 +488,13 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   }, []);
 
   /* 全新 onboarding 会话：agent 还没产出任何 task/alert/file → 计数为 0(不显示数字)、面板显示空态。
-     连接任一 social 后，Tasks / Files 变非空（mock 产出）；Alerts 仍只由 sessionAlerts 驱动。 */
-  const populated = false;
+     连接任一 social 后，Tasks / Files 变非空（mock 产出）；Alerts 仍只由 sessionAlerts 驱动。
+     预置演示频道恒为已产出态：直接复用连接后的 Tasks/Alerts/Files 内容。 */
+  const populated = seeded;
   const tabCounts: Record<string, number> = {
-    tasks: connected ? AGENT_TASKS.length : 0,
+    tasks: seeded || connected ? AGENT_TASKS.length : 0,
     alerts: sessionAlerts.length || (populated ? AGENT_ALERTS.length : 0),
-    artifacts: connected ? AGENT_ARTIFACTS.length : 0,
+    artifacts: seeded || connected ? AGENT_ARTIFACTS.length : 0,
   };
 
   return (
@@ -509,7 +552,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] bg-transparent transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
           style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
           aria-label="Agent settings"
-          onClick={() => onNavigate('alva-agent')}
+          onClick={() => (channel ? setEditChannelOpen(true) : onNavigate('alva-agent'))}
         >
           <CdnIcon name="settings-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
         </button>
@@ -579,9 +622,15 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           <div ref={stageRef} className="min-h-0 flex-1 overflow-y-auto px-[28px]">
             <style>{MSG_IN_CSS}</style>
             <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
+              {/* 预置演示频道：聊天区为预置对话历史（恒显，Figma 10998:50677）；其余频道走 onboard 空态 */}
+              {seeded && (
+                <MsgIn>
+                  <ChannelSeedThread onOpenTasks={() => setTab('tasks')} />
+                </MsgIn>
+              )}
               {/* 会话未开始才显示 onboard 空态;Start Watching / 发消息后收起,进入真实对话 */}
               {/* 开场恒为 onboard 引导（不随连接切换），只要未创建过（!started）就一直显示 */}
-              {!started && (
+              {!seeded && !started && (
               <MsgIn>
               <AgentMsg time="" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
                 <div>
@@ -742,6 +791,14 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           {/* composer 常显：onboard / 已开始对话都可继续聊天 */}
           <div className="shrink-0 px-[28px] pb-[28px]">
             <div className="mx-auto w-full max-w-[960px]">
+              {/* 预置演示频道：composer 上方常驻 3 条 prompt chips — Figma 10998:50699:p-16 gap-8 */}
+              {seeded && (
+                <div className="flex w-full flex-wrap items-center gap-[8px] p-[16px]">
+                  {EMPTY_PROMPTS.map((prompt) => (
+                    <EmptyPromptPill key={prompt.text} icon={prompt.icon} text={prompt.text} onClick={() => onPrompt(prompt.text)} />
+                  ))}
+                </div>
+              )}
               <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
             </div>
           </div>
@@ -755,10 +812,14 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         tabCounts.alerts > 0 ? (
           <AgentAlertsPanel
             alerts={sessionAlerts.length ? sessionAlerts : undefined}
-            getStarted={[
-              { id: 'gs-portfolio', emoji: '💼', title: 'Watch your portfolio 24/7', desc: "Tell me what you hold. I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.", onClick: () => { setTab('chat'); openFlow('portfolio'); } },
-              { id: 'gs-automations', emoji: '⚙️', title: 'Build your own automations', desc: 'Track the tickers you care about and get updates when price moves, news, or catalysts are worth attention.', onClick: () => setTab('chat') },
-            ]}
+            getStarted={ALERT_GET_STARTED_CARDS.map((c) => ({
+              ...c,
+              onClick: () => {
+                setTab('chat');
+                if (c.id === 'gs-portfolio') openFlow('portfolio');
+                if (c.id === 'gs-fintwit') openFlow('fintwit');
+              },
+            }))}
           />
         ) : <EmptyPanel tabId="alerts" />
       ) : tab === 'artifacts' ? (
@@ -777,6 +838,17 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             Back to Chat
           </button>
         </div>
+      )}
+
+      {editChannelOpen && channel && (
+        <EditChannelModal
+          description={channel.description ?? ''}
+          onClose={() => setEditChannelOpen(false)}
+          onSave={(desc) => {
+            channelsStore.updateDescription(channel.id, desc);
+            setEditChannelOpen(false);
+          }}
+        />
       )}
 
       {imModalOpen && (

@@ -1,20 +1,19 @@
 /**
- * [INPUT]: Figma Page/Agent/Alerts(7913:138060)— Body + Playbook 分组卡 + 单条 Alert 卡(created / subscribed)
- * [OUTPUT]: Agent 页 Alerts tab — All/Active/Paused 过滤 + Created 开关 + New Alerts;订阅整个 playbook 收成分组卡(组头 Unsubscribe + 行内 toggle),单条 alert 自成一卡(创建=edit/pause/delete + Unsubscribe;订阅=仅 Unsubscribe)
+ * [INPUT]: Figma Page/Agent/Alerts(10845:71200)— Get Started 5 卡网格 + 过滤 pills + Created by me + 扁平 Alert 卡(带 From playbook 底条)
+ * [OUTPUT]: Agent 页 Alerts tab — All/Active/Paused 过滤 + Created by me 勾选;created=可 pause/resume + Unsubscribe,subscribed=仅 Unsubscribe;底部固定 Manage all created automations
  * [POS]: AgentNewSession tab==='alerts' 渲染;alert 总数驱动页级 tab 计数
  */
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { Avatar } from '@/app/components/shared/Avatar';
-import { ToggleSwitch } from '@/app/components/shell/settings-ui';
 import { FeedDetailModal } from '@/app/components/community/FeedDetailModal';
 import type { PushCardData } from '@/app/components/shared/AutomationCard';
 
 const FONT = "'Delight', sans-serif";
 
 export type AgentAlertStatus = 'active' | 'paused';
-/** created = 我创建的(可 edit/pause/delete);subscribed = 订阅别人的(仅 Unsubscribe) */
+/** created = 我创建的(可 pause/resume);subscribed = 订阅别人的(仅 Unsubscribe) */
 export type AgentAlertSource = 'created' | 'subscribed';
 
 export interface AgentAlert {
@@ -27,50 +26,45 @@ export interface AgentAlert {
   runs: number;
   status: AgentAlertStatus;
   source: AgentAlertSource;
-  /** 该 alert 订阅自哪个 playbook;有值则收进对应分组卡 */
+  /** 该 alert 来自哪个 playbook;有值则卡片带「From {playbook}」底条 */
   playbookId?: string;
 }
 
-export interface AlertPlaybookGroup {
+interface AlertFromPlaybook {
   id: string;
   playbook: string;
-  /** 组头头像 — 传 Avatar name */
+  /** From tag 头像 — 传 Avatar name */
   avatar: string;
 }
 
-/* 订阅自整个 playbook → 渲染成分组卡(组头带 Unsubscribe,行内带 toggle) */
-export const AGENT_ALERT_GROUPS: AlertPlaybookGroup[] = [
-  { id: 'pb-attribution', playbook: 'Attribution Analysis Strategy', avatar: 'Sheer' },
-  { id: 'pb-bulls-bears', playbook: 'FinTwit Bulls & Bears', avatar: 'Caleb Frost' },
+/* 「From」底条指向的 playbook 元数据 */
+const ALERT_FROM_PLAYBOOKS: AlertFromPlaybook[] = [
+  { id: 'pb-btc-ultimate', playbook: 'BTC Ultimate AI Trader', avatar: 'BTC Ultimate AI Trader' },
+  { id: 'pb-eth-swing', playbook: 'ETH Swing Setup', avatar: 'ETH Swing Setup' },
 ];
 
 export const AGENT_ALERTS: AgentAlert[] = [
-  { id: 'a1', name: 'space-rs-rotation-1', creator: 'Sheer', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created', playbookId: 'pb-attribution' },
-  { id: 'a2', name: 'space-rs-rotation-2', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'paused', source: 'created', playbookId: 'pb-attribution' },
-  { id: 'a3', name: 'space-rs-rotation-3', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'subscribed', playbookId: 'pb-attribution' },
-  { id: 'a4', name: 'space-rs-rotation-4', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'paused', source: 'subscribed', playbookId: 'pb-attribution' },
-  { id: 'a5', name: 'nvda-macd-hft-notify', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'subscribed' },
-  { id: 'a6', name: 'manual-push-ping', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created' },
-  { id: 'a7', name: 'us-macro-pulse', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created' },
-  { id: 'a8', name: 'semi-catalyst-weekly-narrative', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created' },
-  { id: 'a9', name: 'bull-bear-sentiment', creator: 'Caleb Frost', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'active', source: 'created', playbookId: 'pb-bulls-bears' },
-  { id: 'a10', name: 'whale-flow-alert', creator: 'YGGYLL', lastRun: '15m', runEvery: 'Every 5 minutes', runs: 73, status: 'paused', source: 'subscribed', playbookId: 'pb-bulls-bears' },
+  { id: 'a1', name: 'space-rs-rotation-1', creator: 'YGGYLL', lastRun: '15m', runEvery: 'At 2 minutes past the hour', runs: 48, status: 'active', source: 'created', playbookId: 'pb-btc-ultimate' },
+  { id: 'a2', name: 'space-rs-rotation-2', creator: 'YGGYLL', lastRun: '15m', runEvery: 'At 2 minutes past the hour', runs: 48, status: 'paused', source: 'created', playbookId: 'pb-btc-ultimate' },
+  { id: 'a3', name: 'daily-onchain-recap', creator: 'Robert', lastRun: '15m', runEvery: 'At 2 minutes past the hour', runs: 48, status: 'active', source: 'subscribed', playbookId: 'pb-eth-swing' },
+  { id: 'a4', name: 'glp-1-trial-watch', creator: 'Rosy', lastRun: '15m', runEvery: 'At 08:00 AM, only on Monday', runs: 48, status: 'active', source: 'subscribed' },
+  { id: 'a5', name: 'ai-earnings-radar', creator: 'Alvatothemoon', lastRun: '15m', runEvery: 'At 08:00 AM, only on Monday', runs: 48, status: 'paused', source: 'created' },
 ];
 
-/* 状态点 — 14px 浅底环 + 6px 实心点;active 绿 / paused 灰 */
+/* 状态点 — Figma Tag/Status Dot:14px 浅底环 + 6px 实心点;active 绿(#DBEDED/#49A3A6) / paused 灰(#F0F0F0/#ACACAC) */
 function StatusDot({ status }: { status: AgentAlertStatus }) {
   const paused = status === 'paused';
   return (
     <span
       className="flex size-[14px] shrink-0 items-center justify-center rounded-full"
-      style={{ background: paused ? 'var(--b-r05, rgba(0,0,0,0.05))' : '#DBEDED' }}
+      style={{ background: paused ? '#F0F0F0' : '#DBEDED' }}
     >
-      <span className="size-[6px] rounded-full" style={{ background: paused ? 'var(--text-n3, rgba(0,0,0,0.3))' : 'var(--main-m1, #49A3A6)' }} />
+      <span className="size-[6px] rounded-full" style={{ background: paused ? '#ACACAC' : 'var(--main-m1, #49A3A6)' }} />
     </span>
   );
 }
 
-/* meta 行 — 创建者头像 + 名(n3) | Last Run | Every | Runs;分隔符 n2 */
+/* meta 行 — 创建者头像 + 名(n3) | Last Run | 调度 | Runs;分隔符 n2 */
 function AlertMeta({ alert }: { alert: AgentAlert }) {
   const sep = <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>;
   return (
@@ -89,32 +83,6 @@ function AlertMeta({ alert }: { alert: AgentAlert }) {
   );
 }
 
-/* 操作图标 — CDN 同名 icon;颜色取 Figma fill(n9) */
-function RowActions({ status, onToggleStatus }: { status: AgentAlertStatus; onToggleStatus: () => void }) {
-  return (
-    <div className="flex shrink-0 items-center gap-[12px]">
-      <button aria-label="Edit" onClick={(e) => e.stopPropagation()} className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70">
-        <CdnIcon name="edit-l1" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-      </button>
-      <button aria-label={status === 'paused' ? 'Resume' : 'Pause'} onClick={(e) => { e.stopPropagation(); onToggleStatus(); }} className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70">
-        <CdnIcon name={status === 'paused' ? 'play-f' : 'pause-l2'} size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-      </button>
-      <button aria-label="Delete" onClick={(e) => e.stopPropagation()} className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70">
-        <CdnIcon name="delete-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-      </button>
-    </div>
-  );
-}
-
-/* 折叠箭头 — CDN arrow-down-f2(实心三角);Figma fill = rgba(0,0,0,0.2)=n2;原生指下,展开 none,收起转右 */
-function GroupArrow({ open }: { open: boolean }) {
-  return (
-    <span className="flex size-[14px] shrink-0 items-center justify-center" style={{ transform: open ? 'none' : 'rotate(-90deg)', transition: 'transform 0.12s ease' }}>
-      <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2, rgba(0,0,0,0.2))" />
-    </span>
-  );
-}
-
 function UnsubscribeBtn() {
   return (
     <button
@@ -124,27 +92,6 @@ function UnsubscribeBtn() {
     >
       Unsubscribe
     </button>
-  );
-}
-
-/* 单 alert 主体 — dot + (name + meta) + 右侧控件;controls 由调用方传入(toggle / unsubscribe) */
-function AlertBody({ alert, status, onOpen, controls }: { alert: AgentAlert; status: AgentAlertStatus; onOpen: () => void; controls: React.ReactNode }) {
-  return (
-    <>
-      <span className="flex h-[26px] shrink-0 items-center">
-        <StatusDot status={status} />
-      </span>
-      <button
-        onClick={onOpen}
-        className="flex min-w-0 flex-1 cursor-pointer flex-col items-start gap-[2px] border-none bg-transparent p-0 text-left"
-      >
-        <span className="max-w-full truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-          {alert.name}
-        </span>
-        <AlertMeta alert={alert} />
-      </button>
-      <div className="flex shrink-0 items-center gap-[12px] self-center">{controls}</div>
-    </>
   );
 }
 
@@ -173,7 +120,7 @@ function buildAlertPushes(alert: AgentAlert): PushCardData[] {
 const ALERT_INSTRUCTION =
   'I want to set up a Project monitor automation. Briefly explain how automations work in Alva, then ask me what project to watch, what changes matter, and when it should check in.';
 
-/* 顶部「Get Started」双卡(Figma 8341:126009):只在传入时渲染 */
+/* 顶部「Get Started」卡组(Figma 10845:71203 For Alert 变体):6 列网格,前 3 张各占 2 列、后 2 张各占 3 列 */
 export interface AlertGetStartedCard { id: string; emoji: string; title: string; desc: string; onClick?: () => void }
 
 export function AgentAlertsPanel({ alerts = AGENT_ALERTS, getStarted }: { alerts?: AgentAlert[]; getStarted?: AlertGetStartedCard[] } = {}) {
@@ -183,199 +130,159 @@ export function AgentAlertsPanel({ alerts = AGENT_ALERTS, getStarted }: { alerts
   const [statusMap, setStatusMap] = useState<Record<string, AgentAlertStatus>>(() =>
     Object.fromEntries(alerts.map((a) => [a.id, a.status])),
   );
-  /* playbook 组默认收起;记录被展开的 id */
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const statusOf = (a: AgentAlert) => statusMap[a.id] ?? a.status;
   const toggleStatus = (id: string) =>
     setStatusMap((prev) => ({ ...prev, [id]: (prev[id] ?? 'active') === 'active' ? 'paused' : 'active' }));
 
-  const visible = (a: AgentAlert) => {
+  const fromOf = (a: AgentAlert) => (a.playbookId ? ALERT_FROM_PLAYBOOKS.find((p) => p.id === a.playbookId) : undefined);
+
+  const visibleAlerts = alerts.filter((a) => {
     if (filter !== 'all' && statusOf(a) !== filter) return false;
     if (createdOnly && a.source !== 'created') return false;
     return true;
-  };
-
-  /* 统一按数据顺序渲染:group 卡出现在其首个成员的位置,standalone 就地渲染 — 与 Figma 8341:126009 的交错顺序一致 */
-  const orderedItems = useMemo(() => {
-    const byId = new Map(AGENT_ALERT_GROUPS.map((g) => [g.id, g]));
-    const seen = new Set<string>();
-    const items: (
-      | { kind: 'group'; group: AlertPlaybookGroup; total: number; rows: AgentAlert[] }
-      | { kind: 'alert'; alert: AgentAlert }
-    )[] = [];
-    for (const a of alerts) {
-      const g = a.playbookId ? byId.get(a.playbookId) : undefined;
-      if (g) {
-        if (seen.has(g.id)) continue;
-        seen.add(g.id);
-        const rows = alerts.filter((x) => x.playbookId === g.id && visible(x));
-        if (rows.length === 0) continue;
-        items.push({ kind: 'group', group: g, total: alerts.filter((x) => x.playbookId === g.id).length, rows });
-      } else if (visible(a)) {
-        items.push({ kind: 'alert', alert: a });
-      }
-    }
-    return items;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, createdOnly, statusMap, alerts]);
+  });
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-[28px]">
-      <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[16px]">
-        {/* Get Started — Figma 9946:805301:标题(Regular16) + gap16 + 单卡容器内 2 个 flex-1 单元,中间竖分割线 */}
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-[28px] pb-0">
+      <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[40px]">
+        {/* Get Started — 标题(Regular16) + gap16 + 6 列网格卡组(3+2,内部 0.5px 分隔线) */}
         {getStarted && getStarted.length > 0 && (
-          <div className="mb-[24px] flex w-full flex-col gap-[16px]">
+          <div className="flex w-full flex-col gap-[16px]">
             <p className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Get Started</p>
-            <div className="flex w-full items-stretch overflow-hidden rounded-[8px] bg-white" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
-              {getStarted.map((c, i, arr) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={c.onClick}
-                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-[8px] border-none bg-transparent p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
-                  style={{ borderRight: i < arr.length - 1 ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : undefined }}
-                >
-                  <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                    <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                      <span className="mr-[8px]">{c.emoji}</span>{c.title}
-                    </p>
-                    <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{c.desc}</p>
-                  </div>
-                  <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
-                </button>
-              ))}
+            <div className="grid w-full grid-cols-[repeat(6,minmax(0,1fr))] overflow-hidden rounded-[8px] bg-white" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+              {getStarted.map((c, i, arr) => {
+                const firstRow = i < 3;
+                const rowEnd = i === 2 || i === arr.length - 1;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={c.onClick}
+                    className={`flex min-w-0 cursor-pointer items-center gap-[8px] border-none bg-transparent p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))] ${firstRow ? 'col-span-2' : 'col-span-3'}`}
+                    style={{
+                      borderRight: rowEnd ? undefined : '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+                      borderBottom: firstRow ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : undefined,
+                    }}
+                  >
+                    <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                      <p className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                        <span className="mr-[8px]">{c.emoji}</span>{c.title}
+                      </p>
+                      <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{c.desc}</p>
+                    </div>
+                    <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* 顶部行 — 过滤 pills + Created 开关 + New Alerts */}
-        <div className="flex w-full items-center gap-[20px]">
-          <div className="flex flex-1 flex-wrap items-center gap-[12px]">
-            {FILTERS.map((f) => {
-              const active = filter === f.id;
-              return (
-                <button
-                  key={f.id}
-                  className="h-[34px] shrink-0 cursor-pointer whitespace-nowrap rounded-full border-none px-[12px] py-[6px] text-[14px] leading-[22px] tracking-[0.14px] transition-colors"
-                  style={{
-                    fontFamily: FONT,
-                    background: active ? 'rgba(0,0,0,0.7)' : 'var(--b-r03, rgba(0,0,0,0.03))',
-                    color: active ? 'rgba(255,255,255,0.9)' : 'var(--text-n7, rgba(0,0,0,0.7))',
-                  }}
-                  onClick={() => setFilter(f.id)}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
-          </div>
-          <div className="flex shrink-0 items-center gap-[8px]">
-            <ToggleSwitch on={createdOnly} onClick={() => setCreatedOnly((v) => !v)} />
-            <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-              Created
-            </span>
-          </div>
-          <button
-            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[4px] rounded-[4px] px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] transition-colors hover:bg-[var(--b-r02)]"
-            style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))', color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
-          >
-            <CdnIcon name="add-l2" size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
-            New Alerts
-          </button>
-        </div>
-
-        {/* 列表 — group 卡与 standalone 卡按数据顺序交错(Figma 8341:126009) */}
-        {orderedItems.map((it) => {
-          if (it.kind === 'group') {
-            const { group, rows, total } = it;
-            const open = !!expanded[group.id];
-            return (
-            <div key={group.id} className="w-full overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
-              {/* 组头 — 三角 + 头像 + (名 / meta) + Unsubscribe;点击展开收起 */}
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => setExpanded((p) => ({ ...p, [group.id]: !open }))}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((p) => ({ ...p, [group.id]: !open })); } }}
-                className="flex w-full cursor-pointer items-center gap-[8px] p-[20px]"
-                style={{ background: 'var(--b-r02, rgba(0,0,0,0.02))' }}
-              >
-                <GroupArrow open={open} />
-                <Avatar name={group.avatar} size={30} />
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                  <span className="min-w-0 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                    {group.playbook}
-                  </span>
-                  <span className="flex items-center gap-[8px] text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
-                    <span className="whitespace-nowrap">{total} Automations</span>
-                    <span style={{ color: 'var(--text-n2, rgba(0,0,0,0.2))' }}>|</span>
-                    <span className="whitespace-nowrap">Last Run: {rows[0]?.lastRun ?? '15m'}</span>
-                  </span>
-                </div>
-                <UnsubscribeBtn />
-              </div>
-              {/* 行列表 — px-20,行间分隔线 l12 */}
-              {open && (
-              <div className="flex w-full flex-col px-[20px]">
-                {rows.map((a, i) => {
-                  const st = statusOf(a);
-                  return (
-                    <div
-                      key={a.id}
-                      className="group flex w-full items-start gap-[8px] py-[12px]"
-                      style={{ borderTop: i > 0 ? '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' : 'none' }}
-                    >
-                      <AlertBody
-                        alert={a}
-                        status={st}
-                        onOpen={() => setActiveAlert(a)}
-                        controls={
-                          a.source === 'created' ? (
-                            <>
-                              <RowActions status={st} onToggleStatus={() => toggleStatus(a.id)} />
-                              <ToggleSwitch on={st === 'active'} onClick={() => toggleStatus(a.id)} />
-                            </>
-                          ) : (
-                            <ToggleSwitch on={st === 'active'} onClick={() => toggleStatus(a.id)} />
-                          )
-                        }
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              )}
+        <div className="flex w-full flex-col gap-[16px]">
+          {/* 过滤行 — All/Active/Paused pills + Created by me 勾选 */}
+          <div className="flex w-full items-center gap-[20px]">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-[12px]">
+              {FILTERS.map((f) => {
+                const active = filter === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    className="h-[34px] shrink-0 cursor-pointer whitespace-nowrap rounded-full border-none px-[12px] py-[6px] text-[14px] leading-[22px] tracking-[0.14px] transition-colors"
+                    style={{
+                      fontFamily: FONT,
+                      background: active ? 'rgba(0,0,0,0.7)' : 'var(--b-r03, rgba(0,0,0,0.03))',
+                      color: active ? 'rgba(255,255,255,0.9)' : 'var(--text-n7, rgba(0,0,0,0.7))',
+                    }}
+                    onClick={() => setFilter(f.id)}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
             </div>
-            );
-          }
-          const a = it.alert;
-          const st = statusOf(a);
-          const created = a.source === 'created';
-          return (
-            <div
-              key={a.id}
-              className="group flex w-full items-start gap-[8px] rounded-[8px] p-[20px]"
-              style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+            <button
+              type="button"
+              onClick={() => setCreatedOnly((v) => !v)}
+              className="flex shrink-0 cursor-pointer items-center gap-[6px] border-none bg-transparent p-0"
             >
-              <AlertBody
-                alert={a}
-                status={st}
-                onOpen={() => setActiveAlert(a)}
-                controls={
-                  created ? (
-                    <>
-                      <RowActions status={st} onToggleStatus={() => toggleStatus(a.id)} />
-                      <UnsubscribeBtn />
-                    </>
-                  ) : (
+              <span
+                className="flex size-[16px] shrink-0 items-center justify-center rounded-[2px] transition-colors"
+                style={{ background: createdOnly ? 'var(--main-m1, #49A3A6)' : '#DEDEDE' }}
+              >
+                {createdOnly && <CdnIcon name="check-l1" size={12} color="#ffffff" />}
+              </span>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                Created by me
+              </span>
+            </button>
+          </div>
+
+          {/* 列表 — 扁平单卡;playbook 来源的卡带「From」底条 */}
+          {visibleAlerts.map((a) => {
+            const st = statusOf(a);
+            const from = fromOf(a);
+            const canToggle = a.source === 'created';
+            return (
+              <div key={a.id} className="flex w-full flex-col rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+                <div className="flex w-full items-start gap-[8px] p-[16px]">
+                  <span className="flex h-[26px] shrink-0 items-center">
+                    <StatusDot status={st} />
+                  </span>
+                  <button
+                    onClick={() => setActiveAlert(a)}
+                    className="flex min-w-0 flex-1 cursor-pointer flex-col items-start gap-[2px] border-none bg-transparent p-0 text-left"
+                  >
+                    <span className="max-w-full truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                      {a.name}
+                    </span>
+                    <AlertMeta alert={a} />
+                  </button>
+                  <div className="flex shrink-0 items-center gap-[16px] self-center pl-[8px]">
+                    {canToggle && (
+                      <button
+                        aria-label={st === 'paused' ? 'Resume' : 'Pause'}
+                        onClick={(e) => { e.stopPropagation(); toggleStatus(a.id); }}
+                        className="flex size-[16px] cursor-pointer items-center justify-center border-none bg-transparent p-0 transition-opacity hover:opacity-70"
+                      >
+                        <CdnIcon name={st === 'paused' ? 'play-f' : 'pause-l2'} size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+                      </button>
+                    )}
                     <UnsubscribeBtn />
-                  )
-                }
-              />
-            </div>
-          );
-        })}
+                  </div>
+                </div>
+                {from && (
+                  <div
+                    className="flex w-full flex-wrap items-start gap-[8px] px-[20px] py-[8px]"
+                    style={{ borderTop: '0.5px solid var(--line-l07, rgba(0,0,0,0.07))' }}
+                  >
+                    <div className="flex items-center gap-[4px]">
+                      <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
+                        From
+                      </span>
+                      <span className="flex items-center gap-[4px] rounded-[4px] px-[4px] py-[1px]" style={{ background: 'var(--b-r03, rgba(0,0,0,0.03))' }}>
+                        <Avatar name={from.avatar} size={14} />
+                        <span className="whitespace-nowrap text-[11px] leading-[18px] tracking-[0.11px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                          {from.playbook}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 底部固定 — Manage all created automations(Figma 10845:71216:白底,pt-12 pb-16,居中) */}
+      <div className="sticky bottom-0 z-[1] mt-auto flex w-full shrink-0 items-end justify-center pb-[16px] pt-[12px]" style={{ background: 'var(--b0-container, #ffffff)' }}>
+        <button
+          className="cursor-pointer whitespace-nowrap border-none bg-transparent p-0 text-center text-[12px] leading-[20px] tracking-[0.12px] transition-colors hover:text-[color:var(--text-n7,rgba(0,0,0,0.7))]"
+          style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}
+        >
+          Manage all created automations →
+        </button>
       </div>
 
       <FeedDetailModal

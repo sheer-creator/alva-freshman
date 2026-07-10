@@ -136,13 +136,13 @@ function ArtifactViewer({ artifact, view, onClose }: { artifact: AgentArtifact; 
   );
 }
 
-/* 卡片 — Figma 8341:126070:白底 / border 0.5 l2(hover→l9) / 圆角 8 / px20 py16 / gap8 items-start
+/* 卡片 — Figma 8341:126070:白底 / border 0.5 l2(hover→l9) / 圆角 8 / p16 / gap8 items-start
    icon 24 + (名称行[名 flex-1 truncate · download 16 n9] + 日期 12 n5);hover 出现 delete(16 n9) */
 function ArtifactCard({ artifact, onOpen, onDelete }: { artifact: AgentArtifact; onOpen: () => void; onDelete: () => void }) {
   const openable = viewKindOf(artifact.name) !== null;
   return (
     <div
-      className="group flex cursor-pointer items-start gap-[8px] overflow-hidden rounded-[8px] border-[0.5px] border-[color:var(--line-l2,rgba(0,0,0,0.2))] bg-white px-[20px] py-[16px] transition-colors hover:border-[color:var(--line-l9,rgba(0,0,0,0.9))]"
+      className="group flex cursor-pointer items-start gap-[8px] overflow-hidden rounded-[8px] border-[0.5px] border-[color:var(--line-l2,rgba(0,0,0,0.2))] bg-white p-[16px] transition-colors hover:border-[color:var(--line-l9,rgba(0,0,0,0.9))]"
       onClick={openable ? onOpen : () => simulateDownload(artifact.name)}
     >
       <img src={artifact.kind === 'image' ? ICON_IMAGE : ICON_FILE} alt="" className="size-[24px] shrink-0" />

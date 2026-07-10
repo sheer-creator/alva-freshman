@@ -1,7 +1,7 @@
 import { CdnIcon } from '../shared/CdnIcon';
 import DotMatrixWave from '../shared/DotMatrixWave';
 
-const EMPTY_PROMPTS = [
+export const EMPTY_PROMPTS = [
   {
     icon: 'target-l2',
     text: 'Backtest Any Market Scenario Before You Risk a Dollar',
@@ -16,7 +16,7 @@ const EMPTY_PROMPTS = [
   },
 ];
 
-function EmptyPromptPill({
+export function EmptyPromptPill({
   icon,
   text,
   onClick,
