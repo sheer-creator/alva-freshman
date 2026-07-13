@@ -170,18 +170,31 @@ function PageTabs({ tab, onChange }: { tab: PortfolioTab; onChange: (t: Portfoli
     { key: 'activity', label: 'Activity' },
   ];
   return (
-    <div className="flex items-start gap-[20px]" style={{ borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}>
+    <div
+      role="tablist"
+      aria-label="Portfolio views"
+      className="relative flex items-start gap-[20px]"
+      style={{ borderBottom: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }}
+    >
       {items.map(it => {
         const active = tab === it.key;
         return (
           <button
             key={it.key}
+            type="button"
+            role="tab"
+            aria-selected={active}
             onClick={() => onChange(it.key)}
-            className="flex flex-col items-start gap-[10px] pt-[12px] cursor-pointer"
-            style={{ paddingBottom: active ? 0 : 12 }}
+            className="relative flex items-start pt-[12px] pb-[12px] cursor-pointer"
           >
             <span className="text-[18px] leading-[28px] tracking-[0.18px] whitespace-nowrap" style={{ color: active ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY, fontWeight: active ? 500 : 400 }}>{it.label}</span>
-            {active && <div style={{ height: 2, width: '100%', background: 'var(--main-m1, #49a3a6)' }} />}
+            {active && (
+              <span
+                aria-hidden="true"
+                className="absolute bottom-[-1px] left-0 z-[1] h-[2px] w-full"
+                style={{ background: 'var(--main-m1, #49a3a6)' }}
+              />
+            )}
           </button>
         );
       })}
