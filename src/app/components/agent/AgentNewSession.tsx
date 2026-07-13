@@ -799,7 +799,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   ))}
                 </div>
               )}
-              <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
+              <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector voiceInput placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
             </div>
           </div>
         </>

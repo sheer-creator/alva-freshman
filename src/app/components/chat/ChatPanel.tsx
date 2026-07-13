@@ -163,7 +163,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                   />
                 </div>
               </div>
-              <ChatInput contextTag={inputContextTag} allowReferences={isPlaybookContext} onSend={channel.onPrompt} subtleBorder autoFocus />
+              <ChatInput contextTag={inputContextTag} allowReferences={isPlaybookContext} onSend={channel.onPrompt} subtleBorder autoFocus voiceInput />
             </>
           ) : (
             <>
@@ -206,6 +206,7 @@ export function ChatPanel({ onClose, contextTag }: ChatPanelProps) {
                     injectText={injectSignal}
                     subtleBorder
                     autoFocus
+                    voiceInput
                   />
                 </>
               )}

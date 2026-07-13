@@ -42,6 +42,8 @@ interface ChatInputProps {
   autoFocus?: boolean;
   /** 描边降级为 L2(默认深框 n7) — task 详情页底部 composer 用 */
   subtleBorder?: boolean;
+  /** 语音输入(首页 chatbox)— Figma 9042:69107/69108 */
+  voiceInput?: boolean;
 }
 
 type PickerKind = 'mention' | 'skill';
@@ -127,6 +129,17 @@ const MODEL_OPTIONS: { name: string; logo: string }[] = [
   { name: 'Opus 4.8', logo: 'logo-social-claude.svg' },
   { name: 'Sonnet 4.6', logo: 'logo-social-claude.svg' },
 ];
+
+/* 语音输入模拟 — Figma 9042:69108:波形条 5~23px,确认后打字机式注入识别文本 */
+const VOICE_TRANSCRIPT = 'Track BTC funding rates across major exchanges and alert me when they flip negative';
+const WAVE_TICK_MS = 32;
+const WAVE_BAR_MIN = 5;
+const WAVE_BAR_MAX = 23;
+const WAVE_BAR_STEP = 4; // 条宽 2px + 间距 2px,每 tick 前进一格
+/* 右缘攻峰坡道:最新几根条按系数压低再逐 tick 长到全高(配合 height transition),
+   头部像在实时响应语音,打破整排刚性平移感 */
+const WAVE_HEAD_RAMP = [0.3, 0.55, 0.75, 0.9];
+const WAVE_EDGE_FADE = 'linear-gradient(to right, transparent 0px, black 28px)'; // 左缘旧条渐隐
 
 const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
   {
@@ -823,7 +836,7 @@ function ChatPickerPreview({
   );
 }
 
-export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector, allowReferences = true, autoFocus = false, subtleBorder = false, shadowSize = 's' }: ChatInputProps) {
+export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / for skills', contextTag, shadow, onSend, bottomChip, injectText, onInputChange, hideSkill, hideInspector, allowReferences = true, autoFocus = false, subtleBorder = false, shadowSize = 's', voiceInput = false }: ChatInputProps) {
   const { inspectorActive, toggleInspector, elementQuotes, removeElementQuote, clearElementQuotes, streamingState, stopStreaming } = useChatContext();
   const [hasText, setHasText] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -841,6 +854,13 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
   const [previewPosition, setPreviewPosition] = useState<PreviewPosition | null>(null);
   const [selectedMentionItems, setSelectedMentionItems] = useState<ChatPickerItem[]>([]);
   const [selectedSkillItem, setSelectedSkillItem] = useState<ChatPickerItem | null>(null);
+  const [voiceRecording, setVoiceRecording] = useState(false);
+  const [waveBars, setWaveBars] = useState<{ id: number; h: number }[]>([]);
+  const waveRaf = useRef<number | null>(null);
+  const voiceTypeTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const waveStripRef = useRef<HTMLDivElement>(null);
+  const waveTrackRef = useRef<HTMLDivElement>(null);
+  const waveEnv = useRef({ mode: 'talk' as 'talk' | 'pause', left: 10, h: WAVE_BAR_MIN, nextId: 0 });
   const prevQuoteCount = useRef(0);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1282,6 +1302,80 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
 
   const handleBlur = useCallback(() => setFocused(false), []);
 
+  const stopVoiceTimers = useCallback(() => {
+    if (waveRaf.current !== null) { cancelAnimationFrame(waveRaf.current); waveRaf.current = null; }
+    if (voiceTypeTimer.current) { clearInterval(voiceTypeTimer.current); voiceTypeTimer.current = null; }
+  }, []);
+
+  const startVoice = useCallback(() => {
+    closePicker();
+    setAddMenuOpen(false);
+    setModelMenuOpen(false);
+    stopVoiceTimers();
+    waveEnv.current = { mode: 'talk', left: 24 + Math.round(Math.random() * 30), h: WAVE_BAR_MIN, nextId: 0 };
+    setWaveBars([]);
+    setVoiceRecording(true);
+    /* rAF 连续滚动:每 tick 右侧追加新条(右锚定会让整排瞬移 4px),
+       用 track translateX 从 +4px 匀速滑回 0 抵消瞬移 → 恒速左移,无逐格跳变 */
+    let lastTick = performance.now();
+    const step = (now: number) => {
+      if (now - lastTick > 500) lastTick = now - WAVE_TICK_MS; // 标签页挂起后重新对齐,避免补帧爆发
+      while (now - lastTick >= WAVE_TICK_MS) {
+        lastTick += WAVE_TICK_MS;
+        /* 说话/停顿两态随机游走,产生 Figma 静态稿那种带起伏包络的波形 */
+        const env = waveEnv.current;
+        if (env.left-- <= 0) {
+          env.mode = env.mode === 'talk' ? 'pause' : 'talk';
+          env.left = env.mode === 'talk' ? 24 + Math.round(Math.random() * 30) : 10 + Math.round(Math.random() * 14);
+        }
+        env.h = env.mode === 'talk'
+          ? Math.min(WAVE_BAR_MAX, Math.max(WAVE_BAR_MIN, env.h + (Math.random() - 0.44) * 4.5))
+          : Math.max(WAVE_BAR_MIN, env.h - 1.8 + Math.random() * 0.8);
+        const bar = { id: env.nextId++, h: Math.round(env.h) };
+        const width = waveStripRef.current?.clientWidth ?? 560;
+        const capacity = Math.floor((width + 2) / WAVE_BAR_STEP) + 4; // 可视条数 + 左缘滚出余量
+        setWaveBars((bars) => [...bars, bar].slice(-capacity));
+      }
+      const progress = (now - lastTick) / WAVE_TICK_MS;
+      if (waveTrackRef.current) {
+        waveTrackRef.current.style.transform = `translateX(${(WAVE_BAR_STEP * (1 - progress)).toFixed(2)}px)`;
+      }
+      waveRaf.current = requestAnimationFrame(step);
+    };
+    waveRaf.current = requestAnimationFrame(step);
+  }, [closePicker, stopVoiceTimers]);
+
+  const cancelVoice = useCallback(() => {
+    stopVoiceTimers();
+    setVoiceRecording(false);
+  }, [stopVoiceTimers]);
+
+  const confirmVoice = useCallback(() => {
+    stopVoiceTimers();
+    setVoiceRecording(false);
+    const el = editorRef.current;
+    if (!el) return;
+    const prefix = getTextContent() ? ' ' : '';
+    const node = document.createTextNode('');
+    el.appendChild(node);
+    el.focus();
+    let len = 0;
+    voiceTypeTimer.current = setInterval(() => {
+      len = Math.min(VOICE_TRANSCRIPT.length, len + 3);
+      node.data = prefix + VOICE_TRANSCRIPT.slice(0, len);
+      placeCursorAtEnd();
+      const text = getTextContent();
+      setHasText(!!text);
+      onInputChange?.(text);
+      if (len >= VOICE_TRANSCRIPT.length && voiceTypeTimer.current) {
+        clearInterval(voiceTypeTimer.current);
+        voiceTypeTimer.current = null;
+      }
+    }, 28);
+  }, [getTextContent, onInputChange, placeCursorAtEnd, stopVoiceTimers]);
+
+  useEffect(() => stopVoiceTimers, [stopVoiceTimers]);
+
   const isStreamingOutput = !!streamingState?.isStreaming;
   const sendButtonActive = hasText || isStreamingOutput;
 
@@ -1614,6 +1708,57 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
         />
       </div>
       <div className="flex items-center gap-[12px] h-[28px] relative">
+        {voiceRecording ? (
+          <>
+            {/* 录音态 — Figma 9042:69108:波形占满左侧,右侧 ✕/✓;右锚定,新条从右冒出向左流动 */}
+            <div
+              ref={waveStripRef}
+              className="flex h-full min-w-0 flex-1 items-center justify-end overflow-hidden py-[8px]"
+              style={{ WebkitMaskImage: WAVE_EDGE_FADE, maskImage: WAVE_EDGE_FADE }}
+            >
+              <div ref={waveTrackRef} className="flex shrink-0 items-center gap-[2px] will-change-transform">
+                {waveBars.map((bar, i) => {
+                  const fromHead = waveBars.length - 1 - i;
+                  const factor = fromHead < WAVE_HEAD_RAMP.length ? WAVE_HEAD_RAMP[fromHead] : 1;
+                  const height = WAVE_BAR_MIN + Math.round((bar.h - WAVE_BAR_MIN) * factor);
+                  return (
+                    <div
+                      key={bar.id}
+                      className="shrink-0"
+                      style={{
+                        width: 2,
+                        height,
+                        borderRadius: 'var(--radius-ct-s, 4px)',
+                        background: 'var(--line-l2, rgba(0,0,0,0.2))',
+                        transition: 'height 140ms cubic-bezier(0.33, 1, 0.68, 1)',
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex h-[28px] shrink-0 items-center gap-[6px]">
+              <button
+                type="button"
+                aria-label="Cancel voice input"
+                className="flex size-[28px] shrink-0 cursor-pointer items-center justify-center transition-opacity hover:opacity-70"
+                onClick={cancelVoice}
+              >
+                <CdnIcon name="close-l1" size={16} color="var(--text-n9)" />
+              </button>
+              <button
+                type="button"
+                aria-label="Confirm voice input"
+                className="flex size-[28px] shrink-0 cursor-pointer items-center justify-center rounded-[4px]"
+                style={{ background: 'var(--main-m1, #49a3a6)' }}
+                onClick={confirmVoice}
+              >
+                <CdnIcon name="check-l1" size={14} color="#ffffff" />
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
         {addMenuOpen && (
           <div
             ref={addMenuRef}
@@ -1684,7 +1829,9 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
             </button>
           </Tooltip>
         )}
-        <div className="relative ml-auto flex h-[28px] shrink-0 items-center justify-end">
+        {/* 右侧组:模型切换 + 语音 + 发送,间距 6 — Figma 9042:69107 */}
+        <div className="ml-auto flex h-[28px] shrink-0 items-center justify-end" style={{ gap: voiceInput ? 6 : 12 }}>
+        <div className="relative flex h-[28px] shrink-0 items-center justify-end">
           {modelMenuOpen && (
             <div
               ref={modelMenuRef}
@@ -1739,6 +1886,16 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
             <CdnIcon name="arrow-down-f2" size={12} color="var(--text-n2)" />
           </button>
         </div>
+        {voiceInput && (
+          <button
+            type="button"
+            aria-label="Start voice input"
+            className="flex size-[28px] shrink-0 cursor-pointer items-center justify-center transition-opacity hover:opacity-70"
+            onClick={startVoice}
+          >
+            <CdnIcon name={`${import.meta.env.BASE_URL}icon-microphone-l.svg`} size={16} color="var(--text-n9)" />
+          </button>
+        )}
         <button
           type="button"
           aria-label={isStreamingOutput ? 'Stop streaming' : 'Send message'}
@@ -1758,6 +1915,9 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
             />
           )}
         </button>
+        </div>
+          </>
+        )}
       </div>
       </div>
       {activePicker && pickerPosition && typeof document !== 'undefined' && createPortal(
