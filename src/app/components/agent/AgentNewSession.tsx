@@ -15,7 +15,7 @@ import { AgentTasksPanel, AGENT_TASKS } from '@/app/components/agent/AgentTasksP
 import { AgentArtifactsPanel, AGENT_ARTIFACTS } from '@/app/components/agent/AgentArtifactsPanel';
 import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/components/agent/AgentAlertsPanel';
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
-import { ConnectAccountModal } from '@/app/components/portfolio/ConnectAccountModal';
+import { ConnectAccountModal, brokerConnectInfo } from '@/app/components/portfolio/ConnectAccountModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
@@ -316,7 +316,10 @@ type ExtraMsg =
   | { id: number; role: 'subpush'; title: string; push?: string; automation: string }
   | { id: number; role: 'answer'; text: string }
   /* Start Watching 的 Alva 确认回复:正文 + (未连接时)内嵌「选择推送渠道」卡片(Figma 8341:126245) */
-  | { id: number; role: 'watchreply'; text: string };
+  | { id: number; role: 'watchreply'; text: string }
+  /* 券商绑定后的能力引导:权限感知(Live Trading / Read Only) + Portfolio Watch CTA。
+     刻意不 set started —— 开场 onboard 卡保留(与连 IM 推 answer 消息同理) */
+  | { id: number; role: 'brokerconn'; brokerName: string; live: boolean };
 
 /* Onboard 两个独立 flow 的 URL 后缀：#agent?flow=portfolio / #agent?flow=fintwit，
    支持刷新 / 深链直达；沿用本仓 #agent?tab= 的 query 后缀约定（App 路由只认 ? 之前的 agent） */
@@ -720,6 +723,47 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     </MsgIn>
                   );
                 }
+                /* brokerconn — 券商绑定后的能力引导：权限 chip + 能力说明 + Portfolio Watch CTA（不 set started，开场卡保留） */
+                if (m.role === 'brokerconn') {
+                  return (
+                    <MsgIn key={m.id}>
+                    <AgentMsg time="now">
+                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                        You're connected to <span style={{ fontWeight: 500 }}>{m.brokerName}</span>.{' '}
+                        {m.live ? 'This unlocks live trading in every channel.' : 'I can read this account across every channel now.'}
+                      </p>
+                      <div
+                        className="flex w-full flex-col gap-[10px] rounded-[8px] py-[12px] pl-[16px] pr-[12px]"
+                        style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+                      >
+                        <span
+                          className="flex w-fit items-center gap-[4px] rounded-[4px] px-[8px] py-[2px]"
+                          style={{ background: m.live ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : 'rgba(0,0,0,0.05)' }}
+                        >
+                          <CdnIcon name={m.live ? 'swap-l' : `${base}icon-swap-off-l.svg`} size={14} color={m.live ? 'var(--main-m1, #49A3A6)' : 'var(--text-n5, rgba(0,0,0,0.5))'} />
+                          <span className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: m.live ? 'var(--main-m1, #49A3A6)' : 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                            {m.live ? 'Live Trading' : 'Read Only'}
+                          </span>
+                        </span>
+                        <p className="text-[13px] leading-[20px] tracking-[0.13px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>
+                          {m.live
+                            ? "Discuss ideas with me and I'll draft the orders — every execution still needs your approval. Next, tell me what you hold so I can watch it for you."
+                            : "I can view, analyze, and monitor this account — I'll never place orders. Next, set up a Portfolio Watch so I can flag the moves worth your attention."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => openFlow('portfolio')}
+                          className="flex h-[36px] w-fit cursor-pointer items-center gap-[6px] rounded-[6px] border-none px-[16px] transition-opacity hover:opacity-90"
+                          style={{ background: 'var(--main-m1, #49A3A6)' }}
+                        >
+                          <span className="whitespace-nowrap text-[13px] font-medium leading-[20px] tracking-[0.13px] text-white" style={{ fontFamily: FONT }}>Set up Portfolio Watch</span>
+                          <CdnIcon name="arrow-right-l1" size={14} color="#ffffff" />
+                        </button>
+                      </div>
+                    </AgentMsg>
+                    </MsgIn>
+                  );
+                }
                 /* watchreply — Start Watching 的确认回复:正文 + 未连接时内嵌「选择推送渠道」卡片(连接后反应式隐藏) */
                 if (m.role === 'watchreply') {
                   return (
@@ -897,7 +941,17 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       <ConnectAccountModal
         open={brokerModalOpen}
         onClose={() => setBrokerModalOpen(false)}
-        onConnected={() => { setBrokerConnected(true); setBrokerModalOpen(false); }}
+        onConnected={(id, access) => {
+          const info = brokerConnectInfo(id);
+          setBrokerConnected(true);
+          setBrokerModalOpen(false);
+          /* 关键：推能力引导消息但不 set started —— 开场 onboard 卡保留，与连 IM 同理。
+             live 按用户实际授予的权限分叉（Live Trading 券商也可只给 Read-only） */
+          setExtra((prev) => [...prev, { id: ++idRef.current, role: 'brokerconn', brokerName: info.name, live: access === 'trading' }]);
+          scrollToEnd();
+        }}
+        /* 成功屏 capability CTA（绑定后引导第一层）；已设过 portfolio watch 则退化为 Done */
+        onSetupWatch={sessionAlerts.some((a) => a.id === PORTFOLIO_WATCH_ALERT.id) ? undefined : () => openFlow('portfolio')}
       />
 
       {imModalOpen && (

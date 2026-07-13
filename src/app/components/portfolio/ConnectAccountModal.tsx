@@ -7,7 +7,8 @@
  *  select      选券商网格（Crypto / US Stock 两组）
  *  configure   Account type (Paper/Live) + Access level (Trading/Read-only，Read-only 不可选)
  *  credentials US Stock → SnapTrade 跳转式；Crypto → API Key 表单式
- *  connecting / success / cancelled / failed / timeout  结果态
+ *  connecting / cancelled / failed / timeout  结果态
+ *  success     capability 常驻屏（账户 + 权限 chip + 解锁能力 + Portfolio Watch CTA）— channel 绑定后引导第一层
  */
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -85,6 +86,17 @@ const BROKERS: BrokerDef[] = [
   { id: 'zerodha', name: 'Zerodha', category: 'US Stock', auth: 'snaptrade', logo: fav('zerodha'), plain: true },
 ];
 
+/* Live Trading 组（Figma 11130:23256 V2）：可下单券商，顺序 Robinhood > Binance > OKX > Hyperliquid；
+   其余券商归 Read Only。绑定后引导据此判定 Live Trading / Read Only 能力 */
+const LIVE_TRADING_ORDER = ['robinhood', 'binance', 'okx', 'hyperliquid'];
+const LIVE_TRADING = new Set(LIVE_TRADING_ORDER);
+
+/** 供 channel 绑定后引导复用：券商名 + 是否具备 Live Trading 权限 */
+export function brokerConnectInfo(id: string): { name: string; live: boolean } {
+  const b = BROKERS.find((x) => x.id === id);
+  return { name: b?.name ?? id, live: LIVE_TRADING.has(id) };
+}
+
 /** 圆形 broker logo：品牌 svg 直接铺满；favicon 白底圆容器内缩 72% */
 function BrokerLogo({ broker, size = 24 }: { broker: BrokerDef; size?: number }) {
   if (broker.plain) {
@@ -121,7 +133,10 @@ type TradingType = 'Spot' | 'Future';
 export interface ConnectAccountModalProps {
   open: boolean;
   onClose: () => void;
-  onConnected?: (brokerId: string) => void;
+  /** access = 用户实际授予的权限（Live Trading 券商也可选 Read-only），绑定后引导据此分叉 */
+  onConnected?: (brokerId: string, access: 'trading' | 'readonly') => void;
+  /** 提供则成功屏主 CTA 为「Set up Portfolio Watch」（channel 未设 watch 场景）；缺省为 Done */
+  onSetupWatch?: () => void;
   /** 仅供原型/预览直达某一步 */
   initialStep?: Step;
   initialBrokerId?: string;
@@ -211,9 +226,9 @@ function OptionCard({
 }
 
 /** credentials 页顶部的已选配置 chip */
-function ConfigChip({ icon, label, tone }: { icon: string; label: string; tone: 'm2' | 'm3' | 'muted' }) {
-  const bg = tone === 'm2' ? M2_20 : tone === 'm3' ? M3_20 : BR03;
-  const fg = tone === 'm2' ? 'var(--main-m2, #2196F3)' : tone === 'm3' ? 'var(--main-m3, #2a9b7d)' : 'var(--text-n5, rgba(0,0,0,0.5))';
+function ConfigChip({ icon, label, tone }: { icon: string; label: string; tone: 'm1' | 'm2' | 'm3' | 'muted' }) {
+  const bg = tone === 'm1' ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : tone === 'm2' ? M2_20 : tone === 'm3' ? M3_20 : BR03;
+  const fg = tone === 'm1' ? 'var(--main-m1, #49A3A6)' : tone === 'm2' ? 'var(--main-m2, #2196F3)' : tone === 'm3' ? 'var(--main-m3, #2a9b7d)' : 'var(--text-n5, rgba(0,0,0,0.5))';
   return (
     <div className="flex gap-[4px] items-center justify-center px-[8px] py-[2px] rounded-[4px] shrink-0" style={{ background: bg }}>
       <CdnIcon name={icon} size={14} color={fg} />
@@ -392,7 +407,7 @@ function trapTab(e: KeyboardEvent, root: HTMLElement | null) {
 /* ========== 主组件 ========== */
 
 export function ConnectAccountModal({
-  open, onClose, onConnected,
+  open, onClose, onConnected, onSetupWatch,
   initialStep = 'select', initialBrokerId, initialAccountType = 'paper',
 }: ConnectAccountModalProps) {
   const [step, setStep] = useState<Step>(initialStep);
@@ -411,6 +426,9 @@ export function ConnectAccountModal({
   /* 展开/收起期间凭证区保持完整高度被"推走/拉回"，动画结束后才卸载 */
   const [viewTransitioning, setViewTransitioning] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  /* onConnected 恰好一次：成功屏 X 关闭与 5s 自动关闭是两条独立路径；
+     且父级收到回调后立即翻 open，组件不卸载、step 不变，残留定时器会二次触发 */
+  const connectedFiredRef = useRef(false);
 
   /* a11y：弹窗内容容器（焦点陷阱范围）、Try again 按钮、打开前的触发元素 */
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -448,6 +466,12 @@ export function ConnectAccountModal({
   const requestCloseRef = useRef(requestClose);
   requestCloseRef.current = requestClose;
 
+  const fireConnected = () => {
+    if (connectedFiredRef.current) return;
+    connectedFiredRef.current = true;
+    onConnected?.(broker?.id ?? '', accessLevel);
+  };
+
   /* 打开时重置到入口步骤；锁滚动 + ESC 关闭 */
   useEffect(() => {
     if (!open) return;
@@ -455,10 +479,11 @@ export function ConnectAccountModal({
     setSetupView(initialStep === 'credentials' ? 'credentials' : 'configure');
     setBroker(BROKERS.find((b) => b.id === initialBrokerId) ?? null);
     setAccountType(initialAccountType);
-    setAccessLevel('trading');
+    setAccessLevel(initialBrokerId && !LIVE_TRADING.has(initialBrokerId) ? 'readonly' : 'trading');
     setTradingType('Spot');
     setAddress(''); setApiKey(''); setSecret('');
     setClosing(false);
+    connectedFiredRef.current = false;
 
     /* a11y：记下触发元素，打开后把焦点移入弹窗（WAI-ARIA dialog 模式） */
     lastFocusedRef.current = document.activeElement;
@@ -487,17 +512,16 @@ export function ConnectAccountModal({
     };
   }, [open, initialStep, initialBrokerId, initialAccountType, onClose]);
 
-  /* 结果态：5s 倒计时后自动消失（成功额外回调 onConnected）；failed 例外——驻留并提供 Try again */
+  /* 结果态：cancelled / timeout 5s 倒计时自动消失；success 为 capability 常驻屏（读完自行走 CTA / 关闭）；
+     failed 驻留并提供 Try again。依赖含 open：关闭时清掉残留定时器 */
   useEffect(() => {
-    if (step !== 'success' && step !== 'timeout' && step !== 'cancelled') return;
+    if (!open) return;
+    if (step !== 'timeout' && step !== 'cancelled') return;
     setCountdown(5);
     const iv = setInterval(() => setCountdown((c) => Math.max(0, c - 1)), 1000);
-    const done = setTimeout(() => {
-      if (step === 'success') onConnected?.(broker?.id ?? '');
-      requestCloseRef.current();
-    }, 5000);
+    const done = setTimeout(() => { requestCloseRef.current(); }, 5000);
     return () => { clearInterval(iv); clearTimeout(done); };
-  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* a11y：结果态的焦点落点。失败 → Try again（主恢复动作）；其余结果态把焦点收回
      容器，避免点 Continue 后按钮卸载、焦点掉到 body 而逃出陷阱 */
@@ -516,7 +540,7 @@ export function ConnectAccountModal({
 
   if (!open) return null;
 
-  const pickBroker = (b: BrokerDef) => { setBroker(b); setSetupView('configure'); goStep('configure'); };
+  const pickBroker = (b: BrokerDef) => { setBroker(b); setAccessLevel(LIVE_TRADING.has(b.id) ? 'trading' : 'readonly'); setSetupView('configure'); goStep('configure'); };
   const goSetupView = (v: 'configure' | 'credentials') => {
     setSetupView(v);
     setStep(v);
@@ -534,25 +558,55 @@ export function ConnectAccountModal({
     timers.current.push(setTimeout(() => goStep(willFail ? 'failed' : 'success'), 1600));
   };
 
-  const grid = (category: Category) => (
-    <div className="flex flex-col gap-[8px] items-start w-full">
-      <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>{category}</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-[8px] w-full">
-        {BROKERS.filter((b) => b.category === category).map((b) => (
-          <button
-            key={b.id}
-            type="button"
-            onClick={() => pickBroker(b)}
-            className="flex flex-col items-start justify-center gap-[8px] px-[12px] pt-[12px] pb-[10px] rounded-[6px] bg-transparent cursor-pointer text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
-            style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
-          >
-            <BrokerLogo broker={b} size={24} />
-            <p className="w-full truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n10, #000)' }}>{b.name}</p>
-          </button>
-        ))}
-      </div>
-    </div>
+  const brokerCard = (b: BrokerDef) => (
+    <button
+      key={b.id}
+      type="button"
+      onClick={() => pickBroker(b)}
+      className="relative flex flex-col items-start justify-center gap-[8px] overflow-hidden px-[12px] pt-[12px] pb-[10px] rounded-[6px] bg-transparent cursor-pointer text-left transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+      style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+    >
+      <BrokerLogo broker={b} size={24} />
+      <p className="w-full truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n10, #000)' }}>{b.name}</p>
+      {/* 右上角市场角标（Figma V2 Tag/Template：US / Crypto） */}
+      <span
+        className="absolute top-0 right-0 flex items-center px-[6px] py-px rounded-bl-[4px]"
+        style={{ borderLeft: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))', borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}
+      >
+        <span className="text-[10px] leading-[16px] tracking-[0.1px] whitespace-nowrap" style={{ fontFamily: FONT, color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>
+          {b.category === 'Crypto' ? 'Crypto' : 'US'}
+        </span>
+      </span>
+    </button>
   );
+
+  /* 选择屏按能力分组（Figma 11130:23256 V2）：Live Trading（2 列）/ Read Only（3 列） */
+  const group = (access: 'live' | 'read') => {
+    const isLive = access === 'live';
+    const list = isLive
+      ? LIVE_TRADING_ORDER.map((id) => BROKERS.find((b) => b.id === id)).filter((b): b is BrokerDef => !!b)
+      : BROKERS.filter((b) => !LIVE_TRADING.has(b.id));
+    return (
+      <div className="flex flex-col gap-[8px] items-start w-full">
+        <div className="flex flex-col gap-[2px] w-full">
+          <div className="flex gap-[8px] items-center w-full">
+            <CdnIcon name={isLive ? 'swap-l' : `${BASE}icon-swap-off-l.svg`} size={20} color={isLive ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9, rgba(0,0,0,0.9))'} />
+            <p className="flex-1 min-w-0 text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, fontWeight: isLive ? 500 : 400, color: isLive ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              {isLive ? 'Live Trading' : 'Read Only'}
+            </p>
+          </div>
+          <p className="text-[12px] leading-[20px] tracking-[0.12px] w-full" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+            {isLive
+              ? 'Trade with Alva in any channel — every order needs your approval.'
+              : 'Alva can view, analyze, and monitor — it never places orders.'}
+          </p>
+        </div>
+        <div className={`grid ${isLive ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'} gap-[8px] w-full`}>
+          {list.map((b) => brokerCard(b))}
+        </div>
+      </div>
+    );
+  };
 
   /* 第二屏内容券商：未选择时兜底第一家（隐藏在屏外，不可见） */
   const screenBroker = broker ?? BROKERS[0];
@@ -566,8 +620,8 @@ export function ConnectAccountModal({
     : step === 'cancelled' ? 'Connection cancelled. No account was added.'
     : step === 'timeout' ? 'Connection timed out.'
     : '';
-  /* Robinhood 分支：Access level 两项均可选；其余券商 Read-only 灰置 */
-  const accessSelectable = screenBroker.id === 'robinhood';
+  /* Live Trading 券商：Access level 两项均可选；Read Only 券商锁定 Read-only、Trading 灰置 */
+  const accessSelectable = LIVE_TRADING.has(screenBroker.id);
   const accountChip = accountType === 'live'
     ? <ConfigChip icon={`${BASE}icon-live-l.svg`} label="Live" tone="m3" />
     : <ConfigChip icon={`${BASE}icon-flask-l.svg`} label="Paper" tone="m2" />;
@@ -645,8 +699,8 @@ export function ConnectAccountModal({
               <CloseButton onClick={requestClose} className="max-sm:hidden" />
             </div>
             <div className="flex flex-col gap-[20px] items-start pb-[28px] px-[28px] w-full min-h-0 overflow-y-auto [&>*]:shrink-0 max-sm:px-[16px]">
-              {grid('Crypto')}
-              {grid('US Stock')}
+              {group('live')}
+              {group('read')}
             </div>
             </div>
 
@@ -714,13 +768,13 @@ export function ConnectAccountModal({
                         <OptionCard
                           icon="swap-l" label="Trading"
                           desc="Alva can place orders on this account automatically, driven by the playbooks you bind."
-                          state={!accessSelectable || accessLevel === 'trading' ? 'selected' : 'unselected'}
+                          state={accessSelectable ? (accessLevel === 'trading' ? 'selected' : 'unselected') : 'disabled'}
                           onClick={accessSelectable ? () => setAccessLevel('trading') : undefined}
                         />
                         <OptionCard
                           icon={`${BASE}icon-swap-off-l.svg`} label="Read-only"
                           desc="Alva can view balances, positions, and history. It can never place orders."
-                          state={accessSelectable ? (accessLevel === 'readonly' ? 'selected' : 'unselected') : 'disabled'}
+                          state={accessSelectable ? (accessLevel === 'readonly' ? 'selected' : 'unselected') : 'selected'}
                           onClick={accessSelectable ? () => setAccessLevel('readonly') : undefined}
                         />
                       </div>
@@ -801,8 +855,46 @@ export function ConnectAccountModal({
         )}
 
         {step === 'success' && (
-          <ResultShell onClose={() => { onConnected?.(broker?.id ?? ''); requestClose(); }} containerRef={sheetRef}>
-            <ResultBody circle="success" icon="check-f2" iconColor="var(--main-m3, #2a9b7d)" title="Account Connected" lines={[`Closing in ${countdown}s`]} iconAnim="pop" />
+          <ResultShell onClose={() => { fireConnected(); requestClose(); }} containerRef={sheetRef}>
+            {/* capability 屏（Figma V2 分组文案反向复用）。hero = broker logo + 绿勾角标，
+                合并原「成功大图标 / Account Connected / 券商行」三段 */}
+            <div className="flex flex-col gap-[20px] items-center justify-center w-full">
+              <div aria-hidden="true" className="relative" style={{ animation: 'connect-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+                <BrokerLogo broker={screenBroker} size={56} />
+                <span className="absolute -bottom-[2px] -right-[2px] flex size-[20px] items-center justify-center rounded-full" style={{ background: 'var(--main-m3, #2a9b7d)', border: '2px solid #fff' }}>
+                  <CdnIcon name="check-l2" size={11} color="#fff" />
+                </span>
+              </div>
+              <div className="flex flex-col gap-[8px] items-center">
+                <p className="text-[20px] leading-[30px] tracking-[0.2px] text-center" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                  {screenBroker.name} Connected
+                </p>
+                {accessLevel === 'trading'
+                  ? <ConfigChip icon="swap-l" label="Live Trading" tone="m1" />
+                  : <ConfigChip icon={`${BASE}icon-swap-off-l.svg`} label="Read Only" tone="muted" />}
+              </div>
+              <p className="text-[14px] leading-[22px] tracking-[0.14px] text-center w-full" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                {accessLevel === 'trading'
+                  ? 'You can now trade with Alva in any channel — every order needs your approval.'
+                  : 'Alva can now view, analyze, and monitor this account — it never places orders.'}
+              </p>
+              <div className="flex flex-col gap-[10px] items-center w-full pt-[4px]">
+                <PrimaryButton
+                  label={onSetupWatch ? 'Set up Portfolio Watch' : 'Done'}
+                  onClick={() => { fireConnected(); requestClose(); onSetupWatch?.(); }}
+                />
+                {onSetupWatch && (
+                  <button
+                    type="button"
+                    onClick={() => { fireConnected(); requestClose(); }}
+                    className="border-none bg-transparent p-0 cursor-pointer text-[13px] leading-[20px] tracking-[0.13px] hover:opacity-70 transition-opacity"
+                    style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}
+                  >
+                    Not now
+                  </button>
+                )}
+              </div>
+            </div>
           </ResultShell>
         )}
 
