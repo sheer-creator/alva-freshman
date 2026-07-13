@@ -1,7 +1,9 @@
 /**
  * [INPUT]: Figma Page/Agent/Chat(8111:9397 / 8160:82896 / 8166:84016) — Build your watchlist 渐进流
+ *          Figma Topbar/Alva Agent(30785:4970) — Portfolio(broker) + IM 双连接入口
  * [OUTPUT]: Agent 页 empty 态 — Header + 5 tab + onboard 引导卡开场（不随连接切换）+ 常显 composer
  *           聊天与 IM 解耦；连接 IM 仅点亮 Tasks/Files + 推 Connected 消息
+ *           右上角 Portfolio 入口复用 portfolio/ConnectAccountModal，broker 态与 IM 同为用户级（跨频道不重置）
  * [POS]: pages/AgentDesign.tsx 统一渲染本组件
  */
 
@@ -13,6 +15,7 @@ import { AgentTasksPanel, AGENT_TASKS } from '@/app/components/agent/AgentTasksP
 import { AgentArtifactsPanel, AGENT_ARTIFACTS } from '@/app/components/agent/AgentArtifactsPanel';
 import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/components/agent/AgentAlertsPanel';
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
+import { ConnectAccountModal } from '@/app/components/portfolio/ConnectAccountModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
@@ -123,14 +126,17 @@ const ALERT_GET_STARTED_CARDS: { id: string; emoji: string; title: string; desc:
   },
 ];
 
-interface ImEntry { id: string; label: string; logo: string; handle: string; sub: string }
+interface ImEntry { id: string; label: string; logo: string; handle: string; user: string; sub: string }
 
 const IMS: ImEntry[] = [
-  { id: 'telegram', label: 'Telegram', logo: 'logo-social-telegram.svg', handle: '@yggyll_tg', sub: 'Bot DM — instant pushes' },
-  { id: 'discord', label: 'Discord', logo: 'logo-social-discord.svg', handle: 'yggyll#0882', sub: 'Bot DM — switch channels with /channel' },
-  { id: 'whatsapp', label: "WhatsApp", logo: 'logo-social-whatsapp.svg', handle: '+1 ··· 4821', sub: 'Business account DM' },
-  { id: 'slack', label: 'Slack', logo: 'logo-social-slack.svg', handle: '@yggyll · alva-hq', sub: 'Alva app in your workspace' },
+  { id: 'telegram', label: 'Telegram', logo: 'logo-social-telegram.svg', handle: '@yggyll_tg', user: 'SheerRuan', sub: 'Bot DM — instant pushes' },
+  { id: 'discord', label: 'Discord', logo: 'logo-social-discord.svg', handle: 'yggyll#0882', user: 'SheerRuan', sub: 'Bot DM — switch channels with /channel' },
+  { id: 'whatsapp', label: "WhatsApp", logo: 'logo-social-whatsapp.svg', handle: '+1 ··· 4821', user: '+1 ··· 4821', sub: 'Business account DM' },
+  { id: 'slack', label: 'Slack', logo: 'logo-social-slack.svg', handle: '@yggyll · alva-hq', user: 'SheerRuan', sub: 'Alva app in your workspace' },
 ];
+
+/* Topbar Portfolio 已连接态叠压的 broker（Figma 30785:4970 顺序：Robinhood > Binance > OKX） */
+const TOPBAR_BROKERS = ['robinhood', 'binance', 'okx'];
 
 /* IMS 之外的渠道（如 alerts 卡里的 iMessage）连接时的兜底元数据，供连接消息复用 */
 const IM_FALLBACK: Record<string, { label: string; handle: string }> = {
@@ -332,6 +338,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   /* 谁接收 IM 推送 — 单 active channel,绑定/解绑随动(spec: 解绑 active 回退最早绑定) */
   const [imActive, setImActive] = useState<string | null>(null);
   const [imModalOpen, setImModalOpen] = useState(false);
+  /* Broker 绑定 — 用户级全局(与 IM 同理,跨频道不重置);未连接走 Connect Portfolio → 复用 Portfolio 绑定流程 */
+  const [brokerConnected, setBrokerConnected] = useState(false);
+  const [brokerModalOpen, setBrokerModalOpen] = useState(false);
   /* 频道态右上角 settings → Edit Channel 弹窗(Figma 9732:448009);仅默认 Alva 跳设置页 */
   const [editChannelOpen, setEditChannelOpen] = useState(false);
   /* 会话是否已开始（Start Watching / 发过 prompt）：true 则收起 onboard 空态，进入真实对话 */
@@ -499,8 +508,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
-      {/* Agent Header — Figma 7885:108604；频道态：# 头像 + 频道名 + (有描述才显示描述行) */}
-      <div className="flex shrink-0 items-center gap-[12px] px-[28px] py-[16px]">
+      {/* Agent Header — Figma 7885:108604 / Topbar 30785:4970(gap-8)；频道态：# 头像 + 频道名 + (有描述才显示描述行) */}
+      <div className="flex shrink-0 items-center gap-[8px] px-[28px] py-[16px]">
         {channel ? <ChannelPortrait /> : <AlvaPortrait />}
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -518,7 +527,41 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             </p>
           )}
         </div>
-        {/* IM Select — Figma 7887:111979:hug 宽 gap-4 px-12 py-6,尾部 6px 状态点;未连接态(7904:195614)为主色实心 Connect;点击都打开连接 modal */}
+        {/* Portfolio — Figma 30785:4970:未连接 outline "Connect Portfolio";已连接 broker 圆叠压(16,白描边0.5,-8) + link-l 12(n9) 去 Portfolio */}
+        {brokerConnected ? (
+          <button
+            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+            style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+            onClick={() => onNavigate('portfolio')}
+          >
+            <span className="flex shrink-0 items-center">
+              {TOPBAR_BROKERS.map((b, i) => (
+                <img
+                  key={b}
+                  src={`${base}logo-broker-round-${b}.svg`}
+                  alt=""
+                  className={`relative size-[16px] rounded-full border-[0.5px] border-white ${i > 0 ? '-ml-[8px]' : ''}`}
+                  style={{ zIndex: TOPBAR_BROKERS.length - i }}
+                />
+              ))}
+            </span>
+            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              Portfolio
+            </span>
+            <CdnIcon name="link-l" size={12} color="var(--text-n9, rgba(0,0,0,0.9))" />
+          </button>
+        ) : (
+          <button
+            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+            style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+            onClick={() => setBrokerModalOpen(true)}
+          >
+            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              Connect Portfolio
+            </span>
+          </button>
+        )}
+        {/* IM Select — Figma 7887:111979 / 30785:4976:已连接显示账号名 + 6px m3 状态点;未连接态(30785:4983)为主色实心 Connect IM;点击都打开连接 modal */}
         {activeIm ? (
           <button
             className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[4px] rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
@@ -526,8 +569,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             onClick={() => setImModalOpen(true)}
           >
             <img src={`${base}${activeIm.logo}`} alt="" className="size-[16px] shrink-0 rounded-full" />
-            <span className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-              {activeIm.label}
+            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              {activeIm.user}
             </span>
             <span className="size-[6px] shrink-0 rounded-full" style={{ background: 'var(--main-m3, #2a9b7d)' }} />
           </button>
@@ -538,7 +581,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             onClick={() => setImModalOpen(true)}
           >
             <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white">
-              Connect Your IM
+              Connect IM
             </span>
             {/* stacked IM logos — Figma 31041:15488/89/90:16px 圆形,白描边,-8px 叠压,telegram 在前 */}
             <span className="flex shrink-0 items-center">
@@ -850,6 +893,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           }}
         />
       )}
+
+      <ConnectAccountModal
+        open={brokerModalOpen}
+        onClose={() => setBrokerModalOpen(false)}
+        onConnected={() => { setBrokerConnected(true); setBrokerModalOpen(false); }}
+      />
 
       {imModalOpen && (
         <ConnectAppsModal

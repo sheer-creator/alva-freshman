@@ -280,7 +280,7 @@ function InfoCard({ steps }: { steps: string[] }) {
 function LabeledInput({ label, value, onChange, type = 'text' }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
   return (
     <div className="flex flex-col gap-[8px] items-start justify-center w-full">
-      <p className="text-[14px] leading-[22px] tracking-[0.14px] w-full truncate" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>{label}</p>
+      <p className="text-[12px] leading-[20px] tracking-[0.12px] w-full truncate" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>{label}</p>
       <input
         type={type}
         value={value}
@@ -311,7 +311,7 @@ function ResultShell({ onClose, children, containerRef }: { onClose: () => void;
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col gap-[28px] items-center justify-center w-[436px] max-w-[calc(100vw-32px)] min-h-[436px] px-[28px] pt-[56px] pb-[28px] rounded-[12px] overflow-hidden max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
+      className="relative flex flex-col gap-[28px] items-center justify-center w-[436px] max-w-[calc(100vw-32px)] min-h-[436px] px-[28px] py-[28px] rounded-[12px] overflow-hidden max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
       style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
     >
       {/* 移动端拖拽条 */}
@@ -536,7 +536,7 @@ export function ConnectAccountModal({
 
   const grid = (category: Category) => (
     <div className="flex flex-col gap-[8px] items-start w-full">
-      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>{category}</p>
+      <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>{category}</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-[8px] w-full">
         {BROKERS.filter((b) => b.category === category).map((b) => (
           <button
@@ -692,7 +692,7 @@ export function ConnectAccountModal({
               <Collapse open={setupView === 'configure'}>
                   <div className="flex flex-col gap-[20px] items-start w-full">
                     <div className="flex flex-col gap-[8px] items-start w-full">
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px] w-full" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>Account type</p>
+                      <p className="text-[12px] leading-[20px] tracking-[0.12px] w-full" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>Account type</p>
                       <div className="flex flex-col gap-[8px] w-full">
                         <OptionCard
                           icon={`${BASE}icon-flask-l.svg`} label="Paper"
@@ -709,7 +709,7 @@ export function ConnectAccountModal({
                       </div>
                     </div>
                     <div className="flex flex-col gap-[8px] items-start w-full">
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px] w-full" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>Access level</p>
+                      <p className="text-[12px] leading-[20px] tracking-[0.12px] w-full" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>Access level</p>
                       <div className="flex flex-col gap-[8px] w-full">
                         <OptionCard
                           icon="swap-l" label="Trading"
@@ -757,7 +757,7 @@ export function ConnectAccountModal({
               ) : (
                 <>
                   <div className="flex flex-col gap-[8px] items-start w-full">
-                    <p className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>Trading Type</p>
+                    <p className="text-[12px] leading-[20px] tracking-[0.12px] whitespace-nowrap" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>Trading Type</p>
                     <div className="flex flex-wrap gap-[12px] items-start">
                       {(['Spot', 'Future'] as TradingType[]).map((t) => {
                         const active = tradingType === t;
@@ -794,7 +794,7 @@ export function ConnectAccountModal({
         {step === 'connecting' && (
           <ResultShell onClose={requestClose} containerRef={sheetRef}>
             <div className="flex flex-col gap-[12px] items-center justify-center">
-              <div aria-hidden="true"><AlvaLoading size={56} /></div>
+              <div aria-hidden="true"><AlvaLoading size={40} /></div>
               <p className="text-[16px] leading-[26px] tracking-[0.16px] text-center whitespace-nowrap" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Loading...</p>
             </div>
           </ResultShell>

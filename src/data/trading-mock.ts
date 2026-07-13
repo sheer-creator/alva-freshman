@@ -311,18 +311,27 @@ function filterJournal(strategies: string[]): JournalEntry[] {
     .filter(e => e.trades.length > 0);
 }
 
-function generateCurve(startValue: number, endValue: number, volatility = 0.008): [string, number][] {
+/* 曲线窗口:近 63 天日频,截止今天 — 对齐 Figma 29893:52450 的日刻度密度 */
+const CURVE_DAYS = 63;
+
+function curveDate(offset: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - CURVE_DAYS + offset);
+  return d.toISOString().split('T')[0];
+}
+
+/* AR(1) 动量随机游走:多日波浪叠日频噪声,复刻设计稿的高波动锯齿形态
+   (旧实现是纯噪声爬坡线,画出来过于平滑,与设计稿完全不像) */
+function generateCurve(startValue: number, endValue: number, volatility = 0.02): [string, number][] {
   const points: [string, number][] = [];
   let value = startValue;
-  const startDate = new Date('2025-09-20');
-  const days = 180;
-  const bias = (endValue - startValue) / days;
-  for (let i = 0; i <= days; i++) {
-    const d = new Date(startDate);
-    d.setDate(d.getDate() + i);
-    value += bias + (Math.random() - 0.5) * startValue * volatility;
-    value = Math.max(startValue * 0.85, Math.min(startValue * 1.3, value));
-    points.push([d.toISOString().split('T')[0], Math.round(value)]);
+  let momentum = 0;
+  for (let i = 0; i <= CURVE_DAYS; i++) {
+    momentum = momentum * 0.45 + (Math.random() - 0.5) * volatility;
+    const pull = (endValue - value) / Math.max(CURVE_DAYS - i, 1) / startValue;
+    value *= 1 + momentum + pull * 0.6;
+    value = Math.max(startValue * 0.88, Math.min(startValue * 1.35, value));
+    points.push([curveDate(i), Math.round(value)]);
   }
   points[points.length - 1][1] = endValue;
   return points;
@@ -330,11 +339,8 @@ function generateCurve(startValue: number, endValue: number, volatility = 0.008)
 
 function generateCostBasis(value: number): [string, number][] {
   const points: [string, number][] = [];
-  const startDate = new Date('2025-09-20');
-  for (let i = 0; i <= 180; i++) {
-    const d = new Date(startDate);
-    d.setDate(d.getDate() + i);
-    points.push([d.toISOString().split('T')[0], value]);
+  for (let i = 0; i <= CURVE_DAYS; i++) {
+    points.push([curveDate(i), value]);
   }
   return points;
 }
@@ -345,7 +351,7 @@ export const BROKER_PORTFOLIOS: BrokerPortfolio[] = [
     accountId: 'U****6789', totalEquity: 62000, todayPnl: 856, todayPnlPercent: 1.40,
     equityCurve: generateCurve(50000, 62000),
     costBasis: generateCostBasis(50000),
-    benchmark: generateCurve(50000, 58000, 0.006),
+    benchmark: generateCurve(50000, 58000, 0.016),
     positions: IBKR_POSITIONS, strategy: IBKR_STRATEGY,
     orders: filterOrders(['US Tech Value', 'Macro Hedge']),
     journal: filterJournal(['US Tech Value', 'Macro Hedge']),
@@ -355,7 +361,7 @@ export const BROKER_PORTFOLIOS: BrokerPortfolio[] = [
     accountId: 'spot-****42', totalEquity: 38000, todayPnl: 378, todayPnlPercent: 1.00,
     equityCurve: generateCurve(35000, 38000),
     costBasis: generateCostBasis(35000),
-    benchmark: generateCurve(35000, 36500, 0.01),
+    benchmark: generateCurve(35000, 36500, 0.018),
     positions: BINANCE_POSITIONS, strategy: BINANCE_STRATEGY,
     orders: filterOrders(['BTC Momentum']),
     journal: filterJournal(['BTC Momentum']),

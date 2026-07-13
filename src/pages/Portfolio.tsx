@@ -16,6 +16,7 @@ import {
   CHART_DOT_BG, FONT,
   timeXAxisConfig,
   lineSeriesConfig,
+  ZERO_MARK_LINE,
 } from '@/lib/chart-theme';
 import { BROKER_PORTFOLIOS } from '@/data/trading-mock';
 import type { BrokerPortfolio, StrategyBinding, Position, JournalEntry } from '@/data/trading-mock';
@@ -89,7 +90,7 @@ function AccountTabs({ tabs, active, onChange }: { tabs: AccountTab[]; active: s
             }`}
             style={{ background: isActive ? 'rgba(0,0,0,0.7)' : 'var(--b-r03, rgba(0,0,0,0.03))' }}
           >
-            <span className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ color: isActive ? 'rgba(255,255,255,0.9)' : 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY }}>
+            <span className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ color: isActive ? 'rgba(255,255,255,0.9)' : 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY, fontWeight: 400 }}>
               <span style={{ fontWeight: 500 }}>{t.brokerLabel}</span>
               {` ${t.accountId} · ${t.type}`}
             </span>
@@ -243,7 +244,6 @@ function PositionsTable({ positions }: { positions: Position[] }) {
             <span className="text-[14px]" style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>No positions</span>
           </div>
         )}
-        <AlvaWatermark />
       </div>
     </div>
   );
@@ -275,9 +275,6 @@ function TradingStrategy({ strategy, onNavigate }: { strategy: StrategyBinding; 
               onClick={() => onNavigate('screener')}
             >{playbookHandle}</span>
             <PulseIndicator status="active" />
-            <div className="flex items-center justify-center px-[6px] py-px rounded-[4px] shrink-0" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--main-m1, #49a3a6)', fontFamily: FONT_FAMILY }}>Bound</span>
-            </div>
           </div>
           <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>02/02/2026 - Now</p>
         </div>
@@ -313,6 +310,30 @@ function PlaybookDivider() {
 
 /* ========== Equity Curve ========== */
 
+/* 卡内图例行 — Figma 29893:52454:h-16 右对齐,项间距 8、图标-文字 4;
+   虚线图例 = 4 个 2×2 方点(gap 2),实线 = 12×2 圆角 0.5;文字 10px n5 */
+function ChartLegendRow({ items }: { items: { label: string; color: string; dotted?: boolean }[] }) {
+  return (
+    <div className="flex h-[16px] w-full shrink-0 items-center justify-end gap-[8px]">
+      {items.map((it) => (
+        <span key={it.label} className="flex items-center gap-[4px]">
+          {it.dotted ? (
+            <span className="flex w-[14px] shrink-0 items-center gap-[2px] overflow-hidden">
+              <span className="size-[2px] shrink-0" style={{ background: it.color }} />
+              <span className="size-[2px] shrink-0" style={{ background: it.color }} />
+              <span className="size-[2px] shrink-0" style={{ background: it.color }} />
+              <span className="size-[2px] shrink-0" style={{ background: it.color }} />
+            </span>
+          ) : (
+            <span className="h-[2px] w-[12px] shrink-0 rounded-[0.5px]" style={{ background: it.color }} />
+          )}
+          <span className="text-[10px] leading-[16px] tracking-[0.1px] whitespace-nowrap" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>{it.label}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function EquityCurveChart({ equityCurve, costBasis, benchmark }: {
   equityCurve: [string, number][];
   costBasis: [string, number][];
@@ -337,44 +358,43 @@ function EquityCurveChart({ equityCurve, costBasis, benchmark }: {
         return `<div style="font-size:12px;line-height:20px;font-family:${FONT}"><div style="color:rgba(0,0,0,0.5);margin-bottom:4px">${date}</div>${rows.join('<br/>')}</div>`;
       },
     },
-    legend: {
-      top: 0, right: 0, itemWidth: 12, itemHeight: 2, itemGap: 12,
-      textStyle: { fontSize: 10, color: 'rgba(0,0,0,0.5)', fontFamily: FONT },
-      data: [
-        { name: 'Cost Basis', icon: 'rect' },
-        { name: 'Portfolio', icon: 'rect' },
-        { name: 'SPY', icon: 'rect' },
-      ],
-    },
-    grid: { top: 44, bottom: 24, left: 44, right: 8 },
-    xAxis: { ...timeXAxisConfig({ axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10 } }) },
+    /* 图例改为卡内 HTML 行(Figma 结构),Y 轴左宽 30 + gap 8 → grid.left 38 */
+    grid: { top: 8, bottom: 22, left: 38, right: 2 },
+    xAxis: { ...timeXAxisConfig({ axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10, formatter: '{MM}/{dd}' } }) },
     yAxis: {
       type: 'value' as const,
       min: yMin,
       scale: true,
+      splitNumber: 5,
       splitLine: { show: false },
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10, formatter: (v: number) => (v / 1000).toFixed(0) },
+      axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10, formatter: (v: number) => `${v / 1000}K` },
     },
     series: [
+      /* Cost Basis 起始资金线:g3 点线(实测资产 dash 3/gap 2,宽 1) */
       lineSeriesConfig('Cost Basis', COLOR_COST, {
-        data: costBasis, lineStyle: { type: 'dashed', width: 1.2, color: COLOR_COST }, symbol: 'none',
+        data: costBasis, lineStyle: { type: [3, 2], width: 1, color: COLOR_COST }, symbol: 'none', smooth: false,
       }),
+      /* Portfolio:实线 1.2(SVG 资产 stroke-width),面积 #7777D9 20%→0(资产渐变原值);
+         关平滑保留设计稿的日频锯齿 */
       lineSeriesConfig('Portfolio', COLOR_PORTFOLIO, {
         data: equityCurve,
+        smooth: false,
+        lineStyle: { width: 1.2, color: COLOR_PORTFOLIO },
         areaStyle: {
           color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
-            { offset: 0, color: 'rgba(116,116,216,0.18)' },
-            { offset: 1, color: 'rgba(116,116,216,0)' },
+            { offset: 0, color: 'rgba(119,119,217,0.2)' },
+            { offset: 1, color: 'rgba(119,119,217,0)' },
           ]},
         },
       }),
+      /* SPY 基准:orange1 点线(设计稿绘制为点线)+ 同 Portfolio 的 20%→0 面积 */
       lineSeriesConfig('SPY', COLOR_SPY, {
-        data: benchmark, lineStyle: { width: 1.2, color: COLOR_SPY }, symbol: 'none',
+        data: benchmark, lineStyle: { type: [3, 2], width: 1, color: COLOR_SPY }, symbol: 'none', smooth: false,
         areaStyle: {
           color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
-            { offset: 0, color: 'rgba(255,152,0,0.12)' },
+            { offset: 0, color: 'rgba(255,152,0,0.2)' },
             { offset: 1, color: 'rgba(255,152,0,0)' },
           ]},
         },
@@ -385,8 +405,19 @@ function EquityCurveChart({ equityCurve, costBasis, benchmark }: {
   return (
     <div className="flex flex-col gap-[16px]">
       <p className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}>Equity Curve</p>
-      <div className="relative" style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 12, height: 280 }}>
-        <ReactECharts option={option} style={{ height: 256 }} notMerge />
+      {/* 卡:h-280 p-12 圆角 6(ct-m),内部 flex-col:图例 16 + Unit 24 + 图 216 */}
+      <div className="relative flex flex-col" style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 12, height: 280 }}>
+        <ChartLegendRow
+          items={[
+            { label: 'Cost Basis', color: COLOR_COST, dotted: true },
+            { label: 'Portfolio', color: COLOR_PORTFOLIO },
+            { label: 'SPY', color: COLOR_SPY },
+          ]}
+        />
+        <div className="flex w-full shrink-0 items-center py-[4px]">
+          <span className="text-[10px] leading-[16px] tracking-[0.1px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>Value (USD)</span>
+        </div>
+        <ReactECharts option={option} style={{ height: 216 }} notMerge />
         <AlvaWatermark />
       </div>
     </div>
@@ -397,7 +428,8 @@ function EquityCurveChart({ equityCurve, costBasis, benchmark }: {
 
 function DailyPnlChart({ equityCurve }: { equityCurve: [string, number][] }) {
   const data = dailyPnlSeries(equityCurve);
-  const maxAbs = Math.max(...data.map(([, v]) => Math.abs(v)), 1);
+  /* 上取整到 1K 档 → 恰好 3 个刻度(±NK/0),对应设计稿 1K/0/-1K */
+  const yCap = Math.max(1000, Math.ceil(Math.max(...data.map(([, v]) => Math.abs(v)), 1) / 1000) * 1000);
 
   const option = {
     tooltip: {
@@ -416,25 +448,29 @@ function DailyPnlChart({ equityCurve }: { equityCurve: [string, number][] }) {
         return `<div style="font-size:12px;line-height:20px;font-family:${FONT}"><div style="color:rgba(0,0,0,0.5);margin-bottom:4px">${p.data[0]}</div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};margin-right:6px"></span>Daily P&L: ${sign}$${v.toLocaleString()}</div>`;
       },
     },
-    grid: { top: 16, bottom: 24, left: 44, right: 8 },
-    xAxis: { ...timeXAxisConfig({ axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10 } }) },
+    grid: { top: 8, bottom: 22, left: 38, right: 2 },
+    xAxis: { ...timeXAxisConfig({ axisLabel: { color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10, formatter: '{MM}/{dd}' } }) },
     yAxis: {
       type: 'value' as const,
-      min: -maxAbs, max: maxAbs,
+      /* interval = 上限 → 只出 ±NK 与 0 三档刻度 */
+      min: -yCap, max: yCap, interval: yCap,
       splitLine: { show: false },
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: {
         color: 'rgba(0,0,0,0.7)', fontFamily: FONT, fontSize: 10,
-        formatter: (v: number) => v === 0 ? '0' : (v < 0 ? '-' : '') + (Math.abs(v) / 1000).toFixed(0) + 'K',
+        formatter: (v: number) => v === 0 ? '0' : (v < 0 ? '-' : '') + Math.abs(v) / 1000 + 'K',
       },
     },
     series: [
       {
         name: 'Daily P&L', type: 'bar',
         data,
-        itemStyle: { color: (p: { data: [string, number] }) => (p.data[1] >= 0 ? COLOR_POS : COLOR_NEG) },
-        barMaxWidth: 6,
+        /* bar 宽 8、圆角 2(ct-min)— Figma 29893:52511 */
+        itemStyle: { color: (p: { data: [string, number] }) => (p.data[1] >= 0 ? COLOR_POS : COLOR_NEG), borderRadius: 2 },
+        barWidth: 8,
+        /* 零轴线:l3 点线(设计稿 Y=0 行可见线,±1K 行 opacity-0) */
+        markLine: ZERO_MARK_LINE,
       },
     ],
   };
@@ -442,8 +478,9 @@ function DailyPnlChart({ equityCurve }: { equityCurve: [string, number][] }) {
   return (
     <div className="flex flex-col gap-[16px]">
       <p className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}>Daily P&L</p>
-      <div className="relative" style={{ ...CHART_DOT_BG, borderRadius: 6, padding: 12, height: 224 }}>
-        <ReactECharts option={option} style={{ height: 200 }} notMerge />
+      {/* 卡:h-200 p-12 圆角 4(ct-s,与 Equity 的 ct-m 6 不同) */}
+      <div className="relative" style={{ ...CHART_DOT_BG, borderRadius: 4, padding: 12, height: 200 }}>
+        <ReactECharts option={option} style={{ height: 176 }} notMerge />
         <AlvaWatermark />
       </div>
     </div>
