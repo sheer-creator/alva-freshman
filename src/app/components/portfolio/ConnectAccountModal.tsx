@@ -137,6 +137,8 @@ export interface ConnectAccountModalProps {
   onConnected?: (brokerId: string, access: 'trading' | 'readonly', accountType: 'paper' | 'live') => void;
   /** 提供则成功屏主 CTA 为「Set up Portfolio Watch」（channel 未设 watch 场景）；缺省为 Done */
   onSetupWatch?: () => void;
+  /** 成功屏「📋 Trade with Alva」行动卡（仅 access=trading 且提供时显示）——关弹窗后发起交易对话 */
+  onTrade?: () => void;
   /** 成功屏无按钮、3s 倒计时自动关闭（Figma 11164:7409，builder 流程内绑定场景）；优先于 onSetupWatch */
   successAutoClose?: boolean;
   /** 仅供原型/预览直达某一步 */
@@ -409,7 +411,7 @@ function trapTab(e: KeyboardEvent, root: HTMLElement | null) {
 /* ========== 主组件 ========== */
 
 export function ConnectAccountModal({
-  open, onClose, onConnected, onSetupWatch, successAutoClose,
+  open, onClose, onConnected, onSetupWatch, onTrade, successAutoClose,
   initialStep = 'select', initialBrokerId, initialAccountType = 'paper',
 }: ConnectAccountModalProps) {
   const [step, setStep] = useState<Step>(initialStep);
@@ -878,7 +880,7 @@ export function ConnectAccountModal({
         {step === 'success' && (
           <div
             ref={sheetRef}
-            className="relative flex h-[436px] w-[436px] max-w-[calc(100vw-32px)] flex-col items-center overflow-hidden rounded-[12px] p-[28px] max-sm:h-auto max-sm:min-h-[70dvh] max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none"
+            className="relative flex w-[480px] max-w-[calc(100vw-32px)] flex-col items-center gap-[56px] overflow-hidden rounded-[12px] px-[28px] pb-[28px] pt-[56px] max-sm:min-h-[70dvh] max-sm:w-full max-sm:max-w-full max-sm:justify-between max-sm:rounded-b-none"
             style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
           >
             {/* 移动端拖拽条 */}
@@ -886,39 +888,57 @@ export function ConnectAccountModal({
               <div className="w-[36px] h-[4px] rounded-[4px]" style={{ background: 'rgba(0, 0, 0, 0.07)' }} />
             </div>
             <CloseButton onClick={() => { fireConnected(); requestClose(); }} className="absolute top-[28px] right-[28px] z-10" />
-            {/* 能力告知区 — 占满剩余高度垂直居中 */}
-            <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-[24px]">
+            {/* Header — Figma 11136:27920：icon 64+角标24 · gap24 · [标题 30 + gap9 + chips 行]，无灰字说明 */}
+            <div className="flex w-full flex-col items-center gap-[24px]">
               <div aria-hidden="true" className="relative" style={{ animation: 'connect-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
                 <BrokerLogo broker={screenBroker} size={64} />
                 <span className="absolute bottom-0 right-[-4px] flex size-[24px] items-center justify-center rounded-full" style={{ background: 'var(--b0-container, #fff)' }}>
                   <CdnIcon name="check-f2" size={24} color="var(--main-m3, #2a9b7d)" />
                 </span>
               </div>
-              <div className="flex w-full flex-col items-center gap-[8px]" style={{ fontFamily: FONT }}>
+              <div className="flex w-full flex-col items-center gap-[9px]" style={{ fontFamily: FONT }}>
                 <p className="w-full text-center text-[20px] leading-[30px] tracking-[0.2px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                   {screenBroker.name} Connected
                 </p>
-                {successAutoClose ? <>{capabilityLine}{chipsRow}</> : <>{chipsRow}{capabilityLine}</>}
+                {successAutoClose ? <>{capabilityLine}{chipsRow}</> : chipsRow}
               </div>
             </div>
-            {/* 收口三态：autoClose → 倒计时行；未设 watch → Onboard 卡进 Portfolio Watch 流；已设过 → Done */}
+            {/* 收口三态：autoClose → 倒计时行；行动卡（📋 Trade 按权限 + 💼 Watch，Figma 两行 Onboard 卡）；都没有 → Done */}
             {successAutoClose ? (
               <p className="w-full shrink-0 text-center text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
                 Closing in {countdown}s
               </p>
-            ) : onSetupWatch ? (
-              <button
-                type="button"
-                className="flex w-full shrink-0 cursor-pointer items-center gap-[8px] rounded-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[rgba(0,0,0,0.02)]"
-                style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', fontFamily: FONT }}
-                onClick={() => { fireConnected(); requestClose(); onSetupWatch(); }}
-              >
-                <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                  <span className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>💼  Watch your portfolio 24/7</span>
-                  <span className="w-full text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>I’ll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.</span>
-                </span>
-                <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
-              </button>
+            ) : (onSetupWatch || (onTrade && accessLevel === 'trading')) ? (
+              <div className="flex w-full shrink-0 flex-col overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+                {onTrade && accessLevel === 'trading' && (
+                  <button
+                    type="button"
+                    className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[rgba(0,0,0,0.02)]"
+                    style={{ border: 'none', borderBottom: onSetupWatch ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : 'none', fontFamily: FONT }}
+                    onClick={() => { fireConnected(); requestClose(); onTrade(); }}
+                  >
+                    <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                      <span className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>📋  Trade with Alva in any channel</span>
+                      <span className="w-full text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Just tell me what to buy or sell — you approve each order, or bind a playbook to trade automatically.</span>
+                    </span>
+                    <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
+                  </button>
+                )}
+                {onSetupWatch && (
+                  <button
+                    type="button"
+                    className="flex w-full cursor-pointer items-center gap-[8px] border-none bg-transparent p-[16px] text-left transition-colors hover:bg-[rgba(0,0,0,0.02)]"
+                    style={{ fontFamily: FONT }}
+                    onClick={() => { fireConnected(); requestClose(); onSetupWatch(); }}
+                  >
+                    <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                      <span className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>💼  Watch your portfolio 24/7</span>
+                      <span className="w-full text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>I’ll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.</span>
+                    </span>
+                    <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
+                  </button>
+                )}
+              </div>
             ) : (
               <div className="w-full shrink-0">
                 <PrimaryButton label="Done" onClick={() => { fireConnected(); requestClose(); }} />

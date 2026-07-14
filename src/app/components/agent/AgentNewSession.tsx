@@ -929,6 +929,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         }}
         /* 成功屏 capability CTA（绑定后引导第一层）；已设过 portfolio watch 则退化为 Done */
         onSetupWatch={hasPortfolioWatchEnabled() || sessionAlerts.some((a) => a.id === PORTFOLIO_WATCH_ALERT.id) ? undefined : () => openFlow('portfolio')}
+        onTrade={() => onPrompt("Help me place a trade — draft the order and I'll approve it")}
       />
 
       {imModalOpen && (
