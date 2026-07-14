@@ -97,8 +97,8 @@ export function brokerDisplayInfo(id: string): { id: string; name: string; logo:
   return BROKERS.find((x) => x.id === id);
 }
 
-/** 圆形 broker logo：品牌 svg 直接铺满；favicon 白底圆容器内缩 72% */
-function BrokerLogo({ broker, size = 24 }: { broker: BrokerDef; size?: number }) {
+/** 圆形 broker logo：品牌 svg 直接铺满；favicon 白底圆容器内缩 72%（导出供 PortfolioPopover 等复用） */
+export function BrokerLogo({ broker, size = 24 }: { broker: Pick<BrokerDef, 'name' | 'logo' | 'plain' | 'bg'>; size?: number }) {
   if (broker.plain) {
     return (
       <span
@@ -133,8 +133,8 @@ type TradingType = 'Spot' | 'Future';
 export interface ConnectAccountModalProps {
   open: boolean;
   onClose: () => void;
-  /** access = 用户实际授予的权限（Live Trading 券商也可选 Read-only），绑定后引导据此分叉 */
-  onConnected?: (brokerId: string, access: 'trading' | 'readonly') => void;
+  /** access = 用户实际授予的权限（Live Trading 券商也可选 Read-only），绑定后引导据此分叉；accountType 供账户弹窗回显 Paper/Live */
+  onConnected?: (brokerId: string, access: 'trading' | 'readonly', accountType: 'paper' | 'live') => void;
   /** 提供则成功屏主 CTA 为「Set up Portfolio Watch」（channel 未设 watch 场景）；缺省为 Done */
   onSetupWatch?: () => void;
   /** 成功屏无按钮、3s 倒计时自动关闭（Figma 11164:7409，builder 流程内绑定场景）；优先于 onSetupWatch */
@@ -463,7 +463,7 @@ export function ConnectAccountModal({
   const fireConnected = () => {
     if (connectedFiredRef.current) return;
     connectedFiredRef.current = true;
-    onConnected?.(broker?.id ?? '', accessLevel);
+    onConnected?.(broker?.id ?? '', accessLevel, accountType);
   };
 
   /* 出场：先播 0.18s 退场动效，再真正卸载。成功屏任何关闭路径（X / ESC / 遮罩 / 自动倒计时）

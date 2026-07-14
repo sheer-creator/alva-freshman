@@ -15,7 +15,8 @@ import { AgentTasksPanel, AGENT_TASKS } from '@/app/components/agent/AgentTasksP
 import { AgentArtifactsPanel, AGENT_ARTIFACTS } from '@/app/components/agent/AgentArtifactsPanel';
 import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/components/agent/AgentAlertsPanel';
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
-import { ConnectAccountModal } from '@/app/components/portfolio/ConnectAccountModal';
+import { ConnectAccountModal, brokerDisplayInfo } from '@/app/components/portfolio/ConnectAccountModal';
+import { PortfolioPopover, type ConnectedBrokerInfo } from '@/app/components/agent/PortfolioPopover';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
@@ -348,8 +349,10 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const [imActive, setImActive] = useState<string | null>(null);
   const [imModalOpen, setImModalOpen] = useState(false);
   /* Broker 绑定 — 用户级全局(与 IM 同理,跨频道不重置);未连接走 Connect Portfolio → 复用 Portfolio 绑定流程 */
-  const [brokerConnected, setBrokerConnected] = useState(false);
+  const [connectedBroker, setConnectedBroker] = useState<ConnectedBrokerInfo | null>(null);
   const [brokerModalOpen, setBrokerModalOpen] = useState(false);
+  /* topbar Portfolio 已连接按钮 → 账户缩略弹窗（Figma 11184:42100）；View in Portfolio 才跳页 */
+  const [portfolioPopoverOpen, setPortfolioPopoverOpen] = useState(false);
   /* 频道态右上角 settings → Edit Channel 弹窗(Figma 9732:448009);仅默认 Alva 跳设置页 */
   const [editChannelOpen, setEditChannelOpen] = useState(false);
   /* 会话是否已开始（Start Watching / 发过 prompt）：true 则收起 onboard 空态，进入真实对话 */
@@ -537,29 +540,41 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             </p>
           )}
         </div>
-        {/* Portfolio — Figma 30785:4970:未连接 outline "Connect Portfolio";已连接 broker 圆叠压(16,白描边0.5,-8) + link-l 12(n9) 去 Portfolio */}
-        {brokerConnected ? (
-          <button
-            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
-            style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
-            onClick={() => onNavigate('portfolio')}
-          >
-            <span className="flex shrink-0 items-center">
-              {TOPBAR_BROKERS.map((b, i) => (
-                <img
-                  key={b}
-                  src={`${base}logo-broker-round-${b}.svg`}
-                  alt=""
-                  className={`relative size-[16px] rounded-full border-[0.5px] border-white ${i > 0 ? '-ml-[8px]' : ''}`}
-                  style={{ zIndex: TOPBAR_BROKERS.length - i }}
-                />
-              ))}
-            </span>
-            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-              Portfolio
-            </span>
-            <CdnIcon name="link-l" size={12} color="var(--text-n9, rgba(0,0,0,0.9))" />
-          </button>
+        {/* Portfolio — Figma 30785:4970:未连接 outline "Connect Portfolio";已连接点击开账户缩略弹窗(11184:42100),弹窗底链才跳 Portfolio */}
+        {connectedBroker ? (
+          <div className="relative shrink-0">
+            <button
+              className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+              style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+              onClick={() => setPortfolioPopoverOpen((o) => !o)}
+            >
+              <span className="flex shrink-0 items-center">
+                {TOPBAR_BROKERS.map((b, i) => (
+                  <img
+                    key={b}
+                    src={`${base}logo-broker-round-${b}.svg`}
+                    alt=""
+                    className={`relative size-[16px] rounded-full border-[0.5px] border-white ${i > 0 ? '-ml-[8px]' : ''}`}
+                    style={{ zIndex: TOPBAR_BROKERS.length - i }}
+                  />
+                ))}
+              </span>
+              <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                Portfolio
+              </span>
+              <CdnIcon name="link-l" size={12} color="var(--text-n9, rgba(0,0,0,0.9))" />
+            </button>
+            {portfolioPopoverOpen && (
+              <PortfolioPopover
+                broker={connectedBroker}
+                onClose={() => setPortfolioPopoverOpen(false)}
+                onViewPortfolio={() => { setPortfolioPopoverOpen(false); onNavigate('portfolio'); }}
+                onTrade={() => { setPortfolioPopoverOpen(false); onPrompt("Help me place a trade — draft the order and I'll approve it"); }}
+                onWatch={() => { setPortfolioPopoverOpen(false); openFlow('portfolio'); }}
+                onConnectAnother={() => { setPortfolioPopoverOpen(false); setBrokerModalOpen(true); }}
+              />
+            )}
+          </div>
         ) : (
           <button
             className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
@@ -907,9 +922,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       <ConnectAccountModal
         open={brokerModalOpen}
         onClose={() => setBrokerModalOpen(false)}
-        onConnected={() => {
+        onConnected={(id, access, accountType) => {
           /* 只更新连接态，不再推 brokerconn 引导消息——能力告知由弹窗成功屏承担，进 chat 不重复 */
-          setBrokerConnected(true);
+          setConnectedBroker({ id, name: brokerDisplayInfo(id)?.name ?? id, live: access === 'trading', accountType });
           setBrokerModalOpen(false);
         }}
         /* 成功屏 capability CTA（绑定后引导第一层）；已设过 portfolio watch 则退化为 Done */
