@@ -18,6 +18,7 @@ import {
   lineSeriesConfig,
   ZERO_MARK_LINE,
 } from '@/lib/chart-theme';
+import { hasPortfolioWatchEnabled } from '@/lib/portfolio-watch';
 import { BROKER_PORTFOLIOS } from '@/data/trading-mock';
 import type { BrokerPortfolio, StrategyBinding, Position, JournalEntry } from '@/data/trading-mock';
 import { ConnectAccountModal } from '@/app/components/portfolio/ConnectAccountModal';
@@ -72,7 +73,6 @@ interface AccountTab {
   brokerLabel: string;
   accountId: string;
   type: 'Live' | 'Spot';
-  enabled: boolean;
 }
 
 function AccountTabs({ tabs, active, onChange }: { tabs: AccountTab[]; active: string; onChange: (id: string) => void }) {
@@ -83,11 +83,10 @@ function AccountTabs({ tabs, active, onChange }: { tabs: AccountTab[]; active: s
         return (
           <button
             key={t.brokerId}
-            disabled={!t.enabled}
-            onClick={() => t.enabled && onChange(t.brokerId)}
-            className={`flex items-center justify-center px-[12px] py-[6px] rounded-full transition-colors ${
-              t.enabled ? 'cursor-pointer' : 'cursor-default'
-            }`}
+            type="button"
+            aria-pressed={isActive}
+            onClick={() => onChange(t.brokerId)}
+            className="flex cursor-pointer items-center justify-center rounded-full px-[12px] py-[6px] transition-colors"
             style={{ background: isActive ? 'rgba(0,0,0,0.7)' : 'var(--b-r03, rgba(0,0,0,0.03))' }}
           >
             <span className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ color: isActive ? 'rgba(255,255,255,0.9)' : 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY, fontWeight: 400 }}>
@@ -103,7 +102,15 @@ function AccountTabs({ tabs, active, onChange }: { tabs: AccountTab[]; active: s
 
 /* ========== 摘要卡 Overview Card ========== */
 
-function OverviewCard({ broker }: { broker: BrokerPortfolio }) {
+function OverviewCard({
+  broker,
+  showWatchGuide,
+  onSetupWatch,
+}: {
+  broker: BrokerPortfolio;
+  showWatchGuide: boolean;
+  onSetupWatch: () => void;
+}) {
   const invested = broker.positions.reduce((s, p) => s + p.marketValue, 0);
   const unrealized = broker.positions.reduce((s, p) => s + p.pnl, 0);
   const pnlSign = broker.todayPnl >= 0 ? '+' : '';
@@ -118,44 +125,72 @@ function OverviewCard({ broker }: { broker: BrokerPortfolio }) {
 
   return (
     <div
-      className="flex items-end justify-center gap-[28px] p-[20px] rounded-[8px]"
+      className="flex flex-col overflow-hidden rounded-[8px]"
       style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
     >
-      {/* Balance */}
-      <div className="flex flex-col flex-1 min-w-0 gap-[12px]">
-        <div className="flex items-center gap-[8px]">
-          <div className="shrink-0 flex items-center justify-center" style={{ width: 20, height: 20, borderRadius: 2.5, background: '#1c1c1c' }}>
-            <span style={{ fontSize: 11, lineHeight: 1, color: '#fff', fontFamily: FONT_FAMILY, fontWeight: 500 }}>{broker.brokerLabel.charAt(0)}</span>
+      <div className="flex items-end justify-center gap-[28px] p-[20px]">
+        {/* Balance */}
+        <div className="flex flex-col flex-1 min-w-0 gap-[12px]">
+          <div className="flex items-center gap-[8px]">
+            <div className="shrink-0 flex items-center justify-center" style={{ width: 20, height: 20, borderRadius: 2.5, background: '#1c1c1c' }}>
+              <span style={{ fontSize: 11, lineHeight: 1, color: '#fff', fontFamily: FONT_FAMILY, fontWeight: 500 }}>{broker.brokerLabel.charAt(0)}</span>
+            </div>
+            <p className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}>
+              {broker.brokerName} · {broker.accountId}
+            </p>
+            <div className="flex items-center justify-center px-[6px] py-px rounded-[4px] shrink-0" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
+              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--main-m1, #49a3a6)', fontFamily: FONT_FAMILY }}>{type}</span>
+            </div>
           </div>
-          <p className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}>
-            {broker.brokerName} · {broker.accountId}
-          </p>
-          <div className="flex items-center justify-center px-[6px] py-px rounded-[4px] shrink-0" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
-            <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--main-m1, #49a3a6)', fontFamily: FONT_FAMILY }}>{type}</span>
+          <div className="flex items-end gap-[8px] whitespace-nowrap">
+            <span className="text-[32px] leading-[42px] tracking-[0.32px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, fontWeight: 400, ...MONO }}>
+              ${broker.totalEquity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <div className="flex items-center gap-[8px] py-[5px]">
+              <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: broker.todayPnl >= 0 ? POS_COLOR : NEG_COLOR, fontFamily: FONT_FAMILY, ...MONO }}>
+                {pnlSign}${Math.abs(broker.todayPnl).toLocaleString()}
+              </span>
+              <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>1D</span>
+            </div>
           </div>
         </div>
-        <div className="flex items-end gap-[8px] whitespace-nowrap">
-          <span className="text-[32px] leading-[42px] tracking-[0.32px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, fontWeight: 400, ...MONO }}>
-            ${broker.totalEquity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
-          <div className="flex items-center gap-[8px] py-[5px]">
-            <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: broker.todayPnl >= 0 ? POS_COLOR : NEG_COLOR, fontFamily: FONT_FAMILY, ...MONO }}>
-              {pnlSign}${Math.abs(broker.todayPnl).toLocaleString()}
-            </span>
-            <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>1D</span>
-          </div>
+
+        {/* Data Card */}
+        <div className="flex items-center justify-end gap-[28px] shrink-0">
+          {metrics.map(m => (
+            <div key={m.label} className="flex flex-col gap-[4px] justify-center items-center shrink-0" style={{ width: m.width }}>
+              <p className="text-[12px] leading-[20px] tracking-[0.12px] w-full whitespace-nowrap" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>{m.label}</p>
+              <p className="text-[20px] leading-[30px] tracking-[0.2px] w-full whitespace-nowrap" style={{ color: m.accent ? POS_COLOR : 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, fontWeight: 400, ...MONO }}>{m.value}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Data Card */}
-      <div className="flex items-center justify-end gap-[28px] shrink-0">
-        {metrics.map(m => (
-          <div key={m.label} className="flex flex-col gap-[4px] justify-center items-center shrink-0" style={{ width: m.width }}>
-            <p className="text-[12px] leading-[20px] tracking-[0.12px] w-full whitespace-nowrap" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>{m.label}</p>
-            <p className="text-[20px] leading-[30px] tracking-[0.2px] w-full whitespace-nowrap" style={{ color: m.accent ? POS_COLOR : 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, fontWeight: 400, ...MONO }}>{m.value}</p>
+      {showWatchGuide && (
+        <div
+          className="flex items-center gap-[16px] px-[20px] py-[16px]"
+          style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}
+        >
+          <div className="flex min-w-0 flex-1 flex-col gap-[2px] overflow-hidden">
+            <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}>
+              💼&nbsp;&nbsp;Watch your portfolio 24/7
+            </p>
+            <p className="truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>
+              I’ll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.
+            </p>
           </div>
-        ))}
-      </div>
+          <button
+            type="button"
+            onClick={onSetupWatch}
+            className="flex h-[36px] shrink-0 cursor-pointer items-center justify-center rounded-[6px] px-[16px] transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
+            style={{ background: 'var(--main-m1, #49a3a6)', outlineColor: 'var(--main-m1, #49a3a6)' }}
+          >
+            <span className="whitespace-nowrap text-[13px] font-medium leading-[20px] tracking-[0.13px] text-white" style={{ fontFamily: FONT_FAMILY }}>
+              Set up Portfolio Watch
+            </span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -279,7 +314,7 @@ function TradingStrategy({ strategy, onNavigate }: { strategy: StrategyBinding; 
 
       {/* Playbook card */}
       <div className="flex items-center gap-[12px] p-[20px] rounded-[8px]" style={{ ...CARD_BG, minHeight: 92 }}>
-        <Avatar name={strategy.author} size={44} />
+        <Avatar name={strategy.avatarName ?? strategy.author} size={44} />
         <div className="flex flex-col flex-1 min-w-0 gap-[4px] justify-center">
           <div className="flex items-center gap-[8px]">
             <span
@@ -431,7 +466,6 @@ function EquityCurveChart({ equityCurve, costBasis, benchmark }: {
           <span className="text-[10px] leading-[16px] tracking-[0.1px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>Value (USD)</span>
         </div>
         <ReactECharts option={option} style={{ height: 216 }} notMerge />
-        <AlvaWatermark />
       </div>
     </div>
   );
@@ -494,7 +528,6 @@ function DailyPnlChart({ equityCurve }: { equityCurve: [string, number][] }) {
       {/* 卡:h-200 p-12 圆角 4(ct-s,与 Equity 的 ct-m 6 不同) */}
       <div className="relative" style={{ ...CHART_DOT_BG, borderRadius: 4, padding: 12, height: 200 }}>
         <ReactECharts option={option} style={{ height: 176 }} notMerge />
-        <AlvaWatermark />
       </div>
     </div>
   );
@@ -657,21 +690,17 @@ function ActivityTab({ journal }: { journal: JournalEntry[] }) {
 
 /* ========== 页面 ========== */
 
-/* 账户 tabs：数据只有 IBKR + Binance 两个 portfolio，Figma 还展示了一个 Alpaca（无数据，置灰不可点） */
-const ACCOUNT_TABS: AccountTab[] = [
-  ...BROKER_PORTFOLIOS.map(b => ({
-    brokerId: b.brokerId,
-    brokerLabel: b.brokerLabel,
-    accountId: b.accountId,
-    type: accountType(b.brokerId),
-    enabled: true,
-  })),
-  { brokerId: 'alpaca-1', brokerLabel: 'Alpaca', accountId: 'PA****1234', type: 'Live', enabled: false },
-];
+const ACCOUNT_TABS: AccountTab[] = BROKER_PORTFOLIOS.map(b => ({
+  brokerId: b.brokerId,
+  brokerLabel: b.brokerLabel,
+  accountId: b.accountId,
+  type: accountType(b.brokerId),
+}));
 
 export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [activeBrokerId, setActiveBrokerId] = useState(BROKER_PORTFOLIOS[0].brokerId);
   const [tab, setTab] = useState<PortfolioTab>('overview');
+  const [portfolioWatchEnabled] = useState(hasPortfolioWatchEnabled);
   const [toast, setToast] = useState(false);
   /* 评审深链：?connect-step=… 时自动展开 Connect 弹窗 */
   const connectParams = new URLSearchParams(window.location.search);
@@ -734,7 +763,11 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
           <AccountTabs tabs={ACCOUNT_TABS} active={activeBrokerId} onChange={setActiveBrokerId} />
 
           {/* Overview card */}
-          <OverviewCard broker={broker} />
+          <OverviewCard
+            broker={broker}
+            showWatchGuide={!portfolioWatchEnabled}
+            onSetupWatch={() => { window.location.hash = 'agent?flow=portfolio'; }}
+          />
 
           {/* Overview / Activity tab bar */}
           <PageTabs tab={tab} onChange={setTab} />

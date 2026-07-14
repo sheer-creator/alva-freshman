@@ -1,23 +1,24 @@
 /**
  * [INPUT]: AppShell, settings page
  * [OUTPUT]: Settings 通用布局 — Back + 固定侧边栏(184px) + 944px 内容区，整体 max-width 1156
- * [POS]: shell 层 — Account / Billing / Portfolio / Alva Agent / API Key 共用外壳
+ * [POS]: shell layer - Account / Usage / Portfolio / Alva Agent / Automations / API Key
  */
 
-import type { Page } from '@/app/App';
+import { useEffect, useRef } from 'react';
 import { AppShell } from './AppShell';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import type { Page } from '@/app/App';
 
 const FONT = "'Delight', sans-serif";
 
-export type SettingsTab = 'account' | 'billing' | 'portfolio-settings' | 'alva-agent' | 'notifications' | 'api-keys';
+export type SettingsTab = 'account' | 'billing' | 'portfolio-settings' | 'alva-agent' | 'automations' | 'api-keys';
 
 const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'account',            label: 'Account'       },
   { key: 'billing',            label: 'Usage'         },
   { key: 'portfolio-settings', label: 'Portfolio'     },
-  { key: 'alva-agent',         label: 'Alva'    },
-  { key: 'notifications',      label: 'Alerts'        },
+  { key: 'alva-agent',         label: 'Alva Agent'    },
+  { key: 'automations',        label: 'Automations'   },
   { key: 'api-keys',           label: 'API Key'       },
 ];
 
@@ -31,6 +32,15 @@ interface SettingsLayoutProps {
 
 export function SettingsLayout({ active, onNavigate, children, mapTo }: SettingsLayoutProps) {
   const activePage: Page = (mapTo?.[active] ?? active) as Page;
+  const navRef = useRef<HTMLElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const activeTab = activeTabRef.current;
+    if (!nav || !activeTab || nav.scrollWidth <= nav.clientWidth) return;
+    nav.scrollLeft = Math.max(0, activeTab.offsetLeft - (nav.clientWidth - activeTab.offsetWidth) / 2);
+  }, [active]);
 
   return (
     <AppShell activePage={activePage} onNavigate={onNavigate}>
@@ -53,18 +63,19 @@ export function SettingsLayout({ active, onNavigate, children, mapTo }: Settings
           </div>
 
           {/* Sidebar + Content */}
-          <div className="w-full mt-[4px] flex gap-[28px] items-start">
+          <div className="mt-[4px] flex w-full flex-col items-stretch gap-[16px] md:flex-row md:items-start md:gap-[28px]">
 
             {/* Fixed sidebar 184px */}
-            <nav className="flex flex-col shrink-0" style={{ width: 184 }}>
+            <nav ref={navRef} className="flex w-full shrink-0 flex-row overflow-x-auto md:w-[184px] md:flex-col">
               {TABS.map(t => {
                 const isActive = t.key === active;
                 const target: Page = (mapTo?.[t.key] ?? t.key) as Page;
                 return (
                   <button
                     key={t.key}
+                    ref={isActive ? activeTabRef : undefined}
                     onClick={() => onNavigate(target)}
-                    className="flex items-center px-[var(--spacing-m)] py-[10px] rounded-[var(--radius-btn-s)] text-left cursor-pointer transition-colors w-full"
+                    className="flex w-auto shrink-0 cursor-pointer items-center rounded-[var(--radius-btn-s)] px-[var(--spacing-m)] py-[10px] text-left transition-colors md:w-full"
                     style={{
                       background: isActive ? 'var(--b0, #f6f6f6)' : 'transparent',
                       border: 'none',

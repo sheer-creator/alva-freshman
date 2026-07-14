@@ -1,11 +1,12 @@
 /**
- * [INPUT]: Figma Page/Agent/Chat（8563:238317 / 8622:316384）— Watch your portfolio 24/7 建仓向导
- *          三段式来源（手动 / 截图 / 券商）+ 4 列持仓网格 + 已选 chip 行 + Language + Start Watching
+ * [INPUT]: Figma Page/Agent/Chat（8563:238320）— Watch your portfolio 24/7 建仓向导
+ *          两段来源单选（Add Positions Manually / Connect Brokerage Account）+ Language + Start Watching
  * [OUTPUT]: 点 Onboard「Watch your portfolio 24/7」后进入的 portfolio builder 卡片，逐元素对齐 Figma
- *           - manual：点网格 + 把该标的加入下方 chip 并把该格刷成池中新标的；chip 可编辑份额 / 移除
- *           - upload（Figma 9888:234822）：拖拽/点选上传区，cloud icon + 支持格式提示
- *           - brokerage（Figma 8563:237957 / 8563:242235）：4×2 券商网格 + Choose more；点某家 mock 连接，
- *             下方 Connected 区出现该账户卡（多选：青底 check-f2 / 白底 check-l2），选中即点亮 Start Watching
+ *           - manual：4 列持仓网格，点 + 把标的加入下方 chip 并把该格刷成池中新标的；chip 可编辑份额 / 移除。
+ *             网格底部并入 upload 区（Figma 10127:27791，upload-l + 「Or upload screenshots」）——不再是独立 tab
+ *           - brokerage（Figma 8563:237957 / 8563:242235）：4×2 券商网格 + Choose more；点券商打开
+ *             ConnectAccountModal 直达该家 configure（Account type / Access level）二级屏，Choose more 从
+ *             select 全列表开始；连接成功回填下方 Connected 区（多选卡），选中项在 footer 显示为 chip
  * [POS]: AgentNewSession portfolio 视图内，Alva 首条消息的正文
  */
 
@@ -13,6 +14,7 @@ import { useRef, useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
 import { Dropdown } from '@/app/components/shared/Dropdown';
+import { ConnectAccountModal, brokerDisplayInfo } from '@/app/components/portfolio/ConnectAccountModal';
 
 const FONT = "'Delight', sans-serif";
 const BASE = import.meta.env.BASE_URL;
@@ -36,12 +38,13 @@ function tx(size: number, lh: number, color: string, weight: 400 | 500 = 400): R
 
 /* ========== 数据 ========== */
 
-type Source = 'manual' | 'upload' | 'brokerage';
+type Source = 'manual' | 'brokerage';
 interface Ticker { symbol: string; name: string; tag: string }
 
+/* 顶部两段单选（Figma Card Grid，各占一半 flex-1）。upload 不再是独立 source，
+   而是并入 manual 网格底部的「Or upload screenshots」区 */
 const SOURCES: { id: Source; label: string }[] = [
   { id: 'manual', label: 'Add Positions Manually' },
-  { id: 'upload', label: 'Upload Portfolio Screenshots' },
   { id: 'brokerage', label: 'Connect Brokerage Account' },
 ];
 
@@ -91,8 +94,8 @@ const LANGUAGES = ['English', '简体中文'];
 /* brokerage 网格（Figma 8563:237957，4×2）。
    logo 取 Figma 真实素材：robinhood/hyperliquid 复用整圆 svg，schwab/fidelity/moomoo/webull 用 Figma 导出圆标，
    ibkr 用品牌 glyph 白底居中（Figma 导出丢失矢量，回落已有真实资产）。 */
-/* account：mock 掩码账户号（点某家即 mock 连接，写入 Connected 区，格式仿 Figma「3***4」） */
-interface ConnectBroker { id: string; label: string; logo: string; fit?: 'contain'; account: string }
+/* account：mock 掩码账户号（连接成功后写入 Connected 区，格式仿 Figma「3***4」） */
+interface ConnectBroker { id: string; label: string; logo: string; fit?: 'contain'; bg?: string; account: string }
 const CONNECT_BROKERS: ConnectBroker[] = [
   { id: 'robinhood', label: 'Robinhood', logo: `${BASE}logo-broker-round-robinhood.svg`, account: 'RH2***4021' },
   { id: 'ibkr', label: 'IBKR', logo: `${BASE}logo-broker-ibkr.svg`, fit: 'contain', account: 'U29***7746' },
@@ -102,6 +105,16 @@ const CONNECT_BROKERS: ConnectBroker[] = [
   { id: 'hyperliquid', label: 'Hyperliquid', logo: `${BASE}logo-broker-round-hyperliquid.svg`, account: '0x9***a4F1' },
   { id: 'webull-us', label: 'Webull', logo: `${BASE}logo-broker-connect-webull.png`, account: 'WB5***8830' },
 ];
+
+/* Choose more/弹窗侧券商的 mock 账号掩码：预置常见几家，其余按 id 确定性生成 */
+const EXTRA_ACCOUNTS: Record<string, string> = {
+  binance: '177***8896', alpaca: 'PA3***6WQT', okx: 'OK4***2210', coinbase: 'CB8***9034', etoro: 'ET6***1187', kraken: 'KR2***5563',
+};
+const mockMask = (id: string) => {
+  let n = 7;
+  for (const ch of id) n = (n * 31 + ch.charCodeAt(0)) >>> 0;
+  return `${(n % 900) + 100}***${(n % 9000) + 1000}`;
+};
 
 interface ConnAccount { id: number; broker: ConnectBroker; on: boolean }
 
@@ -121,16 +134,16 @@ const SCOPED_CSS = `
 .pb-chipx:hover { opacity:.6; }
 `;
 
-/* 单选圆点：选中=teal 实心 + 白心；未选=l3 描边空心 */
+/* 单选圆点（Figma Radio Box 9888:526448/526449）：选中=m1 实心 + 白心(inset 32.5%)；未选=grey/g1 实心 */
 function Radio({ on }: { on: boolean }) {
   if (on) {
     return (
       <span className="flex shrink-0 items-center justify-center rounded-full" style={{ width: 16, height: 16, background: TEAL }}>
-        <span className="rounded-full bg-white" style={{ width: 6, height: 6 }} />
+        <span className="rounded-full bg-white" style={{ width: 5.6, height: 5.6 }} />
       </span>
     );
   }
-  return <span className="shrink-0 rounded-full" style={{ width: 16, height: 16, border: `1.4px solid ${L3}`, boxSizing: 'border-box' }} />;
+  return <span className="shrink-0 rounded-full" style={{ width: 16, height: 16, background: 'var(--grey-g1, #DEDEDE)' }} />;
 }
 
 /* chip 里 18px 圈 logo（1px 白描边，同 WatchlistBuilder） */
@@ -142,18 +155,19 @@ function RingLogo({ ticker }: { ticker: string }) {
   );
 }
 
-/* brokerage 网格 32px 圆标：整圆品牌图铺满；glyph（ibkr）白底居中缩放 */
-function BrokerMark({ broker }: { broker: ConnectBroker }) {
+/* brokerage 圆标（默认 32px）：整圆品牌图铺满；glyph（ibkr）白底居中缩放。size 供 footer chip 复用 18px */
+function BrokerMark({ broker, size = 32 }: { broker: ConnectBroker; size?: number }) {
   const contain = broker.fit === 'contain';
+  const inner = contain ? Math.round(size * 0.69) : size;
   return (
     <span
       className="flex shrink-0 items-center justify-center overflow-hidden rounded-full"
-      style={{ width: 32, height: 32, background: '#fff', border: contain ? `0.5px solid ${L12}` : undefined }}
+      style={{ width: size, height: size, background: broker.bg ?? '#fff', border: contain ? `0.5px solid ${L12}` : undefined }}
     >
       <img
         src={broker.logo}
         alt=""
-        style={{ width: contain ? 22 : 32, height: contain ? 22 : 32, objectFit: contain ? 'contain' : 'cover', borderRadius: contain ? 0 : '50%' }}
+        style={{ width: inner, height: inner, objectFit: contain ? 'contain' : 'cover', borderRadius: contain ? 0 : '50%' }}
       />
     </span>
   );
@@ -189,11 +203,13 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
   const [editing, setEditing] = useState<number | null>(null);
   const [uploads, setUploads] = useState<string[]>([]);
   const [connected, setConnected] = useState<ConnAccount[]>([]);
+  /* 打开中的连接弹窗：{brokerId} 直达该券商 configure 二级屏；{} 从 select 全列表开始；null 关闭 */
+  const [connectTarget, setConnectTarget] = useState<{ brokerId?: string } | null>(null);
   const poolRef = useRef(0);
   const idRef = useRef(0);
 
-  /* 三个 source 是独立流程:各自维护独立 state(manual→chosen+visible / upload→uploads / brokerage→connected),
-     切换只换视图不清空,切回来保留原选择;底部展示按 source 分流,互不串味 */
+  /* 两个 source 独立维护 state(manual→chosen+visible+uploads / brokerage→connected),
+     切换只换视图不清空,切回保留原选择;footer 展示按 source 分流,互不串味 */
 
   /* 点 + ：加入下方 chip，并把该格刷成池中下一个未出现的标的 */
   const addTicker = (i: number) => {
@@ -226,17 +242,27 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
     setUploads((prev) => [...prev, ...Array.from(files).map((f) => f.name)]);
   };
 
-  /* brokerage mock：点某家券商即视为连接成功，写入 Connected 区并默认选中（不接真实弹窗流程） */
-  const connectBroker = (b: ConnectBroker) => {
-    setConnected((prev) => (prev.some((c) => c.broker.id === b.id) ? prev : [...prev, { id: ++idRef.current, broker: b, on: true }]));
+  /* 弹窗连接成功 → 账户落 Connected 区并选中；已存在则仅重新选中。
+     7 家网格外的券商（Choose more 里连的）用弹窗侧导出的展示信息 + mock 账号掩码 */
+  const addConnectedAccount = (brokerId: string) => {
+    let info = CONNECT_BROKERS.find((b) => b.id === brokerId);
+    if (!info) {
+      const d = brokerDisplayInfo(brokerId);
+      if (!d) return;
+      info = { id: d.id, label: d.name, logo: d.logo, fit: d.plain ? ('contain' as const) : undefined, bg: d.bg, account: EXTRA_ACCOUNTS[d.id] ?? mockMask(d.id) };
+    }
+    const found = info;
+    setConnected((prev) => prev.some((c) => c.broker.id === found.id)
+      ? prev.map((c) => (c.broker.id === found.id ? { ...c, on: true } : c))
+      : [...prev, { id: ++idRef.current, broker: found, on: true }]);
   };
   const toggleConn = (id: number) => setConnected((prev) => prev.map((c) => (c.id === id ? { ...c, on: !c.on } : c)));
 
   const hasChosen = chosen.length > 0;
   const selectedConns = connected.filter((c) => c.on);
-  const canStart = source === 'upload' ? uploads.length > 0
-    : source === 'brokerage' ? selectedConns.length > 0
-    : hasChosen;
+  /* manual 含 upload：选了标的或传了截图都可开始 */
+  const canStart = source === 'brokerage' ? selectedConns.length > 0
+    : hasChosen || uploads.length > 0;
   const handleStart = () => {
     if (!canStart) return;
     onStart?.(chosen.map((c) => ({ symbol: c.symbol, qty: c.qty })));
@@ -267,6 +293,7 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
         </div>
 
         {source === 'manual' ? (
+          <>
           <div className="grid w-full" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
             {visible.map((t, i) => (
               <button
@@ -301,26 +328,26 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
               <span className="truncate" style={tx(14, 22, N9)}>Choose more</span>
             </button>
           </div>
-        ) : source === 'upload' ? (
-          /* upload（Figma 9888:234822）：cloud icon + 格式提示的拖拽/点选上传区 */
+          {/* 网格底部并入的 upload 区（Figma 10127:27791）：upload-l + 「Or upload screenshots」，py24 */}
           <label
-            className="pb-src flex w-full cursor-pointer flex-col items-center justify-center gap-[4px] px-[16px] py-[32px]"
+            className="pb-src flex w-full cursor-pointer flex-col items-center justify-center gap-[4px] px-[16px] py-[24px]"
             style={{ borderBottom: CELL_BORDER }}
           >
             <input
               type="file"
-              accept="image/png,image/jpeg,image/heic"
+              accept="image/png,image/jpeg,image/webp"
               multiple
               className="hidden"
               onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }}
             />
             <CdnIcon name="upload-l" size={24} color={N5} />
-            <p className="max-w-full truncate text-center" style={tx(12, 20, N5)}>
+            <p className="mx-auto max-w-full truncate text-center" style={{ ...tx(12, 20, N5), width: 392 }}>
               {uploads.length
                 ? `${uploads.length} screenshot${uploads.length > 1 ? 's' : ''} ready · tap to add more`
-                : 'PNG, JPG, or HEIC · up to 10 MB each'}
+                : 'Or upload screenshots. (PNG, JPG, or WEBP)'}
             </p>
           </label>
+          </>
         ) : (
           /* brokerage（Figma 8563:237957）：4×2 券商网格 + Choose more（连接流程暂未接入） */
           <div className="grid w-full" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
@@ -328,7 +355,7 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
               <button
                 key={b.id}
                 type="button"
-                onClick={() => connectBroker(b)}
+                onClick={() => setConnectTarget({ brokerId: b.id })}
                 className="pb-cell flex min-w-0 cursor-pointer items-center gap-[12px] border-none text-left"
                 style={{ background: 'transparent', padding: '12px 16px', borderBottom: CELL_BORDER, borderRight: i % 4 !== 3 ? CELL_BORDER : undefined }}
               >
@@ -339,9 +366,10 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
                 </span>
               </button>
             ))}
-            {/* Choose more（第 8 格，占 row2 col4） */}
+            {/* Choose more（第 8 格，占 row2 col4）— 打开 Connect Account 弹窗全列表 */}
             <button
               type="button"
+              onClick={() => setConnectTarget({})}
               className="pb-cell flex min-w-0 cursor-pointer items-center gap-[12px] border-none text-left"
               style={{ background: 'transparent', padding: '12px 16px', borderBottom: CELL_BORDER }}
             >
@@ -359,14 +387,15 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
             <div className="flex w-full items-center px-[16px] py-[12px]" style={{ borderBottom: CELL_BORDER }}>
               <span className="min-w-0 flex-1 truncate" style={tx(14, 22, N9)}>Connected</span>
             </div>
-            <div className="grid w-full" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+            {/* 1 个账户填满整行，≥2 平分两列 */}
+            <div className="grid w-full" style={{ gridTemplateColumns: `repeat(${connected.length > 1 ? 2 : 1}, minmax(0, 1fr))` }}>
               {connected.map((c, i) => (
                 <button
                   key={c.id}
                   type="button"
                   onClick={() => toggleConn(c.id)}
                   className="flex min-w-0 cursor-pointer items-center gap-[12px] border-none text-left"
-                  style={{ background: c.on ? TEAL10 : 'transparent', padding: '12px 16px', borderBottom: CELL_BORDER, borderRight: i % 2 === 0 ? CELL_BORDER : undefined }}
+                  style={{ background: c.on ? TEAL10 : 'transparent', padding: '12px 16px', borderBottom: CELL_BORDER, borderRight: connected.length > 1 && i % 2 === 0 ? CELL_BORDER : undefined }}
                 >
                   <span className="relative shrink-0" style={{ width: 32, height: 32 }}>
                     <BrokerMark broker={c.broker} />
@@ -417,6 +446,21 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
             </div>
           )}
 
+          {/* brokerage：选中的已连账户以 chip 展示（Figma tab2「Binance · 177***8896 ×」），× 取消选中 */}
+          {source === 'brokerage' && selectedConns.length > 0 && (
+            <div className="flex w-full flex-wrap items-start gap-[4px]">
+              {selectedConns.map((c) => (
+                <span key={c.id} className="flex items-center gap-[8px] overflow-hidden" style={{ background: BR03, borderRadius: 6, padding: '4px 8px' }}>
+                  <BrokerMark broker={c.broker} size={18} />
+                  <span className="whitespace-nowrap" style={tx(12, 20, N9)}>{c.broker.label} · {c.broker.account}</span>
+                  <button type="button" onClick={() => toggleConn(c.id)} className="pb-chipx shrink-0 cursor-pointer border-none bg-transparent p-0" aria-label={`Remove ${c.broker.label}`}>
+                    <CdnIcon name="close-l1" size={12} color={N5} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="flex w-full items-center gap-[20px]">
             <div className="flex min-w-0 flex-1 items-center gap-[8px]">
               <span className="shrink-0" style={tx(12, 20, N7)}>Language</span>
@@ -441,6 +485,17 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
           </div>
         </div>
       </div>
+
+      {/* 券商连接走真实弹窗流程：格子 → 该券商 configure 二级屏；Choose more → select 全列表。
+          成功回填 Connected 区；流程内绑定成功屏无按钮、3s 自动关（successAutoClose，Figma 11164:7409） */}
+      <ConnectAccountModal
+        open={connectTarget !== null}
+        initialStep={connectTarget?.brokerId ? 'configure' : 'select'}
+        initialBrokerId={connectTarget?.brokerId}
+        onClose={() => setConnectTarget(null)}
+        onConnected={addConnectedAccount}
+        successAutoClose
+      />
     </>
   );
 }

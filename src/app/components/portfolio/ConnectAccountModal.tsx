@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { AlvaLoading } from '@/app/components/shared/AlvaLoading';
 
@@ -91,10 +92,9 @@ const BROKERS: BrokerDef[] = [
 const LIVE_TRADING_ORDER = ['robinhood', 'binance', 'okx', 'hyperliquid'];
 const LIVE_TRADING = new Set(LIVE_TRADING_ORDER);
 
-/** 供 channel 绑定后引导复用：券商名 + 是否具备 Live Trading 权限 */
-export function brokerConnectInfo(id: string): { name: string; live: boolean } {
-  const b = BROKERS.find((x) => x.id === id);
-  return { name: b?.name ?? id, live: LIVE_TRADING.has(id) };
+/** 供 PortfolioBuilder 等外部复用：按 id 取券商展示信息（logo 渲染参数与本弹窗券商列表一致） */
+export function brokerDisplayInfo(id: string): { id: string; name: string; logo: string; plain?: boolean; bg?: string } | undefined {
+  return BROKERS.find((x) => x.id === id);
 }
 
 /** 圆形 broker logo：品牌 svg 直接铺满；favicon 白底圆容器内缩 72% */
@@ -137,6 +137,8 @@ export interface ConnectAccountModalProps {
   onConnected?: (brokerId: string, access: 'trading' | 'readonly') => void;
   /** 提供则成功屏主 CTA 为「Set up Portfolio Watch」（channel 未设 watch 场景）；缺省为 Done */
   onSetupWatch?: () => void;
+  /** 成功屏无按钮、3s 倒计时自动关闭（Figma 11164:7409，builder 流程内绑定场景）；优先于 onSetupWatch */
+  successAutoClose?: boolean;
   /** 仅供原型/预览直达某一步 */
   initialStep?: Step;
   initialBrokerId?: string;
@@ -407,7 +409,7 @@ function trapTab(e: KeyboardEvent, root: HTMLElement | null) {
 /* ========== 主组件 ========== */
 
 export function ConnectAccountModal({
-  open, onClose, onConnected, onSetupWatch,
+  open, onClose, onConnected, onSetupWatch, successAutoClose,
   initialStep = 'select', initialBrokerId, initialAccountType = 'paper',
 }: ConnectAccountModalProps) {
   const [step, setStep] = useState<Step>(initialStep);
@@ -458,19 +460,21 @@ export function ConnectAccountModal({
     return () => clearTimeout(t);
   }, [step, viewTransitioning]);
 
-  /* 出场：先播 0.18s 退场动效，再真正卸载 */
-  const requestClose = () => {
-    setClosing(true);
-    timers.current.push(setTimeout(() => { setClosing(false); onClose(); }, 180));
-  };
-  const requestCloseRef = useRef(requestClose);
-  requestCloseRef.current = requestClose;
-
   const fireConnected = () => {
     if (connectedFiredRef.current) return;
     connectedFiredRef.current = true;
     onConnected?.(broker?.id ?? '', accessLevel);
   };
+
+  /* 出场：先播 0.18s 退场动效，再真正卸载。成功屏任何关闭路径（X / ESC / 遮罩 / 自动倒计时）
+     都先补发 onConnected——fired guard 保证恰好一次 */
+  const requestClose = () => {
+    if (step === 'success') fireConnected();
+    setClosing(true);
+    timers.current.push(setTimeout(() => { setClosing(false); onClose(); }, 180));
+  };
+  const requestCloseRef = useRef(requestClose);
+  requestCloseRef.current = requestClose;
 
   /* 打开时重置到入口步骤；锁滚动 + ESC 关闭 */
   useEffect(() => {
@@ -510,16 +514,21 @@ export function ConnectAccountModal({
       const last = lastFocusedRef.current as HTMLElement | null;
       if (last && typeof last.focus === 'function') last.focus();
     };
-  }, [open, initialStep, initialBrokerId, initialAccountType, onClose]);
+    /* 依赖刻意不含 onClose（体内只经 requestCloseRef 间接使用）：父组件传内联箭头时每次重渲染都是新引用，
+       曾导致 Done → onConnected → 父 setState → effect 重跑,清掉 180ms 关闭 timer 并把 step 弹回 initialStep */
+  }, [open, initialStep, initialBrokerId, initialAccountType]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* 结果态：cancelled / timeout 5s 倒计时自动消失；success 为 capability 常驻屏（读完自行走 CTA / 关闭）；
+  /* 结果态：cancelled / timeout 5s 倒计时自动消失；success 缺省为 capability 常驻屏（读完自行走 CTA / 关闭），
+     successAutoClose 时 3s 倒计时自动关（Figma 11164:7409）——requestClose 内部会对 success 补发 onConnected。
      failed 驻留并提供 Try again。依赖含 open：关闭时清掉残留定时器 */
   useEffect(() => {
     if (!open) return;
-    if (step !== 'timeout' && step !== 'cancelled') return;
-    setCountdown(5);
+    const autoSuccess = step === 'success' && !!successAutoClose;
+    if (step !== 'timeout' && step !== 'cancelled' && !autoSuccess) return;
+    const secs = autoSuccess ? 3 : 5;
+    setCountdown(secs);
     const iv = setInterval(() => setCountdown((c) => Math.max(0, c - 1)), 1000);
-    const done = setTimeout(() => { requestCloseRef.current(); }, 5000);
+    const done = setTimeout(() => { requestCloseRef.current(); }, secs * 1000);
     return () => { clearInterval(iv); clearTimeout(done); };
   }, [step, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -597,7 +606,7 @@ export function ConnectAccountModal({
           </div>
           <p className="text-[12px] leading-[20px] tracking-[0.12px] w-full" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
             {isLive
-              ? 'Trade with Alva in any channel — every order needs your approval.'
+              ? 'Trade with Alva in any channel — you approve each order, or bind a playbook to trade automatically.'
               : 'Alva can view, analyze, and monitor — it never places orders.'}
           </p>
         </div>
@@ -616,7 +625,7 @@ export function ConnectAccountModal({
      失败态另由可见文案的 role="alert" 断言式播报，故此处留空避免重复。 */
   const liveMessage =
     step === 'connecting' ? `Connecting to ${screenBroker.name}…`
-    : step === 'success' ? 'Account connected.'
+    : step === 'success' ? `${screenBroker.name} connected.`
     : step === 'cancelled' ? 'Connection cancelled. No account was added.'
     : step === 'timeout' ? 'Connection timed out.'
     : '';
@@ -628,8 +637,19 @@ export function ConnectAccountModal({
   const accessChip = accessLevel === 'readonly'
     ? <ConfigChip icon={`${BASE}icon-swap-off-l.svg`} label="Read-only" tone="muted" />
     : <ConfigChip icon="swap-l" label="Trading" tone="m3" />;
+  /* 成功屏内容件。能力句按 access level 两分：chip 说"是什么"，这句说"意味着什么"；paper/live 不拆文案。
+     CTA 版顺序 chips → 能力句；autoClose 版按 Figma 11164:7409 为 能力句 → chips */
+  const capabilityLine = (
+    <p className="w-full text-center text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+      {accessLevel === 'readonly'
+        ? 'Alva can view, analyze, and monitor this account.'
+        : 'You can now trade with Alva in any channel — you approve each order, or bind a playbook to trade automatically.'}
+    </p>
+  );
+  const chipsRow = <div className="flex items-center gap-[8px]">{accountChip}{accessChip}</div>;
 
-  return (
+  /* portal 到 body：嵌进聊天消息树等带 transform/overflow 的祖先时，fixed 遮罩仍覆盖全屏不被裁 */
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center px-[16px] max-sm:items-end max-sm:px-0"
       style={{
@@ -673,7 +693,7 @@ export function ConnectAccountModal({
 
         {/* ---- Step 1–3 · 同一弹窗，内部 push 跳屏：第二屏从右侧滑入，卡片列表后退 ---- */}
         {(step === 'select' || inSetup) && (
-          <div ref={sheetRef} className="relative w-[436px] max-w-[calc(100vw-32px)] rounded-[8px] overflow-hidden max-h-[min(640px,calc(100vh-64px))] max-sm:w-full max-sm:max-w-full max-sm:rounded-[12px] max-sm:rounded-b-none max-sm:max-h-[calc(100dvh-56px)]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0px 10px 20px 0px rgba(0,0,0,0.08)' }}>
+          <div ref={sheetRef} className="relative w-[436px] max-w-[calc(100vw-32px)] rounded-[8px] overflow-hidden max-h-[min(720px,calc(100vh-64px))] max-sm:w-full max-sm:max-w-full max-sm:rounded-[12px] max-sm:rounded-b-none max-sm:max-h-[calc(100dvh-56px)]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0px 10px 20px 0px rgba(0,0,0,0.08)' }}>
 
             {/* 移动端拖拽条（设计稿 Bottom Sheet Items 36×4 br07） */}
             <div className="sm:hidden absolute top-0 left-0 right-0 h-[12px] z-10 flex items-end justify-center pointer-events-none">
@@ -854,48 +874,57 @@ export function ConnectAccountModal({
           </ResultShell>
         )}
 
+        {/* success — 设计稿 Success Dialog 11136:27920：broker 徽章 + 配置 chips + 能力告知，底部 Portfolio Watch 引导卡 */}
         {step === 'success' && (
-          <ResultShell onClose={() => { fireConnected(); requestClose(); }} containerRef={sheetRef}>
-            {/* capability 屏（Figma V2 分组文案反向复用）。hero = broker logo + 绿勾角标，
-                合并原「成功大图标 / Account Connected / 券商行」三段 */}
-            <div className="flex flex-col gap-[20px] items-center justify-center w-full">
+          <div
+            ref={sheetRef}
+            className="relative flex h-[436px] w-[436px] max-w-[calc(100vw-32px)] flex-col items-center overflow-hidden rounded-[12px] p-[28px] max-sm:h-auto max-sm:min-h-[70dvh] max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none"
+            style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+          >
+            {/* 移动端拖拽条 */}
+            <div className="sm:hidden absolute top-0 left-0 right-0 h-[12px] flex items-end justify-center pointer-events-none">
+              <div className="w-[36px] h-[4px] rounded-[4px]" style={{ background: 'rgba(0, 0, 0, 0.07)' }} />
+            </div>
+            <CloseButton onClick={() => { fireConnected(); requestClose(); }} className="absolute top-[28px] right-[28px] z-10" />
+            {/* 能力告知区 — 占满剩余高度垂直居中 */}
+            <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-[24px]">
               <div aria-hidden="true" className="relative" style={{ animation: 'connect-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
-                <BrokerLogo broker={screenBroker} size={56} />
-                <span className="absolute -bottom-[2px] -right-[2px] flex size-[20px] items-center justify-center rounded-full" style={{ background: 'var(--main-m3, #2a9b7d)', border: '2px solid #fff' }}>
-                  <CdnIcon name="check-l2" size={11} color="#fff" />
+                <BrokerLogo broker={screenBroker} size={64} />
+                <span className="absolute bottom-0 right-[-4px] flex size-[24px] items-center justify-center rounded-full" style={{ background: 'var(--b0-container, #fff)' }}>
+                  <CdnIcon name="check-f2" size={24} color="var(--main-m3, #2a9b7d)" />
                 </span>
               </div>
-              <div className="flex flex-col gap-[8px] items-center">
-                <p className="text-[20px] leading-[30px] tracking-[0.2px] text-center" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              <div className="flex w-full flex-col items-center gap-[8px]" style={{ fontFamily: FONT }}>
+                <p className="w-full text-center text-[20px] leading-[30px] tracking-[0.2px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                   {screenBroker.name} Connected
                 </p>
-                {accessLevel === 'trading'
-                  ? <ConfigChip icon="swap-l" label="Live Trading" tone="m1" />
-                  : <ConfigChip icon={`${BASE}icon-swap-off-l.svg`} label="Read Only" tone="muted" />}
-              </div>
-              <p className="text-[14px] leading-[22px] tracking-[0.14px] text-center w-full" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-                {accessLevel === 'trading'
-                  ? 'You can now trade with Alva in any channel — every order needs your approval.'
-                  : 'Alva can now view, analyze, and monitor this account — it never places orders.'}
-              </p>
-              <div className="flex flex-col gap-[10px] items-center w-full pt-[4px]">
-                <PrimaryButton
-                  label={onSetupWatch ? 'Set up Portfolio Watch' : 'Done'}
-                  onClick={() => { fireConnected(); requestClose(); onSetupWatch?.(); }}
-                />
-                {onSetupWatch && (
-                  <button
-                    type="button"
-                    onClick={() => { fireConnected(); requestClose(); }}
-                    className="border-none bg-transparent p-0 cursor-pointer text-[13px] leading-[20px] tracking-[0.13px] hover:opacity-70 transition-opacity"
-                    style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}
-                  >
-                    Not now
-                  </button>
-                )}
+                {successAutoClose ? <>{capabilityLine}{chipsRow}</> : <>{chipsRow}{capabilityLine}</>}
               </div>
             </div>
-          </ResultShell>
+            {/* 收口三态：autoClose → 倒计时行；未设 watch → Onboard 卡进 Portfolio Watch 流；已设过 → Done */}
+            {successAutoClose ? (
+              <p className="w-full shrink-0 text-center text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                Closing in {countdown}s
+              </p>
+            ) : onSetupWatch ? (
+              <button
+                type="button"
+                className="flex w-full shrink-0 cursor-pointer items-center gap-[8px] rounded-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[rgba(0,0,0,0.02)]"
+                style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', fontFamily: FONT }}
+                onClick={() => { fireConnected(); requestClose(); onSetupWatch(); }}
+              >
+                <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                  <span className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>💼  Watch your portfolio 24/7</span>
+                  <span className="w-full text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>I’ll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.</span>
+                </span>
+                <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
+              </button>
+            ) : (
+              <div className="w-full shrink-0">
+                <PrimaryButton label="Done" onClick={() => { fireConnected(); requestClose(); }} />
+              </div>
+            )}
+          </div>
         )}
 
         {step === 'cancelled' && (
@@ -941,6 +970,7 @@ export function ConnectAccountModal({
         )}
 
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

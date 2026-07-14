@@ -38,6 +38,7 @@ export const PAGE_CONTEXT_MAP: Record<string, ContextTagData | null> = {
   explore: { label: 'Explore', icon: 'sidebar-discover-normal' },
   'explore-2': { label: 'Explore', icon: 'sidebar-discover-normal' },
   agent: null,
+  automations: null,
   'new-chat': null,
   'new-chat-opt2': null,
 };
@@ -56,7 +57,7 @@ export const PAGE_TITLES: Record<string, string> = {
   pricing: 'Pricing',
   'creator-earnings': 'Creator Earnings',
   'api-keys': 'API Keys',
-  notifications: 'Notifications',
+  automations: 'Automations',
   billing: 'Billing',
   'alva-agent': 'Alva',
   'portfolio-settings': 'Portfolio',

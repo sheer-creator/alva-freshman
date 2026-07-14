@@ -15,10 +15,11 @@ import { AgentTasksPanel, AGENT_TASKS } from '@/app/components/agent/AgentTasksP
 import { AgentArtifactsPanel, AGENT_ARTIFACTS } from '@/app/components/agent/AgentArtifactsPanel';
 import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/components/agent/AgentAlertsPanel';
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
-import { ConnectAccountModal, brokerConnectInfo } from '@/app/components/portfolio/ConnectAccountModal';
+import { ConnectAccountModal } from '@/app/components/portfolio/ConnectAccountModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
+import { hasPortfolioWatchEnabled, setPortfolioWatchEnabled } from '@/lib/portfolio-watch';
 import { ChannelSeedThread } from '@/app/components/agent/ChannelSeedThread';
 import { EMPTY_PROMPTS, EmptyPromptPill } from '@/app/components/chat/PlaybookSuggestions';
 import { SEED_CHANNEL_ID, channelsStore } from '@/app/state/channels';
@@ -70,7 +71,7 @@ const ONBOARD_CARDS: OnboardCard[] = [
     id: 'portfolio-digest',
     emoji: '💼',
     title: 'Watch your portfolio 24/7',
-    desc: "Tell me what you hold. I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.",
+    desc: "I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.",
     prompt: "Watch my portfolio 24/7 — tell me what you hold and I'll flag the moves, risks, and catalysts worth your attention",
     taskTitle: 'Automation: Portfolio Watch',
   },
@@ -83,10 +84,18 @@ const ONBOARD_CARDS: OnboardCard[] = [
     taskTitle: 'Automation: FinTwit Digest',
   },
   {
+    id: 'screener',
+    emoji: '🔍',
+    title: 'Screen the market on your rules',
+    desc: "Set your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.",
+    prompt: 'Screen the market on my rules — set my criteria once and message me only when new names qualify',
+    taskTitle: 'Automation: Smart Screener',
+  },
+  {
     id: 'custom-automation',
     emoji: '⚙️',
-    title: 'Build your own automations',
-    desc: "Describe any rule in plain English — a price trigger, a screener, a scheduled digest — and I'll run it for you and push every result here.",
+    title: 'Build you own automations',
+    desc: "Tell me what you want Alva to monitor and when it should run. I'll help shape it into a reliable automation.",
     prompt: 'Help me build my own automation — I want to describe a rule and have you run it on a schedule',
     taskTitle: 'Automation: Custom',
   },
@@ -316,10 +325,7 @@ type ExtraMsg =
   | { id: number; role: 'subpush'; title: string; push?: string; automation: string }
   | { id: number; role: 'answer'; text: string }
   /* Start Watching 的 Alva 确认回复:正文 + (未连接时)内嵌「选择推送渠道」卡片(Figma 8341:126245) */
-  | { id: number; role: 'watchreply'; text: string }
-  /* 券商绑定后的能力引导:权限感知(Live Trading / Read Only) + Portfolio Watch CTA。
-     刻意不 set started —— 开场 onboard 卡保留(与连 IM 推 answer 消息同理) */
-  | { id: number; role: 'brokerconn'; brokerName: string; live: boolean };
+  | { id: number; role: 'watchreply'; text: string };
 
 /* Onboard 两个独立 flow 的 URL 后缀：#agent?flow=portfolio / #agent?flow=fintwit，
    支持刷新 / 深链直达；沿用本仓 #agent?tab= 的 query 后缀约定（App 路由只认 ? 之前的 agent） */
@@ -453,6 +459,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
   /* Start Watching → 收起 builder + onboard 空态 → 一条 Alva 确认回复(内嵌「选择推送渠道」卡片,未连接才显示),无用户气泡 */
   const onStartWatching = useCallback((_picks: { symbol: string; qty: string }[]) => {
+    setPortfolioWatchEnabled(true);
     closeFlow();
     setStarted(true);
     /* mock 成 populated 列表:整套 AGENT_ALERTS + 末尾追加本次新建的 portfolio watch */
@@ -567,7 +574,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         {/* IM Select — Figma 7887:111979 / 30785:4976:已连接显示账号名 + 6px m3 状态点;未连接态(30785:4983)为主色实心 Connect IM;点击都打开连接 modal */}
         {activeIm ? (
           <button
-            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[4px] rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px] py-[6px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
             style={{ fontFamily: FONT, border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
             onClick={() => setImModalOpen(true)}
           >
@@ -583,14 +590,14 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             style={{ fontFamily: FONT, background: 'var(--main-m1, #49A3A6)' }}
             onClick={() => setImModalOpen(true)}
           >
-            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white">
-              Connect IM
-            </span>
-            {/* stacked IM logos — Figma 31041:15488/89/90:16px 圆形,白描边,-8px 叠压,telegram 在前 */}
+            {/* stacked IM logos 前置 — Figma 11138:207263:16px 圆形,白描边,-8px 叠压,telegram 在前,文字在后 */}
             <span className="flex shrink-0 items-center">
               <img src={`${base}logo-social-telegram.svg`} alt="" className="relative z-[3] size-[16px] rounded-full border-[0.5px] border-white" />
               <img src={`${base}logo-social-discord.svg`} alt="" className="relative z-[2] -ml-[8px] size-[16px] rounded-full border-[0.5px] border-white" />
               <img src={`${base}logo-social-slack.svg`} alt="" className="relative z-[1] -ml-[8px] size-[16px] rounded-full border-[0.5px] border-white bg-white" />
+            </span>
+            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white">
+              Connect IM
             </span>
           </button>
         )}
@@ -719,47 +726,6 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <MsgIn key={m.id}>
                     <AgentMsg time="now">
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
-                    </AgentMsg>
-                    </MsgIn>
-                  );
-                }
-                /* brokerconn — 券商绑定后的能力引导：权限 chip + 能力说明 + Portfolio Watch CTA（不 set started，开场卡保留） */
-                if (m.role === 'brokerconn') {
-                  return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                        You're connected to <span style={{ fontWeight: 500 }}>{m.brokerName}</span>.{' '}
-                        {m.live ? 'This unlocks live trading in every channel.' : 'I can read this account across every channel now.'}
-                      </p>
-                      <div
-                        className="flex w-full flex-col gap-[10px] rounded-[8px] py-[12px] pl-[16px] pr-[12px]"
-                        style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
-                      >
-                        <span
-                          className="flex w-fit items-center gap-[4px] rounded-[4px] px-[8px] py-[2px]"
-                          style={{ background: m.live ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : 'rgba(0,0,0,0.05)' }}
-                        >
-                          <CdnIcon name={m.live ? 'swap-l' : `${base}icon-swap-off-l.svg`} size={14} color={m.live ? 'var(--main-m1, #49A3A6)' : 'var(--text-n5, rgba(0,0,0,0.5))'} />
-                          <span className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: m.live ? 'var(--main-m1, #49A3A6)' : 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-                            {m.live ? 'Live Trading' : 'Read Only'}
-                          </span>
-                        </span>
-                        <p className="text-[13px] leading-[20px] tracking-[0.13px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>
-                          {m.live
-                            ? "Discuss ideas with me and I'll draft the orders — every execution still needs your approval. Next, tell me what you hold so I can watch it for you."
-                            : "I can view, analyze, and monitor this account — I'll never place orders. Next, set up a Portfolio Watch so I can flag the moves worth your attention."}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => openFlow('portfolio')}
-                          className="flex h-[36px] w-fit cursor-pointer items-center gap-[6px] rounded-[6px] border-none px-[16px] transition-opacity hover:opacity-90"
-                          style={{ background: 'var(--main-m1, #49A3A6)' }}
-                        >
-                          <span className="whitespace-nowrap text-[13px] font-medium leading-[20px] tracking-[0.13px] text-white" style={{ fontFamily: FONT }}>Set up Portfolio Watch</span>
-                          <CdnIcon name="arrow-right-l1" size={14} color="#ffffff" />
-                        </button>
-                      </div>
                     </AgentMsg>
                     </MsgIn>
                   );
@@ -941,17 +907,13 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       <ConnectAccountModal
         open={brokerModalOpen}
         onClose={() => setBrokerModalOpen(false)}
-        onConnected={(id, access) => {
-          const info = brokerConnectInfo(id);
+        onConnected={() => {
+          /* 只更新连接态，不再推 brokerconn 引导消息——能力告知由弹窗成功屏承担，进 chat 不重复 */
           setBrokerConnected(true);
           setBrokerModalOpen(false);
-          /* 关键：推能力引导消息但不 set started —— 开场 onboard 卡保留，与连 IM 同理。
-             live 按用户实际授予的权限分叉（Live Trading 券商也可只给 Read-only） */
-          setExtra((prev) => [...prev, { id: ++idRef.current, role: 'brokerconn', brokerName: info.name, live: access === 'trading' }]);
-          scrollToEnd();
         }}
         /* 成功屏 capability CTA（绑定后引导第一层）；已设过 portfolio watch 则退化为 Done */
-        onSetupWatch={sessionAlerts.some((a) => a.id === PORTFOLIO_WATCH_ALERT.id) ? undefined : () => openFlow('portfolio')}
+        onSetupWatch={hasPortfolioWatchEnabled() || sessionAlerts.some((a) => a.id === PORTFOLIO_WATCH_ALERT.id) ? undefined : () => openFlow('portfolio')}
       />
 
       {imModalOpen && (

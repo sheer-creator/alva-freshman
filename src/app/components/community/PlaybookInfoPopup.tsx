@@ -216,11 +216,11 @@ export function PlaybookInfoPopup({
             <div
               role="button"
               tabIndex={0}
-              onClick={() => onNavigate('notifications')}
+              onClick={() => onNavigate('automations')}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  onNavigate('notifications');
+                  onNavigate('automations');
                 }
               }}
               className="px-[20px] w-full transition-colors cursor-pointer hover:bg-[rgba(0,0,0,0.02)]"
@@ -268,7 +268,7 @@ export function PlaybookInfoPopup({
           owner
           onManage={onNavigate ? () => {
             setActiveFeed(null);
-            onNavigate('notifications');
+            onNavigate('automations');
           } : undefined}
         />
       )}

@@ -38,6 +38,7 @@ export interface StrategyBinding {
   id: string;
   playbookName: string;
   author: string;
+  avatarName?: string;
   broker: string;
   mode: 'approval' | 'auto';
   status: 'active';
@@ -154,7 +155,7 @@ const STRATEGY_WEIGHTS_MACRO: WeightBar[] = [
 
 const STRATEGIES: StrategyBinding[] = [
   {
-    id: 'bind-1', playbookName: 'BTC Momentum v2', author: 'alice_crypto', broker: 'Binance',
+    id: 'bind-1', playbookName: 'BTC Momentum v2', author: 'alice_crypto', avatarName: 'YGGYLL', broker: 'Binance',
     mode: 'auto', status: 'active', lastRebalance: '6 hours ago', pendingOrders: 0,
     weights: STRATEGY_WEIGHTS_BTC,
   },
@@ -301,6 +302,23 @@ const IBKR_STRATEGY: StrategyBinding = {
 
 const BINANCE_STRATEGY: StrategyBinding = { ...STRATEGIES[0] };
 
+const ALPACA_POSITIONS: Position[] = [
+  { symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust', qty: 35, avgCost: 570, currentPrice: 582.40, marketValue: 20384, weight: 67.9, pnl: 434, pnlPercent: 2.18, account: 'Alpaca' },
+  { symbol: 'QQQ', name: 'Invesco QQQ Trust', qty: 12, avgCost: 500, currentPrice: 512.80, marketValue: 6153.60, weight: 20.5, pnl: 153.60, pnlPercent: 2.56, account: 'Alpaca' },
+  { symbol: 'IWM', name: 'iShares Russell 2000 ETF', qty: 10, avgCost: 205, currentPrice: 210.20, marketValue: 2102, weight: 7.0, pnl: 52, pnlPercent: 2.54, account: 'Alpaca' },
+];
+
+const ALPACA_STRATEGY: StrategyBinding = {
+  id: 'bind-alpaca', playbookName: 'Attribution Analysis Strategy', author: 'YGGYLL', broker: 'Alpaca',
+  mode: 'auto', status: 'active', lastRebalance: '1 day ago', pendingOrders: 0,
+  weights: [
+    { symbol: 'SPY', currentWeight: 0.68, targetWeight: 0.65, drift: 0.03 },
+    { symbol: 'QQQ', currentWeight: 0.21, targetWeight: 0.22, drift: -0.01 },
+    { symbol: 'IWM', currentWeight: 0.07, targetWeight: 0.08, drift: -0.01 },
+    { symbol: 'CASH', currentWeight: 0.04, targetWeight: 0.05, drift: -0.01 },
+  ],
+};
+
 function filterOrders(strategies: string[]): Order[] {
   return ORDERS.filter(o => strategies.includes(o.sourceStrategy));
 }
@@ -365,5 +383,15 @@ export const BROKER_PORTFOLIOS: BrokerPortfolio[] = [
     positions: BINANCE_POSITIONS, strategy: BINANCE_STRATEGY,
     orders: filterOrders(['BTC Momentum']),
     journal: filterJournal(['BTC Momentum']),
+  },
+  {
+    brokerId: 'alpaca-1', brokerName: 'Alpaca', brokerLabel: 'Alpaca',
+    accountId: 'PA****1234', totalEquity: 30000, todayPnl: 124, todayPnlPercent: 0.42,
+    equityCurve: generateCurve(27500, 30000, 0.014),
+    costBasis: generateCostBasis(27500),
+    benchmark: generateCurve(27500, 29300, 0.012),
+    positions: ALPACA_POSITIONS, strategy: ALPACA_STRATEGY,
+    orders: [],
+    journal: [],
   },
 ];

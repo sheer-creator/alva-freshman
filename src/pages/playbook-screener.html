@@ -2449,9 +2449,9 @@ window.__ALVA_OFFLINE_DATA__ = {
     document.addEventListener('playbook-feeds-viewall', function(){
       try {
         var top = window.top || window.parent;
-        if (top && top !== window.self) { top.location.hash = 'notifications'; return; }
+        if (top && top !== window.self) { top.location.hash = 'automations'; return; }
       } catch(e) {}
-      window.location.hash = 'notifications';
+      window.location.hash = 'automations';
     });
   }
 
@@ -2571,8 +2571,8 @@ window.__ALVA_OFFLINE_DATA__ = {
     });
     var settings = document.getElementById('feed-detail-settings');
     if (settings) settings.addEventListener('click', function(){
-      try { var top = window.top || window.parent; if (top && top !== window.self) { top.location.hash = 'notifications'; return; } } catch(e){}
-      window.location.hash = 'notifications';
+      try { var top = window.top || window.parent; if (top && top !== window.self) { top.location.hash = 'automations'; return; } } catch(e){}
+      window.location.hash = 'automations';
     });
   }
 
