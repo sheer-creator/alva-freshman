@@ -28,25 +28,6 @@ import { EditChannelModal } from '@/app/components/shared/EditChannelModal';
 
 const FONT = "'Delight', sans-serif";
 
-/* ========== tone 色板(Alva token + fallback)========== */
-
-type Tone = 'teal' | 'blue' | 'amber' | 'green' | 'orange';
-
-const TONE_FG: Record<Tone, string> = {
-  teal: 'var(--main-m1, #49A3A6)',
-  blue: 'var(--main-m2, #2196f3)',
-  amber: 'var(--main-m5, #E6A91A)',
-  green: 'var(--main-m3, #2a9b7d)',
-  orange: 'var(--main-m6, #ff9800)',
-};
-const TONE_BG: Record<Tone, string> = {
-  teal: 'var(--main-m1-10, rgba(73,163,166,0.1))',
-  blue: 'var(--main-m2-10, rgba(33,150,243,0.1))',
-  amber: 'var(--main-m5-10, rgba(230,169,26,0.1))',
-  green: 'var(--main-m3-10, rgba(42,155,125,0.1))',
-  orange: 'var(--main-m6-10, rgba(255,152,0,0.1))',
-};
-
 /* ========== 内联线性图标(CDN 无对应名的图形)========== */
 
 function Ic({ children, size = 16 }: { children: React.ReactNode; size?: number }) {
@@ -58,9 +39,7 @@ function Ic({ children, size = 16 }: { children: React.ReactNode; size?: number 
 }
 
 const P = {
-  link: <><path d="M10 14a4 4 0 0 0 6 .4l3-3a4 4 0 0 0-5.7-5.7l-1.6 1.6" /><path d="M14 10a4 4 0 0 0-6-.4l-3 3a4 4 0 0 0 5.7 5.7l1.6-1.6" /></>,
   automation: <path d="M13 3 5 13.5h5L9 21l8-10.5h-5z" />,
-  target: <><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /></>,
   bell: <><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" /><path d="M10.5 19a1.5 1.5 0 0 0 3 0" /></>,
 };
 
@@ -200,20 +179,49 @@ function EmptyPanel({ tabId }: { tabId: string }) {
 
 /* ========== 原子组件 ========== */
 
-function StatusPill({ state }: { state: 'running' | 'done' }) {
+/* 任务状态 tag（Figma Agent/Tag/Task 变体 Running m1 / Done m3）：h22 px6 py1 radius4 12px，无点 */
+function TaskTag({ state }: { state: 'running' | 'done' }) {
   const running = state === 'running';
   return (
     <span
-      className="flex h-[22px] shrink-0 items-center gap-[5px] rounded-full px-[8px] text-[11px] leading-[18px] tracking-[0.11px]"
+      className="shrink-0 rounded-[4px] px-[6px] py-[1px] text-[12px] leading-[20px] tracking-[0.12px]"
       style={{
         fontFamily: FONT,
         color: running ? 'var(--main-m1, #49A3A6)' : 'var(--main-m3, #2a9b7d)',
         background: running ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : 'var(--main-m3-10, rgba(42,155,125,0.1))',
       }}
     >
-      <span className="size-[5px] rounded-full" style={{ background: 'currentcolor' }} />
-      {running ? 'Running' : 'Live'}
+      {running ? 'Running' : 'Done'}
     </span>
+  );
+}
+
+/* 「Where should I send you alerts?」渠道卡（Figma AgentCardChat 9600:211514）—— watchreply 与 imrec 复用 */
+function AlertChannelsCard({ onConnect }: { onConnect: (id: string) => void }) {
+  const base = import.meta.env.BASE_URL;
+  return (
+    <div
+      className="flex w-full flex-col gap-[8px] rounded-[8px] py-[12px] pl-[16px] pr-[12px]"
+      style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+    >
+      <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+        Where should I send you alerts?
+      </p>
+      <div className="flex flex-wrap gap-[8px]">
+        {ALERT_CHANNELS.map((ch) => (
+          <button
+            key={ch.id}
+            type="button"
+            onClick={() => onConnect(ch.id)}
+            className="flex h-[40px] shrink-0 cursor-pointer items-center justify-center gap-[8px] rounded-[6px] border-none px-[20px] py-[9px] transition-opacity hover:opacity-90"
+            style={{ background: ch.bg }}
+          >
+            <img src={`${base}${ch.logo}`} alt="" className="size-[18px] shrink-0" />
+            <span className="whitespace-nowrap text-[14px] font-medium leading-[22px] tracking-[0.14px] text-white" style={{ fontFamily: FONT }}>{ch.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -656,7 +664,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.
                     </p>
                   </div>
-                  <PortfolioBuilder onStart={onStartWatching} />
+                  <PortfolioBuilder initialBrokerId={connectedBroker?.id} onStart={onStartWatching} />
                 </AgentMsg>
               </MsgIn>
             </div>
@@ -739,30 +747,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <MsgIn key={m.id}>
                     <AgentMsg time="now">
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
-                      {!connected && (
-                        <div
-                          className="flex w-full flex-col gap-[8px] rounded-[8px] py-[12px] pl-[16px] pr-[12px]"
-                          style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
-                        >
-                          <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                            Where should I send you alerts?
-                          </p>
-                          <div className="flex flex-wrap gap-[8px]">
-                            {ALERT_CHANNELS.map((ch) => (
-                              <button
-                                key={ch.id}
-                                type="button"
-                                onClick={() => connectIm(ch.id)}
-                                className="flex h-[40px] shrink-0 cursor-pointer items-center justify-center gap-[8px] rounded-[6px] border-none px-[20px] py-[9px] transition-opacity hover:opacity-90"
-                                style={{ background: ch.bg }}
-                              >
-                                <img src={`${base}${ch.logo}`} alt="" className="size-[18px] shrink-0" />
-                                <span className="whitespace-nowrap text-[14px] font-medium leading-[22px] tracking-[0.14px] text-white" style={{ fontFamily: FONT }}>{ch.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                      {!connected && <AlertChannelsCard onConnect={connectIm} />}
                     </AgentMsg>
                     </MsgIn>
                   );
@@ -791,22 +776,18 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   return (
                     <MsgIn key={m.id}>
                     <AgentMsg time="now">
-                      <div className="flex w-full flex-col gap-[6px] rounded-[8px] px-[12px] py-[10px]" style={{ border: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
-                        <div className="flex items-center gap-[8px]">
-                          <span className="flex size-[22px] shrink-0 items-center justify-center rounded-[6px]" style={{ background: isAuto ? TONE_BG.amber : TONE_BG.teal, color: isAuto ? TONE_FG.amber : TONE_FG.teal }}>
-                            <Ic size={12}>{isAuto ? P.automation : P.target}</Ic>
-                          </span>
-                          <p className="min-w-0 flex-1 truncate text-[13px] font-medium leading-[20px] tracking-[0.13px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.title}</p>
-                          <StatusPill state={m.state} />
+                      {/* 任务卡（Figma Agent/Card/Chat 8341:125818）：560 宽白底卡 — step-f 24(n2) + 标题 14 + 副行 12 n5 + 状态 tag */}
+                      <div className="flex w-full max-w-[560px] items-start gap-[8px] rounded-[8px] px-[16px] py-[12px]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+                        <CdnIcon name={`${base}icon-step-f.svg`} size={24} color="var(--text-n2, rgba(0,0,0,0.2))" />
+                        <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
+                          <p className="w-full truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.title}</p>
+                          <p className="w-full truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                            {done
+                              ? (isAuto ? 'Live — pushes will land here.' : 'Built and live — saved to Artifacts.')
+                              : "Background task — I'll post here when it's done."}
+                          </p>
                         </div>
-                        <p className="text-[12px] leading-[18px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-                          {done
-                            ? (isAuto ? 'Live — pushes will land here. ' : 'Built and live — saved to Artifacts. ')
-                            : "Background task — I'll post here when it's done. "}
-                          <button className="cursor-pointer border-none bg-transparent p-0 text-[12px] underline" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }} onClick={() => setTab(done ? 'artifacts' : 'tasks')}>
-                            {done ? 'View in Artifacts' : 'Track it in Tasks'}
-                          </button>
-                        </p>
+                        <TaskTag state={m.state} />
                       </div>
                     </AgentMsg>
                     </MsgIn>
@@ -819,24 +800,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                       One more thing — this agent only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires.
                     </p>
-                    <div className="flex flex-wrap gap-[8px]">
-                      <button
-                        className="flex h-[32px] cursor-pointer items-center gap-[6px] rounded-full bg-white px-[12px] text-[13px] leading-[20px] tracking-[0.13px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
-                        style={{ fontFamily: FONT, border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
-                        onClick={() => setImModalOpen(true)}
-                      >
-                        <img src={`${base}logo-social-telegram.svg`} alt="" className="size-[15px] rounded-full" />
-                        Connect Telegram
-                      </button>
-                      <button
-                        className="flex h-[32px] cursor-pointer items-center gap-[6px] rounded-full bg-white px-[12px] text-[13px] leading-[20px] tracking-[0.13px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
-                        style={{ fontFamily: FONT, border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
-                        onClick={() => setImModalOpen(true)}
-                      >
-                        <Ic size={14}>{P.link}</Ic>
-                        See all IMs
-                      </button>
-                    </div>
+                    <AlertChannelsCard onConnect={connectIm} />
                   </AgentMsg>
                   </MsgIn>
                 );

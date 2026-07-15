@@ -108,7 +108,7 @@ const CONNECT_BROKERS: ConnectBroker[] = [
 
 /* Choose more/弹窗侧券商的 mock 账号掩码：预置常见几家，其余按 id 确定性生成 */
 const EXTRA_ACCOUNTS: Record<string, string> = {
-  binance: '177***8896', alpaca: 'PA3***6WQT', okx: 'OK4***2210', coinbase: 'CB8***9034', etoro: 'ET6***1187', kraken: 'KR2***5563',
+  binance: '177***8896', alpaca: 'PA3***6PEJ', okx: 'OK5***2043', coinbase: 'CB8***9034', etoro: 'ET6***1187', kraken: 'KR2***5563',
 };
 const mockMask = (id: string) => {
   let n = 7;
@@ -117,6 +117,15 @@ const mockMask = (id: string) => {
 };
 
 interface ConnAccount { id: number; broker: ConnectBroker; on: boolean }
+
+/** brokerId → ConnectBroker 展示信息：7 家网格优先，其余用弹窗侧导出信息 + mock 账号掩码 */
+function resolveBroker(brokerId: string): ConnectBroker | null {
+  const grid = CONNECT_BROKERS.find((b) => b.id === brokerId);
+  if (grid) return grid;
+  const d = brokerDisplayInfo(brokerId);
+  if (!d) return null;
+  return { id: d.id, label: d.name, logo: d.logo, fit: d.plain ? ('contain' as const) : undefined, bg: d.bg, account: EXTRA_ACCOUNTS[d.id] ?? mockMask(d.id) };
+}
 
 const CELL_BORDER = `0.5px solid ${L12}`;
 
@@ -195,18 +204,23 @@ function LangSelect({ value, onSelect }: { value: string; onSelect: (v: string) 
 
 /* ========== 主组件 ========== */
 
-export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: string; qty: string }[]) => void }) {
-  const [source, setSource] = useState<Source>('manual');
+export function PortfolioBuilder({ onStart, initialBrokerId }: {
+  onStart?: (chosen: { symbol: string; qty: string }[]) => void;
+  /** 已连接 broker（如账户数据弹窗的 Watch 入口）：初始定位 Connect Brokerage Account 并默认选中该账户 */
+  initialBrokerId?: string | null;
+}) {
+  const initialConn = initialBrokerId ? resolveBroker(initialBrokerId) : null;
+  const [source, setSource] = useState<Source>(initialConn ? 'brokerage' : 'manual');
   const [visible, setVisible] = useState<Ticker[]>(INITIAL);
   const [chosen, setChosen] = useState<Chosen[]>([]);
   const [language, setLanguage] = useState(LANGUAGES[0]);
   const [editing, setEditing] = useState<number | null>(null);
   const [uploads, setUploads] = useState<string[]>([]);
-  const [connected, setConnected] = useState<ConnAccount[]>([]);
+  const [connected, setConnected] = useState<ConnAccount[]>(() => (initialConn ? [{ id: 1, broker: initialConn, on: true }] : []));
   /* 打开中的连接弹窗：{brokerId} 直达该券商 configure 二级屏；{} 从 select 全列表开始；null 关闭 */
   const [connectTarget, setConnectTarget] = useState<{ brokerId?: string } | null>(null);
   const poolRef = useRef(0);
-  const idRef = useRef(0);
+  const idRef = useRef(initialConn ? 1 : 0);
 
   /* 两个 source 独立维护 state(manual→chosen+visible+uploads / brokerage→connected),
      切换只换视图不清空,切回保留原选择;footer 展示按 source 分流,互不串味 */
@@ -245,13 +259,8 @@ export function PortfolioBuilder({ onStart }: { onStart?: (chosen: { symbol: str
   /* 弹窗连接成功 → 账户落 Connected 区并选中；已存在则仅重新选中。
      7 家网格外的券商（Choose more 里连的）用弹窗侧导出的展示信息 + mock 账号掩码 */
   const addConnectedAccount = (brokerId: string) => {
-    let info = CONNECT_BROKERS.find((b) => b.id === brokerId);
-    if (!info) {
-      const d = brokerDisplayInfo(brokerId);
-      if (!d) return;
-      info = { id: d.id, label: d.name, logo: d.logo, fit: d.plain ? ('contain' as const) : undefined, bg: d.bg, account: EXTRA_ACCOUNTS[d.id] ?? mockMask(d.id) };
-    }
-    const found = info;
+    const found = resolveBroker(brokerId);
+    if (!found) return;
     setConnected((prev) => prev.some((c) => c.broker.id === found.id)
       ? prev.map((c) => (c.broker.id === found.id ? { ...c, on: true } : c))
       : [...prev, { id: ++idRef.current, broker: found, on: true }]);

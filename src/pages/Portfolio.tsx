@@ -21,12 +21,13 @@ import {
 import { hasPortfolioWatchEnabled } from '@/lib/portfolio-watch';
 import { BROKER_PORTFOLIOS } from '@/data/trading-mock';
 import type { BrokerPortfolio, StrategyBinding, Position, JournalEntry } from '@/data/trading-mock';
-import { ConnectAccountModal } from '@/app/components/portfolio/ConnectAccountModal';
+import { ConnectAccountModal, BrokerLogo, brokerDisplayInfo, ConfigChip } from '@/app/components/portfolio/ConnectAccountModal';
 import type { ConnectAccountModalProps } from '@/app/components/portfolio/ConnectAccountModal';
 
 /* ========== 通用样式常量 ========== */
 
 const FONT_FAMILY = "'Delight', sans-serif";
+const BASE = import.meta.env.BASE_URL;
 const CARD_BG: React.CSSProperties = { background: 'var(--grey-g01, #fafafa)', borderRadius: 8 };
 const MONO: React.CSSProperties = { fontFamily: FONT_FAMILY, fontVariantNumeric: 'tabular-nums' };
 const POS_COLOR = 'var(--main-m3, #2a9b7d)';
@@ -115,10 +116,11 @@ function OverviewCard({
   const unrealized = broker.positions.reduce((s, p) => s + p.pnl, 0);
   const pnlSign = broker.todayPnl >= 0 ? '+' : '';
   const unrealSign = unrealized >= 0 ? '+' : '';
-  const type = accountType(broker.brokerId);
+  /* brokerId 'ibkr-1' → BROKERS id 'ibkr'，复用链接流程的圆形 logo 定义 */
+  const brokerDef = brokerDisplayInfo(broker.brokerId.replace(/-\d+$/, ''));
 
   const metrics: { label: string; value: string; accent?: boolean; width: number }[] = [
-    { label: 'Invested', value: `$${invested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, width: 96 },
+    { label: 'Invested', value: `$${invested.toLocaleString(undefined, { maximumFractionDigits: 2 })}`, width: 96 },
     { label: 'Unrealized P&L', value: `${unrealSign}$${Math.abs(unrealized).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, accent: true, width: 83 },
     { label: 'Positions', value: broker.positions.length.toString(), width: 50 },
   ];
@@ -132,19 +134,20 @@ function OverviewCard({
         {/* Balance */}
         <div className="flex flex-col flex-1 min-w-0 gap-[12px]">
           <div className="flex items-center gap-[8px]">
-            <div className="shrink-0 flex items-center justify-center" style={{ width: 20, height: 20, borderRadius: 2.5, background: '#1c1c1c' }}>
-              <span style={{ fontSize: 11, lineHeight: 1, color: '#fff', fontFamily: FONT_FAMILY, fontWeight: 500 }}>{broker.brokerLabel.charAt(0)}</span>
-            </div>
+            {brokerDef && <BrokerLogo broker={brokerDef} size={20} />}
             <p className="text-[14px] leading-[22px] tracking-[0.14px] whitespace-nowrap" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}>
               {broker.brokerName} · {broker.accountId}
             </p>
-            <div className="flex items-center justify-center px-[6px] py-px rounded-[4px] shrink-0" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
-              <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--main-m1, #49a3a6)', fontFamily: FONT_FAMILY }}>{type}</span>
-            </div>
+            {broker.accountType === 'live'
+              ? <ConfigChip icon={`${BASE}icon-live-l.svg`} label="Live" tone="m3" />
+              : <ConfigChip icon={`${BASE}icon-flask-l.svg`} label="Paper" tone="m2" />}
+            {broker.accessLevel === 'trading'
+              ? <ConfigChip icon="swap-l" label="Trading" tone="m3" />
+              : <ConfigChip icon={`${BASE}icon-swap-off-l.svg`} label="Read-only" tone="muted" />}
           </div>
           <div className="flex items-end gap-[8px] whitespace-nowrap">
             <span className="text-[32px] leading-[42px] tracking-[0.32px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, fontWeight: 400, ...MONO }}>
-              ${broker.totalEquity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${broker.totalEquity.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </span>
             <div className="flex items-center gap-[8px] py-[5px]">
               <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: broker.todayPnl >= 0 ? POS_COLOR : NEG_COLOR, fontFamily: FONT_FAMILY, ...MONO }}>
@@ -258,30 +261,30 @@ function PositionsTable({ positions }: { positions: Position[] }) {
         {/* Rows */}
         {positions.map((pos) => {
           const pnlColor = pos.pnl >= 0 ? POS_COLOR : NEG_COLOR;
-          const sign = pos.pnl >= 0 ? '+' : '';
+          const sign = pos.pnl >= 0 ? '+' : '-';
           return (
             <div key={pos.symbol} className="flex items-center" style={{ borderTop: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
               <div className={cell}>
                 <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}>{pos.symbol}</span>
               </div>
               <div className={cell}>
-                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY, ...MONO }}>{pos.weight}%</span>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, ...MONO }}>{pos.weight}%</span>
               </div>
               <div className={cell}>
-                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY, ...MONO }}>{pos.qty}</span>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, ...MONO }}>{pos.qty}</span>
               </div>
               <div className={cell}>
-                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY, ...MONO }}>${pos.avgCost.toLocaleString()}</span>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, ...MONO }}>${pos.avgCost.toLocaleString()}</span>
               </div>
               <div className={cell}>
-                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n7, rgba(0,0,0,0.7))', fontFamily: FONT_FAMILY, ...MONO }}>${pos.currentPrice.toLocaleString()}</span>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, ...MONO }}>${pos.currentPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
               <div className={cell}>
-                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, ...MONO }}>${pos.marketValue.toLocaleString()}</span>
+                <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY, ...MONO }}>${pos.marketValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
               <div className={cell}>
                 <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: pnlColor, fontFamily: FONT_FAMILY, ...MONO }}>
-                  {sign}${Math.abs(pos.pnl).toLocaleString()} ({sign}{pos.pnlPercent}%)
+                  {sign}${Math.abs(pos.pnl).toLocaleString()} ({sign}{Math.abs(pos.pnlPercent).toLocaleString(undefined, { maximumFractionDigits: 2 })}%)
                 </span>
               </div>
             </div>

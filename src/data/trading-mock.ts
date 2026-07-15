@@ -103,6 +103,9 @@ export interface BrokerPortfolio {
   brokerName: string;
   brokerLabel: string;
   accountId: string;
+  /** 账户类型 + 权限（与链接流程 accountType/accessLevel 同口径），驱动 Overview 账户 tag */
+  accountType: 'live' | 'paper';
+  accessLevel: 'trading' | 'readonly';
   totalEquity: number;
   todayPnl: number;
   todayPnlPercent: number;
@@ -126,12 +129,13 @@ const BROKERS: BrokerConnection[] = [
 const POSITIONS: Position[] = [
   { symbol: 'BTC', name: 'Bitcoin', qty: 0.35, avgCost: 62400, currentPrice: 67250, marketValue: 23537.50, weight: 23.5, pnl: 1697.50, pnlPercent: 7.77, account: 'Binance' },
   { symbol: 'ETH', name: 'Ethereum', qty: 4.2, avgCost: 3150, currentPrice: 3420, marketValue: 14364, weight: 14.4, pnl: 1134, pnlPercent: 8.57, account: 'Binance' },
-  { symbol: 'NVDA', name: 'NVIDIA Corp.', qty: 15, avgCost: 875, currentPrice: 920.40, marketValue: 13806, weight: 13.8, pnl: 681, pnlPercent: 5.19, account: 'IBKR' },
-  { symbol: 'MSFT', name: 'Microsoft', qty: 30, avgCost: 405.20, currentPrice: 418.75, marketValue: 12562.50, weight: 12.6, pnl: 406.50, pnlPercent: 3.34, account: 'IBKR' },
-  { symbol: 'AAPL', name: 'Apple Inc.', qty: 45, avgCost: 178.50, currentPrice: 192.30, marketValue: 8653.50, weight: 8.7, pnl: 621, pnlPercent: 7.73, account: 'IBKR' },
-  { symbol: 'GLD', name: 'SPDR Gold Shares', qty: 40, avgCost: 188, currentPrice: 195.60, marketValue: 7824, weight: 7.8, pnl: 304, pnlPercent: 4.04, account: 'IBKR' },
-  { symbol: 'TLT', name: 'iShares 20+ Yr Treasury', qty: 80, avgCost: 92.50, currentPrice: 89.20, marketValue: 7136, weight: 7.1, pnl: -264, pnlPercent: -3.57, account: 'IBKR' },
-  { symbol: 'AMZN', name: 'Amazon.com', qty: 20, avgCost: 178.30, currentPrice: 186.50, marketValue: 3730, weight: 3.7, pnl: 164, pnlPercent: 4.60, account: 'IBKR' },
+  /* IBKR 持仓 — Figma Portfolio 页 Positions 表 11184:37663 逐值照抄（负行 P&L 色按逻辑取 m4，稿内 m3 为错位） */
+  { symbol: 'AAPL', name: 'Apple Inc.', qty: 54.32189, avgCost: 142, currentPrice: 198.45, marketValue: 10782.33, weight: 22.4, pnl: 3067, pnlPercent: 39.72, account: 'IBKR' },
+  { symbol: 'TSLA', name: 'Tesla Inc.', qty: 28.75, avgCost: 215, currentPrice: 267.83, marketValue: 7700.11, weight: 18.6, pnl: 1518, pnlPercent: 24.57, account: 'IBKR' },
+  { symbol: 'MSFT', name: 'Microsoft', qty: 18.4321, avgCost: 380, currentPrice: 442.17, marketValue: 8149.52, weight: 15.2, pnl: 1145, pnlPercent: 16.34, account: 'IBKR' },
+  { symbol: 'NVDA', name: 'NVIDIA Corp.', qty: 8.125, avgCost: 850, currentPrice: 1124.60, marketValue: 9137.38, weight: 25.1, pnl: 2230, pnlPercent: 32.31, account: 'IBKR' },
+  { symbol: 'AMZN', name: 'Amazon.com', qty: 22.68, avgCost: 178, currentPrice: 192.35, marketValue: 4362.50, weight: 11.3, pnl: 325, pnlPercent: 8.06, account: 'IBKR' },
+  { symbol: 'META', name: 'Meta Platforms', qty: 6.5, avgCost: 485, currentPrice: 462.18, marketValue: 3004.17, weight: 7.4, pnl: -148, pnlPercent: -4.71, account: 'IBKR' },
 ];
 
 const STRATEGY_WEIGHTS_BTC: WeightBar[] = [
@@ -366,7 +370,8 @@ function generateCostBasis(value: number): [string, number][] {
 export const BROKER_PORTFOLIOS: BrokerPortfolio[] = [
   {
     brokerId: 'ibkr-1', brokerName: 'Interactive Brokers', brokerLabel: 'IBKR',
-    accountId: 'U****6789', totalEquity: 62000, todayPnl: 856, todayPnlPercent: 1.40,
+    accountId: 'U****6789', accountType: 'live', accessLevel: 'readonly',
+    totalEquity: 62000, todayPnl: 856, todayPnlPercent: 1.40,
     equityCurve: generateCurve(50000, 62000),
     costBasis: generateCostBasis(50000),
     benchmark: generateCurve(50000, 58000, 0.016),
@@ -376,7 +381,8 @@ export const BROKER_PORTFOLIOS: BrokerPortfolio[] = [
   },
   {
     brokerId: 'binance-1', brokerName: 'Binance', brokerLabel: 'Binance',
-    accountId: 'spot-****42', totalEquity: 38000, todayPnl: 378, todayPnlPercent: 1.00,
+    accountId: 'spot-****42', accountType: 'live', accessLevel: 'trading',
+    totalEquity: 38000, todayPnl: 378, todayPnlPercent: 1.00,
     equityCurve: generateCurve(35000, 38000),
     costBasis: generateCostBasis(35000),
     benchmark: generateCurve(35000, 36500, 0.018),
@@ -386,7 +392,8 @@ export const BROKER_PORTFOLIOS: BrokerPortfolio[] = [
   },
   {
     brokerId: 'alpaca-1', brokerName: 'Alpaca', brokerLabel: 'Alpaca',
-    accountId: 'PA****1234', totalEquity: 30000, todayPnl: 124, todayPnlPercent: 0.42,
+    accountId: 'PA****1234', accountType: 'live', accessLevel: 'readonly',
+    totalEquity: 30000, todayPnl: 124, todayPnlPercent: 0.42,
     equityCurve: generateCurve(27500, 30000, 0.014),
     costBasis: generateCostBasis(27500),
     benchmark: generateCurve(27500, 29300, 0.012),

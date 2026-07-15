@@ -21,8 +21,8 @@ const FONT = "'Delight', sans-serif";
 const BASE = import.meta.env.BASE_URL;
 
 /* ---- design tokens（theme.css 缺 20% 档与 br 系列时用字面量，注释标注 Figma token） ---- */
-const M2_20 = 'rgba(33, 150, 243, 0.2)';   /* main/m2-20 */
-const M3_20 = 'rgba(42, 155, 125, 0.2)';   /* main/m3-20 */
+const M2_10 = 'rgba(33, 150, 243, 0.1)';   /* main/m2-10 */
+const M3_10 = 'rgba(42, 155, 125, 0.1)';   /* main/m3-10 */
 const BR03 = 'rgba(0, 0, 0, 0.03)';        /* content/br03 */
 const BR7 = 'rgba(0, 0, 0, 0.7)';          /* content/br7 */
 const NR9 = 'rgba(255, 255, 255, 0.9)';    /* text/nr9 */
@@ -441,12 +441,13 @@ function OptionCard({
   );
 }
 
-/** credentials 页顶部的已选配置 chip */
-function ConfigChip({ icon, label, tone }: { icon: string; label: string; tone: 'm1' | 'm2' | 'm3' | 'muted' }) {
-  const bg = tone === 'm1' ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : tone === 'm2' ? M2_20 : tone === 'm3' ? M3_20 : BR03;
+/** 账户 tag（Alva-Library Tag/Portfolio 31584:10668：px6/py1 radius4 gap4 + icon14 + 12 文字）。
+ *  credentials 页顶部已选配置 chip 同款，导出供 Portfolio 页账户 tag 复用 */
+export function ConfigChip({ icon, label, tone }: { icon: string; label: string; tone: 'm1' | 'm2' | 'm3' | 'muted' }) {
+  const bg = tone === 'm1' ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : tone === 'm2' ? M2_10 : tone === 'm3' ? M3_10 : BR03;
   const fg = tone === 'm1' ? 'var(--main-m1, #49A3A6)' : tone === 'm2' ? 'var(--main-m2, #2196F3)' : tone === 'm3' ? 'var(--main-m3, #2a9b7d)' : 'var(--text-n5, rgba(0,0,0,0.5))';
   return (
-    <div className="flex gap-[4px] items-center justify-center px-[8px] py-[2px] rounded-[4px] shrink-0" style={{ background: bg }}>
+    <div className="flex gap-[4px] items-center justify-center px-[6px] py-[1px] rounded-[4px] shrink-0" style={{ background: bg }}>
       <CdnIcon name={icon} size={14} color={fg} />
       <span className="text-[12px] leading-[20px] tracking-[0.12px] text-center whitespace-nowrap" style={{ fontFamily: FONT, color: fg }}>{label}</span>
     </div>
@@ -542,7 +543,7 @@ function ResultShell({ onClose, children, containerRef }: { onClose: () => void;
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col gap-[28px] items-center justify-center w-[436px] max-w-[calc(100vw-32px)] min-h-[436px] px-[28px] py-[28px] rounded-[8px] overflow-hidden max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
+      className="relative flex flex-col gap-[28px] items-center justify-center w-[480px] max-w-[calc(100vw-32px)] min-h-[480px] px-[28px] py-[28px] rounded-[8px] overflow-hidden max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
       style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
     >
       {/* 移动端拖拽条 */}
@@ -932,7 +933,7 @@ export function ConnectAccountModal({
 
         {/* ---- Step 1–3 · 同一弹窗，内部 push 跳屏：第二屏从右侧滑入，卡片列表后退 ---- */}
         {(step === 'select' || inSetup) && (
-          <div ref={sheetRef} className="relative w-[436px] max-w-[calc(100vw-32px)] rounded-[8px] overflow-hidden max-h-[min(720px,calc(100vh-64px))] max-sm:w-full max-sm:max-w-full max-sm:rounded-[12px] max-sm:rounded-b-none max-sm:max-h-[calc(100dvh-56px)]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0px 10px 20px 0px rgba(0,0,0,0.08)' }}>
+          <div ref={sheetRef} className="relative w-[480px] max-w-[calc(100vw-32px)] rounded-[8px] overflow-hidden max-h-[min(720px,calc(100vh-64px))] max-sm:w-full max-sm:max-w-full max-sm:rounded-[12px] max-sm:rounded-b-none max-sm:max-h-[calc(100dvh-56px)]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0px 10px 20px 0px rgba(0,0,0,0.08)' }}>
 
             {/* 移动端拖拽条（设计稿 Bottom Sheet Items 36×4 br07） */}
             <div className="sm:hidden absolute top-0 left-0 right-0 h-[12px] z-10 flex items-end justify-center pointer-events-none">
@@ -1111,9 +1112,9 @@ export function ConnectAccountModal({
             ref={sheetRef}
             className={`relative flex w-[480px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[8px] max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none ${
               step === 'connecting'
-                ? 'h-[500px] items-center justify-center'
+                ? 'h-[480px] items-center justify-center'
                 : successPhase === 'badge'
-                  ? 'h-[483px] items-center justify-center'
+                  ? 'h-[480px] items-center justify-center'
                   : 'items-center'
             }`}
             style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
