@@ -8,6 +8,7 @@ import { useState } from 'react';
 import type { Page } from '@/app/App';
 import { SettingsLayout } from '@/app/components/shell/SettingsLayout';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { ConnectAccountModal, brokerDisplayInfo, SUCCESS_ACCOUNTS } from '@/app/components/portfolio/ConnectAccountModal';
 import {
   DividedRows,
   OutlineButton,
@@ -62,22 +63,43 @@ function RuleRow({ label, value, initialOn = true }: { label: string; value?: st
 }
 
 export default function PortfolioSettings({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const [brokers, setBrokers] = useState(BROKERS);
+  const [connectOpen, setConnectOpen] = useState(false);
   return (
     <SettingsLayout active="portfolio-settings" onNavigate={onNavigate}>
       <SettingsSection
         title="Broker Connections"
         subtitle="Connect your brokerage accounts to enable trading."
         right={
-          <OutlineButton className="w-[65px]">
+          <OutlineButton className="w-[65px]" onClick={() => setConnectOpen(true)}>
             <CdnIcon name="add-l2" size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
             Add
           </OutlineButton>
         }
       >
         <div className="w-full flex flex-col gap-[16px]">
-          {BROKERS.map((broker) => <BrokerRow key={broker.name} broker={broker} />)}
+          {brokers.map((broker, i) => <BrokerRow key={`${broker.name}-${i}`} broker={broker} />)}
         </div>
       </SettingsSection>
+
+      {/* Add → 复用连接弹窗；成功徽章自动关闭，新账户落进列表即是收口（Settings 语境无需再引导） */}
+      <ConnectAccountModal
+        open={connectOpen}
+        onClose={() => setConnectOpen(false)}
+        onConnected={(id, _access, accountType) => {
+          const info = brokerDisplayInfo(id);
+          setBrokers((prev) => [...prev, {
+            name: info?.name ?? id,
+            account: SUCCESS_ACCOUNTS[id] ?? 'U***4415',
+            badge: accountType === 'live' ? 'Live' : 'Paper',
+            bg: info?.bg ?? '#fff',
+            logo: info?.logo ?? '',
+            logoWidth: info?.plain ? 34 : 40,
+            logoHeight: info?.plain ? 34 : 40,
+          }]);
+          /* 弹窗关闭由徽章自动关的 onClose 链路负责——成功即落列表，与徽章同步 */
+        }}
+      />
 
       <SettingsSection title="Global Risk Rules" subtitle="Applies to all strategy bindings">
         <DividedRows>

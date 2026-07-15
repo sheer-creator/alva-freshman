@@ -7,8 +7,9 @@
  *  select      选券商网格（Crypto / US Stock 两组）
  *  configure   Account type (Paper/Live) + Access level (Trading/Read-only，Read-only 不可选)
  *  credentials US Stock → SnapTrade 跳转式；Crypto → API Key 表单式
- *  connecting / cancelled / failed / timeout  结果态
- *  success     capability 常驻屏（账户 + 权限 chip + 解锁能力 + Portfolio Watch CTA）— channel 绑定后引导第一层
+ *  connecting / cancelled / failed / timeout  结果态（cancelled/timeout 5s 自动关）
+ *  success     成功徽章（Figma 11235:108688）停留后自动关闭 — Agent 页经 onBadgeDone 打开账户数据弹窗(PortfolioInfoModal)，
+ *              Settings / Portfolio 直连回到各自页面即收口；successAutoClose(builder 场景 11164:7409)倒计时关
  */
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -126,6 +127,219 @@ const apiKeySteps = (name: string) => [
   'Paste keys in Alva and connect',
 ];
 
+/* ---- 成功态 detail 屏 / 账户浮层共用 mock（Figma 11235:108573 · 11222:107641；正负色按逻辑修正稿内错位）---- */
+export const SUCCESS_ACCOUNTS: Record<string, string> = {
+  binance: '177***8896', okx: 'OK5***2043', hyperliquid: '0x9***a4F1', robinhood: 'RH2***4021', alpaca: 'PA3***6PEJ',
+};
+export const SUCCESS_TOTAL = { value: '$103,877.55', change: '+$6,344', pct: '+2.87%' };
+export const SUCCESS_HOLDINGS = [
+  { symbol: 'AAPL', weight: '32.1%', value: '$12,840.50', pnl: '+$2,156.30', up: true },
+  { symbol: 'NVDA', weight: '25.7%', value: '$10,280.00', pnl: '+$4,892.60', up: true },
+  { symbol: 'TSLA', weight: '18.4%', value: '$7,360.25', pnl: '-$1,243.80', up: false },
+  { symbol: 'MSFT', weight: '14.2%', value: '$5,680.90', pnl: '+$867.45', up: true },
+  { symbol: 'AMZN', weight: '9.6%', value: '$3,838.35', pnl: '-$328.70', up: false },
+];
+
+/* ========== 账户数据内容（Figma Modal/Portfolio Info 31584:10618）——
+   成功流徽章后在本弹窗内 FLIP 展开（遮罩不断），topbar 路径由 agent/PortfolioInfoModal 壳复用 ========== */
+
+export interface ConnectedBrokerInfo {
+  id: string;
+  name: string;
+  /** access level = trading 时展示 Trade 行动卡 */
+  live: boolean;
+  accountType: 'paper' | 'live';
+}
+
+interface AccountEntry extends ConnectedBrokerInfo {
+  account: string;
+}
+
+/* 账户切换下拉里的其他 mock 账户（Figma 11184:45791：同券商多账户 + 跨券商） */
+const EXTRA_ACCOUNTS: AccountEntry[] = [
+  { id: 'alpaca', name: 'Alpaca', live: false, accountType: 'paper', account: 'RE6***8BVC' },
+  { id: 'binance', name: 'Binance', live: true, accountType: 'paper', account: '209***4415' },
+];
+
+const accountLabel = (a: AccountEntry) => `${a.name} · ${a.account} · ${a.accountType === 'live' ? 'Live' : 'Paper'}`;
+
+/* 行动卡行（Onboard Card 同款：p16 gap8，标题 14 Medium + desc 12 n5 + arrow 14 n5） */
+function InfoActionRow({ emoji, title, desc, divider, onClick }: {
+  emoji: string; title: string; desc: string; divider?: boolean; onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+      style={{ border: 'none', borderBottom: divider ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : 'none', fontFamily: FONT }}
+    >
+      <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+        <span className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+          {emoji}  {title}
+        </span>
+        <span className="w-full text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{desc}</span>
+      </span>
+      <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
+    </button>
+  );
+}
+
+/** 弹窗内容序列（不含遮罩/sheet 壳）：账户头(可下拉切换) + 24px 总值 + 持仓表 + More 分隔行 + 行动卡 */
+export function PortfolioInfoContent({ broker, onClose, onViewPortfolio, onTrade, onWatch, onConnectAnother }: {
+  broker: ConnectedBrokerInfo;
+  onClose: () => void;
+  onViewPortfolio: () => void;
+  onTrade: () => void;
+  onWatch: () => void;
+  /** 下拉里的 Connect Portfolio —— 再连一个账户 */
+  onConnectAnother: () => void;
+}) {
+  /* 当前查看的账户（局部态，每次挂载重置为真实连接的账户）；下拉切换只换查看对象 */
+  const [active, setActive] = useState<AccountEntry>({ ...broker, account: SUCCESS_ACCOUNTS[broker.id] ?? 'PA3***6PEJ' });
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const accounts: AccountEntry[] = [
+    { ...broker, account: SUCCESS_ACCOUNTS[broker.id] ?? 'PA3***6PEJ' },
+    ...EXTRA_ACCOUNTS.filter((a) => !(a.id === broker.id && a.accountType === broker.accountType)),
+  ];
+  const display = brokerDisplayInfo(active.id);
+  return (
+    <>
+      {/* 账户头：logo 20 + 名 · 账号 · 类型 + 切换箭头(n2) + X 18 — Figma 31584:10619 */}
+      <div className="flex w-full items-start gap-[16px]" style={{ fontFamily: FONT }}>
+        <div className="relative flex min-w-0 flex-1 items-center">
+          <button
+            type="button"
+            onClick={() => setSwitcherOpen((o) => !o)}
+            aria-expanded={switcherOpen}
+            className="flex min-w-0 cursor-pointer items-center gap-[8px] border-none bg-transparent p-0 text-left"
+          >
+            {display && <BrokerLogo broker={display} size={20} />}
+            <p className="whitespace-nowrap text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              {accountLabel(active)}
+            </p>
+            <CdnIcon name="arrow-down-f2" size={14} color="var(--text-n2, rgba(0,0,0,0.2))" />
+          </button>
+          {/* 账户切换下拉 — Figma 11184:45791：320 宽 p4 radius 6 shadow-s；选中 m1 文字 + m1 8% 底 */}
+          {switcherOpen && (
+            <>
+              <div className="fixed inset-0 z-[60]" onClick={() => setSwitcherOpen(false)} />
+              <div
+                className="absolute left-0 z-[70] flex w-[320px] flex-col p-[4px]"
+                style={{
+                  top: 'calc(100% + 4px)',
+                  background: '#fff', /* module/b-dropdown */
+                  border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+                  borderRadius: 'var(--radius-pop-dropdown, 6px)',
+                  boxShadow: 'var(--shadow-s, 0 6px 20px 0 rgba(0,0,0,0.04))',
+                }}
+                role="listbox"
+                aria-label="Switch account"
+              >
+                {accounts.map((a) => {
+                  const selected = a.id === active.id && a.accountType === active.accountType && a.account === active.account;
+                  return (
+                    <button
+                      key={`${a.id}-${a.account}`}
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      onClick={() => { setActive(a); setSwitcherOpen(false); }}
+                      className={`flex w-full cursor-pointer items-center gap-[8px] rounded-[4px] border-none px-[12px] py-[6px] text-left transition-colors ${selected ? '' : 'bg-transparent hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]'}`}
+                      style={selected ? { background: 'rgba(73, 163, 166, 0.08)' } : undefined}
+                    >
+                      <span
+                        className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]"
+                        style={{ fontFamily: FONT, color: selected ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9, rgba(0,0,0,0.9))' }}
+                      >
+                        {accountLabel(a)}
+                      </span>
+                    </button>
+                  );
+                })}
+                <div className="flex w-full items-center px-[12px] py-[4px]">
+                  <div className="h-[0.5px] w-full" style={{ background: 'var(--line-l12, rgba(0,0,0,0.12))' }} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setSwitcherOpen(false); onConnectAnother(); }}
+                  className="flex w-full cursor-pointer items-center gap-[8px] rounded-[4px] border-none bg-transparent px-[12px] py-[6px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+                >
+                  <CdnIcon name="add-l2" size={16} color="var(--text-n5, rgba(0,0,0,0.5))" />
+                  <span className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                    Connect Portfolio
+                  </span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        <button type="button" onClick={onClose} aria-label="Close" className="shrink-0 cursor-pointer border-none bg-transparent p-0 transition-opacity hover:opacity-60">
+          <CdnIcon name="close-l1" size={18} color="var(--text-n9, rgba(0,0,0,0.9))" />
+        </button>
+      </div>
+
+      {/* 总值 + 持仓表 — Figma 31584:10628（gap12；表格 gap4，列 88/64/flex/flex gap8） */}
+      <div className="flex w-full flex-col gap-[12px]" style={{ fontFamily: FONT }}>
+        <div className="flex w-full items-center gap-[8px]">
+          <p className="text-[24px] leading-[34px] tracking-[0.24px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SUCCESS_TOTAL.value}</p>
+          <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--main-m3, #2a9b7d)' }}>{SUCCESS_TOTAL.change}</p>
+          <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--main-m3, #2a9b7d)' }}>{SUCCESS_TOTAL.pct}</p>
+        </div>
+        <div className="flex w-full flex-col gap-[4px] text-[12px] leading-[20px] tracking-[0.12px]">
+          <div className="flex w-full items-center gap-[8px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+            <span className="w-[88px] shrink-0">Symbol</span>
+            <span className="w-[64px] shrink-0 text-right">Weight</span>
+            <span className="min-w-0 flex-1 text-right">Value</span>
+            <span className="min-w-0 flex-1 text-right">P&L</span>
+          </div>
+          {SUCCESS_HOLDINGS.map((h) => (
+            <div key={h.symbol} className="flex w-full items-center gap-[8px]">
+              <span className="w-[88px] shrink-0 font-medium" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{h.symbol}</span>
+              <span className="w-[64px] shrink-0 text-right" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{h.weight}</span>
+              <span className="min-w-0 flex-1 text-right" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{h.value}</span>
+              <span className="min-w-0 flex-1 text-right" style={{ color: h.up ? 'var(--main-m3, #2a9b7d)' : 'var(--main-m4, #e05357)' }}>{h.pnl}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* More 分隔行 — Figma 31593:11145：l12 分隔线夹「View +6 more in Portfolio」12 n5 + arrow-right-l2 12 */}
+      <button
+        type="button"
+        onClick={onViewPortfolio}
+        className="group flex w-full cursor-pointer items-center gap-[4px] border-none bg-transparent p-0"
+      >
+        <span className="h-[0.5px] min-w-0 flex-1" style={{ background: 'var(--line-l12, rgba(0,0,0,0.12))' }} />
+        <span className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px] transition-colors group-hover:text-[var(--text-n9,rgba(0,0,0,0.9))]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+          View +6 more in Portfolio
+        </span>
+        <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
+        <span className="h-[0.5px] min-w-0 flex-1" style={{ background: 'var(--line-l12, rgba(0,0,0,0.12))' }} />
+      </button>
+
+      {/* 行动卡：Trading 权限 = Trade + Watch 两行；Read-only 仅 Watch（随所查看账户切换） */}
+      <div className="flex w-full flex-col overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+        {active.live && (
+          <InfoActionRow
+            emoji="📋"
+            title="Trade with Alva in any channel"
+            desc="Just tell me what to buy or sell — you approve each order, or bind a playbook to trade automatically."
+            divider
+            onClick={onTrade}
+          />
+        )}
+        <InfoActionRow
+          emoji="💼"
+          title="Watch your portfolio 24/7"
+          desc="I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention."
+          onClick={onWatch}
+        />
+      </div>
+    </>
+  );
+}
+
 type Step = 'select' | 'configure' | 'credentials' | 'connecting' | 'success' | 'cancelled' | 'failed' | 'timeout';
 type AccountType = 'paper' | 'live';
 type TradingType = 'Spot' | 'Future';
@@ -135,10 +349,8 @@ export interface ConnectAccountModalProps {
   onClose: () => void;
   /** access = 用户实际授予的权限（Live Trading 券商也可选 Read-only），绑定后引导据此分叉；accountType 供账户弹窗回显 Paper/Live */
   onConnected?: (brokerId: string, access: 'trading' | 'readonly', accountType: 'paper' | 'live') => void;
-  /** 提供则成功屏主 CTA 为「Set up Portfolio Watch」（channel 未设 watch 场景）；缺省为 Done */
-  onSetupWatch?: () => void;
-  /** 成功屏「📋 Trade with Alva」行动卡（仅 access=trading 且提供时显示）——关弹窗后发起交易对话 */
-  onTrade?: () => void;
+  /** 提供时：成功徽章相后在本弹窗内 FLIP 展开账户数据 + 引导（遮罩不断）；缺省徽章后自动关闭（Settings/Portfolio 直连场景） */
+  successInfo?: { onViewPortfolio: () => void; onTrade: () => void; onWatch: () => void };
   /** 成功屏无按钮、3s 倒计时自动关闭（Figma 11164:7409，builder 流程内绑定场景）；优先于 onSetupWatch */
   successAutoClose?: boolean;
   /** 仅供原型/预览直达某一步 */
@@ -411,7 +623,7 @@ function trapTab(e: KeyboardEvent, root: HTMLElement | null) {
 /* ========== 主组件 ========== */
 
 export function ConnectAccountModal({
-  open, onClose, onConnected, onSetupWatch, onTrade, successAutoClose,
+  open, onClose, onConnected, successInfo, successAutoClose,
   initialStep = 'select', initialBrokerId, initialAccountType = 'paper',
 }: ConnectAccountModalProps) {
   const [step, setStep] = useState<Step>(initialStep);
@@ -421,6 +633,8 @@ export function ConnectAccountModal({
   const [broker, setBroker] = useState<BrokerDef | null>(BROKERS.find((b) => b.id === initialBrokerId) ?? null);
   const [accountType, setAccountType] = useState<AccountType>(initialAccountType);
   const [accessLevel, setAccessLevel] = useState<'trading' | 'readonly'>('trading');
+  /* 成功态两相（同一弹窗遮罩不断）：徽章屏停 1.2s → FLIP 展开为账户数据 + 引导（successInfo 场景） */
+  const [successPhase, setSuccessPhase] = useState<'badge' | 'info'>('badge');
   const [tradingType, setTradingType] = useState<TradingType>('Spot');
   const [address, setAddress] = useState('');
   const [apiKey, setApiKey] = useState('');
@@ -460,7 +674,7 @@ export function ConnectAccountModal({
     el.style.height = `${newH}px`;
     const t = setTimeout(() => { el.style.height = ''; el.style.transition = ''; }, 320);
     return () => clearTimeout(t);
-  }, [step, viewTransitioning]);
+  }, [step, viewTransitioning, successPhase]);
 
   const fireConnected = () => {
     if (connectedFiredRef.current) return;
@@ -533,6 +747,28 @@ export function ConnectAccountModal({
     const done = setTimeout(() => { requestCloseRef.current(); }, secs * 1000);
     return () => { clearInterval(iv); clearTimeout(done); };
   }, [step, open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* 成功徽章相停留 1.2s 后：successInfo 场景在本弹窗内 FLIP 展开账户数据（遮罩不断，无二次弹窗闪烁）；
+     其余场景自动关闭（requestClose 内部补发 onConnected），Settings / Portfolio 直连回到各自页面即是反馈；
+     successAutoClose（builder 场景）停在徽章屏直至倒计时关闭。
+     successInfo 走 ref：父组件传内联对象时每次渲染都是新引用，直接进依赖会反复重置定时器 */
+  const successInfoRef = useRef(successInfo);
+  successInfoRef.current = successInfo;
+  useEffect(() => {
+    if (step !== 'success') { setSuccessPhase('badge'); return; }
+    /* 连接成功即落账（fired guard 恰好一次）：topbar 等外部状态与徽章同步切换，不等弹窗关闭 */
+    fireConnected();
+    if (successAutoClose) return;
+    const t = setTimeout(() => {
+      if (successInfoRef.current) {
+        if (sheetRef.current) pendingHRef.current = sheetRef.current.offsetHeight;
+        setSuccessPhase('info');
+        return;
+      }
+      requestCloseRef.current();
+    }, successInfo ? 1500 : 1200); /* 展开模式多留 0.3s 给 Redirecting 文案的阅读时间 */
+    return () => clearTimeout(t);
+  }, [step, successAutoClose]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* a11y：结果态的焦点落点。失败 → Try again（主恢复动作）；其余结果态把焦点收回
      容器，避免点 Continue 后按钮卸载、焦点掉到 body 而逃出陷阱 */
@@ -671,6 +907,7 @@ export function ConnectAccountModal({
         @keyframes connect-sheet-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
         @keyframes connect-pop { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
         @keyframes connect-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes connect-info-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
         .connect-sheet-wrap { animation: connect-sheet-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
         /* 移动端（设计稿 Mobile section 7509:18061）：底部抽屉，从下方滑入 */
         @media (max-width: 639px) {
@@ -867,85 +1104,99 @@ export function ConnectAccountModal({
         )}
 
         {/* ---- 结果态 ---- */}
-        {step === 'connecting' && (
-          <ResultShell onClose={requestClose} containerRef={sheetRef}>
-            <div className="flex flex-col gap-[12px] items-center justify-center">
-              <div aria-hidden="true"><AlvaLoading size={40} /></div>
-              <p className="text-[16px] leading-[26px] tracking-[0.16px] text-center whitespace-nowrap" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Loading...</p>
-            </div>
-          </ResultShell>
-        )}
-
-        {/* success — 设计稿 Success Dialog 11136:27920：broker 徽章 + 配置 chips + 能力告知，底部 Portfolio Watch 引导卡 */}
-        {step === 'success' && (
+        {/* ---- connecting → success：同一 480 容器三段过渡（loading → 成功徽章 → 账户数据+引导）
+             Figma 11235:114696 / 11235:108688 / 11235:108573；高度经 sheetRef FLIP 平滑 ---- */}
+        {(step === 'connecting' || step === 'success') && (
           <div
             ref={sheetRef}
-            className="relative flex w-[480px] max-w-[calc(100vw-32px)] flex-col items-center gap-[56px] overflow-hidden rounded-[12px] px-[28px] pb-[28px] pt-[56px] max-sm:min-h-[70dvh] max-sm:w-full max-sm:max-w-full max-sm:justify-between max-sm:rounded-b-none"
+            className={`relative flex w-[480px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[12px] max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none ${
+              step === 'connecting'
+                ? 'h-[500px] items-center justify-center'
+                : successPhase === 'badge'
+                  ? 'h-[483px] items-center justify-center'
+                  : 'items-center'
+            }`}
             style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
           >
             {/* 移动端拖拽条 */}
             <div className="sm:hidden absolute top-0 left-0 right-0 h-[12px] flex items-end justify-center pointer-events-none">
               <div className="w-[36px] h-[4px] rounded-[4px]" style={{ background: 'rgba(0, 0, 0, 0.07)' }} />
             </div>
-            <CloseButton onClick={() => { fireConnected(); requestClose(); }} className="absolute top-[28px] right-[28px] z-10" />
-            {/* Header — Figma 11136:27920：icon 64+角标24 · gap24 · [标题 30 + gap9 + chips 行]，无灰字说明 */}
-            <div className="flex w-full flex-col items-center gap-[24px]">
-              <div aria-hidden="true" className="relative" style={{ animation: 'connect-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
-                <BrokerLogo broker={screenBroker} size={64} />
-                <span className="absolute bottom-0 right-[-4px] flex size-[24px] items-center justify-center rounded-full" style={{ background: 'var(--b0-container, #fff)' }}>
-                  <CdnIcon name="check-f2" size={24} color="var(--main-m3, #2a9b7d)" />
-                </span>
-              </div>
-              <div className="flex w-full flex-col items-center gap-[9px]" style={{ fontFamily: FONT }}>
-                <p className="w-full text-center text-[20px] leading-[30px] tracking-[0.2px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                  {screenBroker.name} Connected
-                </p>
-                {successAutoClose ? <>{capabilityLine}{chipsRow}</> : chipsRow}
-              </div>
-            </div>
-            {/* 收口三态：autoClose → 倒计时行；行动卡（📋 Trade 按权限 + 💼 Watch，Figma 两行 Onboard 卡）；都没有 → Done */}
-            {successAutoClose ? (
-              <p className="w-full shrink-0 text-center text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-                Closing in {countdown}s
-              </p>
-            ) : (onSetupWatch || (onTrade && accessLevel === 'trading')) ? (
-              <div className="flex w-full shrink-0 flex-col overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
-                {onTrade && accessLevel === 'trading' && (
-                  <button
-                    type="button"
-                    className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[rgba(0,0,0,0.02)]"
-                    style={{ border: 'none', borderBottom: onSetupWatch ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : 'none', fontFamily: FONT }}
-                    onClick={() => { fireConnected(); requestClose(); onTrade(); }}
-                  >
-                    <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                      <span className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>📋  Trade with Alva in any channel</span>
-                      <span className="w-full text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Just tell me what to buy or sell — you approve each order, or bind a playbook to trade automatically.</span>
-                    </span>
-                    <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
-                  </button>
-                )}
-                {onSetupWatch && (
-                  <button
-                    type="button"
-                    className="flex w-full cursor-pointer items-center gap-[8px] border-none bg-transparent p-[16px] text-left transition-colors hover:bg-[rgba(0,0,0,0.02)]"
-                    style={{ fontFamily: FONT }}
-                    onClick={() => { fireConnected(); requestClose(); onSetupWatch(); }}
-                  >
-                    <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                      <span className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>💼  Watch your portfolio 24/7</span>
-                      <span className="w-full text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>I’ll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.</span>
-                    </span>
-                    <CdnIcon name="arrow-right-l1" size={14} color="var(--text-n5, rgba(0,0,0,0.5))" />
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="w-full shrink-0">
-                <PrimaryButton label="Done" onClick={() => { fireConnected(); requestClose(); }} />
+            {/* info 相的 X 由 PortfolioInfoContent 账户头行自带，避免双 X */}
+            {!(step === 'success' && successPhase === 'info') && (
+              <CloseButton
+                onClick={() => { if (step === 'success') fireConnected(); requestClose(); }}
+                className="absolute top-[28px] right-[28px] z-10"
+              />
+            )}
+
+            {/* 相一 · loading — Figma 11235:114696 */}
+            {step === 'connecting' && (
+              <div className="flex flex-col gap-[12px] items-center justify-center">
+                <div aria-hidden="true"><AlvaLoading size={40} /></div>
+                <p className="text-[16px] leading-[26px] tracking-[0.16px] text-center whitespace-nowrap" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Loading...</p>
               </div>
             )}
+
+            {/* 相二 · 成功徽章 — Figma 11235:108688：element 花瓣底 80 + check-f2 40 pop + Account Connected */}
+            {step === 'success' && successPhase === 'badge' && (
+              <div className="flex flex-col items-center gap-[24px] py-[28px]">
+                <div aria-hidden="true" className="relative flex size-[80px] items-center justify-center" style={{ animation: 'connect-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+                  <img src={`${BASE}element-circle-success.svg`} alt="" className="absolute inset-0 size-full" />
+                  <CdnIcon name="check-f2" size={40} color="var(--main-m3, #2a9b7d)" />
+                </div>
+                <div className="flex flex-col items-center gap-[8px]" style={{ fontFamily: FONT }}>
+                  <p className="text-center text-[20px] leading-[30px] tracking-[0.2px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                    Account Connected
+                  </p>
+                  {/* successInfo 场景：等待展开期间的去向说明（渐显略滞后于徽章 pop，读起来是"结果 → 去向"） */}
+                  {successInfo && !successAutoClose && (
+                    <p className="text-center text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', animation: 'connect-fade-in 0.3s ease 0.35s both' }}>
+                      Redirecting to your account…
+                    </p>
+                  )}
+                </div>
+                {/* autoClose（builder 场景，Figma 11164:7409）：徽章屏驻留至倒计时关闭——能力句 → chips → 倒计时 */}
+                {successAutoClose && (
+                  <div className="flex w-full flex-col items-center gap-[8px] px-[28px]" style={{ fontFamily: FONT }}>
+                    {capabilityLine}
+                    {chipsRow}
+                    <p className="text-center text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                      Closing in {countdown}s
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 相三 · 账户数据 + 引导（Figma 31584:10618）— 同一弹窗内 FLIP 展开，遮罩不断不闪 */}
+            {step === 'success' && successPhase === 'info' && (
+              <div className="flex w-full flex-col items-center gap-[24px] p-[28px]" style={{ animation: 'connect-info-in 0.32s ease both' }}>
+                <PortfolioInfoContent
+                  broker={{ id: screenBroker.id, name: screenBroker.name, live: accessLevel === 'trading', accountType }}
+                  onClose={() => { fireConnected(); requestClose(); }}
+                  onViewPortfolio={() => { fireConnected(); requestClose(); successInfoRef.current?.onViewPortfolio(); }}
+                  onTrade={() => { fireConnected(); requestClose(); successInfoRef.current?.onTrade(); }}
+                  onWatch={() => { fireConnected(); requestClose(); successInfoRef.current?.onWatch(); }}
+                  onConnectAnother={() => {
+                    /* 弹窗内直接回到选券商步（再连一个账户）；上一个连接先落账，fired guard 重置供下一次 */
+                    fireConnected();
+                    connectedFiredRef.current = false;
+                    setSuccessPhase('badge');
+                    setSetupView('configure');
+                    setBroker(null);
+                    setAccountType('paper');
+                    setAccessLevel('trading');
+                    setAddress(''); setApiKey(''); setSecret('');
+                    goStep('select');
+                  }}
+                />
+              </div>
+            )}
+
           </div>
         )}
+
 
         {step === 'cancelled' && (
           <ResultShell onClose={requestClose} containerRef={sheetRef}>
