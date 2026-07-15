@@ -175,7 +175,7 @@ export function ConnectAppsModal({
       onClick={onClose}
     >
       <div
-        className="flex w-[600px] max-w-[720px] flex-col gap-[12px] rounded-[var(--radius-pop-dialog,8px)] bg-white p-[28px]"
+        className="flex w-full max-w-[480px] flex-col gap-[12px] rounded-[var(--radius-pop-dialog,8px)] bg-white p-[28px]"
         style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: 'var(--shadow-l, 0 10px 20px 0 rgba(0,0,0,0.08))' }}
         onClick={(e) => e.stopPropagation()}
       >
