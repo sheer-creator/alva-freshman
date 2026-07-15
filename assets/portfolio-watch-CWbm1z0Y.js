@@ -1,0 +1,1 @@
+const t="alva-portfolio-watch-enabled";function a(){try{return window.localStorage.getItem(t)==="true"}catch{return!1}}function e(o){try{window.localStorage.setItem(t,String(o))}catch{}}export{a as h,e as s};
