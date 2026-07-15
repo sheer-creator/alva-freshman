@@ -542,7 +542,7 @@ function ResultShell({ onClose, children, containerRef }: { onClose: () => void;
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col gap-[28px] items-center justify-center w-[436px] max-w-[calc(100vw-32px)] min-h-[436px] px-[28px] py-[28px] rounded-[12px] overflow-hidden max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
+      className="relative flex flex-col gap-[28px] items-center justify-center w-[436px] max-w-[calc(100vw-32px)] min-h-[436px] px-[28px] py-[28px] rounded-[8px] overflow-hidden max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none max-sm:min-h-[70dvh] max-sm:px-[16px]"
       style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
     >
       {/* 移动端拖拽条 */}
@@ -1109,7 +1109,7 @@ export function ConnectAccountModal({
         {(step === 'connecting' || step === 'success') && (
           <div
             ref={sheetRef}
-            className={`relative flex w-[480px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[12px] max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none ${
+            className={`relative flex w-[480px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[8px] max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none ${
               step === 'connecting'
                 ? 'h-[500px] items-center justify-center'
                 : successPhase === 'badge'

@@ -33,7 +33,7 @@ export function PortfolioInfoModal(props: {
         @keyframes portfolio-info-sheet-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
       `}</style>
       <div
-        className="flex w-full max-w-[480px] flex-col items-center gap-[24px] rounded-[12px] p-[28px]"
+        className="flex w-full max-w-[480px] flex-col items-center gap-[24px] rounded-[8px] p-[28px]"
         style={{
           background: '#fff',
           border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
