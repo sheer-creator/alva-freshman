@@ -1,6 +1,7 @@
 /**
  * [INPUT]: Figma Page/Agent/Chat(8111:9397 / 8160:82896 / 8166:84016) — Build your watchlist 渐进流
  *          Figma Topbar/Alva Agent(30785:4970) — Portfolio(broker) + IM 双连接入口
+ *          Figma Page/Agent/Onboard/Screener(10673:50480) — 第三条引导:带 Smart Screener 引用的用户消息 + 示例 prompt 推荐卡回复
  * [OUTPUT]: Agent 页 empty 态 — Header + 5 tab + onboard 引导卡开场（不随连接切换）+ 常显 composer
  *           聊天与 IM 解耦；连接 IM 仅点亮 Tasks/Files + 推 Connected 消息
  *           右上角 Portfolio 入口复用 portfolio/ConnectAccountModal，broker 态与 IM 同为用户级（跨频道不重置）
@@ -17,12 +18,13 @@ import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/component
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
 import { ConnectAccountModal, brokerDisplayInfo } from '@/app/components/portfolio/ConnectAccountModal';
 import { PortfolioInfoModal, type ConnectedBrokerInfo } from '@/app/components/agent/PortfolioInfoModal';
-import { ChatInput } from '@/app/components/shared/ChatInput';
+import { ChatInput, type InjectTextSignal } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
 import { setPortfolioWatchEnabled } from '@/lib/portfolio-watch';
 import { ChannelSeedThread } from '@/app/components/agent/ChannelSeedThread';
 import { EMPTY_PROMPTS, EmptyPromptPill } from '@/app/components/chat/PlaybookSuggestions';
+import { TickerLogo } from '@/app/components/shared/TickerLogo';
 import { SEED_CHANNEL_ID, channelsStore } from '@/app/state/channels';
 import { EditChannelModal } from '@/app/components/shared/EditChannelModal';
 
@@ -43,7 +45,7 @@ const P = {
   bell: <><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" /><path d="M10.5 19a1.5 1.5 0 0 0 3 0" /></>,
 };
 
-/* Onboard Card/Default — Figma 9428:49614:未连接态 3 条引导,点击直接发起对应 automation 流 */
+/* Onboard Card/Default — Figma 11486:135467 四条引导:两条 automation builder + ticker read(即时问答) + custom 兜底 */
 interface OnboardCard { id: string; emoji: string; title: string; desc: string; prompt: string; taskTitle: string }
 
 const ONBOARD_CARDS: OnboardCard[] = [
@@ -58,18 +60,18 @@ const ONBOARD_CARDS: OnboardCard[] = [
   {
     id: 'fintwit-digest',
     emoji: '📣',
-    title: 'Track FinTwit for alpha signals',
-    desc: "I'll scan X posts, filter out the noise, and send you a daily digest on alpha signals, conviction shifts, and debates that matter.",
-    prompt: 'Track FinTwit for alpha signals — scan X, filter the noise, and send me a daily digest',
-    taskTitle: 'Automation: FinTwit Digest',
+    title: 'Track X, news & technicals for alpha',
+    desc: "I'll scan the X voices you pick, market news, and chart setups, then send you a fresh digest of signals where the evidence lines up.",
+    prompt: 'Track X, news & technicals for alpha — scan the voices I pick and send me a digest of signals where the evidence lines up',
+    taskTitle: 'Automation: Alpha Radar',
   },
   {
-    id: 'screener',
-    emoji: '🔍',
-    title: 'Screen the market on your rules',
-    desc: "Set your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.",
-    prompt: 'Screen the market on my rules — set my criteria once and message me only when new names qualify',
-    taskTitle: 'Automation: Smart Screener',
+    id: 'ticker-read',
+    emoji: '📊',
+    title: 'Get a quick read on any ticker',
+    desc: "Name a stock or coin — I'll read the tape: current setup, key levels, what breaks it, and near-term catalysts. Short, sourced, no buy/sell calls.",
+    prompt: "Give me a quick tape read on a ticker — current setup, key levels, what breaks it, and what's coming up.",
+    taskTitle: 'Skill: Ticker Read',
   },
   {
     id: 'custom-automation',
@@ -80,6 +82,9 @@ const ONBOARD_CARDS: OnboardCard[] = [
     taskTitle: 'Automation: Custom',
   },
 ];
+
+/* Screener 引导已从 onboard 移除(Figma 11486:135467 精简为 4 条);交互链路(startScreener/screenerrec)保留,
+   composer 发 screener 类 prompt 仍走 Automation: Smart Screener 任务流 */
 
 /* Alerts tab「Get Started」5 卡 — Figma 10845:71203(For Alert 变体);portfolio/fintwit 两张接现有 flow,其余回 Chat */
 const ALERT_GET_STARTED_CARDS: { id: string; emoji: string; title: string; desc: string }[] = [
@@ -225,6 +230,243 @@ function AlertChannelsCard({ onConnect }: { onConnect: (id: string) => void }) {
   );
 }
 
+/* Onboard Card/Screener(Figma 10431:105520)— 3 条示例 screener prompt,行尾 enter-l(n5),点击即作为消息发出 */
+const SCREENER_PROMPTS = [
+  'Screen rate-sensitive small caps with 4 quarters of margin expansion and price strength into the FOMC meeting',
+  'Screen AI semiconductor stocks with revenue growth > 25% YoY and positive EPS revisions into Computex',
+  'Screen AI infrastructure stocks with FCF growth > 30% YoY and net cash on balance sheet',
+];
+
+function ScreenerPromptsCard({ onPick }: { onPick: (text: string) => void }) {
+  return (
+    <div className="flex w-full flex-col overflow-hidden rounded-[8px]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+      {SCREENER_PROMPTS.map((text, i, arr) => (
+        <button
+          key={text}
+          type="button"
+          className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent px-[16px] py-[12px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+          style={{ border: 'none', borderBottom: i < arr.length - 1 ? '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' : 'none' }}
+          onClick={() => onPick(text)}
+        >
+          <p className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{text}</p>
+          <CdnIcon name="enter-l" size={16} color="var(--text-n5, rgba(0,0,0,0.5))" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* Ticker Read skill — mock 读数(照 Telegram /ticker_read 输出结构:判断句 + TAPE + BREAKS IF + SOURCES);
+   选项卡 17 个标的(Figma 11486:139136)全覆盖,BTC/ETH 不在 chips 但 composer 输入可读 */
+const TICKER_READS: Record<string, { summary: string; tape: string; breaksIf?: string; sources: string }> = {
+  AAPL: {
+    summary: 'AAPL is basing quietly at $233 after the June run — holding the breakout shelf at $228–230 while the tape digests.',
+    tape: 'TAPE: $233.15 · Jul 16 +0.4% · 20-day realized swing ~1.9%, tightest in the megacap set',
+    breaksIf: 'BREAKS IF: a close under $228 puts the June breakout in doubt; over $238 resumes the trend.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  GOOGL: {
+    summary: 'GOOGL: trend intact but extended — $192 is pressing the upper end of the 3-month channel.',
+    tape: 'TAPE: $192.34 · Jul 16 +0.9% · 8 of the last 10 sessions closed green',
+    breaksIf: 'BREAKS IF: a rejection here and a close under $185 flips it back to mid-range chop; $178 is the channel floor.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  AMZN: {
+    summary: 'AMZN is coiling under $230 — third tag of that ceiling in a month while higher lows keep stacking from $218.',
+    tape: 'TAPE: $228.42 · Jul 16 -0.2% · range compressing: 20-day swing down to ~2.3% from 4%',
+    breaksIf: 'BREAKS IF: a close over $230 resolves the coil higher; losing $218 negates the pattern.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  MSFT: {
+    summary: "MSFT: steady grind at $512, sitting just above the 20-day; pullbacks keep getting bought before they reach $500.",
+    tape: "TAPE: $512.64 · Jul 16 +0.1% · hasn't closed below the 20-day in 6 weeks",
+    breaksIf: 'BREAKS IF: a daily close under $500 — round number plus the 50-day sits right there.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  META: {
+    summary: 'META is consolidating the earnings gap at $715; the $690 gap-fill level is the line dip buyers keep defending.',
+    tape: 'TAPE: $714.85 · Jul 16 -0.7%, after hours flat · 20-day swing ~3.4%',
+    breaksIf: "BREAKS IF: a close under $690 opens the gap toward $655; over $735 it's back at highs.",
+    sources: 'SOURCES: US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
+  },
+  NFLX: {
+    summary: 'NFLX: first real dip since the spring run — $1,287, down from $1,340, testing the 50-day for the first time in 4 months.',
+    tape: 'TAPE: $1,287.32 · Jul 16 -1.6% · 3 straight red sessions, volume above average on each',
+    breaksIf: 'BREAKS IF: it loses the 50-day at $1,270 with follow-through — next shelf is $1,180.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  AMD: {
+    summary: 'AMD woke up — $162 after clearing the $155 base it sat in for two months, and the move came on real volume.',
+    tape: 'TAPE: $161.94 · Jul 16 +2.8% · breakout volume 1.7x the 20-day average',
+    breaksIf: 'BREAKS IF: a close back under $155 makes it a failed breakout; $148 is the base floor.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  HOOD: {
+    summary: 'HOOD is the strongest chart on this list — $98, up 5 weeks straight, but now stretched ~18% above the 20-day.',
+    tape: 'TAPE: $97.64 · Jul 16 +3.1% · RSI-14 at 78, hottest since February',
+    breaksIf: 'BREAKS IF: nothing structural until $84; this is extension risk, not trend risk.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  COIN: {
+    summary: 'COIN trades with BTC and BTC is heavy — $355, back to the middle of its 3-month range while crypto volumes thin out.',
+    tape: 'TAPE: $354.72 · Jul 16 -2.1% · correlation to BTC running ~0.8 over the last month',
+    breaksIf: 'BREAKS IF: BTC losing $62,700 likely drags COIN to the $330 range floor; reclaiming $380 needs a crypto bounce.',
+    sources: 'SOURCES: US equities daily bars, Binance BTC/USDT — as of Jul 16 close',
+  },
+  UBER: {
+    summary: 'UBER: quiet strength — $94, new highs on no news, which is usually the good kind.',
+    tape: 'TAPE: $94.21 · Jul 16 +0.8% · 4th all-time-high close in 2 weeks, swing still a tame ~2.6%',
+    breaksIf: 'BREAKS IF: a close under $88 — the breakout shelf and where the last two dips reversed.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  NVDA: {
+    summary: 'NVDA: a pullback of normal depth — after hours at $206; $203–205 is the only support band worth watching right now.',
+    tape: 'TAPE: $206 · Jul 16 regular session -2.4%, after hours -3.1% vs prior close · near its 20-day normal swing ~3.1%',
+    sources: 'SOURCES: US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
+  },
+  AVGO: {
+    summary: 'AVGO: pulling back with semis — $298, off 6% from the high but still above the June breakout at $285.',
+    tape: 'TAPE: $298.15 · Jul 16 -1.9% · semis (SOX) -2.3% the same day, so this is sector, not stock',
+    breaksIf: "BREAKS IF: a close under $285 turns the breakout into resistance; $305 back on top says the dip's done.",
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  ORCL: {
+    summary: 'ORCL is still digesting the post-earnings spike — $245, drifting sideways in the upper half of the gap-day range.',
+    tape: 'TAPE: $244.84 · Jul 16 -0.5% · 11 sessions inside $238–252, volume fading each week',
+    breaksIf: 'BREAKS IF: a close under $238 starts filling the gap toward $224; over $252 resumes.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  IBM: {
+    summary: 'IBM: grinding higher on its own schedule — $292, riding the 20-day with the steadiest tape in large-cap tech.',
+    tape: "TAPE: $291.75 · Jul 16 +0.3% · 20-day realized swing ~1.7%, half the QQQ's",
+    breaksIf: 'BREAKS IF: a close under $283 — first lower low since April, and the 50-day sits there.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  SPY: {
+    summary: 'SPY is drifting sideways just under the highs at $628; buyers keep stepping in at $620–622 and the trend is intact.',
+    tape: 'TAPE: $627.58 · Jul 16 -0.3% · 12 of the last 15 sessions closed inside a ±0.6% band',
+    breaksIf: 'BREAKS IF: a daily close under $620 — the shelf from the June breakout and the 20-day floor.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  QQQ: {
+    summary: 'QQQ is stalling just under the high at $565 — three tests of $568 in two weeks, each on lighter volume.',
+    tape: 'TAPE: $564.92 · Jul 16 -0.6% · breadth soft: 4 of 10 sessions had more decliners than advancers inside the index',
+    breaksIf: 'BREAKS IF: a close over $568 on volume unlocks the trend; under $552 the pullback has legs toward $540.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  TSLA: {
+    summary: 'TSLA is chopping mid-range at $318; neither the $295 floor nor the $340 ceiling is in play yet.',
+    tape: 'TAPE: $318.42 · Jul 16 +1.1%, after hours -0.4% · 20-day realized swing ~4.2%',
+    breaksIf: 'BREAKS IF: a close over $340 opens the March gap toward $360; losing $295 breaks the range.',
+    sources: 'SOURCES: US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
+  },
+  BTC: {
+    summary: 'BTC is stress-testing $62,700–63,000; the whole move off the $65,600 high has been given back and no bounce has formed yet.',
+    tape: 'TAPE: $62,876.89 · 24h -2.9% · 24h low $62,710',
+    breaksIf: 'BREAKS IF: it reclaims $64,000; if the lower edge gives way, the last confirmed low is $61,825.',
+    sources: 'SOURCES: Binance BTC/USDT 15-min / daily — as of 06:45 UTC',
+  },
+  ETH: {
+    summary: 'ETH is holding up better than BTC — $3,341 and still above the reclaimed $3,280 shelf, but it goes where BTC goes if $62,700 fails.',
+    tape: 'TAPE: $3,341.26 · 24h -1.8% · 24h low $3,306',
+    breaksIf: "BREAKS IF: a clean loss of $3,280 — below that there's little traded volume until $3,150.",
+    sources: 'SOURCES: Binance ETH/USDT 15-min / daily — as of 06:45 UTC',
+  },
+  SOL: {
+    summary: 'SOL is riding the L1 rotation — $168, holding the breakout from $150 even while BTC chops.',
+    tape: 'TAPE: $168.35 · 24h +1.2% · 24h low $164.82',
+    breaksIf: 'BREAKS IF: a close back under $150 unwinds the breakout; $178 is the March supply shelf.',
+    sources: 'SOURCES: Binance SOL/USDT 15-min / daily — as of 06:45 UTC',
+  },
+  MU: {
+    summary: 'MU: memory-cycle momentum intact — $142, consolidating above the earnings gap at $135.',
+    tape: 'TAPE: $141.87 · Jul 16 -0.8% · has held 100% of the post-earnings gap',
+    breaksIf: 'BREAKS IF: a close under $135 fills the gap and stalls the cycle trade; $150 is the next supply.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  TSM: {
+    summary: 'TSM is quietly making new highs — $248, pulled up by the AI capex chain with no distribution day in 3 weeks.',
+    tape: 'TAPE: $247.92 · Jul 16 +0.6% · 20-day realized swing ~2.4%',
+    breaksIf: 'BREAKS IF: a close under $232 — the last breakout shelf and the 50-day.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  PLTR: {
+    summary: 'PLTR: crowded and extended — $155, still trending but ~25% above the 50-day with sentiment running hot.',
+    tape: 'TAPE: $154.66 · Jul 16 +1.9% · 20-day realized swing ~5.1%, highest on this list',
+    breaksIf: "BREAKS IF: nothing structural until $132; below that it's an air pocket to $118.",
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  INTC: {
+    summary: 'INTC is a show-me story — $34, basing for two months between $31 and $36 while the turnaround narrative rebuilds.',
+    tape: 'TAPE: $33.85 · Jul 16 -0.3% · volume drying up inside the base',
+    breaksIf: 'BREAKS IF: a close over $36 starts the repair trade; under $31 the base fails.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+  GLD: {
+    summary: 'GLD is grinding at highs — $312, the real-rate tailwind intact and every dip to the 20-day getting bought.',
+    tape: 'TAPE: $311.94 · Jul 16 +0.4% · 6 of the last 7 weekly closes were higher',
+    breaksIf: 'BREAKS IF: a weekly close under $298 — the breakout retest level.',
+    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+  },
+};
+
+/* 从输入中提取命中 mock 库的 symbol(支持 "$NVDA"、混合文本如 "NVDA BTC focus on levels"):命中 ≥1 即走 ticker read */
+function parseTickers(text: string): string[] | null {
+  const tokens = text.trim().split(/[\s,，、/]+/).filter(Boolean).map((t) => t.replace(/^\$/, '').toUpperCase());
+  const hits = [...new Set(tokens.filter((t) => t in TICKER_READS))];
+  return hits.length ? hits : null;
+}
+
+/* 选项卡展示的 17 个热门标的(Figma 11486:139136 顺序) */
+const TICKER_CHIPS = ['AAPL', 'TSLA', 'GOOGL', 'AMZN', 'MSFT', 'META', 'NFLX', 'AMD', 'HOOD', 'COIN', 'UBER', 'NVDA', 'AVGO', 'ORCL', 'IBM', 'SPY', 'QQQ'];
+
+/* 补位池(PortfolioBuilder 同款交互):chip 被点走后该格原位刷成池中下一个未用标的;demo 热门标的,mock 库已全覆盖 */
+const TICKER_POOL = ['BTC', 'ETH', 'SOL', 'MU', 'TSM', 'PLTR', 'INTC', 'GLD'];
+
+/* Ticker Read 热门标的选项卡(Figma 11486:139136):白底 p16 卡,pill chip = br03 底 + 16px TickerLogo + 14 n7。
+   交互(方案 C):点 chip → symbol 填入 composer(可继续点选/自由补字,回车一起发),该格原位补位、池耗尽则移除 */
+function TickerPickCard({ onPick }: { onPick: (symbol: string) => void }) {
+  const [slots, setSlots] = useState<string[]>(TICKER_CHIPS);
+  /* 展示过/点走过的都不再进补位,避免重复推荐 */
+  const takenRef = useRef(new Set<string>(TICKER_CHIPS));
+  const pick = (symbol: string) => {
+    onPick(symbol);
+    setSlots((prev) => {
+      const next = TICKER_POOL.find((cand) => !takenRef.current.has(cand));
+      if (next) takenRef.current.add(next);
+      return next ? prev.map((s) => (s === symbol ? next : s)) : prev.filter((s) => s !== symbol);
+    });
+  };
+  return (
+    <div
+      className="flex w-full flex-col gap-[12px] rounded-[8px] p-[16px]"
+      style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+    >
+      <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+        Which ticker do you want to read?
+      </p>
+      <div className="flex flex-wrap gap-[12px]">
+        {slots.map((symbol) => (
+          <button
+            key={symbol}
+            type="button"
+            onClick={() => pick(symbol)}
+            className="flex shrink-0 cursor-pointer items-center gap-[4px] rounded-full border-none px-[12px] py-[6px] transition-colors hover:bg-[rgba(0,0,0,0.06)]"
+            style={{
+              background: 'var(--content-br03, rgba(0,0,0,0.03))',
+              /* 补位进来的 chip 淡入进场;初始 17 个不动画(卡片整体已有 MsgIn) */
+              animation: TICKER_CHIPS.includes(symbol) ? undefined : 'agent-msg-in 0.25s ease-out both',
+            }}
+          >
+            <TickerLogo ticker={symbol} size={16} />
+            <span className="whitespace-nowrap text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>{symbol}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* push 归因:这条推送出自哪个 automation */
 function SourceTag({ automation }: { automation: string }) {
   return (
@@ -293,11 +535,25 @@ function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', 
   );
 }
 
-function UserMsg({ text }: { text: string }) {
+/* 用户气泡引用 chip(Figma Quote/Chat-bar 26531:19027):20px 图 + 12px 文 + close-l1 */
+interface MsgQuote { label: string; img: string }
+
+/* 用户气泡（Figma Chat/Block-User Bubble 26531:19024）:px16 py12,可选 Quote 引用 chip(20px 图 + 12px 文 + close-l1) */
+function UserMsg({ text, quote }: { text: string; quote?: MsgQuote }) {
+  const base = import.meta.env.BASE_URL;
   return (
     <div className="flex w-full flex-col items-end">
-      <div className="max-w-[560px] rounded-[8px] px-[14px] py-[10px]" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
-        <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{text}</p>
+      <div className="flex max-w-[560px] flex-col rounded-[8px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
+        {quote && (
+          <div className="flex w-full flex-wrap items-start gap-[8px] pb-[8px]">
+            <span className="flex shrink-0 items-center gap-[6px] rounded-[4px] p-[6px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+              <img src={`${base}${quote.img}`} alt="" className="size-[20px] shrink-0 object-cover" />
+              <span className="max-w-[184px] truncate text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{quote.label}</span>
+              <CdnIcon name="close-l1" size={12} color="var(--text-n9, rgba(0,0,0,0.9))" />
+            </span>
+          </div>
+        )}
+        <p className="w-full text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{text}</p>
       </div>
     </div>
   );
@@ -327,10 +583,15 @@ function MsgIn({ delay = 0, children }: { delay?: number; children: React.ReactN
 /* ========== 互动消息流(respond 模拟)========== */
 
 type ExtraMsg =
-  | { id: number; role: 'user'; text: string }
+  | { id: number; role: 'user'; text: string; quote?: MsgQuote }
   | { id: number; role: 'typing' }
   | { id: number; role: 'task'; title: string; kind: 'playbook' | 'automation'; state: 'running' | 'done' }
   | { id: number; role: 'imrec' }
+  /* Onboard 第三条(screener)的推荐回复:两行文案 + 示例 prompt 卡(Figma 10673:50492) */
+  | { id: number; role: 'screenerrec' }
+  /* Ticker Read skill:介绍 + 热门标的选项卡 / 按标的 mock 读数回复 */
+  | { id: number; role: 'tickerask' }
+  | { id: number; role: 'tickerread'; symbols: string[] }
   | { id: number; role: 'subpush'; title: string; push?: string; automation: string }
   | { id: number; role: 'answer'; text: string }
   /* Start Watching 的 Alva 确认回复:正文 + (未连接时)内嵌「选择推送渠道」卡片(Figma 8341:126245) */
@@ -398,12 +659,39 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const imLinksRef = useRef(imLinks);
   imLinksRef.current = imLinks;
   const stageRef = useRef<HTMLDivElement>(null);
+  /* 会话代际:重置(点 Chat tab / 切频道)时 +1,悬挂中的 setTimeout 回复按代际作废,不会在新会话里凭空冒出 */
+  const sessionEpochRef = useRef(0);
+  /* composer 文本镜像(onInputChange 同步,发送后 ChatInput 会回调 '' 清零)+ 程序化注入信号 */
+  const composerTextRef = useRef('');
+  const injectSeqRef = useRef(0);
+  const [composerInject, setComposerInject] = useState<InjectTextSignal | null>(null);
+  /* 点 ticker chip → 追加 "symbol, " 到 composer(方案 C:填入输入框,与自由输入组合,回车一起发) */
+  const appendTicker = useCallback((symbol: string) => {
+    const cur = composerTextRef.current.trimEnd();
+    const text = `${cur ? `${cur} ` : ''}${symbol}, `;
+    composerTextRef.current = text;
+    setComposerInject({ text, seq: ++injectSeqRef.current });
+  }, []);
 
   const activeIm = imActive ? IMS.find((i) => i.id === imActive) ?? null : null;
   /* 是否连过 IM（驱动 imrec 软推荐是否出现 + Tasks/Files 是否点亮）；不再影响开场 onboard 视图 */
   const connected = Object.values(imLinks).some(Boolean);
   /* 预置演示频道（alva-to-the-moon）：聊天区显示预置对话（Figma 10998:50677），tabs 直接用连接后的产出 */
   const seeded = channel?.id === SEED_CHANNEL_ID;
+
+  /* 会话重置回初始 onboard 空态：清空消息与会话产出（连接状态 imLinks/imActive 刻意不重置——用户级全局） */
+  const resetSession = useCallback(() => {
+    sessionEpochRef.current += 1;
+    setExtra([]);
+    setSessionAlerts([]);
+    setStarted(false);
+    imRecShownRef.current = false;
+    /* composer 里点选注入的残留文本一并清空 */
+    if (composerTextRef.current) {
+      composerTextRef.current = '';
+      setComposerInject({ text: '', seq: ++injectSeqRef.current });
+    }
+  }, []);
 
   /* 切换频道（含默认 Alva Agent）时，视图与会话产出回到该频道的空态 onboard；
      连接状态(imLinks/imActive)刻意不重置——右上角连接态在所有频道间与 Alva Agent 同步 */
@@ -412,10 +700,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     if (!didMountRef.current) { didMountRef.current = true; return; }
     setTab('chat');
     closeFlow();
-    setExtra([]);
-    setSessionAlerts([]);
-    setStarted(false);
-    imRecShownRef.current = false;
+    resetSession();
   }, [channel?.id]);
 
   const scrollToEnd = useCallback(() => {
@@ -427,19 +712,23 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   /* 任务流:user → typing → task running → done;完成后若未连 IM,一次性软推荐 */
   const respond = useCallback((userText: string, kind: 'playbook' | 'automation', title: string) => {
     setTab('chat');
+    const epoch = sessionEpochRef.current;
     const userId = ++idRef.current;
     const typingId = ++idRef.current;
     setExtra((prev) => [...prev, { id: userId, role: 'user', text: userText }, { id: typingId, role: 'typing' }]);
     scrollToEnd();
     setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
       const taskId = ++idRef.current;
       setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: taskId, role: 'task', title, kind, state: 'running' }));
       scrollToEnd();
       setTimeout(() => {
+        if (sessionEpochRef.current !== epoch) return;
         setExtra((prev) => prev.map((m) => (m.id === taskId && m.role === 'task' ? { ...m, state: 'done' } : m)));
         if (!Object.values(imLinksRef.current).some(Boolean) && !imRecShownRef.current) {
           imRecShownRef.current = true;
           setTimeout(() => {
+            if (sessionEpochRef.current !== epoch) return;
             setExtra((prev) => [...prev, { id: ++idRef.current, role: 'imrec' }]);
             scrollToEnd();
           }, 1400);
@@ -448,19 +737,74 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     }, 1000);
   }, [scrollToEnd]);
 
+  /* 纯 ticker 输入(点选项卡 chip / composer 直接打 symbol)→ Ticker Read mock 读数;user 气泡 → typing → 按标的回复 */
+  const respondTicker = useCallback((userText: string, symbols: string[]) => {
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    const userId = ++idRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, { id: userId, role: 'user', text: userText }, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'tickerread', symbols }));
+      scrollToEnd();
+    }, 1000);
+  }, [scrollToEnd]);
+
   const onPrompt = useCallback((text: string) => {
     setStarted(true);
+    const tickers = parseTickers(text);
+    if (tickers) { respondTicker(text, tickers); return; }
     const kind: 'playbook' | 'automation' = /screen|alert|monitor|watch|what if/i.test(text) ? 'automation' : 'playbook';
     respond(text, kind, kind === 'automation' ? 'Automation: Smart Screener' : `Build: ${text.slice(0, 42)}…`);
-  }, [respond]);
+  }, [respond, respondTicker]);
+
+  /* Onboard「Get a quick read on any ticker」→ 发出带 Ticker Read 引用的消息,回复 skill 介绍 + 热门标的选项卡 */
+  const startTickerRead = useCallback((userText: string) => {
+    setStarted(true);
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    const userId = ++idRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, {
+      id: userId, role: 'user', text: userText, quote: { img: 'avatar-ticker-read.png', label: 'Ticker Read' },
+    }, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'tickerask' }));
+      scrollToEnd();
+    }, 1000);
+  }, [scrollToEnd]);
+
+  /* Onboard「Screen the market on your rules」→ 发出带 Smart Screener 引用的用户消息,回复示例 prompt 推荐卡(Figma 10673:50480) */
+  const startScreener = useCallback((userText: string) => {
+    setStarted(true);
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    const userId = ++idRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, {
+      id: userId, role: 'user', text: userText, quote: { img: 'avatar-smart-screener.png', label: 'Smart Screener' },
+    }, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'screenerrec' }));
+      scrollToEnd();
+    }, 1000);
+  }, [scrollToEnd]);
 
   /* 订阅:即时生效,Alva 立刻推首条 run(价值先行,不要求连接)*/
   const pushSubscribe = useCallback((title: string, push: string | undefined, automation: string) => {
     setTab('chat');
+    const epoch = sessionEpochRef.current;
     const typingId = ++idRef.current;
     setExtra((prev) => [...prev, { id: typingId, role: 'typing' }]);
     scrollToEnd();
     setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
       const pushId = ++idRef.current;
       setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: pushId, role: 'subpush', title, push, automation }));
       scrollToEnd();
@@ -476,10 +820,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     /* mock 成 populated 列表:整套 AGENT_ALERTS + 末尾追加本次新建的 portfolio watch */
     setSessionAlerts((prev) => (prev.length ? prev : [...AGENT_ALERTS, PORTFOLIO_WATCH_ALERT]));
     setTab('chat');
+    const epoch = sessionEpochRef.current;
     const typingId = ++idRef.current;
     setExtra((prev) => [...prev, { id: typingId, role: 'typing' }]);
     scrollToEnd();
     setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
       setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({
         id: ++idRef.current,
         role: 'watchreply',
@@ -633,8 +979,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               style={{ border: 'none', borderBottom: active ? '2px solid var(--main-m1, #49A3A6)' : '2px solid transparent' }}
               onClick={() => {
                 setTab(t.id);
-                // 点 Chat 从独立 flow 回到默认引导：清掉 URL 后缀回到 #agent
-                if (t.id === 'chat' && (portfolioOpen || alphaRadarOpen)) closeFlow();
+                // 点 Chat 一律回到初始 onboard 空态：退出独立 flow + 清空会话消息与产出（预置演示频道除外）
+                if (t.id === 'chat') {
+                  if (portfolioOpen || alphaRadarOpen) closeFlow();
+                  if (!seeded) resetSession();
+                }
               }}
             >
               <CdnIcon name={t.icon} size={16} color={active ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n7, rgba(0,0,0,0.7))'} />
@@ -711,8 +1060,10 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
                       style={{ border: 'none', borderBottom: i < arr.length - 1 ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : 'none' }}
                       onClick={() => {
+                        if (c.id === 'ticker-read') startTickerRead(c.prompt);
                         if (c.id === 'portfolio-digest') openFlow('portfolio');
                         if (c.id === 'fintwit-digest') openFlow('fintwit');
+                        if (c.id === 'screener') startScreener(c.prompt);
                       }}
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
@@ -730,8 +1081,59 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               )}
 
               {extra.map((m) => {
-                if (m.role === 'user') return <MsgIn key={m.id}><UserMsg text={m.text} /></MsgIn>;
+                if (m.role === 'user') return <MsgIn key={m.id}><UserMsg text={m.text} quote={m.quote} /></MsgIn>;
                 if (m.role === 'typing') return <MsgIn key={m.id}><AgentMsg time="now"><TypingDots /></AgentMsg></MsgIn>;
+                /* tickerask — Ticker Read skill 介绍 + 热门标的选项卡(点 chip 即发送 symbol,composer 输入任意 symbol 同路) */
+                if (m.role === 'tickerask') {
+                  return (
+                    <MsgIn key={m.id}>
+                    <AgentMsg time="now">
+                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                        This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.
+                      </p>
+                      <TickerPickCard onPick={appendTicker} />
+                    </AgentMsg>
+                    </MsgIn>
+                  );
+                }
+                /* tickerread — 按标的输出 mock 读数:判断句(n9) + TAPE/BREAKS IF/SOURCES 小字(n5) */
+                if (m.role === 'tickerread') {
+                  return (
+                    <MsgIn key={m.id}>
+                    <AgentMsg time="now">
+                      {m.symbols.map((symbol) => {
+                        const read = TICKER_READS[symbol];
+                        if (!read) return null;
+                        return (
+                          <div key={symbol} className="flex w-full flex-col gap-[2px]">
+                            <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{read.summary}</p>
+                            <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{read.tape}</p>
+                            {read.breaksIf && (
+                              <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{read.breaksIf}</p>
+                            )}
+                            <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{read.sources}</p>
+                          </div>
+                        );
+                      })}
+                    </AgentMsg>
+                    </MsgIn>
+                  );
+                }
+                /* screenerrec — 第三条引导的推荐回复:标题 + 说明两行,下接示例 prompt 卡,点行即发送 */
+                if (m.role === 'screenerrec') {
+                  return (
+                    <MsgIn key={m.id}>
+                    <AgentMsg time="now">
+                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                        Screen the market on your rules
+                        <br />
+                        Set your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.
+                      </p>
+                      <ScreenerPromptsCard onPick={onPrompt} />
+                    </AgentMsg>
+                    </MsgIn>
+                  );
+                }
                 if (m.role === 'answer') {
                   return (
                     <MsgIn key={m.id}>
@@ -819,7 +1221,18 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   ))}
                 </div>
               )}
-              <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector voiceInput placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
+              <ChatInput
+                shadow
+                shadowSize="xs"
+                subtleBorder
+                allowReferences={false}
+                hideInspector
+                voiceInput
+                placeholder="Ask Alva anything. @ for context, / for skills"
+                onSend={onPrompt}
+                injectText={composerInject}
+                onInputChange={(text) => { composerTextRef.current = text; }}
+              />
             </div>
           </div>
         </>
