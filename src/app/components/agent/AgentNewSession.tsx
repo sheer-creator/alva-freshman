@@ -18,7 +18,7 @@ import { AgentAlertsPanel, AGENT_ALERTS, type AgentAlert } from '@/app/component
 import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
 import { ConnectAccountModal, brokerDisplayInfo } from '@/app/components/portfolio/ConnectAccountModal';
 import { PortfolioInfoModal, type ConnectedBrokerInfo } from '@/app/components/agent/PortfolioInfoModal';
-import { ChatInput, type InjectTextSignal } from '@/app/components/shared/ChatInput';
+import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
 import { setPortfolioWatchEnabled } from '@/lib/portfolio-watch';
@@ -261,152 +261,152 @@ function ScreenerPromptsCard({ onPick }: { onPick: (text: string) => void }) {
 const TICKER_READS: Record<string, { summary: string; tape: string; breaksIf?: string; sources: string }> = {
   AAPL: {
     summary: 'AAPL is basing quietly at $233 after the June run — holding the breakout shelf at $228–230 while the tape digests.',
-    tape: 'TAPE: $233.15 · Jul 16 +0.4% · 20-day realized swing ~1.9%, tightest in the megacap set',
-    breaksIf: 'BREAKS IF: a close under $228 puts the June breakout in doubt; over $238 resumes the trend.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$233.15 · Jul 16 +0.4% · 20-day realized swing ~1.9%, tightest in the megacap set',
+    breaksIf: 'a close under $228 puts the June breakout in doubt; over $238 resumes the trend.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   GOOGL: {
-    summary: 'GOOGL: trend intact but extended — $192 is pressing the upper end of the 3-month channel.',
-    tape: 'TAPE: $192.34 · Jul 16 +0.9% · 8 of the last 10 sessions closed green',
-    breaksIf: 'BREAKS IF: a rejection here and a close under $185 flips it back to mid-range chop; $178 is the channel floor.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: 'Trend intact but extended — $192 is pressing the upper end of the 3-month channel.',
+    tape: '$192.34 · Jul 16 +0.9% · 8 of the last 10 sessions closed green',
+    breaksIf: 'a rejection here and a close under $185 flips it back to mid-range chop; $178 is the channel floor.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   AMZN: {
     summary: 'AMZN is coiling under $230 — third tag of that ceiling in a month while higher lows keep stacking from $218.',
-    tape: 'TAPE: $228.42 · Jul 16 -0.2% · range compressing: 20-day swing down to ~2.3% from 4%',
-    breaksIf: 'BREAKS IF: a close over $230 resolves the coil higher; losing $218 negates the pattern.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$228.42 · Jul 16 -0.2% · range compressing: 20-day swing down to ~2.3% from 4%',
+    breaksIf: 'a close over $230 resolves the coil higher; losing $218 negates the pattern.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   MSFT: {
-    summary: "MSFT: steady grind at $512, sitting just above the 20-day; pullbacks keep getting bought before they reach $500.",
-    tape: "TAPE: $512.64 · Jul 16 +0.1% · hasn't closed below the 20-day in 6 weeks",
-    breaksIf: 'BREAKS IF: a daily close under $500 — round number plus the 50-day sits right there.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: "Steady grind at $512, sitting just above the 20-day; pullbacks keep getting bought before they reach $500.",
+    tape: "$512.64 · Jul 16 +0.1% · hasn't closed below the 20-day in 6 weeks",
+    breaksIf: 'a daily close under $500 — round number plus the 50-day sits right there.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   META: {
     summary: 'META is consolidating the earnings gap at $715; the $690 gap-fill level is the line dip buyers keep defending.',
-    tape: 'TAPE: $714.85 · Jul 16 -0.7%, after hours flat · 20-day swing ~3.4%',
-    breaksIf: "BREAKS IF: a close under $690 opens the gap toward $655; over $735 it's back at highs.",
-    sources: 'SOURCES: US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
+    tape: '$714.85 · Jul 16 -0.7%, after hours flat · 20-day swing ~3.4%',
+    breaksIf: "a close under $690 opens the gap toward $655; over $735 it's back at highs.",
+    sources: 'US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
   },
   NFLX: {
-    summary: 'NFLX: first real dip since the spring run — $1,287, down from $1,340, testing the 50-day for the first time in 4 months.',
-    tape: 'TAPE: $1,287.32 · Jul 16 -1.6% · 3 straight red sessions, volume above average on each',
-    breaksIf: 'BREAKS IF: it loses the 50-day at $1,270 with follow-through — next shelf is $1,180.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: 'First real dip since the spring run — $1,287, down from $1,340, testing the 50-day for the first time in 4 months.',
+    tape: '$1,287.32 · Jul 16 -1.6% · 3 straight red sessions, volume above average on each',
+    breaksIf: 'it loses the 50-day at $1,270 with follow-through — next shelf is $1,180.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   AMD: {
     summary: 'AMD woke up — $162 after clearing the $155 base it sat in for two months, and the move came on real volume.',
-    tape: 'TAPE: $161.94 · Jul 16 +2.8% · breakout volume 1.7x the 20-day average',
-    breaksIf: 'BREAKS IF: a close back under $155 makes it a failed breakout; $148 is the base floor.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$161.94 · Jul 16 +2.8% · breakout volume 1.7x the 20-day average',
+    breaksIf: 'a close back under $155 makes it a failed breakout; $148 is the base floor.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   HOOD: {
     summary: 'HOOD is the strongest chart on this list — $98, up 5 weeks straight, but now stretched ~18% above the 20-day.',
-    tape: 'TAPE: $97.64 · Jul 16 +3.1% · RSI-14 at 78, hottest since February',
-    breaksIf: 'BREAKS IF: nothing structural until $84; this is extension risk, not trend risk.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$97.64 · Jul 16 +3.1% · RSI-14 at 78, hottest since February',
+    breaksIf: 'nothing structural until $84; this is extension risk, not trend risk.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   COIN: {
     summary: 'COIN trades with BTC and BTC is heavy — $355, back to the middle of its 3-month range while crypto volumes thin out.',
-    tape: 'TAPE: $354.72 · Jul 16 -2.1% · correlation to BTC running ~0.8 over the last month',
-    breaksIf: 'BREAKS IF: BTC losing $62,700 likely drags COIN to the $330 range floor; reclaiming $380 needs a crypto bounce.',
-    sources: 'SOURCES: US equities daily bars, Binance BTC/USDT — as of Jul 16 close',
+    tape: '$354.72 · Jul 16 -2.1% · correlation to BTC running ~0.8 over the last month',
+    breaksIf: 'BTC losing $62,700 likely drags COIN to the $330 range floor; reclaiming $380 needs a crypto bounce.',
+    sources: 'US equities daily bars, Binance BTC/USDT — as of Jul 16 close',
   },
   UBER: {
-    summary: 'UBER: quiet strength — $94, new highs on no news, which is usually the good kind.',
-    tape: 'TAPE: $94.21 · Jul 16 +0.8% · 4th all-time-high close in 2 weeks, swing still a tame ~2.6%',
-    breaksIf: 'BREAKS IF: a close under $88 — the breakout shelf and where the last two dips reversed.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: 'Quiet strength — $94, new highs on no news, which is usually the good kind.',
+    tape: '$94.21 · Jul 16 +0.8% · 4th all-time-high close in 2 weeks, swing still a tame ~2.6%',
+    breaksIf: 'a close under $88 — the breakout shelf and where the last two dips reversed.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   NVDA: {
-    summary: 'NVDA: a pullback of normal depth — after hours at $206; $203–205 is the only support band worth watching right now.',
-    tape: 'TAPE: $206 · Jul 16 regular session -2.4%, after hours -3.1% vs prior close · near its 20-day normal swing ~3.1%',
-    sources: 'SOURCES: US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
+    summary: 'A pullback of normal depth — after hours at $206; $203–205 is the only support band worth watching right now.',
+    tape: '$206 · Jul 16 regular session -2.4%, after hours -3.1% vs prior close · near its 20-day normal swing ~3.1%',
+    sources: 'US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
   },
   AVGO: {
-    summary: 'AVGO: pulling back with semis — $298, off 6% from the high but still above the June breakout at $285.',
-    tape: 'TAPE: $298.15 · Jul 16 -1.9% · semis (SOX) -2.3% the same day, so this is sector, not stock',
-    breaksIf: "BREAKS IF: a close under $285 turns the breakout into resistance; $305 back on top says the dip's done.",
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: 'Pulling back with semis — $298, off 6% from the high but still above the June breakout at $285.',
+    tape: '$298.15 · Jul 16 -1.9% · semis (SOX) -2.3% the same day, so this is sector, not stock',
+    breaksIf: "a close under $285 turns the breakout into resistance; $305 back on top says the dip's done.",
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   ORCL: {
     summary: 'ORCL is still digesting the post-earnings spike — $245, drifting sideways in the upper half of the gap-day range.',
-    tape: 'TAPE: $244.84 · Jul 16 -0.5% · 11 sessions inside $238–252, volume fading each week',
-    breaksIf: 'BREAKS IF: a close under $238 starts filling the gap toward $224; over $252 resumes.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$244.84 · Jul 16 -0.5% · 11 sessions inside $238–252, volume fading each week',
+    breaksIf: 'a close under $238 starts filling the gap toward $224; over $252 resumes.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   IBM: {
-    summary: 'IBM: grinding higher on its own schedule — $292, riding the 20-day with the steadiest tape in large-cap tech.',
-    tape: "TAPE: $291.75 · Jul 16 +0.3% · 20-day realized swing ~1.7%, half the QQQ's",
-    breaksIf: 'BREAKS IF: a close under $283 — first lower low since April, and the 50-day sits there.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: 'Grinding higher on its own schedule — $292, riding the 20-day with the steadiest tape in large-cap tech.',
+    tape: "$291.75 · Jul 16 +0.3% · 20-day realized swing ~1.7%, half the QQQ's",
+    breaksIf: 'a close under $283 — first lower low since April, and the 50-day sits there.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   SPY: {
     summary: 'SPY is drifting sideways just under the highs at $628; buyers keep stepping in at $620–622 and the trend is intact.',
-    tape: 'TAPE: $627.58 · Jul 16 -0.3% · 12 of the last 15 sessions closed inside a ±0.6% band',
-    breaksIf: 'BREAKS IF: a daily close under $620 — the shelf from the June breakout and the 20-day floor.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$627.58 · Jul 16 -0.3% · 12 of the last 15 sessions closed inside a ±0.6% band',
+    breaksIf: 'a daily close under $620 — the shelf from the June breakout and the 20-day floor.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   QQQ: {
     summary: 'QQQ is stalling just under the high at $565 — three tests of $568 in two weeks, each on lighter volume.',
-    tape: 'TAPE: $564.92 · Jul 16 -0.6% · breadth soft: 4 of 10 sessions had more decliners than advancers inside the index',
-    breaksIf: 'BREAKS IF: a close over $568 on volume unlocks the trend; under $552 the pullback has legs toward $540.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$564.92 · Jul 16 -0.6% · breadth soft: 4 of 10 sessions had more decliners than advancers inside the index',
+    breaksIf: 'a close over $568 on volume unlocks the trend; under $552 the pullback has legs toward $540.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   TSLA: {
     summary: 'TSLA is chopping mid-range at $318; neither the $295 floor nor the $340 ceiling is in play yet.',
-    tape: 'TAPE: $318.42 · Jul 16 +1.1%, after hours -0.4% · 20-day realized swing ~4.2%',
-    breaksIf: 'BREAKS IF: a close over $340 opens the March gap toward $360; losing $295 breaks the range.',
-    sources: 'SOURCES: US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
+    tape: '$318.42 · Jul 16 +1.1%, after hours -0.4% · 20-day realized swing ~4.2%',
+    breaksIf: 'a close over $340 opens the March gap toward $360; losing $295 breaks the range.',
+    sources: 'US equities daily / after-hours 15-min bars — as of Jul 16, 8:00 PM ET',
   },
   BTC: {
     summary: 'BTC is stress-testing $62,700–63,000; the whole move off the $65,600 high has been given back and no bounce has formed yet.',
-    tape: 'TAPE: $62,876.89 · 24h -2.9% · 24h low $62,710',
-    breaksIf: 'BREAKS IF: it reclaims $64,000; if the lower edge gives way, the last confirmed low is $61,825.',
-    sources: 'SOURCES: Binance BTC/USDT 15-min / daily — as of 06:45 UTC',
+    tape: '$62,876.89 · 24h -2.9% · 24h low $62,710',
+    breaksIf: 'it reclaims $64,000; if the lower edge gives way, the last confirmed low is $61,825.',
+    sources: 'Binance BTC/USDT 15-min / daily — as of 06:45 UTC',
   },
   ETH: {
     summary: 'ETH is holding up better than BTC — $3,341 and still above the reclaimed $3,280 shelf, but it goes where BTC goes if $62,700 fails.',
-    tape: 'TAPE: $3,341.26 · 24h -1.8% · 24h low $3,306',
-    breaksIf: "BREAKS IF: a clean loss of $3,280 — below that there's little traded volume until $3,150.",
-    sources: 'SOURCES: Binance ETH/USDT 15-min / daily — as of 06:45 UTC',
+    tape: '$3,341.26 · 24h -1.8% · 24h low $3,306',
+    breaksIf: "a clean loss of $3,280 — below that there's little traded volume until $3,150.",
+    sources: 'Binance ETH/USDT 15-min / daily — as of 06:45 UTC',
   },
   SOL: {
     summary: 'SOL is riding the L1 rotation — $168, holding the breakout from $150 even while BTC chops.',
-    tape: 'TAPE: $168.35 · 24h +1.2% · 24h low $164.82',
-    breaksIf: 'BREAKS IF: a close back under $150 unwinds the breakout; $178 is the March supply shelf.',
-    sources: 'SOURCES: Binance SOL/USDT 15-min / daily — as of 06:45 UTC',
+    tape: '$168.35 · 24h +1.2% · 24h low $164.82',
+    breaksIf: 'a close back under $150 unwinds the breakout; $178 is the March supply shelf.',
+    sources: 'Binance SOL/USDT 15-min / daily — as of 06:45 UTC',
   },
   MU: {
-    summary: 'MU: memory-cycle momentum intact — $142, consolidating above the earnings gap at $135.',
-    tape: 'TAPE: $141.87 · Jul 16 -0.8% · has held 100% of the post-earnings gap',
-    breaksIf: 'BREAKS IF: a close under $135 fills the gap and stalls the cycle trade; $150 is the next supply.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: 'Memory-cycle momentum intact — $142, consolidating above the earnings gap at $135.',
+    tape: '$141.87 · Jul 16 -0.8% · has held 100% of the post-earnings gap',
+    breaksIf: 'a close under $135 fills the gap and stalls the cycle trade; $150 is the next supply.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   TSM: {
     summary: 'TSM is quietly making new highs — $248, pulled up by the AI capex chain with no distribution day in 3 weeks.',
-    tape: 'TAPE: $247.92 · Jul 16 +0.6% · 20-day realized swing ~2.4%',
-    breaksIf: 'BREAKS IF: a close under $232 — the last breakout shelf and the 50-day.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$247.92 · Jul 16 +0.6% · 20-day realized swing ~2.4%',
+    breaksIf: 'a close under $232 — the last breakout shelf and the 50-day.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   PLTR: {
-    summary: 'PLTR: crowded and extended — $155, still trending but ~25% above the 50-day with sentiment running hot.',
-    tape: 'TAPE: $154.66 · Jul 16 +1.9% · 20-day realized swing ~5.1%, highest on this list',
-    breaksIf: "BREAKS IF: nothing structural until $132; below that it's an air pocket to $118.",
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    summary: 'Crowded and extended — $155, still trending but ~25% above the 50-day with sentiment running hot.',
+    tape: '$154.66 · Jul 16 +1.9% · 20-day realized swing ~5.1%, highest on this list',
+    breaksIf: "nothing structural until $132; below that it's an air pocket to $118.",
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   INTC: {
     summary: 'INTC is a show-me story — $34, basing for two months between $31 and $36 while the turnaround narrative rebuilds.',
-    tape: 'TAPE: $33.85 · Jul 16 -0.3% · volume drying up inside the base',
-    breaksIf: 'BREAKS IF: a close over $36 starts the repair trade; under $31 the base fails.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$33.85 · Jul 16 -0.3% · volume drying up inside the base',
+    breaksIf: 'a close over $36 starts the repair trade; under $31 the base fails.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
   GLD: {
     summary: 'GLD is grinding at highs — $312, the real-rate tailwind intact and every dip to the 20-day getting bought.',
-    tape: 'TAPE: $311.94 · Jul 16 +0.4% · 6 of the last 7 weekly closes were higher',
-    breaksIf: 'BREAKS IF: a weekly close under $298 — the breakout retest level.',
-    sources: 'SOURCES: US equities daily bars — as of Jul 16 close',
+    tape: '$311.94 · Jul 16 +0.4% · 6 of the last 7 weekly closes were higher',
+    breaksIf: 'a weekly close under $298 — the breakout retest level.',
+    sources: 'US equities daily bars — as of Jul 16 close',
   },
 };
 
@@ -420,23 +420,9 @@ function parseTickers(text: string): string[] | null {
 /* 选项卡展示的 17 个热门标的(Figma 11486:139136 顺序) */
 const TICKER_CHIPS = ['AAPL', 'TSLA', 'GOOGL', 'AMZN', 'MSFT', 'META', 'NFLX', 'AMD', 'HOOD', 'COIN', 'UBER', 'NVDA', 'AVGO', 'ORCL', 'IBM', 'SPY', 'QQQ'];
 
-/* 补位池(PortfolioBuilder 同款交互):chip 被点走后该格原位刷成池中下一个未用标的;demo 热门标的,mock 库已全覆盖 */
-const TICKER_POOL = ['BTC', 'ETH', 'SOL', 'MU', 'TSM', 'PLTR', 'INTC', 'GLD'];
-
 /* Ticker Read 热门标的选项卡(Figma 11486:139136):白底 p16 卡,pill chip = br03 底 + 16px TickerLogo + 14 n7。
-   交互(方案 C):点 chip → symbol 填入 composer(可继续点选/自由补字,回车一起发),该格原位补位、池耗尽则移除 */
+   单选交互:点 chip 即把 symbol 作为消息发出;composer 直接输入任意 symbol 同路 */
 function TickerPickCard({ onPick }: { onPick: (symbol: string) => void }) {
-  const [slots, setSlots] = useState<string[]>(TICKER_CHIPS);
-  /* 展示过/点走过的都不再进补位,避免重复推荐 */
-  const takenRef = useRef(new Set<string>(TICKER_CHIPS));
-  const pick = (symbol: string) => {
-    onPick(symbol);
-    setSlots((prev) => {
-      const next = TICKER_POOL.find((cand) => !takenRef.current.has(cand));
-      if (next) takenRef.current.add(next);
-      return next ? prev.map((s) => (s === symbol ? next : s)) : prev.filter((s) => s !== symbol);
-    });
-  };
   return (
     <div
       className="flex w-full flex-col gap-[12px] rounded-[8px] p-[16px]"
@@ -446,17 +432,13 @@ function TickerPickCard({ onPick }: { onPick: (symbol: string) => void }) {
         Which ticker do you want to read?
       </p>
       <div className="flex flex-wrap gap-[12px]">
-        {slots.map((symbol) => (
+        {TICKER_CHIPS.map((symbol) => (
           <button
             key={symbol}
             type="button"
-            onClick={() => pick(symbol)}
+            onClick={() => onPick(symbol)}
             className="flex shrink-0 cursor-pointer items-center gap-[4px] rounded-full border-none px-[12px] py-[6px] transition-colors hover:bg-[rgba(0,0,0,0.06)]"
-            style={{
-              background: 'var(--content-br03, rgba(0,0,0,0.03))',
-              /* 补位进来的 chip 淡入进场;初始 17 个不动画(卡片整体已有 MsgIn) */
-              animation: TICKER_CHIPS.includes(symbol) ? undefined : 'agent-msg-in 0.25s ease-out both',
-            }}
+            style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))' }}
           >
             <TickerLogo ticker={symbol} size={16} />
             <span className="whitespace-nowrap text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))' }}>{symbol}</span>
@@ -661,17 +643,6 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const stageRef = useRef<HTMLDivElement>(null);
   /* 会话代际:重置(点 Chat tab / 切频道)时 +1,悬挂中的 setTimeout 回复按代际作废,不会在新会话里凭空冒出 */
   const sessionEpochRef = useRef(0);
-  /* composer 文本镜像(onInputChange 同步,发送后 ChatInput 会回调 '' 清零)+ 程序化注入信号 */
-  const composerTextRef = useRef('');
-  const injectSeqRef = useRef(0);
-  const [composerInject, setComposerInject] = useState<InjectTextSignal | null>(null);
-  /* 点 ticker chip → 追加 "symbol, " 到 composer(方案 C:填入输入框,与自由输入组合,回车一起发) */
-  const appendTicker = useCallback((symbol: string) => {
-    const cur = composerTextRef.current.trimEnd();
-    const text = `${cur ? `${cur} ` : ''}${symbol}, `;
-    composerTextRef.current = text;
-    setComposerInject({ text, seq: ++injectSeqRef.current });
-  }, []);
 
   const activeIm = imActive ? IMS.find((i) => i.id === imActive) ?? null : null;
   /* 是否连过 IM（驱动 imrec 软推荐是否出现 + Tasks/Files 是否点亮）；不再影响开场 onboard 视图 */
@@ -686,11 +657,6 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     setSessionAlerts([]);
     setStarted(false);
     imRecShownRef.current = false;
-    /* composer 里点选注入的残留文本一并清空 */
-    if (composerTextRef.current) {
-      composerTextRef.current = '';
-      setComposerInject({ text: '', seq: ++injectSeqRef.current });
-    }
   }, []);
 
   /* 切换频道（含默认 Alva Agent）时，视图与会话产出回到该频道的空态 onboard；
@@ -1091,27 +1057,34 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                         This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.
                       </p>
-                      <TickerPickCard onPick={appendTicker} />
+                      <TickerPickCard onPick={onPrompt} />
                     </AgentMsg>
                     </MsgIn>
                   );
                 }
-                /* tickerread — 按标的输出 mock 读数:判断句(n9) + TAPE/BREAKS IF/SOURCES 小字(n5) */
+                /* tickerread — Markdown 排版(Library 31624:20421 模式):$SYMBOL 标题(Medium 16/26) + 判断句正文 + 标签行(Medium 14) + 内容行,全 n9 */
                 if (m.role === 'tickerread') {
+                  const N9 = { fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' } as const;
                   return (
                     <MsgIn key={m.id}>
                     <AgentMsg time="now">
                       {m.symbols.map((symbol) => {
                         const read = TICKER_READS[symbol];
                         if (!read) return null;
+                        const sections = [['TAPE:', read.tape], ...(read.breaksIf ? [['BREAKS IF:', read.breaksIf]] : []), ['SOURCES:', read.sources]] as [string, string][];
                         return (
-                          <div key={symbol} className="flex w-full flex-col gap-[2px]">
-                            <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{read.summary}</p>
-                            <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{read.tape}</p>
-                            {read.breaksIf && (
-                              <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{read.breaksIf}</p>
-                            )}
-                            <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{read.sources}</p>
+                          <div key={symbol} className="flex w-full flex-col gap-[12px]">
+                            {/* 标题段 — Library "$MU" 同款:Medium 16/26 + pt2 */}
+                            <p className="pt-[2px] text-[16px] font-medium leading-[26px] tracking-[0.16px]" style={N9}>${symbol}</p>
+                            <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={N9}>{read.summary}</p>
+                            {/* 行内标签(Medium) + 同行正文,三行紧排一组 */}
+                            <div className="flex w-full flex-col">
+                              {sections.map(([label, value]) => (
+                                <p key={label} className="text-[14px] leading-[22px] tracking-[0.14px]" style={N9}>
+                                  <span style={{ fontWeight: 500 }}>{label}</span> {value}
+                                </p>
+                              ))}
+                            </div>
                           </div>
                         );
                       })}
@@ -1221,18 +1194,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   ))}
                 </div>
               )}
-              <ChatInput
-                shadow
-                shadowSize="xs"
-                subtleBorder
-                allowReferences={false}
-                hideInspector
-                voiceInput
-                placeholder="Ask Alva anything. @ for context, / for skills"
-                onSend={onPrompt}
-                injectText={composerInject}
-                onInputChange={(text) => { composerTextRef.current = text; }}
-              />
+              <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector voiceInput placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
             </div>
           </div>
         </>

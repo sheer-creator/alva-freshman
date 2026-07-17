@@ -23,6 +23,8 @@ const CDN_LOGOS = new Set([
   'META', 'MU', 'NFLX', 'NTAP', 'NVDA', 'OPEN', 'PSTG', 'QQQ', 'RKLB', 'SNDK', 'SPY',
   'STX', 'TMUS', 'TSLA', 'TSM', 'UBER', 'UNH', 'WDC', 'WMT',
 ]);
+// CDN 缺、fmp 又不稳（504）的高频标的 → 本地资产 public/logo-stock-{lower}.png
+const LOCAL_LOGOS = new Set(['MSFT', 'AVGO', 'ORCL']);
 
 export function TickerLogo({ ticker, size = 20 }: { ticker: string; size?: number }) {
   const [errored, setErrored] = useState(false);
@@ -31,6 +33,8 @@ export function TickerLogo({ ticker, size = 20 }: { ticker: string; size?: numbe
   if (!errored) {
     if (CDN_LOGOS.has(key)) {
       src = `${CDN_LOGO_BASE}-${key.toLowerCase()}.svg`;
+    } else if (LOCAL_LOGOS.has(key)) {
+      src = `${import.meta.env.BASE_URL}logo-stock-${key.toLowerCase()}.png`;
     } else if (CRYPTO_TICKERS.has(key)) {
       src = `https://assets.coincap.io/assets/icons/${key.toLowerCase()}@2x.png`;
     } else if (!SKIP_LOGO.has(key)) {
