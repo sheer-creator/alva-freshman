@@ -48,7 +48,7 @@ const SOURCES: { id: Source; label: string }[] = [
   { id: 'brokerage', label: 'Connect Brokerage Account' },
 ];
 
-/* 初始可见 15 项（4 列 · 行主序，第 16 格是 Choose more） */
+/* 初始可见 11 项（4 列 × 3 行 · 行主序，第 12 格是 Choose more） */
 const INITIAL: Ticker[] = [
   { symbol: 'NVDA', name: 'NVIDIA Corporation', tag: 'US' },
   { symbol: 'NTAP', name: 'NetApp, Inc.', tag: 'US' },
@@ -61,10 +61,6 @@ const INITIAL: Ticker[] = [
   { symbol: 'MU', name: 'Micron Technology, Inc.', tag: 'US' },
   { symbol: 'ORCL', name: 'Oracle Corporation', tag: 'US' },
   { symbol: 'WDC', name: 'Western Digital Corporation', tag: 'US' },
-  { symbol: 'WMT', name: 'Walmart Inc.', tag: 'US' },
-  { symbol: 'AI', name: 'C3.ai, Inc.', tag: 'US' },
-  { symbol: 'NFLX', name: 'Netflix, Inc.', tag: 'US' },
-  { symbol: 'HOOD', name: 'Robinhood Markets, Inc.', tag: 'US' },
 ];
 
 /* 补位池：点 + 后该格刷成池中下一个未用标的 */

@@ -562,6 +562,21 @@ function MsgIn({ delay = 0, children }: { delay?: number; children: React.ReactN
   );
 }
 
+/* 分流程(Portfolio Digest / Alpha Radar)左上角返回 — Figma 8563:238319 内 Back(11558:49156):arrow-left-l2 12 + Back(Regular 12/20 tracking0.12),全 n5;
+   gap4、pb16(spacing-m)接下方 Alva header;点击回 onboard 空态(等同浏览器后退) */
+function FlowBack({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex shrink-0 cursor-pointer items-center gap-[4px] self-start border-none bg-transparent px-0 pb-[16px] pt-0 transition-opacity hover:opacity-70"
+    >
+      <CdnIcon name="arrow-left-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
+      <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Back</span>
+    </button>
+  );
+}
+
 /* ========== 互动消息流(respond 模拟)========== */
 
 type ExtraMsg =
@@ -846,7 +861,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         {channel ? <ChannelPortrait /> : <AlvaPortrait />}
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-            {channel ? channel.name : 'Alva'}
+            {/* 默认 Alva Agent：Watch your portfolio 独立流程(flow=portfolio)顶部标题改 Portfolio Digest；副标题不变 */}
+            {channel ? channel.name : portfolioOpen ? 'Portfolio Digest' : 'Alva'}
           </p>
           {channel ? (
             channel.description && (
@@ -970,11 +986,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           /* Watch your portfolio 24/7 — 建仓向导视图（无 composer，可返回上一步） */
           <div className="min-h-0 flex-1 overflow-y-auto px-[28px]">
             <style>{MSG_IN_CSS}</style>
-            <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
+            <div className="mx-auto flex w-full max-w-[960px] flex-col pb-[60px] pt-[28px]">
+              <FlowBack onClick={closeFlow} />
               <MsgIn>
                 <AgentMsg time="" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
                   <div>
-                    <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Hey, tell me what you hold and I'll help watch your portfolio 24/7.</p>
+                    <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Watch your portfolio 24/7</p>
                     <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                       I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.
                     </p>
@@ -988,7 +1005,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           /* Track FinTwit for alpha signals — Alpha Radar setup 视图（无 composer，可返回上一步） */
           <div className="min-h-0 flex-1 overflow-y-auto px-[28px]">
             <style>{MSG_IN_CSS}</style>
-            <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
+            <div className="mx-auto flex w-full max-w-[960px] flex-col pb-[60px] pt-[28px]">
+              <FlowBack onClick={closeFlow} />
               <MsgIn>
                 <AgentMsg time="" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
                   <AlphaRadarBuilder onLive={onAlphaRadarLive} />
@@ -1004,7 +1022,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               {/* 预置演示频道：聊天区为预置对话历史（恒显，Figma 10998:50677）；其余频道走 onboard 空态 */}
               {seeded && (
                 <MsgIn>
-                  <ChannelSeedThread onOpenTasks={() => setTab('tasks')} />
+                  <ChannelSeedThread onOpenTasks={() => setTab('tasks')} onConnectAlert={connectIm} />
                 </MsgIn>
               )}
               {/* 会话未开始才显示 onboard 空态;Start Watching / 发消息后收起,进入真实对话 */}
