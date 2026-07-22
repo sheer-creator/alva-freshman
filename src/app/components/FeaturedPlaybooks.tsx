@@ -130,7 +130,15 @@ function StrategyIcon() {
   );
 }
 
-const PLAYBOOK_ROWS = [
+type FeaturedPlaybook = {
+  creator: string;
+  title: string;
+  description: string;
+  value: string;
+  icon?: React.ReactNode;
+};
+
+const PLAYBOOK_ROWS: FeaturedPlaybook[][] = [
   [
     {
       creator: 'Alva Intern',

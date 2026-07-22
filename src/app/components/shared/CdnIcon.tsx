@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 const CDN = 'https://alva-ai-static.b-cdn.net/icons';
 
 export function CdnIcon({ name, size = 16, color }: { name: string; size?: number; color?: string }) {
@@ -18,8 +20,8 @@ export function CdnIcon({ name, size = 16, color }: { name: string; size?: numbe
           maskRepeat: 'no-repeat',
           maskPosition: 'center',
           maskMode: 'alpha',
-          WebkitMaskMode: 'alpha' as never,
-        }}
+          WebkitMaskMode: 'alpha',
+        } as CSSProperties}
       />
     );
   }

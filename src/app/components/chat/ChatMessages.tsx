@@ -82,18 +82,19 @@ const DASHBOARD_COVER_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns
 <text x="16" y="252" font-size="6" fill="rgba(0,0,0,.15)" font-family="sans-serif" font-weight="500">Alva</text>
 </svg>`)}`;
 
+function openSourcePlaybook(sourceThreadId?: string) {
+  if (sourceThreadId) {
+    sessionStorage.setItem('openChatWithThread', sourceThreadId);
+  }
+  window.location.hash = 'template-screener';
+}
+
 function PlaybookCard({ sourceThreadId, variant = 'default' }: { sourceThreadId?: string; variant?: 'default' | 'drawer' }) {
-  const handleClick = () => {
-    if (sourceThreadId) {
-      sessionStorage.setItem('openChatWithThread', sourceThreadId);
-    }
-    window.location.hash = 'trends';
-  };
   return (
     <div
       className="flex flex-col items-start overflow-clip w-[360px] shrink-0 cursor-pointer hover:shadow-l transition-shadow"
       style={{ border: '0.5px solid var(--line-l3)', borderRadius: variant === 'drawer' ? 8 : 12, padding: 4, background: 'white' }}
-      onClick={handleClick}
+      onClick={() => openSourcePlaybook(sourceThreadId)}
     >
       <div className="relative shrink-0 w-full" style={{ aspectRatio: '472 / 265.5' }}>
         <div className="absolute inset-0 rounded-[4px] overflow-hidden">
@@ -222,7 +223,7 @@ function SourceLink({ sourceThreadId }: { sourceThreadId?: string }) {
       <span
         className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n7)] underline decoration-dotted cursor-pointer whitespace-nowrap"
         style={{ textDecorationColor: 'var(--text-n5, rgba(0,0,0,0.5))', textDecorationThickness: '8%', textUnderlineOffset: '35%', textDecorationSkipInk: 'none' }}
-        onClick={() => { if (sourceThreadId) sessionStorage.setItem('openChatWithThread', sourceThreadId); window.location.hash = 'trends'; }}
+        onClick={() => openSourcePlaybook(sourceThreadId)}
       >
         BTC Ultimate AI Trader
       </span>

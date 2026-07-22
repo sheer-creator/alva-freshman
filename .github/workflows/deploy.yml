@@ -23,6 +23,8 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run typecheck
+
       # GH_TOKEN 供 demo:index 用 gh api 把提交作者解析成 GitHub login
       - run: npm run build
         env:
