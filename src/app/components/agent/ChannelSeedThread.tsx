@@ -6,6 +6,8 @@
 
 import type { ReactNode } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { SelectableMessage } from '@/app/components/share/SelectableMessage';
+import { CHANNEL_SEED_SHARE_MESSAGES } from '@/app/components/share/channel-seed-share-messages';
 
 const FONT = "'Delight', sans-serif";
 const BASE = import.meta.env.BASE_URL;
@@ -109,11 +111,27 @@ function SeedAlertCard({ onConnect }: { onConnect?: (id: string) => void }) {
   );
 }
 
-export function ChannelSeedThread({ onOpenTasks, onConnectAlert }: { onOpenTasks?: () => void; onConnectAlert?: (id: string) => void }) {
+interface ChannelSeedThreadProps {
+  onOpenTasks?: () => void;
+  onConnectAlert?: (id: string) => void;
+  selectionMode?: boolean;
+  selectedIds?: ReadonlySet<string>;
+  onToggleShare?: (id: string) => void;
+}
+
+export function ChannelSeedThread({ onOpenTasks, onConnectAlert, selectionMode = false, selectedIds, onToggleShare }: ChannelSeedThreadProps) {
   return (
     <div className="flex w-full flex-col gap-[28px]">
-      <SeedUserMsg text="Build a trading playbook, NVDA, AAPL, TSLA" />
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(CHANNEL_SEED_SHARE_MESSAGES[0].id) ?? false}
+        label="Select user message for sharing"
+        onToggle={() => onToggleShare?.(CHANNEL_SEED_SHARE_MESSAGES[0].id)}
+      >
+        <SeedUserMsg text="Build a trading playbook, NVDA, AAPL, TSLA" />
+      </SelectableMessage>
 
+      {/* Running task/process messages are intentionally not selectable. */}
       <SeedAgentMsg time="10:28 PM">
         <SeedLine>
           I'll build this as a backtested trading strategy on NVDA / AAPL / TSLA using Altra, then wrap it in a live playbook.
@@ -143,22 +161,29 @@ export function ChannelSeedThread({ onOpenTasks, onConnectAlert }: { onOpenTasks
         </button>
       </SeedAgentMsg>
 
-      <SeedAgentMsg time="10:28 PM">
-        <SeedSourceChip label="nvda-macd-hft-notify" />
-        <SeedLine medium>📬 AI Chip Supply Chain — Daily Digest · 2026-06-12</SeedLine>
-        <SeedLine medium>What moved today:</SeedLine>
-        <div className="flex w-full flex-col gap-[4px]">
-          <SeedBullet text="TSMC’s Winbond DRAM Deal Isn’t Domination, It’s Insurance. Here’s What It Actually Means for Chip ETFs [1]" />
-          <SeedBullet text="TSMC Q2 Earnings July 16: Three CoWoS Signals That Test AI’s Spending Ceiling [2]" />
-          <SeedBullet text="Memory Market Expert: “SK Hynix Is Bigger, Cheaper and Closer to NVIDIA.” Inside Its $26.5 Billion Nasdaq Debut [3]" />
-        </div>
-        <SeedLine medium>What to watch next:</SeedLine>
-        <div className="flex w-full flex-col gap-[4px]">
-          <SeedBullet text="TSMC monthly sales cadence and any new SMIC capacity disclosures." />
-          <SeedBullet text="TSMC Q2 Earnings July 16: Three CoWoS Signals That Test AI’s Spending Ceiling [2]" />
-        </div>
-        <SeedAlertCard onConnect={onConnectAlert} />
-      </SeedAgentMsg>
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(CHANNEL_SEED_SHARE_MESSAGES[1].id) ?? false}
+        label="Select digest notification for sharing"
+        onToggle={() => onToggleShare?.(CHANNEL_SEED_SHARE_MESSAGES[1].id)}
+      >
+        <SeedAgentMsg time="10:28 PM">
+          <SeedSourceChip label="nvda-macd-hft-notify" />
+          <SeedLine medium>📬 AI Chip Supply Chain — Daily Digest · 2026-06-12</SeedLine>
+          <SeedLine medium>What moved today:</SeedLine>
+          <div className="flex w-full flex-col gap-[4px]">
+            <SeedBullet text="TSMC’s Winbond DRAM Deal Isn’t Domination, It’s Insurance. Here’s What It Actually Means for Chip ETFs [1]" />
+            <SeedBullet text="TSMC Q2 Earnings July 16: Three CoWoS Signals That Test AI’s Spending Ceiling [2]" />
+            <SeedBullet text="Memory Market Expert: “SK Hynix Is Bigger, Cheaper and Closer to NVIDIA.” Inside Its $26.5 Billion Nasdaq Debut [3]" />
+          </div>
+          <SeedLine medium>What to watch next:</SeedLine>
+          <div className="flex w-full flex-col gap-[4px]">
+            <SeedBullet text="TSMC monthly sales cadence and any new SMIC capacity disclosures." />
+            <SeedBullet text="TSMC Q2 Earnings July 16: Three CoWoS Signals That Test AI’s Spending Ceiling [2]" />
+          </div>
+          <SeedAlertCard onConnect={onConnectAlert} />
+        </SeedAgentMsg>
+      </SelectableMessage>
     </div>
   );
 }
