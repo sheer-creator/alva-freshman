@@ -1,4 +1,4 @@
-import type { ConversationShareMessage } from './conversation-share';
+import { getConversationShareTitle, type ConversationShareMessage } from './conversation-share';
 
 const FONT = "'Delight', sans-serif";
 
@@ -46,17 +46,22 @@ function SharedMessage({ message }: { message: ConversationShareMessage }) {
 }
 
 export function ShareContent({ messages, variant = 'page' }: { messages: ConversationShareMessage[]; variant?: 'page' | 'image' }) {
+  const title = getConversationShareTitle(messages);
+
   return (
     <article
       className={variant === 'image' ? '' : 'p-[20px] sm:p-[32px]'}
       style={{ width: '100%', padding: variant === 'image' ? 32 : undefined, background: 'var(--b0-container, #fff)', fontFamily: FONT }}
     >
-      <header className="flex items-start justify-between gap-[24px]">
-        <div className="flex flex-col gap-[8px]">
+      <header className="flex flex-col gap-[16px]">
+        <div className="flex items-start justify-between gap-[24px]">
           <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" className="h-[14px] w-auto self-start" />
-          <p className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Shared from Alva</p>
+          <p className="shrink-0 whitespace-nowrap text-right text-[11px] leading-[18px] tracking-[0.11px]" style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>{messages.length} {messages.length === 1 ? 'message' : 'messages'}</p>
         </div>
-        <p className="shrink-0 whitespace-nowrap text-right text-[11px] leading-[18px] tracking-[0.11px]" style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>{messages.length} {messages.length === 1 ? 'message' : 'messages'}</p>
+        <div className="flex flex-col gap-[4px]">
+          <h1 className="text-[18px] font-medium leading-[26px] tracking-[0.18px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{title}</h1>
+          <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Shared from Alva</p>
+        </div>
       </header>
 
       <div className="flex flex-col gap-[24px] py-[28px]">

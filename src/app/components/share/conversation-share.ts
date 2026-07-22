@@ -17,6 +17,19 @@ export interface ConversationShareSnapshot {
 }
 
 const STORAGE_PREFIX = 'alva-demo-conversation-share:';
+const SHARE_TITLE_MAX_LENGTH = 72;
+
+export function getConversationShareTitle(messages: ConversationShareMessage[]): string {
+  const source = messages.find((message) => message.role === 'user') ?? messages[0];
+  const firstLine = source?.text.split(/\r?\n/).find((line) => line.trim())?.trim() ?? 'Shared conversation';
+  const title = firstLine
+    .replace(/^#{1,6}\s+/, '')
+    .replace(/^[-*•]\s+/, '')
+    .trim();
+
+  if (title.length <= SHARE_TITLE_MAX_LENGTH) return title;
+  return `${title.slice(0, SHARE_TITLE_MAX_LENGTH - 1).trimEnd()}…`;
+}
 
 export function createConversationShareId(): string {
   const random = typeof crypto !== 'undefined' && 'randomUUID' in crypto
