@@ -26,10 +26,10 @@ export function SelectableMessage({
 }: SelectableMessageProps) {
   if (!active) {
     return (
-      <div className="flex w-full flex-col">
+      <div className="group/message flex w-full flex-col">
         {children}
         {(onQuickCopy || onQuickShare) && (
-          <div className={`mt-[4px] flex items-center gap-[2px] ${actionAlign === 'right' ? 'justify-end' : 'justify-start'} ${actionInset ? 'pl-[30px]' : ''}`}>
+          <div className={`mt-[4px] flex items-center gap-[2px] transition-opacity [@media(hover:hover)]:pointer-events-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/message:pointer-events-auto [@media(hover:hover)]:group-hover/message:opacity-100 group-focus-within/message:pointer-events-auto group-focus-within/message:opacity-100 ${actionAlign === 'right' ? 'justify-end' : 'justify-start'} ${actionInset ? 'pl-[30px]' : ''}`}>
             {onQuickCopy && (
               <button
                 type="button"
