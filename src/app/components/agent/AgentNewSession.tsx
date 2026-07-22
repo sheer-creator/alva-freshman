@@ -641,14 +641,14 @@ function extraToShareMessage(message: ExtraMsg): ConversationShareMessage | null
   return null;
 }
 
-async function copyShareUrl(url: string): Promise<void> {
+async function copyTextToClipboard(text: string): Promise<void> {
   if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(text);
     return;
   }
 
   const textarea = document.createElement('textarea');
-  textarea.value = url;
+  textarea.value = text;
   textarea.style.position = 'fixed';
   textarea.style.opacity = '0';
   document.body.appendChild(textarea);
@@ -751,6 +751,22 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     setShareImageOpen(false);
   }, []);
 
+  const copyMessage = useCallback(async (message: ConversationShareMessage) => {
+    try {
+      await copyTextToClipboard(message.text);
+      showShareNotice('Copied');
+    } catch {
+      showShareNotice('Could not copy this message.');
+    }
+  }, [showShareNotice]);
+
+  const shareSingleMessage = useCallback((id: string) => {
+    setTab('chat');
+    setSelectedShareIds(new Set([id]));
+    setShareImageOpen(false);
+    setShareMode(true);
+  }, []);
+
   const toggleShareMessage = useCallback((id: string) => {
     if (!selectedShareIds.has(id) && selectedShareIds.size >= 10) {
       showShareNotice('You can select up to 10 messages.');
@@ -775,7 +791,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         messages: selectedShareMessages,
         revoked: false,
       });
-      await copyShareUrl(buildConversationShareUrl(id));
+      await copyTextToClipboard(buildConversationShareUrl(id));
       exitShareMode();
       showShareNotice('Demo link copied — stored in this browser.');
     } catch {
@@ -1188,6 +1204,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     selectionMode={shareMode}
                     selectedIds={selectedShareIds}
                     onToggleShare={toggleShareMessage}
+                    onCopyMessage={copyMessage}
+                    onShareMessage={shareSingleMessage}
                   />
                 </MsgIn>
               )}
@@ -1231,6 +1249,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               )}
 
               {extra.map((m) => {
+                const shareMessage = extraToShareMessage(m);
+                const quickActions = shareMessage ? {
+                  onQuickCopy: () => copyMessage(shareMessage),
+                  onQuickShare: () => shareSingleMessage(shareMessage.id),
+                } : {};
                 if (m.role === 'user') return (
                   <SelectableMessage
                     key={m.id}
@@ -1238,6 +1261,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     selected={selectedShareIds.has(`extra-${m.id}`)}
                     label="Select user message for sharing"
                     onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    actionAlign="right"
+                    {...quickActions}
                   >
                     <MsgIn><UserMsg text={m.text} quote={m.quote} /></MsgIn>
                   </SelectableMessage>
@@ -1266,6 +1291,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       selected={selectedShareIds.has(`extra-${m.id}`)}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                      actionInset
+                      {...quickActions}
                     >
                     <MsgIn><AgentMsg time="now">
                       {m.symbols.map((symbol) => {
@@ -1315,6 +1342,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       selected={selectedShareIds.has(`extra-${m.id}`)}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                      actionInset
+                      {...quickActions}
                     >
                     <MsgIn><AgentMsg time="now">
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
@@ -1331,6 +1360,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       selected={selectedShareIds.has(`extra-${m.id}`)}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                      actionInset
+                      {...quickActions}
                     >
                     <MsgIn><AgentMsg time="now">
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
@@ -1347,6 +1378,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       selected={selectedShareIds.has(`extra-${m.id}`)}
                       label="Select notification for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                      actionInset
+                      {...quickActions}
                     >
                     <MsgIn><AgentMsg pushed time="now">
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>

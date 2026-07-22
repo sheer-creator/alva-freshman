@@ -8,6 +8,7 @@ import type { ReactNode } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { SelectableMessage } from '@/app/components/share/SelectableMessage';
 import { CHANNEL_SEED_SHARE_MESSAGES } from '@/app/components/share/channel-seed-share-messages';
+import type { ConversationShareMessage } from '@/app/components/share/conversation-share';
 
 const FONT = "'Delight', sans-serif";
 const BASE = import.meta.env.BASE_URL;
@@ -117,9 +118,19 @@ interface ChannelSeedThreadProps {
   selectionMode?: boolean;
   selectedIds?: ReadonlySet<string>;
   onToggleShare?: (id: string) => void;
+  onCopyMessage?: (message: ConversationShareMessage) => void;
+  onShareMessage?: (id: string) => void;
 }
 
-export function ChannelSeedThread({ onOpenTasks, onConnectAlert, selectionMode = false, selectedIds, onToggleShare }: ChannelSeedThreadProps) {
+export function ChannelSeedThread({
+  onOpenTasks,
+  onConnectAlert,
+  selectionMode = false,
+  selectedIds,
+  onToggleShare,
+  onCopyMessage,
+  onShareMessage,
+}: ChannelSeedThreadProps) {
   return (
     <div className="flex w-full flex-col gap-[28px]">
       <SelectableMessage
@@ -127,6 +138,9 @@ export function ChannelSeedThread({ onOpenTasks, onConnectAlert, selectionMode =
         selected={selectedIds?.has(CHANNEL_SEED_SHARE_MESSAGES[0].id) ?? false}
         label="Select user message for sharing"
         onToggle={() => onToggleShare?.(CHANNEL_SEED_SHARE_MESSAGES[0].id)}
+        onQuickCopy={() => onCopyMessage?.(CHANNEL_SEED_SHARE_MESSAGES[0])}
+        onQuickShare={() => onShareMessage?.(CHANNEL_SEED_SHARE_MESSAGES[0].id)}
+        actionAlign="right"
       >
         <SeedUserMsg text="Build a trading playbook, NVDA, AAPL, TSLA" />
       </SelectableMessage>
@@ -166,6 +180,9 @@ export function ChannelSeedThread({ onOpenTasks, onConnectAlert, selectionMode =
         selected={selectedIds?.has(CHANNEL_SEED_SHARE_MESSAGES[1].id) ?? false}
         label="Select digest notification for sharing"
         onToggle={() => onToggleShare?.(CHANNEL_SEED_SHARE_MESSAGES[1].id)}
+        onQuickCopy={() => onCopyMessage?.(CHANNEL_SEED_SHARE_MESSAGES[1])}
+        onQuickShare={() => onShareMessage?.(CHANNEL_SEED_SHARE_MESSAGES[1].id)}
+        actionInset
       >
         <SeedAgentMsg time="10:28 PM">
           <SeedSourceChip label="nvda-macd-hft-notify" />

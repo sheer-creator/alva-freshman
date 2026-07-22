@@ -1,15 +1,62 @@
 import type { ReactNode, SyntheticEvent } from 'react';
+import { CdnIcon } from '@/app/components/shared/CdnIcon';
 
 interface SelectableMessageProps {
   active: boolean;
   selected: boolean;
   label: string;
   onToggle: () => void;
+  onQuickCopy?: () => void;
+  onQuickShare?: () => void;
+  actionAlign?: 'left' | 'right';
+  actionInset?: boolean;
   children: ReactNode;
 }
 
-export function SelectableMessage({ active, selected, label, onToggle, children }: SelectableMessageProps) {
-  if (!active) return <>{children}</>;
+export function SelectableMessage({
+  active,
+  selected,
+  label,
+  onToggle,
+  onQuickCopy,
+  onQuickShare,
+  actionAlign = 'left',
+  actionInset = false,
+  children,
+}: SelectableMessageProps) {
+  if (!active) {
+    return (
+      <div className="flex w-full flex-col">
+        {children}
+        {(onQuickCopy || onQuickShare) && (
+          <div className={`mt-[4px] flex items-center gap-[2px] ${actionAlign === 'right' ? 'justify-end' : 'justify-start'} ${actionInset ? 'pl-[30px]' : ''}`}>
+            {onQuickCopy && (
+              <button
+                type="button"
+                aria-label="Copy message"
+                title="Copy message"
+                onClick={onQuickCopy}
+                className="flex size-[24px] cursor-pointer items-center justify-center rounded-[4px] border-none bg-transparent opacity-55 transition-[background,opacity] hover:bg-[var(--b-r03,rgba(0,0,0,0.03))] hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--main-m1,#49A3A6)]"
+              >
+                <CdnIcon name="copy-l" size={13} color="var(--text-n7, rgba(0,0,0,0.7))" />
+              </button>
+            )}
+            {onQuickShare && (
+              <button
+                type="button"
+                aria-label="Share message"
+                title="Share message"
+                onClick={onQuickShare}
+                className="flex size-[24px] cursor-pointer items-center justify-center rounded-[4px] border-none bg-transparent opacity-55 transition-[background,opacity] hover:bg-[var(--b-r03,rgba(0,0,0,0.03))] hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--main-m1,#49A3A6)]"
+              >
+                <CdnIcon name="share-l" size={13} color="var(--text-n7, rgba(0,0,0,0.7))" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const toggle = (event: SyntheticEvent) => {
     event.preventDefault();
