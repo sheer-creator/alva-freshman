@@ -51,7 +51,7 @@ export function ShareContent({ messages, variant = 'page' }: { messages: Convers
       className={variant === 'image' ? '' : 'p-[20px] sm:p-[32px]'}
       style={{ width: '100%', padding: variant === 'image' ? 32 : undefined, background: 'var(--b0-container, #fff)', fontFamily: FONT }}
     >
-      <header className="flex items-start justify-between gap-[24px] border-b pb-[20px]" style={{ borderColor: 'var(--line-l07, rgba(0,0,0,0.07))' }}>
+      <header className="flex items-start justify-between gap-[24px]">
         <div className="flex flex-col gap-[8px]">
           <img src={`${import.meta.env.BASE_URL}logo-alva-beta-green-black.svg`} alt="Alva" className="h-[14px] w-auto self-start" />
           <p className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Shared from Alva</p>
