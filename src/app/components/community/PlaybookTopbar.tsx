@@ -159,7 +159,7 @@ export function PlaybookTopbar({
   const [shareOpen, setShareOpen] = useState(false);
 
   const remixRef = useRef<HTMLDivElement>(null);
-  const headerTimer = useRef<ReturnType<typeof setTimeout>>(null);
+  const headerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openHeader = useCallback(() => {
     if (headerTimer.current) clearTimeout(headerTimer.current);

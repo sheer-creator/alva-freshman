@@ -10,7 +10,7 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PLAYBOOK_NAV_ITEMS } from '@/data/playbooks';
 import { channelsStore, useChannels } from '@/app/state/channels';
 import { NewChannelModal } from '@/app/components/shared/NewChannelModal';
-import { useState, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 
 /* ========== 类型 ========== */
 
@@ -52,8 +52,8 @@ function GradientCdnIcon({ name, size = 16 }: { name: string; size?: number }) {
         maskRepeat: 'no-repeat',
         maskPosition: 'center',
         maskMode: 'alpha',
-        WebkitMaskMode: 'alpha' as never,
-      }}
+        WebkitMaskMode: 'alpha',
+      } as CSSProperties}
     />
   );
 }

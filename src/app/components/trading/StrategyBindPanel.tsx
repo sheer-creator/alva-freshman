@@ -134,7 +134,7 @@ type Phase = 'signal' | 'computing' | 'preview' | 'done';
 export function StrategyBindPanel({ onNavigate }: { onNavigate?: (page: Page) => void }) {
   const [broker, setBroker] = useState('Binance');
   const [phase, setPhase] = useState<Phase>('signal');
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 

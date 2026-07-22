@@ -97,7 +97,7 @@ export default function App() {
     <ChatProvider activePage={currentPage}>
       <Suspense>
         {currentPage === "new-chat" && <NewChat onNavigate={navigate} />}
-        {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} onOpenSearch={openSearch} />}
+        {currentPage === "api-keys" && <ApiKeys onNavigate={navigate} />}
         {currentPage === "docs" && <OpenAlvaDocs onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "alva-skills" && <AlvaSkills onNavigate={navigate} onOpenSearch={openSearch} />}
         {currentPage === "explore" && <Explore onNavigate={navigate} />}

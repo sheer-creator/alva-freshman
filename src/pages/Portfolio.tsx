@@ -708,7 +708,7 @@ export default function Portfolio({ onNavigate }: { onNavigate: (page: Page) => 
   /* 评审深链：?connect-step=… 时自动展开 Connect 弹窗 */
   const connectParams = new URLSearchParams(window.location.search);
   const [connectOpen, setConnectOpen] = useState(connectParams.has('connect-step'));
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (sessionStorage.getItem('trade-executed')) {

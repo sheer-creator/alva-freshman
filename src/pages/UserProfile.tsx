@@ -141,7 +141,7 @@ function PlaybooksGrid({ onNavigate }: { onNavigate: (page: Page) => void }) {
       {rows.map((row, i) => (
         <div key={i} className="flex gap-[12px]">
           {row.map(pb => (
-            <PlaybookCard key={pb.id} pb={pb} onClick={() => onNavigate('playbook-detail')} />
+            <PlaybookCard key={pb.id} pb={pb} onClick={() => onNavigate('explore')} />
           ))}
           {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, j) => (
             <div key={`empty-${j}`} className="flex-1 min-w-0" />
