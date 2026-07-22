@@ -1,11 +1,20 @@
 import type { ConversationShareMessage } from './conversation-share';
 
+export const SEED_PLAYBOOK_PLAN_TEXT = "I'll build this as a backtested trading strategy on NVDA / AAPL / TSLA using Altra, then wrap it in a live playbook.";
+
 export const CHANNEL_SEED_SHARE_MESSAGES: ConversationShareMessage[] = [
   {
     id: 'seed-user-playbook',
     role: 'user',
     text: 'Build a trading playbook, NVDA, AAPL, TSLA',
     time: '10:27 PM',
+    date: 'June 12, 2026',
+  },
+  {
+    id: 'seed-agent-playbook-plan',
+    role: 'agent',
+    text: SEED_PLAYBOOK_PLAN_TEXT,
+    time: '10:28 PM',
     date: 'June 12, 2026',
   },
   {

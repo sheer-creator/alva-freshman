@@ -7,7 +7,7 @@
 import type { ReactNode } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { SelectableMessage } from '@/app/components/share/SelectableMessage';
-import { CHANNEL_SEED_SHARE_MESSAGES } from '@/app/components/share/channel-seed-share-messages';
+import { CHANNEL_SEED_SHARE_MESSAGES, SEED_PLAYBOOK_PLAN_TEXT } from '@/app/components/share/channel-seed-share-messages';
 import type { ConversationShareMessage } from '@/app/components/share/conversation-share';
 
 const FONT = "'Delight', sans-serif";
@@ -131,57 +131,66 @@ export function ChannelSeedThread({
   onCopyMessage,
   onShareMessage,
 }: ChannelSeedThreadProps) {
+  const [userShareMessage, planShareMessage, digestShareMessage] = CHANNEL_SEED_SHARE_MESSAGES;
+
   return (
     <div className="flex w-full flex-col gap-[28px]">
       <SelectableMessage
         active={selectionMode}
-        selected={selectedIds?.has(CHANNEL_SEED_SHARE_MESSAGES[0].id) ?? false}
+        selected={selectedIds?.has(userShareMessage.id) ?? false}
         label="Select user message for sharing"
-        onToggle={() => onToggleShare?.(CHANNEL_SEED_SHARE_MESSAGES[0].id)}
-        onQuickCopy={() => onCopyMessage?.(CHANNEL_SEED_SHARE_MESSAGES[0])}
-        onQuickShare={() => onShareMessage?.(CHANNEL_SEED_SHARE_MESSAGES[0].id)}
+        onToggle={() => onToggleShare?.(userShareMessage.id)}
+        onQuickCopy={() => onCopyMessage?.(userShareMessage)}
+        onQuickShare={() => onShareMessage?.(userShareMessage.id)}
         actionAlign="right"
       >
         <SeedUserMsg text="Build a trading playbook, NVDA, AAPL, TSLA" />
       </SelectableMessage>
 
-      {/* Running task/process messages are intentionally not selectable. */}
-      <SeedAgentMsg time="10:28 PM">
-        <SeedLine>
-          I'll build this as a backtested trading strategy on NVDA / AAPL / TSLA using Altra, then wrap it in a live playbook.
-        </SeedLine>
-        {/* Agent/Card/Chat — Figma 8341:125818:白底 l2 描边 radius 8,px16 py12 gap8;step 24 + 标题/副文 + Running tag;点击跳 Tasks tab */}
-        <button
-          type="button"
-          onClick={onOpenTasks}
-          className="flex w-full cursor-pointer items-start gap-[8px] overflow-hidden rounded-[8px] p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
-          style={{ background: 'var(--b0-container, #ffffff)', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
-        >
-          <img src={`${BASE}icon-task-step.svg`} alt="" className="size-[24px] shrink-0" />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <p className="w-full truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-              Market Reactions: SPY, XLE, WTI to Iranian Deal Headlines and Oil Drop
-            </p>
-            <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
-              Background task — I'll post here when it's done.
-            </p>
-          </div>
-          <span
-            className="shrink-0 rounded-[4px] px-[6px] py-[1px] text-center text-[12px] leading-[20px] tracking-[0.12px]"
-            style={{ fontFamily: FONT, color: 'var(--main-m1, #49A3A6)', background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(planShareMessage.id) ?? false}
+        label="Select Alva answer for sharing"
+        onToggle={() => onToggleShare?.(planShareMessage.id)}
+        onQuickCopy={() => onCopyMessage?.(planShareMessage)}
+        onQuickShare={() => onShareMessage?.(planShareMessage.id)}
+        actionInset
+      >
+        <SeedAgentMsg time="10:28 PM">
+          <SeedLine>{SEED_PLAYBOOK_PLAN_TEXT}</SeedLine>
+          {/* The task card remains interactive in chat but is omitted from the share snapshot. */}
+          <button
+            type="button"
+            onClick={onOpenTasks}
+            className="flex w-full cursor-pointer items-start gap-[8px] overflow-hidden rounded-[8px] p-[16px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+            style={{ background: 'var(--b0-container, #ffffff)', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
           >
-            Running
-          </span>
-        </button>
-      </SeedAgentMsg>
+            <img src={`${BASE}icon-task-step.svg`} alt="" className="size-[24px] shrink-0" />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <p className="w-full truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                Market Reactions: SPY, XLE, WTI to Iranian Deal Headlines and Oil Drop
+              </p>
+              <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                Background task — I'll post here when it's done.
+              </p>
+            </div>
+            <span
+              className="shrink-0 rounded-[4px] px-[6px] py-[1px] text-center text-[12px] leading-[20px] tracking-[0.12px]"
+              style={{ fontFamily: FONT, color: 'var(--main-m1, #49A3A6)', background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}
+            >
+              Running
+            </span>
+          </button>
+        </SeedAgentMsg>
+      </SelectableMessage>
 
       <SelectableMessage
         active={selectionMode}
-        selected={selectedIds?.has(CHANNEL_SEED_SHARE_MESSAGES[1].id) ?? false}
+        selected={selectedIds?.has(digestShareMessage.id) ?? false}
         label="Select digest notification for sharing"
-        onToggle={() => onToggleShare?.(CHANNEL_SEED_SHARE_MESSAGES[1].id)}
-        onQuickCopy={() => onCopyMessage?.(CHANNEL_SEED_SHARE_MESSAGES[1])}
-        onQuickShare={() => onShareMessage?.(CHANNEL_SEED_SHARE_MESSAGES[1].id)}
+        onToggle={() => onToggleShare?.(digestShareMessage.id)}
+        onQuickCopy={() => onCopyMessage?.(digestShareMessage)}
+        onQuickShare={() => onShareMessage?.(digestShareMessage.id)}
         actionInset
       >
         <SeedAgentMsg time="10:28 PM">

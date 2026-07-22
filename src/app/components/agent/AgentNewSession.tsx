@@ -603,6 +603,10 @@ type ExtraMsg =
   /* Start Watching 的 Alva 确认回复:正文 + (未连接时)内嵌「选择推送渠道」卡片(Figma 8341:126245) */
   | { id: number; role: 'watchreply'; text: string };
 
+const TICKER_ASK_TEXT = 'This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.';
+const SCREENER_REC_TEXT = "Screen the market on your rules\nSet your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.";
+const IM_REC_TEXT = "One more thing — this agent only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires.";
+
 function shareDateForToday(): string {
   return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date());
 }
@@ -614,6 +618,9 @@ function extraToShareMessage(message: ExtraMsg): ConversationShareMessage | null
   if (message.role === 'answer' || message.role === 'watchreply') {
     return { ...common, role: 'agent', text: message.text };
   }
+  if (message.role === 'tickerask') return { ...common, role: 'agent', text: TICKER_ASK_TEXT };
+  if (message.role === 'screenerrec') return { ...common, role: 'agent', text: SCREENER_REC_TEXT };
+  if (message.role === 'imrec') return { ...common, role: 'agent', text: IM_REC_TEXT };
   if (message.role === 'tickerread') {
     const text = message.symbols.map((symbol) => {
       const read = TICKER_READS[symbol];
@@ -1271,14 +1278,24 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                 /* tickerask — Ticker Read skill 介绍 + 热门标的选项卡(点 chip 即发送 symbol,composer 输入任意 symbol 同路) */
                 if (m.role === 'tickerask') {
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                        This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.
-                      </p>
-                      <TickerPickCard onPick={onPrompt} />
-                    </AgentMsg>
-                    </MsgIn>
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                      actionInset
+                      {...quickActions}
+                    >
+                      <MsgIn>
+                        <AgentMsg time="now">
+                          <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                            {TICKER_ASK_TEXT}
+                          </p>
+                          <TickerPickCard onPick={onPrompt} />
+                        </AgentMsg>
+                      </MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 /* tickerread — Markdown 排版(Library 31624:20421 模式):$SYMBOL 标题(Medium 16/26) + 判断句正文 + 标签行(Medium 14) + 内容行,全 n9 */
@@ -1322,16 +1339,22 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                 /* screenerrec — 第三条引导的推荐回复:标题 + 说明两行,下接示例 prompt 卡,点行即发送 */
                 if (m.role === 'screenerrec') {
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                        Screen the market on your rules
-                        <br />
-                        Set your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.
-                      </p>
-                      <ScreenerPromptsCard onPick={onPrompt} />
-                    </AgentMsg>
-                    </MsgIn>
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                      actionInset
+                      {...quickActions}
+                    >
+                      <MsgIn>
+                        <AgentMsg time="now">
+                          <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SCREENER_REC_TEXT}</p>
+                          <ScreenerPromptsCard onPick={onPrompt} />
+                        </AgentMsg>
+                      </MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 if (m.role === 'answer') {
@@ -1421,14 +1444,24 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                 }
                 /* imrec — 任务跑完后的一次性连接软推荐(解耦的核心交互)*/
                 return (
-                  <MsgIn key={m.id}>
-                  <AgentMsg time="now">
-                    <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                      One more thing — this agent only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires.
-                    </p>
-                    <AlertChannelsCard onConnect={connectIm} />
-                  </AgentMsg>
-                  </MsgIn>
+                  <SelectableMessage
+                    key={m.id}
+                    active={shareMode}
+                    selected={selectedShareIds.has(`extra-${m.id}`)}
+                    label="Select Alva answer for sharing"
+                    onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    actionInset
+                    {...quickActions}
+                  >
+                    <MsgIn>
+                      <AgentMsg time="now">
+                        <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                          {IM_REC_TEXT}
+                        </p>
+                        <AlertChannelsCard onConnect={connectIm} />
+                      </AgentMsg>
+                    </MsgIn>
+                  </SelectableMessage>
                 );
               })}
             </div>
@@ -1446,7 +1479,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   </span>
                   <div className="min-w-0">
                     <p className="text-[13px] font-medium leading-[20px] tracking-[0.13px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Select up to 10 messages</p>
-                    <p className="truncate text-[11px] leading-[18px] tracking-[0.11px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Tasks, tools, and temporary UI stay out of the excerpt.</p>
+                    <p className="truncate text-[11px] leading-[18px] tracking-[0.11px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Message text is shared; tasks, tools, and temporary UI stay out.</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 gap-[8px]">
