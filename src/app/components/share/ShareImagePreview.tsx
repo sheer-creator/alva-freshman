@@ -6,14 +6,19 @@ import { ShareContent } from './ShareContent';
 import type { ConversationShareMessage } from './conversation-share';
 
 const FONT = "'Delight', sans-serif";
+type ImageAction = 'copy' | 'download' | null;
 
 export function ShareImagePreview({ open, messages, onClose }: { open: boolean; messages: ConversationShareMessage[]; onClose: () => void }) {
   const exportRef = useRef<HTMLDivElement>(null);
-  const [generating, setGenerating] = useState(false);
+  const [activeAction, setActiveAction] = useState<ImageAction>(null);
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
+    setActiveAction(null);
+    setCopied(false);
+    setError(null);
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
     };
@@ -23,18 +28,52 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
 
   if (!open || typeof document === 'undefined') return null;
 
-  const download = async () => {
-    if (!exportRef.current || generating) return;
-    setGenerating(true);
+  const renderPng = () => {
+    if (!exportRef.current) throw new Error('Image preview is not ready.');
+    return toPng(exportRef.current, {
+      backgroundColor: '#ffffff',
+      cacheBust: true,
+      pixelRatio: 2,
+      skipFonts: true,
+      width: 540,
+      style: {
+        position: 'static',
+        left: 'auto',
+        top: 'auto',
+        zIndex: 'auto',
+      },
+    });
+  };
+
+  const copy = async () => {
+    if (activeAction) return;
+    setActiveAction('copy');
+    setCopied(false);
     setError(null);
     try {
-      const dataUrl = await toPng(exportRef.current, {
-        backgroundColor: '#ffffff',
-        cacheBust: true,
-        pixelRatio: 2,
-        skipFonts: true,
-        width: 540,
+      if (!navigator.clipboard?.write || typeof ClipboardItem === 'undefined') {
+        throw new Error('Image clipboard is not supported.');
+      }
+      const pngBlob = renderPng().then(async (dataUrl) => {
+        const response = await fetch(dataUrl);
+        return response.blob();
       });
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
+      setCopied(true);
+    } catch {
+      setError('Image copy is not supported here. Download it instead.');
+    } finally {
+      setActiveAction(null);
+    }
+  };
+
+  const download = async () => {
+    if (activeAction) return;
+    setActiveAction('download');
+    setCopied(false);
+    setError(null);
+    try {
+      const dataUrl = await renderPng();
       const link = document.createElement('a');
       link.download = `alva-shared-conversation-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = dataUrl;
@@ -42,7 +81,7 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
     } catch {
       setError('Image generation failed. Try again.');
     } finally {
-      setGenerating(false);
+      setActiveAction(null);
     }
   };
 
@@ -66,17 +105,20 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
         </div>
 
         <div className="flex shrink-0 flex-col gap-[10px] border-t px-[20px] py-[16px] sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: 'var(--line-l07, rgba(0,0,0,0.07))' }}>
-          <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: error ? 'var(--main-m4, #e05357)' : 'var(--text-n5, rgba(0,0,0,0.5))' }}>{error ?? 'Your selection stays active after closing this preview.'}</p>
+          <p aria-live="polite" className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: error ? 'var(--main-m4, #e05357)' : 'var(--text-n5, rgba(0,0,0,0.5))' }}>{error ?? (copied ? 'Image copied to clipboard.' : 'Your selection stays active after closing this preview.')}</p>
           <div className="flex shrink-0 gap-[8px]">
-            <button type="button" onClick={onClose} className="h-[36px] cursor-pointer rounded-[4px] bg-white px-[16px] text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}>Close</button>
-            <button type="button" onClick={download} disabled={generating} className="flex h-[36px] cursor-pointer items-center gap-[6px] rounded-[4px] border-none px-[16px] text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white disabled:cursor-wait disabled:opacity-60" style={{ fontFamily: FONT, background: 'var(--main-m3, #2a9b7d)' }}>
+            <button type="button" onClick={copy} disabled={activeAction !== null} className="flex h-[36px] cursor-pointer items-center gap-[6px] rounded-[4px] bg-white px-[16px] text-[12px] font-medium leading-[20px] tracking-[0.12px] disabled:cursor-wait disabled:opacity-60" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}>
+              <CdnIcon name="copy-l" size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
+              {activeAction === 'copy' ? 'Copying…' : copied ? 'Copied' : 'Copy'}
+            </button>
+            <button type="button" onClick={download} disabled={activeAction !== null} className="flex h-[36px] cursor-pointer items-center gap-[6px] rounded-[4px] border-none px-[16px] text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white disabled:cursor-wait disabled:opacity-60" style={{ fontFamily: FONT, background: 'var(--main-m3, #2a9b7d)' }}>
               <CdnIcon name="download-l" size={14} color="#fff" />
-              {generating ? 'Generating…' : 'Download image'}
+              {activeAction === 'download' ? 'Generating…' : 'Download image'}
             </button>
           </div>
         </div>
 
-        <div ref={exportRef} aria-hidden className="pointer-events-none fixed left-0 top-0 w-[540px] bg-white" style={{ zIndex: -1 }}>
+        <div ref={exportRef} aria-hidden className="pointer-events-none fixed left-[-10000px] top-0 w-[540px] bg-white">
           <ShareContent messages={messages} variant="image" />
         </div>
       </div>
