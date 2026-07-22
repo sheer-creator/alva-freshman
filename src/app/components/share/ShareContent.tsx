@@ -63,9 +63,10 @@ export function ShareContent({ messages, variant = 'page' }: { messages: Convers
       </div>
 
       <footer className="flex items-center justify-between gap-[24px] border-t pt-[20px]" style={{ borderColor: 'var(--line-l07, rgba(0,0,0,0.07))' }}>
-        <div className="flex min-w-0 flex-col items-start gap-[7px]">
+        <div className="flex min-w-0 flex-col items-start gap-[3px]">
           <img src={`${base}logo-alva-beta-green-black.svg`} alt="Alva" className="h-[14px] w-auto" />
-          <a href="https://alva.ai" target="_blank" rel="noreferrer" className="text-[12px] font-medium leading-[20px] tracking-[0.12px] no-underline" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>alva.ai</a>
+          <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Your AI Investing Agent</p>
+          <a href="https://alva.ai" target="_blank" rel="noreferrer" className="text-[11px] font-medium leading-[18px] tracking-[0.11px] no-underline" style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>alva.ai</a>
         </div>
         <a href="https://alva.ai" target="_blank" rel="noreferrer" aria-label="Open alva.ai" className="shrink-0">
           <img src={`${base}alva-ai-qr.svg`} alt="QR code for alva.ai" className="size-[64px]" />

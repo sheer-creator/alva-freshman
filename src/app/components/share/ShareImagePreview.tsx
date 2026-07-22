@@ -89,10 +89,7 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
     <div className="fixed inset-0 z-[120] flex items-center justify-center px-[16px] py-[24px]" style={{ background: 'rgba(0,0,0,0.52)' }} onClick={onClose}>
       <div role="dialog" aria-modal="true" aria-labelledby="share-image-title" className="flex max-h-full w-full max-w-[680px] flex-col overflow-hidden rounded-[12px] bg-white" style={{ boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }} onClick={(event) => event.stopPropagation()}>
         <div className="flex shrink-0 items-center justify-between gap-[16px] border-b px-[20px] py-[16px]" style={{ borderColor: 'var(--line-l07, rgba(0,0,0,0.07))' }}>
-          <div>
-            <p id="share-image-title" className="text-[16px] font-medium leading-[24px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Create image</p>
-            <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Fixed Alva light theme · 1080 px wide</p>
-          </div>
+          <p id="share-image-title" className="text-[16px] font-medium leading-[24px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Share image</p>
           <button type="button" aria-label="Close image preview" onClick={onClose} className="flex size-[32px] cursor-pointer items-center justify-center rounded-[4px] border-none bg-transparent hover:bg-[var(--b-r03,rgba(0,0,0,0.03))]">
             <CdnIcon name="close-l1" size={16} color="var(--text-n7, rgba(0,0,0,0.7))" />
           </button>
