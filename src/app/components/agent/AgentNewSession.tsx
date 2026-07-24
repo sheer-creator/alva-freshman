@@ -210,15 +210,15 @@ function TaskTag({ state }: { state: 'running' | 'done' }) {
   );
 }
 
-/* 「Where should I send you alerts?」渠道卡（Figma AgentCardChat 9600:211514）—— watchreply 与 imrec 复用 */
+/* 「Where should I send you alerts?」渠道卡（Figma Chat/Element/Card·Connect 31129:20594）：br03 底 + 0.5 l2 边 + p16 gap8 radius8;标题 Medium 14 truncate + 三渠道按钮 h32 —— watchreply 与 imrec 复用 */
 function AlertChannelsCard({ onConnect }: { onConnect: (id: string) => void }) {
   const base = import.meta.env.BASE_URL;
   return (
     <div
-      className="flex w-full flex-col gap-[8px] rounded-[8px] py-[12px] pl-[16px] pr-[12px]"
+      className="flex w-full flex-col gap-[8px] rounded-[8px] p-[16px]"
       style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
     >
-      <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+      <p className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
         Where should I send you alerts?
       </p>
       <div className="flex flex-wrap gap-[8px]">
@@ -227,11 +227,11 @@ function AlertChannelsCard({ onConnect }: { onConnect: (id: string) => void }) {
             key={ch.id}
             type="button"
             onClick={() => onConnect(ch.id)}
-            className="flex h-[40px] shrink-0 cursor-pointer items-center justify-center gap-[8px] rounded-[6px] border-none px-[20px] py-[9px] transition-opacity hover:opacity-90"
+            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] border-none px-[12px] py-[6px] transition-opacity hover:opacity-90"
             style={{ background: ch.bg }}
           >
-            <img src={`${base}${ch.logo}`} alt="" className="size-[18px] shrink-0" />
-            <span className="whitespace-nowrap text-[14px] font-medium leading-[22px] tracking-[0.14px] text-white" style={{ fontFamily: FONT }}>{ch.label}</span>
+            <img src={`${base}${ch.logo}`} alt="" className="size-[14px] shrink-0" />
+            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white" style={{ fontFamily: FONT }}>{ch.label}</span>
           </button>
         ))}
       </div>
@@ -1403,8 +1403,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   return (
                     <MsgIn key={m.id}>
                     <AgentMsg time="now">
-                      {/* 任务卡（Figma Agent/Card/Chat 8341:125818）：560 宽白底卡 — step-f 24(n2) + 标题 14 + 副行 12 n5 + 状态 tag */}
-                      <div className="flex w-full max-w-[560px] items-start gap-[8px] rounded-[8px] px-[16px] py-[12px]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+                      {/* 任务卡（Figma Chat/Element/Card·Task 31036:11336）：通栏白底卡（w-full）— p16 gap8 radius8 border0.5 l2；step-f 24 + 标题 14 + 副行 12 n5 + 状态 tag */}
+                      <div className="flex w-full items-start gap-[8px] rounded-[8px] p-[16px]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
                         <CdnIcon name={`${base}icon-step-f.svg`} size={24} color="var(--text-n2, rgba(0,0,0,0.2))" />
                         <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
                           <p className="w-full truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.title}</p>

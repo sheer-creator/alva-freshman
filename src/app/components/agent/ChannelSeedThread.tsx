@@ -156,7 +156,7 @@ export function ChannelSeedThread({
             style={{ background: 'var(--b0-container, #ffffff)', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
           >
             <img src={`${BASE}icon-task-step.svg`} alt="" className="size-[24px] shrink-0" />
-            <div className="flex min-w-0 flex-1 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
               <p className="w-full truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                 Market Reactions: SPY, XLE, WTI to Iranian Deal Headlines and Oil Drop
               </p>

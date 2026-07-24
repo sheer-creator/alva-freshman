@@ -51,13 +51,8 @@ function ShareImageDoc({ messages }: { messages: ConversationShareMessage[] }) {
   const base = import.meta.env.BASE_URL;
   return (
     <div className="flex w-full flex-col bg-white">
-      {/* Banner — Figma 9286:43135:ascii 纹理中央青色空窗 + 全黑横版 logo(SymbolText-h)h24 居中 */}
-      <div className="relative h-[132px] w-full shrink-0 overflow-hidden bg-white">
-        <img src={`${base}share-banner-ascii.jpg`} alt="" className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <img src={`${base}logo-alva-black.svg`} alt="Alva" className="h-[24px] w-auto" />
-        </div>
-      </div>
+      {/* Banner — Figma 9286:43159:784×132 成品图(ascii 纹理 + 居中黑 logo 已烤入),整图直用不叠层 */}
+      <img src={`${base}share-banner.jpg`} alt="Alva" className="block h-[132px] w-full shrink-0 object-cover" />
       <div className="flex w-full flex-col gap-[28px] bg-white p-[28px]">
         {messages.map((message) => (
           <SharedImageMessage key={message.id} message={message} />
