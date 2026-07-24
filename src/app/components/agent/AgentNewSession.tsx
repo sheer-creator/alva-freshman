@@ -27,7 +27,7 @@ import { EMPTY_PROMPTS, EmptyPromptPill } from '@/app/components/chat/PlaybookSu
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
 import { SEED_CHANNEL_ID, channelsStore } from '@/app/state/channels';
 import { EditChannelModal } from '@/app/components/shared/EditChannelModal';
-import { SelectableMessage } from '@/app/components/share/SelectableMessage';
+import { MsgHeaderActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
 import { ShareImagePreview } from '@/app/components/share/ShareImagePreview';
 import { CHANNEL_SEED_SHARE_MESSAGES } from '@/app/components/share/channel-seed-share-messages';
 import {
@@ -500,7 +500,7 @@ function ChannelPortrait({ size = 32 }: { size?: number }) {
   );
 }
 
-function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; children: React.ReactNode }) {
+function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', headerActions, children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; headerActions?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="flex w-full items-start gap-[8px]">
       {portrait ?? <AlvaPortrait size={22} />}
@@ -517,6 +517,8 @@ function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', 
             </span>
           )}
           <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{time}</p>
+          {/* header 行内 copy+share（Figma 9246:36248:pl4 gap8,hover 出现）*/}
+          {headerActions}
         </div>
         <div className="flex min-w-0 w-full flex-col gap-[12px]">
           {children}
@@ -695,7 +697,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const [shareMode, setShareMode] = useState(false);
   const [selectedShareIds, setSelectedShareIds] = useState<Set<string>>(() => new Set());
   const [shareImageOpen, setShareImageOpen] = useState(false);
-  const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const [shareNotice, setShareNotice] = useState<{ type: 'success' | 'warning' | 'error'; title: string } | null>(null);
   const shareNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /* 会话是否已开始（Start Watching / 发过 prompt）：true 则收起 onboard 空态，进入真实对话 */
   const [started, setStarted] = useState(false);
@@ -746,10 +748,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   ];
   const selectedShareMessages = shareableMessages.filter((message) => selectedShareIds.has(message.id));
 
-  const showShareNotice = useCallback((message: string) => {
+  /* Toast — 组件库规范(@repo/ui-base toast):顶部居中,默认时长 3000ms;type 决定左侧图标 */
+  const showShareNotice = useCallback((title: string, type: 'success' | 'warning' | 'error' = 'success') => {
     if (shareNoticeTimerRef.current) clearTimeout(shareNoticeTimerRef.current);
-    setShareNotice(message);
-    shareNoticeTimerRef.current = setTimeout(() => setShareNotice(null), 2800);
+    setShareNotice({ type, title });
+    shareNoticeTimerRef.current = setTimeout(() => setShareNotice(null), 3000);
   }, []);
 
   const exitShareMode = useCallback(() => {
@@ -763,7 +766,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       await copyTextToClipboard(message.text);
       showShareNotice('Copied');
     } catch {
-      showShareNotice('Could not copy this message.');
+      showShareNotice('Could not copy this message.', 'error');
     }
   }, [showShareNotice]);
 
@@ -776,7 +779,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
   const toggleShareMessage = useCallback((id: string) => {
     if (!selectedShareIds.has(id) && selectedShareIds.size >= 10) {
-      showShareNotice('You can select up to 10 messages.');
+      showShareNotice('You can select up to 10 messages.', 'warning');
       return;
     }
     setSelectedShareIds((current) => {
@@ -800,9 +803,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       });
       await copyTextToClipboard(buildConversationShareUrl(id));
       exitShareMode();
-      showShareNotice('Demo link copied — stored in this browser.');
+      showShareNotice('Link copied');
     } catch {
-      showShareNotice('Could not copy the link. Your selection is still active.');
+      showShareNotice('Could not copy the link. Your selection is still active.', 'error');
     }
   }, [exitShareMode, selectedShareMessages, showShareNotice]);
 
@@ -1005,8 +1008,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
-      {/* Agent Header — Figma 7885:108604 / Topbar 30785:4970(gap-8)；频道态：# 头像 + 频道名 + (有描述才显示描述行) */}
-      <div className="flex shrink-0 items-center gap-[8px] px-[28px] py-[16px]">
+      {/* Agent Header — Figma 7885:108604 / Topbar 30785:4970(gap-8)；频道态：# 头像 + 频道名 + (有描述才显示描述行)；
+          分享选择态(9269:39944)：Tab 行隐藏,topbar 自带 border-b l12 */}
+      <div className="flex shrink-0 items-center gap-[8px] px-[28px] py-[16px]" style={shareMode ? { borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' } : undefined}>
         {channel ? <ChannelPortrait /> : <AlvaPortrait />}
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -1026,19 +1030,16 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           )}
         </div>
         {shareMode ? (
-          <>
-            <button
-              type="button"
-              onClick={exitShareMode}
-              className="h-[32px] shrink-0 cursor-pointer rounded-[4px] bg-transparent px-[12px] text-[12px] font-medium leading-[20px] tracking-[0.12px]"
-              style={{ fontFamily: FONT, color: 'var(--text-n7, rgba(0,0,0,0.7))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
-            >
-              Cancel
-            </button>
-            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--main-m3, #2a9b7d)' }}>
-              {selectedShareMessages.length} selected
-            </span>
-          </>
+          /* Cancel — Figma 9269:39944 Button:h32 px12 py6 gap6 border 0.5 l3 radius 4,close-l1 14 + Medium 12 n9 */
+          <button
+            type="button"
+            onClick={exitShareMode}
+            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+            style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+          >
+            <CdnIcon name="close-l1" size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
+            Cancel
+          </button>
         ) : (
           <>
         {/* Portfolio — Figma 30785:4970:未连接 outline "Connect Portfolio";已连接点击开账户数据弹窗(31584:10618),View in Portfolio 才跳页 */}
@@ -1106,21 +1107,6 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           </button>
         )}
         <button
-          type="button"
-          className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] bg-transparent transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))] disabled:cursor-not-allowed disabled:opacity-35"
-          style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
-          aria-label="Share messages"
-          title={shareableMessages.length === 0 ? 'No shareable messages yet' : 'Share messages'}
-          disabled={shareableMessages.length === 0 || portfolioOpen || alphaRadarOpen}
-          onClick={() => {
-            setTab('chat');
-            setSelectedShareIds(new Set());
-            setShareMode(true);
-          }}
-        >
-          <CdnIcon name="share-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-        </button>
-        <button
           className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] bg-transparent transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
           style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
           aria-label="Agent settings"
@@ -1132,7 +1118,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         )}
       </div>
 
-      {/* Tab — Figma 7885:108611:icon 16 + 14px,active Medium + b-2 m1 */}
+      {/* Tab — Figma 7885:108611:icon 16 + 14px,active Medium + b-2 m1;分享选择态整行隐藏(9269:39941) */}
+      {!shareMode && (
       <div className="flex shrink-0 items-start gap-[16px] px-[28px]" style={{ borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
         {TABS.map((t) => {
           const active = tab === t.id;
@@ -1163,6 +1150,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           );
         })}
       </div>
+      )}
 
       {tab === 'chat' ? (
         portfolioOpen ? (
@@ -1201,13 +1189,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         <>
           <div ref={stageRef} className="min-h-0 flex-1 overflow-y-auto px-[28px]">
             <style>{MSG_IN_CSS}</style>
-            <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
+            <div className={`mx-auto flex w-full max-w-[960px] flex-col pb-[60px] pt-[28px] ${shareMode ? 'gap-[12px]' : 'gap-[28px]'}`}>
               {/* 预置演示频道：聊天区为预置对话历史（恒显，Figma 10998:50677）；其余频道走 onboard 空态 */}
               {seeded && (
                 <MsgIn>
                   <ChannelSeedThread
                     onOpenTasks={() => setTab('tasks')}
-                    onConnectAlert={connectIm}
                     selectionMode={shareMode}
                     selectedIds={selectedShareIds}
                     onToggleShare={toggleShareMessage}
@@ -1257,19 +1244,22 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
               {extra.map((m) => {
                 const shareMessage = extraToShareMessage(m);
-                const quickActions = shareMessage ? {
-                  onQuickCopy: () => copyMessage(shareMessage),
-                  onQuickShare: () => shareSingleMessage(shareMessage.id),
+                const msgSelected = selectedShareIds.has(`extra-${m.id}`);
+                /* Alva 消息分享 props:选择态 checkbox 顶替头像位(9281:37663),平时 header 行内 copy+share(9246:36248) */
+                const agentShareProps = shareMessage ? {
+                  portrait: shareMode ? <SelectCheckbox checked={msgSelected} /> : undefined,
+                  headerActions: !shareMode ? <MsgHeaderActions onCopy={() => copyMessage(shareMessage)} onShare={() => shareSingleMessage(shareMessage.id)} /> : undefined,
                 } : {};
                 if (m.role === 'user') return (
                   <SelectableMessage
                     key={m.id}
                     active={shareMode}
-                    selected={selectedShareIds.has(`extra-${m.id}`)}
+                    selected={msgSelected}
                     label="Select user message for sharing"
                     onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                    actionAlign="right"
-                    {...quickActions}
+                    variant="user"
+                    hoverTime={shareMessage?.time}
+                    onQuickCopy={shareMessage ? () => copyMessage(shareMessage) : undefined}
                   >
                     <MsgIn><UserMsg text={m.text} quote={m.quote} /></MsgIn>
                   </SelectableMessage>
@@ -1281,14 +1271,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <SelectableMessage
                       key={m.id}
                       active={shareMode}
-                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      selected={msgSelected}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                      actionInset
-                      {...quickActions}
                     >
                       <MsgIn>
-                        <AgentMsg time="now">
+                        <AgentMsg time="now" {...agentShareProps}>
                           <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                             {TICKER_ASK_TEXT}
                           </p>
@@ -1305,13 +1293,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <SelectableMessage
                       key={m.id}
                       active={shareMode}
-                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      selected={msgSelected}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                      actionInset
-                      {...quickActions}
                     >
-                    <MsgIn><AgentMsg time="now">
+                    <MsgIn><AgentMsg time="now" {...agentShareProps}>
                       {m.symbols.map((symbol) => {
                         const read = TICKER_READS[symbol];
                         if (!read) return null;
@@ -1342,14 +1328,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <SelectableMessage
                       key={m.id}
                       active={shareMode}
-                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      selected={msgSelected}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                      actionInset
-                      {...quickActions}
                     >
                       <MsgIn>
-                        <AgentMsg time="now">
+                        <AgentMsg time="now" {...agentShareProps}>
                           <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SCREENER_REC_TEXT}</p>
                           <ScreenerPromptsCard onPick={onPrompt} />
                         </AgentMsg>
@@ -1362,13 +1346,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <SelectableMessage
                       key={m.id}
                       active={shareMode}
-                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      selected={msgSelected}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                      actionInset
-                      {...quickActions}
                     >
-                    <MsgIn><AgentMsg time="now">
+                    <MsgIn><AgentMsg time="now" {...agentShareProps}>
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
                     </AgentMsg></MsgIn>
                     </SelectableMessage>
@@ -1380,13 +1362,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <SelectableMessage
                       key={m.id}
                       active={shareMode}
-                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      selected={msgSelected}
                       label="Select Alva answer for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                      actionInset
-                      {...quickActions}
                     >
-                    <MsgIn><AgentMsg time="now">
+                    <MsgIn><AgentMsg time="now" {...agentShareProps}>
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
                       {!connected && <AlertChannelsCard onConnect={connectIm} />}
                     </AgentMsg></MsgIn>
@@ -1398,13 +1378,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     <SelectableMessage
                       key={m.id}
                       active={shareMode}
-                      selected={selectedShareIds.has(`extra-${m.id}`)}
+                      selected={msgSelected}
                       label="Select notification for sharing"
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                      actionInset
-                      {...quickActions}
                     >
-                    <MsgIn><AgentMsg pushed time="now">
+                    <MsgIn><AgentMsg pushed time="now" {...agentShareProps}>
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                         <span style={{ fontWeight: 500 }}>{m.title}</span> is live in your workspace. {m.push ? "Here's the latest run — new ones will land right here." : 'The first run lands with the next cycle — pushes will land right here.'}
                       </p>
@@ -1447,14 +1425,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   <SelectableMessage
                     key={m.id}
                     active={shareMode}
-                    selected={selectedShareIds.has(`extra-${m.id}`)}
+                    selected={msgSelected}
                     label="Select Alva answer for sharing"
                     onToggle={() => toggleShareMessage(`extra-${m.id}`)}
-                    actionInset
-                    {...quickActions}
                   >
                     <MsgIn>
-                      <AgentMsg time="now">
+                      <AgentMsg time="now" {...agentShareProps}>
                         <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                           {IM_REC_TEXT}
                         </p>
@@ -1468,39 +1444,41 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           </div>
 
           {shareMode ? (
+            /* Selection Bar — Figma Chat/Block-Select Message 9282:37953(变体 9252:2160):
+               px20 py16 gap12,border 0.5 l2,radius 8,Shadow XS;「N/10 selected」动态计数(满 10 数字 m1),
+               0 选中两按钮退白底灰字(n2) */
             <div className="shrink-0 px-[16px] pb-[16px] sm:px-[28px] sm:pb-[28px]">
               <div
-                className="mx-auto flex w-full max-w-[960px] flex-col gap-[12px] rounded-[10px] bg-white p-[12px] sm:flex-row sm:items-center sm:justify-between"
-                style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0 10px 28px rgba(0,0,0,0.08)' }}
+                className="mx-auto flex w-full max-w-[960px] items-center gap-[12px] rounded-[8px] bg-white px-[20px] py-[16px]"
+                style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}
               >
-                <div className="flex min-w-0 items-center gap-[8px] px-[4px]">
-                  <span className="flex size-[24px] shrink-0 items-center justify-center rounded-full text-[11px] font-medium text-white" style={{ fontFamily: FONT, background: 'var(--main-m3, #2a9b7d)' }}>
-                    {selectedShareMessages.length}
+                <p className="min-w-0 flex-1 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT }}>
+                  <span style={{ color: selectedShareMessages.length >= 10 ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                    {selectedShareMessages.length}/10{' '}
                   </span>
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-medium leading-[20px] tracking-[0.13px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Select up to 10 messages</p>
-                    <p className="truncate text-[11px] leading-[18px] tracking-[0.11px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Message text is shared; tasks, tools, and temporary UI stay out.</p>
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-[8px]">
+                  <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>selected</span>
+                </p>
+                <div className="flex shrink-0 items-center gap-[8px]">
                   <button
                     type="button"
                     disabled={selectedShareMessages.length === 0}
                     onClick={copySelectedShare}
-                    className="flex h-[36px] flex-1 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-white px-[14px] text-[12px] font-medium leading-[20px] tracking-[0.12px] disabled:cursor-not-allowed disabled:opacity-35 sm:flex-none"
-                    style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+                    className="flex h-[32px] cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-white px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] disabled:cursor-not-allowed"
+                    style={{ fontFamily: FONT, color: selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
                   >
-                    <CdnIcon name="copy-l" size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
+                    <CdnIcon name="link-l" size={14} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : 'var(--text-n9, rgba(0,0,0,0.9))'} />
                     Copy link
                   </button>
                   <button
                     type="button"
                     disabled={selectedShareMessages.length === 0}
                     onClick={() => setShareImageOpen(true)}
-                    className="flex h-[36px] flex-1 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] border-none px-[14px] text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white disabled:cursor-not-allowed disabled:opacity-35 sm:flex-none"
-                    style={{ fontFamily: FONT, background: 'var(--main-m3, #2a9b7d)' }}
+                    className="flex h-[32px] cursor-pointer items-center justify-center gap-[6px] rounded-[4px] px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] disabled:cursor-not-allowed"
+                    style={selectedShareMessages.length === 0
+                      ? { fontFamily: FONT, background: '#fff', color: 'var(--text-n2, rgba(0,0,0,0.2))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }
+                      : { fontFamily: FONT, background: 'var(--main-m1, #49A3A6)', color: '#fff', border: 'none' }}
                   >
-                    <CdnIcon name="photo-l" size={14} color="#fff" />
+                    <CdnIcon name="photo-l" size={14} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : '#fff'} />
                     Create image
                   </button>
                 </div>
@@ -1566,14 +1544,24 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         onClose={() => setShareImageOpen(false)}
       />
 
+      {/* Toast — 组件库规范(@repo/ui-base):顶部居中 top-28,白底 + 0.5 l2 描边 + radius-pop-toast 4 + Shadow S,
+          px16 py12 gap8,icon 20(success=check-f2 原色/warning=alert-f m6/error=alert-f m4) + Regular 14 n9,顶部滑入 */}
       {shareNotice && (
-        <div
-          role="status"
-          className="fixed bottom-[24px] left-1/2 z-[140] max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-[6px] px-[14px] py-[9px] text-center text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white"
-          style={{ fontFamily: FONT, background: 'var(--b0-sidebar, #2a2a38)', boxShadow: '0 8px 24px rgba(0,0,0,0.16)' }}
-        >
-          {shareNotice}
-        </div>
+        <>
+          <style>{'@keyframes alva-toast-in { from { opacity: 0; transform: translate(-50%, -100%); } to { opacity: 1; transform: translate(-50%, 0); } }'}</style>
+          <div
+            role="status"
+            className="fixed left-1/2 top-[28px] z-[140] flex max-w-[90vw] items-center gap-[8px] rounded-[4px] bg-white px-[16px] py-[12px]"
+            style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0 6px 20px rgba(0,0,0,0.04)', animation: 'alva-toast-in 0.25s ease-out both' }}
+          >
+            {shareNotice.type === 'success'
+              ? <CdnIcon name="check-f2" size={20} />
+              : <CdnIcon name="alert-f" size={20} color={shareNotice.type === 'warning' ? 'var(--main-m6, #ff9800)' : 'var(--main-m4, #e05357)'} />}
+            <span className="min-w-0 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              {shareNotice.title}
+            </span>
+          </div>
+        </>
       )}
 
       {editChannelOpen && channel && (

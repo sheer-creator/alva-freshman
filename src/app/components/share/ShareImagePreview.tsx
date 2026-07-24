@@ -1,32 +1,110 @@
+/**
+ * [INPUT]: Figma Modal/Share as Image 9260:2586 — 840 弹窗:标题行 + br05 预览区(banner/消息/footer 成图) + 双操作按钮
+ * [OUTPUT]: Create image 弹窗;预览与导出共用 ShareImageDoc,html-to-image 出 784 宽 2x PNG
+ * [POS]: AgentNewSession 分享选择态点 Create image 打开
+ */
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toPng } from 'html-to-image';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
-import { ShareContent } from './ShareContent';
 import type { ConversationShareMessage } from './conversation-share';
 
 const FONT = "'Delight', sans-serif";
+const EXPORT_WIDTH = 784; // 稿内成图宽:840 卡片 - 28×2 预览区 padding
 type ImageAction = 'copy' | 'download' | null;
+
+function SharedImageMessage({ message }: { message: ConversationShareMessage }) {
+  const base = import.meta.env.BASE_URL;
+  const n9 = { fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' } as const;
+
+  if (message.role === 'user') {
+    /* User Bubble + 下方右对齐时间行（Figma 9265:39369:Hover 行在图里常显,absolute bottom-[-28px]） */
+    return (
+      <div className="relative flex w-full flex-col items-end">
+        <div className="max-w-[560px] rounded-[8px] px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
+          <p className="whitespace-pre-wrap text-[14px] leading-[22px] tracking-[0.14px]" style={n9}>{message.text}</p>
+        </div>
+        <div className="absolute inset-x-0 bottom-[-28px] flex items-center justify-end">
+          <p className="whitespace-nowrap text-right text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{message.time}</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* Alva Header + 内容 pl-30（Figma Chat/Block-Answer 9281:4190） */
+  return (
+    <div className="flex w-full flex-col gap-[8px]">
+      <div className="flex h-[22px] items-center gap-[8px]">
+        <img src={`${base}logo-portrait.svg`} alt="Alva" className="size-[22px] shrink-0 rounded-[4px]" />
+        <span className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={n9}>Alva</span>
+        <span className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'rgba(0,0,0,0.5)' }}>{message.time}</span>
+      </div>
+      <div className="pl-[30px]">
+        <p className="whitespace-pre-wrap text-[14px] leading-[22px] tracking-[0.14px]" style={n9}>{message.text}</p>
+      </div>
+    </div>
+  );
+}
+
+/* 成图主体:banner(132,ascii 纹理 + 居中 logo) + 消息流(p28 gap28) + divider + 品牌 footer(logo/标语 + QR 80) */
+function ShareImageDoc({ messages }: { messages: ConversationShareMessage[] }) {
+  const base = import.meta.env.BASE_URL;
+  return (
+    <div className="flex w-full flex-col bg-white">
+      {/* Banner — Figma 9286:43135:ascii 纹理中央青色空窗 + 全黑横版 logo(SymbolText-h)h24 居中 */}
+      <div className="relative h-[132px] w-full shrink-0 overflow-hidden bg-white">
+        <img src={`${base}share-banner-ascii.jpg`} alt="" className="absolute inset-0 size-full object-cover" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img src={`${base}logo-alva-black.svg`} alt="Alva" className="h-[24px] w-auto" />
+        </div>
+      </div>
+      <div className="flex w-full flex-col gap-[28px] bg-white p-[28px]">
+        {messages.map((message) => (
+          <SharedImageMessage key={message.id} message={message} />
+        ))}
+        <div className="w-full" style={{ borderTop: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }} />
+        <div className="flex w-full items-center gap-[16px]">
+          <div className="flex min-w-0 flex-1 flex-col items-start gap-[12px]">
+            {/* SymbolText-b-g-h:绿点 + 黑字横版 */}
+            <img src={`${base}logo-alva-green-black.svg`} alt="Alva" className="h-[16px] w-auto" />
+            <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>Your AI Investing Agent</p>
+          </div>
+          <img src={`${base}alva-ai-qr.svg`} alt="QR code for alva.ai" className="size-[80px] shrink-0" style={{ border: '1px solid var(--line-l07, rgba(0,0,0,0.07))' }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ShareImagePreview({ open, messages, onClose }: { open: boolean; messages: ConversationShareMessage[]; onClose: () => void }) {
   const exportRef = useRef<HTMLDivElement>(null);
   const [activeAction, setActiveAction] = useState<ImageAction>(null);
-  const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [copyLabel, setCopyLabel] = useState<string | null>(null);
+  const [downloadLabel, setDownloadLabel] = useState<string | null>(null);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setActiveAction(null);
-    setCopied(false);
-    setError(null);
+    setCopyLabel(null);
+    setDownloadLabel(null);
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
   }, [open, onClose]);
 
   if (!open || typeof document === 'undefined') return null;
+
+  const flashLabel = (set: (value: string | null) => void, value: string) => {
+    set(value);
+    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    resetTimerRef.current = setTimeout(() => set(null), 2400);
+  };
 
   const renderPng = () => {
     if (!exportRef.current) throw new Error('Image preview is not ready.');
@@ -35,21 +113,13 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
       cacheBust: true,
       pixelRatio: 2,
       skipFonts: true,
-      width: 540,
-      style: {
-        position: 'static',
-        left: 'auto',
-        top: 'auto',
-        zIndex: 'auto',
-      },
+      width: EXPORT_WIDTH,
     });
   };
 
   const copy = async () => {
     if (activeAction) return;
     setActiveAction('copy');
-    setCopied(false);
-    setError(null);
     try {
       if (!navigator.clipboard?.write || typeof ClipboardItem === 'undefined') {
         throw new Error('Image clipboard is not supported.');
@@ -59,9 +129,9 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
         return response.blob();
       });
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
-      setCopied(true);
+      flashLabel(setCopyLabel, 'Copied');
     } catch {
-      setError('Image copy is not supported here. Download it instead.');
+      flashLabel(setCopyLabel, 'Copy failed');
     } finally {
       setActiveAction(null);
     }
@@ -70,8 +140,6 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
   const download = async () => {
     if (activeAction) return;
     setActiveAction('download');
-    setCopied(false);
-    setError(null);
     try {
       const dataUrl = await renderPng();
       const link = document.createElement('a');
@@ -79,44 +147,64 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
       link.href = dataUrl;
       link.click();
     } catch {
-      setError('Image generation failed. Try again.');
+      flashLabel(setDownloadLabel, 'Download failed');
     } finally {
       setActiveAction(null);
     }
   };
 
+  /* 底部按钮 — Figma 9260:2786/2822:双白底描边 h48 radius 6 px20 gap8,icon 20 + Medium 16/26 n9 */
+  const actionButtonClass = 'flex h-[48px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-[8px] rounded-[6px] bg-white px-[20px] py-[11px] text-[16px] font-medium leading-[26px] tracking-[0.16px] disabled:cursor-wait disabled:opacity-60';
+  const actionButtonStyle = { fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' } as const;
+
   return createPortal(
-    <div className="fixed inset-0 z-[120] flex items-center justify-center px-[16px] py-[24px]" style={{ background: 'rgba(0,0,0,0.52)' }} onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-labelledby="share-image-title" className="flex max-h-full w-full max-w-[680px] flex-col overflow-hidden rounded-[12px] bg-white" style={{ boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }} onClick={(event) => event.stopPropagation()}>
-        <div className="flex shrink-0 items-center justify-between gap-[16px] border-b px-[20px] py-[16px]" style={{ borderColor: 'var(--line-l07, rgba(0,0,0,0.07))' }}>
-          <p id="share-image-title" className="text-[16px] font-medium leading-[24px] tracking-[0.16px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Share image</p>
-          <button type="button" aria-label="Close image preview" onClick={onClose} className="flex size-[32px] cursor-pointer items-center justify-center rounded-[4px] border-none bg-transparent hover:bg-[var(--b-r03,rgba(0,0,0,0.03))]">
-            <CdnIcon name="close-l1" size={16} color="var(--text-n7, rgba(0,0,0,0.7))" />
+    <div
+      className="fixed inset-0 z-[120] flex flex-col items-center justify-center px-[16px] py-[48px]"
+      style={{ background: 'rgba(0,0,0,0.6)' }}
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-image-title"
+        className="flex h-full w-full max-w-[840px] flex-col overflow-hidden rounded-[8px] bg-white"
+        style={{ boxShadow: '0 10px 20px rgba(0,0,0,0.08)' }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex shrink-0 items-start gap-[8px] px-[28px] pb-[20px] pt-[28px]">
+          <p id="share-image-title" className="min-w-0 flex-1 text-[18px] font-medium leading-[28px] tracking-[0.18px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+            Share as image
+          </p>
+          <button
+            type="button"
+            aria-label="Close image preview"
+            onClick={onClose}
+            className="flex size-[18px] shrink-0 cursor-pointer items-center justify-center border-none bg-transparent p-0"
+          >
+            <CdnIcon name="close-l1" size={18} color="var(--text-n9, rgba(0,0,0,0.9))" />
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-[20px] sm:p-[28px]" style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))' }}>
-          <div className="mx-auto w-full max-w-[540px] overflow-hidden rounded-[8px] bg-white" style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.08)' }}>
-            <ShareContent messages={messages} variant="image" />
+        <div className="min-h-0 flex-1 overflow-y-auto p-[28px]" style={{ background: 'var(--content-br05, rgba(0,0,0,0.05))' }}>
+          <div style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.04))' }}>
+            <ShareImageDoc messages={messages} />
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-[10px] border-t px-[20px] py-[16px] sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: 'var(--line-l07, rgba(0,0,0,0.07))' }}>
-          <p aria-live="polite" className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: error ? 'var(--main-m4, #e05357)' : 'var(--text-n5, rgba(0,0,0,0.5))' }}>{error ?? (copied ? 'Image copied to clipboard.' : 'Your selection stays active after closing this preview.')}</p>
-          <div className="flex shrink-0 gap-[8px]">
-            <button type="button" onClick={copy} disabled={activeAction !== null} className="flex h-[36px] cursor-pointer items-center gap-[6px] rounded-[4px] bg-white px-[16px] text-[12px] font-medium leading-[20px] tracking-[0.12px] disabled:cursor-wait disabled:opacity-60" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}>
-              <CdnIcon name="copy-l" size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
-              {activeAction === 'copy' ? 'Copying…' : copied ? 'Copied' : 'Copy'}
-            </button>
-            <button type="button" onClick={download} disabled={activeAction !== null} className="flex h-[36px] cursor-pointer items-center gap-[6px] rounded-[4px] border-none px-[16px] text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white disabled:cursor-wait disabled:opacity-60" style={{ fontFamily: FONT, background: 'var(--main-m3, #2a9b7d)' }}>
-              <CdnIcon name="download-l" size={14} color="#fff" />
-              {activeAction === 'download' ? 'Generating…' : 'Download image'}
-            </button>
-          </div>
+        <div className="flex shrink-0 gap-[12px] px-[28px] pb-[28px] pt-[20px]" style={{ borderTop: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
+          <button type="button" onClick={copy} disabled={activeAction !== null} className={actionButtonClass} style={actionButtonStyle}>
+            <CdnIcon name="copy-l" size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
+            {activeAction === 'copy' ? 'Copying…' : copyLabel ?? 'Copy image'}
+          </button>
+          <button type="button" onClick={download} disabled={activeAction !== null} className={actionButtonClass} style={actionButtonStyle}>
+            <CdnIcon name="download-l" size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
+            {activeAction === 'download' ? 'Generating…' : downloadLabel ?? 'Download image'}
+          </button>
         </div>
 
-        <div ref={exportRef} aria-hidden className="pointer-events-none fixed left-[-10000px] top-0 w-[540px] bg-white">
-          <ShareContent messages={messages} variant="image" />
+        {/* 离屏导出副本:固定 784 宽,无预览容器阴影 */}
+        <div ref={exportRef} aria-hidden className="pointer-events-none fixed left-[-10000px] top-0 w-[784px] bg-white">
+          <ShareImageDoc messages={messages} />
         </div>
       </div>
     </div>,

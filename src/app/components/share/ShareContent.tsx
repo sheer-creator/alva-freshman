@@ -40,14 +40,14 @@ function SharedMessage({ message }: { message: ConversationShareMessage }) {
   );
 }
 
-export function ShareContent({ messages, variant = 'page' }: { messages: ConversationShareMessage[]; variant?: 'page' | 'image' }) {
+export function ShareContent({ messages }: { messages: ConversationShareMessage[] }) {
   const base = import.meta.env.BASE_URL;
   const title = getConversationShareTitle(messages);
 
   return (
     <article
-      className={variant === 'image' ? '' : 'p-[20px] sm:p-[32px]'}
-      style={{ width: '100%', padding: variant === 'image' ? 32 : undefined, background: 'var(--b0-container, #fff)', fontFamily: FONT }}
+      className="p-[20px] sm:p-[32px]"
+      style={{ width: '100%', background: 'var(--b0-container, #fff)', fontFamily: FONT }}
     >
       <header>
         <h1 className="text-[18px] font-medium leading-[26px] tracking-[0.18px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{title}</h1>

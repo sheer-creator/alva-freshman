@@ -6,8 +6,19 @@
 
 import type { ReactNode } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
-import { SelectableMessage } from '@/app/components/share/SelectableMessage';
-import { CHANNEL_SEED_SHARE_MESSAGES, SEED_PLAYBOOK_PLAN_TEXT } from '@/app/components/share/channel-seed-share-messages';
+import { MsgHeaderActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
+import {
+  CHANNEL_SEED_SHARE_MESSAGES,
+  SEED_MEME_PULSE,
+  SEED_PLAYBOOK_PLAN_TEXT,
+  SEED_USER_PROMPT_TEXT,
+  SEED_VWAP_ASK_TEXT,
+  SEED_VWAP_CONFIRM_TEXT,
+  SEED_VWAP_PUSH,
+  SEED_WHALE_ASK_TEXT,
+  SEED_WHALE_RISK,
+  SEED_WRAPUP_TEXT,
+} from '@/app/components/share/channel-seed-share-messages';
 import type { ConversationShareMessage } from '@/app/components/share/conversation-share';
 
 const FONT = "'Delight', sans-serif";
@@ -24,14 +35,16 @@ function SeedUserMsg({ text }: { text: string }) {
   );
 }
 
-/* Answer — Figma Chat/Block-Answer:头行(22px 头像 + Alva + 时间,gap 8) + 内容 pl-30 gap-12,与头行 gap 8 */
-function SeedAgentMsg({ time, children }: { time: string; children: ReactNode }) {
+/* Answer — Figma Chat/Block-Answer:头行(22px 头像 + Alva + 时间,gap 8) + 内容 pl-30 gap-12,与头行 gap 8;
+   portrait 位分享选择态换成 checkbox(9281:37663),actions 为 header 行内 copy+share(9246:36248) */
+function SeedAgentMsg({ time, portrait, actions, children }: { time: string; portrait?: ReactNode; actions?: ReactNode; children: ReactNode }) {
   return (
     <div className="flex w-full flex-col gap-[8px]">
       <div className="flex h-[22px] w-full items-center gap-[8px]">
-        <img src={`${BASE}logo-portrait.svg`} alt="Alva" className="size-[22px] shrink-0 rounded-[4px]" />
+        {portrait ?? <img src={`${BASE}logo-portrait.svg`} alt="Alva" className="size-[22px] shrink-0 rounded-[4px]" />}
         <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Alva</p>
         <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{time}</p>
+        {actions}
       </div>
       <div className="flex w-full flex-col items-start gap-[12px] pl-[30px]">{children}</div>
     </div>
@@ -77,44 +90,8 @@ function SeedSourceChip({ label }: { label: string }) {
   );
 }
 
-/* 「Where should I send you alerts?」渠道卡(Figma Chat/Element/Card Connect 变体 11404:128449):
-   br03 底 + l2 描边,p16 gap8;按钮紧凑态 h32 px12 py6 gap6 radius4,14px 白 logo + Medium 12 白字 */
-const SEED_ALERT_CHANNELS: { id: string; label: string; logo: string; bg: string }[] = [
-  { id: 'telegram', label: 'Telegram', logo: 'logo-im-telegram.svg', bg: '#229ed9' },
-  { id: 'discord', label: 'Discord', logo: 'logo-im-discord.svg', bg: '#5865f2' },
-  { id: 'imessage', label: 'iMessage', logo: 'logo-im-imessage.svg', bg: '#0cbd2a' },
-];
-
-function SeedAlertCard({ onConnect }: { onConnect?: (id: string) => void }) {
-  return (
-    <div
-      className="flex w-full flex-col gap-[8px] rounded-[8px] p-[16px]"
-      style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
-    >
-      <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-        Where should I send you alerts?
-      </p>
-      <div className="flex flex-wrap gap-[8px]">
-        {SEED_ALERT_CHANNELS.map((ch) => (
-          <button
-            key={ch.id}
-            type="button"
-            onClick={() => onConnect?.(ch.id)}
-            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] border-none px-[12px] py-[6px] transition-opacity hover:opacity-90"
-            style={{ background: ch.bg }}
-          >
-            <img src={`${BASE}${ch.logo}`} alt="" className="size-[14px] shrink-0" />
-            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white" style={{ fontFamily: FONT }}>{ch.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 interface ChannelSeedThreadProps {
   onOpenTasks?: () => void;
-  onConnectAlert?: (id: string) => void;
   selectionMode?: boolean;
   selectedIds?: ReadonlySet<string>;
   onToggleShare?: (id: string) => void;
@@ -124,27 +101,43 @@ interface ChannelSeedThreadProps {
 
 export function ChannelSeedThread({
   onOpenTasks,
-  onConnectAlert,
   selectionMode = false,
   selectedIds,
   onToggleShare,
   onCopyMessage,
   onShareMessage,
 }: ChannelSeedThreadProps) {
-  const [userShareMessage, planShareMessage, digestShareMessage] = CHANNEL_SEED_SHARE_MESSAGES;
+  const [
+    userShareMessage,
+    planShareMessage,
+    digestShareMessage,
+    memePulseShareMessage,
+    whaleAskShareMessage,
+    whaleRiskShareMessage,
+    vwapAskShareMessage,
+    vwapConfirmShareMessage,
+    vwapPushShareMessage,
+    wrapupShareMessage,
+  ] = CHANNEL_SEED_SHARE_MESSAGES;
+  const seedAgentShareProps = (message: ConversationShareMessage) => ({
+    portrait: selectionMode ? <SelectCheckbox checked={selectedIds?.has(message.id) ?? false} /> : undefined,
+    actions: !selectionMode && onCopyMessage && onShareMessage
+      ? <MsgHeaderActions onCopy={() => onCopyMessage(message)} onShare={() => onShareMessage(message.id)} />
+      : undefined,
+  });
 
   return (
-    <div className="flex w-full flex-col gap-[28px]">
+    <div className={`flex w-full flex-col ${selectionMode ? 'gap-[12px]' : 'gap-[28px]'}`}>
       <SelectableMessage
         active={selectionMode}
         selected={selectedIds?.has(userShareMessage.id) ?? false}
         label="Select user message for sharing"
         onToggle={() => onToggleShare?.(userShareMessage.id)}
+        variant="user"
+        hoverTime={userShareMessage.time}
         onQuickCopy={() => onCopyMessage?.(userShareMessage)}
-        onQuickShare={() => onShareMessage?.(userShareMessage.id)}
-        actionAlign="right"
       >
-        <SeedUserMsg text="Build a trading playbook, NVDA, AAPL, TSLA" />
+        <SeedUserMsg text={SEED_USER_PROMPT_TEXT} />
       </SelectableMessage>
 
       <SelectableMessage
@@ -152,11 +145,8 @@ export function ChannelSeedThread({
         selected={selectedIds?.has(planShareMessage.id) ?? false}
         label="Select Alva answer for sharing"
         onToggle={() => onToggleShare?.(planShareMessage.id)}
-        onQuickCopy={() => onCopyMessage?.(planShareMessage)}
-        onQuickShare={() => onShareMessage?.(planShareMessage.id)}
-        actionInset
       >
-        <SeedAgentMsg time="10:28 PM">
+        <SeedAgentMsg time="10:28 PM" {...seedAgentShareProps(planShareMessage)}>
           <SeedLine>{SEED_PLAYBOOK_PLAN_TEXT}</SeedLine>
           {/* The task card remains interactive in chat but is omitted from the share snapshot. */}
           <button
@@ -189,11 +179,8 @@ export function ChannelSeedThread({
         selected={selectedIds?.has(digestShareMessage.id) ?? false}
         label="Select digest notification for sharing"
         onToggle={() => onToggleShare?.(digestShareMessage.id)}
-        onQuickCopy={() => onCopyMessage?.(digestShareMessage)}
-        onQuickShare={() => onShareMessage?.(digestShareMessage.id)}
-        actionInset
       >
-        <SeedAgentMsg time="10:28 PM">
+        <SeedAgentMsg time="10:28 PM" {...seedAgentShareProps(digestShareMessage)}>
           <SeedSourceChip label="nvda-macd-hft-notify" />
           <SeedLine medium>📬 AI Chip Supply Chain — Daily Digest · 2026-06-12</SeedLine>
           <SeedLine medium>What moved today:</SeedLine>
@@ -207,7 +194,100 @@ export function ChannelSeedThread({
             <SeedBullet text="TSMC monthly sales cadence and any new SMIC capacity disclosures." />
             <SeedBullet text="TSMC Q2 Earnings July 16: Three CoWoS Signals That Test AI’s Spending Ceiling [2]" />
           </div>
-          <SeedAlertCard onConnect={onConnectAlert} />
+        </SeedAgentMsg>
+      </SelectableMessage>
+
+      {/* 第 4 条 — Figma 9246:36256(9282:39168):Meme token pulse 标题 + 3 bullets */}
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(memePulseShareMessage.id) ?? false}
+        label="Select Alva answer for sharing"
+        onToggle={() => onToggleShare?.(memePulseShareMessage.id)}
+      >
+        <SeedAgentMsg time="10:28 PM" {...seedAgentShareProps(memePulseShareMessage)}>
+          <SeedLine medium>{SEED_MEME_PULSE.title}</SeedLine>
+          <div className="flex w-full flex-col gap-[4px]">
+            {SEED_MEME_PULSE.bullets.map((line) => (
+              <SeedBullet key={line} text={line} />
+            ))}
+          </div>
+        </SeedAgentMsg>
+      </SelectableMessage>
+
+      {/* 5-10 条 — 追问链 mock:whale 风险 → VWAP 硬警报 → 自动化建立 → 推送触发 → 收尾建议 */}
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(whaleAskShareMessage.id) ?? false}
+        label="Select user message for sharing"
+        onToggle={() => onToggleShare?.(whaleAskShareMessage.id)}
+        variant="user"
+        hoverTime={whaleAskShareMessage.time}
+        onQuickCopy={() => onCopyMessage?.(whaleAskShareMessage)}
+      >
+        <SeedUserMsg text={SEED_WHALE_ASK_TEXT} />
+      </SelectableMessage>
+
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(whaleRiskShareMessage.id) ?? false}
+        label="Select Alva answer for sharing"
+        onToggle={() => onToggleShare?.(whaleRiskShareMessage.id)}
+      >
+        <SeedAgentMsg time={whaleRiskShareMessage.time} {...seedAgentShareProps(whaleRiskShareMessage)}>
+          <SeedLine>{SEED_WHALE_RISK.intro}</SeedLine>
+          <SeedLine medium>Watch for:</SeedLine>
+          <div className="flex w-full flex-col gap-[4px]">
+            {SEED_WHALE_RISK.bullets.map((line) => (
+              <SeedBullet key={line} text={line} />
+            ))}
+          </div>
+        </SeedAgentMsg>
+      </SelectableMessage>
+
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(vwapAskShareMessage.id) ?? false}
+        label="Select user message for sharing"
+        onToggle={() => onToggleShare?.(vwapAskShareMessage.id)}
+        variant="user"
+        hoverTime={vwapAskShareMessage.time}
+        onQuickCopy={() => onCopyMessage?.(vwapAskShareMessage)}
+      >
+        <SeedUserMsg text={SEED_VWAP_ASK_TEXT} />
+      </SelectableMessage>
+
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(vwapConfirmShareMessage.id) ?? false}
+        label="Select Alva answer for sharing"
+        onToggle={() => onToggleShare?.(vwapConfirmShareMessage.id)}
+      >
+        <SeedAgentMsg time={vwapConfirmShareMessage.time} {...seedAgentShareProps(vwapConfirmShareMessage)}>
+          <SeedLine>{SEED_VWAP_CONFIRM_TEXT}</SeedLine>
+        </SeedAgentMsg>
+      </SelectableMessage>
+
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(vwapPushShareMessage.id) ?? false}
+        label="Select notification for sharing"
+        onToggle={() => onToggleShare?.(vwapPushShareMessage.id)}
+      >
+        <SeedAgentMsg time={vwapPushShareMessage.time} {...seedAgentShareProps(vwapPushShareMessage)}>
+          <SeedSourceChip label="goldendog-vwap-guard" />
+          <SeedLine medium>{SEED_VWAP_PUSH.title}</SeedLine>
+          <SeedLine>{SEED_VWAP_PUSH.body}</SeedLine>
+        </SeedAgentMsg>
+      </SelectableMessage>
+
+      <SelectableMessage
+        active={selectionMode}
+        selected={selectedIds?.has(wrapupShareMessage.id) ?? false}
+        label="Select Alva answer for sharing"
+        onToggle={() => onToggleShare?.(wrapupShareMessage.id)}
+      >
+        <SeedAgentMsg time={wrapupShareMessage.time} {...seedAgentShareProps(wrapupShareMessage)}>
+          <SeedLine>{SEED_WRAPUP_TEXT}</SeedLine>
         </SeedAgentMsg>
       </SelectableMessage>
     </div>
