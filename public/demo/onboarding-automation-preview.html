@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="leozhou" />
+    <title>Automation Onboarding Preview</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #fff;
+      }
+
+      .demo-summary {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="demo-summary">
+      Five interactive approaches for previewing an Automation preset before setup, including the in-place streamed conversation flow.
+    </p>
+    <iframe id="demo-frame" title="Automation onboarding preview demo"></iframe>
+    <script>
+      const allowedPreviews = new Set(['inline', 'value-card', 'conversation', 'channel', 'stream']);
+      const allowedPresets = new Set(['portfolio-watch', 'alpha-radar', 'smart-screener']);
+      const params = new URLSearchParams(window.location.search);
+      const preview = allowedPreviews.has(params.get('preview')) ? params.get('preview') : 'stream';
+      const preset = allowedPresets.has(params.get('preset')) ? params.get('preset') : 'alpha-radar';
+      const appUrl = new URL('../', window.location.href);
+      appUrl.hash = `agent?preview=${preview}&preset=${preset}`;
+      document.getElementById('demo-frame').src = appUrl.toString();
+    </script>
+      <script src="/demo/_switcher.js" defer></script>
+  </body>
+</html>
