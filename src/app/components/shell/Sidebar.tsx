@@ -204,8 +204,8 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
         <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore'} collapsed={collapsed} onClick={() => onNavigate('explore')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
-        {/* Markets — Figma 11831:60745（icon CDN 无对应资产，从稿导出入库 public/icon-sidebar-markets.svg） */}
-        <NavItem label="Markets" icon={`${import.meta.env.BASE_URL}icon-sidebar-markets.svg`} collapsed={collapsed} />
+        {/* Markets — Figma 11831:60745 */}
+        <NavItem label="Markets" icon="sidebar-k-normal" collapsed={collapsed} />
         <NavItem label="FinTwit Alpha League" icon="smart-money-l" gradient collapsed={collapsed} />
       </div>
 
