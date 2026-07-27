@@ -7,7 +7,7 @@
  * 共享结构：body(时间戳 + 变体内容 + 底部 48px 渐隐 mask) + footer(StatusDot + feed 名 + Get Alerts)。
  */
 
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Avatar } from './Avatar';
 import { CdnIcon } from './CdnIcon';
 import { TickerLogo } from './TickerLogo';
@@ -238,16 +238,13 @@ function KolBody({ d }: { d: KolPush }) {
   );
 }
 
-/** 时间戳行 + 变体内容 —— 卡片 body 与 FeedDetailModal / onboarding preview 共用 */
-export function PushContent({ a, sourceNode }: { a: PushCardData; sourceNode?: ReactNode }) {
+/** 时间戳行 + 变体内容 —— 卡片 body 与 FeedDetailModal 的 alert 区块共用 */
+export function PushContent({ a }: { a: PushCardData }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
-      <div
+      <p
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 4,
+          margin: 0,
           fontFamily: FONT,
           fontSize: 12,
           lineHeight: '20px',
@@ -255,10 +252,8 @@ export function PushContent({ a, sourceNode }: { a: PushCardData; sourceNode?: R
           color: 'var(--text-n5, rgba(0,0,0,0.5))',
         }}
       >
-        <span>{a.timestamp}</span>
-        <span>·</span>
-        {sourceNode ?? <span>{a.source}</span>}
-      </div>
+        {a.timestamp} · {a.source}
+      </p>
       {a.kind === 'normal' && <NormalBody d={a} />}
       {a.kind === 'trade' && <TradeBody d={a} />}
       {a.kind === 'kol' && <KolBody d={a} />}

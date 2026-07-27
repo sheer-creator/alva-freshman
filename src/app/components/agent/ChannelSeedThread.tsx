@@ -6,7 +6,6 @@
 
 import type { ReactNode } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
-import { AutomationSourceChip } from '@/app/components/agent/AutomationSourceChip';
 import { MsgHeaderActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
 import {
   CHANNEL_SEED_SHARE_MESSAGES,
@@ -70,6 +69,24 @@ function SeedBullet({ text }: { text: string }) {
       </span>
       <p className="min-w-0 flex-1 text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{text}</p>
     </div>
+  );
+}
+
+/* 归因 chip — Figma Chat/Element/Card(Automation 变体 11404:128447):pill,l2 描边 + br02 底,
+   pl5 pr8 py2 gap4;live 点(m1 实心 + m1 半透光晕) + 名称(Regular 12 n9) + arrow-right-l2 12(n9) */
+function SeedSourceChip({ label }: { label: string }) {
+  return (
+    <span
+      className="inline-flex items-center gap-[4px] rounded-full py-[2px] pl-[5px] pr-[8px]"
+      style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
+    >
+      <span className="relative flex size-[14px] shrink-0 items-center justify-center">
+        <span className="absolute size-[14px] rounded-full" style={{ background: 'var(--main-m1, #49A3A6)', opacity: 0.2 }} />
+        <span className="size-[6px] rounded-full" style={{ background: 'var(--main-m1, #49A3A6)' }} />
+      </span>
+      <span className="whitespace-nowrap text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{label}</span>
+      <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n9, rgba(0,0,0,0.9))" />
+    </span>
   );
 }
 
@@ -164,7 +181,7 @@ export function ChannelSeedThread({
         onToggle={() => onToggleShare?.(digestShareMessage.id)}
       >
         <SeedAgentMsg time="10:28 PM" {...seedAgentShareProps(digestShareMessage)}>
-          <AutomationSourceChip label="nvda-macd-hft-notify" />
+          <SeedSourceChip label="nvda-macd-hft-notify" />
           <SeedLine medium>📬 AI Chip Supply Chain — Daily Digest · 2026-06-12</SeedLine>
           <SeedLine medium>What moved today:</SeedLine>
           <div className="flex w-full flex-col gap-[4px]">
@@ -257,7 +274,7 @@ export function ChannelSeedThread({
         onToggle={() => onToggleShare?.(vwapPushShareMessage.id)}
       >
         <SeedAgentMsg time={vwapPushShareMessage.time} {...seedAgentShareProps(vwapPushShareMessage)}>
-          <AutomationSourceChip label="goldendog-vwap-guard" />
+          <SeedSourceChip label="goldendog-vwap-guard" />
           <SeedLine medium>{SEED_VWAP_PUSH.title}</SeedLine>
           <SeedLine>{SEED_VWAP_PUSH.body}</SeedLine>
         </SeedAgentMsg>

@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { ChannelIcon } from '@/app/components/agent-channel/ChannelIcon';
 import { TextBlock } from '@/app/components/alva-chat/TextBlock';
-import { FeedAlertCard, FeedDetailModal } from '@/app/components/community/FeedDetailModal';
+import { FeedDetailModal } from '@/app/components/community/FeedDetailModal';
 import type { PushCardData } from '@/app/components/shared/AutomationCard';
 import { AutomationSourceChip } from '@/app/components/agent/AutomationSourceChip';
 import { AlphaRadarBuilder } from '@/app/components/agent/AlphaRadarBuilder';
@@ -824,6 +824,68 @@ function buildPreviewAlerts(preset: Preset): PushCardData[] {
   }));
 }
 
+function PreviewAlertCard({
+  alert,
+  preset,
+  onOpen,
+}: {
+  alert: PushCardData;
+  preset: Preset;
+  onOpen: () => void;
+}) {
+  if (alert.kind !== 'normal') return null;
+
+  return (
+    <article
+      className="flex w-full flex-col items-start gap-[8px] rounded-[8px] px-[16px] py-[16px]"
+      style={{ background: 'var(--grey-g01, #fafafa)' }}
+    >
+      <div className="flex w-full flex-wrap items-center gap-[6px]">
+        <span
+          style={{
+            fontFamily: FONT,
+            fontSize: 12,
+            lineHeight: '20px',
+            color: 'var(--text-n5, rgba(0,0,0,0.5))',
+          }}
+        >
+          {alert.timestamp}
+        </span>
+        <span style={{ color: 'var(--text-n3, rgba(0,0,0,0.3))' }}>·</span>
+        <AutomationSourceChip label={preset.id} onClick={onOpen} />
+      </div>
+      <h3
+        style={{
+          margin: 0,
+          fontFamily: FONT,
+          fontSize: 14,
+          fontWeight: 500,
+          lineHeight: '22px',
+          color: 'var(--text-n9, rgba(0,0,0,0.9))',
+        }}
+      >
+        {alert.title}
+      </h3>
+      <div className="flex flex-col gap-[4px]">
+        {alert.bullets.map((bullet) => (
+          <p
+            key={bullet}
+            style={{
+              margin: 0,
+              fontFamily: FONT,
+              fontSize: 14,
+              lineHeight: '22px',
+              color: 'var(--text-n9, rgba(0,0,0,0.9))',
+            }}
+          >
+            {bullet}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 function PreviewExamplesComponent({
   preset,
   visibleCount,
@@ -842,15 +904,11 @@ function PreviewExamplesComponent({
         </p>
         <div className="opd-preview-component__scroll">
           {alerts.map((alert) => (
-            <FeedAlertCard
+            <PreviewAlertCard
               key={alert.id}
               alert={alert}
-              sourceNode={(
-                <AutomationSourceChip
-                  label={preset.id}
-                  onClick={() => setDetailOpen(true)}
-                />
-              )}
+              preset={preset}
+              onOpen={() => setDetailOpen(true)}
             />
           ))}
         </div>
@@ -970,7 +1028,7 @@ function StreamVariant({
       {phase >= 7 && (
         <NativeMessage preset={runPreset}>
           {runPreset.id === 'alpha-radar' ? (
-            <AlphaRadarBuilder />
+            <AlphaRadarBuilder preview />
           ) : (
             <SetupGui preset={runPreset} compact minimal />
           )}
