@@ -204,7 +204,8 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       <div className="content-stretch flex flex-col gap-0 items-start py-[4px] relative shrink-0 w-full z-[7]">
         <NavItem label="Explore" icon="sidebar-discover-normal" active={activePage === 'explore'} collapsed={collapsed} onClick={() => onNavigate('explore')} />
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
-        <NavItem label="Alva Skill" icon="sidebar-skills-normal" active={activePage === 'alva-skills'} collapsed={collapsed} onClick={() => onNavigate('alva-skills')} />
+        {/* Markets — Figma 11831:60745（icon CDN 无对应资产，从稿导出入库 public/icon-sidebar-markets.svg） */}
+        <NavItem label="Markets" icon={`${import.meta.env.BASE_URL}icon-sidebar-markets.svg`} collapsed={collapsed} />
         <NavItem label="FinTwit Alpha League" icon="smart-money-l" gradient collapsed={collapsed} />
       </div>
 
@@ -252,54 +253,48 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Heartbeat Run Counter" icon="chat-l1" collapsed={collapsed} />
       </div>
 
-      {/* Upgrade to Pro card — sits above the user row */}
+      {/* Upgrade to Pro card — Figma Nav Bar/AD Card 11831:60765：br7 底 + 0.5 lr12 边 + radius-ct-m 6，
+          pt6 pl10 pr8 pb8；标题 Regular 12/20 白 + 副行 10/16 nr5(pr-40 给箭头让位)；
+          右下装饰 = 93px m3 圆(opacity .1 + blur 25) 溢出半径 + arrow-up-l1 28 白 45°(指右上) 半透明 */}
       {!collapsed && (
-        <div className="shrink-0 w-full px-[8px] pt-[8px] pb-[8px] relative z-[3]">
+        <div className="shrink-0 w-full p-[8px] relative z-[3]">
           <button
             type="button"
-            className="relative isolate w-full overflow-hidden rounded-[4px] pt-[6px] pl-[10px] pr-[8px] pb-[8px] text-left transition-colors cursor-pointer"
+            className="relative isolate w-full overflow-hidden rounded-[6px] pt-[6px] pl-[10px] pr-[8px] pb-[8px] text-left cursor-pointer"
             style={{
               background: 'rgba(0, 0, 0, 0.7)',
               border: '0.5px solid rgba(255, 255, 255, 0.12)',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0, 0, 0, 0.55)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0, 0, 0, 0.7)'; }}
             onClick={() => onNavigate('pricing')}
           >
-            {/* Decorative top-right glow */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute z-[1] rounded-full"
+              style={{
+                right: -46.5,
+                bottom: -46.5,
+                width: 93,
+                height: 93,
+                background: 'var(--main-m3, #2A9B7D)',
+                opacity: 0.1,
+                filter: 'blur(25px)',
+              }}
+            />
             <span
               aria-hidden
               className="pointer-events-none absolute z-[1]"
-              style={{
-                right: -46,
-                top: -46,
-                width: 93,
-                height: 93,
-                background: 'radial-gradient(circle, rgba(42,155,125,0.45) 0%, rgba(42,155,125,0) 70%)',
-              }}
-            />
-            <div className="relative z-[2] flex items-start gap-[8px]">
-              <span
-                className="flex items-center justify-center shrink-0 rounded-[4px]"
-                style={{ width: 20, height: 20, background: 'rgba(42, 155, 125, 0.20)', marginTop: 4 }}
-              >
-                <CdnIcon name="arrow-up-f1" size={14} color="var(--main-m3, #2A9B7D)" />
+              style={{ right: 7.5, bottom: 7.5 }}
+            >
+              <CdnIcon name="arrow-up-l1" size={28} color="var(--main-m3, #2A9B7D)" />
+            </span>
+            <span className="relative z-[2] flex min-w-0 flex-col">
+              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: '#fff' }}>
+                Upgrade to Pro
               </span>
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span
-                  className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]"
-                  style={{ color: '#fff' }}
-                >
-                  Upgrade to Pro
-                </span>
-                <span
-                  className="font-['Delight',sans-serif] text-[10px] leading-[16px] tracking-[0.1px]"
-                  style={{ color: 'rgba(255, 255, 255, 0.5)' }}
-                >
-                  Unlock unlimited playbooks with 7-day free trial
-                </span>
+              <span className="pr-[40px] font-['Delight',sans-serif] text-[10px] leading-[16px] tracking-[0.1px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                Unlock unlimited playbooks with 7-day free trial
               </span>
-            </div>
+            </span>
           </button>
         </div>
       )}

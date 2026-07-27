@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -116,6 +116,28 @@ async function gitCreationInfo(repoRelativePath) {
   }
 }
 
+// 最后更新日期 = 该文件最近一次提交的 committer date（%cs = YYYY-MM-DD）；
+// 未提交的新文件回退到磁盘 mtime。
+async function gitLastModified(repoRelativePath, absolutePath) {
+  try {
+    const { stdout } = await execFileAsync(
+      'git',
+      ['log', '-1', '--format=%cs', '--', repoRelativePath],
+      { cwd: rootDir },
+    );
+    const date = stdout.trim();
+    if (date) return date;
+  } catch {
+    // 忽略，走 mtime 回退
+  }
+  try {
+    const { mtime } = await stat(absolutePath);
+    return mtime.toISOString().slice(0, 10);
+  } catch {
+    return null;
+  }
+}
+
 async function githubLoginFor({ sha, name, email }) {
   if (loginCache.has(email)) return loginCache.get(email);
   let login = null;
@@ -186,12 +208,14 @@ async function collectHtmlFiles(currentDir = demoDir) {
     if (relativePath === 'index.html') continue;
 
     const contents = await readFile(absolutePath, 'utf8');
+    const repoRelativePath = path.posix.join('public/demo', relativePath.replaceAll(path.sep, '/'));
     files.push({
       title: extractTitle(contents, titleFromRelativePath(relativePath)),
       route: routeFromRelativePath(relativePath),
       relativePath: relativePath.replaceAll(path.sep, '/'),
       summary: extractSummary(contents),
       author: await resolveAuthor(contents, relativePath),
+      updated: await gitLastModified(repoRelativePath, absolutePath),
     });
   }
 
@@ -214,7 +238,10 @@ function renderList(files) {
               <span class="demo-title">${escapeHtml(file.title)}</span>
               ${file.summary ? `<span class="demo-summary">${escapeHtml(file.summary)}</span>` : ''}
             </span>
-            <span class="demo-author">@${escapeHtml(file.author)}</span>
+            <span class="demo-meta">
+              <span class="demo-author">@${escapeHtml(file.author)}</span>
+              ${file.updated ? `<span class="demo-updated">Updated ${escapeHtml(file.updated)}</span>` : ''}
+            </span>
           </a>
   `.trim()).join('\n');
 
@@ -342,12 +369,27 @@ function renderPage(files) {
         overflow: hidden;
       }
 
-      .demo-author {
+      .demo-meta {
+        display: flex;
         flex: 0 0 auto;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+        text-align: right;
+      }
+
+      .demo-author {
         font-size: 12px;
         line-height: 18px;
         letter-spacing: 0.12px;
         color: var(--text-n5);
+      }
+
+      .demo-updated {
+        font-size: 12px;
+        line-height: 18px;
+        letter-spacing: 0.12px;
+        color: var(--text-n3);
       }
 
       .empty-state {
@@ -409,15 +451,17 @@ ${renderList(files)}
 `;
 }
 
-const files = (await collectHtmlFiles()).sort((left, right) =>
-  collator.compare(left.relativePath, right.relativePath),
-);
+// 最新更新的排在最前（updated 为 YYYY-MM-DD，可直接字符串降序）；同日期回退文件名字母序，保证稳定。
+const files = (await collectHtmlFiles()).sort((left, right) => {
+  const byDate = String(right.updated ?? '').localeCompare(String(left.updated ?? ''));
+  return byDate !== 0 ? byDate : collator.compare(left.relativePath, right.relativePath);
+});
 
 const SWITCHER_CSS = `
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
 .ads-root { position: fixed; bottom: 16px; right: 16px; z-index: 99999; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; }
-.ads-menu { width: 520px; max-width: calc(100vw - 32px); border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); background: #fff; padding: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); }
+.ads-menu { width: 520px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 120px); overflow-y: auto; overscroll-behavior: contain; border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); background: #fff; padding: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.16); }
 .ads-menu[hidden] { display: none; }
 .ads-root button, .ads-root span { font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif; font-style: normal; }
 .ads-item { display: flex; flex-direction: column; align-items: flex-start; width: 100%; border: 0; background: transparent; border-radius: 6px; padding: 9px 10px; text-align: left; cursor: pointer; font-weight: 400; transition: background 120ms ease; }
@@ -535,6 +579,11 @@ function renderSwitcherScript(files) {
     }
     function go(route) { if (route) location.href = route; }
 
+    // 点菜单内空白（分隔线 / padding / 项之间，非菜单项）也收起 — 大菜单展开时更符合直觉
+    menu.addEventListener('click', function (event) {
+      if (!event.target.closest('.ads-item')) setOpen(false);
+    });
+    // 点浮层外任意处收起
     document.addEventListener('pointerdown', function (event) {
       if (!root.contains(event.target)) setOpen(false);
     });
