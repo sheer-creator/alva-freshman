@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { AgentNewSession } from '@/app/components/agent/AgentNewSession';
+import OnboardingPreviewDemo from '@/app/components/agent/OnboardingPreviewDemo';
 import { useChannels } from '@/app/state/channels';
 
 const FONT = "font-['Delight',sans-serif]";
@@ -223,10 +225,28 @@ export function PlaybookFeedPreview({
 /* ── Alva Agent (Design) — 新版设计，与远程旧版 agent 页并存 ── */
 export default function AgentDesign({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const { current } = useChannels();
+  const [showOnboardingPreview, setShowOnboardingPreview] = useState(() =>
+    new URLSearchParams(window.location.hash.split('?')[1] ?? '').has('preview'),
+  );
+
+  useEffect(() => {
+    const sync = () => {
+      setShowOnboardingPreview(
+        new URLSearchParams(window.location.hash.split('?')[1] ?? '').has('preview'),
+      );
+    };
+    window.addEventListener('hashchange', sync);
+    return () => window.removeEventListener('hashchange', sync);
+  }, []);
+
   return (
     <AppShell activePage="agent" onNavigate={onNavigate}>
       <div className="h-screen flex flex-col bg-white">
-        <AgentNewSession onNavigate={onNavigate} channel={current} />
+        {showOnboardingPreview ? (
+          <OnboardingPreviewDemo />
+        ) : (
+          <AgentNewSession onNavigate={onNavigate} channel={current} />
+        )}
       </div>
     </AppShell>
   );

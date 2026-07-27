@@ -4,7 +4,7 @@
  * [POS]: 社区组件 — 全局 Automations 详情弹窗(alerts 点击 / playbook header / 卡片点击共用)
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PushContent, type PushCardData } from '@/app/components/shared/AutomationCard';
@@ -98,6 +98,23 @@ const DEFAULT_HISTORY: FeedRunHistoryItem[] = Array.from({ length: 10 }, (_, i) 
 
 /* ========== Tab 内容: Alerts ========== */
 
+export function FeedAlertCard({
+  alert,
+  sourceNode,
+}: {
+  alert: PushCardData;
+  sourceNode?: ReactNode;
+}) {
+  return (
+    <div
+      className="flex w-full flex-col items-start gap-[8px] rounded-[8px] px-[16px] py-[16px]"
+      style={{ background: 'var(--grey-g01, #fafafa)' }}
+    >
+      <PushContent a={alert} sourceNode={sourceNode} />
+    </div>
+  );
+}
+
 function AlertsPanel({ alerts }: { alerts?: PushCardData[] }) {
   if (!alerts || alerts.length === 0) {
     return (
@@ -108,15 +125,7 @@ function AlertsPanel({ alerts }: { alerts?: PushCardData[] }) {
   }
   return (
     <div className="flex flex-col gap-[8px] items-start w-full">
-      {alerts.map((a) => (
-        <div
-          key={a.id}
-          className="flex flex-col gap-[8px] items-start w-full rounded-[8px] px-[16px] py-[16px]"
-          style={{ background: 'var(--grey-g01, #fafafa)' }}
-        >
-          <PushContent a={a} />
-        </div>
-      ))}
+      {alerts.map((alert) => <FeedAlertCard key={alert.id} alert={alert} />)}
     </div>
   );
 }

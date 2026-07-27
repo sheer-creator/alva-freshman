@@ -56,7 +56,7 @@ const SOURCES: AlphaSource[] = [
     id: 'fintwit',
     emoji: '📣',
     title: 'FinTwit',
-    description: 'Curated voices from X. Pick specific accounts or start from a preset.',
+    description: 'Choose the FinTwit accounts you want to track and get their market insights.',
   },
   {
     id: 'news',
@@ -68,16 +68,16 @@ const SOURCES: AlphaSource[] = [
     id: 'technical',
     emoji: '📊',
     title: 'Technical',
-    description: 'Backtested breakout, reversal, and momentum signals from a daily market-wide scan.',
+    description: 'Scan price action across the market for trends, momentum, volume shifts, breakouts, and key levels.',
   },
 ];
 
 const PRESETS: AlphaPreset[] = [
   {
     id: 'top50-leaderboard',
-    displayName: 'Top50 Leaderboard',
-    description: 'Curated top KOLs from the FinTwit Alpha League leaderboard.',
-    handleCount: 7,
+    displayName: 'Official FinTwit accounts',
+    description: 'Curated accounts from the FinTwit Alpha League leaderboard.',
+    handleCount: 100,
     kols: [
       { name: 'Andy Constan', avatar: 'AC' },
       { name: 'K A L E O', avatar: 'KA' },
@@ -107,32 +107,8 @@ const KOLS: AlphaKol[] = [
   { id: 'mayachen', name: 'Maya Chen', handle: '@mayachen', avatar: 'MC', allTimeWinRate: 54.0 },
 ];
 
-const ALERT_TIMES = ['8:00 AM ET', '8:30 AM ET', '4:30 PM ET'];
+const ALERT_TIMES = ['20:00 GMT+8', '8:00 AM ET', '8:30 AM ET', '4:30 PM ET'];
 const LANGUAGES: DigestLanguage[] = ['English', 'Chinese', 'Japanese'];
-
-const SAMPLE_DIGEST_EVIDENCE = [
-  {
-    id: 'news',
-    emoji: '📰',
-    source: 'News',
-    stance: 'Support',
-    text: 'Bloomberg: Micron breaks ground on a $9B Japan fab expansion, reinforcing the AI memory-cycle thesis.',
-  },
-  {
-    id: 'fintwit',
-    emoji: '📣',
-    source: 'FinTwit',
-    stance: 'Support',
-    text: '@tradexwhisperer: long-term DRAM undersupply should keep memory pricing rising for roughly two more years.',
-  },
-  {
-    id: 'technical',
-    emoji: '📊',
-    source: 'Tech',
-    stance: 'Support',
-    text: 'Golden cross, RSI 52.2, and volume 1.3x the 20-day average.',
-  },
-] as const;
 
 const SCOPED_CSS = `
 .alpha-radar-row { transition: background .12s ease; }
@@ -485,12 +461,12 @@ function AlphaRadarPanel({
     () => new Set(initialSummary?.sources ?? ['fintwit', 'news', 'technical']),
   );
   const [selectedPresetIds, setSelectedPresetIds] = useState<Set<string>>(
-    () => new Set(initialSummary?.presets.map((preset) => preset.id) ?? []),
+    () => new Set(initialSummary?.presets.map((preset) => preset.id) ?? ['top50-leaderboard']),
   );
   const [selectedKolsById, setSelectedKolsById] = useState<Map<string, AlphaKol>>(
     () => new Map((initialSummary?.kols ?? []).map((kol) => [kol.id, kol])),
   );
-  const [digestTime, setDigestTime] = useState(initialSummary?.digestTime ?? '8:00 AM ET');
+  const [digestTime, setDigestTime] = useState(initialSummary?.digestTime ?? '20:00 GMT+8');
   const [language, setLanguage] = useState<DigestLanguage>(initialSummary?.language ?? 'English');
   const [fintwitModalOpen, setFintwitModalOpen] = useState(false);
 
@@ -555,8 +531,11 @@ function AlphaRadarPanel({
                   className="alpha-radar-row flex min-h-[44px] w-full min-w-0 cursor-pointer items-center justify-between gap-[8px] border-x-0 border-b-0 bg-transparent px-[16px] py-[10px] text-left"
                   style={{ borderTop: `0.5px solid ${L12}` }}
                 >
-                  <span className="min-w-0 truncate" style={tx(12, 20, N7)}>
-                    {fintwitCount > 0 ? `${fintwitCount} account${fintwitCount === 1 ? '' : 's'} selected` : 'Choose accounts to follow'}
+                  <span className="flex min-w-0 items-center gap-[8px]">
+                    {selectedPresets[0] && <PresetAvatarStack preset={selectedPresets[0]} compact />}
+                    <span className="min-w-0 truncate" style={tx(12, 20, N7)}>
+                      {fintwitCount > 0 ? `Chosen ${fintwitCount} account${fintwitCount === 1 ? '' : 's'}` : 'Choose accounts to follow'}
+                    </span>
                   </span>
                   <CdnIcon name="arrow-right-l1" size={14} color={N3} />
                 </button>
@@ -636,41 +615,6 @@ function GeneratingView() {
   );
 }
 
-function SampleDigestPreview() {
-  return (
-    <div className="flex flex-col gap-[8px]">
-      <p style={tx(12, 20, N5)}>Here's what tomorrow's digest will look like · sample</p>
-      <div className="w-full overflow-hidden rounded-[8px] bg-white" style={{ border: `0.5px solid ${L2}` }}>
-        <div className="flex flex-col gap-[10px] p-[16px]">
-          <div className="flex flex-wrap items-baseline gap-[8px]">
-            <span style={tx(16, 24, N9, 500)}>$MU</span>
-            <span className="rounded-[4px] px-[6px] py-[1px]" style={{ ...tx(12, 20, '#2f7f82'), background: 'rgba(73,163,166,0.12)' }}>
-              Bullish
-            </span>
-            <span style={tx(13, 20, 'rgba(0,0,0,0.55)')}>$935.57 (-4.99%)</span>
-          </div>
-          <p style={tx(13, 21, N7)}>
-            News, FinTwit, and Tech all lean bullish - the most complete setup in this run.
-          </p>
-          <div className="flex flex-col gap-[8px] pt-[10px]" style={{ borderTop: `0.5px solid ${L12}` }}>
-            {SAMPLE_DIGEST_EVIDENCE.map((item) => (
-              <div key={item.id} className="flex items-start gap-[8px]">
-                <span className="text-[14px] leading-[21px]">{item.emoji}</span>
-                <p className="min-w-0" style={tx(13, 21, 'rgba(0,0,0,0.8)')}>
-                  <span style={{ fontWeight: 500, color: N9 }}>{item.source} ({item.stance})</span> - {item.text}
-                </p>
-              </div>
-            ))}
-          </div>
-          <p className="pt-[10px]" style={{ ...tx(11, 18, 'rgba(0,0,0,0.45)'), borderTop: `0.5px solid ${L12}` }}>
-            Technical-signal reliability is calibrated on a 3-year backtest and drives ranking - not a return promise. Not financial advice.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function CompleteView({ summary, onEdit }: { summary: AlphaRadarSummary; onEdit: () => void }) {
   const hasFintwit = summary.sources.includes('fintwit');
   const fintwitCount = summary.presets.reduce((total, preset) => total + preset.handleCount, 0) + summary.kols.length;
@@ -725,7 +669,6 @@ function CompleteView({ summary, onEdit }: { summary: AlphaRadarSummary; onEdit:
           </button>
         </div>
       </div>
-      <SampleDigestPreview />
     </div>
   );
 }
@@ -749,12 +692,8 @@ export function AlphaRadarBuilder({ onLive }: { onLive?: (summary: AlphaRadarSum
       {phase === 'setup' && (
         <div className="flex flex-col gap-[12px]">
           <div style={tx(14, 22, N9)}>
-            <p>Build your personal Alpha Radar.</p>
-            <p>Pick the signal sources you want Alva to track - FinTwit voices, breaking news, and technical setups. Alva watches them and sends you a daily digest automatically.</p>
-          </div>
-          <div style={tx(14, 22, N9)}>
-            <p>Choose the sources you want Alva to watch.</p>
-            <p style={{ color: N5 }}>Pick one or more. FinTwit lets you follow specific voices - you can add or remove accounts anytime.</p>
+            <p>Build your Alpha Radar.</p>
+            <p>Pick the FinTwit voices, news, and technical setups you want Alva to watch, and get a focused daily shortlist of market ideas with a clear read on why each one stands out.</p>
           </div>
           <AlphaRadarPanel onGenerate={handleGenerate} initialSummary={summary} />
         </div>
