@@ -27,6 +27,15 @@ import { EMPTY_PROMPTS, EmptyPromptPill } from '@/app/components/chat/PlaybookSu
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
 import { SEED_CHANNEL_ID, channelsStore } from '@/app/state/channels';
 import { EditChannelModal } from '@/app/components/shared/EditChannelModal';
+import { MsgHeaderActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
+import { ShareImagePreview } from '@/app/components/share/ShareImagePreview';
+import { CHANNEL_SEED_SHARE_MESSAGES } from '@/app/components/share/channel-seed-share-messages';
+import {
+  buildConversationShareUrl,
+  createConversationShareId,
+  saveConversationShare,
+  type ConversationShareMessage,
+} from '@/app/components/share/conversation-share';
 
 const FONT = "'Delight', sans-serif";
 
@@ -201,15 +210,15 @@ function TaskTag({ state }: { state: 'running' | 'done' }) {
   );
 }
 
-/* 「Where should I send you alerts?」渠道卡（Figma AgentCardChat 9600:211514）—— watchreply 与 imrec 复用 */
+/* 「Where should I send you alerts?」渠道卡（Figma Chat/Element/Card·Connect 31129:20594）：br03 底 + 0.5 l2 边 + p16 gap8 radius8;标题 Medium 14 truncate + 三渠道按钮 h32 —— watchreply 与 imrec 复用 */
 function AlertChannelsCard({ onConnect }: { onConnect: (id: string) => void }) {
   const base = import.meta.env.BASE_URL;
   return (
     <div
-      className="flex w-full flex-col gap-[8px] rounded-[8px] py-[12px] pl-[16px] pr-[12px]"
+      className="flex w-full flex-col gap-[8px] rounded-[8px] p-[16px]"
       style={{ background: 'var(--content-br03, rgba(0,0,0,0.03))', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}
     >
-      <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+      <p className="w-full truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
         Where should I send you alerts?
       </p>
       <div className="flex flex-wrap gap-[8px]">
@@ -218,11 +227,11 @@ function AlertChannelsCard({ onConnect }: { onConnect: (id: string) => void }) {
             key={ch.id}
             type="button"
             onClick={() => onConnect(ch.id)}
-            className="flex h-[40px] shrink-0 cursor-pointer items-center justify-center gap-[8px] rounded-[6px] border-none px-[20px] py-[9px] transition-opacity hover:opacity-90"
+            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] border-none px-[12px] py-[6px] transition-opacity hover:opacity-90"
             style={{ background: ch.bg }}
           >
-            <img src={`${base}${ch.logo}`} alt="" className="size-[18px] shrink-0" />
-            <span className="whitespace-nowrap text-[14px] font-medium leading-[22px] tracking-[0.14px] text-white" style={{ fontFamily: FONT }}>{ch.label}</span>
+            <img src={`${base}${ch.logo}`} alt="" className="size-[14px] shrink-0" />
+            <span className="whitespace-nowrap text-[12px] font-medium leading-[20px] tracking-[0.12px] text-white" style={{ fontFamily: FONT }}>{ch.label}</span>
           </button>
         ))}
       </div>
@@ -491,7 +500,7 @@ function ChannelPortrait({ size = 32 }: { size?: number }) {
   );
 }
 
-function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; children: React.ReactNode }) {
+function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', headerActions, children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; headerActions?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="flex w-full items-start gap-[8px]">
       {portrait ?? <AlvaPortrait size={22} />}
@@ -508,6 +517,8 @@ function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', 
             </span>
           )}
           <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{time}</p>
+          {/* header 行内 copy+share（Figma 9246:36248:pl4 gap8,hover 出现）*/}
+          {headerActions}
         </div>
         <div className="flex min-w-0 w-full flex-col gap-[12px]">
           {children}
@@ -594,6 +605,68 @@ type ExtraMsg =
   /* Start Watching 的 Alva 确认回复:正文 + (未连接时)内嵌「选择推送渠道」卡片(Figma 8341:126245) */
   | { id: number; role: 'watchreply'; text: string };
 
+const TICKER_ASK_TEXT = 'This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.';
+const SCREENER_REC_TEXT = "Screen the market on your rules\nSet your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.";
+const IM_REC_TEXT = "One more thing — this agent only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires.";
+
+function shareDateForToday(): string {
+  return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date());
+}
+
+function extraToShareMessage(message: ExtraMsg): ConversationShareMessage | null {
+  const common = { id: `extra-${message.id}`, time: 'now', date: shareDateForToday() };
+
+  if (message.role === 'user') return { ...common, role: 'user', text: message.text };
+  if (message.role === 'answer' || message.role === 'watchreply') {
+    return { ...common, role: 'agent', text: message.text };
+  }
+  if (message.role === 'tickerask') return { ...common, role: 'agent', text: TICKER_ASK_TEXT };
+  if (message.role === 'screenerrec') return { ...common, role: 'agent', text: SCREENER_REC_TEXT };
+  if (message.role === 'imrec') return { ...common, role: 'agent', text: IM_REC_TEXT };
+  if (message.role === 'tickerread') {
+    const text = message.symbols.map((symbol) => {
+      const read = TICKER_READS[symbol];
+      if (!read) return null;
+      return [
+        `$${symbol}`,
+        read.summary,
+        `TAPE: ${read.tape}`,
+        ...(read.breaksIf ? [`BREAKS IF: ${read.breaksIf}`] : []),
+        `SOURCES: ${read.sources}`,
+      ].join('\n');
+    }).filter(Boolean).join('\n\n');
+    return text ? { ...common, role: 'agent', text } : null;
+  }
+  if (message.role === 'subpush') {
+    const status = message.push
+      ? `${message.title} is live in your workspace. Here's the latest run — new ones will land right here.`
+      : `${message.title} is live in your workspace. The first run lands with the next cycle — pushes will land right here.`;
+    return {
+      ...common,
+      role: 'notification',
+      text: [status, message.push, `Source: ${message.automation}`].filter(Boolean).join('\n\n'),
+    };
+  }
+  return null;
+}
+
+async function copyTextToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand('copy');
+  textarea.remove();
+  if (!copied) throw new Error('Copy failed');
+}
+
 /* Onboard 两个独立 flow 的 URL 后缀：#agent?flow=portfolio / #agent?flow=fintwit，
    支持刷新 / 深链直达；沿用本仓 #agent?tab= 的 query 后缀约定（App 路由只认 ? 之前的 agent） */
 type AgentFlow = 'portfolio' | 'fintwit';
@@ -621,6 +694,11 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const [portfolioInfoOpen, setPortfolioInfoOpen] = useState(false);
   /* 频道态右上角 settings → Edit Channel 弹窗(Figma 9732:448009);仅默认 Alva 跳设置页 */
   const [editChannelOpen, setEditChannelOpen] = useState(false);
+  const [shareMode, setShareMode] = useState(false);
+  const [selectedShareIds, setSelectedShareIds] = useState<Set<string>>(() => new Set());
+  const [shareImageOpen, setShareImageOpen] = useState(false);
+  const [shareNotice, setShareNotice] = useState<{ type: 'success' | 'warning' | 'error'; title: string } | null>(null);
+  const shareNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /* 会话是否已开始（Start Watching / 发过 prompt）：true 则收起 onboard 空态，进入真实对话 */
   const [started, setStarted] = useState(false);
   /* 会话产出的 alert（Start Watching 建一条 portfolio watch）→ 驱动 Alerts tab 计数 + 面板 */
@@ -664,6 +742,76 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const connected = Object.values(imLinks).some(Boolean);
   /* 预置演示频道（alva-to-the-moon）：聊天区显示预置对话（Figma 10998:50677），tabs 直接用连接后的产出 */
   const seeded = channel?.id === SEED_CHANNEL_ID;
+  const shareableMessages = [
+    ...(seeded ? CHANNEL_SEED_SHARE_MESSAGES : []),
+    ...extra.map(extraToShareMessage).filter((message): message is ConversationShareMessage => message !== null),
+  ];
+  const selectedShareMessages = shareableMessages.filter((message) => selectedShareIds.has(message.id));
+
+  /* Toast — 组件库规范(@repo/ui-base toast):顶部居中,默认时长 3000ms;type 决定左侧图标 */
+  const showShareNotice = useCallback((title: string, type: 'success' | 'warning' | 'error' = 'success') => {
+    if (shareNoticeTimerRef.current) clearTimeout(shareNoticeTimerRef.current);
+    setShareNotice({ type, title });
+    shareNoticeTimerRef.current = setTimeout(() => setShareNotice(null), 3000);
+  }, []);
+
+  const exitShareMode = useCallback(() => {
+    setShareMode(false);
+    setSelectedShareIds(new Set());
+    setShareImageOpen(false);
+  }, []);
+
+  const copyMessage = useCallback(async (message: ConversationShareMessage) => {
+    try {
+      await copyTextToClipboard(message.text);
+      showShareNotice('Copied');
+    } catch {
+      showShareNotice('Could not copy this message.', 'error');
+    }
+  }, [showShareNotice]);
+
+  const shareSingleMessage = useCallback((id: string) => {
+    setTab('chat');
+    setSelectedShareIds(new Set([id]));
+    setShareImageOpen(false);
+    setShareMode(true);
+  }, []);
+
+  const toggleShareMessage = useCallback((id: string) => {
+    if (!selectedShareIds.has(id) && selectedShareIds.size >= 10) {
+      showShareNotice('You can select up to 10 messages.', 'warning');
+      return;
+    }
+    setSelectedShareIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, [selectedShareIds, showShareNotice]);
+
+  const copySelectedShare = useCallback(async () => {
+    if (selectedShareMessages.length === 0) return;
+    const id = createConversationShareId();
+    try {
+      saveConversationShare({
+        version: 1,
+        id,
+        createdAt: new Date().toISOString(),
+        messages: selectedShareMessages,
+        revoked: false,
+      });
+      await copyTextToClipboard(buildConversationShareUrl(id));
+      exitShareMode();
+      showShareNotice('Link copied');
+    } catch {
+      showShareNotice('Could not copy the link. Your selection is still active.', 'error');
+    }
+  }, [exitShareMode, selectedShareMessages, showShareNotice]);
+
+  useEffect(() => () => {
+    if (shareNoticeTimerRef.current) clearTimeout(shareNoticeTimerRef.current);
+  }, []);
 
   /* 会话重置回初始 onboard 空态：清空消息与会话产出（连接状态 imLinks/imActive 刻意不重置——用户级全局） */
   const resetSession = useCallback(() => {
@@ -671,6 +819,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     setExtra([]);
     setSessionAlerts([]);
     setStarted(false);
+    setShareMode(false);
+    setSelectedShareIds(new Set());
+    setShareImageOpen(false);
     imRecShownRef.current = false;
   }, []);
 
@@ -680,9 +831,10 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     // 首次挂载不重置：尊重 URL 里的 flow 深链（#agent?flow=...）；真正切换频道才回到该频道空态
     if (!didMountRef.current) { didMountRef.current = true; return; }
     setTab('chat');
+    exitShareMode();
     closeFlow();
     resetSession();
-  }, [channel?.id]);
+  }, [channel?.id, closeFlow, exitShareMode, resetSession]);
 
   const scrollToEnd = useCallback(() => {
     requestAnimationFrame(() => {
@@ -856,8 +1008,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
-      {/* Agent Header — Figma 7885:108604 / Topbar 30785:4970(gap-8)；频道态：# 头像 + 频道名 + (有描述才显示描述行) */}
-      <div className="flex shrink-0 items-center gap-[8px] px-[28px] py-[16px]">
+      {/* Agent Header — Figma 7885:108604 / Topbar 30785:4970(gap-8)；频道态：# 头像 + 频道名 + (有描述才显示描述行)；
+          分享选择态(9269:39944)：Tab 行隐藏,topbar 自带 border-b l12 */}
+      <div className="flex shrink-0 items-center gap-[8px] px-[28px] py-[16px]" style={shareMode ? { borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' } : undefined}>
         {channel ? <ChannelPortrait /> : <AlvaPortrait />}
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -876,6 +1029,19 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             </p>
           )}
         </div>
+        {shareMode ? (
+          /* Cancel — Figma 9269:39944 Button:h32 px12 py6 gap6 border 0.5 l3 radius 4,close-l1 14 + Medium 12 n9 */
+          <button
+            type="button"
+            onClick={exitShareMode}
+            className="flex h-[32px] shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-transparent px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
+            style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+          >
+            <CdnIcon name="close-l1" size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
+            Cancel
+          </button>
+        ) : (
+          <>
         {/* Portfolio — Figma 30785:4970:未连接 outline "Connect Portfolio";已连接点击开账户数据弹窗(31584:10618),View in Portfolio 才跳页 */}
         {connectedBroker ? (
           <button
@@ -948,9 +1114,12 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         >
           <CdnIcon name="settings-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
         </button>
+          </>
+        )}
       </div>
 
-      {/* Tab — Figma 7885:108611:icon 16 + 14px,active Medium + b-2 m1 */}
+      {/* Tab — Figma 7885:108611:icon 16 + 14px,active Medium + b-2 m1;分享选择态整行隐藏(9269:39941) */}
+      {!shareMode && (
       <div className="flex shrink-0 items-start gap-[16px] px-[28px]" style={{ borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
         {TABS.map((t) => {
           const active = tab === t.id;
@@ -960,6 +1129,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               className="mb-[-1px] flex cursor-pointer items-center gap-[4px] bg-transparent px-0 pb-[6px]"
               style={{ border: 'none', borderBottom: active ? '2px solid var(--main-m1, #49A3A6)' : '2px solid transparent' }}
               onClick={() => {
+                if (shareMode && t.id !== 'chat') exitShareMode();
                 setTab(t.id);
                 // 点 Chat 一律回到初始 onboard 空态：退出独立 flow + 清空会话消息与产出（预置演示频道除外）
                 if (t.id === 'chat') {
@@ -980,6 +1150,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           );
         })}
       </div>
+      )}
 
       {tab === 'chat' ? (
         portfolioOpen ? (
@@ -1018,11 +1189,18 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         <>
           <div ref={stageRef} className="min-h-0 flex-1 overflow-y-auto px-[28px]">
             <style>{MSG_IN_CSS}</style>
-            <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[28px] pb-[60px] pt-[28px]">
+            <div className={`mx-auto flex w-full max-w-[960px] flex-col pb-[60px] pt-[28px] ${shareMode ? 'gap-[12px]' : 'gap-[28px]'}`}>
               {/* 预置演示频道：聊天区为预置对话历史（恒显，Figma 10998:50677）；其余频道走 onboard 空态 */}
               {seeded && (
                 <MsgIn>
-                  <ChannelSeedThread onOpenTasks={() => setTab('tasks')} onConnectAlert={connectIm} />
+                  <ChannelSeedThread
+                    onOpenTasks={() => setTab('tasks')}
+                    selectionMode={shareMode}
+                    selectedIds={selectedShareIds}
+                    onToggleShare={toggleShareMessage}
+                    onCopyMessage={copyMessage}
+                    onShareMessage={shareSingleMessage}
+                  />
                 </MsgIn>
               )}
               {/* 会话未开始才显示 onboard 空态;Start Watching / 发消息后收起,进入真实对话 */}
@@ -1065,27 +1243,61 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               )}
 
               {extra.map((m) => {
-                if (m.role === 'user') return <MsgIn key={m.id}><UserMsg text={m.text} quote={m.quote} /></MsgIn>;
+                const shareMessage = extraToShareMessage(m);
+                const msgSelected = selectedShareIds.has(`extra-${m.id}`);
+                /* Alva 消息分享 props:选择态 checkbox 顶替头像位(9281:37663),平时 header 行内 copy+share(9246:36248) */
+                const agentShareProps = shareMessage ? {
+                  portrait: shareMode ? <SelectCheckbox checked={msgSelected} /> : undefined,
+                  headerActions: !shareMode ? <MsgHeaderActions onCopy={() => copyMessage(shareMessage)} onShare={() => shareSingleMessage(shareMessage.id)} /> : undefined,
+                } : {};
+                if (m.role === 'user') return (
+                  <SelectableMessage
+                    key={m.id}
+                    active={shareMode}
+                    selected={msgSelected}
+                    label="Select user message for sharing"
+                    onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    variant="user"
+                    hoverTime={shareMessage?.time}
+                    onQuickCopy={shareMessage ? () => copyMessage(shareMessage) : undefined}
+                  >
+                    <MsgIn><UserMsg text={m.text} quote={m.quote} /></MsgIn>
+                  </SelectableMessage>
+                );
                 if (m.role === 'typing') return <MsgIn key={m.id}><AgentMsg time="now"><TypingDots /></AgentMsg></MsgIn>;
                 /* tickerask — Ticker Read skill 介绍 + 热门标的选项卡(点 chip 即发送 symbol,composer 输入任意 symbol 同路) */
                 if (m.role === 'tickerask') {
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                        This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.
-                      </p>
-                      <TickerPickCard onPick={onPrompt} />
-                    </AgentMsg>
-                    </MsgIn>
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={msgSelected}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    >
+                      <MsgIn>
+                        <AgentMsg time="now" {...agentShareProps}>
+                          <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                            {TICKER_ASK_TEXT}
+                          </p>
+                          <TickerPickCard onPick={onPrompt} />
+                        </AgentMsg>
+                      </MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 /* tickerread — Markdown 排版(Library 31624:20421 模式):$SYMBOL 标题(Medium 16/26) + 判断句正文 + 标签行(Medium 14) + 内容行,全 n9 */
                 if (m.role === 'tickerread') {
                   const N9 = { fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' } as const;
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={msgSelected}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    >
+                    <MsgIn><AgentMsg time="now" {...agentShareProps}>
                       {m.symbols.map((symbol) => {
                         const read = TICKER_READS[symbol];
                         if (!read) return null;
@@ -1106,49 +1318,71 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                           </div>
                         );
                       })}
-                    </AgentMsg>
-                    </MsgIn>
+                    </AgentMsg></MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 /* screenerrec — 第三条引导的推荐回复:标题 + 说明两行,下接示例 prompt 卡,点行即发送 */
                 if (m.role === 'screenerrec') {
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                        Screen the market on your rules
-                        <br />
-                        Set your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.
-                      </p>
-                      <ScreenerPromptsCard onPick={onPrompt} />
-                    </AgentMsg>
-                    </MsgIn>
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={msgSelected}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    >
+                      <MsgIn>
+                        <AgentMsg time="now" {...agentShareProps}>
+                          <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SCREENER_REC_TEXT}</p>
+                          <ScreenerPromptsCard onPick={onPrompt} />
+                        </AgentMsg>
+                      </MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 if (m.role === 'answer') {
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={msgSelected}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    >
+                    <MsgIn><AgentMsg time="now" {...agentShareProps}>
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
-                    </AgentMsg>
-                    </MsgIn>
+                    </AgentMsg></MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 /* watchreply — Start Watching 的确认回复:正文 + 未连接时内嵌「选择推送渠道」卡片(连接后反应式隐藏) */
                 if (m.role === 'watchreply') {
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg time="now">
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={msgSelected}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    >
+                    <MsgIn><AgentMsg time="now" {...agentShareProps}>
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
                       {!connected && <AlertChannelsCard onConnect={connectIm} />}
-                    </AgentMsg>
-                    </MsgIn>
+                    </AgentMsg></MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 if (m.role === 'subpush') {
                   return (
-                    <MsgIn key={m.id}>
-                    <AgentMsg pushed time="now">
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={msgSelected}
+                      label="Select notification for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    >
+                    <MsgIn><AgentMsg pushed time="now" {...agentShareProps}>
                       <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                         <span style={{ fontWeight: 500 }}>{m.title}</span> is live in your workspace. {m.push ? "Here's the latest run — new ones will land right here." : 'The first run lands with the next cycle — pushes will land right here.'}
                       </p>
@@ -1159,8 +1393,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                         </div>
                       )}
                       <div><SourceTag automation={m.automation} /></div>
-                    </AgentMsg>
-                    </MsgIn>
+                    </AgentMsg></MsgIn>
+                    </SelectableMessage>
                   );
                 }
                 if (m.role === 'task') {
@@ -1169,8 +1403,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                   return (
                     <MsgIn key={m.id}>
                     <AgentMsg time="now">
-                      {/* 任务卡（Figma Agent/Card/Chat 8341:125818）：560 宽白底卡 — step-f 24(n2) + 标题 14 + 副行 12 n5 + 状态 tag */}
-                      <div className="flex w-full max-w-[560px] items-start gap-[8px] rounded-[8px] px-[16px] py-[12px]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+                      {/* 任务卡（Figma Chat/Element/Card·Task 31036:11336）：通栏白底卡（w-full）— p16 gap8 radius8 border0.5 l2；step-f 24 + 标题 14 + 副行 12 n5 + 状态 tag */}
+                      <div className="flex w-full items-start gap-[8px] rounded-[8px] p-[16px]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
                         <CdnIcon name={`${base}icon-step-f.svg`} size={24} color="var(--text-n2, rgba(0,0,0,0.2))" />
                         <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
                           <p className="w-full truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.title}</p>
@@ -1188,33 +1422,81 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                 }
                 /* imrec — 任务跑完后的一次性连接软推荐(解耦的核心交互)*/
                 return (
-                  <MsgIn key={m.id}>
-                  <AgentMsg time="now">
-                    <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                      One more thing — this agent only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires.
-                    </p>
-                    <AlertChannelsCard onConnect={connectIm} />
-                  </AgentMsg>
-                  </MsgIn>
+                  <SelectableMessage
+                    key={m.id}
+                    active={shareMode}
+                    selected={msgSelected}
+                    label="Select Alva answer for sharing"
+                    onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                  >
+                    <MsgIn>
+                      <AgentMsg time="now" {...agentShareProps}>
+                        <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                          {IM_REC_TEXT}
+                        </p>
+                        <AlertChannelsCard onConnect={connectIm} />
+                      </AgentMsg>
+                    </MsgIn>
+                  </SelectableMessage>
                 );
               })}
             </div>
           </div>
 
-          {/* composer 常显：onboard / 已开始对话都可继续聊天 */}
-          <div className="shrink-0 px-[28px] pb-[28px]">
-            <div className="mx-auto w-full max-w-[960px]">
-              {/* 预置演示频道：composer 上方常驻 3 条 prompt chips — Figma 10998:50699:p-16 gap-8 */}
-              {seeded && (
-                <div className="flex w-full flex-wrap items-center gap-[8px] p-[16px]">
-                  {EMPTY_PROMPTS.map((prompt) => (
-                    <EmptyPromptPill key={prompt.text} icon={prompt.icon} text={prompt.text} onClick={() => onPrompt(prompt.text)} />
-                  ))}
+          {shareMode ? (
+            /* Selection Bar — Figma Chat/Block-Select Message 9282:37953：贴底通栏白条 + border-t 0.5 l12，内容 max-w-960 居中 justify-between，h64；
+               左「N/10 selected」(Regular 16/26 n9，满 10 数字转 m1 + Regular 14/22 n5)；
+               右 Copy link(白底 0.5 l3)/Create image(m1 实心) 双 h40 按钮(px20 py9 radius6 gap8 · icon18 · Medium 14)；0 选中退灰(n2) */
+            <div className="flex w-full shrink-0 justify-center bg-white px-[16px] sm:px-[28px]" style={{ borderTop: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
+              <div className="flex h-[64px] w-full max-w-[960px] items-center justify-between gap-[12px]">
+                <p className="min-w-0 flex-1 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT }}>
+                  <span style={{ color: selectedShareMessages.length >= 10 ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                    {selectedShareMessages.length}/10{' '}
+                  </span>
+                  <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>selected</span>
+                </p>
+                <div className="flex shrink-0 items-center gap-[12px]">
+                  <button
+                    type="button"
+                    disabled={selectedShareMessages.length === 0}
+                    onClick={copySelectedShare}
+                    className="flex h-[40px] cursor-pointer items-center justify-center gap-[8px] rounded-[6px] bg-white px-[20px] py-[9px] text-[14px] font-medium leading-[22px] tracking-[0.14px] disabled:cursor-not-allowed"
+                    style={{ fontFamily: FONT, color: selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+                  >
+                    <CdnIcon name="link-l" size={18} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : 'var(--text-n9, rgba(0,0,0,0.9))'} />
+                    Copy link
+                  </button>
+                  <button
+                    type="button"
+                    disabled={selectedShareMessages.length === 0}
+                    onClick={() => setShareImageOpen(true)}
+                    className="flex h-[40px] cursor-pointer items-center justify-center gap-[8px] rounded-[6px] px-[20px] py-[9px] text-[14px] font-medium leading-[22px] tracking-[0.14px] disabled:cursor-not-allowed"
+                    style={selectedShareMessages.length === 0
+                      ? { fontFamily: FONT, background: '#fff', color: 'var(--text-n2, rgba(0,0,0,0.2))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }
+                      : { fontFamily: FONT, background: 'var(--main-m1, #49A3A6)', color: '#fff', border: 'none' }}
+                  >
+                    <CdnIcon name="photo-l" size={18} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : '#fff'} />
+                    Create image
+                  </button>
                 </div>
-              )}
-              <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector voiceInput placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
+              </div>
             </div>
-          </div>
+          ) : (
+            /* composer 常显：onboard / 已开始对话都可继续聊天 */
+            <div className="shrink-0 px-[28px] pb-[28px]">
+              <div className="mx-auto w-full max-w-[960px]">
+                {/* 预置演示频道：composer 上方常驻 3 条 prompt chips — Figma 10998:50699:p-16 gap-8 */}
+                {seeded && (
+                  <div className="flex w-full flex-wrap items-center gap-[8px] p-[16px]">
+                    {EMPTY_PROMPTS.map((prompt) => (
+                      <EmptyPromptPill key={prompt.text} icon={prompt.icon} text={prompt.text} onClick={() => onPrompt(prompt.text)} />
+                    ))}
+                  </div>
+                )}
+                <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector voiceInput placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
+              </div>
+            </div>
+          )}
         </>
         )
       ) : tab === 'tasks' ? (
@@ -1251,6 +1533,32 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
             Back to Chat
           </button>
         </div>
+      )}
+
+      <ShareImagePreview
+        open={shareImageOpen}
+        messages={selectedShareMessages}
+        onClose={() => setShareImageOpen(false)}
+      />
+
+      {/* Toast — 组件库规范(@repo/ui-base):顶部居中 top-28,白底 + 0.5 l2 描边 + radius-pop-toast 4 + Shadow S,
+          px16 py12 gap8,icon 20(success=check-f2 原色/warning=alert-f m6/error=alert-f m4) + Regular 14 n9,顶部滑入 */}
+      {shareNotice && (
+        <>
+          <style>{'@keyframes alva-toast-in { from { opacity: 0; transform: translate(-50%, -100%); } to { opacity: 1; transform: translate(-50%, 0); } }'}</style>
+          <div
+            role="status"
+            className="fixed left-1/2 top-[28px] z-[140] flex max-w-[90vw] items-center gap-[8px] rounded-[4px] bg-white px-[16px] py-[12px]"
+            style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0 6px 20px rgba(0,0,0,0.04)', animation: 'alva-toast-in 0.25s ease-out both' }}
+          >
+            {shareNotice.type === 'success'
+              ? <CdnIcon name="check-f2" size={20} />
+              : <CdnIcon name="alert-f" size={20} color={shareNotice.type === 'warning' ? 'var(--main-m6, #ff9800)' : 'var(--main-m4, #e05357)'} />}
+            <span className="min-w-0 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+              {shareNotice.title}
+            </span>
+          </div>
+        </>
       )}
 
       {editChannelOpen && channel && (

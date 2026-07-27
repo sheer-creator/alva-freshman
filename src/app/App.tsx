@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 import { ChatProvider } from "@/app/components/chat/ChatContext";
 
-export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}`;
+export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-thesis" | "template-whatif" | "template-notification" | "screener" | `thread/${string}` | `share/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
@@ -26,6 +26,7 @@ const AlvaChatDetail = lazy(() => import("@/pages/AlvaChatDetail"));
 const ReferralLanding = lazy(() => import("@/pages/ReferralLanding"));
 const PlaybookReferral = lazy(() => import("@/pages/PlaybookReferral"));
 const Thread = lazy(() => import("@/pages/Thread"));
+const ConversationShare = lazy(() => import("@/pages/ConversationShare"));
 const Automations = lazy(() => import("@/pages/Automations"));
 const TemplateScreener = lazy(() => import("@/pages/TemplateScreener"));
 const TemplateThesis = lazy(() => import("@/pages/TemplateThesis"));
@@ -40,6 +41,7 @@ const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
   if (hash.startsWith('thread/')) return hash as Page;
+  if (hash.startsWith('share/') && hash.length > 6) return hash as Page;
   // 频道深链形如 #agent?concept=K&tab=tasks，路由只认 ? 之前的部分
   const base = hash.split('?')[0];
   if (base === 'notifications') return 'automations';
@@ -48,6 +50,11 @@ function getPageFromHash(): Page {
 
 export function getThreadId(page: Page): string | null {
   if (typeof page === 'string' && page.startsWith('thread/')) return page.slice(7);
+  return null;
+}
+
+function getShareId(page: Page): string | null {
+  if (typeof page === 'string' && page.startsWith('share/')) return page.slice(6);
   return null;
 }
 
@@ -92,6 +99,7 @@ export default function App() {
   };
 
   const threadId = getThreadId(currentPage);
+  const shareId = getShareId(currentPage);
 
   return (
     <ChatProvider activePage={currentPage}>
@@ -121,6 +129,7 @@ export default function App() {
         {currentPage === "template-notification" && <TemplateNotification onNavigate={navigate} />}
         {currentPage === "screener" && <Screener onNavigate={navigate} />}
         {threadId && <Thread threadId={threadId} onNavigate={navigate} />}
+        {shareId && <ConversationShare key={shareId} shareId={shareId} onNavigate={navigate} />}
       </Suspense>
       <SearchModal
         isOpen={isSearchOpen}
