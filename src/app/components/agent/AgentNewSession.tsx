@@ -1444,41 +1444,38 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           </div>
 
           {shareMode ? (
-            /* Selection Bar — Figma Chat/Block-Select Message 9282:37953(变体 9252:2160):
-               px20 py16 gap12,border 0.5 l2,radius 8,Shadow XS;「N/10 selected」动态计数(满 10 数字 m1),
-               0 选中两按钮退白底灰字(n2) */
-            <div className="shrink-0 px-[16px] pb-[16px] sm:px-[28px] sm:pb-[28px]">
-              <div
-                className="mx-auto flex w-full max-w-[960px] items-center gap-[12px] rounded-[8px] bg-white px-[20px] py-[16px]"
-                style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}
-              >
+            /* Selection Bar — Figma Chat/Block-Select Message 9282:37953：贴底通栏白条 + border-t 0.5 l12，内容 max-w-960 居中 justify-between，h64；
+               左「N/10 selected」(Regular 16/26 n9，满 10 数字转 m1 + Regular 14/22 n5)；
+               右 Copy link(白底 0.5 l3)/Create image(m1 实心) 双 h40 按钮(px20 py9 radius6 gap8 · icon18 · Medium 14)；0 选中退灰(n2) */
+            <div className="flex w-full shrink-0 justify-center bg-white px-[16px] sm:px-[28px]" style={{ borderTop: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
+              <div className="flex h-[64px] w-full max-w-[960px] items-center justify-between gap-[12px]">
                 <p className="min-w-0 flex-1 truncate text-[16px] leading-[26px] tracking-[0.16px]" style={{ fontFamily: FONT }}>
                   <span style={{ color: selectedShareMessages.length >= 10 ? 'var(--main-m1, #49A3A6)' : 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                     {selectedShareMessages.length}/10{' '}
                   </span>
                   <span className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>selected</span>
                 </p>
-                <div className="flex shrink-0 items-center gap-[8px]">
+                <div className="flex shrink-0 items-center gap-[12px]">
                   <button
                     type="button"
                     disabled={selectedShareMessages.length === 0}
                     onClick={copySelectedShare}
-                    className="flex h-[32px] cursor-pointer items-center justify-center gap-[6px] rounded-[4px] bg-white px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] disabled:cursor-not-allowed"
+                    className="flex h-[40px] cursor-pointer items-center justify-center gap-[8px] rounded-[6px] bg-white px-[20px] py-[9px] text-[14px] font-medium leading-[22px] tracking-[0.14px] disabled:cursor-not-allowed"
                     style={{ fontFamily: FONT, color: selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : 'var(--text-n9, rgba(0,0,0,0.9))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
                   >
-                    <CdnIcon name="link-l" size={14} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : 'var(--text-n9, rgba(0,0,0,0.9))'} />
+                    <CdnIcon name="link-l" size={18} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : 'var(--text-n9, rgba(0,0,0,0.9))'} />
                     Copy link
                   </button>
                   <button
                     type="button"
                     disabled={selectedShareMessages.length === 0}
                     onClick={() => setShareImageOpen(true)}
-                    className="flex h-[32px] cursor-pointer items-center justify-center gap-[6px] rounded-[4px] px-[12px] py-[6px] text-[12px] font-medium leading-[20px] tracking-[0.12px] disabled:cursor-not-allowed"
+                    className="flex h-[40px] cursor-pointer items-center justify-center gap-[8px] rounded-[6px] px-[20px] py-[9px] text-[14px] font-medium leading-[22px] tracking-[0.14px] disabled:cursor-not-allowed"
                     style={selectedShareMessages.length === 0
                       ? { fontFamily: FONT, background: '#fff', color: 'var(--text-n2, rgba(0,0,0,0.2))', border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }
                       : { fontFamily: FONT, background: 'var(--main-m1, #49A3A6)', color: '#fff', border: 'none' }}
                   >
-                    <CdnIcon name="photo-l" size={14} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : '#fff'} />
+                    <CdnIcon name="photo-l" size={18} color={selectedShareMessages.length === 0 ? 'var(--text-n2, rgba(0,0,0,0.2))' : '#fff'} />
                     Create image
                   </button>
                 </div>
