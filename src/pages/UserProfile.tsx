@@ -1,213 +1,368 @@
 /**
- * [INPUT]: AppShell, profile-mock 数据, chart-theme 调色板
- * [OUTPUT]: User Profile 客人态页面
- * [POS]: 页面层 — 展示用户 Profile / Playbooks / Discussion / Skills
+ * [INPUT]: AppShell, profile-mock 数据, shared/PlaybookCard
+ * [OUTPUT]: User Profile 页面（Owner 态）
+ * [POS]: 页面层 — Figma Draft DJ9Acp13FruTilsTdrE0id node 6127:39847
+ *        "Page/Profile/Playbooks · Owner"
  *
- * 布局:
- *   Row 1: Profile Header (full width)
- *   Row 2: Stats Cards (4 个)
- *   Tab: Playbooks | Discussion | Skills（水平切换）
- *   Content: 3-per-row 卡片（Playbooks / Skills）或纵向列表（Discussion）
+ * 布局（稿内坐标，容器 1156 宽）:
+ *   y40  Profile Header — 80 头像 + 身份/社交行 + bio + stats，自带 pb12
+ *   y230 Tab — Playbooks/Starred/Purchased 下划线页签 + 右侧 All/Public/Private/Paid
+ *   y306 Playbook/Card List — 3 列 gap16，复用 Explore/NewChat 的 PlaybookCard
  */
 
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Page } from '@/app/App';
 import { AppShell } from '@/app/components/shell/AppShell';
-import { PulseIndicator } from '@/app/components/community/PulseIndicator';
-import { Avatar as UserAvatar } from '@/app/components/shared/Avatar';
-import { MOCK_USER, MOCK_PLAYBOOKS, MOCK_COMMENTS, MOCK_SKILLS } from '@/data/profile-mock';
-import type { PlaybookSummary, CommentActivity, SkillSummary } from '@/data/profile-mock';
+import { Avatar } from '@/app/components/shared/Avatar';
+import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { PlaybookCard } from '@/app/components/shared/PlaybookCard';
+import { MOCK_USER, MOCK_PLAYBOOKS, MOCK_STARRED, MOCK_PURCHASED } from '@/data/profile-mock';
+import type { ProfilePlaybook } from '@/data/profile-mock';
 
-/* ========== ProfileHeader ========== */
+const DELIGHT = "'Delight', sans-serif";
+const socialLogo = (name: string) => `${import.meta.env.BASE_URL}${name}`;
 
-function ProfileHeader() {
+/* ========== 稿里 HandleRow 的 0.5×12 竖分隔（stroke black 0.12） ========== */
+
+function HandleDivider() {
+  return (
+    <span
+      aria-hidden
+      className="shrink-0"
+      style={{ width: 0.5, height: 12, background: 'var(--line-l12, rgba(0,0,0,0.12))' }}
+    />
+  );
+}
+
+/* ========== Pro 标 —— m1 底 + 0.5 lr3 边 + 全圆角 ========== */
+
+function ProTag() {
+  return (
+    <span
+      className="shrink-0 flex items-center justify-center px-[8px] rounded-[96px]"
+      style={{
+        background: 'var(--main-m1, #49A3A6)',
+        border: '0.5px solid rgba(255, 255, 255, 0.3)',
+        fontFamily: DELIGHT,
+        fontSize: 11,
+        lineHeight: '18px',
+        letterSpacing: 0.11,
+        color: '#fff',
+      }}
+    >
+      Pro
+    </span>
+  );
+}
+
+/* ========== 社交入口 —— 16 图标 + 8 gap + #737d8c 文字 ========== */
+
+function SocialItem({ file, label }: { file: string; label: string }) {
+  return (
+    <span className="shrink-0 flex items-center gap-[8px]">
+      <img src={socialLogo(file)} width={16} height={16} alt="" className="block size-[16px]" />
+      <span style={{ fontFamily: DELIGHT, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14, color: '#737d8c' }}>
+        {label}
+      </span>
+    </span>
+  );
+}
+
+/* ========== Actions 按钮 —— h32 / 0.5 l3 边 / radius-btn-s ========== */
+
+function HeaderButton({ icon, label, onClick }: { icon: string; label: string; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="shrink-0 flex h-[32px] items-center justify-center gap-[6px] px-[12px] py-[6px] rounded-[4px] cursor-pointer"
+      style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))' }}
+    >
+      <CdnIcon name={icon} size={14} color="var(--text-n9, rgba(0,0,0,0.9))" />
+      <span
+        style={{
+          fontFamily: DELIGHT,
+          fontSize: 12,
+          fontWeight: 500,
+          lineHeight: '20px',
+          letterSpacing: 0.12,
+          color: 'var(--text-n9, rgba(0,0,0,0.9))',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {label}
+      </span>
+    </button>
+  );
+}
+
+/* ========== Stats 单项 —— 数字 16/26 n9 + 标签 14/22 n5，底对齐 ========== */
+
+function Stat({ value, label, onClick }: { value: string; label: string; onClick?: () => void }) {
+  return (
+    <div
+      className={`shrink-0 flex items-end gap-[8px] ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
+      <span style={{ fontFamily: DELIGHT, fontSize: 16, lineHeight: '26px', letterSpacing: 0.16, color: 'var(--text-n9, rgba(0,0,0,0.9))', whiteSpace: 'nowrap' }}>
+        {value}
+      </span>
+      <span className="flex items-center gap-[4px] pb-px">
+        <span style={{ fontFamily: DELIGHT, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14, color: 'var(--text-n5, rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
+          {label}
+        </span>
+        {onClick && <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />}
+      </span>
+    </div>
+  );
+}
+
+/* ========== Bio —— 收起 2 行 + 右下 Show more（白底压字 + 左侧 20px 渐变） ========== */
+
+function Bio({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const base = { fontFamily: DELIGHT, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14, color: 'var(--text-n9, rgba(0,0,0,0.9))' };
+
+  return (
+    <div className="relative w-full max-w-[720px]">
+      <p
+        style={
+          expanded
+            ? base
+            : { ...base, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }
+        }
+      >
+        {text}
+      </p>
+      {expanded ? (
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="flex items-center gap-[4px] cursor-pointer"
+          style={{ ...base, color: 'var(--main-m1, #49A3A6)' }}
+        >
+          Show less
+          <CdnIcon name="arrow-up-l2" size={12} color="var(--main-m1, #49A3A6)" />
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="absolute bottom-0 right-0 flex items-center gap-[4px] cursor-pointer"
+          style={{ ...base, color: 'var(--main-m1, #49A3A6)', background: 'var(--b0-container, #fff)' }}
+        >
+          <span
+            aria-hidden
+            className="absolute top-0 left-[-20px] size-[20px]"
+            style={{ background: 'linear-gradient(to left, var(--b0-container, #fff), rgba(255,255,255,0))' }}
+          />
+          Show more
+          <CdnIcon name="arrow-down-l2" size={12} color="var(--main-m1, #49A3A6)" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ========== Profile Header ========== */
+
+function ProfileHeader({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const u = MOCK_USER;
   return (
-    <div style={{ background: 'var(--grey-g01)', borderRadius: 4, padding: 20 }}>
-      <div className="flex items-center gap-[16px]">
-        <UserAvatar name={u.name} size={56} />
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-center gap-[8px]">
-            <span className="text-[18px] font-medium" style={{ color: 'var(--text-n9)' }}>{u.name}</span>
-            <PulseIndicator status={u.pulse} />
-          </div>
-          <span className="text-[13px] mt-[4px]" style={{ color: 'var(--text-n7)', lineHeight: '20px' }}>{u.bio}</span>
-          <div className="flex items-center gap-[6px] mt-[4px]">
-            <span className="text-[12px]" style={{ color: 'var(--text-n5)' }}>Joined {u.joinDate}</span>
-            {u.publishedBy && (
-              <>
-                <span className="text-[12px]" style={{ color: 'var(--text-n3)' }}>&middot;</span>
-                <span className="text-[12px]" style={{ color: 'var(--text-n5)' }}>via {u.publishedBy}</span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+    <div className="flex w-full items-start gap-[20px] pb-[12px]">
+      <Avatar name={u.name} size={80} />
 
-/* ========== StatItem ========== */
+      <div className="flex min-w-px flex-[1_0_0] flex-col gap-[12px]">
+        {/* HeaderRow —— 身份块 + 右侧动作 */}
+        <div className="flex w-full items-start gap-[24px]">
+          <div className="flex min-w-px flex-[1_0_0] flex-col gap-[4px]">
+            {/* Identity */}
+            <div className="flex items-center gap-[8px]">
+              <span style={{ fontFamily: DELIGHT, fontSize: 24, lineHeight: '34px', letterSpacing: 0.24, color: 'var(--text-n9, rgba(0,0,0,0.9))', whiteSpace: 'nowrap' }}>
+                {u.name}
+              </span>
+              {u.isPro && <ProTag />}
+            </div>
 
-function StatItem({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="flex-1 min-w-0" style={{ background: 'var(--grey-g01)', borderRadius: 4, padding: '16px 20px' }}>
-      <p className="text-[22px]" style={{ color: 'var(--text-n9)', fontFamily: "'Delight', sans-serif", fontWeight: 400 }}>
-        {value.toLocaleString()}
-      </p>
-      <p className="text-[12px] mt-[4px]" style={{ color: 'var(--text-n5)' }}>{label}</p>
-    </div>
-  );
-}
-
-/* ========== PlaybookCard — 严格复用 HomeC ExploreCard 样式 ========== */
-
-function PlaybookCard({ pb, onClick }: { pb: PlaybookSummary; onClick: () => void }) {
-  return (
-    <div className="relative flex-1 min-w-0 rounded-[6px] bg-white cursor-pointer" onClick={onClick}>
-      <div className="flex flex-col gap-[16px] p-[16px]">
-        <div className="flex items-center gap-[6px]">
-          <UserAvatar name={MOCK_USER.name} size={20} />
-          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n7)]">{MOCK_USER.name}</span>
-          <PulseIndicator status={pb.status} />
-        </div>
-        <div className="flex flex-col gap-[6px]">
-          <p className="font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[var(--text-n9)] truncate">{pb.name}</p>
-          <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n5)] line-clamp-2 h-[40px]">{pb.description}</p>
-        </div>
-        <div>
-          <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[var(--main-m1)]">{pb.annualizedReturn}</p>
-          <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]">Annualized Return</p>
-        </div>
-      </div>
-      <div aria-hidden="true" className="absolute inset-0 rounded-[6px] border border-[var(--line-l07)] pointer-events-none" />
-    </div>
-  );
-}
-
-/* ========== CommentActivityItem ========== */
-
-function CommentActivityItem({ c }: { c: CommentActivity }) {
-  return (
-    <div style={{ background: 'var(--grey-g01)', borderRadius: 4, padding: '16px 20px' }}>
-      <div className="flex items-start gap-[12px]">
-        <UserAvatar name={MOCK_USER.name} size={26} />
-        <div className="flex-1 min-w-0">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-[6px] min-w-0">
-              <span className="text-[13px] font-medium" style={{ color: 'var(--text-n9)' }}>{MOCK_USER.name}</span>
-              {c.replyTo && (
+            {/* HandleRow —— 换行时 row-gap 8 / column-gap 12 */}
+            <div className="flex w-full flex-wrap items-center gap-x-[12px] gap-y-[8px]">
+              <span className="shrink-0" style={{ fontFamily: DELIGHT, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>
+                {u.handle}
+              </span>
+              <HandleDivider />
+              <span className="shrink-0" style={{ fontFamily: DELIGHT, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14, color: 'var(--text-n5, rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
+                Joined {u.joinDate}
+              </span>
+              {u.socials.x && (
                 <>
-                  <span className="text-[12px]" style={{ color: 'var(--text-n5)' }}>replied to</span>
-                  <span className="text-[12px] font-medium" style={{ color: 'var(--main-m1)' }}>@{c.replyTo}</span>
+                  <HandleDivider />
+                  <SocialItem file="logo-social-x.svg" label={u.socials.x} />
+                </>
+              )}
+              {u.socials.telegram && (
+                <>
+                  <HandleDivider />
+                  <SocialItem file="logo-social-telegram.svg" label={u.socials.telegram} />
+                </>
+              )}
+              {u.socials.discord && (
+                <>
+                  <HandleDivider />
+                  <SocialItem file="logo-social-discord.svg" label={u.socials.discord} />
                 </>
               )}
             </div>
-            <span className="text-[12px] shrink-0 ml-[12px]" style={{ color: 'var(--text-n5)' }}>{c.timestamp}</span>
           </div>
 
-          {/* Playbook 来源 */}
-          <div className="flex items-center gap-[4px] mt-[4px]">
-            <span className="text-[12px]" style={{ color: 'var(--text-n5)' }}>in:</span>
-            <span className="text-[12px]" style={{ color: 'var(--text-n7)' }}>{c.playbookName}</span>
-            <span className="text-[12px]" style={{ color: 'var(--text-n5)' }}>by @{c.playbookAuthor}</span>
+          <div className="flex shrink-0 items-center gap-[12px]">
+            <HeaderButton icon="share-l" label="Share Profile" />
+            <HeaderButton icon="edit-l1" label="Edit Profile" onClick={() => onNavigate('account')} />
           </div>
+        </div>
 
-          {/* 内容 */}
-          <p
-            className="text-[13px] mt-[8px] leading-[22px]"
-            style={{ color: 'var(--text-n7)' }}
-            dangerouslySetInnerHTML={{ __html: c.text.replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--text-n9)">$1</strong>') }}
-          />
+        <Bio text={u.bio} />
+
+        <div className="flex items-center gap-[28px]">
+          <Stat value={String(u.totalPlaybooks)} label="Playbooks" />
+          <Stat value={String(u.totalStars)} label="Stars" />
+          <Stat value={String(u.totalRemix)} label="Remix" />
+          <Stat value={u.earned} label="earned" onClick={() => onNavigate('creator-earnings')} />
         </div>
       </div>
     </div>
   );
 }
 
-/* ========== Tab 类型 ========== */
+/* ========== Tab ========== */
 
-type ProfileTab = 'playbooks' | 'discussion' | 'skills';
+type ProfileTab = 'playbooks' | 'starred' | 'purchased';
+type VisibilityFilter = 'All' | 'Public' | 'Private' | 'Paid';
 
-/* ========== Playbooks Grid — 3-per-row, 与 HomeC 一致 ========== */
+const TABS: { key: ProfileTab; label: string }[] = [
+  { key: 'playbooks', label: 'Playbooks' },
+  { key: 'starred', label: 'Starred' },
+  { key: 'purchased', label: 'Purchased' },
+];
 
-function PlaybooksGrid({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const rows: PlaybookSummary[][] = [];
-  for (let i = 0; i < MOCK_PLAYBOOKS.length; i += 3) rows.push(MOCK_PLAYBOOKS.slice(i, i + 3));
+const FILTERS: VisibilityFilter[] = ['All', 'Public', 'Private', 'Paid'];
 
+function ProfileTabs({
+  tab,
+  onTabChange,
+  filter,
+  onFilterChange,
+}: {
+  tab: ProfileTab;
+  onTabChange: (t: ProfileTab) => void;
+  filter: VisibilityFilter;
+  onFilterChange: (f: VisibilityFilter) => void;
+}) {
   return (
-    <div className="flex flex-col gap-[12px]">
-      {rows.map((row, i) => (
-        <div key={i} className="flex gap-[12px]">
-          {row.map(pb => (
-            <PlaybookCard key={pb.id} pb={pb} onClick={() => onNavigate('explore')} />
-          ))}
-          {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, j) => (
-            <div key={`empty-${j}`} className="flex-1 min-w-0" />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
+    <div
+      className="flex w-full items-start gap-[12px]"
+      style={{ borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}
+    >
+      {/* 左侧下划线页签 —— 选中态 pt12/pb10 + 2px m1 底边，与未选中同高 52 */}
+      <div className="flex min-w-px flex-[1_0_0] items-center gap-[20px]">
+        {TABS.map(t => {
+          const active = t.key === tab;
+          return (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => onTabChange(t.key)}
+              className={`box-border flex shrink-0 items-start cursor-pointer ${active ? 'pt-[12px] pb-[10px]' : 'py-[12px]'}`}
+              style={active ? { borderBottom: '2px solid var(--main-m1, #49A3A6)' } : undefined}
+            >
+              <span
+                style={{
+                  fontFamily: DELIGHT,
+                  fontSize: 18,
+                  fontWeight: active ? 500 : 400,
+                  lineHeight: '28px',
+                  letterSpacing: 0.18,
+                  color: active ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n7, rgba(0,0,0,0.7))',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {t.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
-/* ========== SkillCard — 复用 PlaybookCard 样式 ========== */
-
-function SkillCard({ sk }: { sk: SkillSummary }) {
-  return (
-    <div className="relative flex-1 min-w-0 rounded-[6px] bg-white">
-      <div className="flex flex-col gap-[16px] p-[16px]">
-        <div className="flex items-center gap-[6px]">
-          <UserAvatar name={sk.author} size={20} />
-          <span className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n7)]">{sk.author}</span>
-          <span className="text-[11px] px-[6px] py-[1px] rounded-[3px]" style={{ background: sk.category === 'alva' ? 'rgba(73,163,166,0.12)' : 'var(--b-r05)', color: sk.category === 'alva' ? 'var(--main-m1)' : 'var(--text-n5)' }}>
-            {sk.category === 'alva' ? 'Alva' : 'Custom'}
-          </span>
-        </div>
-        <div className="flex flex-col gap-[6px]">
-          <p className="font-['Delight',sans-serif] text-[16px] leading-[24px] tracking-[0.16px] text-[var(--text-n9)] truncate">{sk.name}</p>
-          <p className="font-['Delight',sans-serif] text-[13px] leading-[20px] tracking-[0.13px] text-[var(--text-n5)] line-clamp-2 h-[40px]">{sk.description}</p>
-        </div>
-        <div>
-          <p className="font-['Delight',sans-serif] text-[24px] leading-[32px] tracking-[0.24px] text-[var(--main-m1)]">{sk.weeklyInstalls}</p>
-          <p className="font-['Delight',sans-serif] text-[12px] leading-[18px] tracking-[0.12px] text-[var(--text-n5)]">Weekly Installs</p>
+      {/* 右侧 segmented —— br05 底 + 2 内边距，选中项白底 */}
+      <div className="flex shrink-0 self-stretch items-center justify-center">
+        <div
+          className="flex items-start p-[2px] rounded-[4px]"
+          style={{ background: 'var(--b-r05, rgba(0,0,0,0.05))' }}
+        >
+          {FILTERS.map(f => {
+            const active = f === filter;
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => onFilterChange(f)}
+                className="flex h-[28px] shrink-0 items-center gap-[4px] px-[10px] py-[4px] rounded-[2px] cursor-pointer"
+                style={active ? { background: 'var(--b0-container, #fff)' } : undefined}
+              >
+                <span
+                  style={{
+                    fontFamily: DELIGHT,
+                    fontSize: 12,
+                    fontWeight: active ? 500 : 400,
+                    lineHeight: '20px',
+                    letterSpacing: 0.12,
+                    color: active ? 'var(--text-n9, rgba(0,0,0,0.9))' : 'var(--text-n7, rgba(0,0,0,0.7))',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {f}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
-      <div aria-hidden="true" className="absolute inset-0 rounded-[6px] border border-[var(--line-l07)] pointer-events-none" />
     </div>
   );
 }
 
-/* ========== Skills Grid — 3-per-row ========== */
+/* ========== 卡片网格 —— 与 Explore 同一套列宽规则 N = ⌊(W+16)/340⌋ ========== */
 
-function SkillsGrid() {
-  const rows: SkillSummary[][] = [];
-  for (let i = 0; i < MOCK_SKILLS.length; i += 3) rows.push(MOCK_SKILLS.slice(i, i + 3));
+function useContainerWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    if (!ref.current) return;
+    const ro = new ResizeObserver(entries => {
+      for (const e of entries) setW(e.contentRect.width);
+    });
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
+
+function CardGrid({ items, onOpen }: { items: ProfilePlaybook[]; onOpen: () => void }) {
+  const [gridRef, width] = useContainerWidth();
+  const columns = Math.max(1, Math.floor((Math.max(0, width) + 16) / 340));
 
   return (
-    <div className="flex flex-col gap-[12px]">
-      {rows.map((row, i) => (
-        <div key={i} className="flex gap-[12px]">
-          {row.map(sk => (
-            <SkillCard key={sk.id} sk={sk} />
-          ))}
-          {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, j) => (
-            <div key={`empty-${j}`} className="flex-1 min-w-0" />
-          ))}
+    <div
+      ref={gridRef}
+      style={
+        width === 0
+          ? { display: 'grid', gap: 16, width: '100%' }
+          : { display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: 16, width: '100%' }
+      }
+    >
+      {items.map((pb, i) => (
+        <div key={pb.id} className="w-full" onClick={onOpen}>
+          <PlaybookCard p={pb} staggerMs={(i % 10) * 1000} />
         </div>
-      ))}
-    </div>
-  );
-}
-
-/* ========== Discussion 列表 ========== */
-
-function DiscussionList() {
-  return (
-    <div className="flex flex-col gap-[12px]">
-      {MOCK_COMMENTS.map(c => (
-        <CommentActivityItem key={c.id} c={c} />
       ))}
     </div>
   );
@@ -216,55 +371,23 @@ function DiscussionList() {
 /* ========== 页面 ========== */
 
 export default function UserProfile({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const u = MOCK_USER;
   const [tab, setTab] = useState<ProfileTab>('playbooks');
+  const [filter, setFilter] = useState<VisibilityFilter>('All');
+
+  const items = useMemo(() => {
+    const source =
+      tab === 'playbooks' ? MOCK_PLAYBOOKS : tab === 'starred' ? MOCK_STARRED : MOCK_PURCHASED;
+    if (filter === 'All') return source;
+    return source.filter(p => p.visibility === filter.toLowerCase());
+  }, [tab, filter]);
+
   return (
     <AppShell activePage="user-profile" onNavigate={onNavigate}>
-      <div className="flex flex-col items-center min-h-full pb-[80px] rounded-[inherit]">
-        <div className="content-stretch flex flex-col gap-[24px] px-[28px] pt-[24px] relative w-full">
-
-          {/* Profile Header */}
-          <ProfileHeader />
-
-          {/* Stats Cards */}
-          <div className="flex gap-[12px]">
-            <StatItem value={u.totalPlaybooks} label="Playbooks" />
-            <StatItem value={u.totalStars} label="Stars" />
-            <StatItem value={u.totalForks} label="Forks" />
-            <StatItem value={u.totalComments} label="Discussion" />
-          </div>
-
-          {/* Tab 切换 */}
-          {(() => {
-            const tabMeta: Record<ProfileTab, { label: string; count: number }> = {
-              playbooks:  { label: 'Playbooks',  count: u.totalPlaybooks },
-              discussion: { label: 'Discussion', count: u.totalComments },
-              skills:     { label: 'Skills',     count: u.totalSkills },
-            };
-            return (
-              <div className="flex items-center gap-[8px]">
-                {(Object.keys(tabMeta) as ProfileTab[]).map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setTab(t)}
-                    className={`rounded-[4px] px-[14px] py-[6px] font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] transition-colors cursor-pointer ${
-                      tab === t
-                        ? 'bg-[rgba(73,163,166,0.15)] text-[var(--text-n9)] font-medium'
-                        : 'bg-[var(--b-r03)] text-[var(--text-n5)] hover:text-[var(--text-n7)]'
-                    }`}
-                  >
-                    {tabMeta[t].label} ({tabMeta[t].count})
-                  </button>
-                ))}
-              </div>
-            );
-          })()}
-
-          {/* Tab 内容 */}
-          {tab === 'playbooks' && <PlaybooksGrid onNavigate={onNavigate} />}
-          {tab === 'discussion' && <DiscussionList />}
-          {tab === 'skills' && <SkillsGrid />}
-
+      <div className="min-h-full rounded-[inherit] pb-[80px]">
+        <div className="flex w-full flex-col gap-[24px] px-[28px] pt-[40px]">
+          <ProfileHeader onNavigate={onNavigate} />
+          <ProfileTabs tab={tab} onTabChange={setTab} filter={filter} onFilterChange={setFilter} />
+          <CardGrid items={items} onOpen={() => onNavigate('explore')} />
         </div>
       </div>
     </AppShell>

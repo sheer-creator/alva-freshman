@@ -143,7 +143,7 @@ export default function UserInfo({ onNavigate }: { onNavigate?: (page: Page) => 
 
         {/* Basic info — hover 通栏 */}
         <div
-          onClick={() => go('account')}
+          onClick={() => go('user-profile')}
           className="flex gap-[12px] items-center py-[20px] -mx-[20px] px-[20px] w-[calc(100%+40px)] cursor-pointer transition-colors hover:bg-black/5"
         >
           <Avatar name={USER.name} size={48} />

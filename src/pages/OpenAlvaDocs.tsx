@@ -6,7 +6,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { Page } from '@/app/App';
-import UserInfo from '@/app/components/UserInfo';
 import { AppShell } from '@/app/components/shell/AppShell';
 
 /* ========== Types ========== */
@@ -175,7 +174,6 @@ function InstallCTA() {
 /* ========== Main Component ========== */
 
 export default function OpenAlvaDocs({ onNavigate, onOpenSearch }: { onNavigate: (page: Page) => void; onOpenSearch?: () => void }) {
-  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -212,8 +210,6 @@ export default function OpenAlvaDocs({ onNavigate, onOpenSearch }: { onNavigate:
         activePage="docs"
         onNavigate={onNavigate}
         onOpenSearch={onOpenSearch}
-        onUserMouseEnter={() => setIsUserInfoOpen(true)}
-        onUserMouseLeave={() => setIsUserInfoOpen(false)}
       >
         <div className="flex justify-center min-h-full">
           <div className="flex gap-[48px] px-[28px] py-[64px] w-full max-w-[1100px]">
@@ -690,15 +686,6 @@ curl -s -X POST "$ALVA_ENDPOINT/api/v1/deploy/cronjob" \\
           </div>
         </div>
       </AppShell>
-      {isUserInfoOpen && (
-        <div
-          className="fixed bottom-[56px] left-[8px] w-[320px] z-[9999]"
-          onMouseEnter={() => setIsUserInfoOpen(true)}
-          onMouseLeave={() => setIsUserInfoOpen(false)}
-        >
-          <UserInfo />
-        </div>
-      )}
     </>
   );
 }

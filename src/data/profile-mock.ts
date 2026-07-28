@@ -1,215 +1,265 @@
 /**
- * [INPUT]: 无外部依赖
+ * [INPUT]: ExplorePlaybook 类型（shared/PlaybookCard）
  * [OUTPUT]: User Profile 页面 mock 数据
- * [POS]: 数据层 — 用户维度的社区功能演示数据
+ * [POS]: 数据层 — Figma Draft 6127:39847 "Page/Profile/Playbooks · Owner" 对应的数据
  */
+
+import type { ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
+
+const asset = (name: string) => `${import.meta.env.BASE_URL}figma/explore/${name}`;
 
 /* ========== 类型 ========== */
 
 export interface UserProfile {
   id: string;
   name: string;
-  bio: string;
+  handle: string;
   joinDate: string;
-  pulse: 'active' | 'idle';
-  publishedBy?: string;
+  isPro: boolean;
+  /** 稿里 HandleRow 的三个社交入口，缺省则不渲染该段 */
+  socials: { x?: string; telegram?: string; discord?: string };
+  bio: string;
   totalPlaybooks: number;
   totalStars: number;
-  totalForks: number;
-  totalComments: number;
-  totalSkills: number;
+  totalRemix: number;
+  /** 已含货币符号与千分位，直接展示 */
+  earned: string;
 }
 
-export interface PlaybookSummary {
-  id: string;
-  name: string;
-  description: string;
-  stars: number;
-  forks: number;
-  status: 'active' | 'idle';
-  annualizedReturn: string;
-  createdDate: string;
-  tags: string[];
-}
+/** 右侧 segmented control（All / Public / Private / Paid）的筛选依据 */
+export type PlaybookVisibility = 'public' | 'private' | 'paid';
 
-export interface SkillSummary {
-  id: string;
-  name: string;
-  description: string;
-  category: 'alva' | 'custom';
-  author: string;
-  stars: number;
-  weeklyInstalls: string;
-  lastUpdated: string;
-  tags: string[];
-}
+export type ProfilePlaybook = ExplorePlaybook & { visibility: PlaybookVisibility };
 
-export interface CommentActivity {
-  id: string;
-  playbookName: string;
-  playbookAuthor: string;
-  text: string;
-  timestamp: string;
-  replyTo?: string;
-}
-
-/* ========== Mock 数据 ========== */
+/* ========== 用户 ========== */
 
 export const MOCK_USER: UserProfile = {
   id: 'yggyll',
   name: 'YGGYLL',
-  bio: 'Quant Researcher · 5y crypto · Building momentum strategies',
-  joinDate: 'Jan 2024',
-  pulse: 'active',
-  publishedBy: 'Alva Intern',
+  handle: '@yggyll',
+  joinDate: 'Dec 23, 2025',
+  isPro: true,
+  socials: { x: '@yggyll', telegram: '@YGGYLLSignals', discord: 'yggyll.alva' },
+  bio: 'I am YGGYLL — building crypto trading playbooks focused on momentum, breakouts, and asymmetric risk. Mostly mid-cap alts + meme tokens. New playbooks weekly. Always learning, sometimes wrong, never boring. I run two parallel research streams: (1) on-chain liquidity divergences across major DEXes; (2) sentiment-velocity from social listening on Twitter, Discord and Farcaster. Subscribers get weekly playbooks Monday 9am UTC, intraday alerts on momentum breakouts, and post-mortems every Friday. Founded 2024 after eight years across systematic equity desks at Citadel and Two Sigma. Not financial advice — these are my own positions, sized for my own risk.',
   totalPlaybooks: 6,
   totalStars: 890,
-  totalForks: 96,
-  totalComments: 5,
-  totalSkills: 4,
+  totalRemix: 12,
+  earned: '$12,023.42',
 };
 
-export const MOCK_PLAYBOOKS: PlaybookSummary[] = [
+/* ========== Playbooks — 本人发布 ========== */
+
+export const MOCK_PLAYBOOKS: ProfilePlaybook[] = [
   {
     id: 'btc-ultimate-ai-trader',
-    name: 'BTC Ultimate AI Trader',
-    description: 'Momentum-based BTC trading strategy powered by AI signals. Combines on-chain metrics, sentiment analysis, and technical indicators.',
-    stars: 142, forks: 23, status: 'active',
-    annualizedReturn: '+338.23%',
-    createdDate: 'Feb 15, 2026',
-    tags: ['BTC', 'Momentum', 'AI'],
+    creator: 'YGGYLL',
+    title: 'BTC Ultimate AI Trader',
+    description: "This strategy intelligently pinpoints BTC's optimal trading sweet spots through dual-engine analysis: RSI oversold alerts + Bollinger Band breakouts. Automatically trimming position extremities to capture core price movements.",
+    tickers: ['BTC'],
+    pulse: 'active',
+    stars: 142,
+    remixes: 3,
+    visibility: 'private',
+    cover: {
+      template: 'screener',
+      title: 'BTC Ultimate AI Trader',
+      author: 'YGGYLL',
+      tickers: ['BTC'],
+      coverImageUrl: asset('card-btc-ultimate.png'),
+    },
   },
   {
-    id: 'eth-defi-yield-optimizer',
-    name: 'ETH DeFi Yield Optimizer',
-    description: 'Automated yield farming across top DeFi protocols. Dynamically allocates between lending, staking, and LP positions.',
-    stars: 89, forks: 11, status: 'active',
-    annualizedReturn: '+67.8%',
-    createdDate: 'Jan 20, 2026',
-    tags: ['ETH', 'DeFi', 'Yield'],
+    id: 'mag7-equal-weight-monthly-rebalance',
+    creator: 'YGGYLL',
+    title: 'MAG7 Equal-Weight Monthly Rebalance',
+    description: 'Maintains a fully invested equal-weight portfolio of the Magnificent 7 stocks and rebalances monthly',
+    tickers: [],
+    pulse: 'active',
+    stars: 208,
+    remixes: 5,
+    visibility: 'public',
+    cover: {
+      template: 'what-if',
+      title: 'MAG7 Equal-Weight Monthly Rebalance',
+      author: 'YGGYLL',
+      tickers: [],
+      coverImageUrl: asset('card-mag7-rebalance.png'),
+    },
   },
   {
-    id: 'btc-eth-ratio-reversion',
-    name: 'BTC/ETH Ratio Reversion',
-    description: 'Mean-reversion strategy on the BTC/ETH price ratio. Trades relative value shifts between the two largest crypto assets.',
-    stars: 56, forks: 8, status: 'idle',
-    annualizedReturn: '+42.1%',
-    createdDate: 'Dec 8, 2025',
-    tags: ['BTC', 'ETH', 'Mean Reversion'],
+    id: 'pepe-long-vs-btc-short',
+    creator: 'YGGYLL',
+    title: 'PEPE Long vs BTC Short Monthly Rebalance',
+    description: 'The OI Abnormal Movement Monitoring Strategy tracks selected crypto tokens on a 4-hour timeframe to detect unusually large changes in Open Interest (OI) and trading volume.',
+    tickers: ['PEPE', 'BTC'],
+    pulse: 'active',
+    stars: 96,
+    remixes: 2,
+    visibility: 'private',
+    cover: {
+      template: 'what-if',
+      title: 'PEPE Long vs BTC Short Monthly Rebalance',
+      author: 'YGGYLL',
+      tickers: ['PEPE', 'BTC'],
+      coverImageUrl: asset('card-pepe-btc.png'),
+    },
   },
   {
-    id: 'sol-momentum-scalper',
-    name: 'SOL Momentum Scalper',
-    description: 'High-frequency momentum scalper for SOL. Uses on-chain DEX volume spikes as leading indicators for short-term moves.',
-    stars: 203, forks: 31, status: 'active',
-    annualizedReturn: '+156.9%',
-    createdDate: 'Mar 1, 2026',
-    tags: ['SOL', 'Momentum', 'Scalping'],
+    id: 'attribution-analysis-price-trends',
+    creator: 'YGGYLL',
+    title: 'Attribution Analysis Strategy for Price Trends',
+    description: 'Monitor selected tokens on a 4-hour timeframe to detect abnormal changes in Open Interest (OI) and trading volume in order to capture unusual market activity and generate alerts.',
+    tickers: ['BTC', 'ETH'],
+    pulse: 'active',
+    stars: 174,
+    remixes: 6,
+    price: '$5/mo',
+    visibility: 'paid',
+    cover: {
+      template: 'thesis',
+      title: 'Attribution Analysis Strategy for Price Trends',
+      author: 'YGGYLL',
+      tickers: ['BTC', 'ETH'],
+      coverImageUrl: asset('card-attribution.png'),
+    },
   },
   {
-    id: 'multi-asset-risk-parity',
-    name: 'Multi-Asset Risk Parity',
-    description: 'Risk parity allocation across BTC, ETH, SOL, and stablecoins. Rebalances based on realized volatility regime detection.',
-    stars: 67, forks: 5, status: 'active',
-    annualizedReturn: '+28.4%',
-    createdDate: 'Nov 15, 2025',
-    tags: ['Multi-Asset', 'Risk Parity'],
+    id: 'nvda-triggered-tsm',
+    creator: 'YGGYLL',
+    title: 'NVDA +3% Triggered TSM TP/SL',
+    description: 'Buys TSM at the close when NVDA gains >3% close-to-close, then exits on +10% take-profit or -5% stop-loss.',
+    tickers: ['NVDA', 'TSM'],
+    pulse: 'active',
+    stars: 187,
+    remixes: 4,
+    price: '$50',
+    visibility: 'paid',
+    cover: {
+      template: 'what-if',
+      title: 'NVDA +3% Triggered TSM TP/SL',
+      author: 'YGGYLL',
+      tickers: ['NVDA', 'TSM'],
+      coverImageUrl: asset('card-nvda-tsm.png'),
+    },
   },
   {
-    id: 'doge-sentiment-trader',
-    name: 'DOGE Sentiment Trader',
-    description: 'Sentiment-driven DOGE strategy. Monitors social media buzz, whale wallet activity, and meme velocity for trade signals.',
-    stars: 333, forks: 18, status: 'idle',
-    annualizedReturn: '+89.2%',
-    createdDate: 'Oct 30, 2025',
-    tags: ['DOGE', 'Sentiment', 'Social'],
+    id: 'btc-macd-1h-simple-crossover',
+    creator: 'YGGYLL',
+    title: 'BTC MACD 1h Simple Crossover',
+    description: 'Trade BTC using MACD(12,26,9) line crossing its signal on 1-hour candles; enter long on bullish cross, exit on bearish cross.',
+    tickers: ['BTC'],
+    pulse: 'idle',
+    stars: 83,
+    remixes: 1,
+    visibility: 'public',
+    cover: {
+      template: 'screener',
+      title: 'BTC MACD 1h Simple Crossover',
+      author: 'YGGYLL',
+      tickers: ['BTC'],
+      coverImageUrl: asset('card-btc-macd.png'),
+    },
   },
 ];
 
-export const MOCK_COMMENTS: CommentActivity[] = [
+/* ========== Starred — 收藏别人的 ========== */
+
+export const MOCK_STARRED: ProfilePlaybook[] = [
   {
-    id: 'ca-1',
-    playbookName: 'SOL Momentum Scalper',
-    playbookAuthor: 'YGGYLL',
-    text: 'Strategy is now live! Built on **on-chain DEX volume signals** — the alpha comes from detecting volume spikes 2-3 blocks before price moves. Backtested across 6 months of Raydium + Orca data.',
-    timestamp: 'Mar 10, 2026',
+    id: 'short-squeeze-risk-map',
+    creator: 'Macro Scope X',
+    title: 'Short-Squeeze Risk Map',
+    description: 'Ranks heavily shorted names by borrow-fee spikes, days-to-cover and gamma exposure to flag squeeze candidates before the crowd notices.',
+    tickers: [],
+    pulse: 'active',
+    stars: 412,
+    remixes: 18,
+    visibility: 'public',
+    cover: {
+      template: 'thesis',
+      title: 'Short-Squeeze Risk Map',
+      author: 'Macro Scope X',
+      tickers: [],
+      coverImageUrl: asset('card-short-squeeze.png'),
+    },
   },
   {
-    id: 'ca-2',
-    playbookName: 'ETH Gas Fee Predictor',
-    playbookAuthor: 'Bob Martinez',
-    text: 'Great approach on gas prediction, Bob. One suggestion: consider switching from Etherscan to **Flashbots MEV-Share** as your primary data source — it gives you pre-inclusion gas estimates that are ~30% more accurate for next-block predictions.',
-    timestamp: 'Mar 8, 2026',
-    replyTo: 'Bob Martinez',
+    id: 'us-crypto-dat-monitor',
+    creator: 'Deep Ledger',
+    title: 'US Crypto DAT Companies Monitor',
+    description: 'Feed incorporates both real anomaly signals and reference cases for interpretation. Update frequencies adjusted as new PTR, Form 4, and 10b5-1 filings are parsed.',
+    tickers: [],
+    pulse: 'active',
+    stars: 267,
+    remixes: 9,
+    visibility: 'public',
+    cover: {
+      template: 'screener',
+      title: 'US Crypto DAT Companies Monitor',
+      author: 'Deep Ledger',
+      tickers: [],
+      coverImageUrl: asset('card-crypto-dat.png'),
+    },
   },
   {
-    id: 'ca-3',
-    playbookName: 'BTC Halving Cycle Model',
-    playbookAuthor: 'Carol Wu',
-    text: "Interesting cycle model. I've been experimenting with overlaying **momentum oscillators on halving-adjusted time series** — the key insight is that each cycle's momentum peak arrives ~15% earlier than the previous one. Would love to collaborate on combining our approaches.",
-    timestamp: 'Mar 5, 2026',
-  },
-  {
-    id: 'ca-4',
-    playbookName: 'MAG7 Equal-Weight',
-    playbookAuthor: 'Dave Kim',
-    text: "On rebalance frequency: I tested weekly vs monthly for equal-weight portfolios and found that **monthly rebalancing** with a 5% drift threshold actually outperforms strict weekly rebalancing by ~2% annually, mostly due to lower transaction costs.",
-    timestamp: 'Feb 28, 2026',
-    replyTo: 'Dave Kim',
-  },
-  {
-    id: 'ca-5',
-    playbookName: 'Crypto Fear & Greed Index',
-    playbookAuthor: 'Jenny Zhao',
-    text: "The main issue with Fear & Greed as a standalone signal is **latency** — by the time it hits extreme values, the move is often 60-70% done. I'd suggest combining it with on-chain realized profit/loss ratios (SOPR, NUPL) for earlier entries.",
-    timestamp: 'Feb 22, 2026',
-    replyTo: 'Jenny Zhao',
+    id: 'nvda-trading-research-dashboard',
+    creator: 'Silicon Cycle',
+    title: 'NVDA Trading Strategy Research Dashboard',
+    description: 'Multi-timeframe NVDA price/volume context, trend & momentum, relative strength vs market/sector, flow/derivatives proxies, earnings/event stats.',
+    tickers: ['NVDA'],
+    pulse: 'idle',
+    stars: 155,
+    remixes: 7,
+    visibility: 'public',
+    cover: {
+      template: 'thesis',
+      title: 'NVDA Trading Strategy Research Dashboard',
+      author: 'Silicon Cycle',
+      tickers: ['NVDA'],
+      coverImageUrl: asset('card-nvda-research.png'),
+    },
   },
 ];
 
-export const MOCK_SKILLS: SkillSummary[] = [
+/* ========== Purchased — 已解锁的付费 playbook ========== */
+
+export const MOCK_PURCHASED: ProfilePlaybook[] = [
   {
-    id: 'sk-1',
-    name: 'Momentum Signal Scanner',
-    description: 'Scans cross-asset momentum breakouts using volume-weighted moving averages and RSI divergence detection.',
-    category: 'custom',
-    author: 'YGGYLL',
-    stars: 67,
-    weeklyInstalls: '1.2k',
-    lastUpdated: 'Mar 8, 2026',
-    tags: ['Momentum', 'Scanner', 'Multi-Asset'],
+    id: 'eth-daily-price-change',
+    creator: 'WalletWatcher',
+    title: 'ETH Daily Price & Change Tracker',
+    description: 'Tracks daily prices and daily percentage changes for ETH in a single table for quick monitoring.',
+    tickers: ['ETH'],
+    pulse: 'active',
+    stars: 321,
+    remixes: 11,
+    price: '$50',
+    visibility: 'paid',
+    cover: {
+      template: 'screener',
+      title: 'ETH Daily Price & Change Tracker',
+      author: 'WalletWatcher',
+      tickers: ['ETH'],
+      coverImageUrl: asset('card-eth-daily.png'),
+    },
   },
   {
-    id: 'sk-2',
-    name: 'On-Chain Whale Tracker',
-    description: 'Monitors large wallet movements across BTC and ETH. Alerts when whale accumulation or distribution exceeds 2σ from 30-day average.',
-    category: 'alva',
-    author: 'YGGYLL',
-    stars: 203,
-    weeklyInstalls: '3.8k',
-    lastUpdated: 'Mar 5, 2026',
-    tags: ['On-Chain', 'Whale', 'Alert'],
-  },
-  {
-    id: 'sk-3',
-    name: 'Earnings Surprise Predictor',
-    description: 'Predicts earnings surprises using alternative data — satellite imagery, credit card spend, and job postings.',
-    category: 'custom',
-    author: 'YGGYLL',
-    stars: 45,
-    weeklyInstalls: '890',
-    lastUpdated: 'Feb 28, 2026',
-    tags: ['Earnings', 'Alt Data', 'Prediction'],
-  },
-  {
-    id: 'sk-4',
-    name: 'Risk Regime Classifier',
-    description: 'Classifies current market regime (risk-on, risk-off, transition) using VIX term structure, credit spreads, and cross-asset correlations.',
-    category: 'alva',
-    author: 'YGGYLL',
-    stars: 112,
-    weeklyInstalls: '2.1k',
-    lastUpdated: 'Feb 20, 2026',
-    tags: ['Risk', 'Regime', 'Macro'],
+    id: 'google-x-trends-tracker',
+    creator: 'Market Bento',
+    title: 'Google / X Trends Tracker',
+    description: 'Monitor search and social interest across tickers to catch attention spikes before they show up in price and volume.',
+    tickers: ['GOOGL'],
+    pulse: 'idle',
+    stars: 198,
+    remixes: 4,
+    price: '$29/mo',
+    visibility: 'paid',
+    cover: {
+      template: 'screener',
+      title: 'Google / X Trends Tracker',
+      author: 'Market Bento',
+      tickers: ['GOOGL'],
+      coverImageUrl: asset('card-google-trends.png'),
+    },
   },
 ];

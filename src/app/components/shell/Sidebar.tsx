@@ -18,8 +18,7 @@ interface SidebarProps {
   activePage?: Page;
   onNavigate: (page: Page) => void;
   onOpenSearch?: () => void;
-  onUserMouseEnter?: () => void;
-  onUserMouseLeave?: () => void;
+  onUserClick?: () => void;
   onOpenReferral?: () => void;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
@@ -177,7 +176,7 @@ function NewPlaybookButton({ onClick, collapsed, label = 'New Chat' }: { active?
 
 /* ========== 主组件 ========== */
 
-export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, onOpenReferral, collapsed = false, onToggleCollapsed }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserClick, onOpenReferral, collapsed = false, onToggleCollapsed }: SidebarProps) {
   void onOpenSearch; void onOpenReferral; void onToggleCollapsed; // 保持已有签名
   const { channels, currentId } = useChannels();
   const [newChannelOpen, setNewChannelOpen] = useState(false);
@@ -253,20 +252,39 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
         <NavItem label="Heartbeat Run Counter" icon="chat-l1" collapsed={collapsed} />
       </div>
 
-      {/* Upgrade to Pro card — Figma Nav Bar/AD Card 11831:60765：br7 底 + 0.5 lr12 边 + radius-ct-m 6，
-          pt6 pl10 pr8 pb8；标题 Regular 12/20 白 + 副行 10/16 nr5(pr-40 给箭头让位)；
-          右下装饰 = 93px m3 圆(opacity .1 + blur 25) 溢出半径 + arrow-up-l1 28 白 45°(指右上) 半透明 */}
+      {/* Upgrade to Pro card — Figma Nav Bar/AD Card 31251:3802（Alva-Library）逐参数对齐：
+          br7 底 + 0.5 lr12 边 + radius-ct-m 6 + overflow-clip + isolate，pt6 pl10 pr8 pb8，列向 gap 0；
+          Title 行 z3（Regular 12/20 白）→ Subtitle 行 z2（Regular 10/16 nr5 + 行内 arrow-up-l1 28 实测 opacity .5，gap 4 items-end）
+          → Ellipse z1（93px m3，opacity .1 + blur 25，right/bottom -46.5 压角，被 overflow 裁掉四分之三） */}
       {!collapsed && (
         <div className="shrink-0 w-full p-[8px] relative z-[3]">
           <button
             type="button"
-            className="relative isolate w-full overflow-hidden rounded-[6px] pt-[6px] pl-[10px] pr-[8px] pb-[8px] text-left cursor-pointer"
+            className="relative isolate flex w-full flex-col items-start overflow-hidden rounded-[6px] pt-[6px] pl-[10px] pr-[8px] pb-[8px] text-left cursor-pointer"
             style={{
               background: 'rgba(0, 0, 0, 0.7)',
               border: '0.5px solid rgba(255, 255, 255, 0.12)',
             }}
             onClick={() => onNavigate('pricing')}
           >
+            {/* Title 行 z3 */}
+            <span className="relative z-[3] flex w-full shrink-0 items-start gap-[6px]">
+              <span className="min-w-px flex-[1_0_0] h-[20px] font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: '#fff' }}>
+                Upgrade your plan
+              </span>
+            </span>
+            {/* Subtitle 行 z2 —— 箭头是本行 flex 项(gap 4, items-end)，不是绝对定位 */}
+            <span className="relative z-[2] flex w-full shrink-0 items-end gap-[4px]">
+              <span className="min-w-px flex-[1_0_0] font-['Delight',sans-serif] text-[10px] leading-[16px] tracking-[0.1px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                More credits, private playbooks, priority compute
+              </span>
+              {/* 稿里 opacity 50%；CDN arrow-up-l1.svg 的 path 带 fill-opacity=".9"，
+                  CdnIcon 走 maskMode:'alpha' 会把这 0.9 乘进遮罩，故除回去 */}
+              <span aria-hidden className="shrink-0 size-[28px]" style={{ opacity: 0.5 / 0.9 }}>
+                <CdnIcon name="arrow-up-l1" size={28} color="var(--main-m3, #2A9B7D)" />
+              </span>
+            </span>
+            {/* 辉光 z1 —— 最底层，圆心压在卡片右下角外 */}
             <span
               aria-hidden
               className="pointer-events-none absolute z-[1] rounded-full"
@@ -280,21 +298,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
                 filter: 'blur(25px)',
               }}
             />
-            <span
-              aria-hidden
-              className="pointer-events-none absolute z-[1]"
-              style={{ right: 7.5, bottom: 7.5 }}
-            >
-              <CdnIcon name="arrow-up-l1" size={28} color="var(--main-m3, #2A9B7D)" />
-            </span>
-            <span className="relative z-[2] flex min-w-0 flex-col">
-              <span className="font-['Delight',sans-serif] text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: '#fff' }}>
-                Upgrade to Pro
-              </span>
-              <span className="pr-[40px] font-['Delight',sans-serif] text-[10px] leading-[16px] tracking-[0.1px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                Unlock unlimited playbooks with 7-day free trial
-              </span>
-            </span>
           </button>
         </div>
       )}
@@ -302,9 +305,8 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserMouseEnter
       {/* 用户行 */}
       <div
         className={`content-stretch flex items-center relative rounded-[4px] shrink-0 w-full z-[2] cursor-pointer hover:bg-white/5 transition-colors ${collapsed ? 'justify-center p-[8px]' : 'gap-[8px] p-[8px]'}`}
-        onMouseEnter={onUserMouseEnter}
-        onMouseLeave={onUserMouseLeave}
-        onClick={() => onNavigate('user-profile')}
+        data-user-trigger
+        onClick={onUserClick}
         title={collapsed ? 'YGGYLL' : undefined}
       >
         <Avatar name="YGGYLL" size={24} />

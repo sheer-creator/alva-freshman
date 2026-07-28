@@ -26,8 +26,7 @@ interface AppShellProps {
   activePage?: Page;
   onNavigate: (page: Page) => void;
   onOpenSearch?: () => void;
-  onUserMouseEnter?: () => void;
-  onUserMouseLeave?: () => void;
+  onUserClick?: () => void;
   children: React.ReactNode;
 }
 
@@ -36,11 +35,10 @@ const MIN_PANEL_W = 436;
 const getMaxPanelW = () =>
   typeof window !== 'undefined' ? Math.max(MIN_PANEL_W, window.innerWidth * 0.6) : DEFAULT_PANEL_W;
 
-function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLeave, children }: AppShellProps) {
+function AppShellInner({ activePage, onNavigate, onUserClick, children }: AppShellProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isReferralOpen, setIsReferralOpen] = useState(false);
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
   const { chatOpen, closeChat, openChatWithPrefill, contextTag, inspectorActive, addElementQuote } = useChatContext();
@@ -131,42 +129,34 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
     });
   }, [inspectorActive, chatOpen, activePage]);
 
-  const handleUserEnter = useCallback(() => {
-    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
-    setIsUserInfoOpen(true);
-    onUserMouseEnter?.();
-  }, [onUserMouseEnter]);
+  /* 用户信息浮层：点击头像行 toggle（此前是 hover 打开 + mousemove 安全区关闭） */
+  const handleUserClick = useCallback(() => {
+    setIsUserInfoOpen((v) => !v);
+    onUserClick?.();
+  }, [onUserClick]);
 
+  /* 点浮层外 / Esc 关闭；trigger 自身由 toggle 处理，这里排除掉免得点一下开又关 */
   useEffect(() => {
     if (!isUserInfoOpen) return;
 
-    const onMouseMove = (e: MouseEvent) => {
-      const popup = popupRef.current;
-      if (!popup) return;
-
-      const rect = popup.getBoundingClientRect();
-      const inSafeZone =
-        e.clientX >= rect.left - 20 &&
-        e.clientX <= rect.right + 20 &&
-        e.clientY >= rect.top - 10 &&
-        e.clientY <= window.innerHeight;
-
-      if (inSafeZone) {
-        if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
-      } else if (!closeTimer.current) {
-        closeTimer.current = setTimeout(() => {
-          setIsUserInfoOpen(false);
-          onUserMouseLeave?.();
-        }, 150);
-      }
+    const onPointerDown = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      if (!target) return;
+      if (popupRef.current?.contains(target)) return;
+      if (target.closest('[data-user-trigger]')) return;
+      setIsUserInfoOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsUserInfoOpen(false);
     };
 
-    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
     return () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
     };
-  }, [isUserInfoOpen, onUserMouseLeave]);
+  }, [isUserInfoOpen]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -221,7 +211,7 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
           activePage={activePage}
           onNavigate={onNavigate}
           onOpenSearch={() => setIsSearchOpen(true)}
-          onUserMouseEnter={handleUserEnter}
+          onUserClick={handleUserClick}
           onOpenReferral={() => setIsReferralOpen(true)}
         />
       </div>
@@ -239,7 +229,7 @@ function AppShellInner({ activePage, onNavigate, onUserMouseEnter, onUserMouseLe
               activePage={activePage}
               onNavigate={(page) => { setMobileMenuOpen(false); onNavigate(page); }}
               onOpenSearch={() => { setMobileMenuOpen(false); setIsSearchOpen(true); }}
-              onUserMouseEnter={handleUserEnter}
+              onUserClick={handleUserClick}
               onOpenReferral={() => { setMobileMenuOpen(false); setIsReferralOpen(true); }}
             />
           </div>
@@ -346,14 +336,13 @@ function MobileTopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
   );
 }
 
-export function AppShell({ activePage, onNavigate, onOpenSearch, onUserMouseEnter, onUserMouseLeave, children }: AppShellProps) {
+export function AppShell({ activePage, onNavigate, onOpenSearch, onUserClick, children }: AppShellProps) {
   return (
     <AppShellInner
       activePage={activePage}
       onNavigate={onNavigate}
       onOpenSearch={onOpenSearch}
-      onUserMouseEnter={onUserMouseEnter}
-      onUserMouseLeave={onUserMouseLeave}
+      onUserClick={onUserClick}
     >
       {children}
     </AppShellInner>
