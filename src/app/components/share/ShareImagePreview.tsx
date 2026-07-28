@@ -162,7 +162,7 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
         role="dialog"
         aria-modal="true"
         aria-labelledby="share-image-title"
-        className="flex h-full w-full max-w-[840px] flex-col overflow-hidden rounded-[8px] bg-white"
+        className="flex max-h-full w-full max-w-[840px] flex-col overflow-hidden rounded-[8px] bg-white"
         style={{ boxShadow: '0 10px 20px rgba(0,0,0,0.08)' }}
         onClick={(event) => event.stopPropagation()}
       >
@@ -180,7 +180,9 @@ export function ShareImagePreview({ open, messages, onClose }: { open: boolean; 
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-[28px]" style={{ background: 'var(--content-br05, rgba(0,0,0,0.05))' }}>
+        {/* flex-initial(basis auto) 而非 flex-1(basis 0)：外层是 max-h-full 自适应高度，
+            basis 0 会让预览区塌陷成 0；auto 才能内容少时按内容高、超高时收缩滚动 */}
+        <div className="min-h-0 flex-initial overflow-y-auto p-[28px]" style={{ background: 'var(--content-br05, rgba(0,0,0,0.05))' }}>
           <div style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.04))' }}>
             <ShareImageDoc messages={messages} />
           </div>
