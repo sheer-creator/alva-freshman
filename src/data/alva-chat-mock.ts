@@ -495,10 +495,6 @@ export function getActiveConversation(): Conversation | undefined {
 export function setShouldStream(v: boolean) { _shouldStream = v; }
 export function getShouldStream() { return _shouldStream; }
 
-let _chatPanelOpen = false;
-export function setChatPanelOpen(v: boolean) { _chatPanelOpen = v; }
-export function getChatPanelOpen() { const v = _chatPanelOpen; _chatPanelOpen = false; return v; }
-
 export function onConversationChange(fn: (id: string) => void): () => void {
   _listeners.add(fn);
   return () => { _listeners.delete(fn); };

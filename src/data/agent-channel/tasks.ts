@@ -41,32 +41,6 @@ export const TASK_TRANSCRIPT: Record<string, TranscriptEntry[]> = {
   ],
 };
 
-/* ========== 流式输出行池 — running 卡片的两行走马灯 ========== */
-
-export const TASK_STREAM: Record<string, string[]> = {
-  t1: [
-    'Reading transcript: NVDA Q1 earnings call — management tone shifting positive',
-    'Scored 88 of 142 sources · basket sentiment +0.62 and improving',
-    'Cross-checking capex mentions against hyperscaler guides',
-    'AVGO networking attach rate flagged in 3 new sources',
-    'Pulling power-grid reads: VRT backlog revisions, GEV order book',
-    'Drafting weekly digest layout — sentiment heatmap first',
-  ],
-};
-
-const DEFAULT_STREAM = [
-  'Pulling fresh data from connected sources',
-  'Parsing filings and recent prints',
-  'Cross-checking signals against your basket',
-  'Scoring relevance · keeping only fresh information',
-  'Drafting the write-up — numbers first, then the read',
-];
-
-/** 任务专属行池，否则用 steps 文本 + 通用池合成 */
-export function streamFor(t: Task): string[] {
-  return TASK_STREAM[t.id] ?? [...(t.steps?.map((s) => s.t) ?? []), ...DEFAULT_STREAM];
-}
-
 /* ========== 任务内应答 — 贴合会话所处状态 ========== */
 
 export const taskAck = (t: Task): string =>

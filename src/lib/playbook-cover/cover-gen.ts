@@ -18,13 +18,13 @@ import {
 export { CATEGORY_COLORS, FONT_WEIGHTS, TRACKED_CAPS } from "./dimensions";
 import {
   fnv1a, hslToRgb, hexToRgb, clampPaperRegime,
-  textBaseFor, deriveTextPalette, alphaOnWhite,
+  deriveTextPalette, alphaOnWhite,
   iconColorFor, barColorFor, slotToHue,
 } from "./color";
 import { PALETTE } from "./palette";
 import { BRAND_REGISTRY } from "./brand-registry";
 import { DOMAIN_TO_SYMBOL, resolveDomain } from "./icon-mapping";
-import { lookupPerson, PERSON_REGISTRY } from "./person-registry";
+import { lookupPerson } from "./person-registry";
 import {
   METADATA_LAYOUT,
   TITLE_STYLE,

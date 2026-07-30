@@ -13,7 +13,7 @@ import { TodoBar } from '@/app/components/alva-chat/TodoBar';
 import { useStreamSimulator } from '@/app/components/alva-chat/useStreamSimulator';
 import {
   getActiveConversation, MOCK_CONVERSATIONS, setActiveConversation,
-  onConversationChange, setChatPanelOpen,
+  onConversationChange,
 } from '@/data/alva-chat-mock';
 import type { Conversation, TodoItem, PlanCardData, QuestionCardData } from '@/data/alva-chat-mock';
 
@@ -135,7 +135,7 @@ export default function AlvaChatDetail({ onNavigate, onOpenSearch }: Props) {
           turns={visibleTurns}
           activeToolId={activeToolId}
           onUserAction={resumeStream}
-          onRelease={() => { setChatPanelOpen(true); onNavigate('new-chat'); }}
+          onRelease={() => onNavigate('new-chat')}
           showThinking={showThinking}
           thinkingText={todoActiveForm}
           showCreditWarning={showCreditWarning}

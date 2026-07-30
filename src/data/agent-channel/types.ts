@@ -11,8 +11,6 @@
 /** demo 的语义色 tone（与 theme.css 的 --main-m* 值不同，因此用 TS 常量而非 CSS var） */
 export type Tone = 'teal' | 'blue' | 'orange' | 'green' | 'red' | 'amber';
 
-export type ConceptId = 'A' | 'R' | 'K' | 'P';
-export type TabId = 'chat' | 'tasks' | 'memory' | 'alerts' | 'files';
 
 /* ========== tone 色板（源自 demo planc 1846-1847 行） ========== */
 
@@ -187,13 +185,6 @@ export interface ExtraMsg {
 }
 
 /* ========== 频道元信息 ========== */
-
-export interface ConceptMeta {
-  id: ConceptId;
-  label: string;
-  /** chat stage 内容列的最大宽度（px） */
-  width: number;
-}
 
 export interface ImMeta {
   id: 'telegram' | 'discord' | 'whatsapp' | 'slack';

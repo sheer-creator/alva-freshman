@@ -116,11 +116,3 @@ export function useAgentPlatforms(): {
     set,
   };
 }
-
-export function useAgentConnected(): [boolean, (value: boolean) => void] {
-  const { platforms, set } = useAgentPlatforms();
-  const setConnected = useCallback((value: boolean) => {
-    set(value ? ['telegram'] : [], value ? 'telegram' : null);
-  }, [set]);
-  return [platforms.length > 0, setConnected];
-}

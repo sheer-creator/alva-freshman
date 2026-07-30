@@ -49,8 +49,6 @@ interface KolPush extends PushBase {
 }
 
 export type PushCardData = NormalPush | TradePush | KolPush;
-/** @deprecated 旧名，保留兼容 */
-export type AutomationCardData = PushCardData;
 
 function StatusDot() {
   return (

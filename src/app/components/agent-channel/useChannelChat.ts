@@ -10,7 +10,6 @@ import { useCallback } from 'react';
 import * as store from './channel-chat-store';
 import type { PortfolioAuto, PortfolioHolding, Reply, Skill, SubpushItem } from '@/data/agent-channel/types';
 
-export type { TaskReply } from './channel-chat-store';
 
 interface UseChannelChatOpts {
   /** 每次用户发起新交互时回调（频道页用来切回 chat tab） */

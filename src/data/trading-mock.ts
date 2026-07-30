@@ -85,19 +85,6 @@ export interface RiskConfig {
   killSwitch: boolean;
 }
 
-export interface PortfolioSummary {
-  totalEquity: number;
-  todayPnl: number;
-  todayPnlPercent: number;
-  equityCurve: [string, number][];
-  positions: Position[];
-  strategies: StrategyBinding[];
-  orders: Order[];
-  journal: JournalEntry[];
-  brokers: BrokerConnection[];
-  risk: RiskConfig;
-}
-
 export interface BrokerPortfolio {
   brokerId: string;
   brokerName: string;
@@ -119,12 +106,6 @@ export interface BrokerPortfolio {
 }
 
 /* ========== Mock 数据 ========== */
-
-const BROKERS: BrokerConnection[] = [
-  { id: 'ibkr-1', name: 'Interactive Brokers', status: 'connected', accountId: 'U****6789', lastSync: '2 min ago' },
-  { id: 'binance-1', name: 'Binance', status: 'connected', accountId: 'spot-****42', lastSync: '5 min ago' },
-  { id: 'alpaca-1', name: 'Alpaca', status: 'connected', accountId: 'PA****1234', lastSync: '3 days ago' },
-];
 
 const POSITIONS: Position[] = [
   { symbol: 'BTC', name: 'Bitcoin', qty: 0.35, avgCost: 62400, currentPrice: 67250, marketValue: 23537.50, weight: 23.5, pnl: 1697.50, pnlPercent: 7.77, account: 'Binance' },
@@ -245,43 +226,6 @@ const JOURNAL: JournalEntry[] = [
     ],
   },
 ];
-
-/* 6 个月 equity curve */
-function generateEquityCurve(): [string, number][] {
-  const points: [string, number][] = [];
-  let value = 85000;
-  const startDate = new Date('2025-09-20');
-  for (let i = 0; i <= 180; i++) {
-    const d = new Date(startDate);
-    d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
-    value += (Math.random() - 0.42) * 600;
-    value = Math.max(75000, Math.min(110000, value));
-    points.push([dateStr, Math.round(value)]);
-  }
-  points[points.length - 1][1] = 100000;
-  return points;
-}
-
-const RISK: RiskConfig = {
-  maxOrderSize: 5000,
-  maxDailyTurnover: 50000,
-  maxDailyOrders: 50,
-  killSwitch: false,
-};
-
-export const MOCK_PORTFOLIO: PortfolioSummary = {
-  totalEquity: 100000,
-  todayPnl: 1234,
-  todayPnlPercent: 1.25,
-  equityCurve: generateEquityCurve(),
-  positions: POSITIONS,
-  strategies: STRATEGIES,
-  orders: ORDERS,
-  journal: JOURNAL,
-  brokers: BROKERS,
-  risk: RISK,
-};
 
 /* ========== Per-Broker Portfolios (MVP: 1 account = 1 strategy) ========== */
 

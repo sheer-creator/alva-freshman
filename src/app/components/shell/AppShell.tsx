@@ -6,15 +6,11 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Page } from '@/app/App';
-import { Sidebar, SIDEBAR_W_COLLAPSED, SIDEBAR_W_EXPANDED } from './Sidebar';
+import { Sidebar } from './Sidebar';
 import { CdnIcon } from '../shared/CdnIcon';
-import { ThreadSwitcherDropdown } from '../shared/ThreadSwitcherDropdown';
 
-import { PAGE_TITLES, isPlaybookOwnerPage } from '@/lib/chat-config';
+import { isPlaybookOwnerPage } from '@/lib/chat-config';
 
-const NARROW_THRESHOLD = 1024;
-const MOBILE_THRESHOLD = 640;
-const MOBILE_TOPBAR_H = 48;
 import SearchModal from '../SearchModal';
 import ReferralModal from '../ReferralModal';
 import UserInfo from '../UserInfo';
@@ -46,30 +42,13 @@ function AppShellInner({ activePage, onNavigate, onUserClick, children }: AppShe
   const inspectorActiveRef = useRef(inspectorActive);
   inspectorActiveRef.current = inspectorActive;
 
-  // 侧边栏折叠：窗口窄时自动折叠，按钮可手动切换；< MOBILE_THRESHOLD 时整体隐藏
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.innerWidth < NARROW_THRESHOLD : false,
-  );
-  const [isMobile, setIsMobile] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.innerWidth < MOBILE_THRESHOLD : false,
-  );
   useEffect(() => {
-    let lastWasNarrow = window.innerWidth < NARROW_THRESHOLD;
     const handler = () => {
-      const w = window.innerWidth;
-      const isNarrow = w < NARROW_THRESHOLD;
-      if (isNarrow !== lastWasNarrow) {
-        setSidebarCollapsed(isNarrow);
-        lastWasNarrow = isNarrow;
-      }
-      setIsMobile(w < MOBILE_THRESHOLD);
       setPanelWidth((prev) => Math.min(getMaxPanelW(), Math.max(MIN_PANEL_W, prev)));
     };
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
-  const sidebarWidth = sidebarCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
-  const effectiveSidebarWidth = isMobile ? 0 : sidebarWidth;
   const [panelWidth, setPanelWidth] = useState(() => Math.min(getMaxPanelW(), DEFAULT_PANEL_W));
   const dragging = useRef(false);
   const startX = useRef(0);
@@ -309,29 +288,6 @@ function AppShellInner({ activePage, onNavigate, onUserClick, children }: AppShe
           />
         </div>
       )}
-    </div>
-  );
-}
-
-/**
- * Mobile-only top nav. Per Figma `Home - Common` 1194:33015 (mobile topbar
- * pattern), but stripped per latest spec to only the left-side settings
- * button — no centered logo, no right-side action. The settings button
- * doubles as the drawer trigger so the full sidebar is still reachable.
- */
-function MobileTopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
-  return (
-    <div
-      className="sticky top-0 z-[20] flex items-center h-[48px] px-[12px] shrink-0"
-      style={{ background: '#f6f6f6' }}
-    >
-      <button
-        onClick={onOpenDrawer}
-        className="flex items-center justify-center w-[36px] h-[36px] rounded-[8px] hover:bg-[var(--b-r05)] cursor-pointer transition-colors"
-        aria-label="Open navigation"
-      >
-        <CdnIcon name="menu-l" size={20} color="var(--text-n9)" />
-      </button>
     </div>
   );
 }

@@ -11,11 +11,6 @@ import { AgentConnectedFeed } from '@/app/components/chat/AgentConnectedFeed';
 
 const FONT = "font-['Delight',sans-serif]";
 
-const INITIAL_AGENT_MESSAGE: { role: 'agent' | 'user'; text: string } = {
-  role: 'agent',
-  text: 'Hey! I\'m your Alva Agent, connected via Telegram. I\'m always-on and ready to help with market analysis, portfolio tracking, and playbook execution. What would you like to work on?',
-};
-
 interface ThreadProps {
   threadId: string;
   onNavigate: (page: Page) => void;
@@ -23,7 +18,6 @@ interface ThreadProps {
 
 export default function Thread({ threadId, onNavigate }: ThreadProps) {
   const [activeView, setActiveView] = useState<string>(threadId);
-  const [agentMessages, setAgentMessages] = useState([INITIAL_AGENT_MESSAGE]);
   const agentScrollRef = useRef<HTMLDivElement>(null);
 
   // Sync activeView when threadId prop changes (URL navigation)
@@ -43,12 +37,7 @@ export default function Thread({ threadId, onNavigate }: ThreadProps) {
   }, [onNavigate]);
 
   const handleAgentSend = useCallback((text: string) => {
-    setAgentMessages(prev => [...prev, { role: 'user', text }]);
     setTimeout(() => {
-      setAgentMessages(prev => [
-        ...prev,
-        { role: 'agent', text: `I'll look into "${text}" right away. I've also logged this as a new chat in your history for reference.` },
-      ]);
       setTimeout(() => {
         agentScrollRef.current?.scrollTo({ top: agentScrollRef.current.scrollHeight, behavior: 'smooth' });
       }, 50);

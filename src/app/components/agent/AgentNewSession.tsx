@@ -929,21 +929,6 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     }, 1000);
   }, [scrollToEnd]);
 
-  /* 订阅:即时生效,Alva 立刻推首条 run(价值先行,不要求连接)*/
-  const pushSubscribe = useCallback((title: string, push: string | undefined, automation: string) => {
-    setTab('chat');
-    const epoch = sessionEpochRef.current;
-    const typingId = ++idRef.current;
-    setExtra((prev) => [...prev, { id: typingId, role: 'typing' }]);
-    scrollToEnd();
-    setTimeout(() => {
-      if (sessionEpochRef.current !== epoch) return;
-      const pushId = ++idRef.current;
-      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: pushId, role: 'subpush', title, push, automation }));
-      scrollToEnd();
-    }, 700);
-  }, [scrollToEnd]);
-
 
   /* Start Watching → 收起 builder + onboard 空态 → 一条 Alva 确认回复(内嵌「选择推送渠道」卡片,未连接才显示),无用户气泡 */
   const onStartWatching = useCallback((_picks: { symbol: string; qty: string }[]) => {

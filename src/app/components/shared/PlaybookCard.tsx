@@ -1,10 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Avatar } from './Avatar';
 import { CdnIcon } from './CdnIcon';
 import { PlaybookCover } from '@/lib/playbook-cover/PlaybookCover';
 import { PlaybookTags, buildTags } from '@/lib/playbook-cover/PlaybookTags';
-import { generateCover } from '@/lib/playbook-cover/cover-gen';
-import { hslToRgb, rgbToCss } from '@/lib/playbook-cover/color';
 import type { CoverInput } from '@/lib/playbook-cover/types';
 
 export interface ExplorePlaybook {
@@ -46,12 +44,6 @@ export function PlaybookCard({
   });
 
   const [hovered, setHovered] = useState(false);
-
-  const cover = useMemo(() => generateCover(p.cover), [p.cover]);
-  const shadowColor = useMemo(() => {
-    const { H, S } = cover.bg.hsl;
-    return rgbToCss(hslToRgb(H, Math.min(S + 0.10, 0.40), 0.30), 0.14);
-  }, [cover]);
 
   return (
     <div

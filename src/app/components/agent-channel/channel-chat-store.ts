@@ -15,7 +15,6 @@ import { TASKS, taskAck } from '@/data/agent-channel/tasks';
 import type { AutomationDraft } from '@/app/components/agent-channel/modals/AutomationModal';
 import type { Automation, ExtraMsg, ImId, PortfolioAuto, PortfolioHolding, Reply, Skill, SubpushItem, Task, TaskThreadMsg } from '@/data/agent-channel/types';
 
-export type TaskReply = Extract<Reply, { kind: 'task' }>;
 
 /* ========== 状态与订阅 ========== */
 
