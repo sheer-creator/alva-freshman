@@ -1,0 +1,7 @@
+/* Alva Design System — entry stylesheet.
+   Consumers link THIS file; it pulls in the token + type source of truth.
+   (preview/_card.css and ui_kits/.../_settings.css are scoped support files
+   for the design-system specimens and UI-kit demos — not part of the
+   consumable token layer, so they are intentionally not imported here.) */
+
+@import './colors_and_type.css';
