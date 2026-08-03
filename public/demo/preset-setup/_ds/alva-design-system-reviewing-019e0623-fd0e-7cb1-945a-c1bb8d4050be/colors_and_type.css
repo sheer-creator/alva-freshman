@@ -1,0 +1,244 @@
+/* Alva Design System — Colors & Type
+   Single source of truth. Values verified against the production codebase
+   (Alva Infant: src/styles/tokens.css + theme.css + button.css + input.css). */
+
+/* ─────────────────────────────────────────────
+   FONTS
+   ───────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Delight';
+  font-weight: 400;
+  font-style: normal;
+  src: url('./fonts/Delight-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Delight';
+  font-weight: 500;
+  font-style: normal;
+  src: url('./fonts/Delight-Medium.ttf') format('truetype');
+  font-display: swap;
+}
+
+/* Webfont fallback — production also pulls Delight from Google Fonts:
+   https://fonts.googleapis.com/css2?family=Delight:wght@400;500&display=swap */
+
+:root {
+  /* ─── Type families ────────────────────────── */
+  --font-sans: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* ─── Type weights ─────────────────────────── */
+  --weight-regular: 400;
+  --weight-medium: 500;
+
+  /* ─── Type ramp (size / line-height / tracking)
+     Verified against button.css, input.css, ChatInput, Home, PlaybookCard. */
+  --text-display-size:   45px;   --text-display-lh: 1.2;    --text-display-tr: 0.45px;
+  --text-h1-size:        24px;   --text-h1-lh:      34px;   --text-h1-tr:      0.24px;
+  --text-h2-size:        20px;   --text-h2-lh:      30px;   --text-h2-tr:      0.20px;
+  --text-body-lg-size:   16px;   --text-body-lg-lh: 26px;   --text-body-lg-tr: 0.16px;
+  --text-body-size:      14px;   --text-body-lh:    22px;   --text-body-tr:    0.14px;
+  --text-caption-size:   12px;   --text-caption-lh: 20px;   --text-caption-tr: 0.12px;
+  --text-micro-size:     10px;   --text-micro-lh:   16px;   --text-micro-tr:   0.10px;
+
+  /* ─── Common ───────────────────────────────── */
+  --b-common-white: #ffffff;
+  --b-common-black: #000000;
+
+  /* ─── Brand / semantic colors ───────────────── */
+  --main-m1:    #49A3A6;                          /* Alva primary teal */
+  --main-m1-10: rgba(73, 163, 166, 0.1);
+  --main-m2:    #2196f3;                          /* Info blue */
+  --main-m2-10: rgba(33, 150, 243, 0.1);
+  --main-m3:    #2a9b7d;                          /* Success green */
+  --main-m3-10: rgba(42, 155, 125, 0.1);
+  --main-m4:    #e05357;                          /* Destructive / down red */
+  --main-m4-10: rgba(224, 83, 87, 0.1);
+  --main-m5:    #E6A91A;                          /* Warning amber */
+  --main-m5-10: rgba(230, 169, 26, 0.1);
+  --main-m6:    #ff9800;                          /* Highlight orange */
+  --main-m6-10: rgba(255, 152, 0, 0.1);
+  --main-m7:    rgba(0, 0, 0, 0.6);
+
+  /* ─── Chart palette (tri-stop families) ─────── */
+  --chart-orange1-main: #ff9800; --chart-orange1-1: #ffbb1c; --chart-orange1-2: #f8cb86;
+  --chart-green1-main:  #40a544; --chart-green1-1:  #007949; --chart-green1-2:  #78c26d;
+  --chart-green2-main:  #8fc13a; --chart-green2-1:  #5b8513; --chart-green2-2:  #c0d40f;
+  --chart-cyan1-1:      #117a7d; --chart-cyan1-2:   #77c9c2;
+  --chart-cyan2-main:   #7cafad; --chart-cyan2-1:   #4c807e; --chart-cyan2-2:   #a5c7c6;
+  --chart-blue1-main:   #3d8bd1; --chart-blue1-1:   #005daf; --chart-blue1-2:   #88b7e0;
+  --chart-blue2-main:   #54a5c2; --chart-blue2-1:   #0d7498; --chart-blue2-2:   #91d1db;
+  --chart-purple1-main: #5f75c9; --chart-purple1-1: #3a52be; --chart-purple1-2: #9ab1d7;
+  --chart-purple2-main: #7474d8; --chart-purple2-1: #4646ae; --chart-purple2-2: #afbbf7;
+  --chart-violet1-main: #a878dc; --chart-violet1-1: #7f4eb4; --chart-violet1-2: #d4b2e1;
+  --chart-pink1-main:   #dc7aa5; --chart-pink1-1:   #ba5883; --chart-pink1-2:   #ecb0ca;
+  --chart-red1-main:    #c76466; --chart-red1-1:    #a94749; --chart-red1-2:    #f2a0a1;
+  --chart-grey-main:    #838383; --chart-grey-1:    #555555; --chart-grey-2:    #b7b7b7;
+
+  /* ─── Spacing scale ────────────────────────── */
+  --spacing-xxxs:   2px;
+  --spacing-xxs:    4px;
+  --spacing-xs:     8px;
+  --spacing-s:     12px;
+  --spacing-m:     16px;
+  --spacing-l:     20px;
+  --spacing-xl:    24px;
+  --spacing-xxl:   28px;
+  --spacing-xxxl:  32px;
+  --spacing-xxxxl: 40px;
+  --spacing-xxxxxl: 48px;
+  --spacing-xxxxxxl: 56px;
+
+  /* ─── Radius ──────────────────────────────── */
+  --radius-ct-xs: 2px;
+  --radius-ct-s:  4px;
+  --radius-ct-m:  6px;
+  --radius-ct-l:  8px;
+  --radius-ct-xl: 12px;
+
+  --radius-pop-dialog:        12px;
+  --radius-pop-action-sheets: 12px;
+  --radius-pop-dropdown:      8px;
+  --radius-pop-popover:       8px;
+  --radius-pop-toast:         8px;
+  --radius-pop-tips:          8px;
+
+  --radius-btn-xs: 4px;
+  --radius-btn-s:  6px;
+  --radius-btn-m:  8px;
+  --radius-btn-l:  12px;
+
+  /* ─── Foreground (text) — Light ────────────── */
+  --text-n9: rgba(0, 0, 0, 0.9);   /* primary */
+  --text-n7: rgba(0, 0, 0, 0.7);   /* secondary */
+  --text-n5: rgba(0, 0, 0, 0.5);   /* tertiary */
+  --text-n3: rgba(0, 0, 0, 0.3);   /* placeholder / icon-disabled */
+  --text-n2: rgba(0, 0, 0, 0.2);
+
+  /* ─── Background ──────────────────────────── */
+  --b0-page:           #ffffff;     /* white in code; pages also use #fafafa for hero */
+  --b0-container:      #ffffff;
+  --b0-sidebar:        #2A2A38;     /* dark navy-charcoal sidebar */
+  --b0-sidebar-select: rgba(255, 255, 255, 0.03);
+
+  --grey-g01: #fafafa;
+  --grey-g02: #f5f5f5;
+  --grey-g03: #f0f0f0;
+  --grey-g05: #eaeaea;
+  --grey-g1:  #dedede;
+
+  --b-r02: rgba(0, 0, 0, 0.02);
+  --b-r03: rgba(0, 0, 0, 0.03);
+  --b-r05: rgba(0, 0, 0, 0.05);
+  --b-r07: rgba(0, 0, 0, 0.07);
+  --b-r1:  rgba(0, 0, 0, 0.1);
+
+  /* ─── Lines & borders ─────────────────────── */
+  --line-l05: rgba(0, 0, 0, 0.05);
+  --line-l07: rgba(0, 0, 0, 0.07);
+  --line-l12: rgba(0, 0, 0, 0.12);
+  --line-l2:  rgba(0, 0, 0, 0.2);
+  --line-l3:  rgba(0, 0, 0, 0.3);   /* default border */
+  --line-l9:  rgba(0, 0, 0, 0.9);   /* focused border */
+
+  /* ─── Shadows ─────────────────────────────── */
+  --shadow-xs: 0 4px 15px 0 rgba(0, 0, 0, 0.05);
+  --shadow-s:  0 6px 20px 0 rgba(0, 0, 0, 0.04);
+  --shadow-l:  0 10px 20px 0 rgba(0, 0, 0, 0.08);
+
+  /* ─── Tailwind / shadcn compat ────────────── */
+  --background:           rgba(246, 246, 246, 1);
+  --foreground:           var(--text-n9);
+  --primary:              var(--main-m1);
+  --primary-foreground:   #ffffff;
+  --card:                 #ffffff;
+  --card-foreground:      var(--text-n9);
+  --border:               var(--line-l3);
+  --muted:                var(--grey-g01);
+  --muted-foreground:     var(--text-n7);
+  --destructive:          var(--main-m4);
+  --ring:                 var(--main-m1);
+  --radius:               6px;
+  --radius-card:          8px;
+  --sidebar:              var(--b0-sidebar);
+
+  /* ─── Dot-matrix surface (used on hero + chart cards) ── */
+  --dot-matrix-bg:    radial-gradient(circle, rgba(0,0,0,0.18) 0.6px, transparent 0.6px) #ffffff;
+  --dot-matrix-size:  3px 3px;
+  --sidebar-dot-bg:   radial-gradient(circle, rgba(0,0,0,0.4) 0.6px, transparent 0.6px) var(--b0-sidebar);
+}
+
+/* ─────────────────────────────────────────────
+   SEMANTIC TYPE STYLES (use as classes or @apply)
+   ───────────────────────────────────────────── */
+
+html, body {
+  font-family: var(--font-sans);
+  color: var(--text-n9);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.t-display {
+  font-family: var(--font-sans);
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-lh);
+  letter-spacing: var(--text-display-tr);
+  font-weight: var(--weight-regular);
+  color: var(--text-n9);
+}
+
+.t-h1 {
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  letter-spacing: var(--text-h1-tr);
+  font-weight: var(--weight-regular);
+  color: var(--text-n9);
+}
+
+.t-h2 {
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-lh);
+  letter-spacing: var(--text-h2-tr);
+  font-weight: var(--weight-regular);
+  color: var(--text-n9);
+}
+
+.t-body-lg {
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+  letter-spacing: var(--text-body-lg-tr);
+  font-weight: var(--weight-regular);
+}
+
+.t-body {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  letter-spacing: var(--text-body-tr);
+  font-weight: var(--weight-regular);
+}
+
+.t-body-medium {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  letter-spacing: var(--text-body-tr);
+  font-weight: var(--weight-medium);
+}
+
+.t-caption {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  letter-spacing: var(--text-caption-tr);
+  font-weight: var(--weight-regular);
+  color: var(--text-n5);
+}
+
+.t-micro {
+  font-size: var(--text-micro-size);
+  line-height: var(--text-micro-lh);
+  letter-spacing: var(--text-micro-tr);
+  font-weight: var(--weight-regular);
+}
