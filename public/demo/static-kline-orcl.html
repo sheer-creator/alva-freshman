@@ -95,6 +95,85 @@
     }
     .chip strong { color: var(--text); font-weight: 600; }
 
+
+    /* ========== Source material ========== */
+    .source-frame {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.28);
+    }
+    .source-frame-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel-2);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .source-frame-bar strong {
+      color: var(--text);
+      font-weight: 650;
+      font-size: 13px;
+    }
+    .source-frame-bar .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(239, 83, 80, 0.35);
+      color: #fca5a5;
+      background: rgba(239, 83, 80, 0.08);
+      white-space: nowrap;
+    }
+    .source-shot {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+      background: #000;
+    }
+    .source-caption {
+      margin: 10px 0 0;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .compare-note {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .compare-note .col strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .compare-note .arrow {
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 16px;
+    }
+    @media (max-width: 720px) {
+      .compare-note {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+      .compare-note .arrow { display: none; }
+    }
+
     /* ========== Sections ========== */
     section {
       margin-bottom: 28px;
@@ -422,17 +501,57 @@
       <h1>Alva 回答里的静态 K 线长什么样？</h1>
       <p>
         基于 Discord 真实对话（Megan · 2026/8/1）：「甲骨文值得买吗，买入卖出价格多少」。
-        下方模拟 <strong style="color:#e8eaed">IM 群聊里最终看到的形态</strong>：文字结论 + 一张带买卖区 / 均线 / 关键位的静态标注图。
+        本页先放<strong style="color:#e8eaed">原始对话截图</strong>，再展示若在回答里塞入静态标注 K 线后的形态。
         图表数据与标注均来自 Alva 已算出的价位，不是图表自己再做一套分析。
       </p>
       <div class="hero-meta">
         <span class="chip"><strong>标的</strong> ORCL</span>
         <span class="chip"><strong>周期</strong> 日线</span>
         <span class="chip"><strong>收盘</strong> ~129.87（7/31）</span>
+        <span class="chip"><strong>原始素材</strong> Discord 截图</span>
         <span class="chip"><strong>方案</strong> ChartSpec → 渲染服务 → PNG</span>
         <span class="chip"><strong>本页</strong> Lightweight Charts 浏览器示意（等价最终截图）</span>
       </div>
     </header>
+
+    <!-- ========== Original source screenshot ========== -->
+    <section>
+      <div class="section-head">
+        <h2>原始素材：真实 Discord 对话</h2>
+        <span>Megan · 2026/8/1 13:40 · 纯文字价位，尚无 K 线</span>
+      </div>
+      <div class="source-frame">
+        <div class="source-frame-bar">
+          <div>
+            <strong>Before · 现状回答形态</strong>
+            <div style="margin-top:2px">用户问买卖点；Alva 用文字列出 125–128 / 138–142 等区间</div>
+          </div>
+          <span class="tag">Source screenshot</span>
+        </div>
+        <img
+          class="source-shot"
+          src="./static-kline-orcl-source.jpg"
+          alt="Discord 原始对话截图：Megan 问甲骨文值不值得买，Alva 用文字给出买卖区间"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+      <p class="source-caption">
+        这张截图是产品讨论的原始输入：回答质量已经有「可执行价位」，但群聊里只能扫文字。
+        下面的示意回答会在同一结论处插入静态标注 K 线，把买区 / 卖区 / 20 日线画到图上。
+      </p>
+      <div class="compare-note">
+        <div class="col">
+          <strong>现在（截图）</strong>
+          纯 Markdown / 聊天气泡 + 价位 pill，无图
+        </div>
+        <div class="arrow">→</div>
+        <div class="col">
+          <strong>目标（下方 Demo）</strong>
+          同一条分析 + 一张带 zones 的静态 K 线 PNG
+        </div>
+      </div>
+    </section>
 
     <!-- ========== Pipeline ========== -->
     <section>
@@ -472,8 +591,8 @@
     <!-- ========== Final look ========== -->
     <section>
       <div class="section-head">
-        <h2>最终渲染示意（Discord 消息形态）</h2>
-        <span>图插在「交易区间」结论处 · 非交互静态图</span>
+        <h2>After · 最终渲染示意（同一条回答 + 静态 K 线）</h2>
+        <span>对比上方原始截图 · 图插在「交易区间」结论处</span>
       </div>
 
       <div class="discord">
