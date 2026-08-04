@@ -26,10 +26,10 @@ function demoDirectoryIndexPlugin() {
     name: 'vite-plugin-demo-directory-index',
     configureServer(server) {
       server.middlewares.use((req, _res, next) => {
-        if (req.url === '/demo' || req.url === '/demo/') {
-          req.url = '/demo/index.html'
+        if (req.url && /^\/demo(\/[^.]*)?$/.test(req.url.split('?')[0])) {
+          const clean = req.url.split('?')[0].replace(/\/$/, '')
+          req.url = clean + '/index.html'
         }
-
         next()
       })
     },
