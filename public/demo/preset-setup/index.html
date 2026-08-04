@@ -33,6 +33,13 @@ a{color:#49A3A6}a:hover{color:#2E7376}
 @keyframes k-spark{0%{stroke-dashoffset:140;opacity:0}6%{opacity:1}52%{stroke-dashoffset:0}88%{stroke-dashoffset:0;opacity:1}96%{opacity:0}100%{stroke-dashoffset:140;opacity:0}}
 @keyframes k-draw{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
 @keyframes k-fadein{from{opacity:0}to{opacity:1}}
+/* 1b Plan B · Watching Loop 8s 主时间轴（窗口错峰，93–100% 统一淡出收环） */
+@keyframes l-r1{0%{opacity:0;transform:translateY(8px)}4%,93%{opacity:.45;transform:translateY(0)}97%,100%{opacity:0}}
+@keyframes l-r2{0%,13%{opacity:0;transform:translateY(8px)}17%,93%{opacity:.6;transform:translateY(0)}97%,100%{opacity:0}}
+@keyframes l-r3{0%,27%{opacity:0;transform:translateY(8px)}31%,93%{opacity:.75;transform:translateY(0)}97%,100%{opacity:0}}
+@keyframes l-alert{0%,43%{opacity:0;transform:translateY(10px) scale(.98)}48%,93%{opacity:1;transform:translateY(0) scale(1)}97%,100%{opacity:0}}
+@keyframes l-r5{0%,62%{opacity:0}66%,93%{opacity:1}97%,100%{opacity:0}}
+@keyframes l-foot{0%,74%{opacity:0}78%,93%{opacity:1}97%,100%{opacity:0}}
 </style>
 </helmet>
 <section style="padding:36px 44px 28px;border-bottom:1px solid rgba(0,0,0,.08)">
@@ -144,10 +151,11 @@ a{color:#49A3A6}a:hover{color:#2E7376}
 <div class="dv-opt" id="1b">
   <div style="width:240px;flex:none;display:flex;flex-direction:column;gap:8px">
     <div style="display:flex;align-items:baseline;gap:8px"><a class="dv-oid" href="#1b">1b</a><span style="font-size:13px;font-weight:500">Portfolio Watch</span></div>
-    <div style="font-size:12px;line-height:19px;color:var(--text-n7)">在 7b 上精修：① 去 SAMPLE 徽标，改数据时点说明行；② 持仓 chips 换真实 logo；③ 曲线自绘 + 编号节点脉冲、推送卡步进入场。</div>
+    <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan A</span> · 在 7b 上精修：① 去 SAMPLE 徽标，改数据时点说明行；② 持仓 chips 换真实 logo；③ 曲线自绘 + 编号节点脉冲、推送卡步进入场。</div>
+    <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan B</span> · Watching Loop（Claude Design 导入）：聊天消息态卡片。上半区 8s 循环回放「昨天逐小时巡检」——3 条安静检查行渐次入场、10:02 告警卡弹入、Watching 光标呼吸、信噪比页脚收尾；下半区持仓 chips + Start the watch。</div>
   </div>
   <div>
-    <div class="fr-label">Desktop · 700px · 已选 3 只存储股</div>
+    <div class="fr-label">Plan A · Desktop · 700px · 已选 3 只存储股</div>
     <div style="width:700px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:22px 26px">
       <div style="border:0.5px solid var(--line-l3);border-radius:12px;box-shadow:var(--shadow-s);overflow:hidden;background:#fff">
         <div style="padding:16px 20px 4px">
@@ -218,6 +226,77 @@ a{color:#49A3A6}a:hover{color:#2E7376}
             <span style="font-size:11px;color:var(--text-n5);white-space:nowrap;flex:none">Language</span>
             <span style="display:inline-flex;align-items:center;gap:6px;border:0.5px solid var(--line-l3);border-radius:8px;padding:6px 10px;font-size:12px;white-space:nowrap;flex:none;background:#fff">English<svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 3 L4 5.5 L6.5 3" stroke="rgba(0,0,0,.45)" stroke-width="1.2" fill="none"/></svg></span>
             <span style="background:var(--main-m1);color:#fff;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:500;white-space:nowrap;flex:none">Start Watching · 3 positions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="fr-label">Plan B · Watching Loop · Desktop 700px · 8s 循环</div>
+    <div style="width:700px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:22px 26px">
+      <div style="display:flex;gap:10px">
+        <img src="assets/logo-portrait.svg" style="width:28px;height:28px;border-radius:8px;flex:none" alt="Alva">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;color:var(--text-n5);margin-bottom:8px">Alva · just now</div>
+          <div style="border:0.5px solid var(--line-l2);border-radius:12px;background:#fff;box-shadow:var(--shadow-s);overflow:hidden">
+            <div style="padding:16px 18px 14px;background:var(--dot-matrix-bg);background-size:var(--dot-matrix-size)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--main-m1);box-shadow:0 0 0 3px rgba(73,163,166,.2)"></span>
+                <span style="font-size:13px">Yesterday on your positions — hour by hour</span>
+                <span style="margin-left:auto;font-size:10px;letter-spacing:1px;color:var(--text-n3);text-transform:uppercase">8s loop</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;min-height:168px">
+                <div style="display:flex;align-items:center;gap:10px;animation:l-r1 8s ease-in-out infinite">
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-n5);width:56px;flex:none">8:00 AM</span>
+                  <span style="font-size:11.5px;color:var(--text-n7)">Checked 212 headlines, 4 filings — nothing worth pinging you</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;animation:l-r2 8s ease-in-out infinite">
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-n5);width:56px;flex:none">9:00 AM</span>
+                  <span style="font-size:11.5px;color:var(--text-n7)">Checked 198 headlines, options flow normal — quiet</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;animation:l-r3 8s ease-in-out infinite">
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-n5);width:56px;flex:none">10:00 AM</span>
+                  <span style="font-size:11.5px;color:var(--text-n7)">Checked 247 headlines, 2 filings — quiet</span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:flex-start;animation:l-alert 8s ease-in-out infinite">
+                  <span style="font-family:var(--font-mono);font-size:10px;color:#2E7376;font-weight:500;width:56px;flex:none;padding-top:12px">10:02 AM</span>
+                  <div style="flex:1;background:#fff;border:1px solid var(--main-m1);border-radius:10px;padding:10px 12px;box-shadow:0 8px 24px rgba(73,163,166,.18)">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                      <span style="width:16px;height:16px;border-radius:50%;background:#fff;border:0.5px solid rgba(0,0,0,.12);display:inline-flex;align-items:center;justify-content:center;overflow:hidden;flex:none"><img src="https://www.google.com/s2/favicons?domain=nvidia.com&amp;sz=32" style="width:11px;height:11px" alt=""></span>
+                      <span style="font-size:12.5px;font-weight:500">NVDA</span>
+                      <span style="font-size:10px;font-weight:500;padding:0 5px;border-radius:4px;background:var(--main-m4-10);color:var(--main-m4)">−4.2%</span>
+                      <span style="font-size:8px;letter-spacing:.5px;padding:1px 5px;border-radius:3px;background:var(--main-m2-10);color:var(--main-m2)">MOVE</span>
+                      <span style="font-size:9px;color:var(--text-n3);border:0.5px solid var(--line-l12);border-radius:4px;padding:0 5px;margin-left:auto">Benzinga</span>
+                    </div>
+                    <div style="font-size:11px;line-height:16px;color:var(--text-n7)">Slid 4.2% on cloud-customer chip report; volume 2.8× avg — pinged you 3h 42m before mainstream coverage peaked.</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;animation:l-r5 8s ease-in-out infinite">
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-n5);width:56px;flex:none">11:00 AM</span>
+                  <span style="font-size:11.5px;color:var(--text-n5)">Watching<span style="display:inline-block;width:7px;height:11px;background:var(--main-m1);margin-left:3px;vertical-align:-1px;animation:blink 1s step-end infinite"></span></span>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;border-top:0.5px solid var(--line-l07);padding-top:10px;animation:l-foot 8s ease-in-out infinite">
+                <span style="font-size:11px;color:var(--text-n5)">1 ping from 1,412 headlines last week — that's the ratio</span>
+                <span style="font-size:11px;color:var(--text-n5)">2,341 investors watching</span>
+              </div>
+            </div>
+            <div style="padding:14px 18px 16px;display:flex;flex-direction:column;gap:12px;border-top:0.5px solid var(--line-l07)">
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <span style="padding:4px 10px;border:1px solid var(--main-m1);background:var(--main-m1-10);border-radius:8px;font-size:12px">NVDA</span>
+                <span style="padding:4px 10px;border:1px solid var(--main-m1);background:var(--main-m1-10);border-radius:8px;font-size:12px">TSLA</span>
+                <span style="padding:4px 10px;border:0.5px solid var(--line-l2);border-radius:8px;font-size:12px;color:var(--text-n7)">AAPL</span>
+                <span style="padding:4px 10px;border:0.5px solid var(--line-l2);border-radius:8px;font-size:12px;color:var(--text-n7)">MSFT</span>
+                <span style="padding:4px 10px;border:0.5px solid var(--line-l2);border-radius:8px;font-size:12px;color:var(--text-n7)">AMZN</span>
+                <span style="padding:4px 10px;border:1px solid var(--main-m1);background:var(--main-m1-10);border-radius:8px;font-size:12px">AMD</span>
+                <span style="padding:4px 10px;border:0.5px dashed var(--line-l3);border-radius:8px;font-size:12px;color:var(--text-n5)">+ Choose more · brokerage · screenshot</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;border-top:0.5px solid var(--line-l07);padding-top:12px">
+                <span style="font-size:11px;color:var(--text-n3)">Only pings you when it matters · Unwatch anytime</span>
+                <span style="margin-left:auto;font-size:12px;color:var(--text-n5)">English ▾</span>
+                <span style="display:inline-flex;align-items:center;height:36px;padding:0 18px;border-radius:8px;background:var(--main-m1);color:#fff;font-size:13px;font-weight:500">Start the watch</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
