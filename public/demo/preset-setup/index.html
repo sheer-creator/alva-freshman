@@ -166,6 +166,130 @@ a{color:#49A3A6}a:hover{color:#2E7376}
 .ar2-evidence span{max-width:100%;overflow:hidden;padding:2px 5px;border-radius:4px;background:var(--grey-g02);font-size:7.5px;color:var(--text-n5);text-overflow:ellipsis;white-space:nowrap}
 .ar2-result-note{margin-top:9px;font-size:8.5px;color:var(--text-n3)}
 @media(prefers-reduced-motion:reduce){.ar2-shell *{animation:none!important;transition:none!important}}
+/* 1a Plan C · create first, personalize after value */
+.ar3-shell{width:700px;border:1px solid rgba(0,0,0,.06);border-radius:8px;background:#f4f5f3;padding:22px 26px}
+.ar3-card{overflow:hidden;border:.5px solid var(--line-l3);border-radius:10px;background:#fff;box-shadow:0 4px 8px rgba(30,48,45,.06)}
+.ar3-stage[hidden],.ar3-editor-flow[hidden],.ar3-save-note[hidden]{display:none}
+.ar3-intro{min-height:482px;padding:18px 24px 20px}
+.ar3-brand{display:flex;align-items:center;gap:8px}
+.ar3-logo{width:19px;height:19px;border-radius:5px}
+.ar3-brand-name{font-size:14px;font-weight:500;color:var(--text-n9)}
+.ar3-brand-note{margin-left:auto;font-size:9px;color:var(--text-n3)}
+.ar3-intro-copy{max-width:460px;margin:31px auto 0;text-align:center}
+.ar3-title{font-size:25px;font-weight:500;line-height:31px;letter-spacing:0;color:var(--text-n9);text-wrap:balance}
+.ar3-subtitle{max-width:430px;margin:8px auto 0;font-size:11px;line-height:17px;color:var(--text-n5);text-wrap:pretty}
+.ar3-capability{margin:23px auto 0}
+.ar3-source-rail{display:flex;align-items:flex-start;justify-content:center;gap:22px}
+.ar3-source{display:flex;width:70px;flex-direction:column;align-items:center;gap:6px;font-size:8.5px;color:var(--text-n5)}
+.ar3-source-mark{display:flex;width:32px;height:32px;align-items:center;justify-content:center;overflow:hidden;border:.5px solid var(--line-l12);border-radius:8px;background:#fff;font:600 9px var(--font-mono);color:var(--text-n8);box-shadow:0 2px 5px rgba(30,48,45,.05)}
+.ar3-source-mark img{width:17px;height:17px;object-fit:contain}
+.ar3-flow{position:relative;width:1px;height:23px;margin:0 auto;background:var(--line-l2)}
+.ar3-flow::after{content:'';position:absolute;bottom:-1px;left:-2px;width:5px;height:5px;border-radius:50%;background:var(--main-m1)}
+.ar3-engine{display:flex;width:168px;margin:0 auto;align-items:center;gap:9px;border-radius:8px;background:#183837;padding:10px 12px;color:#fff;box-shadow:0 4px 8px rgba(24,56,55,.14)}
+.ar3-engine img{width:22px;height:22px;border-radius:6px}
+.ar3-engine-title{font-size:10.5px;font-weight:500}
+.ar3-engine-copy{margin-top:2px;font-size:8px;color:rgba(255,255,255,.64)}
+.ar3-output{display:grid;max-width:440px;margin:0 auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ar3-output-item{min-width:0;padding-top:7px;border-top:1.5px solid var(--main-m1);font-size:8.5px;color:var(--text-n5);text-align:center}
+.ar3-output-item strong{display:block;margin-bottom:2px;font-size:9.5px;font-weight:500;color:var(--text-n8)}
+.ar3-intro-actions{margin-top:25px;text-align:center}
+.ar3-primary,.ar3-secondary{border:0;border-radius:8px;padding:9px 15px;font:inherit;font-size:10.5px;font-weight:500;cursor:pointer}
+.ar3-primary{background:var(--main-m1);color:#fff}
+.ar3-primary:hover{background:#2E7376}
+.ar3-secondary{border:.5px solid var(--line-l2);background:#fff;color:var(--text-n7)}
+.ar3-secondary:hover{border-color:var(--line-l3);background:var(--grey-g01)}
+.ar3-primary:disabled,.ar3-secondary:disabled{border-color:transparent;background:var(--line-l2);color:var(--text-n3);cursor:not-allowed}
+.ar3-primary:focus-visible,.ar3-secondary:focus-visible,.ar3-source-choice:focus-visible,.ar3-switch:focus-visible,.ar3-editor-close:focus-visible{outline:2px solid rgba(73,163,166,.35);outline-offset:2px}
+.ar3-consent{max-width:410px;margin:8px auto 0;font-size:8.5px;line-height:13px;color:var(--text-n4)}
+.ar3-loading{min-height:482px;padding:92px 62px 40px}
+.ar3-loading-logo{width:30px;height:30px;border-radius:8px}
+.ar3-loading-title{margin-top:16px;font-size:16px;font-weight:500;color:var(--text-n9)}
+.ar3-loading-copy{margin-top:5px;font-size:10px;line-height:15px;color:var(--text-n5)}
+.ar3-progress{height:3px;margin:20px 0 16px;overflow:hidden;border-radius:100px;background:var(--grey-g02)}
+.ar3-progress-fill{display:block;width:0;height:100%;border-radius:inherit;background:var(--main-m1);transition:width .3s cubic-bezier(.22,1,.36,1)}
+.ar3-load-step{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:.5px solid var(--line-l07);font-size:9.5px;color:var(--text-n3)}
+.ar3-load-step:first-child{border-top:0}
+.ar3-load-dot{display:flex;width:16px;height:16px;align-items:center;justify-content:center;border-radius:50%;background:var(--grey-g02);font-size:8px;color:transparent}
+.ar3-load-step.is-current{color:var(--text-n8)}
+.ar3-load-step.is-current .ar3-load-dot{background:var(--main-m1);box-shadow:0 0 0 3px var(--main-m1-10)}
+.ar3-load-step.is-done .ar3-load-dot{background:var(--main-m1);color:#fff}
+.ar3-result{padding:16px 18px 18px}
+.ar3-live{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:8px;background:var(--main-m1-10)}
+.ar3-live-dot{width:7px;height:7px;flex:none;border-radius:50%;background:var(--main-m1);box-shadow:0 0 0 3px rgba(73,163,166,.12)}
+.ar3-live-title{font-size:11.5px;font-weight:500;color:var(--text-n9)}
+.ar3-live-copy{margin-top:2px;font-size:8.5px;color:var(--text-n5)}
+.ar3-live-time{margin-left:auto;font:500 8.5px var(--font-mono);color:#2E7376;white-space:nowrap}
+.ar3-radar-head{display:flex;align-items:flex-start;margin:14px 2px 10px}
+.ar3-radar-kicker{font:500 8px var(--font-mono);color:#2E7376;text-transform:uppercase}
+.ar3-radar-title{margin-top:2px;font-size:14px;font-weight:500;color:var(--text-n9)}
+.ar3-radar-time{margin-left:auto;font-size:8.5px;color:var(--text-n3)}
+.ar3-markdown{border:.5px solid var(--line-l12);border-radius:8px;background:#fff;padding:15px 17px;color:var(--text-n7)}
+.ar3-md-title{margin:0;font-size:15px;font-weight:600;line-height:20px;color:var(--text-n9)}
+.ar3-md-stock{padding:13px 0;border-top:.5px solid var(--line-l07)}
+.ar3-md-stock:first-of-type{margin-top:10px}
+.ar3-md-stock-head{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.ar3-md-ticker{font:600 13px var(--font-mono);color:var(--text-n9)}
+.ar3-md-price{font:500 9px var(--font-mono);color:var(--text-n5)}
+.ar3-md-sentiment{margin-left:auto;border-radius:100px;padding:2px 7px;font-size:8px;font-weight:500;white-space:nowrap}
+.ar3-md-sentiment.is-bullish{background:rgba(64,165,68,.12);color:#2c7a2f}
+.ar3-md-sentiment.is-bearish{background:rgba(196,69,54,.1);color:#a1392d}
+.ar3-md-sentiment.is-cautious{background:rgba(180,134,37,.12);color:#8b6518}
+.ar3-md-section-title{margin:10px 0 4px;font-size:9.5px;font-weight:600;line-height:14px;color:var(--text-n9)}
+.ar3-md-section-title:first-child{margin-top:0}
+.ar3-md-section-title span{font-weight:500;color:var(--text-n5)}
+.ar3-md-paragraph{margin:0;font-size:9.5px;line-height:15px;color:var(--text-n6);text-wrap:pretty}
+.ar3-md-paragraph strong{font-weight:600;color:var(--text-n8)}
+.ar3-md-paragraph+.ar3-md-paragraph{margin-top:5px}
+.ar3-md-link{font:500 8px var(--font-mono);color:#2E7376;text-decoration:none}
+.ar3-md-link:hover{text-decoration:underline}
+.ar3-md-also{margin:0;padding-top:12px;border-top:.5px solid var(--line-l07);font-size:9.5px;line-height:15px;color:var(--text-n6)}
+.ar3-md-question{margin:9px 0 0;font-size:9.5px;font-weight:500;line-height:15px;color:var(--text-n8)}
+.ar3-md-footnote{margin:9px 0 0;font-size:8px;font-style:italic;line-height:12px;color:var(--text-n3)}
+.ar3-edit-prompt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;margin-top:10px;padding:14px 15px;border:.5px solid rgba(73,163,166,.38);border-radius:8px;background:#eaf4f2;box-shadow:0 4px 10px rgba(30,88,83,.06)}
+.ar3-customize-icons{display:flex;align-items:center;padding-left:8px}
+.ar3-customize-icon{display:flex;width:28px;height:28px;margin-left:-8px;align-items:center;justify-content:center;overflow:hidden;border:2px solid #eaf4f2;border-radius:8px;background:#fff;box-shadow:0 2px 5px rgba(30,48,45,.1);font:600 7px var(--font-mono);color:var(--text-n8)}
+.ar3-customize-icon img{width:14px;height:14px;object-fit:contain}
+.ar3-edit-prompt-copy{min-width:0}
+.ar3-customize-eyebrow{font:500 7.5px var(--font-mono);color:#2E7376;text-transform:uppercase}
+.ar3-edit-prompt-title{margin-top:2px;font-size:11px;font-weight:600;color:var(--text-n9)}
+.ar3-edit-prompt-text{max-width:410px;margin-top:3px;font-size:8.5px;line-height:13px;color:#456664}
+.ar3-source-summary{margin-top:5px;overflow:hidden;font-size:8px;color:#2E7376;text-overflow:ellipsis;white-space:nowrap}
+.ar3-edit{flex:none;border:0;background:var(--main-m1);color:#fff}
+.ar3-edit:hover{border-color:transparent;background:#2E7376;color:#fff}
+.ar3-editor-flow{display:none;margin-top:0}
+.ar3-editor-flow.is-open{display:block}
+.ar3-editor-connector{position:relative;display:flex;height:32px;align-items:center;justify-content:center}
+.ar3-editor-connector::before{content:'';width:1px;height:100%;background:rgba(73,163,166,.42)}
+.ar3-editor-connector span{position:absolute;border:.5px solid rgba(73,163,166,.25);border-radius:100px;background:#fff;padding:2px 7px;font:500 7px var(--font-mono);color:#2E7376;text-transform:uppercase}
+.ar3-editor{overflow:hidden;border:.5px solid rgba(73,163,166,.36);border-radius:8px;background:#fff;box-shadow:0 6px 14px rgba(30,48,45,.09)}
+.ar3-editor-head{display:flex;align-items:flex-start;padding:12px 13px 10px;border-bottom:.5px solid var(--line-l07)}
+.ar3-editor-title{font-size:11px;font-weight:500;color:var(--text-n9)}
+.ar3-editor-copy{margin-top:2px;font-size:8.5px;color:var(--text-n4)}
+.ar3-editor-close{margin-left:auto;border:0;background:transparent;padding:2px 4px;font:15px/1 sans-serif;color:var(--text-n5);cursor:pointer}
+.ar3-editor-close:hover{color:var(--text-n8)}
+.ar3-editor-grid{display:grid;grid-template-columns:1fr 1fr}
+.ar3-editor-section{min-width:0;padding:10px 12px}
+.ar3-editor-section:nth-child(odd){border-right:.5px solid var(--line-l07)}
+.ar3-editor-section:nth-child(-n+2){border-bottom:.5px solid var(--line-l07)}
+.ar3-editor-label{display:flex;align-items:center;gap:5px;margin-bottom:7px;font-size:9.5px;font-weight:500;color:var(--text-n8)}
+.ar3-editor-meta{font-size:8px;font-weight:400;color:var(--text-n3)}
+.ar3-choice-row{display:flex;flex-wrap:wrap;gap:4px}
+.ar3-source-choice{border:.5px solid var(--line-l12);border-radius:100px;background:#fff;padding:4px 7px;font:inherit;font-size:8px;color:var(--text-n5);cursor:pointer}
+.ar3-source-choice[aria-pressed="true"]{border-color:rgba(73,163,166,.55);background:var(--main-m1-10);color:var(--text-n8)}
+.ar3-toggle-row{display:flex;align-items:center;gap:8px;font-size:8.5px;line-height:12px;color:var(--text-n5)}
+.ar3-switch{display:flex;width:31px;height:18px;flex:none;align-items:center;border:0;border-radius:100px;background:var(--line-l2);padding:2px;cursor:pointer}
+.ar3-switch span{width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .18s ease-out}
+.ar3-switch[aria-pressed="true"]{background:var(--main-m1)}
+.ar3-switch[aria-pressed="true"] span{transform:translateX(13px)}
+.ar3-editor-foot{display:flex;align-items:center;gap:7px;padding:10px 12px;border-top:.5px solid var(--line-l07);background:var(--grey-g01)}
+.ar3-editor-hint{margin-right:auto;font-size:8px;color:var(--text-n4)}
+.ar3-save-note{margin-top:6px;font-size:8px;font-weight:500;color:#2E7376}
+@keyframes ar3-in{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes ar3-stream-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ar3-result.is-fresh .ar3-markdown{animation:ar3-in .22s cubic-bezier(.22,1,.36,1)}
+.ar3-editor.is-streaming{animation:ar3-in .24s cubic-bezier(.22,1,.36,1)}
+.ar3-editor.is-streaming [data-ar3-stream-item]{animation:ar3-stream-in .26s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--ar3-stream-index,0) * 110ms)}
+@media(prefers-reduced-motion:reduce){.ar3-shell *{animation:none!important;transition:none!important}}
 /* 1b Plan B · Watching Loop 8s 主时间轴（窗口错峰，93–100% 统一淡出收环） */
 @keyframes l-r1{0%{opacity:0;transform:translateY(8px)}4%,93%{opacity:.45;transform:translateY(0)}97%,100%{opacity:0}}
 @keyframes l-r2{0%,13%{opacity:0;transform:translateY(8px)}17%,93%{opacity:.6;transform:translateY(0)}97%,100%{opacity:0}}
@@ -191,6 +315,7 @@ a{color:#49A3A6}a:hover{color:#2E7376}
     <div style="display:flex;align-items:baseline;gap:8px"><a class="dv-oid" href="#1a">1a</a><span style="font-size:13px;font-weight:500">Alpha Radar</span></div>
     <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan A</span> · Outcome preview：直接展示今晚会收到的 Radar 结果，强调最终价值和推送节奏。</div>
     <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan B</span> · Source showcase：只展示已选择的来源并自动重排；四类来源平铺配置，People 与 Podcast 在二级弹窗细选，启动后聚合成首份 Alpha Radar。</div>
+    <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan C</span> · Value first：一键用 Alva Standard 正式创建 daily automation，并立即生成首份真实 Radar；结果下方可修改正在关注的 sources。</div>
   </div>
   <div>
     <div class="fr-label">Plan A · Outcome preview · Desktop 700px</div>
@@ -395,6 +520,58 @@ a{color:#49A3A6}a:hover{color:#2E7376}
           </div></div>
           <div class="ar2-dialog-foot"><span class="ar2-dialog-count" id="ar2-podcast-dialog-count">1 selected</span><button type="button" class="ar2-cta ar2-dialog-done" data-close-dialog>Done</button></div>
         </dialog>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="fr-label">Plan C · Instant live Radar + optional source editing · Desktop 700px</div>
+    <div class="ar3-shell">
+      <div class="ar3-card" id="ar3-root">
+        <section class="ar3-stage ar3-intro" data-ar3-stage="intro">
+          <div class="ar3-brand"><img class="ar3-logo" src="assets/logo-portrait.svg" alt="Alva"><span class="ar3-brand-name">Alpha Radar</span><span class="ar3-brand-note">daily market intelligence</span></div>
+          <div class="ar3-intro-copy">
+            <h3 class="ar3-title">The market, connected into ideas that matter.</h3>
+            <div class="ar3-subtitle">Alpha Radar reads trusted market voices, podcasts, news and earnings, then connects the evidence into a focused daily brief.</div>
+          </div>
+          <div class="ar3-capability" aria-label="Sources connected by Alpha Radar">
+            <div class="ar3-source-rail">
+              <div class="ar3-source"><span class="ar3-source-mark"><img src="https://www.google.com/s2/favicons?domain=x.com&amp;sz=64" alt=""></span><span>FinTwit</span></div>
+              <div class="ar3-source"><span class="ar3-source-mark">OL</span><span>Podcasts</span></div>
+              <div class="ar3-source"><span class="ar3-source-mark"><img src="https://www.google.com/s2/favicons?domain=reuters.com&amp;sz=64" alt=""></span><span>News</span></div>
+              <div class="ar3-source"><span class="ar3-source-mark">10-Q</span><span>Earnings</span></div>
+              <div class="ar3-source"><span class="ar3-source-mark"><img src="https://www.google.com/s2/favicons?domain=ft.com&amp;sz=64" alt=""></span><span>Key figures</span></div>
+            </div>
+            <div class="ar3-flow"></div>
+            <div class="ar3-engine"><img src="assets/logo-portrait.svg" alt=""><div><div class="ar3-engine-title">Alva intelligence engine</div><div class="ar3-engine-copy">reads · verifies · connects</div></div></div>
+            <div class="ar3-flow"></div>
+            <div class="ar3-output"><div class="ar3-output-item"><strong>Ideas</strong>what could move</div><div class="ar3-output-item"><strong>Evidence</strong>why it matters</div><div class="ar3-output-item"><strong>Risks</strong>what to watch</div></div>
+          </div>
+          <div class="ar3-intro-actions">
+            <button type="button" class="ar3-primary" data-ar3-create>Create my Alpha Radar</button>
+            <div class="ar3-consent">Creates a daily Radar at 20:00 GMT+8 using Alva's recommended sources. You can edit them anytime.</div>
+          </div>
+        </section>
+        <section class="ar3-stage ar3-loading" data-ar3-stage="loading" hidden>
+          <img class="ar3-loading-logo" src="assets/logo-portrait.svg" alt="Alva">
+          <div class="ar3-loading-title" data-ar3-loading-title>Creating your daily Alpha Radar</div>
+          <div class="ar3-loading-copy" data-ar3-loading-copy>The automation is being created with Alva's recommended sources.</div>
+          <div class="ar3-progress"><span class="ar3-progress-fill" data-ar3-progress></span></div>
+          <div data-ar3-steps aria-live="polite"></div>
+        </section>
+        <section class="ar3-stage ar3-result" data-ar3-stage="result" hidden>
+          <div class="ar3-live"><span class="ar3-live-dot"></span><div><div class="ar3-live-title">Your Alpha Radar is live</div><div class="ar3-live-copy">Today's Radar is ready. Future updates will continue automatically.</div></div><span class="ar3-live-time">next · 20:00 GMT+8</span></div>
+          <div class="ar3-radar-head"><div><div class="ar3-radar-kicker" data-ar3-result-kicker>Today's Alpha Radar</div><div class="ar3-radar-title">Your latest market brief</div></div><span class="ar3-radar-time" data-ar3-result-time>updated 16:02 ET</span></div>
+          <article class="ar3-markdown" data-ar3-markdown aria-label="Alpha Radar report"></article>
+          <div class="ar3-edit-prompt">
+            <div class="ar3-customize-icons" aria-label="X, news, podcast and earnings sources"><span class="ar3-customize-icon"><img src="https://www.google.com/s2/favicons?domain=x.com&amp;sz=64" alt=""></span><span class="ar3-customize-icon"><img src="https://www.google.com/s2/favicons?domain=reuters.com&amp;sz=64" alt=""></span><span class="ar3-customize-icon">OL</span><span class="ar3-customize-icon">10-Q</span></div>
+            <div class="ar3-edit-prompt-copy"><div class="ar3-customize-eyebrow">Make it yours</div><div class="ar3-edit-prompt-title">Want to change what this Radar follows?</div><div class="ar3-edit-prompt-text">Customize the X voices, news, podcasts and earnings that shape your daily Alpha Radar.</div><div class="ar3-source-summary" data-ar3-source-summary>Top X voices · Selected Podcasts · Market News · Earnings</div><div class="ar3-save-note" data-ar3-save-note hidden></div></div>
+            <button type="button" class="ar3-secondary ar3-edit" data-ar3-edit aria-expanded="false" aria-controls="ar3-source-flow">Customize my Radar</button>
+          </div>
+          <div class="ar3-editor-flow" id="ar3-source-flow" data-ar3-editor-flow hidden>
+            <div class="ar3-editor-connector" aria-hidden="true"><span>Your source mix</span></div>
+            <div data-ar3-editor-slot></div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -1017,6 +1194,257 @@ a{color:#49A3A6}a:hover{color:#2E7376}
     }
     const observer = new MutationObserver(() => {
       const nextRoot = document.querySelector('#dc-root #ar2-root');
+      if (!nextRoot) return;
+      observer.disconnect();
+      initialize(nextRoot);
+    });
+    observer.observe(document.body, {childList:true,subtree:true});
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootInteraction, {once:true});
+  else bootInteraction();
+})();
+
+(() => {
+  function initialize(root) {
+    if (root.dataset.ar3Ready === 'true') return;
+    root.dataset.ar3Ready = 'true';
+
+    const defaults = {
+      people: new Set(['Eric Jhonsa', 'crux_capital_', 'Paradis Labs']),
+      podcasts: new Set(['Odd Lots', 'Acquired']),
+      news: true,
+      earnings: true
+    };
+    const cloneSources = sources => ({
+      people: new Set(sources.people),
+      podcasts: new Set(sources.podcasts),
+      news: sources.news,
+      earnings: sources.earnings
+    });
+    const state = {
+      mode: 'intro',
+      saved: cloneSources(defaults),
+      draft: cloneSources(defaults),
+      customized: false,
+      loadingTimers: [],
+      editorStreamTimer: null
+    };
+
+    const stages = {
+      intro: root.querySelector('[data-ar3-stage="intro"]'),
+      loading: root.querySelector('[data-ar3-stage="loading"]'),
+      result: root.querySelector('[data-ar3-stage="result"]')
+    };
+    const editorFlow = root.querySelector('[data-ar3-editor-flow]');
+    const editorSlot = root.querySelector('[data-ar3-editor-slot]');
+    const editButton = root.querySelector('[data-ar3-edit]');
+    const saveNote = root.querySelector('[data-ar3-save-note]');
+    let editor = null;
+    const editorMarkup = `
+      <div class="ar3-editor" id="ar3-source-editor" data-ar3-editor>
+        <div class="ar3-editor-head" data-ar3-stream-item style="--ar3-stream-index:0"><div><div class="ar3-editor-title">Customize your Alpha Radar</div><div class="ar3-editor-copy">Choose what the active automation should follow from now on.</div></div><button type="button" class="ar3-editor-close" data-ar3-close aria-label="Close source editor">×</button></div>
+        <div class="ar3-editor-grid">
+          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:1"><div class="ar3-editor-label">X <span class="ar3-editor-meta" data-ar3-people-count>3 selected</span></div><div class="ar3-choice-row"><button type="button" class="ar3-source-choice" data-ar3-person="Eric Jhonsa" aria-pressed="true">Eric Jhonsa</button><button type="button" class="ar3-source-choice" data-ar3-person="crux_capital_" aria-pressed="true">crux_capital_</button><button type="button" class="ar3-source-choice" data-ar3-person="Paradis Labs" aria-pressed="true">Paradis Labs</button><button type="button" class="ar3-source-choice" data-ar3-person="Puru Saxena" aria-pressed="false">Puru Saxena</button></div></section>
+          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:2"><div class="ar3-editor-label">News <span class="ar3-editor-meta">market-wide</span></div><div class="ar3-toggle-row"><button type="button" class="ar3-switch" data-ar3-toggle="news" aria-pressed="true" aria-label="Toggle market news"><span></span></button><span>Breaking events mapped to affected assets</span></div></section>
+          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:3"><div class="ar3-editor-label">Podcast <span class="ar3-editor-meta" data-ar3-podcast-count>2 selected</span></div><div class="ar3-choice-row"><button type="button" class="ar3-source-choice" data-ar3-podcast="Odd Lots" aria-pressed="true">Odd Lots</button><button type="button" class="ar3-source-choice" data-ar3-podcast="Acquired" aria-pressed="true">Acquired</button><button type="button" class="ar3-source-choice" data-ar3-podcast="BG2" aria-pressed="false">BG2</button></div></section>
+          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:4"><div class="ar3-editor-label">Earnings <span class="ar3-editor-meta">US equities</span></div><div class="ar3-toggle-row"><button type="button" class="ar3-switch" data-ar3-toggle="earnings" aria-pressed="true" aria-label="Toggle earnings"><span></span></button><span>Results, guidance and management commentary</span></div></section>
+        </div>
+        <div class="ar3-editor-foot" data-ar3-stream-item style="--ar3-stream-index:5"><span class="ar3-editor-hint">Updates the active automation and today's result</span><button type="button" class="ar3-primary" data-ar3-regenerate>Save &amp; regenerate now</button></div>
+      </div>`;
+
+    function activeCount(sources) {
+      return sources.people.size + sources.podcasts.size + Number(sources.news) + Number(sources.earnings);
+    }
+
+    function sourceSummary() {
+      if (!state.customized) return 'Top X voices · Selected Podcasts · Market News · Earnings';
+      const parts = [];
+      if (state.saved.people.size) parts.push(`${state.saved.people.size} X voices`);
+      if (state.saved.podcasts.size) parts.push(`${state.saved.podcasts.size} podcasts`);
+      if (state.saved.news) parts.push('Market News');
+      if (state.saved.earnings) parts.push('Earnings');
+      return parts.join(' · ');
+    }
+
+    function renderMarkdown() {
+      root.querySelector('[data-ar3-markdown]').innerHTML = `
+        <h4 class="ar3-md-title">Alpha Radar (08/03)</h4>
+        <section class="ar3-md-stock">
+          <div class="ar3-md-stock-head"><span class="ar3-md-ticker">$BMY</span><span class="ar3-md-price">$68.55 (+4.96%)</span><span class="ar3-md-sentiment is-bullish">Bullish</span></div>
+          <div class="ar3-md-section-title">News: Bullish</div>
+          <p class="ar3-md-paragraph"><strong>Reuters:</strong> BMY gets the cleaner read: a reported AZN approach points to possible target-premium economics. No signed deal yet, but a $400B pharma tie-up headline is material enough for the stock <a class="ar3-md-link" href="https://x.com/Reuters/status/2084002584054878416" target="_blank" rel="noreferrer">[1]</a></p>
+          <div class="ar3-md-section-title">Technical: Bullish <span>(needs confirmation)</span></div>
+          <p class="ar3-md-paragraph">BMY has a bullish technical read: the technical trigger is skewed higher; price is holding above MA60 near 57.88; RSI is 71, already in a hot zone; participation is normal, so price structure carries the read.</p>
+        </section>
+        <section class="ar3-md-stock">
+          <div class="ar3-md-stock-head"><span class="ar3-md-ticker">$COIN</span><span class="ar3-md-price">$144.01 (-1.54%)</span><span class="ar3-md-sentiment is-bearish">Bearish</span></div>
+          <div class="ar3-md-section-title">FinTwit: Bearish <span>(Eric Jhonsa)</span></div>
+          <p class="ar3-md-paragraph"><strong>Eric Jhonsa:</strong> The mechanism is equity exposure to crypto weakness: HOOD and COIN through trading activity, MSTR through Bitcoin balance-sheet beta. Miners such as CLSK and RIOT are treated as less clean because AI leasing can offset the crypto-short thesis <a class="ar3-md-link" href="https://x.com/EricJhonsa/status/2083990418811658319" target="_blank" rel="noreferrer">[1]</a></p>
+          <div class="ar3-md-section-title">Technical: Bearish <span>(clean entry)</span></div>
+          <p class="ar3-md-paragraph">COIN has a bearish technical read: price has broken below the prior 20-session support zone near 152.6; price is below MA60 near 170.4 and MA200 near 212.4, so rallies face overhead supply; RSI is 40.3, below the 45 weak-zone threshold; volume is 3.1x the 20-day average, confirming sell pressure.</p>
+        </section>
+        <section class="ar3-md-stock">
+          <div class="ar3-md-stock-head"><span class="ar3-md-ticker">$LITE</span><span class="ar3-md-price">$694.84 (-2.68%)</span><span class="ar3-md-sentiment is-cautious">Cautiously Bullish</span></div>
+          <div class="ar3-md-section-title">FinTwit: Bullish <span>(damnang2 and crux_capital_)</span></div>
+          <p class="ar3-md-paragraph"><strong>crux_capital_ (Bullish):</strong> $LITE has the best laser quality, is best positioned for CPO/OCS, and is part of their own portfolio exposure <a class="ar3-md-link" href="https://x.com/crux_capital_/status/2083915009533624525" target="_blank" rel="noreferrer">[1]</a></p>
+          <p class="ar3-md-paragraph"><strong>Paradis Labs (Cautious):</strong> The mechanism is customer conflict, weak margins, uncertain post-2028 demand, and a very small epitaxy talent pool. Cloud Light could help LITE erode AAOI's moat over time <a class="ar3-md-link" href="https://x.com/ParadisLabs/status/2083929523729395877" target="_blank" rel="noreferrer">[2]</a></p>
+          <div class="ar3-md-section-title">Technical: Neutral</div>
+          <p class="ar3-md-paragraph">LITE has a neutral technical read: the technical trigger is skewed lower; price has lost MA60 near 847.9 as intermediate support; participation is normal, so price structure carries the read. Use it as risk context, not a standalone technical recommendation.</p>
+        </section>
+        <p class="ar3-md-also"><strong>Also on the radar today:</strong> $MU, $AAOI, $COHU, $MSTR, $GOOGL.</p>
+        <p class="ar3-md-question">Want me to dig into whether $BMY still has a clean entry after the deal-premium spike, while keeping the other setups in view?</p>
+        <p class="ar3-md-footnote">Based on selected Alpha Radar sources. Not financial advice.</p>`;
+      root.querySelector('[data-ar3-source-summary]').textContent = sourceSummary();
+    }
+
+    function renderEditor() {
+      if (!editor) return;
+      editor.querySelectorAll('[data-ar3-person]').forEach(button => button.setAttribute('aria-pressed', String(state.draft.people.has(button.dataset.ar3Person))));
+      editor.querySelectorAll('[data-ar3-podcast]').forEach(button => button.setAttribute('aria-pressed', String(state.draft.podcasts.has(button.dataset.ar3Podcast))));
+      editor.querySelectorAll('[data-ar3-toggle]').forEach(button => button.setAttribute('aria-pressed', String(state.draft[button.dataset.ar3Toggle])));
+      editor.querySelector('[data-ar3-people-count]').textContent = `${state.draft.people.size} selected`;
+      editor.querySelector('[data-ar3-podcast-count]').textContent = `${state.draft.podcasts.size} selected`;
+      const disabled = activeCount(state.draft) === 0;
+      editor.querySelector('[data-ar3-regenerate]').disabled = disabled;
+    }
+
+    function renderMode() {
+      Object.entries(stages).forEach(([name, stage]) => { stage.hidden = state.mode !== name; });
+    }
+
+    function openEditor() {
+      if (editor) return;
+      state.draft = cloneSources(state.saved);
+      saveNote.hidden = true;
+      editorSlot.innerHTML = editorMarkup;
+      editor = editorSlot.querySelector('[data-ar3-editor]');
+      editorFlow.hidden = false;
+      editorFlow.classList.add('is-open');
+      editButton.setAttribute('aria-expanded', 'true');
+      renderEditor();
+      if (state.editorStreamTimer) clearTimeout(state.editorStreamTimer);
+      editor.classList.remove('is-streaming');
+      void editor.offsetWidth;
+      const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reducedMotion) {
+        editor.classList.add('is-streaming');
+        state.editorStreamTimer = setTimeout(() => {
+          if (editor) editor.classList.remove('is-streaming');
+        }, 950);
+      }
+      editorFlow.scrollIntoView({behavior:reducedMotion ? 'auto' : 'smooth',block:'nearest'});
+    }
+
+    function closeEditor() {
+      state.draft = cloneSources(state.saved);
+      if (state.editorStreamTimer) clearTimeout(state.editorStreamTimer);
+      if (editor) editor.classList.remove('is-streaming');
+      editorFlow.classList.remove('is-open');
+      editorFlow.hidden = true;
+      editorSlot.replaceChildren();
+      editor = null;
+      editButton.setAttribute('aria-expanded', 'false');
+    }
+
+    function commitDraft() {
+      state.saved = cloneSources(state.draft);
+      state.customized = true;
+      renderMarkdown();
+    }
+
+    function finishLoading(kind) {
+      renderMarkdown();
+      state.mode = 'result';
+      renderMode();
+      stages.result.classList.add('is-fresh');
+      setTimeout(() => stages.result.classList.remove('is-fresh'), 300);
+      if (kind === 'regenerate') {
+        root.querySelector('[data-ar3-result-kicker]').textContent = 'Updated Alpha Radar';
+        root.querySelector('[data-ar3-result-time]').textContent = 'updated just now';
+        saveNote.textContent = "Automation updated · Today's Radar was regenerated with your sources.";
+        saveNote.hidden = false;
+      } else {
+        saveNote.hidden = true;
+      }
+    }
+
+    function startLoading(kind) {
+      state.loadingTimers.forEach(timer => clearTimeout(timer));
+      state.loadingTimers = [];
+      const isRegenerate = kind === 'regenerate';
+      const steps = isRegenerate
+        ? ['Saving your source changes', 'Reading the updated source set', "Regenerating today's live Radar"]
+        : ['Creating your daily automation', "Connecting Alva's recommended sources", "Generating today's live Radar"];
+      root.querySelector('[data-ar3-loading-title]').textContent = isRegenerate ? 'Updating your Alpha Radar' : 'Creating your daily Alpha Radar';
+      root.querySelector('[data-ar3-loading-copy]').textContent = isRegenerate ? 'Your automation is live while Alva refreshes the result.' : "The automation is being created with Alva's recommended sources.";
+      root.querySelector('[data-ar3-steps]').innerHTML = steps.map((step, index) => `<div class="ar3-load-step${index === 0 ? ' is-current' : ''}"><span class="ar3-load-dot">✓</span><span>${step}</span></div>`).join('');
+      root.querySelector('[data-ar3-progress]').style.width = '8%';
+      state.mode = 'loading';
+      renderMode();
+      const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const interval = reducedMotion ? 70 : 360;
+      const nodes = Array.from(root.querySelectorAll('.ar3-load-step'));
+      steps.forEach((step, index) => {
+        state.loadingTimers.push(setTimeout(() => {
+          nodes.forEach((node, nodeIndex) => {
+            node.classList.toggle('is-done', nodeIndex < index);
+            node.classList.toggle('is-current', nodeIndex === index);
+          });
+          root.querySelector('[data-ar3-progress]').style.width = `${Math.round(((index + 1) / steps.length) * 92)}%`;
+        }, index * interval));
+      });
+      state.loadingTimers.push(setTimeout(() => {
+        nodes.forEach(node => { node.classList.remove('is-current'); node.classList.add('is-done'); });
+        root.querySelector('[data-ar3-progress]').style.width = '100%';
+        finishLoading(kind);
+      }, steps.length * interval));
+    }
+
+    root.addEventListener('click', event => {
+      const create = event.target.closest('[data-ar3-create]');
+      const edit = event.target.closest('[data-ar3-edit]');
+      const close = event.target.closest('[data-ar3-close]');
+      const person = event.target.closest('[data-ar3-person]');
+      const podcast = event.target.closest('[data-ar3-podcast]');
+      const toggle = event.target.closest('[data-ar3-toggle]');
+      const regenerate = event.target.closest('[data-ar3-regenerate]');
+      if (create) {
+        startLoading('create');
+      } else if (edit) {
+        openEditor();
+      } else if (close) {
+        closeEditor();
+      } else if (person) {
+        const name = person.dataset.ar3Person;
+        state.draft.people.has(name) ? state.draft.people.delete(name) : state.draft.people.add(name);
+        renderEditor();
+      } else if (podcast) {
+        const name = podcast.dataset.ar3Podcast;
+        state.draft.podcasts.has(name) ? state.draft.podcasts.delete(name) : state.draft.podcasts.add(name);
+        renderEditor();
+      } else if (toggle) {
+        state.draft[toggle.dataset.ar3Toggle] = !state.draft[toggle.dataset.ar3Toggle];
+        renderEditor();
+      } else if (regenerate && !regenerate.disabled) {
+        commitDraft();
+        closeEditor();
+        startLoading('regenerate');
+      }
+    });
+
+    renderMarkdown();
+    renderMode();
+  }
+
+  function bootInteraction() {
+    const renderedRoot = document.querySelector('#dc-root #ar3-root');
+    if (renderedRoot) {
+      initialize(renderedRoot);
+      return;
+    }
+    const observer = new MutationObserver(() => {
+      const nextRoot = document.querySelector('#dc-root #ar3-root');
       if (!nextRoot) return;
       observer.disconnect();
       initialize(nextRoot);
