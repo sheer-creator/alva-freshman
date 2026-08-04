@@ -1,6 +1,8 @@
 /**
- * [INPUT]: Figma Draft-Lite Chat/Block-Answer (4605:13564)
+ * [INPUT]: Figma Draft-Lite Chat/Block-Answer (4605:13564) — congress 态整卡
+ *          Figma Draft Table (12555:79555 options / 12555:79623 shorted) — 切换态两张表
  * [OUTPUT]: Outcome-first screener chooser rendered inside the Alva chat flow
+ *           表格为统一 UI:同一套 Table/Row/Mask + 每个 screen 自己的列定义与单元格类型
  * [POS]: AgentNewSession screener response
  */
 
@@ -19,122 +21,323 @@ const L2 = 'var(--line-l2, rgba(0,0,0,0.2))';
 const L3 = 'var(--line-l3, rgba(0,0,0,0.3))';
 const M1 = 'var(--main-m1, #49a3a6)';
 const M3 = 'var(--main-m3, #2a9b7d)';
+const M4 = 'var(--main-m4, #e05357)';
+const G03 = 'var(--grey-g03, #f0f0f0)';
+/* Avatar · R 的描边是组件固定值(稿里 D/R 两党四行同色),不是党派色 */
+const AVATAR_RING = '#c25450';
 
 export type ScreenKey = 'congress' | 'options' | 'shorted' | 'breakouts' | 'divergence';
+
+/* 列定义 — width 给了就固定(shrink-0),否则 flex-1 平分(稿:Ticker 280 固定,其余等分) */
+interface Column {
+  label: string;
+  width?: number;
+  align?: 'right';
+}
+
+/* 单元格类型 — 两张稿共用的原子:member(30 圆图 + 两行) / tagText(标签 + 文案) / meter(进度条 + 数值) / text */
+type Cell =
+  | { kind: 'member'; symbol: string; sub: string; portrait?: string }
+  | { kind: 'text'; text: string; color?: string }
+  | { kind: 'tagText'; tag: string; bearish?: boolean; text: string }
+  | { kind: 'meter'; pct: number; text: string }
+  | { kind: 'ticker'; ticker: string }
+  | { kind: 'badge'; label: string; bearish?: boolean }
+  | { kind: 'dots'; text: string; filled: number };
 
 interface ScreenOption {
   key: ScreenKey;
   prompt: string;
-  columns: [string, string, string, string, string];
+  columns: Column[];
+  rows: [Cell[], Cell[], Cell[], Cell[]];
 }
 
-interface PreviewRow {
-  name: string;
-  detail: string;
-  portrait: string;
-  partyColor?: string;
-  ticker: string;
-  signal: string;
-  value: string;
-  rangeDots: number;
-  updated: string;
-}
-
-const SCREEN_OPTIONS: ScreenOption[] = [
-  {
-    key: 'congress',
-    prompt: 'Track what members of Congress just bought — weekdays 9:00 AM ET',
-    columns: ['Member', 'Ticker', 'Type', 'Amount', 'Filed after'],
-  },
-  {
-    key: 'options',
-    prompt: "See today's biggest unusual options bets — weekdays at 5:15 PM ET",
-    columns: ['Contract', 'Ticker', 'Type', 'Premium', 'Detected'],
-  },
-  {
-    key: 'shorted',
-    prompt: "Track the market's most heavily shorted stocks — when new short data lands",
-    columns: ['Company', 'Ticker', 'Signal', 'Short float', 'Updated'],
-  },
-  {
-    key: 'breakouts',
-    prompt: 'Find breakouts to one-month highs on double the usual volume — weekdays 4:30 PM ET',
-    columns: ['Company', 'Ticker', 'Signal', 'Volume', 'Triggered'],
-  },
-  {
-    key: 'divergence',
-    prompt: 'Spot stocks where price and momentum are starting to disagree — every weekday at 4:40 PM ET',
-    columns: ['Company', 'Ticker', 'Signal', 'Momentum', 'Detected'],
-  },
-];
-
-const PREVIEW_ROWS: Record<ScreenKey, [PreviewRow, PreviewRow, PreviewRow, PreviewRow]> = {
-  congress: [
-    { name: 'Sheldon Whitehouse', detail: 'D · Senate · RI', portrait: 'screener-sheldon-whitehouse.jpg', partyColor: '#c25450', ticker: 'NVDA', signal: 'BUY', value: '$1K–15K', rangeDots: 1, updated: '4 days' },
-    { name: 'Pete Sessions', detail: 'R · House · TX-17', portrait: 'screener-pete-sessions.jpg', partyColor: '#c25450', ticker: 'ORCL', signal: 'BUY', value: '$1K–15K', rangeDots: 1, updated: '4 days' },
-    { name: 'Young Kim', detail: 'R · House · CA-40', portrait: 'screener-blurred-member-1.jpg', partyColor: '#c25450', ticker: 'AVGO', signal: 'BUY', value: '$15K–50K', rangeDots: 2, updated: '2 days' },
-    { name: 'Adrian Smith', detail: 'R · House · NE-3', portrait: 'screener-blurred-member-2.jpg', partyColor: '#c25450', ticker: 'RKLB', signal: 'BUY', value: '$15K–50K', rangeDots: 2, updated: '1 day' },
+/* congress — Figma 4605:13564:5 列,首列人像 + 党派;Type 标签、Amount 档位点为该 screen 专有 */
+const CONGRESS: ScreenOption = {
+  key: 'congress',
+  prompt: 'Track what members of Congress just bought — weekdays 9:00 AM ET',
+  columns: [
+    { label: 'Member', width: 280 },
+    { label: 'Ticker' },
+    { label: 'Type', width: 100 },
+    { label: 'Amount', align: 'right' },
+    { label: 'Filed after', align: 'right' },
   ],
-  options: [
-    { name: 'NVDA $190 Call', detail: 'Aug 15 expiry', portrait: 'screener-sheldon-whitehouse.jpg', ticker: 'NVDA', signal: 'CALL', value: '$4.2M', rangeDots: 4, updated: '12 min' },
-    { name: 'TSLA $300 Put', detail: 'Sep 19 expiry', portrait: 'screener-pete-sessions.jpg', ticker: 'TSLA', signal: 'PUT', value: '$2.8M', rangeDots: 3, updated: '26 min' },
-    { name: 'AAPL $250 Call', detail: 'Aug 8 expiry', portrait: 'screener-blurred-member-1.jpg', ticker: 'AAPL', signal: 'CALL', value: '$1.9M', rangeDots: 2, updated: '31 min' },
-    { name: 'PLTR $45 Call', detail: 'Aug 15 expiry', portrait: 'screener-blurred-member-2.jpg', ticker: 'PLTR', signal: 'CALL', value: '$1.4M', rangeDots: 2, updated: '44 min' },
-  ],
-  shorted: [
-    { name: 'Carvana', detail: 'Consumer cyclical', portrait: 'screener-sheldon-whitehouse.jpg', ticker: 'CVNA', signal: 'HIGH', value: '34.2%', rangeDots: 4, updated: 'today' },
-    { name: 'Beyond Meat', detail: 'Consumer defensive', portrait: 'screener-pete-sessions.jpg', ticker: 'BYND', signal: 'HIGH', value: '41.8%', rangeDots: 4, updated: 'today' },
-    { name: 'Sirius XM', detail: 'Communication', portrait: 'screener-blurred-member-1.jpg', ticker: 'SIRI', signal: 'HIGH', value: '28.6%', rangeDots: 3, updated: 'today' },
-    { name: 'Plug Power', detail: 'Industrials', portrait: 'screener-blurred-member-2.jpg', ticker: 'PLUG', signal: 'HIGH', value: '26.9%', rangeDots: 3, updated: 'today' },
-  ],
-  breakouts: [
-    { name: 'Rocket Lab', detail: 'Aerospace & defense', portrait: 'screener-sheldon-whitehouse.jpg', ticker: 'RKLB', signal: 'HIGH', value: '2.8×', rangeDots: 4, updated: '18 min' },
-    { name: 'Palantir', detail: 'Software', portrait: 'screener-pete-sessions.jpg', ticker: 'PLTR', signal: 'HIGH', value: '2.3×', rangeDots: 3, updated: '31 min' },
-    { name: 'AppLovin', detail: 'Software', portrait: 'screener-blurred-member-1.jpg', ticker: 'APP', signal: 'HIGH', value: '2.2×', rangeDots: 3, updated: '43 min' },
-    { name: 'Robinhood', detail: 'Financial services', portrait: 'screener-blurred-member-2.jpg', ticker: 'HOOD', signal: 'HIGH', value: '2.1×', rangeDots: 3, updated: '52 min' },
-  ],
-  divergence: [
-    { name: 'Tesla', detail: 'Consumer cyclical', portrait: 'screener-sheldon-whitehouse.jpg', ticker: 'TSLA', signal: 'BEAR', value: 'RSI 61', rangeDots: 3, updated: '9 min' },
-    { name: 'NVIDIA', detail: 'Semiconductors', portrait: 'screener-pete-sessions.jpg', ticker: 'NVDA', signal: 'BEAR', value: 'RSI 67', rangeDots: 3, updated: '22 min' },
-    { name: 'Coinbase', detail: 'Financial services', portrait: 'screener-blurred-member-1.jpg', ticker: 'COIN', signal: 'BULL', value: 'RSI 39', rangeDots: 2, updated: '36 min' },
-    { name: 'Advanced Micro Devices', detail: 'Semiconductors', portrait: 'screener-blurred-member-2.jpg', ticker: 'AMD', signal: 'BULL', value: 'RSI 42', rangeDots: 2, updated: '47 min' },
+  rows: [
+    [
+      { kind: 'member', symbol: 'Sheldon Whitehouse', sub: 'D · Senate · RI', portrait: 'screener-sheldon-whitehouse.jpg' },
+      { kind: 'ticker', ticker: 'NVDA' },
+      { kind: 'badge', label: 'BUY' },
+      { kind: 'dots', text: '$1K–15K', filled: 1 },
+      { kind: 'text', text: '4 days' },
+    ],
+    [
+      { kind: 'member', symbol: 'Pete Sessions', sub: 'R · House · TX-17', portrait: 'screener-pete-sessions.jpg' },
+      { kind: 'ticker', ticker: 'ORCL' },
+      { kind: 'badge', label: 'BUY' },
+      { kind: 'dots', text: '$1K–15K', filled: 1 },
+      { kind: 'text', text: '4 days' },
+    ],
+    [
+      { kind: 'member', symbol: 'James A. Himes', sub: 'D · House · CT-4', portrait: 'screener-blurred-member-1.jpg' },
+      { kind: 'ticker', ticker: 'IBM' },
+      { kind: 'badge', label: 'SHORT', bearish: true },
+      { kind: 'dots', text: '$15K–50K', filled: 2 },
+      { kind: 'text', text: '2 days' },
+    ],
+    [
+      { kind: 'member', symbol: 'Adrian Smith', sub: 'R · House · NE-3', portrait: 'screener-blurred-member-2.jpg' },
+      { kind: 'ticker', ticker: 'RKLB' },
+      { kind: 'badge', label: 'BUY' },
+      { kind: 'dots', text: '$15K–50K', filled: 2 },
+      { kind: 'text', text: '1 day' },
+    ],
   ],
 };
+
+/* options — Figma 12555:79555:4 列,Contract 为 Calls(m3)/Puts(m4) 标签 + 行权;Vs avg vol 走 m1 */
+const OPTIONS: ScreenOption = {
+  key: 'options',
+  prompt: "See today's biggest unusual options bets — weekdays at 5:15 PM ET",
+  columns: [
+    { label: 'Ticker', width: 280 },
+    { label: 'Contract' },
+    { label: 'Premium', align: 'right' },
+    { label: 'Vs avg vol', align: 'right' },
+  ],
+  rows: [
+    [
+      { kind: 'member', symbol: 'MSFT', sub: 'Microsoft Corporation' },
+      { kind: 'tagText', tag: 'Calls', text: '$520 · Oct 17' },
+      { kind: 'text', text: '$3.6M' },
+      { kind: 'text', text: '18×', color: M1 },
+    ],
+    [
+      { kind: 'member', symbol: 'TSLA', sub: 'Tesla, Inc.' },
+      { kind: 'tagText', tag: 'Puts', bearish: true, text: '$300 · Sep 19' },
+      { kind: 'text', text: '$2.8M' },
+      { kind: 'text', text: '21×', color: M1 },
+    ],
+    [
+      { kind: 'member', symbol: 'AMD', sub: 'Advanced Micro Devices, Inc.' },
+      { kind: 'tagText', tag: 'Calls', text: '$175 · Aug 29' },
+      { kind: 'text', text: '$1.9M' },
+      { kind: 'text', text: '26×', color: M1 },
+    ],
+    [
+      { kind: 'member', symbol: 'COIN', sub: 'Coinbase Global, Inc.' },
+      { kind: 'tagText', tag: 'Puts', bearish: true, text: '$220 · Sep 5' },
+      { kind: 'text', text: '$1.4M' },
+      { kind: 'text', text: '12×', color: M1 },
+    ],
+  ],
+};
+
+/* shorted — Figma 12555:79623:Short % 列固定 210(进度条 48×4 + 数值);WoW 增(+)走 m4、减(−)走 n5 */
+const SHORTED: ScreenOption = {
+  key: 'shorted',
+  prompt: "Track the market's most heavily shorted stocks — when new short data lands",
+  columns: [
+    { label: 'Ticker', width: 280 },
+    { label: 'Short % of float', width: 210 },
+    { label: 'WoW', align: 'right' },
+    { label: 'Days to cover', align: 'right' },
+  ],
+  rows: [
+    [
+      { kind: 'member', symbol: 'OPEN', sub: 'Opendoor Technologies, Inc.' },
+      { kind: 'meter', pct: 38.4, text: '38.4%' },
+      { kind: 'text', text: '+2.6 pt', color: M4 },
+      { kind: 'text', text: '2.9 d' },
+    ],
+    [
+      { kind: 'member', symbol: 'CLSK', sub: 'CleanSpark, Inc.' },
+      { kind: 'meter', pct: 31.7, text: '31.7%' },
+      { kind: 'text', text: '+1.4 pt', color: M4 },
+      { kind: 'text', text: '4.6 d' },
+    ],
+    [
+      { kind: 'member', symbol: 'MARA', sub: 'Marathon Digital Holdings' },
+      { kind: 'meter', pct: 27.3, text: '27.3%' },
+      { kind: 'text', text: '−0.8 pt', color: N5 },
+      { kind: 'text', text: '5.4 d' },
+    ],
+    [
+      { kind: 'member', symbol: 'AI', sub: 'C3.ai, Inc.' },
+      { kind: 'meter', pct: 24.5, text: '24.5%' },
+      { kind: 'text', text: '+0.6 pt', color: M4 },
+      { kind: 'text', text: '3.1 d' },
+    ],
+  ],
+};
+
+/* breakouts / divergence — 稿未出图,沿用 options/shorted 的统一列型外推 */
+const BREAKOUTS: ScreenOption = {
+  key: 'breakouts',
+  prompt: 'Find breakouts to one-month highs on double the usual volume — weekdays 4:30 PM ET',
+  columns: [
+    { label: 'Ticker', width: 280 },
+    { label: 'Breakout' },
+    { label: 'Vs avg vol', align: 'right' },
+    { label: 'Triggered', align: 'right' },
+  ],
+  rows: [
+    [
+      { kind: 'member', symbol: 'RKLB', sub: 'Rocket Lab USA, Inc.' },
+      { kind: 'tagText', tag: 'High', text: '$32.4 · 1-mo' },
+      { kind: 'text', text: '2.8×', color: M1 },
+      { kind: 'text', text: '18 min' },
+    ],
+    [
+      { kind: 'member', symbol: 'PLTR', sub: 'Palantir Technologies Inc.' },
+      { kind: 'tagText', tag: 'High', text: '$155.2 · 1-mo' },
+      { kind: 'text', text: '2.3×', color: M1 },
+      { kind: 'text', text: '31 min' },
+    ],
+    [
+      { kind: 'member', symbol: 'HOOD', sub: 'Robinhood Markets, Inc.' },
+      { kind: 'tagText', tag: 'High', text: '$98.1 · 1-mo' },
+      { kind: 'text', text: '2.2×', color: M1 },
+      { kind: 'text', text: '43 min' },
+    ],
+    [
+      { kind: 'member', symbol: 'UBER', sub: 'Uber Technologies, Inc.' },
+      { kind: 'tagText', tag: 'High', text: '$94.6 · 1-mo' },
+      { kind: 'text', text: '2.1×', color: M1 },
+      { kind: 'text', text: '52 min' },
+    ],
+  ],
+};
+
+const DIVERGENCE: ScreenOption = {
+  key: 'divergence',
+  prompt: 'Spot stocks where price and momentum are starting to disagree — every weekday at 4:40 PM ET',
+  columns: [
+    { label: 'Ticker', width: 280 },
+    { label: 'Divergence' },
+    { label: 'RSI-14', align: 'right' },
+    { label: 'Detected', align: 'right' },
+  ],
+  rows: [
+    [
+      { kind: 'member', symbol: 'TSLA', sub: 'Tesla, Inc.' },
+      { kind: 'tagText', tag: 'Bearish', bearish: true, text: 'Price up · RSI down' },
+      { kind: 'text', text: '61', color: M4 },
+      { kind: 'text', text: '9 min' },
+    ],
+    [
+      { kind: 'member', symbol: 'NVDA', sub: 'NVIDIA Corporation' },
+      { kind: 'tagText', tag: 'Bearish', bearish: true, text: 'Price up · RSI down' },
+      { kind: 'text', text: '67', color: M4 },
+      { kind: 'text', text: '22 min' },
+    ],
+    [
+      { kind: 'member', symbol: 'COIN', sub: 'Coinbase Global, Inc.' },
+      { kind: 'tagText', tag: 'Bullish', text: 'Price down · RSI up' },
+      { kind: 'text', text: '39', color: M3 },
+      { kind: 'text', text: '36 min' },
+    ],
+    [
+      { kind: 'member', symbol: 'AMD', sub: 'Advanced Micro Devices, Inc.' },
+      { kind: 'tagText', tag: 'Bullish', text: 'Price down · RSI up' },
+      { kind: 'text', text: '42', color: M3 },
+      { kind: 'text', text: '47 min' },
+    ],
+  ],
+};
+
+const SCREEN_OPTIONS: ScreenOption[] = [CONGRESS, OPTIONS, SHORTED, BREAKOUTS, DIVERGENCE];
 
 function textStyle(size: number, lineHeight: number, color: string, weight = 400) {
   return { fontFamily: FONT, fontSize: size, lineHeight: `${lineHeight}px`, letterSpacing: `${size / 100}px`, color, fontWeight: weight } as const;
 }
 
-function ResultRow({ row }: { row: PreviewRow }) {
-  const base = import.meta.env.BASE_URL;
+/* 列容器 — 固定宽走 shrink-0,否则 flex-1;右对齐列 justify-end(稿:表头与数据同规则) */
+function ColumnCell({ column, children }: { column: Column; children: React.ReactNode }) {
   return (
-    <div className="grid min-h-[52px] grid-cols-[280px_minmax(112px,1fr)_100px_minmax(120px,1fr)_minmax(110px,1fr)] items-center px-[16px] py-[8px]" style={{ borderTop: `0.5px solid ${L12}` }}>
-      <div className="flex min-w-0 items-center gap-[8px] overflow-hidden">
-        <img
-          src={`${base}${row.portrait}`}
-          alt=""
-          className="size-[30px] shrink-0 rounded-full object-cover"
-          style={{ border: `1.5px solid ${row.partyColor ?? L12}` }}
-        />
-        <div className="min-w-0">
-          <p className="truncate" style={textStyle(14, 22, N9, 500)}>{row.name}</p>
-          <p className="truncate" style={textStyle(10, 16, N5)}>{row.detail}</p>
+    <div
+      className={`flex items-center overflow-hidden ${column.width ? 'shrink-0' : 'min-w-px flex-1'} ${column.align === 'right' ? 'justify-end' : ''}`}
+      style={column.width ? { width: column.width } : undefined}
+    >
+      {children}
+    </div>
+  );
+}
+
+function CellView({ cell, align }: { cell: Cell; align?: 'right' }) {
+  const base = import.meta.env.BASE_URL;
+  switch (cell.kind) {
+    /* Member — 30px 圆图 + gap8 + 两行(Medium14 n9 / Regular10 n5,行盒重叠 2px → 内容块 36) */
+    case 'member':
+      return (
+        <div className="flex min-w-0 items-center gap-[8px] overflow-hidden">
+          {cell.portrait ? (
+            <img src={`${base}${cell.portrait}`} alt="" className="size-[30px] shrink-0 rounded-full object-cover" style={{ border: `1.5px solid ${AVATAR_RING}` }} />
+          ) : (
+            <TickerLogo ticker={cell.symbol} size={30} />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate" style={textStyle(14, 22, N9, 500)}>{cell.symbol}</p>
+            <p className="-mt-[2px] truncate" style={textStyle(10, 16, N5)}>{cell.sub}</p>
+          </div>
         </div>
-      </div>
-      <div className="flex min-w-0 items-center gap-[6px] overflow-hidden">
-        <TickerLogo ticker={row.ticker} size={22} />
-        <span className="truncate" style={textStyle(14, 22, N9)}>{row.ticker}</span>
-      </div>
-      <div>
-        <span className="inline-flex rounded-[4px] px-[6px] py-px text-white" style={{ ...textStyle(12, 20, '#fff'), background: M3 }}>{row.signal}</span>
-      </div>
-      <div className="flex items-center justify-end gap-[6px]">
-        <span className="whitespace-nowrap" style={textStyle(14, 22, N9)}>{row.value}</span>
-        <span className="flex w-[30px] items-center gap-[2px]">
-          {[0, 1, 2, 3].map((index) => <span key={index} className="size-[6px] rounded-full" style={{ background: index < row.rangeDots ? M1 : L12 }} />)}
-        </span>
-      </div>
-      <span className="text-right" style={textStyle(14, 22, N9)}>{row.updated}</span>
+      );
+    /* Contract / Divergence — 标签(m3 涨 / m4 跌)+ gap6 + 文案 */
+    case 'tagText':
+      return (
+        <div className="flex min-w-0 items-center gap-[6px] overflow-hidden">
+          <span className="shrink-0 rounded-[4px] px-[6px] py-px" style={{ ...textStyle(12, 20, '#fff'), background: cell.bearish ? M4 : M3 }}>{cell.tag}</span>
+          <span className="truncate" style={textStyle(14, 22, N9)}>{cell.text}</span>
+        </div>
+      );
+    /* Short % — 48×4 轨(g03) + m4 填充 + gap6 + 数值 */
+    case 'meter':
+      return (
+        <div className="flex min-w-0 flex-1 items-center gap-[6px] overflow-hidden">
+          <span className="h-[4px] w-[48px] shrink-0 overflow-hidden rounded-full" style={{ background: G03 }}>
+            <span className="block h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, cell.pct))}%`, background: M4 }} />
+          </span>
+          <span className="min-w-0 flex-1 truncate" style={textStyle(14, 22, N9)}>{cell.text}</span>
+        </div>
+      );
+    case 'ticker':
+      return (
+        <div className="flex min-w-0 items-center gap-[6px] overflow-hidden">
+          <TickerLogo ticker={cell.ticker} size={22} />
+          <span className="truncate" style={textStyle(14, 22, N9)}>{cell.ticker}</span>
+        </div>
+      );
+    case 'badge':
+      return (
+        <span className="shrink-0 rounded-[4px] px-[6px] py-px" style={{ ...textStyle(12, 20, '#fff'), background: cell.bearish ? M4 : M3 }}>{cell.label}</span>
+      );
+    /* Amount — 数值 + gap6 + 4 档位点(30×6,点 6px 间距 2) */
+    case 'dots':
+      return (
+        <div className="flex items-center justify-end gap-[6px]">
+          <span className="whitespace-nowrap" style={textStyle(14, 22, N9)}>{cell.text}</span>
+          <span className="flex w-[30px] shrink-0 items-center gap-[2px]">
+            {[0, 1, 2, 3].map((index) => <span key={index} className="size-[6px] rounded-full" style={{ background: index < cell.filled ? M1 : L12 }} />)}
+          </span>
+        </div>
+      );
+    case 'text':
+    default:
+      return (
+        <span className={`min-w-0 flex-1 truncate ${align === 'right' ? 'text-right' : ''}`} style={textStyle(14, 22, cell.color ?? N9)}>{cell.text}</span>
+      );
+  }
+}
+
+/* 数据行 — px16 py8 + 0.5 l12 上边(稿:Table Item/Row & Column) */
+function ResultRow({ columns, cells }: { columns: Column[]; cells: Cell[] }) {
+  return (
+    <div className="flex w-full items-center px-[16px] py-[8px]" style={{ borderTop: `0.5px solid ${L12}` }}>
+      {columns.map((column, index) => (
+        <ColumnCell key={column.label} column={column}>
+          <CellView cell={cells[index]} align={column.align} />
+        </ColumnCell>
+      ))}
     </div>
   );
 }
@@ -143,7 +346,6 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey) => void }
   const [selected, setSelected] = useState<ScreenKey>('congress');
   const [language, setLanguage] = useState('en');
   const screen = SCREEN_OPTIONS.find((option) => option.key === selected) ?? SCREEN_OPTIONS[0];
-  const rows = PREVIEW_ROWS[selected];
   const languageLabel = language === 'zh' ? '简体中文' : 'English';
 
   return (
@@ -151,29 +353,39 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey) => void }
       <div className="overflow-x-auto">
         <div className="min-w-[760px]">
           <div className="relative overflow-hidden px-[32px] pt-[32px]">
+            {/* 稿 12555:82256:m1 底 opacity40,图 aspect 4096/2527、top -180 / bottom -186、mix-blend-lighten。
+                稿写 left calc(50%-4px) 但整层套了一次 -scale-x-100(内层再翻回图片本身),镜像后视觉是偏右 4px */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden bg-[var(--main-m1,#49a3a6)] opacity-40">
               <img
                 src={`${import.meta.env.BASE_URL}screener-ascii-pattern.png`}
                 alt=""
-                className="absolute left-1/2 top-1/2 h-auto w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2 mix-blend-lighten"
+                className="absolute max-w-none -translate-x-1/2 mix-blend-lighten"
+                style={{ top: -180, height: 'calc(100% + 366px)', left: 'calc(50% + 4px)', width: 'auto', aspectRatio: '4096 / 2527' }}
               />
             </div>
 
-            <div className="relative overflow-hidden rounded-t-[8px] bg-white shadow-[0_4px_30px_rgba(0,0,0,0.12)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
-              <div className="grid grid-cols-[280px_minmax(112px,1fr)_100px_minmax(120px,1fr)_minmax(110px,1fr)] px-[16px] py-[8px]">
-                {screen.columns.map((column, index) => (
-                  <span key={column} className={index >= 3 ? 'text-right' : ''} style={textStyle(12, 20, N7)}>{column}</span>
+            <div className="relative overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
+              <div className="flex w-full items-center px-[16px]">
+                {screen.columns.map((column) => (
+                  <ColumnCell key={column.label} column={column}>
+                    <span className={`min-w-0 flex-1 truncate py-[8px] ${column.align === 'right' ? 'text-right' : ''}`} style={textStyle(12, 20, N7)}>{column.label}</span>
+                  </ColumnCell>
                 ))}
               </div>
 
-              {rows.slice(0, 2).map((row) => <ResultRow key={`${selected}-${row.name}`} row={row} />)}
+              {screen.rows.slice(0, 2).map((cells, index) => (
+                <ResultRow key={`${selected}-${index}`} columns={screen.columns} cells={cells} />
+              ))}
 
-              <div className="relative h-[104px] overflow-hidden" style={{ borderTop: `0.5px solid ${L12}` }}>
+              {/* 高度由两行自身撑开(稿:两行 104,mask 102 浮于其上),不写死以免行高微调时裁行 */}
+              <div className="relative overflow-hidden" style={{ borderTop: `0.5px solid ${L12}` }}>
                 <div aria-hidden="true">
-                  {rows.slice(2).map((row) => <ResultRow key={`${selected}-${row.name}`} row={row} />)}
+                  {screen.rows.slice(2).map((cells, index) => (
+                    <ResultRow key={`${selected}-locked-${index}`} columns={screen.columns} cells={cells} />
+                  ))}
                 </div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-[4px] bg-[rgba(255,255,255,0.85)] backdrop-blur-[3px]">
-                  <span className="flex size-[36px] items-center justify-center rounded-full bg-[var(--b0-sidebar,#2a2a38)]">
+                  <span className="flex size-[36px] items-center justify-center rounded-full bg-[var(--b0-sidebar,#2a2a38)]" style={{ border: `2px solid ${M1}` }}>
                     <CdnIcon name="locked-l" size={18} color="#fff" />
                   </span>
                   <span style={textStyle(12, 20, N5)}>8 more — Run to reveal</span>
@@ -197,11 +409,14 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey) => void }
                 style={{ background: active ? 'var(--main-m1-10, rgba(73,163,166,0.1))' : '#fff', border: 'none', borderTop: `0.5px solid ${L12}` }}
               >
                 <span className="min-w-0 flex-1 truncate" style={textStyle(14, 22, N9)}>{option.prompt}</span>
+                {/* 选中:m1 实心 + 居中白点(稿 inset 32.5%);未选中:g1 灰实心 */}
                 <span
                   aria-hidden="true"
-                  className="size-[16px] shrink-0 rounded-full"
-                  style={active ? { border: `5px solid ${M1}`, background: '#fff' } : { background: 'var(--grey-g1, #dedede)' }}
-                />
+                  className="relative size-[16px] shrink-0 rounded-full"
+                  style={{ background: active ? M1 : 'var(--grey-g1, #dedede)' }}
+                >
+                  {active && <span className="absolute inset-[32.5%] rounded-full bg-white" />}
+                </span>
               </button>
             );
           })}
