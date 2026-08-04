@@ -189,8 +189,8 @@ const BREAKOUTS: ScreenOption = {
       { kind: 'text', text: '18 min' },
     ],
     [
-      { kind: 'member', symbol: 'PLTR', sub: 'Palantir Technologies Inc.' },
-      { kind: 'tagText', tag: 'High', text: '$155.2 · 1-mo' },
+      { kind: 'member', symbol: 'MU', sub: 'Micron Technology, Inc.' },
+      { kind: 'tagText', tag: 'High', text: '$142.8 · 1-mo' },
       { kind: 'text', text: '2.3×', color: M1 },
       { kind: 'text', text: '31 min' },
     ],

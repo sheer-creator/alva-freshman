@@ -24,7 +24,8 @@ const CDN_LOGOS = new Set([
   'STX', 'TMUS', 'TSLA', 'TSM', 'UBER', 'UNH', 'WDC', 'WMT',
 ]);
 // CDN 缺、fmp 又不稳（504）的高频标的 → 本地资产 public/logo-stock-{lower}.png
-const LOCAL_LOGOS = new Set(['MSFT', 'AVGO', 'ORCL']);
+// CLSK/MARA：fmp 返回透明底白 logo，叠在白底上不可见，改用设计稿导出的自带底色版
+const LOCAL_LOGOS = new Set(['MSFT', 'AVGO', 'ORCL', 'CLSK', 'MARA']);
 
 export function TickerLogo({ ticker, size = 20 }: { ticker: string; size?: number }) {
   const [errored, setErrored] = useState(false);
