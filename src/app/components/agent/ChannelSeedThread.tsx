@@ -6,7 +6,7 @@
 
 import type { ReactNode } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
-import { MsgHeaderActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
+import { MsgHoverActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
 import {
   CHANNEL_SEED_SHARE_MESSAGES,
   SEED_MEME_PULSE,
@@ -37,16 +37,17 @@ function SeedUserMsg({ text }: { text: string }) {
 
 /* Answer — Figma Chat/Block-Answer:头行(22px 头像 + Alva + 时间,gap 8) + 内容 pl-30 gap-12,与头行 gap 8;
    portrait 位分享选择态换成 checkbox(9281:37663),actions 为 header 行内 copy+share(9246:36248) */
-function SeedAgentMsg({ time, portrait, actions, children }: { time: string; portrait?: ReactNode; actions?: ReactNode; children: ReactNode }) {
+function SeedAgentMsg({ time, portrait, footerActions, children }: { time: string; portrait?: ReactNode; footerActions?: ReactNode; children: ReactNode }) {
   return (
-    <div className="flex w-full flex-col gap-[8px]">
+    <div className="relative flex w-full flex-col gap-[8px]">
       <div className="flex h-[22px] w-full items-center gap-[8px]">
         {portrait ?? <img src={`${BASE}logo-portrait.svg`} alt="Alva" className="size-[22px] shrink-0 rounded-[4px]" />}
         <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Alva</p>
         <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{time}</p>
-        {actions}
       </div>
       <div className="flex w-full flex-col items-start gap-[12px] pl-[30px]">{children}</div>
+      {/* copy+share — 内容下方 8px,左对齐内容区;absolute 不占位(Figma 11748:25466) */}
+      {footerActions && <div className="absolute left-[30px] top-full pt-[8px]">{footerActions}</div>}
     </div>
   );
 }
@@ -60,21 +61,22 @@ function SeedLine({ medium, children }: { medium?: boolean; children: ReactNode 
   );
 }
 
-/* 列表项 — Figma Markdown Item:20×22 圆点位(4px n9 dot) + 正文(Regular 14 n9) */
-function SeedBullet({ text }: { text: string }) {
+/* 列表项 — Figma Markdown Item:20×22 圆点位(4px n9 dot) + 正文(Regular 14 n9);
+   children 用于正文含 Medium 片段的富文本行(如 screener alert 的 $TSM — …) */
+export function SeedBullet({ text, children }: { text?: string; children?: React.ReactNode }) {
   return (
     <div className="flex w-full items-start">
       <span className="flex h-[22px] w-[20px] shrink-0 items-center justify-center">
         <span className="size-[4px] rounded-full" style={{ background: 'var(--text-n9, rgba(0,0,0,0.9))' }} />
       </span>
-      <p className="min-w-0 flex-1 text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{text}</p>
+      <p className="min-w-0 flex-1 text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{children ?? text}</p>
     </div>
   );
 }
 
 /* 归因 chip — Figma Chat/Element/Card(Automation 变体 11404:128447):pill,l2 描边 + br02 底,
    pl5 pr8 py2 gap4;live 点(m1 实心 + m1 半透光晕) + 名称(Regular 12 n9) + arrow-right-l2 12(n9) */
-function SeedSourceChip({ label }: { label: string }) {
+export function SeedSourceChip({ label }: { label: string }) {
   return (
     <span
       className="inline-flex items-center gap-[4px] rounded-full py-[2px] pl-[5px] pr-[8px]"
@@ -121,13 +123,13 @@ export function ChannelSeedThread({
   ] = CHANNEL_SEED_SHARE_MESSAGES;
   const seedAgentShareProps = (message: ConversationShareMessage) => ({
     portrait: selectionMode ? <SelectCheckbox checked={selectedIds?.has(message.id) ?? false} /> : undefined,
-    actions: !selectionMode && onCopyMessage && onShareMessage
-      ? <MsgHeaderActions onCopy={() => onCopyMessage(message)} onShare={() => onShareMessage(message.id)} />
+    footerActions: !selectionMode && onCopyMessage && onShareMessage
+      ? <MsgHoverActions onCopy={() => onCopyMessage(message)} onShare={() => onShareMessage(message.id)} />
       : undefined,
   });
 
   return (
-    <div className={`flex w-full flex-col ${selectionMode ? 'gap-[12px]' : 'gap-[28px]'}`}>
+    <div className={`flex w-full flex-col ${selectionMode ? 'gap-[12px]' : 'gap-[36px]'}`}>
       <SelectableMessage
         active={selectionMode}
         selected={selectedIds?.has(userShareMessage.id) ?? false}

@@ -25,10 +25,11 @@ function QuickIconButton({ icon, label, onClick }: { icon: string; label: string
   );
 }
 
-/* Alva header 行内 copy+share（Figma 9246:36248 copy+share:pl4 gap8,16px n9）— 通过 AgentMsg/SeedAgentMsg 的 actions slot 渲染 */
-export function MsgHeaderActions({ onCopy, onShare }: { onCopy: () => void; onShare: () => void }) {
+/* Alva 消息下方 copy+share（Figma 11748:25466 copy+share:16px 图标,间距 12,左对齐内容区）
+   — 由 AgentMsg/SeedAgentMsg 以 absolute 渲染在内容下方,hover 出现时不挤动其他消息 */
+export function MsgHoverActions({ onCopy, onShare }: { onCopy: () => void; onShare: () => void }) {
   return (
-    <div className={`flex min-w-0 flex-1 items-center gap-[8px] pl-[4px] ${HOVER_REVEAL}`}>
+    <div className={`flex items-center gap-[12px] ${HOVER_REVEAL}`}>
       <QuickIconButton icon="copy-l" label="Copy message" onClick={onCopy} />
       <QuickIconButton icon="share-l" label="Share message" onClick={onShare} />
     </div>

@@ -270,7 +270,7 @@ function DrawerConversation({ sourceThreadId }: { sourceThreadId?: string }) {
   const FONT = "font-['Delight',sans-serif]";
   /* 每条 answer:头部整行 + pl-30 缩进内容块（对齐 Alva 文字，avatar22+gap8）；内容首项为 ActivityTrace，末项 copy */
   return (
-    <div className="flex flex-col gap-[28px] items-start w-full pt-[8px]">
+    <div className="flex flex-col gap-[36px] items-start w-full pt-[8px]">
       {/* Round 1 · user（气泡自适应宽度、右对齐，最宽填满容器） */}
       <div className="flex flex-col items-end w-full">
         <div className="max-w-full px-[16px] py-[12px]" style={{ background: 'var(--main-m1-10)', borderRadius: 8 }}>

@@ -22,13 +22,14 @@ import { PortfolioInfoModal, type ConnectedBrokerInfo } from '@/app/components/a
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
+import { ScreenerSetupCard, type ScreenKey } from '@/app/components/agent/ScreenerSetupCard';
 import { setPortfolioWatchEnabled } from '@/lib/portfolio-watch';
-import { ChannelSeedThread } from '@/app/components/agent/ChannelSeedThread';
+import { ChannelSeedThread, SeedBullet, SeedSourceChip } from '@/app/components/agent/ChannelSeedThread';
 import { EMPTY_PROMPTS, EmptyPromptPill } from '@/app/components/chat/PlaybookSuggestions';
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
 import { SEED_CHANNEL_ID, channelsStore } from '@/app/state/channels';
 import { EditChannelModal } from '@/app/components/shared/EditChannelModal';
-import { MsgHeaderActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
+import { MsgHoverActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
 import { ShareImagePreview } from '@/app/components/share/ShareImagePreview';
 import { CHANNEL_SEED_SHARE_MESSAGES } from '@/app/components/share/channel-seed-share-messages';
 import {
@@ -55,12 +56,12 @@ const P = {
   bell: <><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" /><path d="M10.5 19a1.5 1.5 0 0 0 3 0" /></>,
 };
 
-/* Onboard Card/Default — Figma 11486:135467 四条引导:两条 automation builder + ticker read(即时问答) + custom 兜底 */
+/* Onboard Card/Default — 五条引导:两条 automation builder + ticker read(即时问答) + screener + custom 兜底 */
 interface OnboardCard { id: string; emoji: string; title: string; desc: string; prompt: string; taskTitle: string }
 
 /* portfolio / alpha radar 两条 automation 的引导 prompt — onboard 卡、Alerts Get Started 卡与 Portfolio 页深链共用 */
 const PORTFOLIO_FLOW_PROMPT = "Watch my portfolio 24/7 — tell me what you hold and I'll flag the moves, risks, and catalysts worth your attention";
-const ALPHA_FLOW_PROMPT = 'Track X, news & technicals for alpha — scan the voices I pick and send me a digest of signals where the evidence lines up';
+const ALPHA_FLOW_PROMPT = 'Track FinTwit, news & technicals for alpha — scan the voices I pick and send me a digest of signals where the evidence lines up';
 
 const ONBOARD_CARDS: OnboardCard[] = [
   {
@@ -74,7 +75,7 @@ const ONBOARD_CARDS: OnboardCard[] = [
   {
     id: 'fintwit-digest',
     emoji: '📣',
-    title: 'Track X, news & technicals for alpha',
+    title: 'Track FinTwit, news & technicals for alpha',
     desc: "I'll scan the X voices you pick, market news, and chart setups, then send you a fresh digest of signals where the evidence lines up.",
     prompt: ALPHA_FLOW_PROMPT,
     taskTitle: 'Automation: Alpha Radar',
@@ -88,17 +89,22 @@ const ONBOARD_CARDS: OnboardCard[] = [
     taskTitle: 'Skill: Ticker Read',
   },
   {
+    id: 'screener',
+    emoji: '🔍',
+    title: 'Screen the market on your rules',
+    desc: "Set your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.",
+    prompt: 'Screen the market on my rules — set my criteria once and message me only when new names qualify',
+    taskTitle: 'Automation: Smart Screener',
+  },
+  {
     id: 'custom-automation',
     emoji: '⚙️',
-    title: 'Build you own automations',
+    title: 'Build your own automations',
     desc: "Tell me what you want Alva to monitor and when it should run. I'll help shape it into a reliable automation.",
     prompt: 'Help me build my own automation — I want to describe a rule and have you run it on a schedule',
     taskTitle: 'Automation: Custom',
   },
 ];
-
-/* Screener 引导已从 onboard 移除(Figma 11486:135467 精简为 4 条);交互链路(startScreener/screenerrec)保留,
-   composer 发 screener 类 prompt 仍走 Automation: Smart Screener 任务流 */
 
 /* Alerts tab「Get Started」5 卡 — Figma 10845:71203(For Alert 变体);portfolio/fintwit 两张接现有 flow,其余回 Chat */
 const ALERT_GET_STARTED_CARDS: { id: string; emoji: string; title: string; desc: string }[] = [
@@ -129,16 +135,26 @@ const ALERT_GET_STARTED_CARDS: { id: string; emoji: string; title: string; desc:
   {
     id: 'gs-automations',
     emoji: '⚙️',
-    title: 'Build you own automations',
+    title: 'Build your own automations',
     desc: "Tell me what you want Alva to monitor and when it should run. I'll help shape it into a reliable automation.",
   },
 ];
 
-interface ImEntry { id: string; label: string; logo: string; handle: string; user: string; sub: string }
+interface ImEntry {
+  id: string; label: string; logo: string; handle: string; user: string; sub: string;
+  /** 已连接后的从属引导行(spec alva-agent §8:官方 bot 走 OAuth invite,可重复邀请不同 server;样式 Figma Draft 8341:126092) */
+  connectedAction?: { label: string; onClick: () => void };
+}
 
 const IMS: ImEntry[] = [
   { id: 'telegram', label: 'Telegram', logo: 'logo-social-telegram.svg', handle: '@yggyll_tg', user: 'SheerRuan', sub: 'Bot DM — instant pushes' },
-  { id: 'discord', label: 'Discord', logo: 'logo-social-discord.svg', handle: 'yggyll#0882', user: 'SheerRuan', sub: 'Bot DM — switch channels with /channel' },
+  {
+    id: 'discord', label: 'Discord', logo: 'logo-social-discord.svg', handle: 'yggyll#0882', user: 'SheerRuan', sub: 'Bot DM — switch channels with /channel',
+    connectedAction: {
+      label: 'Add Alva to your Discord servers',
+      onClick: () => window.open('https://discord.com/oauth2/authorize?client_id=alva-agent&scope=bot+applications.commands', '_blank', 'noopener'),
+    },
+  },
   { id: 'whatsapp', label: "WhatsApp", logo: 'logo-social-whatsapp.svg', handle: '+1 ··· 4821', user: '+1 ··· 4821', sub: 'Business account DM' },
   { id: 'slack', label: 'Slack', logo: 'logo-social-slack.svg', handle: '@yggyll · alva-hq', user: 'SheerRuan', sub: 'Alva app in your workspace' },
 ];
@@ -244,31 +260,38 @@ function AlertChannelsCard({ onConnect }: { onConnect: (id: string) => void }) {
   );
 }
 
-/* Onboard Card/Screener(Figma 10431:105520)— 3 条示例 screener prompt,行尾 enter-l(n5),点击即作为消息发出 */
-const SCREENER_PROMPTS = [
-  'Screen rate-sensitive small caps with 4 quarters of margin expansion and price strength into the FOMC meeting',
-  'Screen AI semiconductor stocks with revenue growth > 25% YoY and positive EPS revisions into Computex',
-  'Screen AI infrastructure stocks with FCF growth > 30% YoY and net cash on balance sheet',
-];
+/* Run to reveal → 各 preset 建的 screener automation（驱动 Alerts tab；automation 名全小写 kebab） */
+const SCREENER_ALERTS: Record<ScreenKey, AgentAlert> = {
+  congress: {
+    id: 'congress-trade-radar', name: 'congress-trade-radar', creator: 'YGGYLL',
+    lastRun: 'now', runEvery: 'Weekdays at 9:00 AM ET', runs: 0, status: 'active', source: 'created',
+  },
+  options: {
+    id: 'unusual-options-radar', name: 'unusual-options-radar', creator: 'YGGYLL',
+    lastRun: 'now', runEvery: 'Weekdays at 5:15 PM ET', runs: 0, status: 'active', source: 'created',
+  },
+  shorted: {
+    id: 'short-interest-radar', name: 'short-interest-radar', creator: 'YGGYLL',
+    lastRun: 'now', runEvery: 'When new short data lands', runs: 0, status: 'active', source: 'created',
+  },
+  breakouts: {
+    id: 'monthly-high-breakout-radar', name: 'monthly-high-breakout-radar', creator: 'YGGYLL',
+    lastRun: 'now', runEvery: 'Weekdays at 4:30 PM ET', runs: 0, status: 'active', source: 'created',
+  },
+  divergence: {
+    id: 'momentum-divergence-radar', name: 'momentum-divergence-radar', creator: 'YGGYLL',
+    lastRun: 'now', runEvery: 'Weekdays at 4:40 PM ET', runs: 0, status: 'active', source: 'created',
+  },
+};
 
-function ScreenerPromptsCard({ onPick }: { onPick: (text: string) => void }) {
-  return (
-    <div className="flex w-full flex-col overflow-hidden rounded-[8px]" style={{ background: '#fff', border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
-      {SCREENER_PROMPTS.map((text, i, arr) => (
-        <button
-          key={text}
-          type="button"
-          className="flex w-full cursor-pointer items-center gap-[8px] bg-transparent px-[16px] py-[12px] text-left transition-colors hover:bg-[var(--b-r02,rgba(0,0,0,0.02))]"
-          style={{ border: 'none', borderBottom: i < arr.length - 1 ? '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' : 'none' }}
-          onClick={() => onPick(text)}
-        >
-          <p className="min-w-0 flex-1 truncate text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{text}</p>
-          <CdnIcon name="enter-l" size={16} color="var(--text-n5, rgba(0,0,0,0.5))" />
-        </button>
-      ))}
-    </div>
-  );
-}
+/* Run 后的 Alva 确认回复 — 按选中 preset 说清节奏与首次送达时点 */
+const SCREENER_LIVE_TEXT: Record<ScreenKey, string> = {
+  congress: "Your screen is live. I'll run What Congress Just Bought every weekday at 9:00 AM ET and message you the fresh filings — first list lands tomorrow morning.",
+  options: "Your screen is live. I'll sweep the options tape every weekday at 5:15 PM ET and flag the biggest unusual bets — first list lands today after the close.",
+  shorted: "Your screen is live. I'll track exchange short-interest data and message you as soon as new numbers land — typically twice a month.",
+  breakouts: "Your screen is live. I'll scan for one-month highs on at least twice the usual volume every weekday at 4:30 PM ET.",
+  divergence: "Your screen is live. I'll scan for price and momentum divergences every weekday at 4:40 PM ET and message you when a new setup qualifies.",
+};
 
 /* Ticker Read skill — mock 读数(照 Telegram /ticker_read 输出结构:判断句 + TAPE + BREAKS IF + SOURCES);
    选项卡 17 个标的(Figma 11486:139136)全覆盖,BTC/ETH 不在 chips 但 composer 输入可读 */
@@ -505,9 +528,9 @@ function ChannelPortrait({ size = 32 }: { size?: number }) {
   );
 }
 
-function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', headerActions, children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; headerActions?: React.ReactNode; children: React.ReactNode }) {
+function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', footerActions, children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; footerActions?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="flex w-full items-start gap-[8px]">
+    <div className="relative flex w-full items-start gap-[8px]">
       {portrait ?? <AlvaPortrait size={22} />}
       {/* name 行与内容整体 gap 8;内容 div 内部(Markdown / widget 块之间)gap 12 */}
       <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
@@ -522,13 +545,14 @@ function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', 
             </span>
           )}
           <p className="text-[12px] leading-[20px] tracking-[0.12px]" style={{ fontFamily: FONT, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{time}</p>
-          {/* header 行内 copy+share（Figma 9246:36248:pl4 gap8,hover 出现）*/}
-          {headerActions}
         </div>
         <div className="flex min-w-0 w-full flex-col gap-[12px]">
           {children}
         </div>
       </div>
+      {/* copy+share — Figma 11748:25466 内 copy+share:内容下方 8px,左对齐内容区(portrait22+gap8=30);
+          absolute 不占位,hover 出现时其余元素不位移 */}
+      {footerActions && <div className="absolute left-[30px] top-full pt-[8px]">{footerActions}</div>}
     </div>
   );
 }
@@ -585,7 +609,9 @@ type ExtraMsg =
   | { id: number; role: 'typing' }
   | { id: number; role: 'task'; title: string; kind: 'playbook' | 'automation'; state: 'running' | 'done' }
   | { id: number; role: 'imrec' }
-  /* Onboard 第三条(screener)的推荐回复:两行文案 + 示例 prompt 卡(Figma 10673:50492) */
+  /* Onboard「Screen the market on your rules」的回复 — Figma 4605:13563 / 4605:13564 是两条独立 Block-Answer:
+     先是 automation 真实输出样本,再是 outcome-first setup 卡 */
+  | { id: number; role: 'screeneralert' }
   | { id: number; role: 'screenerrec' }
   /* Ticker Read skill:介绍 + 热门标的选项卡 / 按标的 mock 读数回复 */
   | { id: number; role: 'tickerask' }
@@ -599,7 +625,8 @@ type ExtraMsg =
   | { id: number; role: 'watchreply'; text: string };
 
 const TICKER_ASK_TEXT = 'This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.';
-const SCREENER_REC_TEXT = "Screen the market on your rules\nSet your criteria once — momentum, insider buying, deep value, anything. I'll watch the market and message you only when new names qualify.";
+const SCREENER_INTRO_TEXT = "Here's what Screener actually sends - real alerts from the official automation:";
+const SCREENER_REC_TEXT = "Grab a screen below, or tell me what you're looking for. I'll run it across the whole market and flag every new name that qualifies.";
 const IM_REC_TEXT = "One more thing — this agent only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires.";
 
 function shareDateForToday(): string {
@@ -614,6 +641,16 @@ function extraToShareMessage(message: ExtraMsg): ConversationShareMessage | null
     return { ...common, role: 'agent', text: message.text };
   }
   if (message.role === 'tickerask') return { ...common, role: 'agent', text: TICKER_ASK_TEXT };
+  if (message.role === 'screeneralert') {
+    return { ...common, role: 'agent', text: [
+      SCREENER_INTRO_TEXT,
+      'Aug 3, 09:00 PM · congress-trade-radar',
+      '🏛 What Congress Just Bought',
+      '🏛 $TSM — Cleo Fields bought $1k–$15k · filed Jul 30',
+      '🏛 $FMAO — Rep. Robert E. Latta (spouse) bought $1k–$15k · filed Jul 27',
+      'Public STOCK Act filings · not investment advice',
+    ].join('\n') };
+  }
   if (message.role === 'screenerrec') return { ...common, role: 'agent', text: SCREENER_REC_TEXT };
   if (message.role === 'imrec') return { ...common, role: 'agent', text: IM_REC_TEXT };
   if (message.role === 'tickerread') {
@@ -700,6 +737,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const imLinksRef = useRef(imLinks);
   imLinksRef.current = imLinks;
   const stageRef = useRef<HTMLDivElement>(null);
+  /* 贴底跟随开关 — 用户主动上滚即关,滚回底部恢复 */
+  const stickToEndRef = useRef(false);
   /* 会话代际:重置(点 Chat tab / 切频道)时 +1,悬挂中的 setTimeout 回复按代际作废,不会在新会话里凭空冒出 */
   const sessionEpochRef = useRef(0);
 
@@ -788,6 +827,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     setSelectedShareIds(new Set());
     setShareImageOpen(false);
     imRecShownRef.current = false;
+    stickToEndRef.current = false;
   }, []);
 
   /* 切换频道（含默认 Alva Agent）时，视图与会话产出回到该频道的空态 onboard；
@@ -800,10 +840,25 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     resetSession();
   }, [channel?.id, exitShareMode, resetSession]);
 
+  /* 贴底 — 插入的大卡(screener setup / builder)要好几帧才定稿(入场动画 350ms + 第二条 delay 300ms),
+     只滚一次量到的 scrollHeight 偏小、会停在半途 → 在内容定稿窗口内补滚几次。
+     用 setTimeout 而非 rAF:标签页/面板不可见时 rAF 会被暂停,补滚一次都跑不到 */
   const scrollToEnd = useCallback(() => {
-    requestAnimationFrame(() => {
-      stageRef.current?.scrollTo({ top: stageRef.current.scrollHeight, behavior: 'smooth' });
-    });
+    stickToEndRef.current = true;
+    const stick = () => {
+      const stage = stageRef.current;
+      if (!stage || !stickToEndRef.current) return;
+      stage.scrollTop = stage.scrollHeight;
+    };
+    stick();
+    [60, 200, 400, 700].forEach((delay) => setTimeout(stick, delay));
+  }, []);
+
+  /* 用户主动上滚即脱离跟随(用 wheel/touch 而非 scroll:程序滚动也会发 scroll,会把自己关掉);滚回底部恢复 */
+  const onStageUserScroll = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    stickToEndRef.current = stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 40;
   }, []);
 
   /* 任务流:user → typing → task running → done;完成后若未连 IM,一次性软推荐 */
@@ -873,7 +928,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     }, 1000);
   }, [scrollToEnd]);
 
-  /* Onboard「Screen the market on your rules」→ 发出带 Smart Screener 引用的用户消息,回复示例 prompt 推荐卡(Figma 10673:50480) */
+  /* Onboard「Screen the market on your rules」→ 发出带 Smart Screener 引用的用户消息，回复 outcome-first screener 卡 */
   const startScreener = useCallback((userText: string) => {
     setTab('chat');
     const epoch = sessionEpochRef.current;
@@ -885,8 +940,14 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     scrollToEnd();
     setTimeout(() => {
       if (sessionEpochRef.current !== epoch) return;
-      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'screenerrec' }));
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'screeneralert' }));
       scrollToEnd();
+      /* 样本先落地,再跟一条 setup 卡 — 两条独立消息,间距走消息流的 28px gap */
+      setTimeout(() => {
+        if (sessionEpochRef.current !== epoch) return;
+        setExtra((prev) => [...prev, { id: ++idRef.current, role: 'screenerrec' }]);
+        scrollToEnd();
+      }, 600);
     }, 1000);
   }, [scrollToEnd]);
 
@@ -933,6 +994,21 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         role: 'watchreply',
         text: "All set. I'm on watch now. I'll check for breaking news, macro/rate shifts, analyst changes, unusual price or volume moves, and important technical setups across your holdings. I'll only message when something looks worth your attention — share your thesis, key risks, or levels you care about and I'll watch the portfolio through that lens.",
       }));
+      scrollToEnd();
+    }, 900);
+  }, [scrollToEnd]);
+
+  /* Run to reveal → 建 screener automation（同 preset 去重）+ Alva 确认回复；setup 卡留在流里可换 preset 再 run */
+  const onRunScreen = useCallback((key: ScreenKey) => {
+    setSessionAlerts((prev) => (prev.some((alert) => alert.id === SCREENER_ALERTS[key].id) ? prev : [...prev, SCREENER_ALERTS[key]]));
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'watchreply', text: SCREENER_LIVE_TEXT[key] }));
       scrollToEnd();
     }, 900);
   }, [scrollToEnd]);
@@ -1118,9 +1194,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
       {tab === 'chat' ? (
         <>
-          <div ref={stageRef} className="min-h-0 flex-1 overflow-y-auto px-[28px]">
+          <div ref={stageRef} onWheel={onStageUserScroll} onTouchMove={onStageUserScroll} className="min-h-0 flex-1 overflow-y-auto px-[28px]">
             <style>{MSG_IN_CSS}</style>
-            <div className={`mx-auto flex w-full max-w-[960px] flex-col pb-[60px] pt-[28px] ${shareMode ? 'gap-[12px]' : 'gap-[28px]'}`}>
+            <div className={`mx-auto flex w-full max-w-[960px] flex-col pb-[60px] pt-[28px] ${shareMode ? 'gap-[12px]' : 'gap-[36px]'}`}>
               {/* 预置演示频道：聊天区为预置对话历史（恒显，Figma 10998:50677）；其余频道走 onboard 空态 */}
               {seeded && (
                 <MsgIn>
@@ -1178,7 +1254,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                 /* Alva 消息分享 props:选择态 checkbox 顶替头像位(9281:37663),平时 header 行内 copy+share(9246:36248) */
                 const agentShareProps = shareMessage ? {
                   portrait: shareMode ? <SelectCheckbox checked={msgSelected} /> : undefined,
-                  headerActions: !shareMode ? <MsgHeaderActions onCopy={() => copyMessage(shareMessage)} onShare={() => shareSingleMessage(shareMessage.id)} /> : undefined,
+                  footerActions: !shareMode ? <MsgHoverActions onCopy={() => copyMessage(shareMessage)} onShare={() => shareSingleMessage(shareMessage.id)} /> : undefined,
                 } : {};
                 if (m.role === 'user') return (
                   <SelectableMessage
@@ -1252,7 +1328,40 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     </SelectableMessage>
                   );
                 }
-                /* screenerrec — 第三条引导的推荐回复:标题 + 说明两行,下接示例 prompt 卡,点行即发送 */
+                /* screeneralert — Figma 4605:13563:引导句 + automation 真实输出样本卡 */
+                if (m.role === 'screeneralert') {
+                  return (
+                    <SelectableMessage
+                      key={m.id}
+                      active={shareMode}
+                      selected={msgSelected}
+                      label="Select Alva answer for sharing"
+                      onToggle={() => toggleShareMessage(`extra-${m.id}`)}
+                    >
+                      <MsgIn>
+                        <AgentMsg time="10:28 PM" {...agentShareProps}>
+                          <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SCREENER_INTRO_TEXT}</p>
+                          {/* Chat/Element/Card 4605:13579 — l2 描边 + p16 + gap12 radius8 */}
+                          <div className="flex w-full flex-col items-start gap-[12px] overflow-hidden rounded-[8px] p-[16px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
+                            <SeedSourceChip label="Aug 3, 09:00 PM · congress-trade-radar" />
+                            <p className="flex h-[22px] w-full items-center text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>🏛 What Congress Just Bought</p>
+                            <div className="flex w-full flex-col gap-[4px]">
+                              <SeedBullet>
+                                <span className="font-medium">🏛 $TSM</span>{' — Cleo Fields bought $1k–$15k · filed Jul 30'}
+                              </SeedBullet>
+                              <SeedBullet>
+                                <span className="font-medium">🏛 $FMAO</span>{' — Rep. Robert E. Latta (spouse) bought $1k–$15k · filed Jul 27'}
+                              </SeedBullet>
+                            </div>
+                            <p className="w-full text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Public STOCK Act filings · not investment advice</p>
+                          </div>
+                        </AgentMsg>
+                      </MsgIn>
+                    </SelectableMessage>
+                  );
+                }
+                /* screenerrec — Figma 4605:13564:引导句 + outcome-first setup 卡
+                   (结果预览跟随 pick 切换,Run to reveal 建 automation;交互卡参与分享仅导出文案) */
                 if (m.role === 'screenerrec') {
                   return (
                     <SelectableMessage
@@ -1263,9 +1372,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
                     >
                       <MsgIn>
-                        <AgentMsg time="now" {...agentShareProps}>
+                        <AgentMsg time="" {...agentShareProps}>
                           <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SCREENER_REC_TEXT}</p>
-                          <ScreenerPromptsCard onPick={onPrompt} />
+                          <ScreenerSetupCard onRun={onRunScreen} />
                         </AgentMsg>
                       </MsgIn>
                     </SelectableMessage>
@@ -1557,7 +1666,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
       {imModalOpen && (
         <ConnectAppsModal
-          rows={IMS.map((im) => ({ id: im.id, name: im.label, sub: im.sub, handle: im.handle, logo: `${base}${im.logo}` }))}
+          rows={IMS.map((im) => ({ id: im.id, name: im.label, sub: im.sub, handle: im.handle, logo: `${base}${im.logo}`, connectedAction: im.connectedAction }))}
           connectedIds={IMS.filter((im) => imLinks[im.id]).map((im) => im.id)}
           activeId={imActive}
           onClose={() => setImModalOpen(false)}

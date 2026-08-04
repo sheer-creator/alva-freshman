@@ -39,17 +39,26 @@ function ReceiverSelect({ active }: { active: AgentPlatform | null }) {
   );
 }
 
+/* Discord 已连接后的从属引导:官方 bot 走 OAuth invite、用户在 Discord 侧选服务器,可重复邀请不同 server(spec alva-agent §8;样式 Figma Draft 8341:126092) */
+const DISCORD_INVITE_ACTION = {
+  label: 'Add Alva to your Discord servers',
+  onClick: () => window.open('https://discord.com/oauth2/authorize?client_id=alva-agent&scope=bot+applications.commands', '_blank', 'noopener'),
+};
+
 function AppRow({
   platform,
   connected,
   onAction,
+  connectedAction,
 }: {
   platform: typeof PLATFORMS[number];
   connected: boolean;
   onAction: () => void;
+  connectedAction?: typeof DISCORD_INVITE_ACTION;
 }) {
-  return (
-    <RowCard style={{ gap: platform.id === 'telegram' ? 12 : 16 }}>
+  const gap = platform.id === 'telegram' ? 12 : 16;
+  const main = (
+    <>
       <img src={platform.logo} alt="" className="size-[40px] shrink-0" />
       <div className="flex-1 min-w-0 flex flex-col gap-[4px]">
         <p className="text-[16px] leading-[26px] tracking-[0.16px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: SETTINGS_FONT }}>{platform.name}</p>
@@ -64,6 +73,32 @@ function AppRow({
         style={{ color: connected ? 'var(--text-n5, rgba(0,0,0,0.5))' : 'var(--main-m1, #49A3A6)', fontFamily: SETTINGS_FONT }}
       >
         {connected ? 'Disconnect' : 'Connect'}
+      </button>
+    </>
+  );
+  if (!connected || !connectedAction) {
+    return <RowCard style={{ gap }}>{main}</RowCard>;
+  }
+  /* 有从属引导时卡片转稿子结构(Figma 8341:126092,微观值照稿、外围 padding 沿设置页 20):
+     主行 + 分隔线(line-l12 0.5,随卡片 padding 缩进)+ link-l 16 n9 + 文案 12 n9 + arrow-right-l2 12 n5 */
+  return (
+    <RowCard style={{ flexDirection: 'column', alignItems: 'stretch', gap: 12, padding: '20px 20px 0' }}>
+      <div className="flex items-center" style={{ gap }}>{main}</div>
+      <button
+        type="button"
+        onClick={connectedAction.onClick}
+        className="flex w-full cursor-pointer items-center gap-[4px] border-none bg-transparent px-0 py-[8px] text-left"
+        style={{ borderTop: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))', fontFamily: SETTINGS_FONT }}
+      >
+        <span className="shrink-0">
+          <CdnIcon name="link-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+        </span>
+        <p className="min-w-0 flex-1 break-words text-[12px] leading-[20px] tracking-[0.12px]" style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+          {connectedAction.label}
+        </p>
+        <span className="shrink-0">
+          <CdnIcon name="arrow-right-l2" size={12} color="var(--text-n5, rgba(0,0,0,0.5))" />
+        </span>
       </button>
     </RowCard>
   );
@@ -98,6 +133,7 @@ export default function AlvaAgentSettings({ onNavigate }: { onNavigate: (page: P
                 key={platform.id}
                 platform={platform}
                 connected={connected}
+                connectedAction={platform.id === 'discord' ? DISCORD_INVITE_ACTION : undefined}
                 onAction={() => {
                   if (connected) {
                     disconnect(platform.id);
