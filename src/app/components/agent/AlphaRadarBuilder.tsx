@@ -589,7 +589,7 @@ function AlphaRadarPanel({
           {sources.map((source, index) => (
             <div
               key={source.id}
-              className={`flex min-w-0 flex-col border-b border-[rgba(0,0,0,0.12)]${index < sources.length - 1 ? ' md:border-r' : ''}`}
+              className={`flex min-w-0 flex-col border-b-[0.5px] border-[color:var(--line-l12,rgba(0,0,0,0.12))]${index < sources.length - 1 ? ' md:border-r-[0.5px]' : ''}`}
             >
               <SourceToggleRow source={source} selected={selectedSources.has(source.id)} onToggle={() => toggleSource(source.id)} />
               {source.id === 'fintwit' && isFintwitSelected && (
