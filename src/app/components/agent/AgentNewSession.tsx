@@ -528,7 +528,7 @@ function ChannelPortrait({ size = 32 }: { size?: number }) {
   );
 }
 
-function AgentMsg({ pushed, time = 'Thursday 7:22 PM', portrait, name = 'Alva', footerActions, children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; footerActions?: React.ReactNode; children: React.ReactNode }) {
+function AgentMsg({ pushed, time = 'now', portrait, name = 'Alva', footerActions, children }: { pushed?: boolean; time?: string; portrait?: React.ReactNode; name?: string; footerActions?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="relative flex w-full items-start gap-[8px]">
       {portrait ?? <AlvaPortrait size={22} />}
@@ -1213,7 +1213,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               {/* 开场恒为 onboard 引导（不随连接切换也不随会话开始收起）:点击入口后卡片保留在流里,交互一直在下方追加 */}
               {!seeded && (
               <MsgIn>
-              <AgentMsg time="" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
+              <AgentMsg time="now" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
                 <div>
                   <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Hey, I'm Alva, your AI investing agent.</p>
                   <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -1339,7 +1339,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
                     >
                       <MsgIn>
-                        <AgentMsg time="10:28 PM" {...agentShareProps}>
+                        <AgentMsg time="now" {...agentShareProps}>
                           <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SCREENER_INTRO_TEXT}</p>
                           {/* Chat/Element/Card 4605:13579 — l2 描边 + p16 + gap12 radius8 */}
                           <div className="flex w-full flex-col items-start gap-[12px] overflow-hidden rounded-[8px] p-[16px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
@@ -1372,7 +1372,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
                     >
                       <MsgIn>
-                        <AgentMsg time="" {...agentShareProps}>
+                        <AgentMsg time="now" {...agentShareProps}>
                           <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{SCREENER_REC_TEXT}</p>
                           <ScreenerSetupCard onRun={onRunScreen} />
                         </AgentMsg>
