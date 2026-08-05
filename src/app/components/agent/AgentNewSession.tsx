@@ -21,6 +21,7 @@ import { ConnectAccountModal, brokerDisplayInfo } from '@/app/components/portfol
 import { PortfolioInfoModal, type ConnectedBrokerInfo } from '@/app/components/agent/PortfolioInfoModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
 import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
+import { PortfolioWatchLoopCard } from '@/app/components/agent/PortfolioWatchLoopCard';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
 import { ScreenerSetupCard, type ScreenKey } from '@/app/components/agent/ScreenerSetupCard';
 import { setPortfolioWatchEnabled } from '@/lib/portfolio-watch';
@@ -615,8 +616,11 @@ type ExtraMsg =
   /* Ticker Read skill:介绍 + 热门标的选项卡 / 按标的 mock 读数回复 */
   | { id: number; role: 'tickerask' }
   | { id: number; role: 'tickerread'; symbols: string[] }
-  /* Onboard 前两条 automation 的对话流回复:builder 卡内嵌消息(原独立 flow 视图迁入) */
+  /* Onboard 前两条 automation 的对话流回复:builder 卡内嵌消息(原独立 flow 视图迁入)。
+     portfolio 分两步:portfoliobuilder = Watching Loop 回放卡(第一步),
+     点 Setup the Watch 后追加 portfolioconfig = 分步建仓配置(第二步,Start Watching 才建 automation) */
   | { id: number; role: 'portfoliobuilder' }
+  | { id: number; role: 'portfolioconfig' }
   | { id: number; role: 'alpharadar' }
   | { id: number; role: 'subpush'; title: string; push?: string; automation: string }
   | { id: number; role: 'answer'; text: string }
@@ -932,9 +936,24 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   }, [scrollToEnd]);
 
 
-  /* Onboard「Watch your portfolio 24/7」/「Track X, news & technicals」→ 不再进独立视图：
+  /* Onboard「Watch your portfolio 24/7」→ 直接回 Watching Loop 回放卡。
+     不在此处预插用户消息(同 startScreener):用户真正"说"的是点 Setup the Watch 时那句,由 onSetupWatch 发出 */
+  const startPortfolioFlow = useCallback(() => {
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'portfoliobuilder' }));
+      scrollToEnd();
+    }, 1000);
+  }, [scrollToEnd]);
+
+  /* Onboard「Track X, news & technicals」→ 不再进独立视图：
      点击即把引导 prompt 作为用户消息发出,typing 后 Alva 在对话流下方回复内嵌 builder 卡 */
-  const startBuilderFlow = useCallback((userText: string, role: 'portfoliobuilder' | 'alpharadar') => {
+  const startBuilderFlow = useCallback((userText: string, role: 'alpharadar') => {
     setTab('chat');
     const epoch = sessionEpochRef.current;
     const userId = ++idRef.current;
@@ -953,9 +972,25 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     const flow = getAgentFlow();
     if (!flow) return;
     window.history.replaceState(null, '', '#agent');
-    if (flow === 'portfolio') startBuilderFlow(PORTFOLIO_FLOW_PROMPT, 'portfoliobuilder');
+    if (flow === 'portfolio') startPortfolioFlow();
     else startBuilderFlow(ALPHA_FLOW_PROMPT, 'alpharadar');
-  }, [startBuilderFlow]);
+  }, [startPortfolioFlow, startBuilderFlow]);
+
+  /* Setup the Watch(Watching Loop 卡)→ 进入第二步:发出用户消息,typing 后追加分步建仓配置卡。
+     回放卡留在流里(可再点,配置卡会再追加一张,与 screener 换 preset 再 run 同理) */
+  const onSetupWatch = useCallback(() => {
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    const userId = ++idRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, { id: userId, role: 'user', text: 'Set up the watch' }, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'portfolioconfig' }));
+      scrollToEnd();
+    }, 900);
+  }, [scrollToEnd]);
 
   /* Start Watching → 一条 Alva 确认回复(内嵌「选择推送渠道」卡片,未连接才显示),无用户气泡;builder 卡留在对话流里 */
   const onStartWatching = useCallback((_picks: { symbol: string; qty: string }[]) => {
@@ -1213,7 +1248,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       style={{ border: 'none', borderBottom: i < arr.length - 1 ? '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' : 'none' }}
                       onClick={() => {
                         if (c.id === 'ticker-read') startTickerRead(c.prompt);
-                        if (c.id === 'portfolio-digest') startBuilderFlow(c.prompt, 'portfoliobuilder');
+                        if (c.id === 'portfolio-digest') startPortfolioFlow();
                         if (c.id === 'fintwit-digest') startBuilderFlow(c.prompt, 'alpharadar');
                         if (c.id === 'screener') startScreener();
                       }}
@@ -1332,18 +1367,32 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     </SelectableMessage>
                   );
                 }
-                /* portfoliobuilder — onboard「Watch your portfolio 24/7」的对话流回复:引导文案 + 内嵌建仓向导(原独立 flow 视图迁入);
+                /* portfoliobuilder — 第一步:引导文案 + Watching Loop 回放卡(8s 循环逐小时巡检);
                    交互卡不参与分享(与 task 卡同理) */
                 if (m.role === 'portfoliobuilder') {
                   return (
                     <MsgIn key={m.id}>
                       <AgentMsg time="now">
                         <div>
-                          <p className="text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Watch your portfolio 24/7</p>
+                          <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Watch your portfolio 24/7</p>
                           <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                             I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.
                           </p>
                         </div>
+                        <PortfolioWatchLoopCard onSetup={onSetupWatch} />
+                      </AgentMsg>
+                    </MsgIn>
+                  );
+                }
+                /* portfolioconfig — 第二步:Setup the Watch 后的分步建仓配置(手动建仓 / 券商 / 截图上传),
+                   卡内 Start Watching 才真正建 automation */
+                if (m.role === 'portfolioconfig') {
+                  return (
+                    <MsgIn key={m.id}>
+                      <AgentMsg time="now">
+                        <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                          Tell me what you hold — add positions by hand, connect a brokerage, or drop in a screenshot. I'll weight every read by your position size.
+                        </p>
                         <PortfolioBuilder initialBrokerId={connectedBroker?.id} onStart={onStartWatching} />
                       </AgentMsg>
                     </MsgIn>
@@ -1528,7 +1577,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               ...c,
               onClick: () => {
                 setTab('chat');
-                if (c.id === 'gs-portfolio') startBuilderFlow(PORTFOLIO_FLOW_PROMPT, 'portfoliobuilder');
+                if (c.id === 'gs-portfolio') startPortfolioFlow();
                 if (c.id === 'gs-fintwit') startBuilderFlow(ALPHA_FLOW_PROMPT, 'alpharadar');
               },
             }))}
@@ -1600,7 +1649,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
         successInfo={{
           onViewPortfolio: () => onNavigate('portfolio'),
           onTrade: () => onPrompt("Help me place a trade — draft the order and I'll approve it"),
-          onWatch: () => startBuilderFlow(PORTFOLIO_FLOW_PROMPT, 'portfoliobuilder'),
+          onWatch: startPortfolioFlow,
         }}
       />
 
@@ -1611,7 +1660,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
           onClose={() => setPortfolioInfoOpen(false)}
           onViewPortfolio={() => { setPortfolioInfoOpen(false); onNavigate('portfolio'); }}
           onTrade={() => { setPortfolioInfoOpen(false); onPrompt("Help me place a trade — draft the order and I'll approve it"); }}
-          onWatch={() => { setPortfolioInfoOpen(false); startBuilderFlow(PORTFOLIO_FLOW_PROMPT, 'portfoliobuilder'); }}
+          onWatch={() => { setPortfolioInfoOpen(false); startPortfolioFlow(); }}
           onConnectAnother={() => { setPortfolioInfoOpen(false); setBrokerModalOpen(true); }}
         />
       )}
