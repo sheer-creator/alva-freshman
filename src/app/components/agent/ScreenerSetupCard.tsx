@@ -332,7 +332,7 @@ function CellView({ cell, align }: { cell: Cell; align?: 'right' }) {
 /* 数据行 — px16 py8;稿 12577:30537 改为下边线(表头与前 3 行 border-b),末行不带线 */
 function ResultRow({ columns, cells, divider = true }: { columns: Column[]; cells: Cell[]; divider?: boolean }) {
   return (
-    <div className="flex w-full items-center overflow-hidden px-[16px] py-[8px]" style={divider ? { borderBottom: `0.5px solid ${L12}` } : undefined}>
+    <div className="flex w-full items-center gap-[20px] overflow-hidden px-[16px] py-[8px]" style={divider ? { borderBottom: `0.5px solid ${L12}` } : undefined}>
       {columns.map((column, index) => (
         <ColumnCell key={column.label} column={column}>
           <CellView cell={cells[index]} align={column.align} />
@@ -364,7 +364,7 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
             </div>
 
             <div className="relative overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
-              <div className="flex w-full items-center overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
+              <div className="flex w-full items-center gap-[20px] overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
                 {screen.columns.map((column) => (
                   <ColumnCell key={column.label} column={column}>
                     <span className={`min-w-0 flex-1 truncate py-[8px] ${column.align === 'right' ? 'text-right' : ''}`} style={textStyle(12, 20, N7)}>{column.label}</span>
@@ -383,10 +383,10 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
                     <ResultRow key={`${selected}-locked-${index}`} columns={screen.columns} cells={cells} divider={false} />
                   ))}
                 </div>
-                {/* Mask — 稿:h52 铺满末行,横排 gap8;32px m1-10 圆底 + 18px m1 锁 + 14 n5 文案 */}
+                {/* Mask — 稿:h52 铺满末行,横排 gap8;32px br05 圆底 + 18px 锁(asset fill black/0.9 → n9) + 14 n5 文案 */}
                 <div className="absolute inset-0 flex items-center justify-center gap-[8px] bg-[rgba(255,255,255,0.85)] backdrop-blur-[3px]">
-                  <span className="flex size-[32px] shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
-                    <CdnIcon name="locked-l" size={18} color={M1} />
+                  <span className="flex size-[32px] shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--b-r05, rgba(0,0,0,0.05))' }}>
+                    <CdnIcon name="locked-l" size={18} color={N9} />
                   </span>
                   <span className="whitespace-nowrap" style={textStyle(14, 22, N5)}>8 more — run to reveal</span>
                 </div>
