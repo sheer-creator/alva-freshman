@@ -61,22 +61,21 @@ function SeedLine({ medium, children }: { medium?: boolean; children: ReactNode 
   );
 }
 
-/* 列表项 — Figma Markdown Item:20×22 圆点位(4px n9 dot) + 正文(Regular 14 n9);
-   children 用于正文含 Medium 片段的富文本行(如 screener alert 的 $TSM — …) */
-export function SeedBullet({ text, children }: { text?: string; children?: React.ReactNode }) {
+/* 列表项 — Figma Markdown Item:20×22 圆点位(4px n9 dot) + 正文(Regular 14 n9) */
+function SeedBullet({ text }: { text: string }) {
   return (
     <div className="flex w-full items-start">
       <span className="flex h-[22px] w-[20px] shrink-0 items-center justify-center">
         <span className="size-[4px] rounded-full" style={{ background: 'var(--text-n9, rgba(0,0,0,0.9))' }} />
       </span>
-      <p className="min-w-0 flex-1 text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{children ?? text}</p>
+      <p className="min-w-0 flex-1 text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{text}</p>
     </div>
   );
 }
 
 /* 归因 chip — Figma Chat/Element/Card(Automation 变体 11404:128447):pill,l2 描边 + br02 底,
    pl5 pr8 py2 gap4;live 点(m1 实心 + m1 半透光晕) + 名称(Regular 12 n9) + arrow-right-l2 12(n9) */
-export function SeedSourceChip({ label }: { label: string }) {
+function SeedSourceChip({ label }: { label: string }) {
   return (
     <span
       className="inline-flex items-center gap-[4px] rounded-full py-[2px] pl-[5px] pr-[8px]"

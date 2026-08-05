@@ -8,23 +8,23 @@
 
 import { useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
-import { Dropdown } from '@/app/components/shared/Dropdown';
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
 
 const FONT = "'Delight', sans-serif";
 const N9 = 'var(--text-n9, rgba(0,0,0,0.9))';
 const N7 = 'var(--text-n7, rgba(0,0,0,0.7))';
 const N5 = 'var(--text-n5, rgba(0,0,0,0.5))';
-const N3 = 'var(--text-n3, rgba(0,0,0,0.3))';
 const L12 = 'var(--line-l12, rgba(0,0,0,0.12))';
 const L2 = 'var(--line-l2, rgba(0,0,0,0.2))';
-const L3 = 'var(--line-l3, rgba(0,0,0,0.3))';
 const M1 = 'var(--main-m1, #49a3a6)';
 const M3 = 'var(--main-m3, #2a9b7d)';
 const M4 = 'var(--main-m4, #e05357)';
 const G03 = 'var(--grey-g03, #f0f0f0)';
 /* Avatar · R 的描边是组件固定值(稿里 D/R 两党四行同色),不是党派色 */
 const AVATAR_RING = '#c25450';
+
+/* 选项区标题 — 稿里为占位「Pick a screen xxxx xxxx」;说明"选一个,上方预览随之切换" */
+const PICK_A_SCREEN_LABEL = 'Pick a screen to preview';
 
 export type ScreenKey = 'congress' | 'options' | 'shorted' | 'breakouts' | 'divergence';
 
@@ -329,10 +329,10 @@ function CellView({ cell, align }: { cell: Cell; align?: 'right' }) {
   }
 }
 
-/* 数据行 — px16 py8 + 0.5 l12 上边(稿:Table Item/Row & Column) */
-function ResultRow({ columns, cells }: { columns: Column[]; cells: Cell[] }) {
+/* 数据行 — px16 py8;稿 12577:30537 改为下边线(表头与前 3 行 border-b),末行不带线 */
+function ResultRow({ columns, cells, divider = true }: { columns: Column[]; cells: Cell[]; divider?: boolean }) {
   return (
-    <div className="flex w-full items-center px-[16px] py-[8px]" style={{ borderTop: `0.5px solid ${L12}` }}>
+    <div className="flex w-full items-center overflow-hidden px-[16px] py-[8px]" style={divider ? { borderBottom: `0.5px solid ${L12}` } : undefined}>
       {columns.map((column, index) => (
         <ColumnCell key={column.label} column={column}>
           <CellView cell={cells[index]} align={column.align} />
@@ -342,11 +342,10 @@ function ResultRow({ columns, cells }: { columns: Column[]; cells: Cell[] }) {
   );
 }
 
-export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey) => void }) {
+/* onRun 带上选中项的 prompt — 用户消息在点 Run 时才发出(内容即所选 screen 的 prompt),不在入口处预插 */
+export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: string) => void }) {
   const [selected, setSelected] = useState<ScreenKey>('congress');
-  const [language, setLanguage] = useState('en');
   const screen = SCREEN_OPTIONS.find((option) => option.key === selected) ?? SCREEN_OPTIONS[0];
-  const languageLabel = language === 'zh' ? '简体中文' : 'English';
 
   return (
     <div className="w-full overflow-hidden rounded-[8px] bg-white" style={{ border: `0.5px solid ${L2}` }}>
@@ -365,7 +364,7 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey) => void }
             </div>
 
             <div className="relative overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
-              <div className="flex w-full items-center px-[16px]">
+              <div className="flex w-full items-center overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
                 {screen.columns.map((column) => (
                   <ColumnCell key={column.label} column={column}>
                     <span className={`min-w-0 flex-1 truncate py-[8px] ${column.align === 'right' ? 'text-right' : ''}`} style={textStyle(12, 20, N7)}>{column.label}</span>
@@ -373,29 +372,31 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey) => void }
                 ))}
               </div>
 
-              {screen.rows.slice(0, 2).map((cells, index) => (
+              {/* 稿 12577:30537:前 3 行明文,只有末行被遮罩 */}
+              {screen.rows.slice(0, 3).map((cells, index) => (
                 <ResultRow key={`${selected}-${index}`} columns={screen.columns} cells={cells} />
               ))}
 
-              {/* 高度由两行自身撑开(稿:两行 104,mask 102 浮于其上),不写死以免行高微调时裁行 */}
-              <div className="relative overflow-hidden" style={{ borderTop: `0.5px solid ${L12}` }}>
+              <div className="relative overflow-hidden">
                 <div aria-hidden="true">
-                  {screen.rows.slice(2).map((cells, index) => (
-                    <ResultRow key={`${selected}-locked-${index}`} columns={screen.columns} cells={cells} />
+                  {screen.rows.slice(3).map((cells, index) => (
+                    <ResultRow key={`${selected}-locked-${index}`} columns={screen.columns} cells={cells} divider={false} />
                   ))}
                 </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-[4px] bg-[rgba(255,255,255,0.85)] backdrop-blur-[3px]">
-                  <span className="flex size-[36px] items-center justify-center rounded-full bg-[var(--b0-sidebar,#2a2a38)]" style={{ border: `2px solid ${M1}` }}>
-                    <CdnIcon name="locked-l" size={18} color="#fff" />
+                {/* Mask — 稿:h52 铺满末行,横排 gap8;32px m1-10 圆底 + 18px m1 锁 + 14 n5 文案 */}
+                <div className="absolute inset-0 flex items-center justify-center gap-[8px] bg-[rgba(255,255,255,0.85)] backdrop-blur-[3px]">
+                  <span className="flex size-[32px] shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--main-m1-10, rgba(73,163,166,0.1))' }}>
+                    <CdnIcon name="locked-l" size={18} color={M1} />
                   </span>
-                  <span style={textStyle(12, 20, N5)}>8 more — Run to reveal</span>
+                  <span className="whitespace-nowrap" style={textStyle(14, 22, N5)}>8 more — run to reveal</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center bg-white px-[16px] py-[12px]" style={{ borderTop: `0.5px solid ${L12}` }}>
-            <p style={textStyle(14, 22, N9, 500)}>Pick a screen — the list above follows your pick</p>
+          {/* 稿:此行底色 g01 #fafafa(不再是白),Medium 14 n9 */}
+          <div className="flex items-center px-[16px] py-[12px]" style={{ borderTop: `0.5px solid ${L12}`, background: 'var(--grey-g01, #fafafa)' }}>
+            <p className="min-w-0 flex-1 truncate" style={textStyle(14, 22, N9, 500)}>{PICK_A_SCREEN_LABEL}</p>
           </div>
 
           {SCREEN_OPTIONS.map((option) => {
@@ -421,35 +422,11 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey) => void }
             );
           })}
 
-          <div className="flex items-center gap-[20px] px-[16px] py-[16px]" style={{ borderTop: `0.5px solid ${L12}` }}>
-            <div className="flex min-w-0 flex-1 items-center gap-[8px]">
-              <span className="shrink-0" style={textStyle(12, 20, N7)}>Language</span>
-              <Dropdown
-                items={[
-                  { id: 'en', label: 'English' },
-                  { id: 'zh', label: '简体中文' },
-                ]}
-                activeId={language}
-                onSelect={setLanguage}
-                width={116}
-                openUp
-                trigger={(
-                  <button
-                    type="button"
-                    aria-label="Screener language"
-                    aria-haspopup="listbox"
-                    className="flex h-[28px] w-[116px] items-center gap-[4px] rounded-[4px] bg-white px-[8px] py-[4px] text-left"
-                    style={{ border: `0.5px solid ${L3}` }}
-                  >
-                    <span className="min-w-0 flex-1 truncate" style={textStyle(12, 20, N9)}>{languageLabel}</span>
-                    <CdnIcon name="arrow-down-f2" size={12} color={N3} />
-                  </button>
-                )}
-              />
-            </div>
+          {/* 稿:footer 只留主按钮并右对齐(Language 下拉已移除) */}
+          <div className="flex items-center justify-end gap-[20px] bg-white p-[16px]" style={{ borderTop: `0.5px solid ${L12}` }}>
             <button
               type="button"
-              onClick={() => onRun(selected)}
+              onClick={() => onRun(selected, screen.prompt)}
               className="flex h-[40px] shrink-0 cursor-pointer items-center justify-center rounded-[6px] border-none px-[20px] py-[9px] text-white transition-opacity hover:opacity-90"
               style={{ ...textStyle(14, 22, '#fff', 500), background: M1 }}
             >
