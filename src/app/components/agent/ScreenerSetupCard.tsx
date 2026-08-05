@@ -23,8 +23,8 @@ const G03 = 'var(--grey-g03, #f0f0f0)';
 /* Avatar · R 的描边是组件固定值(稿里 D/R 两党四行同色),不是党派色 */
 const AVATAR_RING = '#c25450';
 
-/* 选项区标题 — 稿里为占位「Pick a screen xxxx xxxx」;说明"选一个,上方预览随之切换" */
-const PICK_A_SCREEN_LABEL = 'Pick a screen to preview';
+/* 预览区大标题前缀 — 稿 12585:54747「Screener · What Congress Just Bought」 */
+const PREVIEW_TITLE_PREFIX = 'Screener · ';
 
 export type ScreenKey = 'congress' | 'options' | 'shorted' | 'breakouts' | 'divergence';
 
@@ -48,6 +48,8 @@ type Cell =
 interface ScreenOption {
   key: ScreenKey;
   prompt: string;
+  /* 预览区大标题(接在 PREVIEW_TITLE_PREFIX 后);稿只给了 congress 一条,其余按同句式拟 */
+  title: string;
   columns: Column[];
   rows: [Cell[], Cell[], Cell[], Cell[]];
 }
@@ -56,6 +58,7 @@ interface ScreenOption {
 const CONGRESS: ScreenOption = {
   key: 'congress',
   prompt: 'Track what members of Congress just bought — weekdays 9:00 AM ET',
+  title: 'What Congress Just Bought',
   columns: [
     { label: 'Member', width: 280 },
     { label: 'Ticker' },
@@ -99,6 +102,7 @@ const CONGRESS: ScreenOption = {
 const OPTIONS: ScreenOption = {
   key: 'options',
   prompt: "See today's biggest unusual options bets — weekdays at 5:15 PM ET",
+  title: 'Biggest Unusual Options Bets',
   columns: [
     { label: 'Ticker', width: 280 },
     { label: 'Contract' },
@@ -137,6 +141,7 @@ const OPTIONS: ScreenOption = {
 const SHORTED: ScreenOption = {
   key: 'shorted',
   prompt: "Track the market's most heavily shorted stocks — when new short data lands",
+  title: 'Most Heavily Shorted Stocks',
   columns: [
     { label: 'Ticker', width: 280 },
     { label: 'Short % of float', width: 210 },
@@ -175,6 +180,7 @@ const SHORTED: ScreenOption = {
 const BREAKOUTS: ScreenOption = {
   key: 'breakouts',
   prompt: 'Find breakouts to one-month highs on double the usual volume — weekdays 4:30 PM ET',
+  title: 'Breakouts to One-Month Highs',
   columns: [
     { label: 'Ticker', width: 280 },
     { label: 'Breakout' },
@@ -212,6 +218,7 @@ const BREAKOUTS: ScreenOption = {
 const DIVERGENCE: ScreenOption = {
   key: 'divergence',
   prompt: 'Spot stocks where price and momentum are starting to disagree — every weekday at 4:40 PM ET',
+  title: 'Price & Momentum Divergence',
   columns: [
     { label: 'Ticker', width: 280 },
     { label: 'Divergence' },
@@ -351,19 +358,25 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
     <div className="w-full overflow-hidden rounded-[8px] bg-white" style={{ border: `0.5px solid ${L2}` }}>
       <div className="overflow-x-auto">
         <div className="min-w-[760px]">
-          <div className="relative overflow-hidden px-[32px] pt-[32px]">
-            {/* 稿 12555:82256:m1 底 opacity40,图 aspect 4096/2527、top -180 / bottom -186、mix-blend-lighten。
-                稿写 left calc(50%-4px) 但整层套了一次 -scale-x-100(内层再翻回图片本身),镜像后视觉是偏右 4px */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden bg-[var(--main-m1,#49a3a6)] opacity-40">
+          {/* 稿 12585:54746:pt28 px32 gap20,标题居中 */}
+          <div className="relative flex flex-col items-center gap-[20px] overflow-hidden px-[32px] pt-[28px]">
+            {/* 底图 — 稿 12585:54829/54831:m1 底 opacity30,图 1310×808、top -235 / bottom -247、mix-blend-lighten。
+                稿写 left -274,但整层套了一次 -scale-x-100(内层再翻回图片本身),镜像后视觉左边缘在 -106(=-11.4%) */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden bg-[var(--main-m1,#49a3a6)] opacity-30">
               <img
                 src={`${import.meta.env.BASE_URL}screener-ascii-pattern.png`}
                 alt=""
-                className="absolute max-w-none -translate-x-1/2 mix-blend-lighten"
-                style={{ top: -180, height: 'calc(100% + 366px)', left: 'calc(50% + 4px)', width: 'auto', aspectRatio: '4096 / 2527' }}
+                className="absolute max-w-none mix-blend-lighten"
+                style={{ top: -235, height: 'calc(100% + 482px)', left: '-11.4%', width: 'auto', aspectRatio: '1310 / 808' }}
               />
             </div>
 
-            <div className="relative overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
+            {/* 大标题 — 稿:Regular 24/34,tracking .24,n10(纯黑),nowrap */}
+            <p className="relative shrink-0 whitespace-nowrap" style={textStyle(24, 34, 'var(--text-n10, #000)')}>
+              {PREVIEW_TITLE_PREFIX}{screen.title}
+            </p>
+
+            <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
               <div className="flex w-full items-center gap-[20px] overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
                 {screen.columns.map((column) => (
                   <ColumnCell key={column.label} column={column}>
@@ -394,11 +407,7 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
             </div>
           </div>
 
-          {/* 稿:此行底色 g01 #fafafa(不再是白),Medium 14 n9 */}
-          <div className="flex items-center px-[16px] py-[12px]" style={{ borderTop: `0.5px solid ${L12}`, background: 'var(--grey-g01, #fafafa)' }}>
-            <p className="min-w-0 flex-1 truncate" style={textStyle(14, 22, N9, 500)}>{PICK_A_SCREEN_LABEL}</p>
-          </div>
-
+          {/* 稿 12577:30537 已移除「Pick a screen…」小标题行(Prompt Row 1 hidden),选项直接接在预览下 */}
           {SCREEN_OPTIONS.map((option) => {
             const active = selected === option.key;
             return (
