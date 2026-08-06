@@ -17,12 +17,12 @@ import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
    时间列走项目既定的等宽字体 JetBrains Mono(index.html 已加载 400/500,chat 侧十余处在用):
    Baby 的 --font-mono 被定义成 Delight(非等宽),直接 var() 会丢掉时间戳的等宽特征。 */
 const SCOPED_CSS = `
-/* 回放区底 —— 稿 12607:56038:左侧 112.5 白块 + 右侧网格纹理(稿 12707:33146 导出 818×464,
-   竖线 32 条间距 31.5 / 横线 15 条间距 30,均 0.5 宽,叠 m1 渐变)。
-   112.5 = padding 32 + 时间列 64 + gap 12 + rail 半宽 4.5 —— 分界线就是 rail 本身,
+/* 回放区底 —— 稿 12736:34995:左侧 112.5 白块 + 右侧网格纹理(稿 12736:35097 导出 818×418,
+   竖线间距 34 / 横线间距 31,均 0.5 宽,叠 m1 渐变)。
+   112.5 = padding 16 + 时间列 76 + gap 16 + rail 半宽 4.5 —— 分界线就是 rail 本身,
    所以白块不再描右边线,否则与 rail 重合成两条 */
-/* 稿 12707:31776:pad [20,32,44,32] —— 底部 44 是给浮在网格上的主按钮留的空间 */
-.pwl-stage{position:relative;padding:20px 32px 44px;background:#fff}
+/* 稿 12736:34995:pad [16,16,44,16] —— 底部 44 是给浮在网格上的主按钮留的空间 */
+.pwl-stage{position:relative;padding:16px 16px 44px;background:#fff}
 .pwl-bg-left{position:absolute;left:0;top:0;bottom:0;width:112.5px;background:#fff}
 .pwl-bg-grid{position:absolute;left:112px;top:0;right:0;bottom:0;
   background:url('${import.meta.env.BASE_URL}watch-loop-grid.png') left top / cover no-repeat}
@@ -36,10 +36,10 @@ const SCOPED_CSS = `
   transform-origin:top;transform:translateX(-50%) scaleY(0);
   background:var(--line-l2, rgba(0,0,0,0.2))}
 .pwl-tl{position:relative;display:flex;flex-direction:column}
-.pwl-row{display:flex;align-items:center;gap:12px;padding:5px 0}
+.pwl-row{display:flex;align-items:center;gap:16px;padding:5px 0}
 /* 时间戳贴轴右对齐(稿 12707:31776/12736:33430 全部 alignH RIGHT):12/14 两档字宽不同,
    右对齐让所有时间的尾端都落在 rail 旁,左边参差 */
-.pwl-time{width:64px;flex:none;white-space:nowrap;text-align:right;
+.pwl-time{width:76px;flex:none;white-space:nowrap;text-align:right;
   font:400 12px/20px 'JetBrains Mono','SF Mono','Fira Code',monospace;
   color:var(--text-n5, rgba(0,0,0,0.5))}
 .pwl-rail{position:relative;width:9px;flex:none;align-self:stretch}
@@ -83,14 +83,14 @@ const SCOPED_CSS = `
 .pwl-watching{display:inline-flex;align-items:center;
   font:400 12px/20px var(--font-sans, 'Delight', sans-serif);color:var(--text-n5, rgba(0,0,0,0.5))}
 .pwl-caret{width:6px;height:12px;margin-left:4px;flex:none;background:var(--main-m1, #49a3a6)}
-/* 时段省略 —— 9 点到 1 点之间跨了几小时,竖排三点放在时间列里,替缺席的 10/11/12 点时间戳站位。
-   垂直取 9:00 与 1:00 两个时间戳的正中:9:00 label 中心=ping 行顶+28(行 pt5+列 pt12+22/2),
-   1:00 label 中心=行顶+134(119+pt5+20/2),中点 81 → 距两行分界 -38。
+/* 时段省略 —— 跨时段处竖排三点放在时间列里,替缺席的时间戳站位。
+   水平对齐安静行时间戳的视觉中心:右对齐后 12px 时间戳(≈50 宽)贴列右缘,中心 = 列宽 76 − 25 = 51。
+   垂直取上下两个时间戳的正中:ping label 中心=行顶+28(行 pt5+列 pt12+22/2),
+   下一行 label 中心=行顶+134(119+pt5+20/2),中点 81 → 距两行分界 -38。
    零占位高,不挤开任何行 —— Timeline 总高 358 与稿保持一致(稿里没有这一行,是应约新加的示意)。
-   3px + n5,与安静行时间戳同权重;入场后逐点波浪闪两轮(窗口盖住 1:00 PM 的 54–60% 入场,
-   "点在闪=时间在走"),结束后停在常亮 */
+   3px + n5,与安静行时间戳同权重;闪完收 .5 驻留 */
 .pwl-gap{position:relative;height:0}
-.pwl-gap-dots{position:absolute;left:32px;top:-38px;transform:translate(-50%,-50%);
+.pwl-gap-dots{position:absolute;left:51px;top:-38px;transform:translate(-50%,-50%);
   display:flex;flex-direction:column;align-items:center;gap:3px}
 /* 基础 opacity .5 = 闪完的驻留态(比安静行时间戳再弱一档),reduced-motion 下直接以此显示 */
 .pwl-gap-dots i{width:3px;height:3px;border-radius:50%;background:var(--text-n5, rgba(0,0,0,0.5));opacity:.5}
@@ -175,9 +175,9 @@ const SCOPED_CSS = `
 .pwl-b5 .pwl-dot{animation:pwl-dot5 6s linear forwards}
 .pwl-b6{animation:pwl-b6 6s linear forwards}
 .pwl-caret{animation:pwl-blink 1s step-end infinite}
-/* 主按钮 —— 稿 12727:33204:150×40,ABSOLUTE 贴回放区右下(距右 32 / 距底 20),
+/* 主按钮 —— 稿 12736:34995:150×40,ABSOLUTE 贴回放区右下(距右 16 / 距底 16),
    Button/Primary Size=M 40 规格:pad 9/20、radius 6、Medium 14/22 白字 */
-.pwl-start{position:absolute;right:32px;bottom:20px;
+.pwl-start{position:absolute;right:16px;bottom:16px;
   display:flex;align-items:center;justify-content:center;
   height:40px;padding:9px 20px;border:none;border-radius:6px;cursor:pointer;
   font:500 14px/22px var(--font-sans, 'Delight', sans-serif);letter-spacing:.14px;
@@ -185,19 +185,19 @@ const SCOPED_CSS = `
   white-space:nowrap;transition:filter .12s ease}
 .pwl-start:hover{filter:brightness(0.95)}
 
-/* mweb(<sm=640) —— 按稿 12736:33430(361 宽):stage pad [16,16,52,16]、时间列 60、
-   白块/rail 几何随之重算(16+60+12+4.5=92.5)、三点中心 30、按钮距右/底各 16。
+/* mweb(<sm=640) —— 按稿 12736:33430(361 宽):stage pad [16,16,52,16]、时间列 60、行 gap 12、
+   白块/rail 几何随之重算(16+60+12+4.5=92.5)、三点中心 35(=60−25);按钮 16/16 与桌面同,不用覆盖。
    安静行不截断 —— 稿里首条安静行换行到 3 行(h70);行高变化只影响 gap 之前的行,
    gap 三点是零高 flow 元素跟着内容走,-38 中点计算(基于 ping 行 119 + 下行 30)仍成立 */
 @media(max-width:639px){
   .pwl-stage{padding:16px 16px 52px}
+  .pwl-row{gap:12px}
   .pwl-time{width:60px}
   .pwl-bg-left{width:92.5px}
   .pwl-bg-grid{left:92px}
   .pwl-rail-track,.pwl-rail-line{left:92.5px}
-  .pwl-gap-dots{left:30px}
+  .pwl-gap-dots{left:35px}
   .pwl-hold{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pwl-start{right:16px;bottom:16px}
 }
 
 /* 等价的静态设计而非退化版:rail 强制终态,三条安静行的 .5/.62/.75 已写进 CSS */
