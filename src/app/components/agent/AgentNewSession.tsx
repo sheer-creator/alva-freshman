@@ -20,7 +20,6 @@ import { ConnectAppsModal } from '@/app/components/shared/ConnectAppsModal';
 import { ConnectAccountModal, brokerDisplayInfo } from '@/app/components/portfolio/ConnectAccountModal';
 import { PortfolioInfoModal, type ConnectedBrokerInfo } from '@/app/components/agent/PortfolioInfoModal';
 import { ChatInput } from '@/app/components/shared/ChatInput';
-import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 import { PortfolioWatchLoopCard } from '@/app/components/agent/PortfolioWatchLoopCard';
 import { AlphaRadarBuilder, type AlphaRadarSummary } from '@/app/components/agent/AlphaRadarBuilder';
 import { ScreenerSetupCard, type ScreenKey } from '@/app/components/agent/ScreenerSetupCard';
@@ -279,10 +278,6 @@ const SCREENER_ALERTS: Record<ScreenKey, AgentAlert> = {
     id: 'monthly-high-breakout-radar', name: 'monthly-high-breakout-radar', creator: 'YGGYLL',
     lastRun: 'now', runEvery: 'Weekdays at 4:30 PM ET', runs: 0, status: 'active', source: 'created',
   },
-  divergence: {
-    id: 'momentum-divergence-radar', name: 'momentum-divergence-radar', creator: 'YGGYLL',
-    lastRun: 'now', runEvery: 'Weekdays at 4:40 PM ET', runs: 0, status: 'active', source: 'created',
-  },
 };
 
 /* Run 后的 Alva 确认回复 — 按选中 preset 说清节奏与首次送达时点 */
@@ -291,7 +286,6 @@ const SCREENER_LIVE_TEXT: Record<ScreenKey, string> = {
   options: "Your screen is live. I'll sweep the options tape every weekday at 5:15 PM ET and flag the biggest unusual bets — first list lands today after the close.",
   shorted: "Your screen is live. I'll track exchange short-interest data and message you as soon as new numbers land — typically twice a month.",
   breakouts: "Your screen is live. I'll scan for one-month highs on at least twice the usual volume every weekday at 4:30 PM ET.",
-  divergence: "Your screen is live. I'll scan for price and momentum divergences every weekday at 4:40 PM ET and message you when a new setup qualifies.",
 };
 
 /* Ticker Read skill — mock 读数(照 Telegram /ticker_read 输出结构:判断句 + TAPE + BREAKS IF + SOURCES);
@@ -617,10 +611,8 @@ type ExtraMsg =
   | { id: number; role: 'tickerask' }
   | { id: number; role: 'tickerread'; symbols: string[] }
   /* Onboard 前两条 automation 的对话流回复:builder 卡内嵌消息(原独立 flow 视图迁入)。
-     portfolio 分两步:portfoliobuilder = Watching Loop 回放卡(第一步),
-     点 Setup the Watch 后追加 portfolioconfig = 分步建仓配置(第二步,Start Watching 才建 automation) */
+     portfolio 的两步(Watching Loop 回放 → 分步建仓配置)在同一张卡内切换,不各占一条消息 */
   | { id: number; role: 'portfoliobuilder' }
-  | { id: number; role: 'portfolioconfig' }
   | { id: number; role: 'alpharadar' }
   | { id: number; role: 'subpush'; title: string; push?: string; automation: string }
   | { id: number; role: 'answer'; text: string }
@@ -936,8 +928,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   }, [scrollToEnd]);
 
 
-  /* Onboard「Watch your portfolio 24/7」→ 直接回 Watching Loop 回放卡。
-     不在此处预插用户消息(同 startScreener):用户真正"说"的是点 Setup the Watch 时那句,由 onSetupWatch 发出 */
+  /* Onboard「Watch your portfolio 24/7」→ 直接回两步卡(回放 → 配置)。
+     全程不预插用户消息(同 startScreener):两步都在卡内切换,直到 Start Watching 才有 Alva 确认回复 */
   const startPortfolioFlow = useCallback(() => {
     setTab('chat');
     const epoch = sessionEpochRef.current;
@@ -975,22 +967,6 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     if (flow === 'portfolio') startPortfolioFlow();
     else startBuilderFlow(ALPHA_FLOW_PROMPT, 'alpharadar');
   }, [startPortfolioFlow, startBuilderFlow]);
-
-  /* Setup the Watch(Watching Loop 卡)→ 进入第二步:发出用户消息,typing 后追加分步建仓配置卡。
-     回放卡留在流里(可再点,配置卡会再追加一张,与 screener 换 preset 再 run 同理) */
-  const onSetupWatch = useCallback(() => {
-    setTab('chat');
-    const epoch = sessionEpochRef.current;
-    const userId = ++idRef.current;
-    const typingId = ++idRef.current;
-    setExtra((prev) => [...prev, { id: userId, role: 'user', text: 'Set up the watch' }, { id: typingId, role: 'typing' }]);
-    scrollToEnd();
-    setTimeout(() => {
-      if (sessionEpochRef.current !== epoch) return;
-      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'portfolioconfig' }));
-      scrollToEnd();
-    }, 900);
-  }, [scrollToEnd]);
 
   /* Start Watching → 一条 Alva 确认回复(内嵌「选择推送渠道」卡片,未连接才显示),无用户气泡;builder 卡留在对话流里 */
   const onStartWatching = useCallback((_picks: { symbol: string; qty: string }[]) => {
@@ -1367,8 +1343,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     </SelectableMessage>
                   );
                 }
-                /* portfoliobuilder — 第一步:引导文案 + Watching Loop 回放卡(8s 循环逐小时巡检);
-                   交互卡不参与分享(与 task 卡同理) */
+                /* portfoliobuilder — onboard「Watch your portfolio 24/7」的回复:引导文案 + 两步卡
+                   (Watching Loop 回放 → Setup the Watch 就地换成分步建仓配置);交互卡不参与分享(与 task 卡同理) */
                 if (m.role === 'portfoliobuilder') {
                   return (
                     <MsgIn key={m.id}>
@@ -1379,21 +1355,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                             I'll check it every hour and message you only when a move, risk, catalyst, or breaking story is worth your attention.
                           </p>
                         </div>
-                        <PortfolioWatchLoopCard onSetup={onSetupWatch} />
-                      </AgentMsg>
-                    </MsgIn>
-                  );
-                }
-                /* portfolioconfig — 第二步:Setup the Watch 后的分步建仓配置(手动建仓 / 券商 / 截图上传),
-                   卡内 Start Watching 才真正建 automation */
-                if (m.role === 'portfolioconfig') {
-                  return (
-                    <MsgIn key={m.id}>
-                      <AgentMsg time="now">
-                        <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
-                          Tell me what you hold — add positions by hand, connect a brokerage, or drop in a screenshot. I'll weight every read by your position size.
-                        </p>
-                        <PortfolioBuilder initialBrokerId={connectedBroker?.id} onStart={onStartWatching} />
+                        <PortfolioWatchLoopCard initialBrokerId={connectedBroker?.id} onStart={onStartWatching} />
                       </AgentMsg>
                     </MsgIn>
                   );

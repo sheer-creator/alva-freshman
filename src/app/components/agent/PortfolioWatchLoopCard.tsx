@@ -1,26 +1,39 @@
 /**
  * [INPUT]: 方案画布 public/demo/preset-setup/index.html · 1b「Plan B · Watching Loop」
  *          + 视觉动效评审修订版 ~/Downloads/watching-loop-review.html(18 条)
- * [OUTPUT]: onboard「Watch your portfolio 24/7」的第一步 —— 14s 循环回放昨天的巡检:
+ * [OUTPUT]: onboard「Watch your portfolio 24/7」的第一步 —— 12s 循环回放昨天的巡检:
  *           rail 随巡检生长,3 条安静行与 2 条 ping(RKLB / NVDA)交错入场,末行 Watching 光标呼吸
  * [POS]: AgentNewSession portfoliobuilder 响应。卡壳 / footer 沿用 ScreenerSetupCard(底图不复用,纯白)。
  *        评审 11/12/13/17 条属下半区选择区,不在这一步:选标的由第二步 PortfolioBuilder 承接
  */
 
+import { useState } from 'react';
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
+import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 
 /* 评审第 5 条:字号收敛到 DS ramp 三档 —— micro 10/16、caption 12/20、body 14/22(仅 ticker 名)。
    第 3 条:m1 收窄为一条主线(rail 节点 / Watching 光标 / CTA),内容色只留涨跌 m3/m4;ping 时间戳走 n9 加粗。
    第 1 条:ping 卡靠形态而非颜色表达"这是一次 ping" —— .5px l2 边 + shadow-xs,青光晕去掉。
    时间列刻意用真 mono 栈:Baby 的 --font-mono 被定义成 Delight(非等宽),直接 var() 会丢掉时间戳的等宽特征。 */
 const SCOPED_CSS = `
-.pwl-tl{position:relative;display:flex;flex-direction:column}
-/* rail 画在容器上(不随行淡出),按 scaleY 从上往下生长——"线扫到哪"就是"巡检到哪",
-   线还没到的地方本来就该没有内容,空白期因此既不空也不留悬空的线(评审 15/16 条)。
-   left = 时间列 64 + gap 12 + rail 宽 9 的一半 */
-.pwl-tl::before{content:'';position:absolute;left:80.5px;top:15px;bottom:15px;width:1px;
+/* 回放区底 —— 稿 12607:56038:左侧 112.5 白块 + 右侧网格纹理(稿 12707:33146 导出 818×464,
+   竖线 32 条间距 31.5 / 横线 15 条间距 30,均 0.5 宽,叠 m1 渐变)。
+   112.5 = padding 32 + 时间列 64 + gap 12 + rail 半宽 4.5 —— 分界线就是 rail 本身,
+   所以白块不再描右边线,否则与 rail 重合成两条 */
+.pwl-stage{position:relative;padding:28px 32px;background:#fff}
+.pwl-bg-left{position:absolute;left:0;top:0;bottom:0;width:112.5px;background:#fff}
+.pwl-bg-grid{position:absolute;left:112px;top:0;right:0;bottom:0;
+  background:url('${import.meta.env.BASE_URL}watch-loop-grid.png') left top / cover no-repeat}
+/* rail —— 贯穿整个回放区(不再只连首末节点),同时充当白块与网格区的分界线(评审 15/16 条)。
+   两层:track 常驻占位(线未扫到的地方也得有轨道,否则起始帧那一列是空的、读着发虚),
+   line 是 l2 进度线,按 scaleY 从顶部往下生长——"线扫到哪"就是"巡检到哪" */
+.pwl-rail-track{position:absolute;left:112.5px;top:0;bottom:0;width:0.5px;
+  transform:translateX(-50%);
+  background:var(--line-l05, rgba(0,0,0,0.05))}
+.pwl-rail-line{position:absolute;left:112.5px;top:0;bottom:0;width:0.5px;
   transform-origin:top;transform:translateX(-50%) scaleY(0);
-  background:var(--line-l07, rgba(0,0,0,0.07))}
+  background:var(--line-l2, rgba(0,0,0,0.2))}
+.pwl-tl{position:relative;display:flex;flex-direction:column}
 .pwl-row{display:flex;align-items:center;gap:12px;padding:5px 0}
 .pwl-time{width:64px;flex:none;white-space:nowrap;
   font:400 12px/20px ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
@@ -41,7 +54,7 @@ const SCOPED_CSS = `
 .pwl-arow .pwl-dot{top:23px;width:9px;height:9px;background:var(--main-m1, #49a3a6);
   box-shadow:0 0 0 2.5px #fff,0 0 0 3.5px rgba(73,163,166,.28)}
 .pwl-alert{flex:1;min-width:0;padding:12px 14px;background:#fff;
-  border:0.5px solid var(--line-l2, rgba(0,0,0,0.2));border-radius:var(--radius-ct-l, 8px);
+  border:0.5px solid var(--line-l12, rgba(0,0,0,0.12));border-radius:var(--radius-ct-l, 8px);
   box-shadow:var(--shadow-xs, 0 4px 15px 0 rgba(0,0,0,0.05))}
 .pwl-ahead{display:flex;align-items:center;gap:7px;margin-bottom:3px}
 .pwl-tk{font:500 14px/22px var(--font-sans, 'Delight', sans-serif);letter-spacing:.14px;
@@ -50,13 +63,14 @@ const SCOPED_CSS = `
   font:500 10px/18px var(--font-sans, 'Delight', sans-serif);
   background:var(--main-m4-10, rgba(224,83,87,0.1));color:var(--main-m4, #e05357)}
 .pwl-pct.up{background:var(--main-m3-10, rgba(42,155,125,0.1));color:var(--main-m3, #2a9b7d)}
+/* 持仓权重靠右 —— 这是 Alva 独有的个性化证据("这跟你有多大关系"),
+   用中性 micro 档,不与左侧的涨跌幅争视线 */
+.pwl-hold{flex:1;min-width:0;text-align:right;
+  font:400 10px/16px var(--font-sans, 'Delight', sans-serif);
+  color:var(--text-n5, rgba(0,0,0,0.5))}
+/* 正文一段到底 —— 稿 12707:31776 把"接下来看什么"合并回正文:
+   "Next," 这个词本身就是转折标记,再加分隔线是同一件事说两遍 */
 .pwl-abody{font:400 12px/20px var(--font-sans, 'Delight', sans-serif);letter-spacing:.12px;
-  color:var(--text-n7, rgba(0,0,0,0.7))}
-/* "接下来看什么"单独成行 —— 长正文里最后一句本来就是行动指引,拆出来靠分隔线分区。
-   引导词保留原文的"Next,":箭头图标不如这个词好读,且不额外引入品牌色(评审第 3 条) */
-.pwl-next{margin-top:8px;padding-top:7px;
-  border-top:0.5px solid var(--line-l07, rgba(0,0,0,0.07));
-  font:400 12px/20px var(--font-sans, 'Delight', sans-serif);letter-spacing:.12px;
   color:var(--text-n7, rgba(0,0,0,0.7))}
 
 .pwl-lrow .pwl-dot{background:var(--main-m1, #49a3a6)}
@@ -64,7 +78,7 @@ const SCOPED_CSS = `
   font:400 12px/20px var(--font-sans, 'Delight', sans-serif);color:var(--text-n5, rgba(0,0,0,0.5))}
 .pwl-caret{width:6px;height:12px;margin-left:4px;flex:none;background:var(--main-m1, #49a3a6)}
 
-/* 14s 主时间轴 —— 分三段:0–48% 六行依次入场(间隔 0.64–1.28s,刻意收窄差距,
+/* 12s 主时间轴 —— 分三段:0–48% 六行依次入场(间隔 0.64–1.28s,刻意收窄差距,
    否则"蹦一下→干等 4s→再蹦一下"会读成卡顿)、48–85% 全内容静止供阅读、85–100% 反序卷起。
    阅读时间集中在内容出齐之后而不是插在每条 ping 后面:碎片化的空档只会让画面看着停滞,
    出齐后再停留才是能从头读的完整一屏(评审 6/8 条的同一原则) */
@@ -120,29 +134,29 @@ const SCOPED_CSS = `
   48%,85%{transform:translateX(-50%) scaleY(1);opacity:1}
   92%,100%{transform:translateX(-50%) scaleY(1);opacity:0}}
 @keyframes pwl-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
-.pwl-tl::before{animation:pwl-rail 14s linear infinite}
+.pwl-rail-line{animation:pwl-rail 12s linear infinite}
 /* 基础 opacity 同时写进 CSS:动态下由 keyframes 接管,reduced-motion 下仍保留"越早越淡"的纵深 */
-.pwl-b1{opacity:.5;animation:pwl-b1 14s linear infinite}
-.pwl-b1 .pwl-text{animation:pwl-in1 14s linear infinite}
-.pwl-b2{opacity:.62;animation:pwl-b2 14s linear infinite}
-.pwl-b2 .pwl-text{animation:pwl-in2 14s linear infinite}
-.pwl-b3{animation:pwl-b3 14s linear infinite}
-.pwl-b3 .pwl-alert{animation:pwl-in3 14s linear infinite}
-.pwl-b3 .pwl-dot{animation:pwl-dot3 14s linear infinite}
-.pwl-b4{opacity:.75;animation:pwl-b4 14s linear infinite}
-.pwl-b4 .pwl-text{animation:pwl-in4 14s linear infinite}
-.pwl-b5{animation:pwl-b5 14s linear infinite}
-.pwl-b5 .pwl-alert{animation:pwl-in5 14s linear infinite}
-.pwl-b5 .pwl-dot{animation:pwl-dot5 14s linear infinite}
-.pwl-b6{animation:pwl-b6 14s linear infinite}
+.pwl-b1{opacity:.5;animation:pwl-b1 12s linear infinite}
+.pwl-b1 .pwl-text{animation:pwl-in1 12s linear infinite}
+.pwl-b2{opacity:.62;animation:pwl-b2 12s linear infinite}
+.pwl-b2 .pwl-text{animation:pwl-in2 12s linear infinite}
+.pwl-b3{animation:pwl-b3 12s linear infinite}
+.pwl-b3 .pwl-alert{animation:pwl-in3 12s linear infinite}
+.pwl-b3 .pwl-dot{animation:pwl-dot3 12s linear infinite}
+.pwl-b4{opacity:.75;animation:pwl-b4 12s linear infinite}
+.pwl-b4 .pwl-text{animation:pwl-in4 12s linear infinite}
+.pwl-b5{animation:pwl-b5 12s linear infinite}
+.pwl-b5 .pwl-alert{animation:pwl-in5 12s linear infinite}
+.pwl-b5 .pwl-dot{animation:pwl-dot5 12s linear infinite}
+.pwl-b6{animation:pwl-b6 12s linear infinite}
 .pwl-caret{animation:pwl-blink 1s step-end infinite}
-.pwl-start{transition:filter .14s ease}
+.pwl-start{transition:filter .12s ease}
 .pwl-start:hover{filter:brightness(0.95)}
 
 /* 等价的静态设计而非退化版:rail 强制终态,三条安静行的 .5/.62/.75 已写进 CSS */
 @media(prefers-reduced-motion:reduce){
   .pwl-card *{animation:none!important;transition:none!important}
-  .pwl-tl::before{animation:none!important;transform:translateX(-50%) scaleY(1)!important}
+  .pwl-rail-line{transform:translateX(-50%) scaleY(1)!important}
 }
 `;
 
@@ -153,7 +167,7 @@ const QUIET_ROWS: Record<string, { time: string; text: string }> = {
   'pwl-b4': { time: '1:00 PM', text: '176 headlines, 9 analyst revisions — quiet' },
 };
 
-/* 两条 ping —— 正文为实际推送内容,末句的"接下来看什么"拆到 next 行(不改词,只分行)。
+/* 两条 ping —— 正文即实际推送原文,一段到底(含末句的"接下来看什么",不再拆行)。
    不标信源:原始推送文本里没有任何署名,Alva 的推送也不走媒体署名(AutomationCard 的 source 是
    产生推送的 automation 名,多信源的既定表达是 evidence 数组) */
 interface Ping {
@@ -162,8 +176,9 @@ interface Ping {
   ticker: string;
   pct: string;
   up?: boolean;
+  /** 持仓权重 —— 取自推送正文里的"your X% holding",不是外部估算 */
+  holding: string;
   body: string;
-  next: string;
 }
 
 const PINGS: Ping[] = [
@@ -173,8 +188,8 @@ const PINGS: Ping[] = [
     ticker: 'RKLB',
     pct: '+7%',
     up: true,
-    body: 'Rocket Lab is up about 7% on reports of a $266M U.S. Air Force launch contract, outperforming the peer median by 5.6 percentage points. The award strengthens the defense thesis for your 8.2% holding.',
-    next: 'Next, watch for task-order awards, contract economics, and the Aug. 10 earnings update.',
+    holding: '8.2% holding',
+    body: 'Rocket Lab is up about 7% on reports of a $266M U.S. Air Force launch contract, outperforming the peer median by 5.6 percentage points. The award strengthens the defense thesis for your 8.2% holding. Next, watch for task-order awards, contract economics, and the Aug. 10 earnings update.',
   },
   {
     cls: 'pwl-b5',
@@ -182,8 +197,8 @@ const PINGS: Ping[] = [
     ticker: 'NVDA',
     pct: '+1.46%',
     up: true,
-    body: 'Musk says SpaceX will use Nvidia GPUs exclusively and scale compute from over 2GW this year to near 10GW next year, roughly matching OpenAI’s 10GW Nvidia deployment and exceeding its 6GW AMD deal. NVDA is up 1.46% after hours to $215.04 and 9.15% over five sessions, clearing its $214.39 20-day high. This strengthens the thesis for your 2.5% holding.',
-    next: 'Next, watch $214 support, $232 resistance, and actual GPU allocations.',
+    holding: '2.5% holding',
+    body: 'Musk says SpaceX will use Nvidia GPUs exclusively and scale compute from over 2GW this year to near 10GW next year, roughly matching OpenAI’s 10GW Nvidia deployment and exceeding its 6GW AMD deal. NVDA is up 1.46% after hours to $215.04 and 9.15% over five sessions, clearing its $214.39 20-day high. This strengthens the thesis for your 2.5% holding; watch $214 support, $232 resistance, and actual GPU allocations.',
   },
 ];
 
@@ -210,22 +225,37 @@ function PingRow({ ping }: { ping: Ping }) {
           <TickerLogo ticker={ping.ticker} size={18} />
           <span className="pwl-tk">{ping.ticker}</span>
           <span className={`pwl-pct${ping.up ? ' up' : ''}`}>{ping.pct}</span>
+          <span className="pwl-hold">{ping.holding}</span>
         </div>
         <p className="pwl-abody">{ping.body}</p>
-        <p className="pwl-next">{ping.next}</p>
       </div>
     </div>
   );
 }
 
-export function PortfolioWatchLoopCard({ onSetup }: { onSetup?: () => void }) {
+/* 两步同卡:replay(回放)→ 点 Setup the Watch 就地换成 config(分步建仓配置),Back 可退回。
+   不追加新消息 —— 同一张卡换内容,与 screener 卡换 preset 同理;真正建 automation 在 config 的 Start Watching */
+export function PortfolioWatchLoopCard({ onStart, initialBrokerId }: {
+  onStart?: (picks: { symbol: string; qty: string }[]) => void;
+  initialBrokerId?: string | null;
+}) {
+  const [step, setStep] = useState<'replay' | 'config'>('replay');
+
+  if (step === 'config') {
+    return <PortfolioBuilder initialBrokerId={initialBrokerId} onStart={onStart} onBack={() => setStep('replay')} />;
+  }
+
   return (
     <div className="pwl-card w-full overflow-hidden rounded-[8px] bg-white" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
       <style>{SCOPED_CSS}</style>
       <div className="overflow-x-auto">
         <div className="min-w-[760px]">
-          {/* 回放区 —— 稿的标题行与 8S LOOP 角标已去掉;底图不复用,"观测面板"的质感交给 rail */}
-          <div className="px-[32px] pt-[28px] pb-[20px]">
+          {/* 回放区 —— 稿的标题行与 8S LOOP 角标已去掉;底走稿 12607:56038 的左白块 + 右网格渐变 */}
+          <div className="pwl-stage">
+            <div aria-hidden="true" className="pwl-bg-left" />
+            <div aria-hidden="true" className="pwl-bg-grid" />
+            <div aria-hidden="true" className="pwl-rail-track" />
+            <div aria-hidden="true" className="pwl-rail-line" />
             <div className="pwl-tl">
               <QuietRow cls="pwl-b1" />
               <QuietRow cls="pwl-b2" />
@@ -252,7 +282,7 @@ export function PortfolioWatchLoopCard({ onSetup }: { onSetup?: () => void }) {
           >
             <button
               type="button"
-              onClick={() => onSetup?.()}
+              onClick={() => setStep('config')}
               className="pwl-start flex h-[40px] shrink-0 cursor-pointer items-center justify-center rounded-[6px] border-none px-[20px] py-[9px]"
               style={{
                 font: "500 14px/22px var(--font-sans, 'Delight', sans-serif)",

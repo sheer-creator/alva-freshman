@@ -137,6 +137,8 @@ const SCOPED_CSS = `
 .pb-start:not(:disabled):hover { filter: brightness(0.95); }
 .pb-chipx { display:flex; transition:opacity .12s ease; }
 .pb-chipx:hover { opacity:.6; }
+.pb-back { transition:opacity .12s ease; }
+.pb-back:hover { opacity:.6; }
 `;
 
 /* 单选圆点（Figma Radio Box 9888:526448/526449）：选中=m1 实心 + 白心(inset 32.5%)；未选=grey/g1 实心 */
@@ -200,10 +202,12 @@ function LangSelect({ value, onSelect }: { value: string; onSelect: (v: string) 
 
 /* ========== 主组件 ========== */
 
-export function PortfolioBuilder({ onStart, initialBrokerId }: {
+export function PortfolioBuilder({ onStart, initialBrokerId, onBack }: {
   onStart?: (chosen: { symbol: string; qty: string }[]) => void;
   /** 已连接 broker（如账户数据弹窗的 Watch 入口）：初始定位 Connect Brokerage Account 并默认选中该账户 */
   initialBrokerId?: string | null;
+  /** 由 Watching Loop 回放卡切进来时给出：footer 左下角显示 Back 返回上一步，此时不显示 Language */
+  onBack?: () => void;
 }) {
   const initialConn = initialBrokerId ? resolveBroker(initialBrokerId) : null;
   const [source, setSource] = useState<Source>(initialConn ? 'brokerage' : 'manual');
@@ -467,10 +471,25 @@ export function PortfolioBuilder({ onStart, initialBrokerId }: {
           )}
 
           <div className="flex w-full items-center gap-[20px]">
-            <div className="flex min-w-0 flex-1 items-center gap-[8px]">
-              <span className="shrink-0" style={tx(12, 20, N7)}>Language</span>
-              <LangSelect value={language} onSelect={setLanguage} />
-            </div>
+            {/* 两步流程里左下角是返回上一步；独立使用时仍是 Language（项目既有返回文案统一用 Back，无 Previous） */}
+            {onBack ? (
+              <div className="flex min-w-0 flex-1 items-center">
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="pb-back flex shrink-0 cursor-pointer items-center gap-[6px] border-none bg-transparent p-0"
+                  style={tx(14, 22, N7)}
+                >
+                  <CdnIcon name="arrow-left-l2" size={16} color={N7} />
+                  Back
+                </button>
+              </div>
+            ) : (
+              <div className="flex min-w-0 flex-1 items-center gap-[8px]">
+                <span className="shrink-0" style={tx(12, 20, N7)}>Language</span>
+                <LangSelect value={language} onSelect={setLanguage} />
+              </div>
+            )}
             <button
               type="button"
               disabled={!canStart}

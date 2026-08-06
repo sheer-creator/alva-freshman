@@ -26,7 +26,7 @@ const AVATAR_RING = '#c25450';
 /* 预览区大标题前缀 — 稿 12585:54747「Screener · What Congress Just Bought」 */
 const PREVIEW_TITLE_PREFIX = 'Screener · ';
 
-export type ScreenKey = 'congress' | 'options' | 'shorted' | 'breakouts' | 'divergence';
+export type ScreenKey = 'congress' | 'options' | 'shorted' | 'breakouts';
 
 /* 列定义 — width 给了就固定(shrink-0),否则 flex-1 平分(稿:Ticker 280 固定,其余等分) */
 interface Column {
@@ -51,7 +51,8 @@ interface ScreenOption {
   /* 预览区大标题(接在 PREVIEW_TITLE_PREFIX 后);稿只给了 congress 一条,其余按同句式拟 */
   title: string;
   columns: Column[];
-  rows: [Cell[], Cell[], Cell[], Cell[]];
+  /* 稿 12577:31181:表格 3 行(前 2 明文 + 第 3 行遮罩) */
+  rows: [Cell[], Cell[], Cell[]];
 }
 
 /* congress — Figma 4605:13564:5 列,首列人像 + 党派;Type 标签、Amount 档位点为该 screen 专有 */
@@ -88,13 +89,6 @@ const CONGRESS: ScreenOption = {
       { kind: 'dots', text: '$15K–50K', filled: 2 },
       { kind: 'text', text: '2 days' },
     ],
-    [
-      { kind: 'member', symbol: 'Adrian Smith', sub: 'R · House · NE-3', portrait: 'screener-blurred-member-2.jpg' },
-      { kind: 'ticker', ticker: 'RKLB' },
-      { kind: 'badge', label: 'BUY' },
-      { kind: 'dots', text: '$15K–50K', filled: 2 },
-      { kind: 'text', text: '1 day' },
-    ],
   ],
 };
 
@@ -127,12 +121,6 @@ const OPTIONS: ScreenOption = {
       { kind: 'tagText', tag: 'Calls', text: '$175 · Aug 29' },
       { kind: 'text', text: '$1.9M' },
       { kind: 'text', text: '26×', color: M1 },
-    ],
-    [
-      { kind: 'member', symbol: 'COIN', sub: 'Coinbase Global, Inc.' },
-      { kind: 'tagText', tag: 'Puts', bearish: true, text: '$220 · Sep 5' },
-      { kind: 'text', text: '$1.4M' },
-      { kind: 'text', text: '12×', color: M1 },
     ],
   ],
 };
@@ -167,16 +155,10 @@ const SHORTED: ScreenOption = {
       { kind: 'text', text: '−0.8 pt', color: N5 },
       { kind: 'text', text: '5.4 d' },
     ],
-    [
-      { kind: 'member', symbol: 'AI', sub: 'C3.ai, Inc.' },
-      { kind: 'meter', pct: 24.5, text: '24.5%' },
-      { kind: 'text', text: '+0.6 pt', color: M4 },
-      { kind: 'text', text: '3.1 d' },
-    ],
   ],
 };
 
-/* breakouts / divergence — 稿未出图,沿用 options/shorted 的统一列型外推 */
+/* breakouts — 稿未出图,沿用 options/shorted 的统一列型外推 */
 const BREAKOUTS: ScreenOption = {
   key: 'breakouts',
   prompt: 'Find breakouts to one-month highs on double the usual volume — weekdays 4:30 PM ET',
@@ -206,54 +188,11 @@ const BREAKOUTS: ScreenOption = {
       { kind: 'text', text: '2.2×', color: M1 },
       { kind: 'text', text: '43 min' },
     ],
-    [
-      { kind: 'member', symbol: 'UBER', sub: 'Uber Technologies, Inc.' },
-      { kind: 'tagText', tag: 'High', text: '$94.6 · 1-mo' },
-      { kind: 'text', text: '2.1×', color: M1 },
-      { kind: 'text', text: '52 min' },
-    ],
   ],
 };
 
-const DIVERGENCE: ScreenOption = {
-  key: 'divergence',
-  prompt: 'Spot stocks where price and momentum are starting to disagree — every weekday at 4:40 PM ET',
-  title: 'Price & Momentum Divergence',
-  columns: [
-    { label: 'Ticker', width: 280 },
-    { label: 'Divergence' },
-    { label: 'RSI-14', align: 'right' },
-    { label: 'Detected', align: 'right' },
-  ],
-  rows: [
-    [
-      { kind: 'member', symbol: 'TSLA', sub: 'Tesla, Inc.' },
-      { kind: 'tagText', tag: 'Bearish', bearish: true, text: 'Price up · RSI down' },
-      { kind: 'text', text: '61', color: M4 },
-      { kind: 'text', text: '9 min' },
-    ],
-    [
-      { kind: 'member', symbol: 'NVDA', sub: 'NVIDIA Corporation' },
-      { kind: 'tagText', tag: 'Bearish', bearish: true, text: 'Price up · RSI down' },
-      { kind: 'text', text: '67', color: M4 },
-      { kind: 'text', text: '22 min' },
-    ],
-    [
-      { kind: 'member', symbol: 'COIN', sub: 'Coinbase Global, Inc.' },
-      { kind: 'tagText', tag: 'Bullish', text: 'Price down · RSI up' },
-      { kind: 'text', text: '39', color: M3 },
-      { kind: 'text', text: '36 min' },
-    ],
-    [
-      { kind: 'member', symbol: 'AMD', sub: 'Advanced Micro Devices, Inc.' },
-      { kind: 'tagText', tag: 'Bullish', text: 'Price down · RSI up' },
-      { kind: 'text', text: '42', color: M3 },
-      { kind: 'text', text: '47 min' },
-    ],
-  ],
-};
-
-const SCREEN_OPTIONS: ScreenOption[] = [CONGRESS, OPTIONS, SHORTED, BREAKOUTS, DIVERGENCE];
+/* 稿 12577:31181:选项收到 4 条(Prompt Row 6 已 hidden) */
+const SCREEN_OPTIONS: ScreenOption[] = [CONGRESS, OPTIONS, SHORTED, BREAKOUTS];
 
 function textStyle(size: number, lineHeight: number, color: string, weight = 400) {
   return { fontFamily: FONT, fontSize: size, lineHeight: `${lineHeight}px`, letterSpacing: `${size / 100}px`, color, fontWeight: weight } as const;
@@ -360,19 +299,20 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
         <div className="min-w-[760px]">
           {/* 稿 12585:54746:pt28 px32 gap20,标题居中 */}
           <div className="relative flex flex-col items-center gap-[20px] overflow-hidden px-[32px] pt-[28px]">
-            {/* 底图 — 稿 12585:54829/54831:m1 底 opacity30,图 1310×808、top -235 / bottom -247、mix-blend-lighten。
-                稿写 left -274,但整层套了一次 -scale-x-100(内层再翻回图片本身),镜像后视觉左边缘在 -106(=-11.4%) */}
+            {/* 底图 — 稿 12585:54831:m1 底 opacity30,图 1310×808、top -223、mix-blend-lighten。
+                稿写 left calc(50%-109px)+translateX(-50%),整层套了一次 -scale-x-100(内层再翻回图片本身),
+                镜像后视觉左边缘在 -81(=-8.71%),与 metadata 的 ascii-export 相对 x=81 互为镜像 */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden bg-[var(--main-m1,#49a3a6)] opacity-30">
               <img
                 src={`${import.meta.env.BASE_URL}screener-ascii-pattern.png`}
                 alt=""
                 className="absolute max-w-none mix-blend-lighten"
-                style={{ top: -235, height: 'calc(100% + 482px)', left: '-11.4%', width: 'auto', aspectRatio: '1310 / 808' }}
+                style={{ top: -223, height: 'calc(100% + 534px)', left: '-8.71%', width: 'auto', aspectRatio: '1310 / 808' }}
               />
             </div>
 
-            {/* 大标题 — 稿:Regular 24/34,tracking .24,n10(纯黑),nowrap */}
-            <p className="relative shrink-0 whitespace-nowrap" style={textStyle(24, 34, 'var(--text-n10, #000)')}>
+            {/* 大标题 — 稿:Regular 24/34,tracking .24,n10(纯黑),占满宽度居中 */}
+            <p className="relative w-full shrink-0 text-center" style={textStyle(24, 34, 'var(--text-n10, #000)')}>
               {PREVIEW_TITLE_PREFIX}{screen.title}
             </p>
 
@@ -385,14 +325,14 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
                 ))}
               </div>
 
-              {/* 稿 12577:30537:前 3 行明文,只有末行被遮罩 */}
-              {screen.rows.slice(0, 3).map((cells, index) => (
+              {/* 稿 12577:31181:表格收到 3 行 — 前 2 行明文,第 3 行被遮罩 */}
+              {screen.rows.slice(0, 2).map((cells, index) => (
                 <ResultRow key={`${selected}-${index}`} columns={screen.columns} cells={cells} />
               ))}
 
               <div className="relative overflow-hidden">
                 <div aria-hidden="true">
-                  {screen.rows.slice(3).map((cells, index) => (
+                  {screen.rows.slice(2, 3).map((cells, index) => (
                     <ResultRow key={`${selected}-locked-${index}`} columns={screen.columns} cells={cells} divider={false} />
                   ))}
                 </div>
@@ -431,15 +371,15 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
             );
           })}
 
-          {/* 稿:footer 只留主按钮并右对齐(Language 下拉已移除) */}
-          <div className="flex items-center justify-end gap-[20px] bg-white p-[16px]" style={{ borderTop: `0.5px solid ${L12}` }}>
+          {/* 稿 12707:29751 bottom:p16 gap12,只留主按钮并右对齐 */}
+          <div className="flex items-center justify-end gap-[12px] bg-white p-[16px]" style={{ borderTop: `0.5px solid ${L12}` }}>
             <button
               type="button"
               onClick={() => onRun(selected, screen.prompt)}
               className="flex h-[40px] shrink-0 cursor-pointer items-center justify-center rounded-[6px] border-none px-[20px] py-[9px] text-white transition-opacity hover:opacity-90"
               style={{ ...textStyle(14, 22, '#fff', 500), background: M1 }}
             >
-              Run to reveal
+              Run to Reveal
             </button>
           </div>
         </div>
