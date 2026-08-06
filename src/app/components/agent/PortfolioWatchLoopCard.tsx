@@ -21,8 +21,9 @@ const SCOPED_CSS = `
    竖线间距 34 / 横线间距 31,均 0.5 宽,叠 m1 渐变)。
    112.5 = padding 16 + 时间列 76 + gap 16 + rail 半宽 4.5 —— 分界线就是 rail 本身,
    所以白块不再描右边线,否则与 rail 重合成两条 */
-/* 稿 12736:34995:pad [16,16,44,16] —— 底部 44 是给浮在网格上的主按钮留的空间 */
-.pwl-stage{position:relative;padding:16px 16px 44px;background:#fff}
+/* 稿 12736:34995 + 右间距改 32:pad [16,32,44,16] —— 底部 44 是给浮在网格上的主按钮留的空间;
+   按钮是 ABSOLUTE(right:16)不吃 padding,位置不变 */
+.pwl-stage{position:relative;padding:16px 32px 44px 16px;background:#fff}
 .pwl-bg-left{position:absolute;left:0;top:0;bottom:0;width:112.5px;background:#fff}
 .pwl-bg-grid{position:absolute;left:112px;top:0;right:0;bottom:0;
   background:url('${import.meta.env.BASE_URL}watch-loop-grid.png') left top / cover no-repeat}
