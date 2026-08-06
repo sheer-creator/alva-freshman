@@ -323,7 +323,8 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
               </p>
             </div>
 
-            <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
+            {/* 描边取 l12(而非稿上的 l2),与 portfolio 卡里的 ping 卡对齐 */}
+            <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L12}`, borderLeft: `0.5px solid ${L12}`, borderRight: `0.5px solid ${L12}` }}>
               <div className="flex w-full items-center gap-[20px] overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
                 {screen.columns.map((column) => (
                   <ColumnCell key={column.label} column={column}>
