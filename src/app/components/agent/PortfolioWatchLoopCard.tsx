@@ -14,7 +14,8 @@ import { PortfolioBuilder } from '@/app/components/agent/PortfolioBuilder';
 /* 评审第 5 条:字号收敛到 DS ramp 三档 —— micro 10/16、caption 12/20、body 14/22(仅 ticker 名)。
    第 3 条:m1 收窄为一条主线(rail 节点 / Watching 光标 / CTA),内容色只留涨跌 m3/m4;ping 时间戳走 n9 加粗。
    第 1 条:ping 卡靠形态而非颜色表达"这是一次 ping" —— .5px l2 边 + shadow-xs,青光晕去掉。
-   时间列刻意用真 mono 栈:Baby 的 --font-mono 被定义成 Delight(非等宽),直接 var() 会丢掉时间戳的等宽特征。 */
+   时间列走项目既定的等宽字体 JetBrains Mono(index.html 已加载 400/500,chat 侧十余处在用):
+   Baby 的 --font-mono 被定义成 Delight(非等宽),直接 var() 会丢掉时间戳的等宽特征。 */
 const SCOPED_CSS = `
 /* 回放区底 —— 稿 12607:56038:左侧 112.5 白块 + 右侧网格纹理(稿 12707:33146 导出 818×464,
    竖线 32 条间距 31.5 / 横线 15 条间距 30,均 0.5 宽,叠 m1 渐变)。
@@ -36,7 +37,7 @@ const SCOPED_CSS = `
 .pwl-tl{position:relative;display:flex;flex-direction:column}
 .pwl-row{display:flex;align-items:center;gap:12px;padding:5px 0}
 .pwl-time{width:64px;flex:none;white-space:nowrap;
-  font:400 12px/20px ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;
+  font:400 12px/20px 'JetBrains Mono','SF Mono','Fira Code',monospace;
   color:var(--text-n5, rgba(0,0,0,0.5))}
 .pwl-rail{position:relative;width:9px;flex:none;align-self:stretch}
 .pwl-dot{position:absolute;left:50%;top:50%;width:5px;height:5px;border-radius:50%;

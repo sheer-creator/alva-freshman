@@ -1,5 +1,5 @@
 /**
- * [INPUT]: Figma Draft-Lite Chat/Block-Answer (4605:13564) — congress 态整卡
+ * [INPUT]: Figma Onboard Card/Screener2 (12577:31181) — congress 态整卡,底图 (12719:31003)
  *          Figma Draft Table (12555:79555 options / 12555:79623 shorted) — 切换态两张表
  * [OUTPUT]: Outcome-first screener chooser rendered inside the Alva chat flow
  *           表格为统一 UI:同一套 Table/Row/Mask + 每个 screen 自己的列定义与单元格类型
@@ -22,8 +22,10 @@ const M4 = 'var(--main-m4, #e05357)';
 const G03 = 'var(--grey-g03, #f0f0f0)';
 /* Avatar · R 的描边是组件固定值(稿里 D/R 两党四行同色),不是党派色 */
 const AVATAR_RING = '#c25450';
+/* Tag/Status Dot 的外圈是组件写死的 #DBEDED(= m1 20% 压白),不是 token */
+const STATUS_DOT_RING = '#dbeded';
 
-/* 预览区大标题前缀 — 稿 12585:54747「Screener · What Congress Just Bought」 */
+/* 预览区大标题前缀 — 稿 12719:30992「Screener · What Congress Just Bought」 */
 const PREVIEW_TITLE_PREFIX = 'Screener · ';
 
 export type ScreenKey = 'congress' | 'options' | 'shorted' | 'breakouts';
@@ -83,11 +85,11 @@ const CONGRESS: ScreenOption = {
       { kind: 'text', text: '4 days' },
     ],
     [
-      { kind: 'member', symbol: 'James A. Himes', sub: 'D · House · CT-4', portrait: 'screener-blurred-member-1.jpg' },
-      { kind: 'ticker', ticker: 'IBM' },
-      { kind: 'badge', label: 'SHORT', bearish: true },
+      { kind: 'member', symbol: 'Adrian Smith', sub: 'R · House · NE-3', portrait: 'screener-adrian-smith.jpg' },
+      { kind: 'ticker', ticker: 'RKLB' },
+      { kind: 'badge', label: 'BUY' },
       { kind: 'dots', text: '$15K–50K', filled: 2 },
-      { kind: 'text', text: '2 days' },
+      { kind: 'text', text: '1 day' },
     ],
   ],
 };
@@ -297,24 +299,29 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
     <div className="w-full overflow-hidden rounded-[8px] bg-white" style={{ border: `0.5px solid ${L2}` }}>
       <div className="overflow-x-auto">
         <div className="min-w-[760px]">
-          {/* 稿 12585:54746:pt28 px32 gap20,标题居中 */}
-          <div className="relative flex flex-col items-center gap-[20px] overflow-hidden px-[32px] pt-[28px]">
-            {/* 底图 — 稿 12585:54831:m1 底 opacity30,图 1310×808、top -223、mix-blend-lighten。
-                稿写 left calc(50%-109px)+translateX(-50%),整层套了一次 -scale-x-100(内层再翻回图片本身),
-                镜像后视觉左边缘在 -81(=-8.71%),与 metadata 的 ascii-export 相对 x=81 互为镜像 */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden bg-[var(--main-m1,#49a3a6)] opacity-30">
+          {/* 稿 12585:54746:pt24 px32 gap16(pb 0,表格直接压卡沿) */}
+          <div className="relative flex flex-col gap-[16px] overflow-hidden px-[32px] pt-[24px]">
+            {/* 底图 — 稿 12719:31003:m1 底 opacity15,图 1310×808、top -493、mix-blend-lighten。
+                稿写 left -380 + 外层 -scale-x-100 → 镜像后等价于 right -380(图右侧超出 380、左边缘随卡宽走);
+                内层 rotate-180 与外层 -scale-x-100 相消后净剩一次垂直翻转 */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden bg-[var(--main-m1,#49a3a6)] opacity-15">
               <img
                 src={`${import.meta.env.BASE_URL}screener-ascii-pattern.png`}
                 alt=""
-                className="absolute max-w-none mix-blend-lighten"
-                style={{ top: -223, height: 'calc(100% + 534px)', left: '-8.71%', width: 'auto', aspectRatio: '1310 / 808' }}
+                className="absolute max-w-none object-cover mix-blend-lighten"
+                style={{ top: -493, right: -380, width: 1310, height: 808, transform: 'scaleY(-1)' }}
               />
             </div>
 
-            {/* 大标题 — 稿:Regular 24/34,tracking .24,n10(纯黑),占满宽度居中 */}
-            <p className="relative w-full shrink-0 text-center" style={textStyle(24, 34, 'var(--text-n10, #000)')}>
-              {PREVIEW_TITLE_PREFIX}{screen.title}
-            </p>
+            {/* 标题行 — 稿 12719:30990:gap10;Tag/Status Dot 20(外圈 #DBEDED + 内点 inset28.6% m1)+ Regular 20/30 n9,左对齐 */}
+            <div className="relative flex w-full shrink-0 items-center gap-[10px]">
+              <span aria-hidden="true" className="relative size-[20px] shrink-0 rounded-full" style={{ background: STATUS_DOT_RING }}>
+                <span className="absolute inset-[28.6%] rounded-full" style={{ background: M1 }} />
+              </span>
+              <p className="min-w-0 flex-1" style={textStyle(20, 30, N9)}>
+                {PREVIEW_TITLE_PREFIX}{screen.title}
+              </p>
+            </div>
 
             <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
               <div className="flex w-full items-center gap-[20px] overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
