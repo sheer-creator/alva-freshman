@@ -1049,7 +1049,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
       {/* Agent Header — Figma 7885:108604 / Topbar 30785:4970(gap-8)；频道态：# 头像 + 频道名 + (有描述才显示描述行)；
           分享选择态(9269:39944)：Tab 行隐藏,topbar 自带 border-b l12 */}
-      <div className="flex shrink-0 items-center gap-[8px] px-[28px] py-[16px]" style={shareMode ? { borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' } : undefined}>
+      <div className="flex shrink-0 items-center gap-[8px] px-[16px] py-[16px] sm:px-[28px]" style={shareMode ? { borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' } : undefined}>
         {channel ? <ChannelPortrait /> : <AlvaPortrait />}
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate text-[14px] font-medium leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
@@ -1158,7 +1158,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
       {/* Tab — Figma 7885:108611:icon 16 + 14px,active Medium + b-2 m1;分享选择态整行隐藏(9269:39941) */}
       {!shareMode && (
-      <div className="flex shrink-0 items-start gap-[16px] px-[28px]" style={{ borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
+      <div className="flex shrink-0 items-start gap-[16px] px-[16px] sm:px-[28px]" style={{ borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}>
         {TABS.map((t) => {
           const active = tab === t.id;
           return (
@@ -1189,7 +1189,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
 
       {tab === 'chat' ? (
         <>
-          <div ref={stageRef} onWheel={onStageUserScroll} onTouchMove={onStageUserScroll} className="min-h-0 flex-1 overflow-y-auto px-[28px]">
+          <div ref={stageRef} onWheel={onStageUserScroll} onTouchMove={onStageUserScroll} className="min-h-0 flex-1 overflow-y-auto px-[16px] sm:px-[28px]">
             <style>{MSG_IN_CSS}</style>
             <div className={`mx-auto flex w-full max-w-[960px] flex-col pb-[60px] pt-[28px] ${shareMode ? 'gap-[12px]' : 'gap-[36px]'}`}>
               {/* 预置演示频道：聊天区为预置对话历史（恒显，Figma 10998:50677）；其余频道走 onboard 空态 */}
