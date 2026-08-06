@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Preset Setup · Outcome-First Onboarding Cards</title>
+<title>Preset Setup · Final Onboarding Concepts</title>
 <script src="./vendor/react.production.min.js"></script>
 <script src="./vendor/react-dom.production.min.js"></script>
 <script src="./support.js"></script>
@@ -33,263 +33,140 @@ a{color:#49A3A6}a:hover{color:#2E7376}
 @keyframes k-spark{0%{stroke-dashoffset:140;opacity:0}6%{opacity:1}52%{stroke-dashoffset:0}88%{stroke-dashoffset:0;opacity:1}96%{opacity:0}100%{stroke-dashoffset:140;opacity:0}}
 @keyframes k-draw{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
 @keyframes k-fadein{from{opacity:0}to{opacity:1}}
-/* 1a Plan B · source showcase and synthesis */
-.ar2-shell{width:700px;background:#f4f5f3;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:22px 26px}
-.ar2-card{position:relative;overflow:visible;border:0;border-radius:0;background:transparent;box-shadow:none}
-.ar2-preview{position:relative;z-index:1;padding:15px 18px 16px;border:.5px solid var(--line-l3);border-radius:10px;background:#fff;box-shadow:0 4px 8px rgba(30,48,45,.06)}
-.ar2-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:.5px solid var(--line-l07)}
-.ar2-logo{width:18px;height:18px;border-radius:5px}
-.ar2-title{font-size:15px;font-weight:500;letter-spacing:0}
-.ar2-subtitle{font-size:11px;color:var(--text-n5)}
-.ar2-updated{margin-left:auto;font-size:9.5px;color:var(--text-n3);white-space:nowrap}
-.ar2-stage[hidden],.ar2-pane[hidden],.ar2-config[hidden]{display:none}
-.ar2-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.ar2-pane{min-width:0;overflow:hidden;padding:9px 10px 8px;border:.5px solid var(--line-l12);border-radius:8px;background:#fff}
-.ar2-pane.ar2-wide{grid-column:1/-1}
-.ar2-pane-head{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-.ar2-pane-title{font-size:11.5px;font-weight:500;color:var(--text-n9)}
-.ar2-pane-meta{font-size:8.5px;color:var(--text-n3)}
-.ar2-count{margin-left:auto;padding:1px 6px;border-radius:100px;background:var(--main-m1-10);font-size:8.5px;color:#2E7376;white-space:nowrap}
-.ar2-following{display:flex;min-width:0;align-items:center;gap:6px;margin-bottom:3px;padding-bottom:6px;border-bottom:.5px solid var(--line-l07)}
-.ar2-following-label{flex:none;font-size:8px;color:var(--text-n3)}
-.ar2-following-list{display:flex;min-width:0;align-items:center;gap:4px;overflow:hidden}
-.ar2-following-item{display:inline-flex;min-width:0;max-width:82px;align-items:center;gap:4px;padding:2px 5px 2px 2px;border-radius:100px;background:var(--grey-g02);font-size:8px;color:var(--text-n6);white-space:nowrap;animation:ar2-in .18s cubic-bezier(.22,1,.36,1)}
-.ar2-following-item .ar2-avatar,.ar2-following-item .ar2-cover{width:16px;height:16px;border:0}
-.ar2-following-item .ar2-cover{border-radius:4px;font-size:5px}
-.ar2-following-name{overflow:hidden;text-overflow:ellipsis}
-.ar2-following-more{flex:none;font-size:8px;color:#2E7376;white-space:nowrap}
-.ar2-feed{display:flex;flex-direction:column}
-.ar2-row{display:flex;align-items:flex-start;gap:7px;min-width:0;padding:7px 0;border-top:.5px solid var(--line-l07);animation:ar2-in .18s cubic-bezier(.22,1,.36,1)}
-.ar2-row:first-child{border-top:0}
-.ar2-avatar{width:25px;height:25px;flex:none;overflow:hidden;border:.5px solid var(--line-l12);border-radius:50%;background:var(--grey-g02)}
-.ar2-avatar img{display:block;width:100%;height:100%;object-fit:cover}
-.ar2-copy{min-width:0;flex:1}
-.ar2-byline{display:flex;align-items:center;gap:4px;min-width:0;margin-bottom:2px}
-.ar2-name{overflow:hidden;font-size:10px;font-weight:500;color:var(--text-n9);text-overflow:ellipsis;white-space:nowrap}
-.ar2-kind{padding:0 4px;border-radius:3px;background:var(--grey-g02);font:500 7.5px/13px var(--font-mono);color:var(--text-n5);white-space:nowrap}
-.ar2-kind-kf{background:var(--main-m2-10);color:#27699f}
-.ar2-time{margin-left:auto;font-size:8px;color:var(--text-n3);white-space:nowrap}
-.ar2-body{display:-webkit-box;overflow:hidden;font-size:9.5px;line-height:13px;color:var(--text-n7);-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.ar2-read{margin-top:3px;font-size:8.5px;line-height:12px;color:#2E7376}
-.ar2-cover{display:flex;width:27px;height:27px;flex:none;align-items:center;justify-content:center;border-radius:6px;font:500 8px var(--font-mono);color:#fff}
-.ar2-cover-ol{background:#315b63}.ar2-cover-ac{background:#8e5e48}.ar2-cover-bg{background:#506894}
-.ar2-topic{display:-webkit-box;overflow:hidden;font-size:9.5px;font-weight:500;line-height:13px;color:var(--text-n9);-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.ar2-source{margin-top:2px;font-size:8px;color:var(--text-n3)}
-.ar2-signal{width:5px;height:5px;flex:none;margin-top:4px;border-radius:50%;background:var(--main-m1)}
-.ar2-signal-news{background:var(--main-m2)}
-.ar2-signal-earnings{background:var(--main-m5)}
-.ar2-ticker{flex:none;margin-left:3px;padding:0 5px;border-radius:100px;background:var(--grey-g02);font:500 8px/14px var(--font-mono);color:var(--text-n7)}
-.ar2-stage-empty{padding:34px 20px;border:.5px dashed var(--line-l2);border-radius:8px;text-align:center;font-size:10px;line-height:15px;color:var(--text-n4)}
-.ar2-config{position:relative;overflow:hidden;margin-top:16px;border:.5px solid var(--line-l3);border-radius:10px;background:var(--grey-g01);box-shadow:none}
-.ar2-config-head{display:flex;align-items:center;padding:10px 16px 8px}
-.ar2-config-title{font-size:11.5px;font-weight:500;color:var(--text-n9)}
-.ar2-config-note{margin-left:7px;font-size:9px;color:var(--text-n3)}
-.ar2-config-grid{display:grid;grid-template-columns:1fr 1fr;border-top:.5px solid var(--line-l07);background:#fff}
-.ar2-config-cell{display:flex;min-width:0;min-height:68px;align-items:center;gap:10px;padding:11px 14px;background:#fff}
-.ar2-config-people,.ar2-config-news{border-right:.5px solid var(--line-l07)}
-.ar2-config-people,.ar2-config-podcast{border-bottom:.5px solid var(--line-l07)}
-.ar2-config-main{min-width:0;flex:1}
-.ar2-config-label{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;color:var(--text-n9)}
-.ar2-selected{font-size:8.5px;font-weight:400;color:var(--text-n3)}
-.ar2-config-copy{margin-top:3px;overflow:hidden;font-size:9px;line-height:13px;color:var(--text-n5);text-overflow:ellipsis;white-space:nowrap}
-.ar2-summary-stack{display:flex;min-width:34px;align-items:center}
-.ar2-summary-stack:empty{display:none}
-.ar2-summary-stack .ar2-avatar,.ar2-summary-stack .ar2-cover{width:20px;height:20px;margin-left:-5px;border:2px solid #fff}
-.ar2-summary-stack .ar2-avatar:first-child,.ar2-summary-stack .ar2-cover:first-child{margin-left:0}
-.ar2-summary-stack .ar2-cover{font-size:6px}
-.ar2-manage{flex:none;border:0;background:transparent;padding:5px 0;font:inherit;font-size:9px;color:#2E7376;cursor:pointer}
-.ar2-manage:hover{color:var(--main-m1)}
-.ar2-search{width:100%;height:30px;border:.5px solid var(--line-l2);border-radius:7px;background:#fff;padding:0 9px;font:inherit;font-size:9.5px;color:var(--text-n8);outline:0}
-.ar2-search::placeholder{color:var(--text-n5)}
-.ar2-search:focus{border-color:rgba(73,163,166,.7);box-shadow:0 0 0 2px rgba(73,163,166,.12)}
-.ar2-chipset{display:flex;flex-wrap:wrap;gap:5px}
-.ar2-chip{display:inline-flex;max-width:100%;align-items:center;gap:5px;padding:5px 8px 5px 5px;border:.5px solid var(--line-l2);border-radius:100px;background:#fff;font:inherit;font-size:9px;color:var(--text-n5);white-space:nowrap;cursor:pointer;transition:border-color .18s ease-out,background-color .18s ease-out,color .18s ease-out,transform .18s ease-out}
-.ar2-chip::after{content:'+';margin-left:1px;font-size:10px;line-height:1;color:var(--text-n4)}
-.ar2-chip:hover{border-color:rgba(73,163,166,.65);color:var(--text-n7)}
-.ar2-chip:active{transform:scale(.97)}
-.ar2-chip:focus-visible,.ar2-source-toggle:focus-visible,.ar2-manage:focus-visible,.ar2-cta:focus-visible,.ar2-dialog-close:focus-visible,.ar2-filter:focus-visible{outline:2px solid rgba(73,163,166,.35);outline-offset:2px}
-.ar2-chip[aria-pressed="true"]{border-color:rgba(73,163,166,.55);background:var(--main-m1-10);color:var(--text-n8)}
-.ar2-chip[aria-pressed="true"]::after{content:'×';color:#2E7376}
-.ar2-chip img{width:17px;height:17px;border-radius:50%;object-fit:cover}
-.ar2-chip-cover{display:inline-flex;width:17px;height:17px;align-items:center;justify-content:center;border-radius:4px;font:500 6px var(--font-mono);color:#fff}
-.ar2-source-toggle{display:flex;width:34px;height:20px;flex:none;align-items:center;border:0;border-radius:100px;background:var(--line-l2);padding:2px;font:inherit;cursor:pointer;transition:background-color .18s ease-out}
-.ar2-toggle{display:block;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.22);transform:translateX(0);transition:transform .18s ease-out}
-.ar2-source-toggle[aria-pressed="true"]{background:var(--main-m1)}
-.ar2-source-toggle[aria-pressed="true"] .ar2-toggle{transform:translateX(14px)}
-@keyframes ar2-in{from{opacity:.45;transform:translateY(3px)}to{opacity:1;transform:none}}
-@keyframes ar2-flash{from{background:rgba(73,163,166,.09)}to{background:transparent}}
-.ar2-pane.is-updating{animation:ar2-flash .45s cubic-bezier(.22,1,.36,1)}
-.ar2-footer{display:flex;align-items:center;gap:7px;padding:10px 14px 11px;border-top:.5px solid var(--line-l07);background:#fff}
-.ar2-footer-label{font-size:9.5px;color:var(--text-n5)}
-.ar2-select{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:.5px solid var(--line-l2);border-radius:5px;background:#fff;font-size:9.5px;color:var(--text-n7);white-space:nowrap}
-.ar2-cta{margin-left:auto;border:0;padding:8px 14px;border-radius:8px;background:var(--main-m1);font:inherit;font-size:11px;font-weight:500;color:#fff;white-space:nowrap;cursor:pointer}
-.ar2-cta:disabled{background:var(--line-l2);color:var(--text-n3);cursor:not-allowed}
-.ar2-dialog{width:430px;max-width:calc(100vw - 32px);border:0;border-radius:10px;padding:0;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.ar2-dialog::backdrop{background:rgba(0,0,0,.28)}
-.ar2-dialog-head{display:flex;align-items:flex-start;gap:10px;padding:16px 18px 12px;border-bottom:.5px solid var(--line-l12)}
-.ar2-dialog-title{font-size:13px;font-weight:500;color:var(--text-n9)}
-.ar2-dialog-copy{margin-top:3px;font-size:9.5px;line-height:14px;color:var(--text-n5)}
-.ar2-dialog-close{display:flex;width:26px;height:26px;margin-left:auto;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;font:16px/1 sans-serif;color:var(--text-n5);cursor:pointer}
-.ar2-dialog-close:hover{background:var(--grey-g02);color:var(--text-n8)}
-.ar2-dialog-tools{display:flex;gap:8px;padding:12px 18px 10px}
-.ar2-filters{display:flex;flex:none;padding:2px;border:.5px solid var(--line-l12);border-radius:7px;background:var(--grey-g01)}
-.ar2-filter{border:0;border-radius:5px;background:transparent;padding:4px 7px;font:inherit;font-size:8.5px;color:var(--text-n5);cursor:pointer}
-.ar2-filter[aria-pressed="true"]{background:#fff;color:#2E7376;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.ar2-dialog-body{min-height:82px;padding:0 18px 14px}
-.ar2-dialog-foot{display:flex;align-items:center;padding:10px 18px;border-top:.5px solid var(--line-l12);background:var(--grey-g01)}
-.ar2-dialog-count{font-size:9px;color:var(--text-n4)}
-.ar2-dialog-done{margin-left:auto}
-.ar2-loading{min-height:258px;padding:18px 8px 4px}
-.ar2-loading-title{font-size:13px;font-weight:500;color:var(--text-n9)}
-.ar2-loading-copy{margin-top:4px;font-size:10px;color:var(--text-n5)}
-.ar2-progress{height:3px;margin:14px 0 12px;overflow:hidden;border-radius:100px;background:var(--grey-g02)}
-.ar2-progress-fill{display:block;width:0;height:100%;border-radius:inherit;background:var(--main-m1);transition:width .35s ease-out}
-.ar2-load-step{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:.5px solid var(--line-l07);font-size:10px;color:var(--text-n3)}
-.ar2-load-step:first-child{border-top:0}
-.ar2-step-dot{display:flex;width:15px;height:15px;align-items:center;justify-content:center;border-radius:50%;background:var(--grey-g02);font-size:8px;color:transparent}
-.ar2-load-step.is-current{color:var(--text-n8)}
-.ar2-load-step.is-current .ar2-step-dot{border:3px solid var(--main-m1-10);background:var(--main-m1)}
-.ar2-load-step.is-done{color:var(--text-n5)}
-.ar2-load-step.is-done .ar2-step-dot{background:var(--main-m1);color:#fff}
-.ar2-result-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
-.ar2-result-kicker{font:500 8.5px var(--font-mono);color:#2E7376;text-transform:uppercase}
-.ar2-result-title{margin-top:3px;font-size:14px;font-weight:500;color:var(--text-n9)}
-.ar2-edit{margin-left:auto;border:.5px solid var(--line-l2);border-radius:7px;background:#fff;padding:6px 9px;font:inherit;font-size:9px;color:var(--text-n7);cursor:pointer}
-.ar2-ideas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-.ar2-idea{min-width:0;border:.5px solid var(--line-l12);border-radius:8px;padding:9px;background:#fff;animation:ar2-in .25s cubic-bezier(.22,1,.36,1)}
-.ar2-idea-top{display:flex;align-items:center;gap:5px;margin-bottom:6px}
-.ar2-idea-ticker{font:500 10px var(--font-mono);color:var(--text-n9)}
-.ar2-idea-tone{margin-left:auto;padding:1px 5px;border-radius:100px;background:rgba(64,165,68,.12);font-size:7.5px;color:#2c7a2f}
-.ar2-idea-title{font-size:10px;font-weight:500;line-height:14px;color:var(--text-n9)}
-.ar2-idea-copy{margin-top:4px;font-size:8.5px;line-height:12px;color:var(--text-n5)}
-.ar2-evidence{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px}
-.ar2-evidence span{max-width:100%;overflow:hidden;padding:2px 5px;border-radius:4px;background:var(--grey-g02);font-size:7.5px;color:var(--text-n5);text-overflow:ellipsis;white-space:nowrap}
-.ar2-result-note{margin-top:9px;font-size:8.5px;color:var(--text-n3)}
-@media(prefers-reduced-motion:reduce){.ar2-shell *{animation:none!important;transition:none!important}}
-/* 1a Plan C · create first, personalize after value */
-.ar3-shell{width:700px;border:1px solid rgba(0,0,0,.06);border-radius:8px;background:#f4f5f3;padding:22px 26px}
-.ar3-card{overflow:hidden;border:.5px solid var(--line-l3);border-radius:10px;background:#fff;box-shadow:0 4px 8px rgba(30,48,45,.06)}
-.ar3-stage[hidden],.ar3-editor-flow[hidden],.ar3-save-note[hidden]{display:none}
-.ar3-intro{min-height:482px;padding:18px 24px 20px}
-.ar3-brand{display:flex;align-items:center;gap:8px}
-.ar3-logo{width:19px;height:19px;border-radius:5px}
-.ar3-brand-name{font-size:14px;font-weight:500;color:var(--text-n9)}
-.ar3-brand-note{margin-left:auto;font-size:9px;color:var(--text-n3)}
-.ar3-intro-copy{max-width:460px;margin:31px auto 0;text-align:center}
-.ar3-title{font-size:25px;font-weight:500;line-height:31px;letter-spacing:0;color:var(--text-n9);text-wrap:balance}
-.ar3-subtitle{max-width:430px;margin:8px auto 0;font-size:11px;line-height:17px;color:var(--text-n5);text-wrap:pretty}
-.ar3-capability{margin:23px auto 0}
-.ar3-source-rail{display:flex;align-items:flex-start;justify-content:center;gap:22px}
-.ar3-source{display:flex;width:70px;flex-direction:column;align-items:center;gap:6px;font-size:8.5px;color:var(--text-n5)}
-.ar3-source-mark{display:flex;width:32px;height:32px;align-items:center;justify-content:center;overflow:hidden;border:.5px solid var(--line-l12);border-radius:8px;background:#fff;font:600 9px var(--font-mono);color:var(--text-n8);box-shadow:0 2px 5px rgba(30,48,45,.05)}
-.ar3-source-mark img{width:17px;height:17px;object-fit:contain}
-.ar3-flow{position:relative;width:1px;height:23px;margin:0 auto;background:var(--line-l2)}
-.ar3-flow::after{content:'';position:absolute;bottom:-1px;left:-2px;width:5px;height:5px;border-radius:50%;background:var(--main-m1)}
-.ar3-engine{display:flex;width:168px;margin:0 auto;align-items:center;gap:9px;border-radius:8px;background:#183837;padding:10px 12px;color:#fff;box-shadow:0 4px 8px rgba(24,56,55,.14)}
-.ar3-engine img{width:22px;height:22px;border-radius:6px}
-.ar3-engine-title{font-size:10.5px;font-weight:500}
-.ar3-engine-copy{margin-top:2px;font-size:8px;color:rgba(255,255,255,.64)}
-.ar3-output{display:grid;max-width:440px;margin:0 auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.ar3-output-item{min-width:0;padding-top:7px;border-top:1.5px solid var(--main-m1);font-size:8.5px;color:var(--text-n5);text-align:center}
-.ar3-output-item strong{display:block;margin-bottom:2px;font-size:9.5px;font-weight:500;color:var(--text-n8)}
-.ar3-intro-actions{margin-top:25px;text-align:center}
-.ar3-primary,.ar3-secondary{border:0;border-radius:8px;padding:9px 15px;font:inherit;font-size:10.5px;font-weight:500;cursor:pointer}
-.ar3-primary{background:var(--main-m1);color:#fff}
-.ar3-primary:hover{background:#2E7376}
-.ar3-secondary{border:.5px solid var(--line-l2);background:#fff;color:var(--text-n7)}
-.ar3-secondary:hover{border-color:var(--line-l3);background:var(--grey-g01)}
-.ar3-primary:disabled,.ar3-secondary:disabled{border-color:transparent;background:var(--line-l2);color:var(--text-n3);cursor:not-allowed}
-.ar3-primary:focus-visible,.ar3-secondary:focus-visible,.ar3-source-choice:focus-visible,.ar3-switch:focus-visible,.ar3-editor-close:focus-visible{outline:2px solid rgba(73,163,166,.35);outline-offset:2px}
-.ar3-consent{max-width:410px;margin:8px auto 0;font-size:8.5px;line-height:13px;color:var(--text-n4)}
-.ar3-loading{min-height:482px;padding:92px 62px 40px}
-.ar3-loading-logo{width:30px;height:30px;border-radius:8px}
-.ar3-loading-title{margin-top:16px;font-size:16px;font-weight:500;color:var(--text-n9)}
-.ar3-loading-copy{margin-top:5px;font-size:10px;line-height:15px;color:var(--text-n5)}
-.ar3-progress{height:3px;margin:20px 0 16px;overflow:hidden;border-radius:100px;background:var(--grey-g02)}
-.ar3-progress-fill{display:block;width:0;height:100%;border-radius:inherit;background:var(--main-m1);transition:width .3s cubic-bezier(.22,1,.36,1)}
-.ar3-load-step{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:.5px solid var(--line-l07);font-size:9.5px;color:var(--text-n3)}
-.ar3-load-step:first-child{border-top:0}
-.ar3-load-dot{display:flex;width:16px;height:16px;align-items:center;justify-content:center;border-radius:50%;background:var(--grey-g02);font-size:8px;color:transparent}
-.ar3-load-step.is-current{color:var(--text-n8)}
-.ar3-load-step.is-current .ar3-load-dot{background:var(--main-m1);box-shadow:0 0 0 3px var(--main-m1-10)}
-.ar3-load-step.is-done .ar3-load-dot{background:var(--main-m1);color:#fff}
-.ar3-result{padding:16px 18px 18px}
-.ar3-live{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:8px;background:var(--main-m1-10)}
-.ar3-live-dot{width:7px;height:7px;flex:none;border-radius:50%;background:var(--main-m1);box-shadow:0 0 0 3px rgba(73,163,166,.12)}
-.ar3-live-title{font-size:11.5px;font-weight:500;color:var(--text-n9)}
-.ar3-live-copy{margin-top:2px;font-size:8.5px;color:var(--text-n5)}
-.ar3-live-time{margin-left:auto;font:500 8.5px var(--font-mono);color:#2E7376;white-space:nowrap}
-.ar3-radar-head{display:flex;align-items:flex-start;margin:14px 2px 10px}
-.ar3-radar-kicker{font:500 8px var(--font-mono);color:#2E7376;text-transform:uppercase}
-.ar3-radar-title{margin-top:2px;font-size:14px;font-weight:500;color:var(--text-n9)}
-.ar3-radar-time{margin-left:auto;font-size:8.5px;color:var(--text-n3)}
-.ar3-markdown{border:.5px solid var(--line-l12);border-radius:8px;background:#fff;padding:15px 17px;color:var(--text-n7)}
-.ar3-md-title{margin:0;font-size:15px;font-weight:600;line-height:20px;color:var(--text-n9)}
-.ar3-md-stock{padding:13px 0;border-top:.5px solid var(--line-l07)}
-.ar3-md-stock:first-of-type{margin-top:10px}
-.ar3-md-stock-head{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
-.ar3-md-ticker{font:600 13px var(--font-mono);color:var(--text-n9)}
-.ar3-md-price{font:500 9px var(--font-mono);color:var(--text-n5)}
-.ar3-md-sentiment{margin-left:auto;border-radius:100px;padding:2px 7px;font-size:8px;font-weight:500;white-space:nowrap}
-.ar3-md-sentiment.is-bullish{background:rgba(64,165,68,.12);color:#2c7a2f}
-.ar3-md-sentiment.is-bearish{background:rgba(196,69,54,.1);color:#a1392d}
-.ar3-md-sentiment.is-cautious{background:rgba(180,134,37,.12);color:#8b6518}
-.ar3-md-section-title{margin:10px 0 4px;font-size:9.5px;font-weight:600;line-height:14px;color:var(--text-n9)}
-.ar3-md-section-title:first-child{margin-top:0}
-.ar3-md-section-title span{font-weight:500;color:var(--text-n5)}
-.ar3-md-paragraph{margin:0;font-size:9.5px;line-height:15px;color:var(--text-n6);text-wrap:pretty}
-.ar3-md-paragraph strong{font-weight:600;color:var(--text-n8)}
-.ar3-md-paragraph+.ar3-md-paragraph{margin-top:5px}
-.ar3-md-link{font:500 8px var(--font-mono);color:#2E7376;text-decoration:none}
-.ar3-md-link:hover{text-decoration:underline}
-.ar3-md-also{margin:0;padding-top:12px;border-top:.5px solid var(--line-l07);font-size:9.5px;line-height:15px;color:var(--text-n6)}
-.ar3-md-question{margin:9px 0 0;font-size:9.5px;font-weight:500;line-height:15px;color:var(--text-n8)}
-.ar3-md-footnote{margin:9px 0 0;font-size:8px;font-style:italic;line-height:12px;color:var(--text-n3)}
-.ar3-edit-prompt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;margin-top:10px;padding:14px 15px;border:.5px solid rgba(73,163,166,.38);border-radius:8px;background:#eaf4f2;box-shadow:0 4px 10px rgba(30,88,83,.06)}
-.ar3-customize-icons{display:flex;align-items:center;padding-left:8px}
-.ar3-customize-icon{display:flex;width:28px;height:28px;margin-left:-8px;align-items:center;justify-content:center;overflow:hidden;border:2px solid #eaf4f2;border-radius:8px;background:#fff;box-shadow:0 2px 5px rgba(30,48,45,.1);font:600 7px var(--font-mono);color:var(--text-n8)}
-.ar3-customize-icon img{width:14px;height:14px;object-fit:contain}
-.ar3-edit-prompt-copy{min-width:0}
-.ar3-customize-eyebrow{font:500 7.5px var(--font-mono);color:#2E7376;text-transform:uppercase}
-.ar3-edit-prompt-title{margin-top:2px;font-size:11px;font-weight:600;color:var(--text-n9)}
-.ar3-edit-prompt-text{max-width:410px;margin-top:3px;font-size:8.5px;line-height:13px;color:#456664}
-.ar3-source-summary{margin-top:5px;overflow:hidden;font-size:8px;color:#2E7376;text-overflow:ellipsis;white-space:nowrap}
-.ar3-edit{flex:none;border:0;background:var(--main-m1);color:#fff}
-.ar3-edit:hover{border-color:transparent;background:#2E7376;color:#fff}
-.ar3-editor-flow{display:none;margin-top:0}
-.ar3-editor-flow.is-open{display:block}
-.ar3-editor-connector{position:relative;display:flex;height:32px;align-items:center;justify-content:center}
-.ar3-editor-connector::before{content:'';width:1px;height:100%;background:rgba(73,163,166,.42)}
-.ar3-editor-connector span{position:absolute;border:.5px solid rgba(73,163,166,.25);border-radius:100px;background:#fff;padding:2px 7px;font:500 7px var(--font-mono);color:#2E7376;text-transform:uppercase}
-.ar3-editor{overflow:hidden;border:.5px solid rgba(73,163,166,.36);border-radius:8px;background:#fff;box-shadow:0 6px 14px rgba(30,48,45,.09)}
-.ar3-editor-head{display:flex;align-items:flex-start;padding:12px 13px 10px;border-bottom:.5px solid var(--line-l07)}
-.ar3-editor-title{font-size:11px;font-weight:500;color:var(--text-n9)}
-.ar3-editor-copy{margin-top:2px;font-size:8.5px;color:var(--text-n4)}
-.ar3-editor-close{margin-left:auto;border:0;background:transparent;padding:2px 4px;font:15px/1 sans-serif;color:var(--text-n5);cursor:pointer}
-.ar3-editor-close:hover{color:var(--text-n8)}
-.ar3-editor-grid{display:grid;grid-template-columns:1fr 1fr}
-.ar3-editor-section{min-width:0;padding:10px 12px}
-.ar3-editor-section:nth-child(odd){border-right:.5px solid var(--line-l07)}
-.ar3-editor-section:nth-child(-n+2){border-bottom:.5px solid var(--line-l07)}
-.ar3-editor-label{display:flex;align-items:center;gap:5px;margin-bottom:7px;font-size:9.5px;font-weight:500;color:var(--text-n8)}
-.ar3-editor-meta{font-size:8px;font-weight:400;color:var(--text-n3)}
-.ar3-choice-row{display:flex;flex-wrap:wrap;gap:4px}
-.ar3-source-choice{border:.5px solid var(--line-l12);border-radius:100px;background:#fff;padding:4px 7px;font:inherit;font-size:8px;color:var(--text-n5);cursor:pointer}
-.ar3-source-choice[aria-pressed="true"]{border-color:rgba(73,163,166,.55);background:var(--main-m1-10);color:var(--text-n8)}
-.ar3-toggle-row{display:flex;align-items:center;gap:8px;font-size:8.5px;line-height:12px;color:var(--text-n5)}
-.ar3-switch{display:flex;width:31px;height:18px;flex:none;align-items:center;border:0;border-radius:100px;background:var(--line-l2);padding:2px;cursor:pointer}
-.ar3-switch span{width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .18s ease-out}
-.ar3-switch[aria-pressed="true"]{background:var(--main-m1)}
-.ar3-switch[aria-pressed="true"] span{transform:translateX(13px)}
-.ar3-editor-foot{display:flex;align-items:center;gap:7px;padding:10px 12px;border-top:.5px solid var(--line-l07);background:var(--grey-g01)}
-.ar3-editor-hint{margin-right:auto;font-size:8px;color:var(--text-n4)}
-.ar3-save-note{margin-top:6px;font-size:8px;font-weight:500;color:#2E7376}
-@keyframes ar3-in{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
-@keyframes ar3-stream-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.ar3-result.is-fresh .ar3-markdown{animation:ar3-in .22s cubic-bezier(.22,1,.36,1)}
-.ar3-editor.is-streaming{animation:ar3-in .24s cubic-bezier(.22,1,.36,1)}
-.ar3-editor.is-streaming [data-ar3-stream-item]{animation:ar3-stream-in .26s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--ar3-stream-index,0) * 110ms)}
-@media(prefers-reduced-motion:reduce){.ar3-shell *{animation:none!important;transition:none!important}}
+/* 1a · Alpha Radar final onboarding candidates */
+.arf-variants{display:flex;flex-direction:column;gap:42px;width:100%}
+.arf-shell{width:min(760px,100%);box-sizing:border-box;border:1px solid rgba(0,0,0,.06);border-radius:8px;background:#f4f5f3;padding:22px 26px;color:var(--text-n9)}
+.arf-report{overflow:hidden;border:.5px solid var(--line-l3);border-radius:10px;background:#fff}
+.arf-report-head{display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:.5px solid var(--line-l12)}
+.arf-logo{width:19px;height:19px;border-radius:5px}
+.arf-brand{font-size:14px;font-weight:500;color:var(--text-n9)}
+.arf-report-type{font-size:10px;color:var(--text-n5)}
+.arf-report-date{margin-left:auto;font-size:9px;color:var(--text-n3);white-space:nowrap}
+.arf-curation{display:flex;align-items:center;gap:6px;padding:8px 18px;background:var(--grey-g01);border-bottom:.5px solid var(--line-l07);font-size:9px;color:var(--text-n5)}
+.arf-curation-dot{width:5px;height:5px;border-radius:50%;background:var(--main-m1)}
+.arf-alpha{padding:20px 22px 21px;border-top:.5px solid var(--line-l12)}
+.arf-alpha:first-of-type{border-top:0}
+.arf-alpha-head{display:flex;align-items:flex-start;gap:16px}
+.arf-expression{min-width:0;flex:1}
+.arf-expression-line{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.arf-direction{display:inline-flex;align-items:center;border-radius:5px;padding:4px 7px;font:600 8.5px var(--font-mono);letter-spacing:0}
+.arf-direction.is-short{background:rgba(190,72,65,.12);color:#9a3934}
+.arf-direction.is-long{background:rgba(48,135,74,.12);color:#25683a}
+.arf-tickers{font:600 24px/1.1 var(--font-mono);letter-spacing:0;color:#172120}
+.arf-published{margin-top:7px;font-size:9px;color:var(--text-n4)}
+.arf-performance{display:flex;min-width:232px;flex-direction:column;gap:5px}
+.arf-performance-row{display:grid;grid-template-columns:48px 1fr auto;align-items:baseline;gap:7px;font-size:8.5px;color:var(--text-n5)}
+.arf-performance-ticker{font:600 9px var(--font-mono);color:var(--text-n8)}
+.arf-performance-price{white-space:nowrap}
+.arf-performance-return{font:600 9.5px var(--font-mono);color:#28713f;white-space:nowrap}
+.arf-thesis{max-width:660px;margin:15px 0 0;font-size:13px;font-weight:500;line-height:19px;color:var(--text-n9);text-wrap:pretty}
+.arf-evidence{display:flex;flex-direction:column;gap:9px;margin:13px 0 0;padding:0;list-style:none}
+.arf-evidence li{position:relative;padding-left:15px;font-size:10.5px;line-height:16px;color:var(--text-n7);text-wrap:pretty}
+.arf-evidence li::before{content:'';position:absolute;top:6px;left:0;width:4px;height:4px;border-radius:50%;background:var(--main-m1)}
+.arf-source{display:inline-flex;margin-right:5px;border-radius:4px;background:var(--grey-g02);padding:1px 5px;font:500 8px/14px var(--font-mono);color:var(--text-n5);vertical-align:1px;white-space:nowrap}
+.arf-disclosure{padding:10px 18px 12px;border-top:.5px solid var(--line-l07);font-size:8px;line-height:12px;color:var(--text-n3)}
+.arf-teaser{position:relative;max-height:660px;overflow:hidden;overflow:clip;border-radius:10px}
+.arf-teaser .arf-report{border-radius:10px}
+.arf-teaser-mask{position:absolute;z-index:2;top:69%;right:0;bottom:0;left:0;display:flex;align-items:flex-end;justify-content:center;padding:24px 20px 18px;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.7) 28%,rgba(244,245,243,.98) 74%);backdrop-filter:blur(3px)}
+.arf-teaser-mask.is-passive{pointer-events:none}
+.arf-teaser-prompt{width:min(430px,100%);box-sizing:border-box;border:.5px solid rgba(73,163,166,.45);border-radius:10px;background:#fff;padding:14px 16px;text-align:center}
+.arf-teaser-title{font-size:13px;font-weight:500;color:var(--text-n9)}
+.arf-teaser-copy{margin:4px auto 11px;max-width:350px;font-size:9.5px;line-height:14px;color:var(--text-n5)}
+.arf-source-marks{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:10px}
+.arf-source-mark{display:inline-flex;height:20px;align-items:center;justify-content:center;border:.5px solid var(--line-l12);border-radius:5px;background:var(--grey-g01);padding:0 6px;font:600 7.5px var(--font-mono);color:var(--text-n6)}
+.arf-reveal,.arf-start,.arf-dialog-done{border:0;border-radius:8px;background:var(--main-m1);padding:8px 13px;font:inherit;font-size:10.5px;font-weight:500;color:#fff;cursor:pointer;transition:background-color .16s ease-out,transform .12s ease-out}
+.arf-reveal:hover,.arf-start:hover,.arf-dialog-done:hover{background:#2E7376}
+.arf-reveal:active,.arf-start:active,.arf-dialog-done:active{transform:scale(.98)}
+.arf-reveal[aria-disabled="true"]{background:var(--main-m1-10);color:#2E7376;cursor:default;transform:none}
+.arf-reveal:focus-visible,.arf-start:focus-visible,.arf-manage:focus-visible,.arf-toggle:focus-visible,.arf-option:focus-visible,.arf-dialog-close:focus-visible,.arf-filter:focus-visible,.arf-select:focus-visible{outline:2px solid rgba(73,163,166,.38);outline-offset:2px}
+.arf-config-flow[hidden]{display:none}
+.arf-config-flow{margin-top:16px}
+.arf-config{overflow:hidden;border:.5px solid var(--line-l3);border-radius:10px;background:#fff}
+.arf-config-head{display:flex;align-items:flex-start;gap:12px;padding:14px 16px 12px;background:var(--grey-g01)}
+.arf-config-title{font-size:12.5px;font-weight:500;color:var(--text-n9)}
+.arf-config-copy{margin-top:3px;font-size:9.5px;line-height:14px;color:var(--text-n5)}
+.arf-config-summary{margin-left:auto;padding-top:2px;font-size:9px;color:var(--text-n4);white-space:nowrap}
+.arf-config-grid{display:grid;grid-template-columns:1fr 1fr;border-top:.5px solid var(--line-l07)}
+.arf-config-cell{display:flex;min-width:0;min-height:70px;align-items:center;gap:10px;padding:11px 14px}
+.arf-config-cell:nth-child(odd){border-right:.5px solid var(--line-l07)}
+.arf-config-cell:nth-child(-n+2){border-bottom:.5px solid var(--line-l07)}
+.arf-config-main{min-width:0;flex:1}
+.arf-config-label{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;color:var(--text-n9)}
+.arf-selected{font-size:8.5px;font-weight:400;color:var(--text-n3)}
+.arf-config-detail{margin-top:3px;overflow:hidden;font-size:9px;line-height:13px;color:var(--text-n5);text-overflow:ellipsis;white-space:nowrap}
+.arf-avatar-stack{display:flex;min-width:30px;align-items:center}
+.arf-avatar-stack:empty{display:none}
+.arf-avatar{display:inline-flex;width:21px;height:21px;margin-left:-6px;align-items:center;justify-content:center;overflow:hidden;border:2px solid #fff;border-radius:50%;background:var(--grey-g02);font:600 6px var(--font-mono);color:#fff}
+.arf-avatar:first-child{margin-left:0}
+.arf-avatar img{width:100%;height:100%;object-fit:cover}
+.arf-cover{border-radius:5px}
+.arf-manage{flex:none;border:0;background:transparent;padding:6px 0;font:inherit;font-size:9px;color:#2E7376;cursor:pointer}
+.arf-manage:hover{color:var(--main-m1)}
+.arf-toggle{display:flex;width:34px;height:20px;flex:none;align-items:center;border:0;border-radius:100px;background:var(--line-l2);padding:2px;cursor:pointer;transition:background-color .16s ease-out}
+.arf-toggle span{display:block;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.22);transform:translateX(0);transition:transform .16s ease-out}
+.arf-toggle[aria-pressed="true"]{background:var(--main-m1)}
+.arf-toggle[aria-pressed="true"] span{transform:translateX(14px)}
+.arf-config-footer{display:flex;align-items:center;gap:7px;padding:11px 14px;border-top:.5px solid var(--line-l07);background:var(--grey-g01)}
+.arf-field{display:flex;align-items:center;gap:6px}
+.arf-field label{font-size:9px;color:var(--text-n5);white-space:nowrap}
+.arf-select{height:28px;border:.5px solid var(--line-l2);border-radius:6px;background:#fff;padding:0 24px 0 8px;font:inherit;font-size:9px;color:var(--text-n7)}
+.arf-start{margin-left:auto}
+.arf-start:disabled{background:var(--line-l2);color:var(--text-n3);cursor:not-allowed;transform:none}
+.arf-status{padding:8px 14px;border-top:.5px solid rgba(73,163,166,.22);background:var(--main-m1-10);font-size:9px;color:#2E7376}
+.arf-status[hidden]{display:none}
+.arf-dialog{width:440px;max-width:calc(100vw - 32px);border:0;border-radius:10px;padding:0;background:#fff;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.arf-dialog::backdrop{background:rgba(0,0,0,.3)}
+.arf-dialog-head{display:flex;align-items:flex-start;gap:10px;padding:15px 17px 12px;border-bottom:.5px solid var(--line-l12)}
+.arf-dialog-title{font-size:12.5px;font-weight:500;color:var(--text-n9)}
+.arf-dialog-copy{margin-top:3px;font-size:9.5px;line-height:14px;color:var(--text-n5)}
+.arf-dialog-close{display:flex;width:28px;height:28px;margin-left:auto;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;font:16px/1 sans-serif;color:var(--text-n5);cursor:pointer}
+.arf-dialog-close:hover{background:var(--grey-g02);color:var(--text-n8)}
+.arf-dialog-tools{display:flex;gap:8px;padding:11px 17px 9px}
+.arf-search{width:100%;height:32px;border:.5px solid var(--line-l2);border-radius:7px;background:#fff;padding:0 9px;font:inherit;font-size:9.5px;color:var(--text-n8);outline:0}
+.arf-search::placeholder{color:var(--text-n5)}
+.arf-search:focus{border-color:rgba(73,163,166,.7);box-shadow:0 0 0 2px rgba(73,163,166,.12)}
+.arf-filters{display:flex;flex:none;padding:2px;border:.5px solid var(--line-l12);border-radius:7px;background:var(--grey-g01)}
+.arf-filter{border:0;border-radius:5px;background:transparent;padding:4px 7px;font:inherit;font-size:8.5px;color:var(--text-n5);cursor:pointer}
+.arf-filter[aria-pressed="true"]{background:#fff;color:#2E7376;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.arf-dialog-body{display:flex;min-height:82px;flex-wrap:wrap;gap:6px;padding:0 17px 14px}
+.arf-option{display:inline-flex;height:30px;align-items:center;gap:5px;border:.5px solid var(--line-l2);border-radius:100px;background:#fff;padding:0 8px 0 5px;font:inherit;font-size:9px;color:var(--text-n5);cursor:pointer;transition:border-color .16s ease-out,background-color .16s ease-out,color .16s ease-out,transform .12s ease-out}
+.arf-option:hover{border-color:rgba(73,163,166,.65);color:var(--text-n7)}
+.arf-option:active{transform:scale(.98)}
+.arf-option[aria-pressed="true"]{border-color:rgba(73,163,166,.55);background:var(--main-m1-10);color:var(--text-n8)}
+.arf-option[hidden]{display:none}
+.arf-option img,.arf-option-mark{width:18px;height:18px;border-radius:50%;object-fit:cover}
+.arf-option-mark{display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font:600 6px var(--font-mono);color:#fff}
+.arf-dialog-foot{display:flex;align-items:center;padding:9px 17px;border-top:.5px solid var(--line-l12);background:var(--grey-g01)}
+.arf-dialog-count{font-size:9px;color:var(--text-n4)}
+.arf-dialog-done{margin-left:auto;padding:7px 12px;font-size:9.5px}
+.arf-config.is-streaming [data-arf-stream]{animation:arf-stream-in .26s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--arf-i,0) * 70ms)}
+@keyframes arf-stream-in{from{opacity:0;transform:translateY(7px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
+@media(max-width:700px){
+  .dv-turn{padding:24px 16px}
+  .dv-opt{gap:16px}
+  .arf-shell{padding:14px}
+  .arf-report-head{flex-wrap:wrap}
+  .arf-report-type{order:3;width:100%}
+  .arf-alpha{padding:17px 16px}
+  .arf-alpha-head{flex-direction:column;gap:11px}
+  .arf-performance{width:100%;min-width:0}
+  .arf-performance-row{grid-template-columns:46px 1fr auto}
+  .arf-tickers{font-size:21px}
+  .arf-teaser{max-height:1000px}
+  .arf-teaser-mask{top:78%;padding:24px 10px 14px}
+  .arf-config-head{flex-direction:column;gap:4px}
+  .arf-config-summary{margin-left:0}
+  .arf-config-grid{grid-template-columns:1fr}
+  .arf-config-cell:nth-child(odd){border-right:0}
+  .arf-config-cell:nth-child(-n+3){border-bottom:.5px solid var(--line-l07)}
+  .arf-config-footer{align-items:stretch;flex-wrap:wrap}
+  .arf-field{flex:1 1 130px}
+  .arf-select{width:100%}
+  .arf-start{width:100%;margin-left:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .arf-shell *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
 /* 1b Plan B · Watching Loop 8s 主时间轴（窗口错峰，93–100% 统一淡出收环） */
 @keyframes l-r1{0%{opacity:0;transform:translateY(8px)}4%,93%{opacity:.45;transform:translateY(0)}97%,100%{opacity:0}}
 @keyframes l-r2{0%,13%{opacity:0;transform:translateY(8px)}17%,93%{opacity:.6;transform:translateY(0)}97%,100%{opacity:0}}
@@ -311,269 +188,47 @@ a{color:#49A3A6}a:hover{color:#2E7376}
 
 <!-- ══ 1a · ALPHA RADAR ══ -->
 <div class="dv-opt" id="1a">
-  <div style="width:240px;flex:none;display:flex;flex-direction:column;gap:8px">
-    <div style="display:flex;align-items:baseline;gap:8px"><a class="dv-oid" href="#1a">1a</a><span style="font-size:13px;font-weight:500">Alpha Radar</span></div>
-    <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan A</span> · Outcome preview：直接展示今晚会收到的 Radar 结果，强调最终价值和推送节奏。</div>
-    <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan B</span> · Source showcase：只展示已选择的来源并自动重排；四类来源平铺配置，People 与 Podcast 在二级弹窗细选，启动后聚合成首份 Alpha Radar。</div>
-    <div style="font-size:12px;line-height:19px;color:var(--text-n7)"><span style="font-weight:500;color:var(--text-n9)">Plan C</span> · Value first：一键用 Alva Standard 正式创建 daily automation，并立即生成首份真实 Radar；结果下方可修改正在关注的 sources。</div>
+  <div style="width:min(760px,100%)">
+    <div style="display:flex;align-items:baseline;gap:8px"><a class="dv-oid" href="#1a">1a</a><span style="font-size:13px;font-weight:500">Alpha Radar · Final onboarding</span></div>
+    <div style="margin-top:8px;font-size:12px;line-height:19px;color:var(--text-n7)">Lead with a natural, curated historical Radar so users can see the thesis, trade direction, tickers and performance before choosing the sources for their own daily subscription.</div>
   </div>
-  <div>
-    <div class="fr-label">Plan A · Outcome preview · Desktop 700px</div>
-    <div style="width:700px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:22px 26px">
-      <div style="border:0.5px solid var(--line-l3);border-radius:12px;box-shadow:var(--shadow-s);overflow:hidden;background:#fff">
-        <div style="padding:16px 20px 16px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><img src="assets/logo-portrait.svg" style="width:17px;height:17px;border-radius:5px" alt="Alva"><span style="font-size:15px;font-weight:500;letter-spacing:.2px;white-space:nowrap">Alpha Radar</span><span style="font-size:11px;color:var(--text-n5);white-space:nowrap">3–5 ideas every evening, with the why</span></div>
-          <div style="display:flex;align-items:center;margin-bottom:10px">
-            <span style="font-size:9px;letter-spacing:1.4px;color:var(--text-n5);text-transform:uppercase;white-space:nowrap">Tonight's radar</span>
-            <span style="margin-left:10px;display:inline-flex;align-items:center;gap:6px"><span style="width:5px;height:5px;border-radius:50%;background:var(--main-m1);animation:k-pulse 2s ease-out infinite"></span><span style="font-size:17px;letter-spacing:.5px;color:var(--text-n9);font-variant-numeric:tabular-nums">03<span style="animation:blink 1.2s linear infinite">:</span>12<span style="animation:blink 1.2s linear infinite">:</span>44</span><span style="font-size:10px;color:var(--text-n3)">to drop</span></span>
-            <span style="margin-left:auto;font-size:10px;color:var(--text-n3);white-space:nowrap">updated 16:02 ET</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            
-            
-          </div>
-          <div style="display:flex;gap:9px">
-            <div style="flex:1;border:0.5px solid var(--line-l2);border-radius:12px;overflow:hidden;background:#fff;animation:k-rowin .5s ease-in-out .05s backwards">
-              <div style="background:linear-gradient(135deg,#f0f0f0,#e8e8e8);padding:11px 12px 9px;display:flex;align-items:center;gap:8px">
-                <span style="width:30px;height:30px;border-radius:50%;background:#fff;border:0.5px solid rgba(0,0,0,.1);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.1);flex:none;overflow:hidden"><img src="https://www.google.com/s2/favicons?domain=rocketlabusa.com&amp;sz=64" style="width:18px;height:18px" alt=""></span>
-                <div style="min-width:0"><div style="font-size:14.5px;font-weight:500;line-height:1.15">$RKLB</div><div style="font-size:9px;color:var(--text-n5);white-space:nowrap">Rocket Lab</div></div><div style="margin-left:auto;flex:none;text-align:right"><svg width="56" height="16" viewBox="0 0 56 16"><path d="M0 4 L8 6 L15 5 L22 8 L28 10 L35 12 L42 13 L49 11 L56 9" fill="none" stroke="var(--main-m4)" stroke-width="1.3" pathLength="140" stroke-dasharray="140" style="animation:k-spark 7s linear infinite"/></svg><div style="font-size:8.5px;color:var(--main-m4);line-height:1">−12% · 30d</div></div>
-              </div>
-              <div style="padding:9px 12px 11px">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:9.5px;padding:1.5px 8px;border-radius:100px;background:rgba(64,165,68,.12);color:#2c7a2f">Bullish</span><span style="font-size:10px;color:var(--text-n5);white-space:nowrap">$64.16 · −0.8% today</span></div>
-                
-                <div style="font-size:10.5px;line-height:15.5px;color:var(--text-n7)">Oversold repair — RSI 37.7 turning up, still −34.9% under MA60. Needs confirmation.</div>
-                <div style="display:flex;align-items:center;gap:5px;margin-top:8px;padding-top:7px;border-top:0.5px solid rgba(0,0,0,.07)"><span style="width:13px;height:13px;border-radius:50%;background:#5b4bb0;color:#fff;font-size:6.5px;display:inline-flex;align-items:center;justify-content:center">R</span><span style="font-size:9px;color:var(--text-n5);white-space:nowrap">RocketMan + Technical</span></div>
-              </div>
-            </div>
-            <div style="flex:1;border:0.5px solid var(--line-l2);border-radius:12px;overflow:hidden;background:#fff;animation:k-rowin .5s ease-in-out .15s backwards">
-              <div style="background:linear-gradient(135deg,#f0f0f0,#e8e8e8);padding:11px 12px 9px;display:flex;align-items:center;gap:8px">
-                <span style="width:30px;height:30px;border-radius:50%;background:#fff;border:0.5px solid rgba(0,0,0,.1);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.1);flex:none;overflow:hidden"><img src="https://www.google.com/s2/favicons?domain=ao-inc.com&amp;sz=64" style="width:18px;height:18px" alt=""></span>
-                <div style="min-width:0"><div style="font-size:14.5px;font-weight:500;line-height:1.15">$AAOI</div><div style="font-size:9px;color:var(--text-n5);white-space:nowrap">Applied Opto</div></div><div style="margin-left:auto;flex:none;text-align:right"><svg width="56" height="16" viewBox="0 0 56 16"><path d="M0 13 L8 12 L15 13 L22 10 L28 11 L35 8 L42 8 L49 5 L56 3" fill="none" stroke="var(--chart-green1-main)" stroke-width="1.3" pathLength="140" stroke-dasharray="140" style="animation:k-spark 7s linear .6s infinite"/></svg><div style="font-size:8.5px;color:var(--main-m3);line-height:1">+21% · 30d</div></div>
-              </div>
-              <div style="padding:9px 12px 11px">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:9.5px;padding:1.5px 8px;border-radius:100px;background:rgba(64,165,68,.12);color:#2c7a2f">Bullish</span><span style="font-size:10px;color:var(--text-n5);white-space:nowrap">$92.31 · +2.44% today</span></div>
-                
-                <div style="font-size:10.5px;line-height:15.5px;color:var(--text-n7)">Two tracked voices turned bullish the same day, on AI-datacenter optics demand.</div>
-                <div style="display:flex;align-items:center;gap:5px;margin-top:8px;padding-top:7px;border-top:0.5px solid rgba(0,0,0,.07)"><span style="width:13px;height:13px;border-radius:50%;background:#b0574b;color:#fff;font-size:6.5px;display:inline-flex;align-items:center;justify-content:center">b</span><span style="width:13px;height:13px;border-radius:50%;background:#7a5c2e;color:#fff;font-size:6.5px;display:inline-flex;align-items:center;justify-content:center;margin-left:-8px;border:1.5px solid #fff">p</span><span style="font-size:9px;color:var(--text-n5);white-space:nowrap">babyfolio + paradislabs</span></div>
-              </div>
-            </div>
-            <div style="flex:1;position:relative;border:0.5px solid var(--line-l2);border-radius:12px;overflow:hidden;background:#fff;animation:k-rowin .5s ease-in-out .25s backwards">
-              <div style="filter:blur(5px);opacity:.7">
-                <div style="background:linear-gradient(135deg,#f0f0f0,#e8e8e8);padding:11px 12px 9px;display:flex;align-items:center;gap:8px">
-                  <span style="width:30px;height:30px;border-radius:50%;background:#fff;border:0.5px solid rgba(0,0,0,.1);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.1);flex:none;overflow:hidden"><img src="https://www.google.com/s2/favicons?domain=bbva.com&amp;sz=64" style="width:18px;height:18px" alt=""></span>
-                  <div><div style="font-size:14.5px;font-weight:500;line-height:1.15">$BBVA</div><div style="font-size:9px;color:var(--text-n5)">Banco Bilbao</div></div><div style="margin-left:auto;flex:none;text-align:right"><svg width="56" height="16" viewBox="0 0 56 16"><path d="M0 12 L9 11 L18 12 L27 9 L36 8 L45 5 L56 4" fill="none" stroke="var(--chart-green1-main)" stroke-width="1.3"/></svg><div style="font-size:8.5px;color:var(--main-m3);line-height:1">+9% · 30d</div></div>
-                </div>
-                <div style="padding:9px 12px 11px">
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:9.5px;padding:1.5px 8px;border-radius:100px;background:rgba(64,165,68,.12);color:#2c7a2f">Bullish</span><span style="font-size:10px;color:var(--text-n5)">$14.02 · +1.1% today</span></div>
-                  
-                  <div style="font-size:10.5px;line-height:15.5px;color:var(--text-n7)">European banks momentum continues after the rate decision.</div>
-                </div>
-              </div>
-              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;animation:k-fadein .6s ease-in-out .5s backwards">
-                <svg width="13" height="13" viewBox="0 0 13 13"><rect x="2.5" y="5.5" width="8" height="6" rx="1.5" fill="none" stroke="#2E7376" stroke-width="1.2"/><path d="M4.5 5.5 V4 a2 2 0 0 1 4 0 V5.5" fill="none" stroke="#2E7376" stroke-width="1.2"/></svg>
-                <span style="font-size:10px;font-weight:500;color:#2E7376;text-align:center;line-height:14px">+ 2 more<br>start to reveal</span>
-              </div>
-            </div>
-          </div>
+  <div class="arf-variants">
+    <section aria-labelledby="arf-direct-label">
+      <div class="fr-label" id="arf-direct-label">Direct setup · Results followed by configuration</div>
+      <div class="arf-shell" data-arf-variant="direct">
+        <div class="arf-teaser">
+          <div data-arf-report-slot></div>
+          <div class="arf-teaser-mask is-passive" aria-hidden="true"></div>
         </div>
-        <div style="padding:14px 20px 16px;border-top:0.5px solid var(--line-l2);background:#fafafa">
-          <div style="font-size:9px;letter-spacing:1.4px;color:var(--text-n3);text-transform:uppercase;margin-bottom:8px">Your sources</div>
-          <div style="display:flex;gap:8px;margin-bottom:13px">
-            <div style="flex:1;border:0.5px solid rgba(73,163,166,.5);background:#fff;border-radius:10px;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><span style="width:14px;height:14px;border-radius:4px;background:var(--main-m1);display:inline-flex;align-items:center;justify-content:center;flex:none"><svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 4.2 L3.2 6 L6.5 2.2" stroke="#fff" stroke-width="1.3" fill="none"/></svg></span><span style="font-size:12.5px;font-weight:500">FinTwit</span></div>
-              <div style="font-size:10.5px;line-height:15px;color:var(--text-n5)">Voices you track, read for you</div>
-              <div style="display:inline-flex;align-items:center;gap:4px;margin-top:7px;border:0.5px solid var(--line-l2);border-radius:100px;padding:3px 9px"><span style="width:13px;height:13px;border-radius:50%;background:#5b4bb0;color:#fff;font-size:6.5px;display:inline-flex;align-items:center;justify-content:center">R</span><span style="width:13px;height:13px;border-radius:50%;background:#2a6f97;color:#fff;font-size:6.5px;display:inline-flex;align-items:center;justify-content:center;margin-left:-8px;border:1.5px solid #fff">b</span><span style="width:13px;height:13px;border-radius:50%;background:#b0574b;color:#fff;font-size:6.5px;display:inline-flex;align-items:center;justify-content:center;margin-left:-8px;border:1.5px solid #fff">p</span><span style="font-size:10px;color:var(--text-n7);white-space:nowrap">100 accounts</span><svg width="7" height="7" viewBox="0 0 8 8"><path d="M3 1.5 L5.5 4 L3 6.5" stroke="rgba(0,0,0,.45)" stroke-width="1.2" fill="none"/></svg></div>
-            </div>
-            <div style="flex:1;border:0.5px solid rgba(73,163,166,.5);background:#fff;border-radius:10px;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><span style="width:14px;height:14px;border-radius:4px;background:var(--main-m1);display:inline-flex;align-items:center;justify-content:center;flex:none"><svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 4.2 L3.2 6 L6.5 2.2" stroke="#fff" stroke-width="1.3" fill="none"/></svg></span><span style="font-size:12.5px;font-weight:500">News</span></div>
-              <div style="font-size:10.5px;line-height:15px;color:var(--text-n5)">Breaking headlines, mapped to the tickers they move</div>
-            </div>
-            <div style="flex:1;border:0.5px solid rgba(73,163,166,.5);background:#fff;border-radius:10px;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><span style="width:14px;height:14px;border-radius:4px;background:var(--main-m1);display:inline-flex;align-items:center;justify-content:center;flex:none"><svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 4.2 L3.2 6 L6.5 2.2" stroke="#fff" stroke-width="1.3" fill="none"/></svg></span><span style="font-size:12.5px;font-weight:500">Technical</span></div>
-              <div style="font-size:10.5px;line-height:15px;color:var(--text-n5)">Full-market scan — trend, momentum, volume, key levels</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;color:var(--text-n5);white-space:nowrap;flex:none">Daily alert time</span>
-            <span style="display:inline-flex;align-items:center;gap:6px;border:0.5px solid var(--line-l3);border-radius:8px;padding:6px 10px;font-size:12px;white-space:nowrap;flex:none;background:#fff">20:00 GMT+8<svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 3 L4 5.5 L6.5 3" stroke="rgba(0,0,0,.45)" stroke-width="1.2" fill="none"/></svg></span>
-            <span style="font-size:11px;color:var(--text-n5);margin-left:4px;white-space:nowrap;flex:none">Language</span>
-            <span style="display:inline-flex;align-items:center;gap:6px;border:0.5px solid var(--line-l3);border-radius:8px;padding:6px 10px;font-size:12px;white-space:nowrap;flex:none;background:#fff">English<svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 3 L4 5.5 L6.5 3" stroke="rgba(0,0,0,.45)" stroke-width="1.2" fill="none"/></svg></span>
-            <span style="margin-left:auto;background:var(--main-m1);color:#fff;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:500;white-space:nowrap;flex:none">Start my Alpha Radar</span>
-          </div>
+        <div class="arf-config-flow" data-arf-config-flow>
+          <div data-arf-config-slot></div>
         </div>
       </div>
-    </div>
-  </div>
-  <div>
-    <div class="fr-label">Plan B · Source showcase + synthesis · Desktop 700px</div>
-    <div class="ar2-shell">
-      <div class="ar2-card" id="ar2-root">
-        <div class="ar2-preview">
-          <div class="ar2-head">
-            <img class="ar2-logo" src="assets/logo-portrait.svg" alt="Alva">
-            <span class="ar2-title">Alpha Radar</span>
-            <span class="ar2-subtitle">A live look at what your sources contain</span>
-            <span class="ar2-updated">updated 16:02 ET</span>
-          </div>
-          <div class="ar2-stage" id="ar2-source-stage">
-          <div class="ar2-board" id="ar2-board">
-            <section class="ar2-pane ar2-people" data-preview-source="people">
-              <div class="ar2-pane-head"><span class="ar2-pane-title">People</span><span class="ar2-pane-meta">FinTwit + Key Figures</span><span class="ar2-count" id="ar2-people-count">2 selected</span></div>
-              <div class="ar2-following"><span class="ar2-following-label">Following</span><div class="ar2-following-list" id="ar2-people-following" aria-live="polite"></div></div>
-              <div class="ar2-feed" id="ar2-people-feed">
-                <div class="ar2-row">
-                  <span class="ar2-avatar"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=PuruSaxena&amp;backgroundColor=e8e8e8" alt=""></span>
-                  <div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">Puru Saxena</span><span class="ar2-kind">FT</span><span class="ar2-time">18m</span></div><div class="ar2-body">AI infrastructure leaders still have earnings support despite the multiple reset.</div><div class="ar2-read">Alva read · capex durability favors picks-and-shovels</div></div>
-                </div>
-                <div class="ar2-row">
-                  <span class="ar2-avatar"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=JensenHuang&amp;backgroundColor=e5e0d5" alt=""></span>
-                  <div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">Jensen Huang</span><span class="ar2-kind ar2-kind-kf">KF</span><span class="ar2-time">1h</span></div><div class="ar2-body">Sovereign AI demand is becoming a second infrastructure buildout.</div><div class="ar2-read">Alva read · national clusters widen the buyer base</div></div>
-                </div>
+    </section>
+    <section aria-labelledby="arf-progressive-label">
+      <div class="fr-label" id="arf-progressive-label">Progressive setup · Results lead into source selection</div>
+      <div class="arf-shell" data-arf-variant="progressive">
+        <div class="arf-teaser">
+          <div data-arf-report-slot></div>
+          <div class="arf-teaser-mask" data-arf-teaser-mask>
+            <div class="arf-teaser-prompt">
+              <div class="arf-source-marks" aria-hidden="true">
+                <span class="arf-source-mark">X</span>
+                <span class="arf-source-mark">NEWS</span>
+                <span class="arf-source-mark">POD</span>
+                <span class="arf-source-mark">10-Q</span>
               </div>
-            </section>
-            <section class="ar2-pane ar2-podcast" data-preview-source="podcasts">
-              <div class="ar2-pane-head"><span class="ar2-pane-title">Podcast</span><span class="ar2-pane-meta">recent arguments</span><span class="ar2-count" id="ar2-podcast-count">1 selected</span></div>
-              <div class="ar2-following"><span class="ar2-following-label">Following</span><div class="ar2-following-list" id="ar2-podcast-following" aria-live="polite"></div></div>
-              <div class="ar2-feed" id="ar2-podcast-feed">
-                <div class="ar2-row"><span class="ar2-cover ar2-cover-ol">OL</span><div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">Odd Lots</span><span class="ar2-time">today</span></div><div class="ar2-topic">Power is becoming the binding constraint for data centers</div><div class="ar2-source">Amanda Chu · 18:42</div></div></div>
-              </div>
-            </section>
-            <section class="ar2-pane ar2-news" data-preview-source="news">
-              <div class="ar2-pane-head"><span class="ar2-pane-title">News</span><span class="ar2-pane-meta">latest events</span><span class="ar2-count">3 latest</span></div>
-              <div class="ar2-feed" id="ar2-news-feed">
-                <div class="ar2-row"><span class="ar2-signal ar2-signal-news"></span><div class="ar2-copy"><div class="ar2-topic">US data-center power queue reaches a new high</div><div class="ar2-source">Reuters · 18m</div></div><span class="ar2-ticker">VST</span></div>
-                <div class="ar2-row"><span class="ar2-signal ar2-signal-news"></span><div class="ar2-copy"><div class="ar2-topic">Memory contract prices rise for a third month</div><div class="ar2-source">Nikkei Asia · 51m</div></div><span class="ar2-ticker">MU</span></div>
-                <div class="ar2-row"><span class="ar2-signal ar2-signal-news"></span><div class="ar2-copy"><div class="ar2-topic">EU advances an AI infrastructure funding package</div><div class="ar2-source">Financial Times · 2h</div></div><span class="ar2-ticker">ASML</span></div>
-              </div>
-            </section>
-            <section class="ar2-pane ar2-earnings" data-preview-source="earnings">
-              <div class="ar2-pane-head"><span class="ar2-pane-title">Earnings</span><span class="ar2-pane-meta">recent disclosures</span><span class="ar2-count">3 latest</span></div>
-              <div class="ar2-feed" id="ar2-earnings-feed">
-                <div class="ar2-row"><span class="ar2-signal ar2-signal-earnings"></span><div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">NVIDIA · Q2 call</span><span class="ar2-time">34m</span></div><div class="ar2-body">Blackwell supply remains booked into next year.</div></div><span class="ar2-ticker">NVDA</span></div>
-                <div class="ar2-row"><span class="ar2-signal ar2-signal-earnings"></span><div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">Micron · Q4 call</span><span class="ar2-time">1h</span></div><div class="ar2-body">HBM mix lifts the gross-margin guide.</div></div><span class="ar2-ticker">MU</span></div>
-                <div class="ar2-row"><span class="ar2-signal ar2-signal-earnings"></span><div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">Vistra · Q2 call</span><span class="ar2-time">3h</span></div><div class="ar2-body">Capacity payments strengthen the cash-flow outlook.</div></div><span class="ar2-ticker">VST</span></div>
-              </div>
-            </section>
-          </div>
-          <div class="ar2-stage-empty" id="ar2-no-sources" hidden>Select at least one source below to see what Alva can work with.</div>
-          </div>
-          <div class="ar2-stage ar2-loading" id="ar2-loading-stage" hidden>
-            <div class="ar2-loading-title">Building your first Alpha Radar</div>
-            <div class="ar2-loading-copy">Alva is reading the sources you selected and connecting the strongest signals.</div>
-            <div class="ar2-progress"><span class="ar2-progress-fill" id="ar2-progress-fill"></span></div>
-            <div id="ar2-loading-steps" aria-live="polite"></div>
-          </div>
-          <div class="ar2-stage ar2-result" id="ar2-result-stage" hidden>
-            <div class="ar2-result-head"><div><div class="ar2-result-kicker">Your first radar</div><div class="ar2-result-title">3 ideas connected across your sources</div></div><button type="button" class="ar2-edit" data-edit-sources>Edit sources</button></div>
-            <div class="ar2-ideas" id="ar2-ideas"></div>
-            <div class="ar2-result-note">Illustrative synthesis from the sources selected above. Not investment advice.</div>
-          </div>
-        </div>
-        <div class="ar2-config">
-          <div class="ar2-config-head"><span class="ar2-config-title">Choose what Alva should follow</span><span class="ar2-config-note" id="ar2-summary">4 sources · 9 preview items</span></div>
-          <div class="ar2-config-grid">
-            <section class="ar2-config-cell ar2-config-people">
-              <div class="ar2-config-main"><div class="ar2-config-label">People <span class="ar2-selected" id="ar2-people-selected">2 selected</span></div><div class="ar2-config-copy" id="ar2-people-copy">1 FinTwit · 1 Key Figure</div></div>
-              <div class="ar2-summary-stack" id="ar2-people-stack"></div><button type="button" class="ar2-manage" data-manage="people">Manage</button>
-            </section>
-            <section class="ar2-config-cell ar2-config-podcast">
-              <div class="ar2-config-main"><div class="ar2-config-label">Podcast <span class="ar2-selected" id="ar2-podcast-selected">1 selected</span></div><div class="ar2-config-copy" id="ar2-podcast-copy">Odd Lots</div></div>
-              <div class="ar2-summary-stack" id="ar2-podcast-stack"></div><button type="button" class="ar2-manage" data-manage="podcasts">Manage</button>
-            </section>
-            <section class="ar2-config-cell ar2-config-news">
-              <div class="ar2-config-main"><div class="ar2-config-label">News <span class="ar2-selected">all market news</span></div><div class="ar2-config-copy">Breaking events mapped to affected assets</div></div>
-              <button type="button" class="ar2-source-toggle" data-source-toggle="news" aria-pressed="true" aria-label="Toggle news"><span class="ar2-toggle"></span></button>
-            </section>
-            <section class="ar2-config-cell ar2-config-earnings">
-              <div class="ar2-config-main"><div class="ar2-config-label">Earnings <span class="ar2-selected">US equities</span></div><div class="ar2-config-copy">Results, guidance and management commentary</div></div>
-              <button type="button" class="ar2-source-toggle" data-source-toggle="earnings" aria-pressed="true" aria-label="Toggle earnings"><span class="ar2-toggle"></span></button>
-            </section>
-          </div>
-          <div class="ar2-footer">
-            <span class="ar2-footer-label">Daily alert</span><span class="ar2-select">20:00 GMT+8⌄</span>
-            <span class="ar2-footer-label">Language</span><span class="ar2-select">English⌄</span>
-            <button type="button" class="ar2-cta" data-start>Start my Alpha Radar</button>
-          </div>
-        </div>
-        <dialog class="ar2-dialog" id="ar2-people-dialog">
-          <div class="ar2-dialog-head"><div><div class="ar2-dialog-title">Choose people to follow</div><div class="ar2-dialog-copy">Mix FinTwit voices and key industry figures. The preview updates as you select.</div></div><button type="button" class="ar2-dialog-close" data-close-dialog aria-label="Close">×</button></div>
-          <div class="ar2-dialog-tools"><input class="ar2-search" data-dialog-search="people" type="search" placeholder="Search people" aria-label="Search people"><div class="ar2-filters"><button type="button" class="ar2-filter" data-people-filter="all" aria-pressed="true">All</button><button type="button" class="ar2-filter" data-people-filter="FT" aria-pressed="false">FinTwit</button><button type="button" class="ar2-filter" data-people-filter="KF" aria-pressed="false">Key Figures</button></div></div>
-          <div class="ar2-dialog-body"><div class="ar2-chipset" id="ar2-people-options">
-            <button type="button" class="ar2-chip" data-person="puru" data-person-kind="FT" aria-pressed="true"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=PuruSaxena&amp;backgroundColor=e8e8e8" alt="">Puru Saxena</button>
-            <button type="button" class="ar2-chip" data-person="jukan" data-person-kind="FT" aria-pressed="false"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=Jukan&amp;backgroundColor=dce8ea" alt="">Jukan</button>
-            <button type="button" class="ar2-chip" data-person="jensen" data-person-kind="KF" aria-pressed="true"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=JensenHuang&amp;backgroundColor=e5e0d5" alt="">Jensen Huang</button>
-            <button type="button" class="ar2-chip" data-person="mary" data-person-kind="KF" aria-pressed="false"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=MaryMeeker&amp;backgroundColor=e1e6dc" alt="">Mary Meeker</button>
-            <button type="button" class="ar2-chip" data-person="satya" data-person-kind="KF" aria-pressed="false"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=SatyaNadella&amp;backgroundColor=dde6ee" alt="">Satya Nadella</button>
-            <button type="button" class="ar2-chip" data-person="lyn" data-person-kind="FT" aria-pressed="false"><img src="https://api.dicebear.com/9.x/notionists/svg?seed=LynAlden&amp;backgroundColor=eee3dd" alt="">Lyn Alden</button>
-          </div></div>
-          <div class="ar2-dialog-foot"><span class="ar2-dialog-count" id="ar2-people-dialog-count">2 selected</span><button type="button" class="ar2-cta ar2-dialog-done" data-close-dialog>Done</button></div>
-        </dialog>
-        <dialog class="ar2-dialog" id="ar2-podcasts-dialog">
-          <div class="ar2-dialog-head"><div><div class="ar2-dialog-title">Choose podcasts to follow</div><div class="ar2-dialog-copy">Select shows and see their latest arguments in the source preview.</div></div><button type="button" class="ar2-dialog-close" data-close-dialog aria-label="Close">×</button></div>
-          <div class="ar2-dialog-tools"><input class="ar2-search" data-dialog-search="podcasts" type="search" placeholder="Search podcasts" aria-label="Search podcasts"></div>
-          <div class="ar2-dialog-body"><div class="ar2-chipset" id="ar2-podcast-options">
-            <button type="button" class="ar2-chip" data-podcast="odd-lots" aria-pressed="true"><span class="ar2-chip-cover ar2-cover-ol">OL</span>Odd Lots</button>
-            <button type="button" class="ar2-chip" data-podcast="acquired" aria-pressed="false"><span class="ar2-chip-cover ar2-cover-ac">AC</span>Acquired</button>
-            <button type="button" class="ar2-chip" data-podcast="bg2" aria-pressed="false"><span class="ar2-chip-cover ar2-cover-bg">BG</span>BG2</button>
-            <button type="button" class="ar2-chip" data-podcast="all-in" aria-pressed="false"><span class="ar2-chip-cover" style="background:#8d4650">AI</span>All-In</button>
-            <button type="button" class="ar2-chip" data-podcast="invest" aria-pressed="false"><span class="ar2-chip-cover" style="background:#59745a">IL</span>Invest Like the Best</button>
-          </div></div>
-          <div class="ar2-dialog-foot"><span class="ar2-dialog-count" id="ar2-podcast-dialog-count">1 selected</span><button type="button" class="ar2-cta ar2-dialog-done" data-close-dialog>Done</button></div>
-        </dialog>
-      </div>
-    </div>
-  </div>
-  <div>
-    <div class="fr-label">Plan C · Instant live Radar + optional source editing · Desktop 700px</div>
-    <div class="ar3-shell">
-      <div class="ar3-card" id="ar3-root">
-        <section class="ar3-stage ar3-intro" data-ar3-stage="intro">
-          <div class="ar3-brand"><img class="ar3-logo" src="assets/logo-portrait.svg" alt="Alva"><span class="ar3-brand-name">Alpha Radar</span><span class="ar3-brand-note">daily market intelligence</span></div>
-          <div class="ar3-intro-copy">
-            <h3 class="ar3-title">The market, connected into ideas that matter.</h3>
-            <div class="ar3-subtitle">Alpha Radar reads trusted market voices, podcasts, news and earnings, then connects the evidence into a focused daily brief.</div>
-          </div>
-          <div class="ar3-capability" aria-label="Sources connected by Alpha Radar">
-            <div class="ar3-source-rail">
-              <div class="ar3-source"><span class="ar3-source-mark"><img src="https://www.google.com/s2/favicons?domain=x.com&amp;sz=64" alt=""></span><span>FinTwit</span></div>
-              <div class="ar3-source"><span class="ar3-source-mark">OL</span><span>Podcasts</span></div>
-              <div class="ar3-source"><span class="ar3-source-mark"><img src="https://www.google.com/s2/favicons?domain=reuters.com&amp;sz=64" alt=""></span><span>News</span></div>
-              <div class="ar3-source"><span class="ar3-source-mark">10-Q</span><span>Earnings</span></div>
-              <div class="ar3-source"><span class="ar3-source-mark"><img src="https://www.google.com/s2/favicons?domain=ft.com&amp;sz=64" alt=""></span><span>Key figures</span></div>
+              <div class="arf-teaser-title">Build an Alpha Radar around what you follow</div>
+              <div class="arf-teaser-copy">Choose the voices, podcasts and market sources Alva should read for you every day.</div>
+              <button type="button" class="arf-reveal" data-arf-reveal aria-label="Choose my sources" aria-expanded="false">Choose my sources</button>
             </div>
-            <div class="ar3-flow"></div>
-            <div class="ar3-engine"><img src="assets/logo-portrait.svg" alt=""><div><div class="ar3-engine-title">Alva intelligence engine</div><div class="ar3-engine-copy">reads · verifies · connects</div></div></div>
-            <div class="ar3-flow"></div>
-            <div class="ar3-output"><div class="ar3-output-item"><strong>Ideas</strong>what could move</div><div class="ar3-output-item"><strong>Evidence</strong>why it matters</div><div class="ar3-output-item"><strong>Risks</strong>what to watch</div></div>
           </div>
-          <div class="ar3-intro-actions">
-            <button type="button" class="ar3-primary" data-ar3-create>Create my Alpha Radar</button>
-            <div class="ar3-consent">Creates a daily Radar at 20:00 GMT+8 using Alva's recommended sources. You can edit them anytime.</div>
-          </div>
-        </section>
-        <section class="ar3-stage ar3-loading" data-ar3-stage="loading" hidden>
-          <img class="ar3-loading-logo" src="assets/logo-portrait.svg" alt="Alva">
-          <div class="ar3-loading-title" data-ar3-loading-title>Creating your daily Alpha Radar</div>
-          <div class="ar3-loading-copy" data-ar3-loading-copy>The automation is being created with Alva's recommended sources.</div>
-          <div class="ar3-progress"><span class="ar3-progress-fill" data-ar3-progress></span></div>
-          <div data-ar3-steps aria-live="polite"></div>
-        </section>
-        <section class="ar3-stage ar3-result" data-ar3-stage="result" hidden>
-          <div class="ar3-live"><span class="ar3-live-dot"></span><div><div class="ar3-live-title">Your Alpha Radar is live</div><div class="ar3-live-copy">Today's Radar is ready. Future updates will continue automatically.</div></div><span class="ar3-live-time">next · 20:00 GMT+8</span></div>
-          <div class="ar3-radar-head"><div><div class="ar3-radar-kicker" data-ar3-result-kicker>Today's Alpha Radar</div><div class="ar3-radar-title">Your latest market brief</div></div><span class="ar3-radar-time" data-ar3-result-time>updated 16:02 ET</span></div>
-          <article class="ar3-markdown" data-ar3-markdown aria-label="Alpha Radar report"></article>
-          <div class="ar3-edit-prompt">
-            <div class="ar3-customize-icons" aria-label="X, news, podcast and earnings sources"><span class="ar3-customize-icon"><img src="https://www.google.com/s2/favicons?domain=x.com&amp;sz=64" alt=""></span><span class="ar3-customize-icon"><img src="https://www.google.com/s2/favicons?domain=reuters.com&amp;sz=64" alt=""></span><span class="ar3-customize-icon">OL</span><span class="ar3-customize-icon">10-Q</span></div>
-            <div class="ar3-edit-prompt-copy"><div class="ar3-customize-eyebrow">Make it yours</div><div class="ar3-edit-prompt-title">Want to change what this Radar follows?</div><div class="ar3-edit-prompt-text">Customize the X voices, news, podcasts and earnings that shape your daily Alpha Radar.</div><div class="ar3-source-summary" data-ar3-source-summary>Top X voices · Selected Podcasts · Market News · Earnings</div><div class="ar3-save-note" data-ar3-save-note hidden></div></div>
-            <button type="button" class="ar3-secondary ar3-edit" data-ar3-edit aria-expanded="false" aria-controls="ar3-source-flow">Customize my Radar</button>
-          </div>
-          <div class="ar3-editor-flow" id="ar3-source-flow" data-ar3-editor-flow hidden>
-            <div class="ar3-editor-connector" aria-hidden="true"><span>Your source mix</span></div>
-            <div data-ar3-editor-slot></div>
-          </div>
-        </section>
+        </div>
+        <div class="arf-config-flow" data-arf-config-flow hidden>
+          <div data-arf-config-slot></div>
+        </div>
       </div>
-    </div>
+    </section>
   </div>
 </div>
 
@@ -927,533 +582,317 @@ a{color:#49A3A6}a:hover{color:#2E7376}
 </x-dc>
 <script>
 (() => {
-  function initialize(root) {
-    if (root.dataset.ar2Ready === 'true') return;
-    root.dataset.ar2Ready = 'true';
-
-    const people = [
-    {id:'puru',name:'Puru Saxena',kind:'FT',time:'18m',seed:'PuruSaxena',bg:'e8e8e8',body:'AI infrastructure leaders still have earnings support despite the multiple reset.',read:'capex durability favors picks-and-shovels'},
-    {id:'jukan',name:'Jukan',kind:'FT',time:'42m',seed:'Jukan',bg:'dce8ea',body:'Memory pricing is moving faster than consensus into the next contract cycle.',read:'HBM tightness may spill into conventional DRAM'},
-    {id:'jensen',name:'Jensen Huang',kind:'KF',time:'1h',seed:'JensenHuang',bg:'e5e0d5',body:'Sovereign AI demand is becoming a second infrastructure buildout.',read:'national clusters widen the buyer base'},
-    {id:'mary',name:'Mary Meeker',kind:'KF',time:'3h',seed:'MaryMeeker',bg:'e1e6dc',body:'Enterprise AI adoption curves are compressing from years into quarters.',read:'software distribution may matter more than model lead'},
-    {id:'satya',name:'Satya Nadella',kind:'KF',time:'4h',seed:'SatyaNadella',bg:'dde6ee',body:'AI agents are moving from demos into durable enterprise workflows.',read:'distribution and trust are becoming the adoption moat'},
-    {id:'lyn',name:'Lyn Alden',kind:'FT',time:'5h',seed:'LynAlden',bg:'eee3dd',body:'Fiscal liquidity remains the larger signal behind risk-asset resilience.',read:'watch dollar liquidity before headline rate cuts'}
+  const people = [
+    {id:'puru',name:'Puru Saxena',kind:'FT',avatar:'https://api.dicebear.com/9.x/notionists/svg?seed=PuruSaxena&backgroundColor=e8e8e8'},
+    {id:'eric',name:'Eric Jhonsa',kind:'FT',avatar:'https://api.dicebear.com/9.x/notionists/svg?seed=EricJhonsa&backgroundColor=dce8ea'},
+    {id:'crux',name:'crux_capital_',kind:'FT',avatar:'https://api.dicebear.com/9.x/notionists/svg?seed=CruxCapital&backgroundColor=eee3dd'},
+    {id:'brian',name:'Brian Armstrong',kind:'KF',avatar:'https://api.dicebear.com/9.x/notionists/svg?seed=BrianArmstrong&backgroundColor=e1e6dc'},
+    {id:'vlad',name:'Vlad Tenev',kind:'KF',avatar:'https://api.dicebear.com/9.x/notionists/svg?seed=VladTenev&backgroundColor=dde6ee'},
+    {id:'jensen',name:'Jensen Huang',kind:'KF',avatar:'https://api.dicebear.com/9.x/notionists/svg?seed=JensenHuang&backgroundColor=e5e0d5'}
   ];
   const podcasts = [
-    {id:'odd-lots',name:'Odd Lots',initials:'OL',className:'ar2-cover-ol',time:'today',topic:'Power is becoming the binding constraint for data centers',source:'Amanda Chu · 18:42'},
-    {id:'acquired',name:'Acquired',initials:'AC',className:'ar2-cover-ac',time:'1d',topic:'Why vertical integration matters in the next chip cycle',source:'Ben Gilbert · 44:10'},
-    {id:'bg2',name:'BG2',initials:'BG',className:'ar2-cover-bg',time:'2d',topic:'AI capex is shifting from training clusters to inference',source:'Brad Gerstner · 27:05'},
-    {id:'all-in',name:'All-In',initials:'AI',color:'#8d4650',time:'2d',topic:'The market is repricing the speed of enterprise AI adoption',source:'Chamath Palihapitiya · 36:20'},
-    {id:'invest',name:'Invest Like the Best',initials:'IL',color:'#59745a',time:'3d',topic:'Where durable software margins can still compound',source:'Patrick O’Shaughnessy · 22:14'}
+    {id:'top-traders',name:'Top Traders Unplugged',initials:'TT',color:'#315b63'},
+    {id:'bankless',name:'Bankless',initials:'BK',color:'#506894'},
+    {id:'odd-lots',name:'Odd Lots',initials:'OL',color:'#8e5e48'},
+    {id:'acquired',name:'Acquired',initials:'AC',color:'#6a5947'},
+    {id:'bg2',name:'BG2',initials:'BG',color:'#5e6c88'}
   ];
 
-  const state = {
-    people: new Set(['puru','jensen']),
-    podcasts: new Set(['odd-lots']),
-    news: true,
-    earnings: true,
-    peopleFilter: 'all',
-    mode: 'preview',
-    loadingTimers: []
-  };
-  const peopleFeed = root.querySelector('#ar2-people-feed');
-  const podcastFeed = root.querySelector('#ar2-podcast-feed');
-  const board = root.querySelector('#ar2-board');
-  const sourceStage = root.querySelector('#ar2-source-stage');
-  const loadingStage = root.querySelector('#ar2-loading-stage');
-  const resultStage = root.querySelector('#ar2-result-stage');
-  const config = root.querySelector('.ar2-config');
-  const moduleMap = {
-    people: root.querySelector('[data-preview-source="people"]'),
-    podcasts: root.querySelector('[data-preview-source="podcasts"]'),
-    news: root.querySelector('[data-preview-source="news"]'),
-    earnings: root.querySelector('[data-preview-source="earnings"]')
-  };
-
-  const avatar = person => `https://api.dicebear.com/9.x/notionists/svg?seed=${person.seed}&backgroundColor=${person.bg}`;
-  const personRow = person => `<div class="ar2-row"><span class="ar2-avatar"><img src="${avatar(person)}" alt=""></span><div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">${person.name}</span><span class="ar2-kind${person.kind === 'KF' ? ' ar2-kind-kf' : ''}">${person.kind}</span><span class="ar2-time">${person.time}</span></div><div class="ar2-body">${person.body}</div><div class="ar2-read">Alva read · ${person.read}</div></div></div>`;
-  const podcastCover = show => `<span class="ar2-cover ${show.className || ''}"${show.color ? ` style="background:${show.color}"` : ''}>${show.initials}</span>`;
-  const podcastRow = show => `<div class="ar2-row">${podcastCover(show)}<div class="ar2-copy"><div class="ar2-byline"><span class="ar2-name">${show.name}</span><span class="ar2-time">${show.time}</span></div><div class="ar2-topic">${show.topic}</div><div class="ar2-source">${show.source}</div></div></div>`;
-
-  function pulse(source) {
-    const pane = root.querySelector(`.ar2-${source === 'podcasts' ? 'podcast' : source}`);
-    if (!pane) return;
-    pane.classList.remove('is-updating');
-    void pane.offsetWidth;
-    pane.classList.add('is-updating');
-    setTimeout(() => pane.classList.remove('is-updating'), 450);
-  }
-
-  function selectedData() {
-    return {
-      people: Array.from(state.people).map(id => people.find(person => person.id === id)).filter(Boolean),
-      podcasts: Array.from(state.podcasts).map(id => podcasts.find(show => show.id === id)).filter(Boolean)
-    };
-  }
-
-  function renderFollowing(target, items, type) {
-    const limit = type === 'people' ? 4 : 3;
-    const visible = items.slice(-limit);
-    const hiddenCount = Math.max(0, items.length - visible.length);
-    const identities = visible.map(item => type === 'people'
-      ? `<span class="ar2-following-item" title="${item.name}"><span class="ar2-avatar"><img src="${avatar(item)}" alt=""></span><span class="ar2-following-name">${item.name}</span></span>`
-      : `<span class="ar2-following-item" title="${item.name}">${podcastCover(item)}<span class="ar2-following-name">${item.name}</span></span>`
-    ).join('');
-    target.innerHTML = identities + (hiddenCount ? `<span class="ar2-following-more">+${hiddenCount} earlier</span>` : '');
-  }
-
-  function renderPreview() {
-    const selected = selectedData();
-    peopleFeed.innerHTML = selected.people.slice(-3).map(personRow).join('');
-    podcastFeed.innerHTML = selected.podcasts.slice(-3).map(podcastRow).join('');
-    renderFollowing(root.querySelector('#ar2-people-following'), selected.people, 'people');
-    renderFollowing(root.querySelector('#ar2-podcast-following'), selected.podcasts, 'podcasts');
-
-    const sourceOn = {
-      people: selected.people.length > 0,
-      podcasts: selected.podcasts.length > 0,
-      news: state.news,
-      earnings: state.earnings
-    };
-    Object.entries(moduleMap).forEach(([source, module]) => {
-      module.hidden = !sourceOn[source];
-      module.classList.remove('ar2-wide');
-    });
-    const visibleModules = Object.values(moduleMap).filter(module => !module.hidden);
-    if (visibleModules.length === 1 || visibleModules.length === 3) visibleModules[visibleModules.length - 1].classList.add('ar2-wide');
-    board.dataset.count = String(visibleModules.length);
-    root.querySelector('#ar2-no-sources').hidden = visibleModules.length > 0;
-
-    root.querySelector('#ar2-people-count').textContent = `${selected.people.length} selected`;
-    root.querySelector('#ar2-podcast-count').textContent = `${selected.podcasts.length} selected`;
-    root.querySelector('#ar2-people-selected').textContent = `${selected.people.length} selected`;
-    root.querySelector('#ar2-podcast-selected').textContent = `${selected.podcasts.length} selected`;
-    const fintwitCount = selected.people.filter(person => person.kind === 'FT').length;
-    const keyFigureCount = selected.people.filter(person => person.kind === 'KF').length;
-    root.querySelector('#ar2-people-copy').textContent = selected.people.length ? `${fintwitCount} FinTwit · ${keyFigureCount} Key Figures` : 'None selected';
-    root.querySelector('#ar2-podcast-copy').textContent = selected.podcasts.length ? selected.podcasts.map(show => show.name).join(', ') : 'None selected';
-    root.querySelector('#ar2-people-stack').innerHTML = selected.people.slice(0, 3).map(person => `<span class="ar2-avatar"><img src="${avatar(person)}" alt=""></span>`).join('');
-    root.querySelector('#ar2-podcast-stack').innerHTML = selected.podcasts.slice(0, 3).map(podcastCover).join('');
-    root.querySelector('#ar2-people-dialog-count').textContent = `${selected.people.length} selected`;
-    root.querySelector('#ar2-podcast-dialog-count').textContent = `${selected.podcasts.length} selected`;
-
-    root.querySelectorAll('[data-person]').forEach(button => button.setAttribute('aria-pressed', String(state.people.has(button.dataset.person))));
-    root.querySelectorAll('[data-podcast]').forEach(button => button.setAttribute('aria-pressed', String(state.podcasts.has(button.dataset.podcast))));
-    root.querySelectorAll('[data-source-toggle]').forEach(button => button.setAttribute('aria-pressed', String(state[button.dataset.sourceToggle])));
-
-    const activeSources = visibleModules.length;
-    const previewItems = Math.min(selected.people.length, 3) + Math.min(selected.podcasts.length, 3) + (state.news ? 3 : 0) + (state.earnings ? 3 : 0);
-    root.querySelector('#ar2-summary').textContent = `${activeSources} ${activeSources === 1 ? 'source' : 'sources'} · ${previewItems} preview ${previewItems === 1 ? 'item' : 'items'}`;
-    root.querySelector('[data-start]').disabled = activeSources === 0;
-  }
-
-  function renderMode() {
-    sourceStage.hidden = state.mode !== 'preview';
-    loadingStage.hidden = state.mode !== 'loading';
-    resultStage.hidden = state.mode !== 'result';
-    config.hidden = state.mode !== 'preview';
-  }
-
-  function filterDialogOptions() {
-    const peopleSearch = root.querySelector('[data-dialog-search="people"]');
-    const podcastSearch = root.querySelector('[data-dialog-search="podcasts"]');
-    const peopleQuery = peopleSearch.value.trim().toLowerCase();
-    const podcastQuery = podcastSearch.value.trim().toLowerCase();
-    root.querySelectorAll('[data-person]').forEach(button => {
-      const matchesKind = state.peopleFilter === 'all' || button.dataset.personKind === state.peopleFilter;
-      button.hidden = !matchesKind || !button.textContent.toLowerCase().includes(peopleQuery);
-    });
-    root.querySelectorAll('[data-podcast]').forEach(button => {
-      button.hidden = !button.textContent.toLowerCase().includes(podcastQuery);
-    });
-  }
-
-  function render() {
-    renderPreview();
-    renderMode();
-    filterDialogOptions();
-  }
-
-  function sourceLabels() {
-    const selectedPeople = people.filter(person => state.people.has(person.id));
-    const selectedPodcasts = podcasts.filter(show => state.podcasts.has(show.id));
-    const labels = [];
-    if (selectedPeople.length) labels.push(selectedPeople[0].name + (selectedPeople.length > 1 ? ` +${selectedPeople.length - 1}` : ''));
-    if (selectedPodcasts.length) labels.push(selectedPodcasts[0].name + (selectedPodcasts.length > 1 ? ` +${selectedPodcasts.length - 1}` : ''));
-    if (state.news) labels.push('Market news');
-    if (state.earnings) labels.push('Earnings calls');
-    return labels;
-  }
-
-  function renderResult() {
-    const labels = sourceLabels();
-    const ideas = [
-      {ticker:'NVDA',tone:'Constructive',title:'Sovereign AI extends the infrastructure cycle',copy:'Demand is broadening while near-term supply remains committed.'},
-      {ticker:'VST',tone:'Watch',title:'Power scarcity is becoming a second-order AI trade',copy:'Interconnection queues and capacity payments support the setup.'},
-      {ticker:'MU',tone:'Constructive',title:'Memory pricing is moving ahead of consensus',copy:'HBM mix and contract pricing point to a firmer margin path.'}
-    ];
-    root.querySelector('#ar2-ideas').innerHTML = ideas.map((idea, index) => `<article class="ar2-idea" style="animation-delay:${index * 70}ms"><div class="ar2-idea-top"><span class="ar2-idea-ticker">${idea.ticker}</span><span class="ar2-idea-tone">${idea.tone}</span></div><div class="ar2-idea-title">${idea.title}</div><div class="ar2-idea-copy">${idea.copy}</div><div class="ar2-evidence">${labels.slice(0, 3).map(label => `<span>${label}</span>`).join('')}</div></article>`).join('');
-  }
-
-  function startRadar() {
-    const selected = selectedData();
-    const steps = [];
-    if (selected.people.length) steps.push(`Reading ${selected.people.length} selected ${selected.people.length === 1 ? 'person' : 'people'}`);
-    if (selected.podcasts.length) steps.push(`Sampling ${selected.podcasts.length} selected ${selected.podcasts.length === 1 ? 'podcast' : 'podcasts'}`);
-    if (state.news) steps.push('Scanning the latest market news');
-    if (state.earnings) steps.push('Checking recent earnings disclosures');
-    steps.push('Connecting signals into investable ideas');
-    root.querySelector('#ar2-loading-steps').innerHTML = steps.map((step, index) => `<div class="ar2-load-step${index === 0 ? ' is-current' : ''}"><span class="ar2-step-dot">✓</span><span>${step}</span></div>`).join('');
-    root.querySelector('#ar2-progress-fill').style.width = '8%';
-    state.loadingTimers.forEach(timer => clearTimeout(timer));
-    state.loadingTimers = [];
-    state.mode = 'loading';
-    renderMode();
-    const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const interval = reducedMotion ? 80 : 520;
-    const stepNodes = Array.from(root.querySelectorAll('.ar2-load-step'));
-    steps.forEach((step, index) => {
-      const timer = setTimeout(() => {
-        stepNodes.forEach((node, nodeIndex) => {
-          node.classList.toggle('is-done', nodeIndex < index);
-          node.classList.toggle('is-current', nodeIndex === index);
-        });
-        root.querySelector('#ar2-progress-fill').style.width = `${Math.round(((index + 1) / steps.length) * 92)}%`;
-      }, index * interval);
-      state.loadingTimers.push(timer);
-    });
-    state.loadingTimers.push(setTimeout(() => {
-      stepNodes.forEach(node => { node.classList.remove('is-current'); node.classList.add('is-done'); });
-      root.querySelector('#ar2-progress-fill').style.width = '100%';
-      renderResult();
-      state.mode = 'result';
-      renderMode();
-    }, steps.length * interval));
-  }
-
-  root.addEventListener('click', event => {
-    const manageButton = event.target.closest('[data-manage]');
-    const closeButton = event.target.closest('[data-close-dialog]');
-    const personButton = event.target.closest('[data-person]');
-    const podcastButton = event.target.closest('[data-podcast]');
-    const sourceButton = event.target.closest('[data-source-toggle]');
-    const filterButton = event.target.closest('[data-people-filter]');
-    const startButton = event.target.closest('[data-start]');
-    const editButton = event.target.closest('[data-edit-sources]');
-    if (manageButton) {
-      const dialog = root.querySelector(`#ar2-${manageButton.dataset.manage}-dialog`);
-      if (dialog && typeof dialog.showModal === 'function') dialog.showModal();
-      return;
-    } else if (closeButton) {
-      const dialog = closeButton.closest('dialog');
-      if (dialog && typeof dialog.close === 'function') dialog.close();
-      return;
-    } else if (filterButton) {
-      state.peopleFilter = filterButton.dataset.peopleFilter;
-      root.querySelectorAll('[data-people-filter]').forEach(button => button.setAttribute('aria-pressed', String(button === filterButton)));
-      filterDialogOptions();
-      return;
-    } else if (personButton) {
-      state.people.has(personButton.dataset.person) ? state.people.delete(personButton.dataset.person) : state.people.add(personButton.dataset.person);
-      pulse('people');
-    } else if (podcastButton) {
-      state.podcasts.has(podcastButton.dataset.podcast) ? state.podcasts.delete(podcastButton.dataset.podcast) : state.podcasts.add(podcastButton.dataset.podcast);
-      pulse('podcast');
-    } else if (sourceButton) {
-      state[sourceButton.dataset.sourceToggle] = !state[sourceButton.dataset.sourceToggle];
-      pulse(sourceButton.dataset.sourceToggle);
-    } else if (startButton) {
-      if (!startButton.disabled) startRadar();
-      return;
-    } else if (editButton) {
-      state.mode = 'preview';
-      renderMode();
-      return;
-    } else if (event.target.tagName === 'DIALOG' && typeof event.target.close === 'function') {
-      event.target.close();
-      return;
-    } else return;
-    render();
-  });
-
-  root.addEventListener('input', event => {
-    const search = event.target.closest('[data-dialog-search]');
-    if (!search) return;
-    filterDialogOptions();
-  });
-
-    root.querySelector('#ar2-summary').setAttribute('aria-live', 'polite');
-    render();
-  }
-
-  function bootInteraction() {
-    const renderedRoot = document.querySelector('#dc-root #ar2-root');
-    if (renderedRoot) {
-      initialize(renderedRoot);
-      return;
-    }
-    const observer = new MutationObserver(() => {
-      const nextRoot = document.querySelector('#dc-root #ar2-root');
-      if (!nextRoot) return;
-      observer.disconnect();
-      initialize(nextRoot);
-    });
-    observer.observe(document.body, {childList:true,subtree:true});
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootInteraction, {once:true});
-  else bootInteraction();
-})();
-
-(() => {
-  function initialize(root) {
-    if (root.dataset.ar3Ready === 'true') return;
-    root.dataset.ar3Ready = 'true';
-
-    const defaults = {
-      people: new Set(['Eric Jhonsa', 'crux_capital_', 'Paradis Labs']),
-      podcasts: new Set(['Odd Lots', 'Acquired']),
-      news: true,
-      earnings: true
-    };
-    const cloneSources = sources => ({
-      people: new Set(sources.people),
-      podcasts: new Set(sources.podcasts),
-      news: sources.news,
-      earnings: sources.earnings
-    });
-    const state = {
-      mode: 'intro',
-      saved: cloneSources(defaults),
-      draft: cloneSources(defaults),
-      customized: false,
-      loadingTimers: [],
-      editorStreamTimer: null
-    };
-
-    const stages = {
-      intro: root.querySelector('[data-ar3-stage="intro"]'),
-      loading: root.querySelector('[data-ar3-stage="loading"]'),
-      result: root.querySelector('[data-ar3-stage="result"]')
-    };
-    const editorFlow = root.querySelector('[data-ar3-editor-flow]');
-    const editorSlot = root.querySelector('[data-ar3-editor-slot]');
-    const editButton = root.querySelector('[data-ar3-edit]');
-    const saveNote = root.querySelector('[data-ar3-save-note]');
-    let editor = null;
-    const editorMarkup = `
-      <div class="ar3-editor" id="ar3-source-editor" data-ar3-editor>
-        <div class="ar3-editor-head" data-ar3-stream-item style="--ar3-stream-index:0"><div><div class="ar3-editor-title">Customize your Alpha Radar</div><div class="ar3-editor-copy">Choose what the active automation should follow from now on.</div></div><button type="button" class="ar3-editor-close" data-ar3-close aria-label="Close source editor">×</button></div>
-        <div class="ar3-editor-grid">
-          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:1"><div class="ar3-editor-label">X <span class="ar3-editor-meta" data-ar3-people-count>3 selected</span></div><div class="ar3-choice-row"><button type="button" class="ar3-source-choice" data-ar3-person="Eric Jhonsa" aria-pressed="true">Eric Jhonsa</button><button type="button" class="ar3-source-choice" data-ar3-person="crux_capital_" aria-pressed="true">crux_capital_</button><button type="button" class="ar3-source-choice" data-ar3-person="Paradis Labs" aria-pressed="true">Paradis Labs</button><button type="button" class="ar3-source-choice" data-ar3-person="Puru Saxena" aria-pressed="false">Puru Saxena</button></div></section>
-          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:2"><div class="ar3-editor-label">News <span class="ar3-editor-meta">market-wide</span></div><div class="ar3-toggle-row"><button type="button" class="ar3-switch" data-ar3-toggle="news" aria-pressed="true" aria-label="Toggle market news"><span></span></button><span>Breaking events mapped to affected assets</span></div></section>
-          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:3"><div class="ar3-editor-label">Podcast <span class="ar3-editor-meta" data-ar3-podcast-count>2 selected</span></div><div class="ar3-choice-row"><button type="button" class="ar3-source-choice" data-ar3-podcast="Odd Lots" aria-pressed="true">Odd Lots</button><button type="button" class="ar3-source-choice" data-ar3-podcast="Acquired" aria-pressed="true">Acquired</button><button type="button" class="ar3-source-choice" data-ar3-podcast="BG2" aria-pressed="false">BG2</button></div></section>
-          <section class="ar3-editor-section" data-ar3-stream-item style="--ar3-stream-index:4"><div class="ar3-editor-label">Earnings <span class="ar3-editor-meta">US equities</span></div><div class="ar3-toggle-row"><button type="button" class="ar3-switch" data-ar3-toggle="earnings" aria-pressed="true" aria-label="Toggle earnings"><span></span></button><span>Results, guidance and management commentary</span></div></section>
+  const reportMarkup = `
+    <article class="arf-report" aria-label="Selected historical Alpha Radar">
+      <header class="arf-report-head">
+        <img class="arf-logo" src="assets/logo-portrait.svg" alt="Alva">
+        <span class="arf-brand">Alpha Radar</span>
+        <span class="arf-report-type">Historical highlights</span>
+        <time class="arf-report-date">Selected from past reports</time>
+      </header>
+      <div class="arf-curation"><span class="arf-curation-dot"></span>Three high-conviction theses, shown in the same format as a daily Radar</div>
+      <section class="arf-alpha">
+        <div class="arf-alpha-head">
+          <div class="arf-expression">
+            <div class="arf-expression-line"><span class="arf-direction is-short">SHORT</span><span class="arf-tickers">$DAL</span></div>
+            <div class="arf-published">Published May 14, 2026 · New York close</div>
+          </div>
+          <div class="arf-performance" aria-label="Performance since publication">
+            <div class="arf-performance-row"><span class="arf-performance-ticker">DAL</span><span class="arf-performance-price">$60.40 → $51.20</span><span class="arf-performance-return">+15.2% short</span></div>
+          </div>
         </div>
-        <div class="ar3-editor-foot" data-ar3-stream-item style="--ar3-stream-index:5"><span class="ar3-editor-hint">Updates the active automation and today's result</span><button type="button" class="ar3-primary" data-ar3-regenerate>Save &amp; regenerate now</button></div>
-      </div>`;
+        <h3 class="arf-thesis">1. Energy stress is surfacing first in diesel, gasoline and natural gas; crude itself is not the cleanest expression.</h3>
+        <ul class="arf-evidence">
+          <li><span class="arf-source">PODCAST</span>Top Traders Unplugged guest Adam Rozencwajg argues that China's refined-product export limits can mask real fuel demand -> crude may look weak even as products tighten -> margins compress for DAL, UAL and LUV.</li>
+          <li><span class="arf-source">X · ENERGY</span>ULSD and diesel market posts put ULSD above $170 per barrel and US diesel back above $5 per gallon -> the cost shock has reached the spot market -> fuel-heavy operators DAL, UAL and LUV come under pressure.</li>
+          <li><span class="arf-source">X · LNG</span>LNG market posts point to rising spot prices and Pakistan buying its highest-priced cargo since late February, while Tourmaline discussion returns to LNG Canada -> natural-gas beta flows to TOU.TO, AAV.TO and BIR.TO.</li>
+        </ul>
+      </section>
+      <section class="arf-alpha">
+        <div class="arf-alpha-head">
+          <div class="arf-expression">
+            <div class="arf-expression-line"><span class="arf-direction is-long">LONG</span><span class="arf-tickers">$NEAR · $HOOD</span></div>
+            <div class="arf-published">Published June 2, 2026 · New York close</div>
+          </div>
+          <div class="arf-performance" aria-label="Performance since publication">
+            <div class="arf-performance-row"><span class="arf-performance-ticker">NEAR</span><span class="arf-performance-price">$2.25 → $2.98</span><span class="arf-performance-return">+32.4%</span></div>
+            <div class="arf-performance-row"><span class="arf-performance-ticker">HOOD</span><span class="arf-performance-price">$56.80 → $66.10</span><span class="arf-performance-return">+16.4%</span></div>
+          </div>
+        </div>
+        <h3 class="arf-thesis">2. Tokenized equities are no longer just a crypto product; they are competing for the underlying rails of brokerage trading.</h3>
+        <ul class="arf-evidence">
+          <li><span class="arf-source">KEY FIGURES</span>Brian Armstrong and Vlad Tenev frame tokenized equities and RWAs as global, programmable assets -> brokerage distribution moves onto always-on, onchain rails -> HOOD, SOL, NEAR and JTO benefit while SCHW and NDAQ face pressure.</li>
+          <li><span class="arf-source">PODCAST</span>Bankless guest Kendall Cole says NEAR Intents is connecting RWAs, tokenized securities and stablecoins across chains -> fragmented assets need routing -> NEAR captures the chain-abstraction layer while SOL and JTO benefit at execution.</li>
+          <li><span class="arf-source">PODCAST</span>Bankless guest Lucas Bruder argues proprietary AMMs could dominate because traditional AMMs depend on arbitrage -> large tokenized assets may bypass passive pools -> JTO benefits while UNI comes under pressure.</li>
+        </ul>
+      </section>
+      <section class="arf-alpha">
+        <div class="arf-alpha-head">
+          <div class="arf-expression">
+            <div class="arf-expression-line"><span class="arf-direction is-long">LONG</span><span class="arf-tickers">$IDN · $TYL</span></div>
+            <div class="arf-published">Published June 21, 2026 · New York close</div>
+          </div>
+          <div class="arf-performance" aria-label="Performance since publication">
+            <div class="arf-performance-row"><span class="arf-performance-ticker">IDN</span><span class="arf-performance-price">$3.42 → $4.08</span><span class="arf-performance-return">+19.3%</span></div>
+            <div class="arf-performance-row"><span class="arf-performance-ticker">TYL</span><span class="arf-performance-price">$621 → $679</span><span class="arf-performance-return">+9.3%</span></div>
+          </div>
+        </div>
+        <h3 class="arf-thesis">3. Election-security spending is moving from the broad cybersecurity narrative into local-government execution systems.</h3>
+        <ul class="arf-evidence">
+          <li><span class="arf-source">KEY FIGURES</span>J.D. Vance puts “protecting elections” on the budget-reconciliation path while the White House cites voting-system and registration vulnerabilities -> funded compliance work lands in county workflows -> TYL benefits.</li>
+          <li><span class="arf-source">NEWS</span>The White House alleges China-linked actors accessed voter files and backs the Save America Act -> voter-eligibility verification becomes a problem at scale -> IDN benefits from identity-authentication demand.</li>
+          <li><span class="arf-source">NEWS</span>The White House and Trump describe vulnerability reports as requiring rapid remediation -> mandatory audits and replacement risk weigh first on legacy election-technology vendors -> DBD comes under pressure.</li>
+        </ul>
+      </section>
+      <footer class="arf-disclosure">Selected historical examples, not a complete performance record. Prices are illustrative for this prototype. Past performance is not indicative of future results. Not financial advice.</footer>
+    </article>`;
 
-    function activeCount(sources) {
-      return sources.people.size + sources.podcasts.size + Number(sources.news) + Number(sources.earnings);
+  function configMarkup(instance) {
+    return `
+      <section class="arf-config" data-arf-config aria-labelledby="arf-config-title-${instance}">
+        <header class="arf-config-head" data-arf-stream style="--arf-i:0">
+          <div><div class="arf-config-title" id="arf-config-title-${instance}">Choose what Alva should follow</div><div class="arf-config-copy">Your daily Radar will connect evidence only from the source set you choose.</div></div>
+          <span class="arf-config-summary" data-arf-summary aria-live="polite"></span>
+        </header>
+        <div class="arf-config-grid">
+          <section class="arf-config-cell" data-arf-stream style="--arf-i:1">
+            <div class="arf-config-main"><div class="arf-config-label">People <span class="arf-selected" data-arf-people-count></span></div><div class="arf-config-detail" data-arf-people-detail></div></div>
+            <div class="arf-avatar-stack" data-arf-people-stack aria-hidden="true"></div>
+            <button type="button" class="arf-manage" data-arf-manage="people">Manage</button>
+          </section>
+          <section class="arf-config-cell" data-arf-stream style="--arf-i:2">
+            <div class="arf-config-main"><div class="arf-config-label">Podcast <span class="arf-selected" data-arf-podcast-count></span></div><div class="arf-config-detail" data-arf-podcast-detail></div></div>
+            <div class="arf-avatar-stack" data-arf-podcast-stack aria-hidden="true"></div>
+            <button type="button" class="arf-manage" data-arf-manage="podcasts">Manage</button>
+          </section>
+          <section class="arf-config-cell" data-arf-stream style="--arf-i:3">
+            <div class="arf-config-main"><div class="arf-config-label">News <span class="arf-selected">market-wide</span></div><div class="arf-config-detail">Breaking events mapped to affected assets</div></div>
+            <button type="button" class="arf-toggle" data-arf-toggle="news" aria-pressed="true" aria-label="Toggle market news"><span></span></button>
+          </section>
+          <section class="arf-config-cell" data-arf-stream style="--arf-i:4">
+            <div class="arf-config-main"><div class="arf-config-label">Earnings <span class="arf-selected">US equities</span></div><div class="arf-config-detail">Results, guidance and management commentary</div></div>
+            <button type="button" class="arf-toggle" data-arf-toggle="earnings" aria-pressed="true" aria-label="Toggle earnings"><span></span></button>
+          </section>
+        </div>
+        <footer class="arf-config-footer" data-arf-stream style="--arf-i:5">
+          <div class="arf-field"><label for="arf-time-${instance}">Daily alert</label><select class="arf-select" id="arf-time-${instance}"><option>20:00 GMT+8</option><option>08:00 GMT+8</option><option>16:00 ET</option></select></div>
+          <div class="arf-field"><label for="arf-language-${instance}">Language</label><select class="arf-select" id="arf-language-${instance}"><option>English</option><option>Simplified Chinese</option></select></div>
+          <button type="button" class="arf-start" data-arf-start>Start my Alpha Radar</button>
+        </footer>
+        <div class="arf-status" data-arf-status aria-live="polite" hidden></div>
+        <dialog class="arf-dialog" data-arf-dialog="people">
+          <div class="arf-dialog-head"><div><div class="arf-dialog-title">Choose people to follow</div><div class="arf-dialog-copy">Mix FinTwit voices and key industry figures.</div></div><button type="button" class="arf-dialog-close" data-arf-close aria-label="Close people picker">×</button></div>
+          <div class="arf-dialog-tools"><input class="arf-search" data-arf-search="people" type="search" placeholder="Search people" aria-label="Search people"><div class="arf-filters"><button type="button" class="arf-filter" data-arf-filter="all" aria-pressed="true">All</button><button type="button" class="arf-filter" data-arf-filter="FT" aria-pressed="false">FinTwit</button><button type="button" class="arf-filter" data-arf-filter="KF" aria-pressed="false">Key Figures</button></div></div>
+          <div class="arf-dialog-body">${people.map(person => `<button type="button" class="arf-option" data-arf-option="people" data-arf-key="${person.id}" data-arf-kind="${person.kind}" data-arf-label="${person.name}" aria-pressed="false"><img src="${person.avatar}" alt="">${person.name}</button>`).join('')}</div>
+          <div class="arf-dialog-foot"><span class="arf-dialog-count" data-arf-dialog-count="people"></span><button type="button" class="arf-dialog-done" data-arf-close>Done</button></div>
+        </dialog>
+        <dialog class="arf-dialog" data-arf-dialog="podcasts">
+          <div class="arf-dialog-head"><div><div class="arf-dialog-title">Choose podcasts to follow</div><div class="arf-dialog-copy">Select shows Alva should read for new arguments.</div></div><button type="button" class="arf-dialog-close" data-arf-close aria-label="Close podcast picker">×</button></div>
+          <div class="arf-dialog-tools"><input class="arf-search" data-arf-search="podcasts" type="search" placeholder="Search podcasts" aria-label="Search podcasts"></div>
+          <div class="arf-dialog-body">${podcasts.map(show => `<button type="button" class="arf-option" data-arf-option="podcasts" data-arf-key="${show.id}" data-arf-label="${show.name}" aria-pressed="false"><span class="arf-option-mark" style="background:${show.color}">${show.initials}</span>${show.name}</button>`).join('')}</div>
+          <div class="arf-dialog-foot"><span class="arf-dialog-count" data-arf-dialog-count="podcasts"></span><button type="button" class="arf-dialog-done" data-arf-close>Done</button></div>
+        </dialog>
+      </section>`;
+  }
+
+  function initializeConfig(root) {
+    if (!root || root.dataset.arfReady === 'true') return;
+    root.dataset.arfReady = 'true';
+    const state = {
+      people: new Set(['puru','brian']),
+      podcasts: new Set(['top-traders','bankless']),
+      news: true,
+      earnings: true,
+      filter: 'all',
+      timer: null
+    };
+    const personById = new Map(people.map(item => [item.id,item]));
+    const podcastById = new Map(podcasts.map(item => [item.id,item]));
+
+    function activeSourceTypes() {
+      return Number(state.people.size > 0) + Number(state.podcasts.size > 0) + Number(state.news) + Number(state.earnings);
     }
 
-    function sourceSummary() {
-      if (!state.customized) return 'Top X voices · Selected Podcasts · Market News · Earnings';
-      const parts = [];
-      if (state.saved.people.size) parts.push(`${state.saved.people.size} X voices`);
-      if (state.saved.podcasts.size) parts.push(`${state.saved.podcasts.size} podcasts`);
-      if (state.saved.news) parts.push('Market News');
-      if (state.saved.earnings) parts.push('Earnings');
-      return parts.join(' · ');
+    function namesFor(ids, lookup) {
+      return Array.from(ids).map(id => lookup.get(id)?.name).filter(Boolean);
     }
 
-    function renderMarkdown() {
-      root.querySelector('[data-ar3-markdown]').innerHTML = `
-        <h4 class="ar3-md-title">Alpha Radar (08/03)</h4>
-        <section class="ar3-md-stock">
-          <div class="ar3-md-stock-head"><span class="ar3-md-ticker">$BMY</span><span class="ar3-md-price">$68.55 (+4.96%)</span><span class="ar3-md-sentiment is-bullish">Bullish</span></div>
-          <div class="ar3-md-section-title">News: Bullish</div>
-          <p class="ar3-md-paragraph"><strong>Reuters:</strong> BMY gets the cleaner read: a reported AZN approach points to possible target-premium economics. No signed deal yet, but a $400B pharma tie-up headline is material enough for the stock <a class="ar3-md-link" href="https://x.com/Reuters/status/2084002584054878416" target="_blank" rel="noreferrer">[1]</a></p>
-          <div class="ar3-md-section-title">Technical: Bullish <span>(needs confirmation)</span></div>
-          <p class="ar3-md-paragraph">BMY has a bullish technical read: the technical trigger is skewed higher; price is holding above MA60 near 57.88; RSI is 71, already in a hot zone; participation is normal, so price structure carries the read.</p>
-        </section>
-        <section class="ar3-md-stock">
-          <div class="ar3-md-stock-head"><span class="ar3-md-ticker">$COIN</span><span class="ar3-md-price">$144.01 (-1.54%)</span><span class="ar3-md-sentiment is-bearish">Bearish</span></div>
-          <div class="ar3-md-section-title">FinTwit: Bearish <span>(Eric Jhonsa)</span></div>
-          <p class="ar3-md-paragraph"><strong>Eric Jhonsa:</strong> The mechanism is equity exposure to crypto weakness: HOOD and COIN through trading activity, MSTR through Bitcoin balance-sheet beta. Miners such as CLSK and RIOT are treated as less clean because AI leasing can offset the crypto-short thesis <a class="ar3-md-link" href="https://x.com/EricJhonsa/status/2083990418811658319" target="_blank" rel="noreferrer">[1]</a></p>
-          <div class="ar3-md-section-title">Technical: Bearish <span>(clean entry)</span></div>
-          <p class="ar3-md-paragraph">COIN has a bearish technical read: price has broken below the prior 20-session support zone near 152.6; price is below MA60 near 170.4 and MA200 near 212.4, so rallies face overhead supply; RSI is 40.3, below the 45 weak-zone threshold; volume is 3.1x the 20-day average, confirming sell pressure.</p>
-        </section>
-        <section class="ar3-md-stock">
-          <div class="ar3-md-stock-head"><span class="ar3-md-ticker">$LITE</span><span class="ar3-md-price">$694.84 (-2.68%)</span><span class="ar3-md-sentiment is-cautious">Cautiously Bullish</span></div>
-          <div class="ar3-md-section-title">FinTwit: Bullish <span>(damnang2 and crux_capital_)</span></div>
-          <p class="ar3-md-paragraph"><strong>crux_capital_ (Bullish):</strong> $LITE has the best laser quality, is best positioned for CPO/OCS, and is part of their own portfolio exposure <a class="ar3-md-link" href="https://x.com/crux_capital_/status/2083915009533624525" target="_blank" rel="noreferrer">[1]</a></p>
-          <p class="ar3-md-paragraph"><strong>Paradis Labs (Cautious):</strong> The mechanism is customer conflict, weak margins, uncertain post-2028 demand, and a very small epitaxy talent pool. Cloud Light could help LITE erode AAOI's moat over time <a class="ar3-md-link" href="https://x.com/ParadisLabs/status/2083929523729395877" target="_blank" rel="noreferrer">[2]</a></p>
-          <div class="ar3-md-section-title">Technical: Neutral</div>
-          <p class="ar3-md-paragraph">LITE has a neutral technical read: the technical trigger is skewed lower; price has lost MA60 near 847.9 as intermediate support; participation is normal, so price structure carries the read. Use it as risk context, not a standalone technical recommendation.</p>
-        </section>
-        <p class="ar3-md-also"><strong>Also on the radar today:</strong> $MU, $AAOI, $COHU, $MSTR, $GOOGL.</p>
-        <p class="ar3-md-question">Want me to dig into whether $BMY still has a clean entry after the deal-premium spike, while keeping the other setups in view?</p>
-        <p class="ar3-md-footnote">Based on selected Alpha Radar sources. Not financial advice.</p>`;
-      root.querySelector('[data-ar3-source-summary]').textContent = sourceSummary();
+    function renderStack(target, ids, lookup, isPodcast) {
+      target.innerHTML = Array.from(ids).slice(0,3).map(id => {
+        const item = lookup.get(id);
+        if (!item) return '';
+        if (isPodcast) return `<span class="arf-avatar arf-cover" style="background:${item.color}">${item.initials}</span>`;
+        return `<span class="arf-avatar"><img src="${item.avatar}" alt=""></span>`;
+      }).join('');
     }
 
-    function renderEditor() {
-      if (!editor) return;
-      editor.querySelectorAll('[data-ar3-person]').forEach(button => button.setAttribute('aria-pressed', String(state.draft.people.has(button.dataset.ar3Person))));
-      editor.querySelectorAll('[data-ar3-podcast]').forEach(button => button.setAttribute('aria-pressed', String(state.draft.podcasts.has(button.dataset.ar3Podcast))));
-      editor.querySelectorAll('[data-ar3-toggle]').forEach(button => button.setAttribute('aria-pressed', String(state.draft[button.dataset.ar3Toggle])));
-      editor.querySelector('[data-ar3-people-count]').textContent = `${state.draft.people.size} selected`;
-      editor.querySelector('[data-ar3-podcast-count]').textContent = `${state.draft.podcasts.size} selected`;
-      const disabled = activeCount(state.draft) === 0;
-      editor.querySelector('[data-ar3-regenerate]').disabled = disabled;
+    function resetStartState() {
+      if (state.timer) clearTimeout(state.timer);
+      state.timer = null;
+      const start = root.querySelector('[data-arf-start]');
+      const status = root.querySelector('[data-arf-status]');
+      start.textContent = 'Start my Alpha Radar';
+      status.hidden = true;
     }
 
-    function renderMode() {
-      Object.entries(stages).forEach(([name, stage]) => { stage.hidden = state.mode !== name; });
+    function render() {
+      const peopleNames = namesFor(state.people, personById);
+      const podcastNames = namesFor(state.podcasts, podcastById);
+      root.querySelector('[data-arf-people-count]').textContent = `${state.people.size} selected`;
+      root.querySelector('[data-arf-podcast-count]').textContent = `${state.podcasts.size} selected`;
+      root.querySelector('[data-arf-people-detail]').textContent = peopleNames.length ? peopleNames.join(' · ') : 'No people selected';
+      root.querySelector('[data-arf-podcast-detail]').textContent = podcastNames.length ? podcastNames.join(' · ') : 'No podcasts selected';
+      root.querySelector('[data-arf-summary]').textContent = `${activeSourceTypes()} source types active`;
+      renderStack(root.querySelector('[data-arf-people-stack]'),state.people,personById,false);
+      renderStack(root.querySelector('[data-arf-podcast-stack]'),state.podcasts,podcastById,true);
+      root.querySelectorAll('[data-arf-option="people"]').forEach(button => button.setAttribute('aria-pressed',String(state.people.has(button.dataset.arfKey))));
+      root.querySelectorAll('[data-arf-option="podcasts"]').forEach(button => button.setAttribute('aria-pressed',String(state.podcasts.has(button.dataset.arfKey))));
+      root.querySelectorAll('[data-arf-toggle]').forEach(button => button.setAttribute('aria-pressed',String(state[button.dataset.arfToggle])));
+      root.querySelector('[data-arf-dialog-count="people"]').textContent = `${state.people.size} selected`;
+      root.querySelector('[data-arf-dialog-count="podcasts"]').textContent = `${state.podcasts.size} selected`;
+      root.querySelector('[data-arf-start]').disabled = activeSourceTypes() === 0;
     }
 
-    function openEditor() {
-      if (editor) return;
-      state.draft = cloneSources(state.saved);
-      saveNote.hidden = true;
-      editorSlot.innerHTML = editorMarkup;
-      editor = editorSlot.querySelector('[data-ar3-editor]');
-      editorFlow.hidden = false;
-      editorFlow.classList.add('is-open');
-      editButton.setAttribute('aria-expanded', 'true');
-      renderEditor();
-      if (state.editorStreamTimer) clearTimeout(state.editorStreamTimer);
-      editor.classList.remove('is-streaming');
-      void editor.offsetWidth;
-      const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!reducedMotion) {
-        editor.classList.add('is-streaming');
-        state.editorStreamTimer = setTimeout(() => {
-          if (editor) editor.classList.remove('is-streaming');
-        }, 950);
-      }
-      editorFlow.scrollIntoView({behavior:reducedMotion ? 'auto' : 'smooth',block:'nearest'});
-    }
-
-    function closeEditor() {
-      state.draft = cloneSources(state.saved);
-      if (state.editorStreamTimer) clearTimeout(state.editorStreamTimer);
-      if (editor) editor.classList.remove('is-streaming');
-      editorFlow.classList.remove('is-open');
-      editorFlow.hidden = true;
-      editorSlot.replaceChildren();
-      editor = null;
-      editButton.setAttribute('aria-expanded', 'false');
-    }
-
-    function commitDraft() {
-      state.saved = cloneSources(state.draft);
-      state.customized = true;
-      renderMarkdown();
-    }
-
-    function finishLoading(kind) {
-      renderMarkdown();
-      state.mode = 'result';
-      renderMode();
-      stages.result.classList.add('is-fresh');
-      setTimeout(() => stages.result.classList.remove('is-fresh'), 300);
-      if (kind === 'regenerate') {
-        root.querySelector('[data-ar3-result-kicker]').textContent = 'Updated Alpha Radar';
-        root.querySelector('[data-ar3-result-time]').textContent = 'updated just now';
-        saveNote.textContent = "Automation updated · Today's Radar was regenerated with your sources.";
-        saveNote.hidden = false;
-      } else {
-        saveNote.hidden = true;
-      }
-    }
-
-    function startLoading(kind) {
-      state.loadingTimers.forEach(timer => clearTimeout(timer));
-      state.loadingTimers = [];
-      const isRegenerate = kind === 'regenerate';
-      const steps = isRegenerate
-        ? ['Saving your source changes', 'Reading the updated source set', "Regenerating today's live Radar"]
-        : ['Creating your daily automation', "Connecting Alva's recommended sources", "Generating today's live Radar"];
-      root.querySelector('[data-ar3-loading-title]').textContent = isRegenerate ? 'Updating your Alpha Radar' : 'Creating your daily Alpha Radar';
-      root.querySelector('[data-ar3-loading-copy]').textContent = isRegenerate ? 'Your automation is live while Alva refreshes the result.' : "The automation is being created with Alva's recommended sources.";
-      root.querySelector('[data-ar3-steps]').innerHTML = steps.map((step, index) => `<div class="ar3-load-step${index === 0 ? ' is-current' : ''}"><span class="ar3-load-dot">✓</span><span>${step}</span></div>`).join('');
-      root.querySelector('[data-ar3-progress]').style.width = '8%';
-      state.mode = 'loading';
-      renderMode();
-      const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const interval = reducedMotion ? 70 : 360;
-      const nodes = Array.from(root.querySelectorAll('.ar3-load-step'));
-      steps.forEach((step, index) => {
-        state.loadingTimers.push(setTimeout(() => {
-          nodes.forEach((node, nodeIndex) => {
-            node.classList.toggle('is-done', nodeIndex < index);
-            node.classList.toggle('is-current', nodeIndex === index);
-          });
-          root.querySelector('[data-ar3-progress]').style.width = `${Math.round(((index + 1) / steps.length) * 92)}%`;
-        }, index * interval));
+    function filterPeople() {
+      const query = root.querySelector('[data-arf-search="people"]').value.trim().toLowerCase();
+      root.querySelectorAll('[data-arf-option="people"]').forEach(button => {
+        const kindMatch = state.filter === 'all' || button.dataset.arfKind === state.filter;
+        const textMatch = button.dataset.arfLabel.toLowerCase().includes(query);
+        button.hidden = !(kindMatch && textMatch);
       });
-      state.loadingTimers.push(setTimeout(() => {
-        nodes.forEach(node => { node.classList.remove('is-current'); node.classList.add('is-done'); });
-        root.querySelector('[data-ar3-progress]').style.width = '100%';
-        finishLoading(kind);
-      }, steps.length * interval));
     }
 
     root.addEventListener('click', event => {
-      const create = event.target.closest('[data-ar3-create]');
-      const edit = event.target.closest('[data-ar3-edit]');
-      const close = event.target.closest('[data-ar3-close]');
-      const person = event.target.closest('[data-ar3-person]');
-      const podcast = event.target.closest('[data-ar3-podcast]');
-      const toggle = event.target.closest('[data-ar3-toggle]');
-      const regenerate = event.target.closest('[data-ar3-regenerate]');
-      if (create) {
-        startLoading('create');
-      } else if (edit) {
-        openEditor();
-      } else if (close) {
-        closeEditor();
-      } else if (person) {
-        const name = person.dataset.ar3Person;
-        state.draft.people.has(name) ? state.draft.people.delete(name) : state.draft.people.add(name);
-        renderEditor();
-      } else if (podcast) {
-        const name = podcast.dataset.ar3Podcast;
-        state.draft.podcasts.has(name) ? state.draft.podcasts.delete(name) : state.draft.podcasts.add(name);
-        renderEditor();
-      } else if (toggle) {
-        state.draft[toggle.dataset.ar3Toggle] = !state.draft[toggle.dataset.ar3Toggle];
-        renderEditor();
-      } else if (regenerate && !regenerate.disabled) {
-        commitDraft();
-        closeEditor();
-        startLoading('regenerate');
+      const manage = event.target.closest('[data-arf-manage]');
+      const close = event.target.closest('[data-arf-close]');
+      const option = event.target.closest('[data-arf-option]');
+      const toggle = event.target.closest('[data-arf-toggle]');
+      const filter = event.target.closest('[data-arf-filter]');
+      const start = event.target.closest('[data-arf-start]');
+      if (manage) {
+        const dialog = root.querySelector(`[data-arf-dialog="${manage.dataset.arfManage}"]`);
+        if (dialog?.showModal) dialog.showModal();
+        return;
+      }
+      if (close) {
+        close.closest('dialog')?.close();
+        return;
+      }
+      if (option) {
+        resetStartState();
+        const set = state[option.dataset.arfOption];
+        set.has(option.dataset.arfKey) ? set.delete(option.dataset.arfKey) : set.add(option.dataset.arfKey);
+        render();
+        return;
+      }
+      if (toggle) {
+        resetStartState();
+        state[toggle.dataset.arfToggle] = !state[toggle.dataset.arfToggle];
+        render();
+        return;
+      }
+      if (filter) {
+        state.filter = filter.dataset.arfFilter;
+        root.querySelectorAll('[data-arf-filter]').forEach(button => button.setAttribute('aria-pressed',String(button === filter)));
+        filterPeople();
+        return;
+      }
+      if (start && !start.disabled) {
+        start.disabled = true;
+        start.textContent = 'Starting…';
+        const status = root.querySelector('[data-arf-status]');
+        status.hidden = false;
+        status.textContent = 'Creating your daily automation with the selected sources…';
+        state.timer = setTimeout(() => {
+          start.textContent = 'Radar scheduled';
+          status.textContent = 'Your Alpha Radar is active. The first update will arrive at the selected time.';
+          state.timer = null;
+        },700);
+        return;
+      }
+      if (event.target.tagName === 'DIALOG') event.target.close();
+    });
+
+    root.addEventListener('input', event => {
+      const search = event.target.closest('[data-arf-search]');
+      if (!search) return;
+      if (search.dataset.arfSearch === 'people') filterPeople();
+      else {
+        const query = search.value.trim().toLowerCase();
+        root.querySelectorAll('[data-arf-option="podcasts"]').forEach(button => {
+          button.hidden = !button.dataset.arfLabel.toLowerCase().includes(query);
+        });
       }
     });
 
-    renderMarkdown();
-    renderMode();
+    root.querySelectorAll('select').forEach(select => select.addEventListener('change',resetStartState));
+    render();
   }
 
-  function bootInteraction() {
-    const renderedRoot = document.querySelector('#dc-root #ar3-root');
-    if (renderedRoot) {
-      initialize(renderedRoot);
+  function initialize() {
+    document.querySelectorAll('[data-arf-report-slot]').forEach(slot => { slot.innerHTML = reportMarkup; });
+
+    const direct = document.querySelector('[data-arf-variant="direct"]');
+    if (direct) {
+      direct.querySelector('[data-arf-config-slot]').innerHTML = configMarkup('direct');
+      initializeConfig(direct.querySelector('[data-arf-config]'));
+    }
+
+    const progressive = document.querySelector('[data-arf-variant="progressive"]');
+    const reveal = progressive?.querySelector('[data-arf-reveal]');
+    reveal?.addEventListener('click',() => {
+      if (reveal.getAttribute('aria-expanded') === 'true') return;
+      reveal.setAttribute('aria-expanded','true');
+      const flow = progressive.querySelector('[data-arf-config-flow]');
+      flow.querySelector('[data-arf-config-slot]').innerHTML = configMarkup('progressive');
+      flow.hidden = false;
+      const config = flow.querySelector('[data-arf-config]');
+      initializeConfig(config);
+      const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if (!reduced) {
+        config.classList.add('is-streaming');
+        setTimeout(() => config.classList.remove('is-streaming'),650);
+      }
+      const prompt = progressive.querySelector('.arf-teaser-prompt');
+      prompt.querySelector('.arf-teaser-title').textContent = 'Now choose what Alva should follow';
+      prompt.querySelector('.arf-teaser-copy').textContent = 'Your source controls are ready below.';
+      reveal.setAttribute('aria-disabled','true');
+      reveal.textContent = 'Sources ready below';
+      flow.scrollIntoView({behavior:reduced ? 'auto' : 'smooth',block:'nearest'});
+    });
+  }
+
+  function boot() {
+    if (document.querySelector('#dc-root [data-arf-variant]')) {
+      initialize();
       return;
     }
     const observer = new MutationObserver(() => {
-      const nextRoot = document.querySelector('#dc-root #ar3-root');
-      if (!nextRoot) return;
+      if (!document.querySelector('#dc-root [data-arf-variant]')) return;
       observer.disconnect();
-      initialize(nextRoot);
+      initialize();
     });
-    observer.observe(document.body, {childList:true,subtree:true});
+    observer.observe(document.body,{childList:true,subtree:true});
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootInteraction, {once:true});
-  else bootInteraction();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
 })();
 </script>
     <script src="/demo/_switcher.js" defer></script>
