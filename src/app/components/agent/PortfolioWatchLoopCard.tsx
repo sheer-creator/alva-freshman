@@ -83,7 +83,7 @@ const SCOPED_CSS = `
 /* 卡壳两段式(稿 12736:34995):content(正文区) + 下一步行,分区靠 m1 6% 底色本身,不加分割线;
    padding 收进两个分区,卡壳本身 pad 0 + overflow hidden(圆角裁内容) */
 .pwl-alert{flex:1;min-width:0;background:#fff;overflow:hidden;
-  border:0.5px solid var(--line-l12, rgba(0,0,0,0.12));border-radius:var(--radius-ct-l, 8px);
+  border:0.5px solid var(--line-l2, rgba(0,0,0,0.2));border-radius:var(--radius-ct-l, 8px);
   box-shadow:var(--shadow-xs, 0 4px 15px 0 rgba(0,0,0,0.05))}
 .pwl-acontent{display:flex;flex-direction:column;gap:2px;padding:12px 14px 8px}
 .pwl-ahead{display:flex;align-items:center;gap:7px}
