@@ -25,30 +25,34 @@ const SCOPED_CSS = `
    竖横线间距均 26、0.5 宽 l05,叠 m1 2%→0 渐变)。
    112.5 = padding 16 + 时间列 76 + gap 16 + rail 半宽 4.5 —— 分界线就是 rail 本身,
    所以白块不再描右边线,否则与 rail 重合成两条 */
-/* 稿 12773:211663:pad [16,24,40,16] —— 底部 40 是给浮在网格上的主按钮留的空间;
-   按钮是 ABSOLUTE(right:16)不吃 padding,位置不变 */
-.pwl-stage{position:relative;padding:16px 24px 40px 16px;background:#fff}
-/* 回放视口 —— 稿 12773:211663:卡片定高 396(16+340+40)。完整时间轴 396 高于视口 340,
-   多出的 56 恰好 = 6/7 点两行:播放后段随新行入场把它们滚出视野,播完 scrollTop 停在 56
-   (8:00 起可见,与终态稿一致);之后鼠标仍可在卡内回滚。定高还让卡片总高不随正文重排变化。
-   滚动条隐藏但可滚 */
-.pwl-viewport{height:340px;overflow-y:auto;scrollbar-width:none;--ft:0px;--fb:0px;
+/* 稿 12773:211663:卡片定高 396。底部给按钮的 40 拆成 16(stage 外垫,与顶部对称) + 24(折进
+   时间轴内容尾部) —— 上下切口离卡缘等距(各 16),滚动切到内容时两侧渐隐位置对称;
+   终态布局与稿逐像素一致(末行照样停在离卡底 40 处) */
+.pwl-stage{position:relative;padding:16px 24px 16px 16px;background:#fff}
+/* 回放视口 —— 364 = 396 − 上下各 16。内容 = 时间轴 396 + 尾垫 24 = 420,maxScroll 仍是 56
+   (恰好 6/7 点两行):播放后段随新行入场把它们滚出视野,播完 scrollTop 停在 56(8:00 起可见,
+   与终态稿一致);之后鼠标仍可在卡内回滚。定高还让卡片总高不随正文重排变化。滚动条隐藏但可滚 */
+.pwl-viewport{height:364px;overflow-y:auto;scrollbar-width:none;--ft:0px;--fb:0px;
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--ft),#000 calc(100% - var(--fb)),transparent 100%);
   mask-image:linear-gradient(to bottom,transparent 0,#000 var(--ft),#000 calc(100% - var(--fb)),transparent 100%)}
 .pwl-viewport::-webkit-scrollbar{display:none}
-/* 切口不落在空白上:视口边缘切到内容(播放中段 / 用户回滚)时该侧渐隐 20/24px,
+/* 切口不落在空白上:视口边缘切到内容(播放中段 / 用户回滚)时该侧渐隐 20px(上下对称),
    停在齐整位置(顶=0 或底=终态 56)时不遮 —— --ft/--fb 由滚动监听实时置位;
    遮罩只作用于行内容,视口外的 rail/网格不受影响 */
 .pwl-bg-left{position:absolute;left:0;top:0;bottom:0;width:112.5px;background:#fff}
 .pwl-bg-grid{position:absolute;left:112px;top:0;right:0;bottom:0;
   background-image:
+    url('${import.meta.env.BASE_URL}watch-loop-bg.png'),
     linear-gradient(to left, rgba(73,163,166,0.02), rgba(73,163,166,0)),
     repeating-linear-gradient(90deg, transparent 0 24.5px, var(--line-l05, rgba(0,0,0,0.05)) 24.5px 25px, transparent 25px 26.5px),
-    repeating-linear-gradient(180deg, transparent 0 26px, var(--line-l05, rgba(0,0,0,0.05)) 26px 26.5px)}
-  /* 网格与渐变分层,相位照稿实测锚定(12736:34995 内 bg 逐线读数):
-     线距 26.5(gap 26 + 线宽 0.5);第一条可见竖线在离网格区左缘 +24.5 处(稿把贴界那条设了
-     opacity 0 给 rail 让位,这里同样不画),横线自顶 +26 起 —— 左上锚定,不随容器尺寸漂移。
-     渐变单独铺满(m1 2%→0,右→左)。不用导出图:无 fill 透明导出会被烘成 #3d3d3d 实底(像素验证过) */
+    repeating-linear-gradient(180deg, transparent 0 26px, var(--line-l05, rgba(0,0,0,0.05)) 26px 26.5px);
+  background-size:818px 396px, auto, auto, auto;
+  background-position:left top;
+  background-repeat:no-repeat}
+  /* 底图 = 稿 12878:228549 导出(818×396,恰为桌面网格区实际尺寸,白底+渐变已烘入),
+     左上锚定、1x 原尺寸零缩放零裁剪;下面垫同相位的 CSS 网格+渐变(线距 26.5、竖线 +24.5 起、
+     横线 +26 起、渐变 m1 2%→0)——视口比图高/宽的部分(如 mweb)由它续上,过界不断线。
+     图不透明,覆盖区内不会与垫层叠加 */
 /* rail —— 贯穿整个回放区(不再只连首末节点),同时充当白块与网格区的分界线(评审 15/16 条)。
    两层:track 常驻占位(线未扫到的地方也得有轨道,否则起始帧那一列是空的、读着发虚),
    line 是 l2 进度线,按 scaleY 从顶部往下生长——"线扫到哪"就是"巡检到哪" */
@@ -58,7 +62,7 @@ const SCOPED_CSS = `
 .pwl-rail-line{position:absolute;left:112.5px;top:0;bottom:0;width:0.5px;
   transform-origin:top;transform:translateX(-50%) scaleY(0);
   background:var(--line-l2, rgba(0,0,0,0.2))}
-.pwl-tl{position:relative;display:flex;flex-direction:column}
+.pwl-tl{position:relative;display:flex;flex-direction:column;padding-bottom:24px}
 .pwl-row{display:flex;align-items:center;gap:16px;padding:4px 0}
 /* 时间戳贴轴右对齐(稿 12707:31776/12736:33430 全部 alignH RIGHT):12/14 两档字宽不同,
    右对齐让所有时间的尾端都落在 rail 旁,左边参差 */
@@ -137,13 +141,13 @@ const SCOPED_CSS = `
    只有光标继续闪 —— 那是持续状态,不是入场动效 */
 @keyframes pwl-b0{
   0%{opacity:0;animation-timing-function:cubic-bezier(.22,1,.36,1)}
-  5%,100%{opacity:.5}}
+  5%,100%{opacity:.4}}
 @keyframes pwl-b1{
   0%,11%{opacity:0;animation-timing-function:cubic-bezier(.22,1,.36,1)}
-  17%,100%{opacity:.56}}
+  17%,100%{opacity:.5}}
 @keyframes pwl-b2{
   0%,22%{opacity:0;animation-timing-function:cubic-bezier(.22,1,.36,1)}
-  28%,100%{opacity:.62}}
+  28%,100%{opacity:.6}}
 @keyframes pwl-b3{
   0%,33%{opacity:0;animation-timing-function:cubic-bezier(.22,1,.36,1)}
   41%,100%{opacity:1}}
@@ -158,7 +162,7 @@ const SCOPED_CSS = `
 @keyframes pwl-gh3{0%,75%{opacity:0}78%{opacity:1}82%{opacity:.35}86%{opacity:1}90%{opacity:.35}93%{opacity:1}96%{opacity:.35}99%{opacity:1}100%{opacity:.5}}
 @keyframes pwl-b4{
   0%,54%{opacity:0;animation-timing-function:cubic-bezier(.22,1,.36,1)}
-  60%,100%{opacity:.75}}
+  60%,100%{opacity:.7}}
 @keyframes pwl-b5{
   0%,71%{opacity:0;animation-timing-function:cubic-bezier(.22,1,.36,1)}
   79%,100%{opacity:1}}
@@ -193,11 +197,11 @@ const SCOPED_CSS = `
 @keyframes pwl-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .pwl-rail-line{animation:pwl-rail 6s linear forwards}
 /* 基础 opacity 同时写进 CSS:动态下由 keyframes 接管,reduced-motion 下仍保留"越早越淡"的纵深 */
-.pwl-b0{opacity:.5;animation:pwl-b0 6s linear forwards}
+.pwl-b0{opacity:.4;animation:pwl-b0 6s linear forwards}
 .pwl-b0 .pwl-text{animation:pwl-in0 6s linear forwards}
-.pwl-b1{opacity:.56;animation:pwl-b1 6s linear forwards}
+.pwl-b1{opacity:.5;animation:pwl-b1 6s linear forwards}
 .pwl-b1 .pwl-text{animation:pwl-in1 6s linear forwards}
-.pwl-b2{opacity:.62;animation:pwl-b2 6s linear forwards}
+.pwl-b2{opacity:.6;animation:pwl-b2 6s linear forwards}
 .pwl-b2 .pwl-text{animation:pwl-in2 6s linear forwards}
 .pwl-b3{animation:pwl-b3 6s linear forwards}
 .pwl-b3 .pwl-alert{animation:pwl-in3 6s linear forwards}
@@ -208,7 +212,7 @@ const SCOPED_CSS = `
 .pwl-gap2 .pwl-gap-dots i:nth-child(1){animation:pwl-gh1 6s linear forwards}
 .pwl-gap2 .pwl-gap-dots i:nth-child(2){animation:pwl-gh2 6s linear forwards}
 .pwl-gap2 .pwl-gap-dots i:nth-child(3){animation:pwl-gh3 6s linear forwards}
-.pwl-b4{opacity:.75;animation:pwl-b4 6s linear forwards}
+.pwl-b4{opacity:.7;animation:pwl-b4 6s linear forwards}
 .pwl-b4 .pwl-text{animation:pwl-in4 6s linear forwards}
 .pwl-b5{animation:pwl-b5 6s linear forwards}
 .pwl-b5 .pwl-alert{animation:pwl-in5 6s linear forwards}
@@ -247,9 +251,10 @@ const SCOPED_CSS = `
   .pwl-hold{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* 只留一张 ping 卡(RKLB)且正文不截断 —— 两张都放整卡太高;
      6:00 行、1:00 安静行、NVDA 行、第二组三点一并隐藏,末行 Watching 的时间戳换成 1:00 PM(见 markup)。
-     视口不定高:mweb 靠减行控高,无溢出滚动 */
+     视口不定高:mweb 靠减行控高,无溢出滚动;桌面的 24 尾垫也不需要(stage pb 52 已含按钮区) */
   .pwl-b0,.pwl-b4,.pwl-b5,.pwl-gap2{display:none}
   .pwl-viewport{height:auto;overflow:visible}
+  .pwl-tl{padding-bottom:0}
   /* 三点中心 27(=52−25);垂直同桌面公式 (27+14−行高)/2 —— 361 宽下 RKLB 两段卡
      (正文 4 行 + 下一步 4 行)行高约 228 → −94;视口更宽时行数减少会略漂,mock 固定文案可接受 */
   .pwl-gap-dots{left:27px;top:-94px}
@@ -369,7 +374,7 @@ export function PortfolioWatchLoopCard({ onStart, initialBrokerId }: {
       const max = maxScroll();
       const st = el.scrollTop;
       el.style.setProperty('--ft', st > 1 && st < max - 1 ? '20px' : '0px');
-      el.style.setProperty('--fb', st < max - 1 ? '24px' : '0px');
+      el.style.setProperty('--fb', st < max - 1 ? '20px' : '0px');
     };
     el.addEventListener('scroll', updateMask, { passive: true });
     updateMask();
