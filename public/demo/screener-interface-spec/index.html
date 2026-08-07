@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<!-- ==================================================================
+     LONG DOCUMENT TEMPLATE · parchment design system
+     多页 A4 白皮书/技术报告/年度总结
+     结构：封面 -> 目录 -> 执行摘要 -> 正文章节 -> 附录
+     ================================================================== -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Alva Screener Automation Results · 结构化接口规范</title>
+<meta name="author" content="Alva Product × Frontend × Backend">
+<meta name="description" content="Alva 五个 Screener Automation Preset 的结构化结果接口、表格列、字段定义、计算公式、示例值与现有设计修正说明。">
+<meta name="keywords" content="Alva,Screener,Automation,Interface Spec,Structured Results">
+<meta name="generator" content="Kami">
+<style>
+  /* Regular weight */
+  @font-face {
+    font-family: "TsangerJinKai02";
+    src: url("../fonts/TsangerJinKai02-W04.ttf") format("truetype"),
+       url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W04.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  /* Bold weight - W05 for all bold variants */
+  @font-face {
+    font-family: "TsangerJinKai02";
+    src: url("../fonts/TsangerJinKai02-W05.ttf") format("truetype"),
+       url("https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W05.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @page {
+    size: A4;
+    margin: 20mm 22mm 22mm 22mm;
+    background: #f5f4ed;
+
+    @top-right {
+      content: string(section-title);
+      font-family: "TsangerJinKai02", "Source Han Serif SC",
+                   "Noto Serif CJK SC", "Songti SC", Georgia, serif;
+      font-size: 8pt;
+      color: #6b6a64;
+    }
+
+    @bottom-center {
+      content: counter(page) "  ·  Alva Screener Automation Results";
+      font-family: "TsangerJinKai02", "Source Han Serif SC",
+                   "Noto Serif CJK SC", "Songti SC", Georgia, serif;
+      font-size: 9pt;
+      color: #6b6a64;
+    }
+  }
+
+  @page:first {
+    @top-right { content: ""; }
+    @bottom-center { content: ""; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --parchment: #f5f4ed;
+    --ivory:     #faf9f5;
+    --near-black:#141413;
+    --dark-warm: #3d3d3a;
+    --olive:     #504e49;
+    --stone:     #6b6a64;
+    --brand:     #1B365D;
+    --border:    #e8e6dc;
+    --border-soft:#e5e3d8;
+    --tag-bg:    #E4ECF5;
+    --serif: "TsangerJinKai02", "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "STSong", Georgia, serif;
+    --sans: var(--serif);
+
+    --rhythm-module:  14pt;
+    --rhythm-section: 18pt;
+  }
+
+  html, body { background: var(--parchment); }
+
+  @media screen {
+    body { max-width: 210mm; margin: 0 auto; padding: 20mm 22mm 22mm 22mm; }
+  }
+
+  body {
+    color: var(--near-black);
+    font-family: var(--serif);
+    font-size: 10.5pt;
+    line-height: 1.55;
+    letter-spacing: 0.3pt;
+    widows: 3;
+    orphans: 3;
+  }
+
+  .sans {
+    font-family: var(--sans);
+  }
+
+  /* ========== COVER ========== */
+  .cover {
+    min-height: 240mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40mm 0 0 0;
+    break-after: page;
+  }
+  .cover-eyebrow {
+    font-family: var(--sans);
+    font-size: 10pt;
+    color: var(--brand);
+    letter-spacing: 1pt;
+    text-transform: uppercase;
+    margin-bottom: 18pt;
+  }
+  .cover-title {
+    font-size: 36pt;
+    font-weight: 500;
+    color: var(--near-black);
+    line-height: 1.15;
+    letter-spacing: 0.3pt;
+    margin-bottom: 16pt;
+  }
+  .cover-sub {
+    font-family: var(--sans);
+    font-size: 14pt;
+    color: var(--olive);
+    line-height: 1.5;
+    max-width: 85%;
+    margin-bottom: 30pt;
+  }
+  .cover-meta {
+    font-family: var(--sans);
+    font-size: 10pt;
+    color: var(--stone);
+    line-height: 1.5;
+  }
+  .cover-meta strong {
+    color: var(--dark-warm);
+    font-weight: 500;
+  }
+
+  /* ========== TOC（目录）========== */
+  .toc { break-after: page; }
+  .toc h2 {
+    font-size: 22pt;
+    font-weight: 500;
+    margin-bottom: var(--rhythm-module);
+    border-left: 2.5pt solid var(--brand);
+    border-radius: 1.5pt;
+    padding-left: 8pt;
+  }
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6pt 0;
+    border-bottom: 0.3pt dotted var(--border);
+    font-size: 11pt;
+  }
+  .toc-item:last-of-type { border-bottom: none; }
+  .toc-num {
+    color: var(--brand);
+    font-weight: 500;
+    min-width: 30pt;
+  }
+  .toc-title {
+    flex: 1;
+    color: var(--near-black);
+    padding-left: 6pt;
+  }
+  .toc-page {
+    color: var(--stone);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ========== HEADINGS ========== */
+  h1 {
+    font-size: 22pt;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0 0 10pt 0;
+    border-left: 2.5pt solid var(--brand);
+    border-radius: 1.5pt;
+    padding-left: 8pt;
+    color: var(--near-black);
+    break-after: avoid;
+  }
+
+  h2 {
+    font-size: 16pt;
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 24pt 0 8pt 0;
+    color: var(--near-black);
+    break-after: avoid;
+    string-set: section-title content();
+  }
+
+  h3 {
+    font-size: 13pt;
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 18pt 0 6pt 0;
+    color: var(--dark-warm);
+    break-after: avoid;
+  }
+
+  .chapter-num {
+    font-family: var(--sans);
+    font-size: 10pt;
+    color: var(--brand);
+    letter-spacing: 1pt;
+    text-transform: uppercase;
+    margin-bottom: 6pt;
+  }
+
+  /* ========== PARAGRAPHS ========== */
+  p {
+    margin: 0 0 10pt 0;
+    line-height: 1.55;
+    color: var(--near-black);
+    widows: 2;
+    orphans: 2;
+  }
+
+  .lead {
+    font-size: 12pt;
+    line-height: 1.55;
+    color: var(--dark-warm);
+    margin-bottom: var(--rhythm-module);
+  }
+
+  .hl { color: var(--brand); font-weight: 500; }
+  strong { font-weight: 500; }
+
+  /* ========== LISTS ========== */
+  ul, ol {
+    margin: 6pt 0 10pt 0;
+    padding-left: 20pt;
+    line-height: 1.55;
+  }
+  ul li::marker { color: var(--brand); }
+  ol li::marker { color: var(--brand); font-weight: 500; }
+
+  /* ========== QUOTE ========== */
+  blockquote, .quote {
+    border-left: 2pt solid var(--brand);
+    margin: 12pt 0;
+    padding: 4pt 0 4pt 16pt;
+    color: var(--olive);
+    line-height: 1.55;
+    break-inside: avoid;
+  }
+  blockquote .cite, .quote .cite {
+    display: block;
+    font-size: 9pt;
+    color: var(--stone);
+    margin-top: 4pt;
+  }
+
+  /* ========== CODE ========== */
+  /* Mono first for English glyphs, then CJK fallback so Chinese comments
+     inside code/pre render correctly. A mono-only chain causes missing
+     glyphs rendered as "?" or missing-glyph boxes in WeasyPrint when the system lacks
+     a mono font with CJK coverage. */
+  code {
+    font-family: "JetBrains Mono", "SF Mono", Consolas,
+                 "TsangerJinKai02", "Source Han Serif SC",
+                 "Noto Serif CJK SC", "Songti SC", monospace;
+    font-size: 9pt;
+    background: var(--ivory);
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    color: var(--dark-warm);
+  }
+  pre {
+    font-family: "JetBrains Mono", "SF Mono", Consolas,
+                 "TsangerJinKai02", "Source Han Serif SC",
+                 "Noto Serif CJK SC", "Songti SC", monospace;
+    font-size: 9pt;
+    line-height: 1.5;
+    background: var(--ivory);
+    border-radius: 4pt;
+    padding: 10pt 14pt;
+    margin: 10pt 0;
+    white-space: pre-wrap;
+    color: var(--near-black);
+    break-inside: avoid;
+  }
+  pre code { background: transparent; padding: 0; font-size: inherit; }
+
+  /* ========== TABLE (kami-table) ========== */
+  table, .kami-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin: 12pt 0;
+    break-inside: avoid;
+  }
+  table th, .kami-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--dark-warm);
+    padding: 6pt 8pt;
+    border-bottom: 1pt solid var(--border);
+    background: transparent;
+  }
+  table td, .kami-table td {
+    padding: 5pt 8pt;
+    border-bottom: 0.3pt solid var(--border-soft);
+    vertical-align: top;
+  }
+  table.compact th, .kami-table.compact th { padding: 3pt 6pt; font-size: 8pt; }
+  table.compact td, .kami-table.compact td { padding: 2pt 6pt; font-size: 8pt; line-height: 1.4; }
+  table.financial td:not(:first-child), .kami-table.financial td:not(:first-child) {
+    text-align: right; font-variant-numeric: tabular-nums;
+  }
+  table.financial th:not(:first-child), .kami-table.financial th:not(:first-child) { text-align: right; }
+  table.striped tbody tr:nth-child(even) td, .kami-table.striped tbody tr:nth-child(even) td {
+    background: var(--ivory);
+  }
+  table .total td, .kami-table .total td {
+    font-weight: 500; border-top: 1pt solid var(--brand); border-bottom: none; color: var(--near-black);
+  }
+
+  /* ========== CALLOUT ========== */
+  .callout {
+    background: var(--ivory);
+    border-left: 2pt solid var(--brand);
+    padding: 10pt 14pt;
+    border-radius: 3pt;
+    margin: 12pt 0;
+    line-height: 1.55;
+    break-inside: avoid;
+  }
+  .callout blockquote,
+  .callout .quote {
+    border-left: none;
+    padding-left: 0;
+    margin: 6pt 0;
+    color: var(--olive);
+  }
+  .callout blockquote:first-child,
+  .callout .quote:first-child { margin-top: 0; }
+  .callout blockquote:last-child,
+  .callout .quote:last-child  { margin-bottom: 0; }
+
+  .takeaway {
+    background: var(--ivory);
+    border-radius: 4pt;
+    padding: 10pt 14pt;
+    margin: 14pt 0;
+    break-inside: avoid;
+  }
+  .takeaway-label {
+    font-family: var(--sans);
+    font-size: 9pt;
+    color: var(--brand);
+    letter-spacing: 0.5pt;
+    text-transform: uppercase;
+    margin-bottom: 4pt;
+  }
+
+  /* ========== TAG ========== */
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--brand);
+    font-family: var(--sans);
+    font-size: 9pt;
+    font-weight: 500;
+    padding: 1pt 6pt;
+    border-radius: 3pt;
+    margin-right: 4pt;
+  }
+
+  /* ========== FIGURE ========== */
+  figure {
+    margin: 14pt 0;
+    break-inside: avoid;
+  }
+  figure img {
+    max-width: 100%;
+    border-radius: 4pt;
+  }
+  figcaption {
+    font-family: var(--sans);
+    font-size: 9pt;
+    color: var(--stone);
+    margin-top: 6pt;
+    text-align: center;
+  }
+
+  /* ========== EXECUTIVE SUMMARY ========== */
+  .exec-summary {
+    background: var(--ivory);
+    border-left: 1.4pt solid var(--brand);
+    border-radius: 6pt;
+    padding: 16pt 20pt;
+    margin: 14pt 0;
+    break-inside: avoid;
+  }
+  .exec-summary h2 {
+    margin-top: 0;
+    font-size: 13pt;
+  }
+
+  /* ========== CHAPTER BREAK ========== */
+  .chapter { break-before: page; }
+</style>
+</head>
+<body>
+
+<!-- ═════════════ COVER ═════════════ -->
+<section class="cover">
+  <div>
+    <div class="cover-eyebrow">ALVA · PRODUCT INTERFACE CONTRACT · DRAFT</div>
+    <div class="cover-title">Screener Automation Results<br>结构化接口规范</div>
+    <div class="cover-sub">定义五个官方 Screener Preset 在 Alva GUI 中的表格列、字段语义、数值单位、计算公式、排序规则与展示边界，并逐项修正当前设计稿中与真实数据不一致的表达。</div>
+  </div>
+  <div class="cover-meta">
+    <strong>Product × Frontend × Backend Review</strong><br>
+    Version 1.0  ·  2026.08<br>
+    Status: Proposal for interface alignment
+  </div>
+</section>
+
+<!-- ═════════════ 目录 ═════════════ -->
+<section class="toc">
+  <h2>目录</h2>
+  <div class="toc-item"><span class="toc-num">01</span><span class="toc-title">决策摘要与范围</span><span class="toc-page">Decision</span></div>
+  <div class="toc-item"><span class="toc-num">02</span><span class="toc-title">公共结果协议与显示约束</span><span class="toc-page">Common</span></div>
+  <div class="toc-item"><span class="toc-num">03</span><span class="toc-title">Congress Trades</span><span class="toc-page">Preset 01</span></div>
+  <div class="toc-item"><span class="toc-num">04</span><span class="toc-title">Options Whales</span><span class="toc-page">Preset 02</span></div>
+  <div class="toc-item"><span class="toc-num">05</span><span class="toc-title">Short Squeeze</span><span class="toc-page">Preset 03</span></div>
+  <div class="toc-item"><span class="toc-num">06</span><span class="toc-title">Breakout Radar</span><span class="toc-page">Preset 04</span></div>
+  <div class="toc-item"><span class="toc-num">07</span><span class="toc-title">Divergence Radar</span><span class="toc-page">Preset 05</span></div>
+  <div class="toc-item"><span class="toc-num">08</span><span class="toc-title">前后端边界、迁移与兼容</span><span class="toc-page">Delivery</span></div>
+  <div class="toc-item"><span class="toc-num">09</span><span class="toc-title">验收清单与术语表</span><span class="toc-page">QA</span></div>
+</section>
+
+<!-- ═════════════ Chapter 01 ═════════════ -->
+<section class="chapter" id="decision">
+  <div class="chapter-num">01 · Decision Summary</div>
+  <h1>先冻结语义，再实现表格</h1>
+
+  <p class="lead">官方 Screener 共有 <span class="hl">5 个 Preset</span>。GUI 首次展示最多 10 条，后台保留排序后的前 100 条供用户继续追问。GUI 必须读取结构化结果，不能解析 <code>notify/message</code> 文案，也不能把脚本内部缩写字段直接暴露成长期接口。</p>
+
+  <div class="exec-summary">
+    <h2>本版建议</h2>
+    <ul>
+      <li>定义一个版本化的 <code>ScreenerResultV1</code> 公共外壳，各 Preset 使用独立 Row Schema。</li>
+      <li>后台负责筛选、排序、rank、原始数值、日期与计数；前端负责格式化、Badge、Logo、相对时间与复合单元格。</li>
+      <li>现有 Feed Row 继续作为存储层，增加 Presentation Adapter 映射成语义清晰的 GUI Contract，避免直接改名破坏历史 Feed。</li>
+      <li>Onboarding 中的「2 条样例＋模糊锁定」和真实 Automation Result 是两个 UI State，共用数据 Schema，但不共用展示限制。</li>
+    </ul>
+  </div>
+
+  <h2>当前设计稿中必须纠正的四处表达</h2>
+  <table class="striped">
+    <thead><tr><th>Preset</th><th>当前表达</th><th>建议表达</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td>Congress</td><td><code>Filed after</code></td><td><code>Filing delay</code></td><td>必须锁定为交易日至申报日之间的自然日数，不能与「几天前申报」混淆。</td></tr>
+      <tr><td>Options</td><td><code>Vs avg vol</code></td><td><code>Vol / OI</code></td><td>当前脚本计算的是成交量 ÷ Open Interest，没有平均成交量字段。</td></tr>
+      <tr><td>Short</td><td><code>WoW · +2.6 pt</code></td><td><code>Change vs prior · +2.6%</code></td><td>数据按每月两次结算；当前值是空头数量相对上一期的百分比变化，不是周环比或百分点。</td></tr>
+      <tr><td>Breakout</td><td><code>Triggered · 18 min</code></td><td><code>Day change · +4.1%</code></td><td>这是日线收盘后扫描，当前脚本没有盘中触发时间。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="takeaway">
+    <div class="takeaway-label">示例数据说明</div>
+    本文 JSON 与表格中的数值是用于锁定格式和计算口径的 Fixture，不代表实时市场数据。截图本身作为当前设计证据保留，不对截图内容做事实背书。
+  </div>
+</section>
+
+<!-- ═════════════ Chapter 02 ═════════════ -->
+<section class="chapter" id="common-contract">
+  <div class="chapter-num">02 · Common Contract</div>
+  <h1>公共结果协议与显示约束</h1>
+
+  <p class="lead">公共外壳只表达运行身份、数据日期、结果数量和分页能力。每一行的金融语义由具体 Preset Row Schema 决定；视觉宽度、颜色和排版不进入后台协议。</p>
+
+  <h2>ScreenerResultV1</h2>
+  <pre><code class="language-typescript">interface ScreenerResultV1&lt;Row&gt; {
+  schema_version: 1
+  preset_id:
+    | "congress-trades"
+    | "options-whales"
+    | "short-squeeze"
+    | "breakout"
+    | "divergence"
+
+  run_id: string
+  generated_at: string          // RFC 3339，实际运行完成时间
+  as_of_date: string | null     // YYYY-MM-DD，结果所属市场 / 结算日期
+
+  qualified_count: number       // 截断前的全部合格结果
+  retained_count: number        // 实际保留，0–100
+  displayed_count: number       // 当前响应返回，0–10
+  has_more: boolean             // retained_count &gt; displayed_count
+  retention_truncated: boolean  // qualified_count &gt; retained_count
+  next_cursor: string | null    // 继续追问时由 Agent / API 使用
+
+  rows: Array&lt;Row &amp; {
+    row_id: string
+    rank: number                // 后台最终排序名次，从 1 开始
+  }&gt;
+}</code></pre>
+
+  <h2>数量字段的严格定义</h2>
+  <table class="striped">
+    <thead><tr><th>字段</th><th>定义</th><th>示例</th><th>UI 用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>qualified_count</code></td><td>通过筛选、去重和 freshness 规则后的总量，尚未应用 100 条硬顶。</td><td><code>137</code></td><td>说明市场中实际有多少条合格结果。</td></tr>
+      <tr><td><code>retained_count</code></td><td>保存给后续追问的数量，最大 100。</td><td><code>100</code></td><td>决定 Agent 后续最多能继续列出多少条。</td></tr>
+      <tr><td><code>displayed_count</code></td><td>当前 GUI Block 返回的行数，默认最大 10。</td><td><code>10</code></td><td>控制初始表格高度。</td></tr>
+      <tr><td><code>has_more</code></td><td><code>retained_count &gt; displayed_count</code>。</td><td><code>true</code></td><td>生成「继续问 Alva 查看更多」提示。</td></tr>
+      <tr><td><code>retention_truncated</code></td><td><code>qualified_count &gt; retained_count</code>。</td><td><code>true</code></td><td>明确只有 Top 100 被保留，避免承诺不存在的完整列表。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>数值、日期与空值约定</h2>
+  <table class="striped">
+    <thead><tr><th>命名</th><th>单位</th><th>示例 Raw</th><th>示例 Display</th><th>约束</th></tr></thead>
+    <tbody>
+      <tr><td><code>*_usd</code></td><td>美元</td><td><code>3600000</code></td><td><code>$3.6M</code></td><td>后台传数字；前端缩写。不要传带货币符号字符串。</td></tr>
+      <tr><td><code>*_pct</code></td><td>百分数</td><td><code>38.4</code></td><td><code>38.4%</code></td><td><code>38.4</code> 表示 38.4%，不是 0.384。</td></tr>
+      <tr><td><code>*_pp</code></td><td>百分点</td><td><code>2.6</code></td><td><code>+2.6 pt</code></td><td>只有两个百分比直接相减时使用。</td></tr>
+      <tr><td><code>*_ratio</code></td><td>无量纲倍数</td><td><code>2.8</code></td><td><code>2.8×</code></td><td>后台不附加 ×。</td></tr>
+      <tr><td><code>*_date</code></td><td>日历日期</td><td><code>2026-08-06</code></td><td><code>Aug 6</code></td><td>ISO Date，不混入时区。</td></tr>
+      <tr><td><code>*_at</code></td><td>时间点</td><td><code>2026-08-06T20:30:00Z</code></td><td><code>4:30 PM ET</code></td><td>RFC 3339，必须带时区。</td></tr>
+      <tr><td>缺失值</td><td>—</td><td><code>null</code></td><td><code>—</code></td><td>缺失不能转成 0；0 是有效金融数值。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>通用复合对象</h2>
+  <pre><code class="language-typescript">interface InstrumentRef {
+  symbol: string
+  name: string | null
+  logo_url: string | null
+  market: string | null
+}
+
+interface PersonRef {
+  id: string
+  name: string
+  avatar_url: string | null
+  party: "D" | "R" | "I" | "OTHER" | null
+  chamber: "HOUSE" | "SENATE" | null
+  state: string | null
+  district: string | null
+}</code></pre>
+
+  <p><code>name</code>、<code>logo_url</code> 和人物资料由共享 Entity Resolver 补全。Automation Script 只需要保留稳定 ID 与 <code>symbol</code>，不能把可变 Logo URL 写进历史 Feed。</p>
+
+  <h2>首屏与继续追问</h2>
+  <table class="striped">
+    <thead><tr><th>状态</th><th>行数</th><th>用户行为</th><th>文案来源</th></tr></thead>
+    <tbody>
+      <tr><td>Onboarding teaser</td><td>2 条 Fixture，可有模糊占位</td><td>Run preset</td><td>前端固定营销状态</td></tr>
+      <tr><td>Real result</td><td>最多 10 条真实结果</td><td>阅读或继续提问</td><td>结构化 counts 生成，不解析通知正文</td></tr>
+      <tr><td>Follow-up</td><td>继续返回 retained rows</td><td>「把剩下的都列出来」</td><td><code>next_cursor</code> / rank</td></tr>
+      <tr><td>Qualified &gt; 100</td><td>仍只保留 Top 100</td><td>可询问 retained list</td><td>明确告知 retention truncation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═════════════ Chapter 03 ═════════════ -->
+<section class="chapter" id="congress">
+  <div class="chapter-num">03 · Preset 01 · congress-trades</div>
+  <h1>What Congress Just Bought</h1>
+
+  <p class="lead">一行代表一笔新的国会议员交易申报。用户首先需要知道「谁、什么股票、买卖方向、金额范围、延迟多久申报」。人物身份和金额必须结构化，不能只保留当前的展示字符串。</p>
+
+  <figure>
+    <a href="assets/congress-trades-current.png" target="_blank"><img src="assets/congress-trades-current.png" alt="当前 Congress Trades onboarding table 设计稿"></a>
+    <figcaption>当前设计稿 · 点击打开原始分辨率。建议保留五列，但重命名 Filed after，并补齐人物与金额的结构化来源。</figcaption>
+  </figure>
+
+  <h2>推荐最终列</h2>
+  <table class="striped">
+    <thead><tr><th>Member</th><th>Ticker</th><th>Trade</th><th>Amount</th><th>Filing delay</th></tr></thead>
+    <tbody><tr><td>Sheldon Whitehouse<br><span class="tag">D · SENATE · RI</span></td><td>NVDA<br>NVIDIA</td><td><span class="tag">BUY</span></td><td>$1K–$15K</td><td>4 days</td></tr></tbody>
+  </table>
+
+  <h2>每列包含哪些字段</h2>
+  <table class="striped">
+    <thead><tr><th>GUI 列</th><th>包含字段</th><th>Raw 示例</th><th>Display 示例</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>Member</td><td><code>member.id</code><br><code>member.name</code><br><code>member.avatar_url</code><br><code>member.party</code><br><code>member.chamber</code><br><code>member.state</code><br><code>member.district</code><br><code>owner_type</code></td><td><code>D</code><br><code>SENATE</code><br><code>RI</code><br><code>MEMBER</code></td><td>Sheldon Whitehouse<br>D · Senate · RI</td><td><code>owner_type=SPOUSE</code> 时在姓名旁显示 Spouse，而不是把 spouse 塞进 issuer 文本。</td></tr>
+      <tr><td>Ticker</td><td><code>instrument.symbol</code><br><code>instrument.name</code><br><code>instrument.logo_url</code></td><td><code>NVDA</code></td><td>NVDA<br>NVIDIA Corporation</td><td>Script 只输出 symbol；共享 Resolver 补公司资料。</td></tr>
+      <tr><td>Trade</td><td><code>side</code></td><td><code>BUY</code></td><td>BUY Badge</td><td>枚举仅允许 <code>BUY</code> / <code>SELL</code>；未知值返回 null，不猜测。</td></tr>
+      <tr><td>Amount</td><td><code>amount_min_usd</code><br><code>amount_max_usd</code><br><code>amount_raw</code></td><td><code>1001</code><br><code>15000</code></td><td>$1K–$15K</td><td>Raw 字符串仅用于审计回退；排序和显示必须用数字上下限。</td></tr>
+      <tr><td>Filing delay</td><td><code>trade_date</code><br><code>filing_date</code><br><code>filing_delay_days</code></td><td><code>2026-07-28</code><br><code>2026-08-01</code><br><code>4</code></td><td>4 days</td><td>自然日差；Tooltip 可显示 Traded Jul 28 · Filed Aug 1。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>字段字典与当前映射</h2>
+  <table class="compact striped">
+    <thead><tr><th>Canonical 字段</th><th>类型</th><th>定义</th><th>当前来源</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td><code>member.id</code></td><td>string</td><td>稳定的 politician ID</td><td>上游已有 <code>politician_id</code>，当前未持久化</td><td><span class="tag">补字段</span></td></tr>
+      <tr><td><code>member.name</code></td><td>string</td><td>申报关联议员姓名</td><td><code>who</code> ← reporter / name</td><td><span class="tag">映射</span></td></tr>
+      <tr><td><code>owner_type</code></td><td>enum</td><td>MEMBER / SPOUSE / DEPENDENT / JOINT / OTHER</td><td>当前仅通过 <code>issuer == spouse</code> 推断</td><td><span class="tag">规范化</span></td></tr>
+      <tr><td><code>instrument.symbol</code></td><td>string</td><td>股票代码</td><td><code>sym</code></td><td><span class="tag">已有</span></td></tr>
+      <tr><td><code>amount_min_usd</code></td><td>integer|null</td><td>金额区间下限，用于排序</td><td>解析 <code>amounts</code></td><td><span class="tag">补字段</span></td></tr>
+      <tr><td><code>amount_max_usd</code></td><td>integer|null</td><td>金额区间上限</td><td>解析 <code>amounts</code></td><td><span class="tag">补字段</span></td></tr>
+      <tr><td><code>trade_date</code></td><td>date</td><td>交易发生日期</td><td><code>traded</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>filing_date</code></td><td>date</td><td>申报提交日期</td><td><code>filed</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>filing_delay_days</code></td><td>integer|null</td><td>申报日期减交易日期的自然日数</td><td>由两个日期计算</td><td><span class="tag">派生</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>计算、排序和去重</h2>
+  <pre><code>filing_delay_days = calendar_days(filing_date - trade_date)
+
+rank order:
+  1. BUY before SELL
+  2. amount_min_usd DESC
+  3. filing_date DESC
+  4. symbol ASC
+
+display-only diversity:
+  maximum 2 rows per member in the initial 10-row preview
+
+row_id:
+  upstream_filing_id
+  fallback = member.id | symbol | trade_date | side</code></pre>
+
+  <h2>示例 Row</h2>
+  <pre><code class="language-json">{
+  "row_id": "congress:example-member-001:NVDA:2026-07-28:BUY",
+  "rank": 1,
+  "member": {
+    "id": "example-member-001",
+    "name": "Sheldon Whitehouse",
+    "avatar_url": null,
+    "party": "D",
+    "chamber": "SENATE",
+    "state": "RI",
+    "district": null
+  },
+  "instrument": {
+    "symbol": "NVDA",
+    "name": "NVIDIA Corporation",
+    "logo_url": null,
+    "market": "NASDAQ"
+  },
+  "owner_type": "MEMBER",
+  "side": "BUY",
+  "amount_min_usd": 1001,
+  "amount_max_usd": 15000,
+  "amount_raw": "$1,001 - $15,000",
+  "trade_date": "2026-07-28",
+  "filing_date": "2026-08-01",
+  "filing_delay_days": 4
+}</code></pre>
+
+  <h2>相对截图需要改什么</h2>
+  <ul>
+    <li><span class="tag">改名</span> <code>Filed after</code> → <code>Filing delay</code>。</li>
+    <li><span class="tag">补字段</span> 当前 Feed 只有姓名；头像、党派、议院、州和选区必须由 <code>politician_id</code> 补全。</li>
+    <li><span class="tag">改数据</span> 金额不能继续只保留 <code>"$1,001 - $15,000"</code> 字符串。</li>
+    <li><span class="tag">锁公式</span> 4 days 是两个日期的自然日差，不是相对当前时间。</li>
+  </ul>
+</section>
+
+<!-- ═════════════ Chapter 04 ═════════════ -->
+<section class="chapter" id="options">
+  <div class="chapter-num">04 · Preset 02 · options-whales</div>
+  <h1>Biggest Unusual Options Bets</h1>
+
+  <p class="lead">一行代表当日某个 Single-name Ticker 中 Premium 最大的一个期权合约。当前数据足以展示合约、Premium 和 Volume / OI，但不足以声称「相对平均成交量」。</p>
+
+  <figure>
+    <a href="assets/options-whales-current.png" target="_blank"><img src="assets/options-whales-current.png" alt="当前 Options Whales onboarding table 设计稿"></a>
+    <figcaption>当前设计稿 · 合约与 Premium 的方向基本正确；最后一列的口径必须由 Vs avg vol 改成 Vol / OI。</figcaption>
+  </figure>
+
+  <h2>推荐最终列</h2>
+  <table class="striped">
+    <thead><tr><th>Ticker</th><th>Contract</th><th>Premium traded</th><th>Vol / OI</th></tr></thead>
+    <tbody><tr><td>MSFT<br>Microsoft Corporation</td><td><span class="tag">CALL</span> $520 · Oct 17</td><td>$3.6M</td><td>18×</td></tr></tbody>
+  </table>
+
+  <h2>每列包含哪些字段</h2>
+  <table class="striped">
+    <thead><tr><th>GUI 列</th><th>包含字段</th><th>Raw 示例</th><th>Display 示例</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>Ticker</td><td><code>instrument.symbol</code><br><code>instrument.name</code><br><code>instrument.logo_url</code></td><td><code>MSFT</code></td><td>MSFT<br>Microsoft Corporation</td><td>共享 Instrument Resolver 补全名称与 Logo。</td></tr>
+      <tr><td>Contract</td><td><code>contract_id</code><br><code>option_type</code><br><code>strike_usd</code><br><code>expiration_date</code></td><td><code>CALL</code><br><code>520</code><br><code>2026-10-17</code></td><td>CALL $520 · Oct 17</td><td><code>C/P</code> 在 Adapter 中规范成 <code>CALL/PUT</code>。</td></tr>
+      <tr><td>Premium traded</td><td><code>premium_traded_usd</code></td><td><code>3600000</code></td><td>$3.6M</td><td>这是当日累计 Premium；标题使用 traded，避免被理解成单笔成交。</td></tr>
+      <tr><td>Vol / OI</td><td><code>volume</code><br><code>open_interest</code><br><code>volume_oi_ratio</code></td><td><code>18000</code><br><code>1000</code><br><code>18</code></td><td>18×</td><td><code>open_interest &lt;= 0</code> 时 ratio 返回 null，显示 —。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>字段字典与当前映射</h2>
+  <table class="compact striped">
+    <thead><tr><th>Canonical 字段</th><th>类型</th><th>定义</th><th>当前来源</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td><code>instrument.symbol</code></td><td>string</td><td>标的股票代码</td><td><code>sym</code></td><td><span class="tag">已有</span></td></tr>
+      <tr><td><code>option_type</code></td><td>enum</td><td>CALL / PUT</td><td><code>type</code> = C / P</td><td><span class="tag">规范化</span></td></tr>
+      <tr><td><code>strike_usd</code></td><td>number</td><td>行权价</td><td><code>strike</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>expiration_date</code></td><td>date</td><td>到期日</td><td><code>exp</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>premium_traded_usd</code></td><td>integer</td><td>当日该合约累计 Premium</td><td><code>dayPrem</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>volume</code></td><td>integer</td><td>当日合约成交量</td><td><code>dayVol</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>open_interest</code></td><td>integer|null</td><td>Open Interest</td><td><code>oi</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>volume_oi_ratio</code></td><td>number|null</td><td>成交量 ÷ OI</td><td>前端或 Adapter 派生</td><td><span class="tag">派生</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>计算、排序和去重</h2>
+  <pre><code>volume_oi_ratio = open_interest &gt; 0
+  ? volume / open_interest
+  : null
+
+scope:
+  most recent trading day in source feed
+  single-name equities only
+  exclude index / ETF noise set
+  keep 1 highest-premium contract per symbol
+
+rank order:
+  1. premium_traded_usd DESC
+  2. volume DESC
+  3. symbol ASC
+
+row_id:
+  symbol | expiration_date | strike_usd | option_type | as_of_date</code></pre>
+
+  <h2>示例 Row</h2>
+  <pre><code class="language-json">{
+  "row_id": "options:MSFT:2026-10-17:520:CALL:2026-08-06",
+  "rank": 1,
+  "instrument": {
+    "symbol": "MSFT",
+    "name": "Microsoft Corporation",
+    "logo_url": null,
+    "market": "NASDAQ"
+  },
+  "contract_id": "MSFT-20261017-C-520",
+  "option_type": "CALL",
+  "strike_usd": 520,
+  "expiration_date": "2026-10-17",
+  "premium_traded_usd": 3600000,
+  "volume": 18000,
+  "open_interest": 1000,
+  "volume_oi_ratio": 18,
+  "as_of_date": "2026-08-06"
+}</code></pre>
+
+  <h2>相对截图需要改什么</h2>
+  <ul>
+    <li><span class="tag">改口径</span> <code>Vs avg vol</code> → <code>Vol / OI</code>。</li>
+    <li><span class="tag">改标题</span> <code>Premium</code> → <code>Premium traded</code>，避免暗示单笔成交。</li>
+    <li><span class="tag">锁空值</span> OI 缺失或为 0 时显示 —，不能显示 0×。</li>
+    <li><span class="tag">可选 V2</span> 如果以后真的展示 Vs avg vol，必须新增平均成交量、窗口天数和真实 ratio；不能复用 OI。</li>
+  </ul>
+</section>
+
+<!-- ═════════════ Chapter 05 ═════════════ -->
+<section class="chapter" id="short">
+  <div class="chapter-num">05 · Preset 03 · short-squeeze</div>
+  <h1>Most Heavily Shorted Stocks</h1>
+
+  <p class="lead">一行代表最新一次 Short-interest Settlement 中的一个股票。数据不是实时流，也不是周度数据；结算日期必须成为卡片级元信息，避免用户把陈旧结算值当成当前盘中信号。</p>
+
+  <figure>
+    <a href="assets/short-squeeze-current.png" target="_blank"><img src="assets/short-squeeze-current.png" alt="当前 Most Heavily Shorted Stocks onboarding table 设计稿"></a>
+    <figcaption>当前设计稿 · Short float 与 Days to cover 可保留；WoW 和 pt 必须同时修正，并补 Settlement 日期。</figcaption>
+  </figure>
+
+  <h2>推荐最终列</h2>
+  <p><span class="tag">CARD META</span> Settlement: Jul 31 · Source may lag settlement by approximately 8 trading days</p>
+  <table class="striped">
+    <thead><tr><th>Ticker</th><th>Short float</th><th>Change vs prior</th><th>Days to cover</th></tr></thead>
+    <tbody><tr><td>OPEN<br>Opendoor Technologies</td><td>38.4%</td><td>+2.6%</td><td>2.9 d</td></tr></tbody>
+  </table>
+
+  <h2>每列包含哪些字段</h2>
+  <table class="striped">
+    <thead><tr><th>GUI 列</th><th>包含字段</th><th>Raw 示例</th><th>Display 示例</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>Ticker</td><td><code>instrument.symbol</code><br><code>instrument.name</code><br><code>instrument.logo_url</code></td><td><code>OPEN</code></td><td>OPEN<br>Opendoor Technologies</td><td>共享 Resolver 补全。</td></tr>
+      <tr><td>Short float</td><td><code>short_float_pct</code></td><td><code>38.4</code></td><td>38.4%</td><td>表示流通股中被做空的比例。</td></tr>
+      <tr><td>Change vs prior</td><td><code>short_interest_change_pct</code></td><td><code>2.6</code></td><td>+2.6%</td><td>上一结算期至当前结算期的 Short Interest 数量百分比变化，不是百分点。</td></tr>
+      <tr><td>Days to cover</td><td><code>days_to_cover</code></td><td><code>2.9</code></td><td>2.9 d</td><td>按数据提供方口径展示；缺失为 —，不回填 0。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>卡片级字段</h2>
+  <table class="compact striped">
+    <thead><tr><th>字段</th><th>类型</th><th>定义</th><th>当前来源</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td><code>settlement_date</code></td><td>date</td><td>Short-interest 所属结算日，也是本 Preset 的 <code>as_of_date</code></td><td>脚本中已有 <code>settle</code>，但未写入结构化 Row</td><td><span class="tag">补字段</span></td></tr>
+      <tr><td><code>generated_at</code></td><td>datetime</td><td>Automation 实际运行完成时间</td><td>公共外壳</td><td><span class="tag">公共</span></td></tr>
+      <tr><td><code>source_lag_note</code></td><td>string|null</td><td>非数值 UI 注释，说明结算数据可能滞后</td><td>Preset 固定 metadata</td><td><span class="tag">新增</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>百分比与百分点不能混用</h2>
+  <pre><code>current contract:
+  short_interest_change_pct
+  = upstream change_in_short_interest_percentage
+  display example: +2.6%
+
+only if previous short-float value is added:
+  short_float_change_pp
+  = current_short_float_pct - previous_short_float_pct
+  display example: +2.6 pt</code></pre>
+
+  <h2>排序与筛选边界</h2>
+  <pre><code>universe:
+  top 250 liquid US names by average daily dollar volume
+
+qualify:
+  settlement_date == latest available settlement
+  short_float_pct &gt;= 10
+
+rank order:
+  1. short_float_pct DESC
+  2. days_to_cover DESC
+  3. symbol ASC
+
+row_id:
+  symbol | settlement_date</code></pre>
+
+  <h2>示例 Row</h2>
+  <pre><code class="language-json">{
+  "row_id": "short:OPEN:2026-07-31",
+  "rank": 1,
+  "instrument": {
+    "symbol": "OPEN",
+    "name": "Opendoor Technologies, Inc.",
+    "logo_url": null,
+    "market": "NASDAQ"
+  },
+  "short_float_pct": 38.4,
+  "short_interest_change_pct": 2.6,
+  "days_to_cover": 2.9,
+  "settlement_date": "2026-07-31"
+}</code></pre>
+
+  <h2>相对截图需要改什么</h2>
+  <ul>
+    <li><span class="tag">改名</span> <code>WoW</code> → <code>Change vs prior</code>。</li>
+    <li><span class="tag">改单位</span> <code>+2.6 pt</code> → <code>+2.6%</code>。</li>
+    <li><span class="tag">补日期</span> 卡片标题下必须显示 Settlement 日期。</li>
+    <li><span class="tag">补语境</span> 提醒这是结算数据，不把它包装成「right now」的实时值。</li>
+  </ul>
+</section>
+
+<!-- ═════════════ Chapter 06 ═════════════ -->
+<section class="chapter" id="breakout">
+  <div class="chapter-num">06 · Preset 04 · breakout</div>
+  <h1>Breakouts to One-Month Highs</h1>
+
+  <p class="lead">一行代表某股票在最新日线收盘时突破过去 20 个交易日高点，同时当日成交量至少达到过去 20 日均量的 2 倍。GUI 应展示价格、量比、日涨跌和连续突破天数，不应生成不存在的分钟级触发时间。</p>
+
+  <figure>
+    <a href="assets/breakout-current.png" target="_blank"><img src="assets/breakout-current.png" alt="当前 Breakout onboarding table 设计稿"></a>
+    <figcaption>当前设计稿 · Breakout 与量比方向正确；Triggered minutes 需要替换，1-mo 最好锁定为 20D high。</figcaption>
+  </figure>
+
+  <h2>推荐最终列</h2>
+  <p><span class="tag">CARD META</span> As of Aug 6 close</p>
+  <table class="striped">
+    <thead><tr><th>Ticker</th><th>Breakout</th><th>Vol vs 20D avg</th><th>Day change</th></tr></thead>
+    <tbody><tr><td>RKLB<br>Rocket Lab USA</td><td><span class="tag">20D HIGH</span> $32.40</td><td>2.8×</td><td>+4.1%</td></tr></tbody>
+  </table>
+
+  <h2>每列包含哪些字段</h2>
+  <table class="striped">
+    <thead><tr><th>GUI 列</th><th>包含字段</th><th>Raw 示例</th><th>Display 示例</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>Ticker</td><td><code>instrument.symbol</code><br><code>instrument.name</code><br><code>instrument.logo_url</code></td><td><code>RKLB</code></td><td>RKLB<br>Rocket Lab USA</td><td>共享 Resolver 补全。</td></tr>
+      <tr><td>Breakout</td><td><code>price_usd</code><br><code>breakout_window_sessions</code><br><code>reference_high_usd</code><br><code>breakout_margin_pct</code><br><code>streak_sessions</code></td><td><code>32.4</code><br><code>20</code><br><code>31.8</code><br><code>1.9</code><br><code>1</code></td><td>20D high · $32.40</td><td>Reference high 与 margin 可放 Tooltip；streak ≥ 2 时显示 Day N Badge。</td></tr>
+      <tr><td>Vol vs 20D avg</td><td><code>volume_ratio_20d</code></td><td><code>2.8</code></td><td>2.8×</td><td>窗口固定为之前 20 个交易日，不含当前日。</td></tr>
+      <tr><td>Day change</td><td><code>price_change_pct</code></td><td><code>4.1</code></td><td>+4.1%</td><td>当前收盘价相对上一交易日收盘价。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>字段字典与当前映射</h2>
+  <table class="compact striped">
+    <thead><tr><th>Canonical 字段</th><th>类型</th><th>定义</th><th>当前来源</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td><code>price_usd</code></td><td>number</td><td>最新 Session 收盘价</td><td><code>px</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>price_change_pct</code></td><td>number|null</td><td>相对前收日涨跌幅</td><td><code>chgPct</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>volume_ratio_20d</code></td><td>number</td><td>当前成交量 ÷ 前 20 日均量</td><td><code>volX</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>as_of_date</code></td><td>date</td><td>当前 K 线所属交易日</td><td>脚本中 <code>d</code> 已 append，但未在 <code>feed.def</code> 声明</td><td><span class="tag">正式声明</span></td></tr>
+      <tr><td><code>streak_sessions</code></td><td>integer</td><td>连续交易日触发次数</td><td><code>streak</code> 已 append，但未在 <code>feed.def</code> 声明</td><td><span class="tag">正式声明</span></td></tr>
+      <tr><td><code>reference_high_usd</code></td><td>number</td><td>前 20 个 Session 的最高价</td><td>脚本中 <code>hi20</code> 只用于判断，未持久化</td><td><span class="tag">补字段</span></td></tr>
+      <tr><td><code>breakout_margin_pct</code></td><td>number</td><td>收盘价超过 reference high 的百分比</td><td>可由 price / hi20 派生</td><td><span class="tag">补字段</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>计算、筛选与排序</h2>
+  <pre><code>reference_high_usd = max(high of prior 20 sessions)
+average_volume_20d = average(volume of prior 20 sessions)
+
+qualify when:
+  price_usd &gt; reference_high_usd
+  volume_ratio_20d = current_volume / average_volume_20d
+  volume_ratio_20d &gt;= 2
+
+breakout_margin_pct =
+  (price_usd - reference_high_usd) / reference_high_usd * 100
+
+price_change_pct =
+  (price_usd - previous_close_usd) / previous_close_usd * 100
+
+rank order:
+  1. volume_ratio_20d DESC
+  2. price_change_pct DESC
+  3. symbol ASC
+
+row_id:
+  symbol | as_of_date</code></pre>
+
+  <h2>示例 Row</h2>
+  <pre><code class="language-json">{
+  "row_id": "breakout:RKLB:2026-08-06",
+  "rank": 1,
+  "instrument": {
+    "symbol": "RKLB",
+    "name": "Rocket Lab USA, Inc.",
+    "logo_url": null,
+    "market": "NASDAQ"
+  },
+  "price_usd": 32.4,
+  "price_change_pct": 4.1,
+  "breakout_window_sessions": 20,
+  "reference_high_usd": 31.8,
+  "breakout_margin_pct": 1.9,
+  "volume_ratio_20d": 2.8,
+  "streak_sessions": 1,
+  "as_of_date": "2026-08-06"
+}</code></pre>
+
+  <h2>相对截图需要改什么</h2>
+  <ul>
+    <li><span class="tag">改名</span> <code>1-mo</code> → <code>20D high</code>，直接匹配脚本的 20 个交易日窗口。</li>
+    <li><span class="tag">锁窗口</span> <code>Vs avg vol</code> → <code>Vol vs 20D avg</code>。</li>
+    <li><span class="tag">删伪字段</span> 删除 <code>Triggered 18 min</code>。</li>
+    <li><span class="tag">补可解释性</span> 新增 reference high 和 breakout margin，即使只在 Tooltip 展示。</li>
+  </ul>
+</section>
+
+<!-- ═════════════ Chapter 07 ═════════════ -->
+<section class="chapter" id="divergence">
+  <div class="chapter-num">07 · Preset 05 · divergence</div>
+  <h1>Divergence Radar</h1>
+
+  <p class="lead">当前四张设计稿遗漏了官方的第五个 Preset。Divergence 一行代表一个价格极值与 RSI 极值背离的信号；字段必须明确这是「最近 Pivot」而不是「当前实时价格 / 当前 RSI」。</p>
+
+  <div class="callout"><strong>Visual gap：</strong>当前没有 Divergence 截图。本章节只定义接口与建议表格，不伪造产品截图。完成字段评审后再由设计补一张与前四个 Preset 同体系的视觉稿。</div>
+
+  <h2>推荐最终列</h2>
+  <p><span class="tag">CARD META</span> RSI(14) · Recent pivot within 5 sessions · As of Aug 6 close</p>
+  <table class="striped">
+    <thead><tr><th>Ticker</th><th>Signal</th><th>Signal price</th><th>RSI · prior → recent</th><th>RSI gap</th></tr></thead>
+    <tbody><tr><td>NVDA<br>NVIDIA Corporation</td><td><span class="tag">BEARISH</span><br>Price HH · RSI LH</td><td>$182.40</td><td>72.4 → 66.1</td><td>6.3</td></tr></tbody>
+  </table>
+
+  <h2>每列包含哪些字段</h2>
+  <table class="striped">
+    <thead><tr><th>GUI 列</th><th>包含字段</th><th>Raw 示例</th><th>Display 示例</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>Ticker</td><td><code>instrument.symbol</code><br><code>instrument.name</code><br><code>instrument.logo_url</code></td><td><code>NVDA</code></td><td>NVDA<br>NVIDIA Corporation</td><td>共享 Resolver 补全。</td></tr>
+      <tr><td>Signal</td><td><code>signal</code><br><code>price_pattern</code><br><code>rsi_pattern</code></td><td><code>BEARISH</code><br><code>HIGHER_HIGH</code><br><code>LOWER_HIGH</code></td><td>BEARISH<br>Price HH · RSI LH</td><td>方向用枚举；模式用于解释，不由前端从数值猜。</td></tr>
+      <tr><td>Signal price</td><td><code>signal_price_usd</code><br><code>recent_pivot_date</code></td><td><code>182.4</code><br><code>2026-08-04</code></td><td>$182.40</td><td>这是最近价格 Pivot，不是当前盘中价；Tooltip 显示 Pivot 日期。</td></tr>
+      <tr><td>RSI</td><td><code>rsi_period</code><br><code>prior_rsi</code><br><code>recent_rsi</code><br><code>prior_pivot_date</code><br><code>recent_pivot_date</code></td><td><code>14</code><br><code>72.4</code><br><code>66.1</code></td><td>72.4 → 66.1</td><td>列名不使用 RSI now；recent 才符合真实含义。</td></tr>
+      <tr><td>RSI gap</td><td><code>rsi_gap</code></td><td><code>6.3</code></td><td>6.3</td><td>始终返回正的强度值，方向由 signal 表达。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>字段字典与当前映射</h2>
+  <table class="compact striped">
+    <thead><tr><th>Canonical 字段</th><th>类型</th><th>定义</th><th>当前来源</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td><code>signal</code></td><td>enum</td><td>BULLISH / BEARISH</td><td><code>kind</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>signal_price_usd</code></td><td>number</td><td>最近价格 Pivot 值</td><td><code>px</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>recent_rsi</code></td><td>number</td><td>最近 Pivot 对应 RSI</td><td><code>rsiNow</code></td><td><span class="tag">纠正语义</span></td></tr>
+      <tr><td><code>prior_rsi</code></td><td>number</td><td>前一 Pivot 对应 RSI</td><td><code>rsiPrior</code></td><td><span class="tag">改名</span></td></tr>
+      <tr><td><code>recent_pivot_date</code></td><td>date</td><td>最近 Pivot 日期</td><td>检测时有日期，但当前未返回</td><td><span class="tag">补字段</span></td></tr>
+      <tr><td><code>prior_pivot_date</code></td><td>date</td><td>前一 Pivot 日期</td><td>检测时有日期，但当前未返回</td><td><span class="tag">补字段</span></td></tr>
+      <tr><td><code>price_pattern</code></td><td>enum</td><td>HIGHER_HIGH / LOWER_LOW</td><td>由 signal 的检测分支确定</td><td><span class="tag">派生</span></td></tr>
+      <tr><td><code>rsi_pattern</code></td><td>enum</td><td>LOWER_HIGH / HIGHER_LOW</td><td>由 signal 的检测分支确定</td><td><span class="tag">派生</span></td></tr>
+      <tr><td><code>rsi_gap</code></td><td>number</td><td>背离强度的正值</td><td>由两个 RSI 计算</td><td><span class="tag">派生</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>检测条件与排序</h2>
+  <pre><code>BEARISH:
+  recent_price_high &gt; prior_price_high
+  recent_rsi &lt; prior_rsi - 2
+  prior_rsi &gt;= 65
+  recent pivot occurred within last 5 sessions
+  rsi_gap = prior_rsi - recent_rsi
+
+BULLISH:
+  recent_price_low &lt; prior_price_low
+  recent_rsi &gt; prior_rsi + 2
+  prior_rsi &lt;= 35
+  recent pivot occurred within last 5 sessions
+  rsi_gap = recent_rsi - prior_rsi
+
+display selection:
+  target 5 bearish + 5 bullish
+  fill unused quota from the available side
+  within each side: rsi_gap DESC, then symbol ASC
+
+freshness:
+  3-day per-symbol cooldown
+
+row_id:
+  symbol | signal | recent_pivot_date</code></pre>
+
+  <h2>示例 Row</h2>
+  <pre><code class="language-json">{
+  "row_id": "divergence:NVDA:BEARISH:2026-08-04",
+  "rank": 1,
+  "instrument": {
+    "symbol": "NVDA",
+    "name": "NVIDIA Corporation",
+    "logo_url": null,
+    "market": "NASDAQ"
+  },
+  "signal": "BEARISH",
+  "price_pattern": "HIGHER_HIGH",
+  "rsi_pattern": "LOWER_HIGH",
+  "signal_price_usd": 182.4,
+  "rsi_period": 14,
+  "prior_rsi": 72.4,
+  "recent_rsi": 66.1,
+  "rsi_gap": 6.3,
+  "prior_pivot_date": "2026-07-18",
+  "recent_pivot_date": "2026-08-04",
+  "as_of_date": "2026-08-06"
+}</code></pre>
+</section>
+
+<!-- ═════════════ Chapter 08 ═════════════ -->
+<section class="chapter" id="delivery">
+  <div class="chapter-num">08 · Delivery Contract</div>
+  <h1>前后端边界、迁移与兼容</h1>
+
+  <p class="lead">最稳妥的实现不是让前端直接绑定旧 Feed 缩写，也不是在五个 JS 里复制 UI 逻辑；应在 Feed 与 GUI 之间增加一层版本化 Presentation Adapter，集中处理字段映射、计数、稳定 ID 和实体补全。</p>
+
+  <h2>推荐数据流</h2>
+  <pre><code>Automation JS
+  ├─ structured feed rows · top 100 retained
+  └─ notify/message · Slack / Telegram / text fallback
+
+Structured feed rows
+  → Screener Presentation Adapter · schema_version = 1
+  → Entity Resolver · ticker / company / politician
+  → ScreenerResultV1
+  → GUI Generic Table Block · top 10 initial rows
+  → Agent follow-up · cursor over retained rows</code></pre>
+
+  <h2>职责划分</h2>
+  <table class="striped">
+    <thead><tr><th>层</th><th>负责</th><th>不负责</th></tr></thead>
+    <tbody>
+      <tr><td>Automation JS</td><td>数据拉取、筛选、freshness、排序、Top 100 持久化、原始数值与日期</td><td>公司 Logo、列宽、颜色、货币缩写、GUI 文案</td></tr>
+      <tr><td>Presentation Adapter</td><td>旧字段到 Canonical 字段映射、Schema Version、counts、rank、row_id、缺失值规范化</td><td>视觉样式和响应式布局</td></tr>
+      <tr><td>Entity Resolver</td><td>symbol → 公司名 / Logo；politician_id → 人物资料</td><td>筛选和排序</td></tr>
+      <tr><td>Frontend</td><td>Preset 列配置、复合 Cell Renderer、格式化、Tooltip、空态、has_more 提示</td><td>重新计算金融指标、重新排序、解析通知 Markdown</td></tr>
+      <tr><td>Agent</td><td>用户继续追问时使用 cursor 读取 retained rows</td><td>凭自然语言猜测缺失字段</td></tr>
+    </tbody>
+  </table>
+
+  <h2>前端只需要七类 Cell Renderer</h2>
+  <table class="striped">
+    <thead><tr><th>Renderer</th><th>输入</th><th>用途</th><th>Fallback</th></tr></thead>
+    <tbody>
+      <tr><td><code>InstrumentCell</code></td><td><code>InstrumentRef</code></td><td>Logo + symbol + company name</td><td>无 Logo 时显示 symbol initials，不生成假图标</td></tr>
+      <tr><td><code>PersonCell</code></td><td><code>PersonRef</code> + owner_type</td><td>头像 + 姓名 + 身份副标题</td><td>无头像时显示姓名首字母</td></tr>
+      <tr><td><code>BadgeCell</code></td><td>enum + label map</td><td>BUY / SELL / CALL / PUT / BULLISH / BEARISH</td><td>未知枚举显示 — 并上报 contract error</td></tr>
+      <tr><td><code>MoneyCell</code></td><td>number / range</td><td>$32.40、$3.6M、$1K–$15K</td><td>null → —</td></tr>
+      <tr><td><code>PercentCell</code></td><td>number + sign policy</td><td>38.4%、+4.1%</td><td>null → —</td></tr>
+      <tr><td><code>RatioCell</code></td><td>number</td><td>2.8×、18×</td><td>null → —</td></tr>
+      <tr><td><code>DateMetaCell</code></td><td>date / datetime / duration</td><td>Aug 6、4 days、As of close</td><td>保留绝对日期，避免只显示相对时间</td></tr>
+    </tbody>
+  </table>
+
+  <h2>兼容策略</h2>
+  <ol>
+    <li><strong>不在原 Feed 中直接删除旧字段。</strong>现有 Automation 实例和历史数据仍可能包含 <code>sym</code>、<code>px</code>、<code>chgPct</code> 等字段。</li>
+    <li><strong>Adapter 先兼容旧 Row。</strong>将五种旧 Schema 映射到 <code>ScreenerResultV1</code>。</li>
+    <li><strong>JS 只补无法恢复的字段。</strong>例如 politician_id、settlement_date、pivot dates、reference high。</li>
+    <li><strong>新字段全部加 Contract Test。</strong>同一 Fixture 必须在 JS、Adapter 和 Frontend Snapshot 中得到相同显示。</li>
+    <li><strong>Schema 破坏性变化才升版本。</strong>增加 optional 字段不升版本；改变单位、公式或枚举语义必须升到 V2。</li>
+  </ol>
+
+  <h2>推荐实施批次</h2>
+  <table class="striped">
+    <thead><tr><th>批次</th><th>范围</th><th>完成标准</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 1 · Contract</td><td>冻结本文字段、单位、公式、列标题和示例 Fixture</td><td>产品、FE、BE 三方签字；不写 UI 猜测逻辑</td></tr>
+      <tr><td>Phase 2 · Backend</td><td>Adapter + Entity Resolver 接入 + 必要 JS 补字段</td><td>五个 Preset 均返回 V1；旧 Feed Fixture 可读</td></tr>
+      <tr><td>Phase 3 · Frontend</td><td>Generic Table Block + 七种 Cell Renderer</td><td>四张现有视觉稿可用真实字段复现；新增 Divergence</td></tr>
+      <tr><td>Phase 4 · Conversation</td><td>has_more / cursor / continued list</td><td>10 条首屏后继续追问能按原 rank 返回 11–100</td></tr>
+      <tr><td>Phase 5 · QA</td><td>Contract、Snapshot、空值、超限和响应式测试</td><td>无单位漂移、无伪 0、无前端重排</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═════════════ Chapter 09 ═════════════ -->
+<section class="chapter" id="qa">
+  <div class="chapter-num">09 · Acceptance &amp; Glossary</div>
+  <h1>验收清单与术语表</h1>
+
+  <p class="lead">验收重点不是「表格有没有画出来」，而是同一条结果从 Script、Feed、Adapter 到 GUI 的金融语义和排序是否完全一致。</p>
+
+  <h2>Contract 验收</h2>
+  <ul>
+    <li>五个 Preset 都返回 <code>schema_version=1</code>、稳定 <code>row_id</code> 与从 1 开始的 <code>rank</code>。</li>
+    <li><code>qualified_count</code>、<code>retained_count</code>、<code>displayed_count</code> 在 0、1、10、11、100、101 条边界值上正确。</li>
+    <li>初始 GUI 最多 10 条；后台最多保留 100 条；继续追问不改变原排序。</li>
+    <li>所有 money / percent / ratio 以数字返回；符号和缩写仅由前端格式化。</li>
+    <li>缺失 OI、days to cover、日期或实体资料时返回 null，不伪造成 0。</li>
+    <li>公司与人物补全失败不阻塞主结果；symbol / member name 仍能显示。</li>
+  </ul>
+
+  <h2>Preset 验收</h2>
+  <table class="striped">
+    <thead><tr><th>Preset</th><th>必须验证</th><th>禁止出现</th></tr></thead>
+    <tbody>
+      <tr><td>Congress</td><td>金额数字区间、自然日 filing delay、2 rows/member 只影响初始展示</td><td>把「4 days」解释成 filed 4 days ago</td></tr>
+      <tr><td>Options</td><td>Vol/OI 公式、OI=0 空值、1 contract/symbol</td><td>把 Vol/OI 标成 Vs avg vol</td></tr>
+      <tr><td>Short</td><td>latest settlement、change vs prior%、settlement meta</td><td>WoW、pt、缺失值回填 0</td></tr>
+      <tr><td>Breakout</td><td>prior 20 sessions、2× volume、reference high、streak</td><td>无来源的 Triggered minutes</td></tr>
+      <tr><td>Divergence</td><td>recent/prior pivot、方向公式、5:5 balance、3-day cooldown</td><td>把 pivot RSI 命名为 current RSI</td></tr>
+    </tbody>
+  </table>
+
+  <h2>术语表</h2>
+  <p><strong>Qualified</strong>：完成筛选、去重与 freshness 规则后仍合格的结果。</p>
+  <p><strong>Retained</strong>：为继续追问持久化的排序结果，当前硬顶 100。</p>
+  <p><strong>Displayed</strong>：本次 GUI Block 实际返回的行，初始硬顶 10。</p>
+  <p><strong>Open Interest · OI</strong>：仍未平仓的合约数量，不等同于平均成交量。</p>
+  <p><strong>Days to cover</strong>：Short interest 相对于平均日成交量的覆盖天数。</p>
+  <p><strong>Settlement date</strong>：Short-interest 数据所属结算日，不等同于 API 返回或通知发送日。</p>
+  <p><strong>Pivot</strong>：检测窗口内用于比较的价格 / RSI 局部极值点，不保证发生在当前 Session。</p>
+  <p><strong>Percentage point · pp</strong>：两个百分比直接相减所得的差；与百分比变化率不同。</p>
+
+  <h2>代码证据范围</h2>
+  <ul>
+    <li><code>internal/automation/automationflow/screener_preset.go</code> · 五个官方 Preset 注册。</li>
+    <li><code>scripts/screener/congress-trades.js</code> · who / sym / side / amounts / issuer / traded / filed。</li>
+    <li><code>scripts/screener/options-whales.js</code> · strike / type / exp / dayPrem / dayVol / oi。</li>
+    <li><code>scripts/screener/short-squeeze.js</code> · pctFloat / daysToCover / chgPct / settlement。</li>
+    <li><code>scripts/screener/breakout.js</code> · px / chgPct / volX / d / streak / hi20。</li>
+    <li><code>scripts/screener/divergence.js</code> · kind / px / rsiNow / rsiPrior 与背离筛选条件。</li>
+  </ul>
+
+  <div class="takeaway">
+    <div class="takeaway-label">Review decision required</div>
+    评审会上只需要先决定三件事：字段命名与单位是否冻结、五组列标题是否通过、缺失字段采用 JS 补充还是由上游实体 / 数据服务补充。三项确认后即可拆分后端 Adapter 与前端 Table Block 任务。
+  </div>
+</section>
+
+    <script src="/demo/_switcher.js" defer></script>
+  </body>
+</html>
