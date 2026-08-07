@@ -42,17 +42,11 @@ const SCOPED_CSS = `
 .pwl-bg-left{position:absolute;left:0;top:0;bottom:0;width:112.5px;background:#fff}
 .pwl-bg-grid{position:absolute;left:112px;top:0;right:0;bottom:0;
   background-image:
-    url('${import.meta.env.BASE_URL}watch-loop-bg.png'),
     linear-gradient(to left, rgba(73,163,166,0.02), rgba(73,163,166,0)),
-    repeating-linear-gradient(90deg, transparent 0 24.5px, var(--line-l05, rgba(0,0,0,0.05)) 24.5px 25px, transparent 25px 26.5px),
-    repeating-linear-gradient(180deg, transparent 0 26px, var(--line-l05, rgba(0,0,0,0.05)) 26px 26.5px);
-  background-size:818px 396px, auto, auto, auto;
-  background-position:left top;
-  background-repeat:no-repeat}
-  /* 底图 = 稿 12878:228549 导出(818×396,恰为桌面网格区实际尺寸,白底+渐变已烘入),
-     左上锚定、1x 原尺寸零缩放零裁剪;下面垫同相位的 CSS 网格+渐变(线距 26.5、竖线 +24.5 起、
-     横线 +26 起、渐变 m1 2%→0)——视口比图高/宽的部分(如 mweb)由它续上,过界不断线。
-     图不透明,覆盖区内不会与垫层叠加 */
+    repeating-linear-gradient(90deg, transparent 0 24.5px, var(--line-l07, rgba(0,0,0,0.07)) 24.5px 25px, transparent 25px 26.5px)}
+  /* 稿 13020:230034:网格只留竖线且升为 l07(横线组 visible:false),纯 CSS 画 —— 线距 26.5、
+     首条可见线离网格区左缘 +24.5(贴界条稿里 opacity 0 给 rail 让位,不画),左上锚定不随容器漂移;
+     渐变单独铺满(m1 2%→0,右→左)。只剩竖线后不再需要导出图 */
 /* rail —— 贯穿整个回放区(不再只连首末节点),同时充当白块与网格区的分界线(评审 15/16 条)。
    两层:track 常驻占位(线未扫到的地方也得有轨道,否则起始帧那一列是空的、读着发虚),
    line 是 l2 进度线,按 scaleY 从顶部往下生长——"线扫到哪"就是"巡检到哪" */

@@ -54,12 +54,16 @@ interface ScreenOption {
   prompt: string;
   /* 预览区大标题(接在 PREVIEW_TITLE_PREFIX 后);稿只给了 congress 一条,其余按同句式拟 */
   title: string;
+  /* 标题行右端的卡片级 meta — spec 给 short/breakout 指定了结算日 / 收盘口径,其余回落到稿上的运行时点 */
+  meta?: string;
   columns: Column[];
   /* 稿 12577:31181:表格 3 行(前 2 明文 + 第 3 行遮罩) */
   rows: [Cell[], Cell[], Cell[]];
 }
 
-/* congress — Figma 4605:13564:5 列,首列人像 + 党派;Type 标签、Amount 档位点为该 screen 专有 */
+/* congress — Figma 4605:13564:5 列,首列人像 + 党派;Trade 标签、Amount 档位点为该 screen 专有。
+   列名与格式按 spec congress-trades:Type → Trade、Filed after → Filing delay(自然日差,非"几天前申报"),
+   金额区间两端都带 $ */
 const CONGRESS: ScreenOption = {
   key: 'congress',
   prompt: 'Track what members of Congress just bought — weekdays 9:00 AM ET',
@@ -67,36 +71,38 @@ const CONGRESS: ScreenOption = {
   columns: [
     { label: 'Member', width: 280 },
     { label: 'Ticker' },
-    { label: 'Type', width: 100 },
+    { label: 'Trade', width: 100 },
     { label: 'Amount', align: 'right' },
-    { label: 'Filed after', align: 'right' },
+    { label: 'Filing delay', align: 'right' },
   ],
   rows: [
     [
       { kind: 'member', symbol: 'Sheldon Whitehouse', sub: 'D · Senate · RI', portrait: 'screener-sheldon-whitehouse.jpg' },
       { kind: 'ticker', ticker: 'NVDA' },
       { kind: 'badge', label: 'BUY' },
-      { kind: 'dots', text: '$1K–15K', filled: 1 },
+      { kind: 'dots', text: '$1K–$15K', filled: 1 },
       { kind: 'text', text: '4 days' },
     ],
     [
       { kind: 'member', symbol: 'Pete Sessions', sub: 'R · House · TX-17', portrait: 'screener-pete-sessions.jpg' },
       { kind: 'ticker', ticker: 'ORCL' },
       { kind: 'badge', label: 'BUY' },
-      { kind: 'dots', text: '$1K–15K', filled: 1 },
+      { kind: 'dots', text: '$1K–$15K', filled: 1 },
       { kind: 'text', text: '4 days' },
     ],
     [
       { kind: 'member', symbol: 'Adrian Smith', sub: 'R · House · NE-3', portrait: 'screener-adrian-smith.jpg' },
       { kind: 'ticker', ticker: 'RKLB' },
       { kind: 'badge', label: 'BUY' },
-      { kind: 'dots', text: '$15K–50K', filled: 2 },
+      { kind: 'dots', text: '$15K–$50K', filled: 2 },
       { kind: 'text', text: '1 day' },
     ],
   ],
 };
 
-/* options — Figma 12555:79555:4 列,Contract 为 Calls(m3)/Puts(m4) 标签 + 行权;Vs avg vol 走 m1 */
+/* options — Figma 12555:79555:4 列,Contract 为 CALL(m3)/PUT(m4) 标签 + 行权;比值列走 n9(稿已从 m1 改回)。
+   列名与枚举按 spec options-whales:Premium → Premium traded、Vs avg vol → Vol / OI(成交量 ÷ OI,
+   脚本没有均量字段)、Calls/Puts → CALL/PUT */
 const OPTIONS: ScreenOption = {
   key: 'options',
   prompt: "See today's biggest unusual options bets — weekdays at 5:15 PM ET",
@@ -104,93 +110,99 @@ const OPTIONS: ScreenOption = {
   columns: [
     { label: 'Ticker', width: 280 },
     { label: 'Contract' },
-    { label: 'Premium', align: 'right' },
-    { label: 'Vs avg vol', align: 'right' },
+    { label: 'Premium traded', align: 'right' },
+    { label: 'Vol / OI', align: 'right' },
   ],
   rows: [
     [
       { kind: 'member', symbol: 'MSFT', sub: 'Microsoft Corporation' },
-      { kind: 'tagText', tag: 'Calls', text: '$520 · Oct 17' },
+      { kind: 'tagText', tag: 'CALL', text: '$520 · Oct 17' },
       { kind: 'text', text: '$3.6M' },
-      { kind: 'text', text: '18×', color: M1 },
+      { kind: 'text', text: '18×' },
     ],
     [
       { kind: 'member', symbol: 'TSLA', sub: 'Tesla, Inc.' },
-      { kind: 'tagText', tag: 'Puts', bearish: true, text: '$300 · Sep 19' },
+      { kind: 'tagText', tag: 'PUT', bearish: true, text: '$300 · Sep 19' },
       { kind: 'text', text: '$2.8M' },
-      { kind: 'text', text: '21×', color: M1 },
+      { kind: 'text', text: '21×' },
     ],
     [
-      { kind: 'member', symbol: 'AMD', sub: 'Advanced Micro Devices, Inc.' },
-      { kind: 'tagText', tag: 'Calls', text: '$175 · Aug 29' },
-      { kind: 'text', text: '$1.9M' },
-      { kind: 'text', text: '26×', color: M1 },
+      { kind: 'member', symbol: 'COIN', sub: 'Coinbase Global, Inc.' },
+      { kind: 'tagText', tag: 'PUT', bearish: true, text: '$220 · Sep 5' },
+      { kind: 'text', text: '$1.4M' },
+      { kind: 'text', text: '12×' },
     ],
   ],
 };
 
-/* shorted — Figma 12555:79623:Short % 列固定 210(进度条 48×4 + 数值);WoW 增(+)走 m4、减(−)走 n5 */
+/* shorted — Figma 12555:79623:Short float 列固定 210(进度条 48×4 + 数值);变化值三行都走 m4(空头走高即偏空)。
+   列名与单位按 spec short-squeeze:Short % of float → Short float、WoW → Change vs prior,
+   数值是空头数量相对上一结算期的百分比变化(%),不是百分点(pt);结算日进 meta */
 const SHORTED: ScreenOption = {
   key: 'shorted',
   prompt: "Track the market's most heavily shorted stocks — when new short data lands",
   title: 'Most Heavily Shorted Stocks',
+  meta: 'Settlement: Jul 31',
   columns: [
     { label: 'Ticker', width: 280 },
-    { label: 'Short % of float', width: 210 },
-    { label: 'WoW', align: 'right' },
+    { label: 'Short float', width: 210 },
+    { label: 'Change vs prior', align: 'right' },
     { label: 'Days to cover', align: 'right' },
   ],
   rows: [
     [
       { kind: 'member', symbol: 'OPEN', sub: 'Opendoor Technologies, Inc.' },
       { kind: 'meter', pct: 38.4, text: '38.4%' },
-      { kind: 'text', text: '+2.6 pt', color: M4 },
+      { kind: 'text', text: '+2.6%', color: M4 },
       { kind: 'text', text: '2.9 d' },
     ],
     [
       { kind: 'member', symbol: 'CLSK', sub: 'CleanSpark, Inc.' },
       { kind: 'meter', pct: 31.7, text: '31.7%' },
-      { kind: 'text', text: '+1.4 pt', color: M4 },
+      { kind: 'text', text: '+1.4%', color: M4 },
       { kind: 'text', text: '4.6 d' },
     ],
     [
-      { kind: 'member', symbol: 'MARA', sub: 'Marathon Digital Holdings' },
-      { kind: 'meter', pct: 27.3, text: '27.3%' },
-      { kind: 'text', text: '−0.8 pt', color: N5 },
-      { kind: 'text', text: '5.4 d' },
+      { kind: 'member', symbol: 'AI', sub: 'C3.ai, Inc.' },
+      { kind: 'meter', pct: 24.5, text: '24.5%' },
+      { kind: 'text', text: '+0.6%', color: M4 },
+      { kind: 'text', text: '3.1 d' },
     ],
   ],
 };
 
-/* breakouts — 稿未出图,沿用 options/shorted 的统一列型外推 */
+/* breakouts — 稿未出图,沿用 options/shorted 的统一列型外推。
+   列名与格式按 spec breakout:1-mo → 20D HIGH(脚本窗口就是前 20 个交易日)、Vs avg vol → Vol vs 20D avg;
+   Triggered 分钟数是脚本里不存在的字段,删掉换成 Day change(相对前收涨跌幅);日线收盘口径进 meta */
 const BREAKOUTS: ScreenOption = {
   key: 'breakouts',
   prompt: 'Find breakouts to one-month highs on double the usual volume — weekdays 4:30 PM ET',
   title: 'Breakouts to One-Month Highs',
+  meta: 'As of Aug 6 close',
   columns: [
     { label: 'Ticker', width: 280 },
     { label: 'Breakout' },
-    { label: 'Vs avg vol', align: 'right' },
-    { label: 'Triggered', align: 'right' },
+    { label: 'Vol vs 20D avg', align: 'right' },
+    { label: 'Day change', align: 'right' },
   ],
   rows: [
     [
       { kind: 'member', symbol: 'RKLB', sub: 'Rocket Lab USA, Inc.' },
-      { kind: 'tagText', tag: 'High', text: '$32.4 · 1-mo' },
-      { kind: 'text', text: '2.8×', color: M1 },
-      { kind: 'text', text: '18 min' },
+      { kind: 'tagText', tag: '20D HIGH', text: '$32.40' },
+      { kind: 'text', text: '2.8×' },
+      { kind: 'text', text: '+4.1%', color: M3 },
     ],
     [
       { kind: 'member', symbol: 'MU', sub: 'Micron Technology, Inc.' },
-      { kind: 'tagText', tag: 'High', text: '$142.8 · 1-mo' },
-      { kind: 'text', text: '2.3×', color: M1 },
-      { kind: 'text', text: '31 min' },
+      { kind: 'tagText', tag: '20D HIGH', text: '$142.80' },
+      { kind: 'text', text: '2.3×' },
+      { kind: 'text', text: '+3.4%', color: M3 },
     ],
     [
       { kind: 'member', symbol: 'HOOD', sub: 'Robinhood Markets, Inc.' },
-      { kind: 'tagText', tag: 'High', text: '$98.1 · 1-mo' },
-      { kind: 'text', text: '2.2×', color: M1 },
-      { kind: 'text', text: '43 min' },
+      { kind: 'tagText', tag: '20D HIGH', text: '$98.10' },
+      { kind: 'text', text: '2.2×' },
+      { kind: 'text', text: '+2.9%', color: M3 },
     ],
   ],
 };
@@ -324,11 +336,11 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
               <p className="min-w-0 flex-1" style={textStyle(20, 30, N9)}>
                 {PREVIEW_TITLE_PREFIX}{screen.title}
               </p>
-              <span className="shrink-0 whitespace-nowrap text-right" style={textStyle(14, 22, N5)}>{PREVIEW_TIMESTAMP}</span>
+              <span className="shrink-0 whitespace-nowrap text-right" style={textStyle(14, 22, N5)}>{screen.meta ?? PREVIEW_TIMESTAMP}</span>
             </div>
 
             {/* 描边取 l12(而非稿上的 l2),与 portfolio 卡里的 ping 卡对齐 */}
-            <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_8px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L12}`, borderLeft: `0.5px solid ${L12}`, borderRight: `0.5px solid ${L12}` }}>
+            <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_15px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L12}`, borderLeft: `0.5px solid ${L12}`, borderRight: `0.5px solid ${L12}` }}>
               <div className="flex w-full items-center gap-[20px] overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
                 {screen.columns.map((column) => (
                   <ColumnCell key={column.label} column={column}>
