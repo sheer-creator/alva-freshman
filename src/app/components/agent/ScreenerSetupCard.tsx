@@ -27,6 +27,8 @@ const STATUS_DOT_RING = '#dbeded';
 
 /* 预览区大标题前缀 — 稿 12719:30992「Screener · What Congress Just Bought」 */
 const PREVIEW_TITLE_PREFIX = 'Screener · ';
+/* 数据时点 — 稿 12993:229377 只给了一条,四个 screen 共用(不随选中项变) */
+const PREVIEW_TIMESTAMP = 'May 8, 12:00 PM';
 
 export type ScreenKey = 'congress' | 'options' | 'shorted' | 'breakouts';
 
@@ -313,7 +315,8 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
               />
             </div>
 
-            {/* 标题行 — 稿 12719:30990:gap10;Tag/Status Dot 20(外圈 #DBEDED + 内点 inset28.6% m1)+ Regular 20/30 n9,左对齐 */}
+            {/* 标题行 — 稿 12719:30990:gap10;Tag/Status Dot 20(外圈 #DBEDED + 内点 inset28.6% m1)
+                + Regular 20/30 n9 标题 + 右端 Regular 14/22 n5 数据时点 */}
             <div className="relative flex w-full shrink-0 items-center gap-[10px]">
               <span aria-hidden="true" className="relative size-[20px] shrink-0 rounded-full" style={{ background: STATUS_DOT_RING }}>
                 <span className="absolute inset-[28.6%] rounded-full" style={{ background: M1 }} />
@@ -321,6 +324,7 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
               <p className="min-w-0 flex-1" style={textStyle(20, 30, N9)}>
                 {PREVIEW_TITLE_PREFIX}{screen.title}
               </p>
+              <span className="shrink-0 whitespace-nowrap text-right" style={textStyle(14, 22, N5)}>{PREVIEW_TIMESTAMP}</span>
             </div>
 
             {/* 描边取 l12(而非稿上的 l2),与 portfolio 卡里的 ping 卡对齐 */}
@@ -344,9 +348,9 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
                     <ResultRow key={`${selected}-locked-${index}`} columns={screen.columns} cells={cells} divider={false} />
                   ))}
                 </div>
-                {/* Mask — 稿:h52 铺满末行,横排 gap8;32px br05 圆底 + 18px 锁(asset fill black/0.9 → n9) + 14 n5 文案 */}
+                {/* Mask — 稿:h52 铺满末行,横排 gap8;32px 圆底(白 + 0.5px l2 描边)+ 18px 锁(asset fill black/0.9 → n9) + 14 n5 文案 */}
                 <div className="absolute inset-0 flex items-center justify-center gap-[8px] bg-[rgba(255,255,255,0.85)] backdrop-blur-[3px]">
-                  <span className="flex size-[32px] shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--b-r05, rgba(0,0,0,0.05))' }}>
+                  <span className="flex size-[32px] shrink-0 items-center justify-center rounded-full bg-white" style={{ border: `0.5px solid ${L2}` }}>
                     <CdnIcon name="locked-l" size={18} color={N9} />
                   </span>
                   <span className="whitespace-nowrap" style={textStyle(14, 22, N5)}>8 more — run to reveal</span>
