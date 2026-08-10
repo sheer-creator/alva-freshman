@@ -15,11 +15,19 @@ export interface Channel {
 /** 预置演示频道（Figma 10998:50677 alva-to-the-moon）— 聊天区/tab 计数在 AgentNewSession 按 seeded 分支渲染 */
 export const SEED_CHANNEL_ID = 'ch-alva-to-the-moon';
 
+/** 预置 playbook onboard 演示频道（Figma 4723:723 Paid Card · G Scoreboard）— 开场为付费 playbook 引导卡 */
+export const SPACE_CHANNEL_ID = 'ch-test-space-investor';
+
 let channels: Channel[] = [
   {
     id: SEED_CHANNEL_ID,
     name: 'alva-to-the-moon',
     description: 'Your AI investing agent. Ask me to research markets, build live Playbooks, or set up automations that watch the market for you.',
+  },
+  {
+    id: SPACE_CHANNEL_ID,
+    name: 'test-space-investor',
+    description: "Space Investor's paid playbook — every post decoded into a call and scored against ARKX in the same window.",
   },
 ];
 let currentId: string | null = null; // null = 默认 Alva Agent

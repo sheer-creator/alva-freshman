@@ -27,7 +27,8 @@ import { setPortfolioWatchEnabled } from '@/lib/portfolio-watch';
 import { ChannelSeedThread } from '@/app/components/agent/ChannelSeedThread';
 import { EMPTY_PROMPTS, EmptyPromptPill } from '@/app/components/chat/PlaybookSuggestions';
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
-import { SEED_CHANNEL_ID, channelsStore } from '@/app/state/channels';
+import { SEED_CHANNEL_ID, SPACE_CHANNEL_ID, channelsStore } from '@/app/state/channels';
+import { SpaceInvestorScoreboardCard } from '@/app/components/agent/SpaceInvestorScoreboardCard';
 import { EditChannelModal } from '@/app/components/shared/EditChannelModal';
 import { MsgHoverActions, SelectCheckbox, SelectableMessage } from '@/app/components/share/SelectableMessage';
 import { ShareImagePreview } from '@/app/components/share/ShareImagePreview';
@@ -731,6 +732,8 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const connected = Object.values(imLinks).some(Boolean);
   /* 预置演示频道（alva-to-the-moon）：聊天区显示预置对话（Figma 10998:50677），tabs 直接用连接后的产出 */
   const seeded = channel?.id === SEED_CHANNEL_ID;
+  /* playbook onboard 演示频道 — 开场换成付费 playbook 引导(问候语 + G Scoreboard 卡),其余会话行为与普通频道一致 */
+  const spaceOnboard = channel?.id === SPACE_CHANNEL_ID;
   const shareableMessages = [
     ...(seeded ? CHANNEL_SEED_SHARE_MESSAGES : []),
     ...extra.map(extraToShareMessage).filter((message): message is ConversationShareMessage => message !== null),
@@ -1208,14 +1211,25 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
               {/* 开场恒为 onboard 引导（不随连接切换也不随会话开始收起）:点击入口后卡片保留在流里,交互一直在下方追加 */}
               {!seeded && (
               <MsgIn>
-              <AgentMsg time="now" portrait={channel ? <ChannelPortrait size={22} /> : undefined} name={channel ? channel.name : undefined}>
+              {/* 回复主体恒为 Alva（频道身份只在页头）— 与 alva-to-the-moon 预置对话一致 */}
+              <AgentMsg time="now">
+                {spaceOnboard ? (
+                  <div>
+                    <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Hey, I'm Alva — welcome to Space Investor's playbook.</p>
+                    <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                      Every @SpaceInvestor_D post becomes a scored call, tracked against ARKX — no cherry-picking. Here's the live scoreboard.
+                    </p>
+                  </div>
+                ) : (
                 <div>
                   <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>Hey, I'm Alva, your AI investing agent.</p>
                   <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
                     Ask me for market research, or set up live automations to watch your portfolio, tickers, and market voices. Pick what you want me to help with first.
                   </p>
                 </div>
-                {/* Onboard Card/Default — Figma 9428:49614:3 行引导,行间分隔线,尾部箭头 */}
+                )}
+                {/* Onboard Card — spaceOnboard 换 G Scoreboard 付费卡;默认 Figma 9428:49614:引导行 + 行间分隔线 + 尾部箭头 */}
+                {spaceOnboard ? <SpaceInvestorScoreboardCard /> : (
                 <div className="flex w-full flex-col overflow-hidden rounded-[8px]" style={{ border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))' }}>
                   {ONBOARD_CARDS.map((c, i, arr) => (
                     <button
@@ -1239,6 +1253,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     </button>
                   ))}
                 </div>
+                )}
               </AgentMsg>
               </MsgIn>
               )}
