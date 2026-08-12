@@ -67,22 +67,22 @@ const PRESETS: Preset[] = [
   },
   {
     id: 'alpha-radar',
-    name: 'Track X, news & technicals for alpha',
+    name: 'Track people, news, podcasts & earnings',
     shortName: 'Alpha Radar',
-    description: 'See where market voices, fresh news, and chart evidence line up before the story gets crowded.',
+    description: 'See where market voices, fresh news, podcasts, and company updates line up before the story gets crowded.',
     icon: 'pulse',
     tone: 'amber',
     sampleTitle: 'AI memory setup just moved from thesis to trade',
-    sampleSummary: 'Three independent signals now point the same way on MU: supply tightness, rising conviction, and a clean technical trigger.',
+    sampleSummary: 'Three independent signals now point the same way on MU: supply discipline, rising conviction, and management guidance.',
     sampleTime: 'Today · 8:00 AM ET',
     evidence: [
       { icon: 'search', source: 'News', text: 'Micron broke ground on a $9B Japan fab expansion.' },
-      { icon: 'chat', source: 'X voices', text: '4 of 7 tracked investors raised conviction in the memory cycle.' },
-      { icon: 'trend', source: 'Technical', text: 'Golden cross confirmed; volume reached 1.3× the 20-day average.' },
+      { icon: 'chat', source: 'People', text: '4 of 7 tracked investors raised conviction in the memory cycle.' },
+      { icon: 'trend', source: 'Earnings call', text: 'Management kept supply additions disciplined while AI demand accelerated.' },
     ],
     focusLabel: 'Themes to track',
     focusValues: ['AI memory', 'Semiconductors', 'Data centers'],
-    sourceValues: ['X voices', 'Market news', 'Technical setups'],
+    sourceValues: ['People', 'Market news', 'Podcasts', 'Earnings calls'],
     cadence: 'Daily at 8:00 AM ET',
   },
   {
@@ -134,8 +134,8 @@ const PREVIEW_EXTRA_EXAMPLES: Record<PresetId, PreviewExample[]> = {
       title: 'NVDA demand strengthened before price reacted',
       summary: 'Supply-chain commentary and tracked investors moved together while the stock held its range.',
       evidence: [
-        { source: 'X voices', text: '5 tracked investors increased AI infrastructure exposure.' },
-        { source: 'Technical', text: 'Price held the 20-day average on declining sell volume.' },
+        { source: 'People', text: '5 tracked investors increased AI infrastructure exposure.' },
+        { source: 'Podcast', text: 'Supply-chain guests raised the 2027 demand floor for accelerated compute.' },
       ],
     },
     {
@@ -1063,7 +1063,6 @@ export default function OnboardingPreviewDemo() {
     setPresetId(next);
     setDeepLink(variant, next);
   };
-
   return (
     <div className="onboarding-preview-demo" style={{ fontFamily: FONT }}>
       <DemoNavigator
