@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="leozhou" />
-    <title>Automation Onboarding Preview</title>
+    <title>Alpha Radar · Conversion Experiments</title>
     <style>
       html,
       body {
@@ -36,19 +36,18 @@
   </head>
   <body>
     <p class="demo-summary">
-      Five interactive approaches for previewing and activating an Automation preset.
+      Standalone Alpha Radar conversion experiments for a three-day Pro pass, a $1.99 introductory month, a Credits-to-Pro upgrade, and native Telegram or Discord messages.
     </p>
-    <iframe id="demo-frame" title="Automation onboarding preview demo"></iframe>
+    <iframe id="demo-frame" title="Alpha Radar conversion experiments"></iframe>
     <script>
-      const allowedPreviews = new Set(['inline', 'value-card', 'conversation', 'channel', 'stream']);
-      const allowedPresets = new Set(['portfolio-watch', 'alpha-radar', 'smart-screener']);
+      const allowedStages = new Set(['onboarding', 'day-1', 'ending-soon', 'final', 'paused']);
       const params = new URLSearchParams(window.location.search);
-      const preview = allowedPreviews.has(params.get('preview')) ? params.get('preview') : 'stream';
-      const preset = allowedPresets.has(params.get('preset')) ? params.get('preset') : 'alpha-radar';
+      const stage = allowedStages.has(params.get('stage')) ? params.get('stage') : 'onboarding';
+      const plan = params.get('plan') === 'intro' || params.get('plan') === 'credits' || params.get('plan') === 'im' ? params.get('plan') : 'pass';
       const appUrl = new URL('../', window.location.href);
-      appUrl.hash = `agent?preview=${preview}&preset=${preset}`;
+      appUrl.hash = `agent?preview=alpha-radar-pro-pass&plan=${plan}&stage=${stage}`;
       document.getElementById('demo-frame').src = appUrl.toString();
     </script>
-      <script src="/demo/_switcher.js" defer></script>
+    <script src="/demo/_switcher.js" defer></script>
   </body>
 </html>

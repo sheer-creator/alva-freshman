@@ -7,6 +7,7 @@ import { useChannels } from '@/app/state/channels';
 
 const FONT = "font-['Delight',sans-serif]";
 const OnboardingPreviewDemo = lazy(() => import('@/app/components/agent/OnboardingPreviewDemo'));
+const AlphaRadarProPassDemo = lazy(() => import('@/app/components/agent/AlphaRadarProPassDemo'));
 
 /* ── Playbook feed preview (mock data; component wired but not yet mounted) ── */
 type FeedPreviewStatus = 'pushed' | 'skipped';
@@ -225,14 +226,18 @@ export function PlaybookFeedPreview({
 /* ── Alva Agent (Design) — 新版设计，与远程旧版 agent 页并存 ── */
 export default function AgentDesign({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const { current } = useChannels();
-  const showOnboardingPreview = new URLSearchParams(
-    window.location.hash.split('?')[1] ?? '',
-  ).has('preview');
+  const preview = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('preview');
+  const showOnboardingPreview = Boolean(preview);
+  const showProPassPreview = preview === 'alpha-radar-pro-pass' || preview === 'pro-trial';
 
   return (
     <AppShell activePage="agent" onNavigate={onNavigate}>
       <div className="h-screen flex flex-col bg-white">
-        {showOnboardingPreview ? (
+        {showProPassPreview ? (
+          <Suspense fallback={null}>
+            <AlphaRadarProPassDemo />
+          </Suspense>
+        ) : showOnboardingPreview ? (
           <Suspense fallback={null}>
             <OnboardingPreviewDemo />
           </Suspense>
