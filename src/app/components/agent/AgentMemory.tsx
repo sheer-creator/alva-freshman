@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
+import { useSetupChecklistState } from '@/app/state/setup-checklist';
 
 const FONT = "'Delight', sans-serif";
 
@@ -338,6 +339,7 @@ function TreeRows({
 /* ========== 主组件 ========== */
 
 export function AgentMemory() {
+  const setup = useSetupChecklistState();
   const [activeId, setActiveId] = useState(MEMORY_FILES[0].id);
   /* 文件夹展开态(key = depth/index/name),默认全部展开 */
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -347,7 +349,10 @@ export function AgentMemory() {
   const [draft, setDraft] = useState<string | null>(null);
 
   const active = MEMORY_FILES.find((f) => f.id === activeId) ?? MEMORY_FILES[0];
-  const activeContent = contents[active.id] ?? active.content;
+  const savedContent = contents[active.id] ?? active.content;
+  const activeContent = active.id === 'user' && setup.userMemory && !contents[active.id]
+    ? `${savedContent}\n\n### What you told Alva\n\n- ${setup.userMemory}`
+    : savedContent;
   const editing = draft !== null;
 
   const selectFile = (id: string) => {

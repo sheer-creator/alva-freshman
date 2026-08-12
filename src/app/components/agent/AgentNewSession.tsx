@@ -39,6 +39,12 @@ import {
   saveConversationShare,
   type ConversationShareMessage,
 } from '@/app/components/share/conversation-share';
+import {
+  completeSetupTask,
+  getSetupChecklistState,
+  useSetupChecklistState,
+  type SetupTaskId,
+} from '@/app/state/setup-checklist';
 
 const FONT = "'Delight', sans-serif";
 
@@ -623,6 +629,23 @@ type ExtraMsg =
 const TICKER_ASK_TEXT = 'This skill gives any stock or coin a quick tape read: current state, key levels, what invalidates the setup, and near-term catalysts — short, sourced, no buy or sell advice. Pick a ticker below, or type any symbol.';
 const SCREENER_REC_TEXT = "Grab a screen below, or tell me what you're looking for. I'll run it across the whole market and flag every new name that qualifies.";
 const IM_REC_TEXT = "One more thing — this agent only lives on the Web right now. Connect Telegram or Discord and every push lands in your DM the moment it fires.";
+const MEMORY_SETUP_PROMPT = 'Ask me a few questions, one at a time, to personalize Alva.';
+const MEMORY_SETUP_QUESTIONS = [
+  "We'll cover what has your attention, how you make a call, and what you want from me. Answer as much or as little as you like — say “skip” anytime, or take the conversation wherever it's useful.\n\nFirst: what markets, themes, or companies have your attention right now?",
+  'When something catches your eye, what usually earns your conviction — fundamentals, price action, catalysts, people you trust, or something else?',
+  'Last one: how do you want me to show up for you — quick conclusions, deeper evidence, proactive alerts, or a mix?',
+] as const;
+const MEMORY_SETUP_PLACEHOLDERS = [
+  'Share what has your attention — or type “skip”…',
+  'Tell me what builds conviction — or type “skip”…',
+  'Tell me how you like updates — or type “skip”…',
+] as const;
+const MEMORY_SETUP_LABELS = ['Current interests', 'Decision style', 'Preferred communication'] as const;
+type MemoryInterviewStep = 0 | 1 | 2 | 3;
+
+function isSkippedMemoryAnswer(answer: string): boolean {
+  return /^(skip|pass|跳过|略过)[.!。]?$/i.test(answer.trim());
+}
 
 function shareDateForToday(): string {
   return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date());
@@ -696,11 +719,15 @@ function getAgentFlow(): AgentFlow | null {
 
 export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Page) => void; channel?: { id: string; name: string; description?: string } | null }) {
   const base = import.meta.env.BASE_URL;
+  const setup = useSetupChecklistState();
   const [tab, setTab] = useState('chat');
   const [extra, setExtra] = useState<ExtraMsg[]>([]);
-  const [imLinks, setImLinks] = useState<Record<string, boolean>>({});
+  const [imLinks, setImLinks] = useState<Record<string, boolean>>(() => {
+    const connectedImId = getSetupChecklistState().connectedImId;
+    return connectedImId ? { [connectedImId]: true } : {};
+  });
   /* 谁接收 IM 推送 — 单 active channel,绑定/解绑随动(spec: 解绑 active 回退最早绑定) */
-  const [imActive, setImActive] = useState<string | null>(null);
+  const [imActive, setImActive] = useState<string | null>(() => getSetupChecklistState().connectedImId);
   const [imModalOpen, setImModalOpen] = useState(false);
   /* Broker 绑定 — 用户级全局(与 IM 同理,跨频道不重置);未连接走 Connect Portfolio → 复用 Portfolio 绑定流程 */
   const [connectedBroker, setConnectedBroker] = useState<ConnectedBrokerInfo | null>(null);
@@ -726,6 +753,10 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
   const stickToEndRef = useRef(false);
   /* 会话代际:重置(点 Chat tab / 切频道)时 +1,悬挂中的 setTimeout 回复按代际作废,不会在新会话里凭空冒出 */
   const sessionEpochRef = useRef(0);
+  const setupLaunchRef = useRef<{ task: SetupTaskId; version: number } | null>(null);
+  const [memoryInterviewStep, setMemoryInterviewStep] = useState<MemoryInterviewStep>(0);
+  const memoryInterviewStepRef = useRef<MemoryInterviewStep>(0);
+  const memoryAnswersRef = useRef<string[]>([]);
 
   const activeIm = imActive ? IMS.find((i) => i.id === imActive) ?? null : null;
   /* 是否连过 IM（驱动 imrec 软推荐是否出现 + Tasks/Files 是否点亮）；不再影响开场 onboard 视图 */
@@ -815,6 +846,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     setShareImageOpen(false);
     imRecShownRef.current = false;
     stickToEndRef.current = false;
+    memoryInterviewStepRef.current = 0;
+    memoryAnswersRef.current = [];
+    setMemoryInterviewStep(0);
   }, []);
 
   /* 切换频道（含默认 Alva Agent）时，视图与会话产出回到该频道的空态 onboard；
@@ -891,12 +925,70 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     }, 1000);
   }, [scrollToEnd]);
 
+  const advanceMemoryInterview = useCallback((userText: string) => {
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    const currentStep = memoryInterviewStepRef.current || 1;
+    const nextAnswers = [...memoryAnswersRef.current, userText];
+    memoryAnswersRef.current = nextAnswers;
+    const userId = ++idRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, { id: userId, role: 'user', text: userText }, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+
+      if (currentStep < MEMORY_SETUP_QUESTIONS.length) {
+        const nextStep = (currentStep + 1) as MemoryInterviewStep;
+        const nextQuestion = MEMORY_SETUP_QUESTIONS[currentStep as 1 | 2];
+        memoryInterviewStepRef.current = nextStep;
+        setMemoryInterviewStep(nextStep);
+        const bridge = isSkippedMemoryAnswer(userText) ? 'No problem.' : currentStep === 1 ? 'Got it.' : 'Makes sense.';
+        setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({
+          id: ++idRef.current,
+          role: 'answer',
+          text: `${bridge} ${nextQuestion}`,
+        }));
+        scrollToEnd();
+        return;
+      }
+
+      const savedAnswers = nextAnswers
+        .slice(0, MEMORY_SETUP_LABELS.length)
+        .map((answer, index) => isSkippedMemoryAnswer(answer) ? null : `${MEMORY_SETUP_LABELS[index]}: ${answer}`)
+        .filter((answer): answer is string => answer !== null);
+
+      memoryInterviewStepRef.current = 0;
+      setMemoryInterviewStep(0);
+      if (savedAnswers.length > 0) {
+        completeSetupTask('memory', { userMemory: savedAnswers.join('\n- ') });
+      } else {
+        completeSetupTask('memory');
+      }
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({
+        id: ++idRef.current,
+        role: 'answer',
+        text: savedAnswers.length > 0
+          ? "Perfect. I've got a useful starting point and saved the essentials to User.md. We can keep refining it as we work — nothing here is set in stone."
+          : "All good — we'll learn this naturally as we work together. You can add anything later from Memory.",
+      }));
+      scrollToEnd();
+    }, 700);
+  }, [scrollToEnd]);
+
   const onPrompt = useCallback((text: string) => {
+    if (getSetupChecklistState().activeTask === 'memory') {
+      advanceMemoryInterview(text.trim());
+      return;
+    }
     const tickers = parseTickers(text);
-    if (tickers) { respondTicker(text, tickers); return; }
-    const kind: 'playbook' | 'automation' = /screen|alert|monitor|watch|what if/i.test(text) ? 'automation' : 'playbook';
-    respond(text, kind, kind === 'automation' ? 'Automation: Smart Screener' : `Build: ${text.slice(0, 42)}…`);
-  }, [respond, respondTicker]);
+    if (tickers) {
+      respondTicker(text, tickers);
+    } else {
+      const kind: 'playbook' | 'automation' = /screen|alert|monitor|watch|what if/i.test(text) ? 'automation' : 'playbook';
+      respond(text, kind, kind === 'automation' ? 'Automation: Smart Screener' : `Build: ${text.slice(0, 42)}…`);
+    }
+  }, [advanceMemoryInterview, respond, respondTicker]);
 
   /* Onboard「Get a quick read on any ticker」→ 发出带 Ticker Read 引用的消息,回复 skill 介绍 + 热门标的选项卡 */
   const startTickerRead = useCallback((userText: string) => {
@@ -929,6 +1021,45 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
       scrollToEnd();
     }, 1000);
   }, [scrollToEnd]);
+
+  const startMemorySetup = useCallback(() => {
+    setTab('chat');
+    const epoch = sessionEpochRef.current;
+    memoryAnswersRef.current = [];
+    memoryInterviewStepRef.current = 1;
+    setMemoryInterviewStep(1);
+    const userId = ++idRef.current;
+    const typingId = ++idRef.current;
+    setExtra((prev) => [...prev, { id: userId, role: 'user', text: MEMORY_SETUP_PROMPT }, { id: typingId, role: 'typing' }]);
+    scrollToEnd();
+    setTimeout(() => {
+      if (sessionEpochRef.current !== epoch) return;
+      setExtra((prev) => prev.filter((m) => m.id !== typingId).concat({ id: ++idRef.current, role: 'answer', text: MEMORY_SETUP_QUESTIONS[0] }));
+      scrollToEnd();
+    }, 650);
+  }, [scrollToEnd]);
+
+  useEffect(() => {
+    if (!setup.activeTask) {
+      setupLaunchRef.current = null;
+      return;
+    }
+    if (channel?.id) return;
+    if (
+      setupLaunchRef.current?.task === setup.activeTask
+      && setupLaunchRef.current.version === setup.launchVersion
+    ) return;
+
+    setupLaunchRef.current = { task: setup.activeTask, version: setup.launchVersion };
+    if (setup.activeTask === 'chat-app') {
+      setTab('chat');
+      setImModalOpen(true);
+    } else if (setup.activeTask === 'automation') {
+      startScreener();
+    } else if (setup.activeTask === 'memory') {
+      startMemorySetup();
+    }
+  }, [channel?.id, setup.activeTask, setup.launchVersion, startMemorySetup, startScreener]);
 
 
   /* Onboard「Watch your portfolio 24/7」→ 直接回两步卡(回放 → 配置)。
@@ -996,6 +1127,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
      再建 screener automation（同 preset 去重）+ Alva 确认回复；setup 卡留在流里可换 preset 再 run */
   const onRunScreen = useCallback((key: ScreenKey, prompt: string) => {
     setSessionAlerts((prev) => (prev.some((alert) => alert.id === SCREENER_ALERTS[key].id) ? prev : [...prev, SCREENER_ALERTS[key]]));
+    if (getSetupChecklistState().activeTask === 'automation') {
+      completeSetupTask('automation', { automationId: SCREENER_ALERTS[key].id });
+    }
     setTab('chat');
     const epoch = sessionEpochRef.current;
     const userId = ++idRef.current;
@@ -1024,6 +1158,9 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
     // iMessage 只出现在 alerts 快捷渠道、不在 IMS 列表 → 兜底一条元数据保证连接消息一致
     const im = IMS.find((i) => i.id === imId) ?? IM_FALLBACK[imId];
     if (!im) return;
+    if (getSetupChecklistState().activeTask === 'chat-app') {
+      completeSetupTask('chat-app', { connectedImId: imId });
+    }
     setExtra((prev) => [...prev, {
       id: ++idRef.current,
       role: 'answer',
@@ -1395,7 +1532,7 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                       onToggle={() => toggleShareMessage(`extra-${m.id}`)}
                     >
                     <MsgIn><AgentMsg time="now" {...agentShareProps}>
-                      <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
+                      <p className="whitespace-pre-line text-[14px] leading-[22px] tracking-[0.14px]" style={{ fontFamily: FONT, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{m.text}</p>
                     </AgentMsg></MsgIn>
                     </SelectableMessage>
                   );
@@ -1537,7 +1674,18 @@ export function AgentNewSession({ onNavigate, channel }: { onNavigate: (page: Pa
                     ))}
                   </div>
                 )}
-                <ChatInput shadow shadowSize="xs" subtleBorder allowReferences={false} hideInspector voiceInput placeholder="Ask Alva anything. @ for context, / for skills" onSend={onPrompt} />
+                <ChatInput
+                  shadow
+                  shadowSize="xs"
+                  subtleBorder
+                  allowReferences={false}
+                  hideInspector
+                  voiceInput
+                  placeholder={setup.activeTask === 'memory'
+                    ? MEMORY_SETUP_PLACEHOLDERS[Math.max(0, memoryInterviewStep - 1)]
+                    : 'Ask Alva anything. @ for context, / for skills'}
+                  onSend={onPrompt}
+                />
               </div>
             </div>
           )}

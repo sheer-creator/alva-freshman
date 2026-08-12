@@ -25,6 +25,8 @@ export function PlaybookCard({
   simple = false,
   noCover = false,
   selected = false,
+  followed = false,
+  onFollow,
 }: {
   p: ExplorePlaybook;
   staggerMs?: number;
@@ -36,6 +38,8 @@ export function PlaybookCard({
   simple?: boolean;
   noCover?: boolean;
   selected?: boolean;
+  followed?: boolean;
+  onFollow?: () => void;
 }) {
   const tags = buildTags({
     template: p.cover.template,
@@ -240,6 +244,27 @@ export function PlaybookCard({
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+                {onFollow && (
+                  <button
+                    type="button"
+                    aria-label={`${followed ? 'Subscribed to' : 'Subscribe to'} ${p.title}`}
+                    aria-pressed={followed}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onFollow();
+                    }}
+                    className="flex h-[28px] items-center gap-[4px] rounded-[5px] px-[9px] text-[12px] font-medium leading-[20px] tracking-[0.12px]"
+                    style={{
+                      border: followed ? '0.5px solid var(--main-m1, #49a3a6)' : '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
+                      background: followed ? 'rgba(73,163,166,0.1)' : '#fff',
+                      color: followed ? 'var(--main-m1, #49a3a6)' : 'var(--text-n9, rgba(0,0,0,0.9))',
+                      fontFamily: "'Delight', sans-serif",
+                    }}
+                  >
+                    <CdnIcon name={followed ? 'check-l1' : 'add-l1'} size={13} color="currentColor" />
+                    {followed ? 'Subscribed' : 'Subscribe'}
+                  </button>
+                )}
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, lineHeight: '22px', letterSpacing: 0.14 }}>
                   <CdnIcon name="star-l" size={16} />
                   {p.stars}

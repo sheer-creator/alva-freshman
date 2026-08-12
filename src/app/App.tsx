@@ -90,7 +90,13 @@ export default function App() {
   const openSearch = () => setIsSearchOpen(true);
 
   const navigate = (page: Page) => {
-    window.location.hash = page;
+    const currentQuery = window.location.hash.split('?')[1];
+    const currentParams = new URLSearchParams(currentQuery ?? '');
+    const nextParams = new URLSearchParams();
+    const proTrialPreview = currentParams.get('proTrial');
+    if (proTrialPreview) nextParams.set('proTrial', proTrialPreview);
+    const nextQuery = nextParams.toString();
+    window.location.hash = nextQuery ? `${page}?${nextQuery}` : page;
     startTransition(() => {
       setCurrentPage(page);
     });
