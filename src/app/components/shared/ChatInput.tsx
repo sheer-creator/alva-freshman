@@ -1302,6 +1302,18 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
 
   const handleBlur = useCallback(() => setFocused(false), []);
 
+  /* Composer surface should behave like one input, not a card containing a tiny 22px target.
+     Buttons, links and the editor keep their own interaction; every other blank area focuses the editor. */
+  const focusEditorFromSurface = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('button, a, input, [contenteditable="true"], [role="option"], [role="menuitem"]')) return;
+    setAddMenuOpen(false);
+    setModelMenuOpen(false);
+    closePicker();
+    editorRef.current?.focus();
+    requestAnimationFrame(() => placeCursorAtEnd());
+  }, [closePicker, placeCursorAtEnd]);
+
   const stopVoiceTimers = useCallback(() => {
     if (waveRaf.current !== null) { cancelAnimationFrame(waveRaf.current); waveRaf.current = null; }
     if (voiceTypeTimer.current) { clearInterval(voiceTypeTimer.current); voiceTypeTimer.current = null; }
@@ -1420,8 +1432,9 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
     <>
       <div
         ref={wrapperRef}
-        className="relative w-full shrink-0 flex flex-col gap-[12px] p-[16px] chat-input-wrapper"
+        className="relative w-full shrink-0 flex cursor-text flex-col gap-[12px] p-[16px] chat-input-wrapper"
         style={{ background: 'var(--b0-container, #fff)', borderRadius: 8, boxShadow: wrapperShadow }}
+        onClick={focusEditorFromSurface}
       >
       <input
         ref={fileInputRef}
@@ -1689,7 +1702,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           </div>
         </div>
       </div>
-      <div className="relative min-h-[44px] chat-input-editor-shell" style={{ maxHeight: 240, overflowY: 'auto' }}>
+      <div className="relative min-h-[48px] cursor-text chat-input-editor-shell" style={{ maxHeight: 240, overflowY: 'auto' }}>
         {showPlaceholder && (
           <div className="absolute inset-0 pointer-events-none font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n3)]">
             {placeholder}
@@ -1699,7 +1712,7 @@ export function ChatInput({ placeholder = 'Ask Alva anything. @ for context, / f
           ref={editorRef}
           contentEditable
           suppressContentEditableWarning
-          className="font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] outline-none min-h-[22px] w-full"
+          className="min-h-[48px] w-full cursor-text font-['Delight',sans-serif] text-[14px] leading-[22px] tracking-[0.14px] text-[var(--text-n9)] outline-none"
           style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
           onInput={handleInput}
           onFocus={handleFocus}

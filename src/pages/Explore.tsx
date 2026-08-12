@@ -6,6 +6,7 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
 import { POPULAR_RECENT_SORT_OPTIONS, TRENDING_FILTER_CHIPS, TrendingFilterBar, type PopularRecentSort, type TrendingFilterChip } from '@/app/components/shared/TrendingFilterBar';
 import { PlaybookTags, buildTags } from '@/lib/playbook-cover/PlaybookTags';
+import { completeSetupTask, isSetupChecklistEnabled, useSetupChecklistState } from '@/app/state/setup-checklist';
 
 const asset = (name: string) => `${import.meta.env.BASE_URL}figma/explore/${name}`;
 
@@ -360,10 +361,15 @@ export default function Explore({
 }: {
   onNavigate: (page: Page) => void;
 }) {
+  const setup = useSetupChecklistState();
   const [sort, setSort] = useState<SortOption>('Popular');
   const [selectedChips, setSelectedChips] = useState<Set<CategoryChip>>(() => new Set(FIGMA_ACTIVE_CHIPS));
   const [filterTouched, setFilterTouched] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [followedIds, setFollowedIds] = useState<Set<string>>(
+    () => new Set(setup.followedPlaybookId ? [setup.followedPlaybookId] : []),
+  );
+  const setupEnabled = isSetupChecklistEnabled();
 
   const filteredPlaybooks = useMemo(() => {
     const sorted = sort === 'Recent' ? [...PLAYBOOKS].reverse() : PLAYBOOKS;
@@ -402,6 +408,11 @@ export default function Explore({
     });
   };
 
+  const followPlaybook = (playbookId: string) => {
+    setFollowedIds((previous) => new Set(previous).add(playbookId));
+    completeSetupTask('playbook', { followedPlaybookId: playbookId });
+  };
+
   return (
     <AppShell activePage="explore" onNavigate={onNavigate}>
       <style>{`
@@ -424,6 +435,21 @@ export default function Explore({
           font-weight: 400;
           letter-spacing: 0.28px;
           color: var(--text-n9, rgba(0,0,0,0.9));
+        }
+        .explore-setup-hint {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: fit-content;
+          margin-top: 12px;
+          padding: 7px 10px;
+          border: 0.5px solid rgba(73, 163, 166, 0.22);
+          border-radius: 6px;
+          background: rgba(73, 163, 166, 0.08);
+          color: var(--text-n7, rgba(0,0,0,0.7));
+          font-size: 12px;
+          line-height: 20px;
+          letter-spacing: 0.12px;
         }
         .explore-featured {
           margin-top: 24px;
@@ -607,6 +633,12 @@ export default function Explore({
       <main className="explore-page">
         <div className="explore-inner">
           <h1 className="explore-title">Explore</h1>
+          {setup.activeTask === 'playbook' && (
+            <div className="explore-setup-hint" role="status">
+              <CdnIcon name="star-l" size={15} color="var(--main-m1, #49a3a6)" />
+              Subscribe to one Playbook to complete this setup task.
+            </div>
+          )}
           <FeaturedCard />
           <ExploreFilters
             sort={sort}
@@ -618,7 +650,12 @@ export default function Explore({
           />
           <section className="explore-grid">
             {displayedPlaybooks.map((playbook) => (
-              <PlaybookCard key={playbook.id} p={playbook} />
+              <PlaybookCard
+                key={playbook.id}
+                p={playbook}
+                followed={followedIds.has(playbook.id)}
+                onFollow={setupEnabled ? () => followPlaybook(playbook.id) : undefined}
+              />
             ))}
           </section>
         </div>

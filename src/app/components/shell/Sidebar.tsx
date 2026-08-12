@@ -10,6 +10,7 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PLAYBOOK_NAV_ITEMS } from '@/data/playbooks';
 import { channelsStore, useChannels } from '@/app/state/channels';
 import { NewChannelModal } from '@/app/components/shared/NewChannelModal';
+import { SetupChecklistDemo } from '@/app/components/shell/SetupChecklistDemo';
 import { useState, type ReactNode } from 'react';
 
 /* ========== 类型 ========== */
@@ -149,6 +150,9 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserClick, onO
   void onOpenSearch; void onOpenReferral; void onToggleCollapsed; // 保持已有签名
   const { channels, currentId } = useChannels();
   const [newChannelOpen, setNewChannelOpen] = useState(false);
+  const showSetupChecklistDemo = new URLSearchParams(
+    window.location.hash.split('?')[1] ?? '',
+  ).get('checklist') === 'setup';
   const onAgent = activePage === 'agent';
   const openChannel = (id: string | null) => {
     channelsStore.setCurrent(id);
@@ -226,7 +230,9 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserClick, onO
           br7 底 + 0.5 lr12 边 + radius-ct-m 6 + overflow-clip + isolate，pt6 pl10 pr8 pb8，列向 gap 0；
           Title 行 z3（Regular 12/20 白）→ Subtitle 行 z2（Regular 10/16 nr5 + 行内 arrow-up-l1 28 实测 opacity .5，gap 4 items-end）
           → Ellipse z1（93px m3，opacity .1 + blur 25，right/bottom -46.5 压角，被 overflow 裁掉四分之三） */}
-      {!collapsed && (
+      {!collapsed && showSetupChecklistDemo && <SetupChecklistDemo onNavigate={onNavigate} />}
+
+      {!collapsed && !showSetupChecklistDemo && (
         <div className="shrink-0 w-full p-[8px] relative z-[3]">
           <button
             type="button"
