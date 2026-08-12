@@ -304,6 +304,7 @@
     .sp-card .li { display: flex; align-items: flex-start; font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n9, rgba(0,0,0,0.9)); }
     .sp-card .li::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: currentColor; margin: 9px 8px 0; flex-shrink: 0; }
     .sp-footer { position: absolute; left: 20px; right: 20px; bottom: 0; display: flex; flex-direction: column; gap: 16px; padding: 16px 0; background: var(--b0-container, #fff); border-top: 0.5px solid var(--line-l12, rgba(0,0,0,0.12)); }
+    .sp-connect { display: flex; flex-direction: column; gap: 8px; }
     .sp-connect-t { font-size: 14px; line-height: 22px; letter-spacing: 0.14px; font-weight: 500; color: var(--text-n9, rgba(0,0,0,0.9)); text-align: center; }
     .sp-btns { display: flex; gap: 8px; }
     .sp-imbtn { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 6px 12px; border: 0; border-radius: var(--radius-btn-s, 4px); color: #fff; font-family: inherit; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; font-weight: 500; white-space: nowrap; cursor: pointer; }
@@ -563,11 +564,13 @@
     </div>
   </div>
   <div class="sp-footer">
-    <div class="sp-connect-t">Connect Agents to Get Notified</div>
-    <div class="sp-btns">
+    <div class="sp-connect">
+      <div class="sp-connect-t">Connect Agents to Get Notified</div>
+      <div class="sp-btns">
       <button class="sp-imbtn" style="background:#229ED9" type="button"><span class="m" style="--ic:url(https://alva-ai-static.b-cdn.net/icons/project-telegram-l.svg)"></span>Telegram</button>
       <button class="sp-imbtn" style="background:#5865F2" type="button"><span class="m" style="--ic:url(https://alva-ai-static.b-cdn.net/icons/project-discord-l.svg)"></span>Discord</button>
       <button class="sp-imbtn" style="background:#0CBD2A" type="button"><span class="m" style="--ic:url(https://alva-ai-static.b-cdn.net/icons/project-imessage-l.svg)"></span>iMessage</button>
+      </div>
     </div>
     <div class="sp-div"></div>
     <div class="sp-unsub">Unsubscribe</div>
