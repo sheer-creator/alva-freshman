@@ -8,7 +8,7 @@ const html = inlinePlaybookHeader(screenerHtml);
 
 function TemplateScreenerContent() {
   return (
-    <div className="h-screen flex flex-col" style={{ background: 'var(--b0-page)' }}>
+    <div className="h-[calc(100dvh-56px)] lg:h-screen flex flex-col" style={{ background: 'var(--b0-page)' }}>
       <div className="flex-1 overflow-hidden">
         <iframe
           srcDoc={html}

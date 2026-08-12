@@ -195,7 +195,7 @@
     .pb-stat img { width: 16px; height: 16px; display: block; }
     .pb-actions { display: flex; align-items: center; gap: 8px; padding-left: 8px; }
     .pb-btn-subscribe { position: relative; display: flex; align-items: center; justify-content: center; height: 32px; padding: 6px 10px; border: 0; border-radius: var(--radius-btn-s, 4px); background: var(--main-m1, #49A3A6); color: #fff; font-family: inherit; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; font-weight: 500; white-space: nowrap; cursor: pointer; }
-    .pb-btn-subscribe .n { font-weight: 400; }
+    .pb-btn-subscribe .n { font-weight: 400; color: var(--text-nr5, rgba(255,255,255,0.5)); }
     .pb-chip { display: none; align-items: center; height: 32px; padding: 6px 10px; border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3)); border-radius: var(--radius-btn-s, 4px); background: transparent; font-family: inherit; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; font-weight: 500; color: var(--text-n9, rgba(0,0,0,0.9)); white-space: nowrap; cursor: pointer; }
     .pb-chip .n { font-weight: 400; color: var(--text-n5, rgba(0,0,0,0.5)); }
     .pb-row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -371,14 +371,16 @@
       .ident { gap: var(--spacing-s); }
 
       /* ── paywall — Max 13433:84007: p 40/20, col gap 40 ── */
-      .paywall-feed { padding: 40px 20px 110px; -webkit-overflow-scrolling: touch; }
-      .pw-max { gap: 40px; max-width: none; margin: 0; }
+      .paywall-feed { padding: 40px 16px 110px; -webkit-overflow-scrolling: touch; }
+      .pw-max { gap: 28px; max-width: none; margin: 0; }
       .purchase { gap: 20px; }
       .pu-benefits { gap: 8px; }
-      .pu-row { gap: 8px; font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n7, rgba(0,0,0,0.7)); }
-      .pu-row .ic { width: 20px; height: 20px; margin-top: 1px; }
-      .pwb-so { width: 22px; height: 22px; }
+      .pu-lock { width: 56px; height: 56px; }
+      .pu-lock img { width: 28px; height: 28px; }
       .pu-benefits { gap: 8px; }
+      .pu-row { gap: 8px; font-size: 16px; line-height: 26px; letter-spacing: 0.16px; color: var(--text-n9, rgba(0,0,0,0.9)); }
+      .pu-row .ic { width: 20px; height: 20px; margin-top: 3px; }
+      .pwb-so { width: 22px; height: 22px; }
       .pu-cta { gap: 12px; }
       .pu-long { display: none; }
       .pu-price .v { font-size: 28px; line-height: 38px; letter-spacing: 0.28px; }
@@ -392,8 +394,9 @@
       .alerts-feed { display: block; }
       .pw-ava { display: none; }
       .pw-msg:not(:last-child) { display: none; }
-      .pw-msg:last-child { width: 100%; height: 300px; animation-delay: 0.15s; }
-      .pw-bubble { height: 100%; overflow: hidden; }
+      .pw-msg:last-child { width: 100%; height: auto; animation-delay: 0.15s; }
+      .pw-bubble { height: auto; box-shadow: 0 -6px 20px rgba(0,0,0,0.05); }
+      .pw-bubble::after { content: none; }   /* card is sized to its content — nothing to crop */
 
       /* ── Subscribed popover → sheet (kept from the v7 pass) ── */
       .sp-scrim { display: block; pointer-events: none; }
