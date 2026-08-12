@@ -52,7 +52,7 @@ export function DiscordConnectFlow({ onPaired, onClose, className = '' }: Discor
         maxWidth: '100%',
         background: 'var(--b0-container, #ffffff)',
         border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
-        borderRadius: 'var(--radius-pop-dialog, 12px)',
+        borderRadius: 'var(--radius-pop-dialog, 8px)',
         padding: 'var(--spacing-xxl, 28px)',
         gap: 'var(--spacing-l, 20px)',
         boxShadow: 'var(--shadow-l)',

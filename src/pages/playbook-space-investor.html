@@ -69,7 +69,7 @@
     .ct-info { position: relative; display: inline-flex; align-items: center; margin-left: 6px; cursor: pointer; vertical-align: middle; }
     .ct-info img { width: 16px; height: 16px; display: block; }
     /* Alva Tooltip component (design-components.md; not shipped in the CDN bundle) */
-    .tooltip { position: absolute; display: flex; flex-direction: column; gap: var(--spacing-xxxs); width: max-content; max-width: 320px; padding: var(--spacing-m); background-color: var(--b0-container); border-radius: var(--radius-pop-tips); box-shadow: var(--shadow-s); }
+    .tooltip { position: absolute; display: flex; flex-direction: column; gap: var(--spacing-xxxs); width: max-content; max-width: 400px; padding: var(--spacing-m); background-color: var(--b0-container); border-radius: var(--radius-pop-tips); box-shadow: var(--shadow-s); }
     .tooltip-border { position: absolute; inset: 0; border: 0.5px solid var(--line-l2); border-radius: var(--radius-pop-tips); pointer-events: none; }
     .tooltip-text { font-size: 14px; line-height: 22px; letter-spacing: 0.14px; font-weight: 400; color: var(--text-n9); }
     .tooltip-title { font-size: 16px; line-height: 26px; letter-spacing: 0.16px; font-weight: 500; color: var(--text-n9); }
@@ -105,7 +105,7 @@
     /* Modal (design-components.md; CDN ships only .modal-close) */
     .modal-overlay { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 48px 16px; background: var(--main-m7, rgba(0,0,0,0.45)); }
     .modal-overlay.open { display: flex; }
-    .modal-sheet { display: flex; flex-direction: column; gap: var(--spacing-m); width: 100%; max-width: 680px; max-height: 100%; padding: var(--spacing-xxl); background: var(--b0-container); border: 0.5px solid var(--line-l2); border-radius: var(--radius-pop-dialog, 12px); }
+    .modal-sheet { display: flex; flex-direction: column; gap: var(--spacing-m); width: 100%; max-width: 680px; max-height: 100%; padding: var(--spacing-xxl); background: var(--b0-container); border: 0.5px solid var(--line-l2); border-radius: var(--radius-pop-dialog, 8px); }
     .modal-title { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-s); font-size: 18px; line-height: 28px; letter-spacing: 0.18px; font-weight: 500; color: var(--text-n9); }
     .modal-body { flex: 1 0 0; width: 100%; overflow: auto; }
     /* trade-log table */
@@ -181,7 +181,13 @@
     .pb-row-top { display: flex; align-items: center; gap: 8px; }
     .pb-row-top-l { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
     .pb-title { font-size: 20px; line-height: 30px; letter-spacing: 0.2px; color: var(--text-n9, rgba(0,0,0,0.9)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pb-unlock-ic { width: 16px; height: 16px; display: none; flex-shrink: 0; }
+    .pb-lock-ic { width: 16px; height: 16px; flex-shrink: 0; }
+    body.unlocked .pb-lock-ic { display: none; }
+    .pb-unlock-ic { display: none; margin-left: 0; flex-shrink: 0; }
+    /* markdown link underline (design-components.md .markdown-container a): dotted n5, 8% / 35%, hover m1 */
+    .tooltip-link { color: inherit; font-weight: 500; text-decoration: underline dotted var(--text-n5, rgba(0,0,0,0.5)); text-decoration-thickness: 8%; text-underline-offset: 35%; text-decoration-skip-ink: none; cursor: pointer; transition: color 0.15s ease; }
+    .tooltip-link:hover { color: var(--main-m1, #49A3A6); text-decoration-color: var(--main-m1, #49A3A6); }
+    .pb-unlock-ic img { width: 16px; height: 16px; display: block; }
     .pb-row-top-r { display: flex; align-items: center; }
     .pb-iconbtn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 6px; border: 0; background: transparent; border-radius: var(--radius-btn-s, 4px); cursor: pointer; }
     .pb-iconbtn img { width: 16px; height: 16px; display: block; }
@@ -268,9 +274,11 @@
     .is-loading .spinner { display: block; position: absolute; left: 50%; top: 50%; margin: -7px 0 0 -7px; }
 
     /* Toast — @repo/ui-base spec: top-center 28, white, 0.5 l2, radius-pop-toast 4, Shadow S, px16 py12 gap8 */
-    .unlock-toast { position: fixed; left: 50%; top: 28px; z-index: 80; display: none; align-items: center; gap: 8px; max-width: 90vw; padding: 12px 16px; background: #fff; border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2)); border-radius: 4px; box-shadow: 0 6px 20px rgba(0,0,0,0.04); }
-    .unlock-toast img { width: 20px; height: 20px; display: block; flex-shrink: 0; }
-    .unlock-toast span { font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n9, rgba(0,0,0,0.9)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .unlock-toast { position: fixed; left: 50%; top: 28px; z-index: 80; display: none; align-items: flex-start; gap: 8px; max-width: 90vw; padding: 12px 16px; background: #fff; border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2)); border-radius: 4px; box-shadow: 0 6px 20px rgba(0,0,0,0.04); }
+    .unlock-toast img { width: 20px; height: 20px; display: block; flex-shrink: 0; margin-top: 1px; }
+    .ut-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .ut-title { font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n9, rgba(0,0,0,0.9)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ut-sub { font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5, rgba(0,0,0,0.5)); }
     .unlock-toast.show { display: flex; animation: toastIn 0.25s ease-out both; }
     .unlock-toast.hide { animation: toastOut 0.25s ease-in both; }
     @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -100%); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -321,7 +329,11 @@
     <div class="pb-row-top">
       <div class="pb-row-top-l">
         <span class="pb-title">Space Investor Master Playbook</span>
-        <img class="pb-unlock-ic" src="https://alva-ai-static.b-cdn.net/icons/unlocked-f.svg" alt="Unlocked" />
+        <img class="pb-lock-ic" src="https://alva-ai-static.b-cdn.net/icons/locked-f.svg" alt="Locked" />
+        <span class="ct-info pb-unlock-ic" tabindex="0" aria-label="Purchased playbook">
+          <img src="https://alva-ai-static.b-cdn.net/icons/unlocked-f.svg" alt="" />
+          <div class="tooltip"><div class="tooltip-border"></div><div class="tooltip-text">You've unlocked this playbook. View it anytime under <a class="tooltip-link" href="#user-profile?tab=purchased" onclick="window.top.location.hash='user-profile?tab=purchased';return false;">Purchased playbooks</a> in your profile.</div></div>
+        </span>
       </div>
       <div class="pb-row-top-r">
         <button class="pb-iconbtn" type="button" aria-label="Share"><img src="https://alva-ai-static.b-cdn.net/icons/share-l.svg" alt="" /></button>
@@ -517,7 +529,10 @@
   <!-- unlock confirmation — @repo/ui-base toast spec (see AgentNewSession.tsx) -->
   <div class="unlock-toast" id="unlock-toast" role="status">
     <img src="https://alva-ai-static.b-cdn.net/icons/check-f2.svg" alt="" />
-    <span>Playbook unlocked</span>
+    <div class="ut-text">
+      <span class="ut-title">Playbook unlocked</span>
+      <span class="ut-sub">View it anytime under Purchased playbooks in your profile</span>
+    </div>
   </div>
 </div><!-- /.pb-body -->
 
@@ -1051,8 +1066,8 @@
         runReveal();
         pwToast.classList.add("show");
         setTimeout(function () { document.body.classList.add("unlocked"); }, 450);
-        setTimeout(function () { pwToast.classList.add("hide"); }, 3200);
-        setTimeout(function () { pwToast.style.display = "none"; }, 3500);
+        setTimeout(function () { pwToast.classList.add("hide"); }, 6200);
+        setTimeout(function () { pwToast.style.display = "none"; }, 6500);
       }, 1200);
     }
     pwButtons.forEach(function (b) { b.addEventListener("click", startUnlock); });

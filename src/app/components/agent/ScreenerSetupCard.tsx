@@ -339,8 +339,7 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
               <span className="shrink-0 whitespace-nowrap text-right" style={textStyle(14, 22, N5)}>{screen.meta ?? PREVIEW_TIMESTAMP}</span>
             </div>
 
-            {/* 描边取 l12(而非稿上的 l2),与 portfolio 卡里的 ping 卡对齐 */}
-            <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_15px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L12}`, borderLeft: `0.5px solid ${L12}`, borderRight: `0.5px solid ${L12}` }}>
+            <div className="relative w-full shrink-0 overflow-hidden rounded-t-[8px] bg-white shadow-[0px_15px_30px_0px_rgba(0,0,0,0.1)]" style={{ borderTop: `0.5px solid ${L2}`, borderLeft: `0.5px solid ${L2}`, borderRight: `0.5px solid ${L2}` }}>
               <div className="flex w-full items-center gap-[20px] overflow-hidden px-[16px]" style={{ borderBottom: `0.5px solid ${L12}` }}>
                 {screen.columns.map((column) => (
                   <ColumnCell key={column.label} column={column}>
@@ -361,7 +360,7 @@ export function ScreenerSetupCard({ onRun }: { onRun: (key: ScreenKey, prompt: s
                   ))}
                 </div>
                 {/* Mask — 稿:h52 铺满末行,横排 gap8;32px 圆底(白 + 0.5px l2 描边)+ 18px 锁(asset fill black/0.9 → n9) + 14 n5 文案 */}
-                <div className="absolute inset-0 flex items-center justify-center gap-[8px] bg-[rgba(255,255,255,0.85)] backdrop-blur-[3px]">
+                <div className="absolute inset-0 flex items-center justify-center gap-[8px] bg-[rgba(255,255,255,0.9)] backdrop-blur-[3px]">
                   <span className="flex size-[32px] shrink-0 items-center justify-center rounded-full bg-white" style={{ border: `0.5px solid ${L2}` }}>
                     <CdnIcon name="locked-l" size={18} color={N9} />
                   </span>

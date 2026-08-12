@@ -370,8 +370,14 @@ function CardGrid({ items, onOpen }: { items: ProfilePlaybook[]; onOpen: () => v
 
 /* ========== 页面 ========== */
 
+/* 深链 #user-profile?tab=purchased（playbook 解锁 tooltip 等入口跳转用） */
+function tabFromHash(): ProfileTab {
+  const t = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('tab');
+  return t === 'starred' || t === 'purchased' ? t : 'playbooks';
+}
+
 export default function UserProfile({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const [tab, setTab] = useState<ProfileTab>('playbooks');
+  const [tab, setTab] = useState<ProfileTab>(tabFromHash);
   const [filter, setFilter] = useState<VisibilityFilter>('All');
 
   const items = useMemo(() => {
