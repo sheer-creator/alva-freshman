@@ -99,6 +99,8 @@
   --text-n5: rgba(0, 0, 0, 0.5);
   --text-n3: rgba(0, 0, 0, 0.3);
   --text-n2: rgba(0, 0, 0, 0.2);
+  /* reverse — 常驻白，用于 m1 等实底按钮上的次要文字（Figma text/nr5） */
+  --text-nr5: rgba(255, 255, 255, 0.5);
 
   /* ── Background ── */
   --b0-page:           #ffffff;

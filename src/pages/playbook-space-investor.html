@@ -26,8 +26,7 @@
     .tab-panel { display: none; margin: 0; padding: 0; }
     .tab-panel.shown { display: block; }
     a, button, [data-tab], [data-v], [role="link"], [tabindex="0"], [data-news-url], .tw-act, .tw-name, .tw-post-name { cursor: pointer; }
-    .stack { display: flex; flex-direction: column; gap: var(--spacing-xxl); }
-    .grid-gap { margin-top: 0; }
+    .stack { display: flex; flex-direction: column; gap: var(--spacing-xxl); }    .grid-gap { margin-top: 0; }
 
     /* hero */
     .hero { background: linear-gradient(90deg, #F0F7F7 0%, #FAFAFA 100%); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); position: relative; }
@@ -220,17 +219,21 @@
     .pw-wave { position: absolute; z-index: 55; border-radius: 50%; border: 1.5px solid rgba(73,163,166,0.5); box-shadow: 0 0 28px rgba(73,163,166,0.22), inset 0 0 28px rgba(73,163,166,0.16); opacity: 0; pointer-events: none; }
     .pw-blur { position: absolute; inset: 0; pointer-events: none; }
     .pw-blur i { position: absolute; inset: 0; display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); -webkit-mask-image: linear-gradient(to bottom, transparent var(--m0), #000 var(--m1), #000 var(--m2), transparent var(--m3)); mask-image: linear-gradient(to bottom, transparent var(--m0), #000 var(--m1), #000 var(--m2), transparent var(--m3)); }
-    /* Overlap zones compound (two backdrop layers cascade ≈ √(a²+b²)). */
-    .pw-blur i:nth-child(1) { --b: 1.5px; --m0: 0%;   --m1: 12.5%; --m2: 37.5%; --m3: 50%; }
-    .pw-blur i:nth-child(2) { --b: 3px;   --m0: 25%;  --m1: 37.5%; --m2: 62.5%; --m3: 75%; }
-    .pw-blur i:nth-child(3) { --b: 6px;   --m0: 50%;  --m1: 62.5%; --m2: 87.5%; --m3: 100%; }
-    .pw-blur i:nth-child(4) { --b: 9px;   --m0: 75%;  --m1: 87.5%; --m2: 100%;  --m3: 100%; }
+    /* Stops are pixel-capped, not proportional: the sharp band at the top stays
+       ~100px tall no matter how tall the veil gets (a percentage ramp would keep
+       exposing more readable content as the window grows), and everything past
+       ~700px sits at full blur. min(px, %) keeps short viewports proportional.
+       Overlap zones compound (two backdrop layers cascade ≈ √(a²+b²)). */
+    .pw-blur i:nth-child(1) { --b: 1.5px; --m0: 0px;              --m1: min(100px, 12.5%); --m2: min(300px, 37.5%); --m3: min(400px, 50%); }
+    .pw-blur i:nth-child(2) { --b: 3px;   --m0: min(200px, 25%);  --m1: min(300px, 37.5%); --m2: min(500px, 62.5%); --m3: min(600px, 75%); }
+    .pw-blur i:nth-child(3) { --b: 4px;   --m0: min(400px, 50%);  --m1: min(500px, 62.5%); --m2: min(700px, 87.5%); --m3: 100%; }
+    .pw-blur i:nth-child(4) { --b: 5px;   --m0: min(600px, 75%);  --m1: min(700px, 87.5%); --m2: 100%;              --m3: 100%; }
     .paywall-feed { position: relative; z-index: 1; }
     .paywall-feed { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 28px; overflow: auto; }
     /* Middle content cap — Figma "Max" 13381:295002 */
     .pw-max { display: flex; align-items: center; gap: 28px; width: 100%; max-width: 1080px; }
     /* Purchase panel — Figma 13381:294657 */
-    .purchase { display: flex; flex-direction: column; gap: 24px; flex: 1; min-width: 0; }
+    .purchase { display: flex; flex-direction: column; gap: 32px; flex: 1; min-width: 0; }
     .pu-lock { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: #fff; border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3)); border-radius: var(--radius-ct-xl, 12px); }
     .pu-lock img { width: 32px; height: 32px; display: block; }
     .pu-benefits { display: flex; flex-direction: column; gap: 16px; }
