@@ -93,7 +93,6 @@ export default function App() {
     const currentQuery = window.location.hash.split('?')[1];
     const currentParams = new URLSearchParams(currentQuery ?? '');
     const nextParams = new URLSearchParams();
-    if (currentParams.get('checklist') === 'setup') nextParams.set('checklist', 'setup');
     const proTrialPreview = currentParams.get('proTrial');
     if (proTrialPreview) nextParams.set('proTrial', proTrialPreview);
     const nextQuery = nextParams.toString();

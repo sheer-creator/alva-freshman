@@ -1,6 +1,6 @@
 /**
  * [INPUT]: setup checklist task launches and successful product interactions
- * [OUTPUT]: cross-route onboarding progress for the isolated #...?checklist=setup demo
+ * [OUTPUT]: cross-route onboarding progress for the primary sidebar experience
  * [POS]: app state — keeps the sidebar checklist truthful while pages unmount/remount
  */
 
@@ -186,16 +186,11 @@ export function completeSetupTask(
   if (!page) return;
   const currentQuery = window.location.hash.split('?')[1];
   const currentParams = new URLSearchParams(currentQuery ?? '');
-  const nextParams = new URLSearchParams({ checklist: 'setup' });
+  const nextParams = new URLSearchParams();
   const proTrialPreview = currentParams.get('proTrial');
   if (proTrialPreview) nextParams.set('proTrial', proTrialPreview);
-  window.history.replaceState(null, '', `#${page}?${nextParams.toString()}`);
-}
-
-export function isSetupChecklistEnabled(): boolean {
-  if (typeof window === 'undefined') return false;
-  const query = window.location.hash.split('?')[1];
-  return new URLSearchParams(query ?? '').get('checklist') === 'setup';
+  const nextQuery = nextParams.toString();
+  window.history.replaceState(null, '', `#${page}${nextQuery ? `?${nextQuery}` : ''}`);
 }
 
 if (typeof window !== 'undefined') {

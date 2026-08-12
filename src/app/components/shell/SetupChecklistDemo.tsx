@@ -1,7 +1,7 @@
 /**
- * [INPUT]: #agent?checklist=setup preview flag
- * [OUTPUT]: Sidebar setup sticker + anchored onboarding checklist demo
- * [POS]: Shell layer — isolated onboarding preview, mounted in place of the upgrade card
+ * [INPUT]: onboarding state, successful product interactions, and Pro entitlement preview
+ * [OUTPUT]: Sidebar setup sticker + anchored onboarding checklist
+ * [POS]: Shell layer — owns the promotion slot, then hands it to Gifted Pro / Upgrade
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -320,7 +320,7 @@ export function SetupChecklistDemo({ onNavigate }: { onNavigate: (page: Page) =>
     if (task.page === 'agent') channelsStore.setCurrent(null);
     startSetupTask(task.id);
     onNavigate(task.page);
-    const params = new URLSearchParams({ checklist: 'setup', setupTask: task.id });
+    const params = new URLSearchParams({ setupTask: task.id });
     keepProTrialPreview(params);
     window.history.replaceState(null, '', `#${task.page}?${params.toString()}`);
   };

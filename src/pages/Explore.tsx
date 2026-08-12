@@ -6,7 +6,7 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PlaybookCard, type ExplorePlaybook } from '@/app/components/shared/PlaybookCard';
 import { POPULAR_RECENT_SORT_OPTIONS, TRENDING_FILTER_CHIPS, TrendingFilterBar, type PopularRecentSort, type TrendingFilterChip } from '@/app/components/shared/TrendingFilterBar';
 import { PlaybookTags, buildTags } from '@/lib/playbook-cover/PlaybookTags';
-import { completeSetupTask, isSetupChecklistEnabled, useSetupChecklistState } from '@/app/state/setup-checklist';
+import { completeSetupTask, useSetupChecklistState } from '@/app/state/setup-checklist';
 
 const asset = (name: string) => `${import.meta.env.BASE_URL}figma/explore/${name}`;
 
@@ -369,7 +369,7 @@ export default function Explore({
   const [followedIds, setFollowedIds] = useState<Set<string>>(
     () => new Set(setup.followedPlaybookId ? [setup.followedPlaybookId] : []),
   );
-  const setupEnabled = isSetupChecklistEnabled();
+  const setupEnabled = setup.activeTask === 'playbook';
 
   const filteredPlaybooks = useMemo(() => {
     const sorted = sort === 'Recent' ? [...PLAYBOOKS].reverse() : PLAYBOOKS;
