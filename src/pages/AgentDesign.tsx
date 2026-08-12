@@ -100,7 +100,7 @@ export function PlaybookFeedPreview({
         </div>
         <button
           type="button"
-          onClick={() => onNavigate?.('template-notification')}
+          onClick={() => onNavigate?.('template-screener')}
           className={`${FONT} flex items-center gap-[4px] self-start sm:self-auto text-[12px] leading-[20px] tracking-[0.12px] cursor-pointer border-none bg-transparent p-0 transition-colors hover:text-[var(--text-n9)]`}
           style={{ color: 'var(--text-n5)' }}
         >

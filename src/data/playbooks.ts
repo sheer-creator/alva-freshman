@@ -19,13 +19,6 @@ export const PLAYBOOK_NAV_ITEMS: PlaybookNavItem[] = [
     source: 'owned',
   },
   {
-    page: 'screener',
-    title: 'James Wynn Tweet Tracker',
-    owner: 'Caleb Frost',
-    ownerSeed: 'Caleb Frost',
-    source: 'subscribed',
-  },
-  {
     page: 'template-whatif',
     title: 'Optical AI Infrastructure Thesis',
     owner: 'YGGYLL',
@@ -33,17 +26,10 @@ export const PLAYBOOK_NAV_ITEMS: PlaybookNavItem[] = [
     source: 'owned',
   },
   {
-    page: 'template-thesis',
-    title: 'NVDA Price Fetcher',
-    owner: 'Asha Bello',
-    ownerSeed: 'Asha Bello',
-    source: 'subscribed',
-  },
-  {
-    page: 'template-notification',
-    title: 'FinTwit Bulls & Bears',
-    owner: 'Nina Reyes',
-    ownerSeed: 'Nina Reyes',
+    page: 'space-investor',
+    title: 'Space Investor Master Playbook',
+    owner: 'Space Investor',
+    ownerSeed: 'Space Investor',
     source: 'subscribed',
   },
 ];

@@ -55,6 +55,7 @@ export const CREATOR_AVATARS: Record<string, string> = {
   Alva: `${import.meta.env.BASE_URL}logo-portrait.svg`,
   YGGYLL: `${import.meta.env.BASE_URL}portrait.png`,
   Sheer: `${import.meta.env.BASE_URL}avatars/sheer.png`,
+  'Space Investor': `${import.meta.env.BASE_URL}avatar-space-investor.png`,
   'Caleb Frost': `${import.meta.env.BASE_URL}avatars/caleb-frost.png`,
   'Asha Bello': `${import.meta.env.BASE_URL}avatars/asha-bello.png`,
   'Nina Reyes': `${import.meta.env.BASE_URL}avatars/nina-reyes.png`,

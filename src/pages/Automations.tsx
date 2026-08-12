@@ -41,8 +41,8 @@ interface AutomationItem {
   usedBy?: PlaybookRef[];
 }
 
-const BTC_PLAYBOOK: PlaybookRef = { label: 'BTC Ultimate AI Trader', target: 'screener' };
-const ETH_PLAYBOOK: PlaybookRef = { label: 'ETH Swing Setup', target: 'screener' };
+const BTC_PLAYBOOK: PlaybookRef = { label: 'BTC Ultimate AI Trader', target: 'template-screener' };
+const ETH_PLAYBOOK: PlaybookRef = { label: 'ETH Swing Setup', target: 'template-screener' };
 
 const INITIAL_AUTOMATIONS: AutomationItem[] = [
   {

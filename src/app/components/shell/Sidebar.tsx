@@ -10,7 +10,7 @@ import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { PLAYBOOK_NAV_ITEMS } from '@/data/playbooks';
 import { channelsStore, useChannels } from '@/app/state/channels';
 import { NewChannelModal } from '@/app/components/shared/NewChannelModal';
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 /* ========== 类型 ========== */
 
@@ -29,35 +29,7 @@ export const SIDEBAR_W_COLLAPSED = 56;
 
 /* ========== 导航项组件 ========== */
 
-const ICON_CDN = 'https://alva-ai-static.b-cdn.net/icons';
-const FINTWIT_GRADIENT = 'linear-gradient(90deg, #6BDBD5 0%, #8FAFFF 42%, #C092F6 74%, #F5C579 100%)';
-
-function GradientCdnIcon({ name, size = 16 }: { name: string; size?: number }) {
-  const url = `${ICON_CDN}/${name}.svg`;
-  return (
-    <span
-      aria-hidden
-      className="block shrink-0"
-      style={{
-        width: size,
-        height: size,
-        backgroundImage: FINTWIT_GRADIENT,
-        WebkitMaskImage: `url(${url})`,
-        WebkitMaskSize: 'contain',
-        WebkitMaskRepeat: 'no-repeat',
-        WebkitMaskPosition: 'center',
-        maskImage: `url(${url})`,
-        maskSize: 'contain',
-        maskRepeat: 'no-repeat',
-        maskPosition: 'center',
-        maskMode: 'alpha',
-        WebkitMaskMode: 'alpha',
-      } as CSSProperties}
-    />
-  );
-}
-
-function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed, channelAccent, gradient, onClick }: { label: string; icon?: string; avatarName?: string; badge?: string | number; active?: boolean; deprecated?: boolean; collapsed?: boolean; channelAccent?: boolean; gradient?: boolean; onClick?: () => void }) {
+function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed, channelAccent, onClick }: { label: string; icon?: string; avatarName?: string; badge?: string | number; active?: boolean; deprecated?: boolean; collapsed?: boolean; channelAccent?: boolean; onClick?: () => void }) {
   const interactive = Boolean(onClick);
   // channelAccent：demo planc 的 .ch-me 频道样式 — 青色图标 + 青色 active/hover 底
   const activeBg = channelAccent ? 'bg-[rgba(73,163,166,0.16)]' : 'bg-white/5';
@@ -81,8 +53,6 @@ function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed
         <div className="overflow-clip relative shrink-0 size-[16px] flex items-center justify-center">
           {avatarName ? (
             <Avatar name={avatarName} size={16} />
-          ) : icon && gradient ? (
-            <GradientCdnIcon name={icon} size={16} />
           ) : icon ? (
             <CdnIcon name={icon} size={16} color={iconColor} />
           ) : null}
@@ -91,8 +61,7 @@ function NavItem({ label, icon, avatarName, badge, active, deprecated, collapsed
       {!collapsed && (
         <>
           <p
-            className={`font-['Delight',sans-serif] leading-[22px] overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${badge != null ? 'shrink-0' : 'flex-[1_0_0] min-w-px'} ${gradient ? 'text-transparent bg-clip-text' : ''}`}
-            style={gradient ? { backgroundImage: FINTWIT_GRADIENT } : undefined}
+            className={`font-['Delight',sans-serif] leading-[22px] overflow-hidden relative text-[13px] text-ellipsis tracking-[0.13px] whitespace-nowrap ${badge != null ? 'shrink-0' : 'flex-[1_0_0] min-w-px'}`}
           >
             {label}
           </p>
@@ -205,7 +174,6 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserClick, onO
         <NavItem label="Portfolio" icon="sidebar-portfolio-normal" active={activePage === 'portfolio' || activePage === 'portfolio-settings'} collapsed={collapsed} onClick={() => onNavigate('portfolio')} />
         {/* Markets — Figma 11831:60745 */}
         <NavItem label="Markets" icon="sidebar-k-normal" collapsed={collapsed} />
-        <NavItem label="FinTwit Alpha League" icon="smart-money-l" gradient collapsed={collapsed} />
       </div>
 
       {/* Channels */}
@@ -214,13 +182,15 @@ export function Sidebar({ activePage, onNavigate, onOpenSearch, onUserClick, onO
           label="Channels"
           collapsed={collapsed}
           action={
+            /* 14×14 / 50% 白。CDN add-l2.svg 的 path 带 fill-opacity=".9"，
+               CdnIcon 走 maskMode:'alpha' 会把这 0.9 乘进遮罩，故 0.5/0.9 除回去 */
             <button
               type="button"
-              className="flex cursor-pointer items-center justify-center border-none bg-transparent p-0 opacity-50 transition-opacity hover:opacity-100"
+              className="flex cursor-pointer items-center justify-center border-none bg-transparent p-0 opacity-[0.556] transition-opacity hover:opacity-100"
               onClick={() => setNewChannelOpen(true)}
               aria-label="New channel"
             >
-              <CdnIcon name="add-l2" size={12} color="#ffffff" />
+              <CdnIcon name="add-l2" size={14} color="#ffffff" />
             </button>
           }
         />

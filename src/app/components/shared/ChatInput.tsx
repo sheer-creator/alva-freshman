@@ -171,7 +171,7 @@ const MENTION_PICKER_ITEMS: ChatPickerItem[] = [
     icon: 'sidebar-dashboard-normal',
     label: '@Sheer-X/Attribution Analysis Strategy for Price Trends',
     insertText: '@Sheer-X/Attribution Analysis Strategy for Price Trends',
-    targetHash: 'template-thesis',
+    targetHash: 'template-screener',
     preview: {
       kind: 'playbook',
       title: 'CRCL Earnings Radar — FY26 Q1',

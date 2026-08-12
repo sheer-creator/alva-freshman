@@ -323,14 +323,14 @@ function TradingStrategy({ strategy, onNavigate }: { strategy: StrategyBinding; 
             <span
               className="text-[16px] leading-[26px] tracking-[0.16px] truncate cursor-pointer hover:underline"
               style={{ color: 'var(--text-n9, rgba(0,0,0,0.9))', fontFamily: FONT_FAMILY }}
-              onClick={() => onNavigate('screener')}
+              onClick={() => onNavigate('template-screener')}
             >{playbookHandle}</span>
             <PulseIndicator status="active" />
           </div>
           <p className="text-[14px] leading-[22px] tracking-[0.14px]" style={{ color: 'var(--text-n5, rgba(0,0,0,0.5))', fontFamily: FONT_FAMILY }}>02/02/2026 - Now</p>
         </div>
         <button
-          onClick={() => onNavigate('screener')}
+          onClick={() => onNavigate('template-screener')}
           className="flex items-center justify-center h-[32px] px-[12px] py-[6px] rounded-[4px] shrink-0 transition-colors hover:bg-[rgba(0,0,0,0.03)] cursor-pointer"
           style={{ border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))', background: 'var(--content-b10, #fff)' }}
         >

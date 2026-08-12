@@ -88,8 +88,8 @@ export const CONVERSATIONS: ConversationItem[] = [
 export const PAGE_DEFAULT_THREAD: Record<string, string> = {};
 
 /** Pages where the current user is the playbook owner (主态).
- *  Starred / template pages are visitor (客态). */
-const OWNER_PLAYBOOK_PAGES = new Set(['screener']);
+ *  Starred / template pages are visitor (客态) — 当前所有 playbook 页均为客态。 */
+const OWNER_PLAYBOOK_PAGES = new Set<string>();
 
 export function isPlaybookOwnerPage(page: string): boolean {
   return OWNER_PLAYBOOK_PAGES.has(page);
