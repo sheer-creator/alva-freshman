@@ -74,7 +74,8 @@
     .tooltip-text { font-size: 14px; line-height: 22px; letter-spacing: 0.14px; font-weight: 400; color: var(--text-n9); }
     .tooltip-title { font-size: 16px; line-height: 26px; letter-spacing: 0.16px; font-weight: 500; color: var(--text-n9); }
     .ct-info .tooltip { top: calc(100% + 8px); left: -4px; z-index: 20; gap: var(--spacing-s); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease; }
-    .ct-info:hover .tooltip, .ct-info:focus-visible .tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+    .ct-info:hover .tooltip, .ct-info:focus-visible .tooltip, .ct-info.tip-open .tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+    @media (hover: none) { .ct-info:hover .tooltip { opacity: 0; visibility: hidden; } }  /* touch: tap opens it, hover must not */
     .portfolio-section-title .section-title-icon { font-size: 18px; line-height: 28px; }
 
     /* twin chart left columns — one shared component so both cards align identically.
@@ -225,18 +226,17 @@
     .pw-blur i:nth-child(3) { --b: 6px;   --m0: 50%;  --m1: 62.5%; --m2: 87.5%; --m3: 100%; }
     .pw-blur i:nth-child(4) { --b: 9px;   --m0: 75%;  --m1: 87.5%; --m2: 100%;  --m3: 100%; }
     .paywall-feed { position: relative; z-index: 1; }
-    .paywall-feed { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 24px 64px; overflow: auto; }
+    .paywall-feed { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 28px; overflow: auto; }
     /* Middle content cap — Figma "Max" 13381:295002 */
-    .pw-max { display: flex; align-items: center; gap: 28px; width: 100%; max-width: 1024px; }
+    .pw-max { display: flex; align-items: center; gap: 28px; width: 100%; max-width: 1080px; }
     /* Purchase panel — Figma 13381:294657 */
     .purchase { display: flex; flex-direction: column; gap: 24px; flex: 1; min-width: 0; }
-    .pu-lock { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: #fff; border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3)); border-radius: var(--radius-ct-xl, 12px); }
-    .pu-lock img { width: 28px; height: 28px; display: block; }
-    .pu-title { font-size: 36px; line-height: 48px; letter-spacing: 0.36px; color: var(--text-n9, rgba(0,0,0,0.9)); }
-    .pu-benefits { display: flex; flex-direction: column; gap: 12px; }
-    .pu-row { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 26px; letter-spacing: 0.16px; color: var(--text-n7, rgba(0,0,0,0.7)); }
-    .pu-row .ic { width: 20px; height: 20px; flex-shrink: 0; display: block; }
-    .pu-cta { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+    .pu-lock { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: #fff; border: 0.5px solid var(--line-l3, rgba(0,0,0,0.3)); border-radius: var(--radius-ct-xl, 12px); }
+    .pu-lock img { width: 32px; height: 32px; display: block; }
+    .pu-benefits { display: flex; flex-direction: column; gap: 16px; }
+    .pu-row { display: flex; align-items: flex-start; gap: 12px; font-size: 20px; line-height: 30px; letter-spacing: 0.2px; color: var(--text-n9, rgba(0,0,0,0.9)); }
+    .pu-row .ic { width: 26px; height: 26px; margin-top: 2px; flex-shrink: 0; display: block; background: var(--main-m1, #49A3A6); -webkit-mask: url(https://alva-ai-static.b-cdn.net/icons/check-f3.svg) center / contain no-repeat; mask: url(https://alva-ai-static.b-cdn.net/icons/check-f3.svg) center / contain no-repeat; }
+    .pu-cta { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
     .pu-price { white-space: nowrap; }
     .pu-price .v { font-size: 36px; line-height: 48px; letter-spacing: 0.36px; color: var(--text-n9, rgba(0,0,0,0.9)); }
     .pu-price .u { font-size: 20px; line-height: 30px; letter-spacing: 0.2px; color: var(--text-n5, rgba(0,0,0,0.5)); }
@@ -250,10 +250,13 @@
     @keyframes pwFadeIn { from { opacity: 0; } to { opacity: 1; } }
     .alerts-feed { display: flex; flex-direction: column; width: 100%; }
     .pw-msg { display: flex; align-items: flex-start; gap: 8px; width: 100%; }
-    .pw-msg:not(:last-child) { margin-bottom: -80px; }
+    .pw-msg:not(:last-child) { margin-bottom: -88px; }
+    .pw-msg.h200 { height: 200px; }  /* row is 200 while its 220 bubble hangs 20 under the next card */
     .pw-ava { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; background-color: var(--main-m1-10, rgba(73,163,166,0.1)); background-image: var(--si-avatar); background-size: cover; background-position: center; }
-    .pw-bubble { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px; background: var(--b0-container, #fff); border: 0.5px solid var(--line-l12, rgba(0,0,0,0.12)); border-radius: var(--radius-ct-l, 8px); filter: drop-shadow(0 -6px 10px rgba(0,0,0,0.04)); }
-    .pw-msg.h200 .pw-bubble { height: 200px; overflow: hidden; }
+    .pw-bubble { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; height: 220px; overflow: hidden; padding: 12px; background: var(--b0-container, #fff); border: 0.5px solid var(--line-l12, rgba(0,0,0,0.12)); border-radius: var(--radius-ct-l, 8px); }
+    .pw-bubble::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 100%); pointer-events: none; }
+    /* top card carries no shadow; the two beneath cast 0 -6 20 5% upward */
+    .pw-msg.op50 .pw-bubble, .pw-msg:last-child .pw-bubble { box-shadow: 0 -6px 20px rgba(0,0,0,0.05); }
     .pw-msg.op30 .pw-ava, .pw-msg.op30 .pw-bubble > * { opacity: 0.3; }
     .pw-msg.op50 .pw-ava, .pw-msg.op50 .pw-bubble > * { opacity: 0.5; }
     .pw-meta { font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5, rgba(0,0,0,0.5)); }
@@ -262,10 +265,10 @@
     .pw-li { display: flex; align-items: flex-start; font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n9, rgba(0,0,0,0.9)); }
     .pw-li::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: currentColor; margin: 9px 8px 0; flex-shrink: 0; }
     .pwb-socials { display: flex; align-items: center; isolation: isolate; }
-    .pwb-so { position: relative; width: 22px; height: 22px; border-radius: 50%; border: 0.625px solid #fff; overflow: hidden; flex-shrink: 0; }
+    .pwb-so { position: relative; width: 24px; height: 24px; border-radius: 50%; border: 0.625px solid #fff; overflow: hidden; flex-shrink: 0; }
     .pwb-so:not(:last-child) { margin-right: -8px; }
     .pwb-so img { position: absolute; inset: -0.63px; width: calc(100% + 1.26px); height: calc(100% + 1.26px); }
-    .pwb-btn { position: relative; display: flex; align-items: center; justify-content: center; height: 48px; padding: 11px 20px; border: 0; border-radius: var(--radius-btn-m, 6px); background: var(--main-m1, #49A3A6); color: #fff; font-family: inherit; font-size: 16px; line-height: 26px; letter-spacing: 0.16px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+    .pwb-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 240px; height: 48px; padding: 11px 20px; border: 0; border-radius: var(--radius-btn-m, 6px); background: var(--main-m1, #49A3A6); color: #fff; font-family: inherit; font-size: 16px; line-height: 26px; letter-spacing: 0.16px; font-weight: 500; white-space: nowrap; cursor: pointer; }
 
     .spinner { display: none; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: pbSpin 0.7s linear infinite; }
     @keyframes pbSpin { to { transform: rotate(360deg); } }
@@ -285,7 +288,7 @@
     @keyframes toastOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -100%); } }
 
     /* Subscribed popover — Figma 13381:273369: white, l2 border, r6, shadow 0 6 20 4%, p20 gap16 */
-    .sub-popover { position: fixed; right: 28px; z-index: 70; width: 480px; max-width: calc(100vw - 56px); display: none; flex-direction: column; gap: 16px; padding: 20px; background: var(--b0-container, #fff); border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2)); border-radius: var(--radius-pop-popover, 6px); box-shadow: 0 6px 20px rgba(0,0,0,0.04); overflow: hidden; }
+    .sub-popover { position: fixed; right: 28px; left: auto; bottom: auto; z-index: 70; width: 480px; max-width: calc(100vw - 56px); display: none; flex-direction: column; gap: 16px; padding: 20px; background: var(--b0-container, #fff); border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2)); border-radius: var(--radius-pop-popover, 6px); box-shadow: 0 6px 20px rgba(0,0,0,0.04); overflow: hidden; }
     .sub-popover.open { display: flex; animation: popIn 0.25s ease; }
     @keyframes popIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
     .sp-title { flex-shrink: 0; display: flex; align-items: center; gap: 12px; height: 26px; }
@@ -319,11 +322,126 @@
     .sp-imbtn .m { width: 14px; height: 14px; flex-shrink: 0; background: #fff; -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat; }
     .sp-div { width: 100%; border-top: 0.5px solid var(--line-l12, rgba(0,0,0,0.12)); }
     .sp-unsub { font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n7, rgba(0,0,0,0.7)); text-align: center; cursor: pointer; }
+
+    /* ═══════ Mobile — official mobile frame (Figma 13433:81493) ═══════ */
+    .mw-topbar, .mw-dock { display: none; }
+    .sp-scrim { position: fixed; inset: 0; z-index: 65; display: none; background: rgba(20,20,28,0.38); opacity: 0; transition: opacity 0.3s ease; }
+    .sp-grab { display: none; }
+    .pu-long { display: inline; }
+
+    /* Two columns survive while Left (flex:1) can shrink: its widest unbreakable
+       row is benefit line 3 at 20px (~350px incl. icons), so stack below
+       28+350+28+480+28 ≈ 920. */
+    @media (max-width: 940px) {
+      .paywall-feed { align-items: flex-start; padding: 28px 28px 40px; }
+      .pw-max { flex-direction: column; align-items: stretch; gap: 32px; max-width: 560px; margin: 0 auto; }
+      .alerts-stack { width: 100%; }
+    }
+
+    @media (max-width: 640px) {
+      /* ── Mweb topbar (13433:81505) replaces the desktop info header ── */
+      .pb-info { display: none; }
+      .mw-topbar { display: flex; align-items: center; flex-shrink: 0; height: 56px; padding-right: 8px; background: var(--b0-container, #fff); }
+      .mw-back { display: flex; align-items: center; height: 100%; padding: 0 12px 0 16px; border: 0; background: transparent; cursor: pointer; }
+      .mw-back img { width: 20px; height: 20px; display: block; }
+      .mw-title { flex: 1; min-width: 0; font-size: 16px; line-height: 26px; letter-spacing: 0.16px; color: var(--text-n9, rgba(0,0,0,0.9)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .mw-actions { display: flex; align-items: center; height: 100%; }
+      .mw-btn { display: flex; align-items: center; justify-content: center; gap: 4px; min-width: 40px; height: 56px; padding: 0 8px; border: 0; background: transparent; font-family: inherit; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n9, rgba(0,0,0,0.9)); cursor: pointer; }
+      .mw-btn img { width: 16px; height: 16px; display: block; }
+
+      /* ── action dock (13433:81511): white / 0.5 l2 / r8 / shadow 0 4 15 12% ── */
+      .mw-dock { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 56; display: flex; padding: 8px 0 6px; background: #fff; border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2)); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.12); }
+      .mw-dock-item { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0; min-width: 80px; height: 40px; padding: 0 12px 2px; border: 0; background: transparent; font-family: inherit; cursor: pointer; }
+      .mw-dock-item img { width: 20px; height: 20px; display: block; }
+      .mw-dock-item .lb { font-size: 10px; line-height: 16px; letter-spacing: 0.1px; color: var(--text-n9, rgba(0,0,0,0.9)); white-space: nowrap; }
+      .mw-dock-item .lb .n { color: var(--text-n5, rgba(0,0,0,0.5)); }
+
+      /* ── widget internals wrap; tables scroll ── */
+      .chart-flex { flex-wrap: wrap; }
+      .chart-rows { width: 100%; height: auto; flex-shrink: 1; }
+      .trade-table { grid-template-columns: 72px 1fr 52px 60px 76px minmax(84px, 1fr); min-width: 520px; }
+      .modal-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .modal-sheet { padding: var(--spacing-l); }
+      .tab { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .pb-scroll { -webkit-overflow-scrolling: touch; }
+      .ident-avatar { width: 40px; height: 40px; }
+      .ident { gap: var(--spacing-s); }
+
+      /* ── paywall — Max 13433:84007: p 40/20, col gap 40 ── */
+      .paywall-feed { padding: 40px 20px 110px; -webkit-overflow-scrolling: touch; }
+      .pw-max { gap: 40px; max-width: none; margin: 0; }
+      .purchase { gap: 20px; }
+      .pu-benefits { gap: 8px; }
+      .pu-row { gap: 8px; font-size: 14px; line-height: 22px; letter-spacing: 0.14px; color: var(--text-n7, rgba(0,0,0,0.7)); }
+      .pu-row .ic { width: 20px; height: 20px; margin-top: 1px; }
+      .pwb-so { width: 22px; height: 22px; }
+      .pu-benefits { gap: 8px; }
+      .pu-cta { gap: 12px; }
+      .pu-long { display: none; }
+      .pu-price .v { font-size: 28px; line-height: 38px; letter-spacing: 0.28px; }
+      .pu-price .u { font-size: 16px; line-height: 26px; letter-spacing: 0.16px; }
+      .pu-cta { width: 100%; }
+      .pwb-btn { width: 100%; }
+
+      /* ── alerts (13433:84029, revised): a single full-width newest card, 353×300
+         at the frame; the older two are gone from the mobile spec ── */
+      .paywall-kicker { text-align: left; }
+      .alerts-feed { display: block; }
+      .pw-ava { display: none; }
+      .pw-msg:not(:last-child) { display: none; }
+      .pw-msg:last-child { width: 100%; height: 300px; animation-delay: 0.15s; }
+      .pw-bubble { height: 100%; overflow: hidden; }
+
+      /* ── Subscribed popover → sheet (kept from the v7 pass) ── */
+      .sp-scrim { display: block; pointer-events: none; }
+      .sp-scrim.open { opacity: 1; pointer-events: auto; }
+      .sub-popover { display: flex; pointer-events: none; right: 0; left: 0; bottom: 0; top: auto !important; width: auto; max-width: none;
+        height: auto !important; max-height: 88vh; padding: 0 16px calc(env(safe-area-inset-bottom, 0px));
+        border-radius: var(--radius-pop-action-sheets, 8px) var(--radius-pop-action-sheets, 8px) 0 0; border-bottom: 0;
+        transform: translateY(106%); transition: transform 0.36s cubic-bezier(0.22, 0.61, 0.36, 1); }
+      .sub-popover.open { transform: none; pointer-events: auto; animation: none; }
+      .sp-grab { display: block; flex-shrink: 0; width: 36px; height: 4px; margin: 8px auto 4px; border-radius: 2px; background: var(--line-l12, rgba(0,0,0,0.12)); }
+      .sp-title { padding-top: 4px; }
+      .sp-close { width: 44px; height: 44px; margin: -14px; display: flex; align-items: center; justify-content: center; }
+      .sp-close img { width: 16px; height: 16px; }
+      .sp-cards { padding-bottom: 200px; -webkit-overflow-scrolling: touch; }
+      .sp-auto { flex-wrap: wrap; gap: 8px 12px; min-height: 44px; }
+      .sp-auto .name { flex-basis: calc(100% - 44px); }
+      .sp-chan { margin-left: 44px; min-height: 32px; }
+      .sp-footer { left: 16px; right: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+      .sp-imbtn { height: 44px; }
+
+      /* ── toast / tooltip ── */
+      .unlock-toast { left: 16px; right: 16px; transform: none; max-width: none; }
+      .ut-title { white-space: normal; }
+      .unlock-toast.show { animation: toastInM 0.25s ease-out both; }
+      .unlock-toast.hide { animation: toastOutM 0.25s ease-in both; }
+      @keyframes toastInM { from { opacity: 0; transform: translateY(-100%); } to { opacity: 1; transform: none; } }
+      @keyframes toastOutM { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-100%); } }
+      .ct-info .tooltip { left: auto; right: -4px; max-width: calc(100vw - 48px); }
+    }
+
+    /* Touch: press feedback replaces hover; layered backdrop blur is too heavy */
+    @media (hover: none) {
+      .pwb-btn:active, .pb-btn-subscribe:active, .sp-imbtn:active { opacity: 0.85; }
+      .pb-chip:active, .pb-pill:active, .pb-iconbtn:active, .sp-close:active, .mw-btn:active, .mw-back:active, .mw-dock-item:active { opacity: 0.7; }
+      .pw-blur i:nth-child(1), .pw-blur i:nth-child(2), .pw-blur i:nth-child(3) { display: none; }
+      .pw-blur i:nth-child(4) { -webkit-mask-image: none; mask-image: none; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+    }
   </style>
 </head>
 <body>
 
 <!-- ═══════════ PLAYBOOK INFO — Info Block 13377:272832 / unlocked topbar 13381:273219 ═══════════ -->
+<header class="mw-topbar">
+  <button class="mw-back" type="button" aria-label="Back"><img src="https://alva-ai-static.b-cdn.net/icons/arrow-left-l1.svg" alt="" /></button>
+  <span class="mw-title">Space Investor Master Playbook</span>
+  <span class="mw-actions">
+    <button class="mw-btn" type="button" aria-label="About"><img src="https://alva-ai-static.b-cdn.net/icons/explain-l.svg" alt="" /></button>
+    <button class="mw-btn" type="button" aria-label="Comments"><img src="https://alva-ai-static.b-cdn.net/icons/chat-l1.svg" alt="" />12</button>
+    <button class="mw-btn" type="button" aria-label="Share"><img src="https://alva-ai-static.b-cdn.net/icons/share-l.svg" alt="" /></button>
+  </span>
+</header>
 <header class="pb-info">
   <div class="pb-head">
     <div class="pb-row-top">
@@ -466,11 +584,10 @@
       <div class="pw-max">
       <div class="purchase">
         <span class="pu-lock"><img src="https://alva-ai-static.b-cdn.net/icons/locked-f.svg" alt="" /></span>
-        <div class="pu-title">Unlock the full playbook</div>
         <div class="pu-benefits">
-          <div class="pu-row"><img class="ic" src="https://alva-ai-static.b-cdn.net/icons/placeholder-l.svg" alt="" /><span>Full live dashboard — portfolio, charts, AI commentary</span></div>
-          <div class="pu-row"><img class="ic" src="https://alva-ai-static.b-cdn.net/icons/placeholder-l.svg" alt="" /><span>Real-time alerts as every signal fires</span></div>
-          <div class="pu-row"><img class="ic" src="https://alva-ai-static.b-cdn.net/icons/placeholder-l.svg" alt="" /><span>Delivered to Alva and your IM</span>
+          <div class="pu-row"><span class="ic"></span><span>Full live dashboard<span class="pu-long"> — portfolio, charts, AI commentary</span></span></div>
+          <div class="pu-row"><span class="ic"></span><span>Real-time alerts as every signal fires</span></div>
+          <div class="pu-row"><span class="ic"></span><span>Delivered to Alva and your IM</span>
             <span class="pwb-socials">
               <span class="pwb-so" style="z-index:3"><img src="https://alva-ai-static.b-cdn.net/icons/logo-social-telegram.svg" alt="Telegram" /></span>
               <span class="pwb-so" style="z-index:2"><img src="https://alva-ai-static.b-cdn.net/icons/logo-social-discord.svg" alt="Discord" /></span>
@@ -516,6 +633,7 @@
             <div class="pw-list">
               <div class="pw-li">Top holding: RKLB +8.2% on the update — portfolio weight raised from 9% to 12% on launch-cadence conviction.</div>
               <div class="pw-li">New entry: ASTS joins the basket at a 4% starter position after the FCC milestone.</div>
+              <div class="pw-li">Watch next: LUNR IM-3 mission window opens the second week of June.</div>
             </div>
           </div>
         </div>
@@ -525,6 +643,13 @@
     </div>
   </div>
   <div class="pw-wave" id="pw-wave" aria-hidden="true"></div>
+
+  <!-- mweb action dock — Figma 13433:81511 -->
+  <div class="mw-dock">
+    <button class="mw-dock-item" type="button"><img src="https://alva-ai-static.b-cdn.net/icons/chat-ai-l.svg" alt="" /><span class="lb">Ask Alva</span></button>
+    <button class="mw-dock-item" type="button"><img src="https://alva-ai-static.b-cdn.net/icons/remix-l.svg" alt="" /><span class="lb">Remix <span class="n">1.2K</span></span></button>
+    <button class="mw-dock-item" id="mw-dock-sub" type="button"><img src="https://alva-ai-static.b-cdn.net/icons/notification-l.svg" alt="" /><span class="lb">Subscribe <span class="n">512</span></span></button>
+  </div>
 
   <!-- unlock confirmation — @repo/ui-base toast spec (see AgentNewSession.tsx) -->
   <div class="unlock-toast" id="unlock-toast" role="status">
@@ -537,7 +662,9 @@
 </div><!-- /.pb-body -->
 
 <!-- ═══════════ SUBSCRIBED POPOVER — Popup/Get Alerts 13381:273369 ═══════════ -->
+<div class="sp-scrim" id="sp-scrim"></div>
 <div class="sub-popover" id="sub-popover">
+  <div class="sp-grab" aria-hidden="true"></div>
   <div class="sp-title">
     <span class="t">Subscribe</span>
     <button class="sp-close" id="sp-close" type="button" aria-label="Close"><img src="https://alva-ai-static.b-cdn.net/icons/close-l1.svg" alt="" /></button>
@@ -1024,16 +1151,28 @@
     var pwButtons = [document.getElementById("pb-subscribe-btn"), document.getElementById("pw-subscribe-btn")];
     var pwStarted = false;
     function positionPopover() {
+      if (window.matchMedia("(max-width: 640px)").matches) {   // bottom sheet — CSS owns the geometry
+        pwPopover.style.top = pwPopover.style.height = "";
+        return;
+      }
       var r = pwSubChip.getBoundingClientRect();
       var top = Math.round((r.bottom || 56) + 8);
       pwPopover.style.top = top + "px";
       pwPopover.style.height = "min(750px, calc(100vh - " + (top + 24) + "px))";
     }
-    function openPopover() { positionPopover(); pwPopover.classList.add("open"); }
-    function closePopover() { pwPopover.classList.remove("open"); }
+    var pwScrim = document.getElementById("sp-scrim");
+    function openPopover() { positionPopover(); pwPopover.classList.add("open"); pwScrim.classList.add("open"); }
+    function closePopover() { pwPopover.classList.remove("open"); pwScrim.classList.remove("open"); }
     // Radial reveal: a mask hole grows from the Subscribe button until the veil
     // (white fill + blur layers + panels) is wiped away; a light ring rides the front.
     function runReveal() {
+      // Mobile GPUs choke on a per-frame radial mask over stacked backdrop filters.
+      if (window.matchMedia("(max-width: 640px), (hover: none)").matches) {
+        pwPaywall.style.transition = "opacity 0.45s ease";
+        pwPaywall.style.opacity = "0";
+        setTimeout(function () { pwPaywall.style.display = "none"; openPopover(); }, 460);
+        return;
+      }
       var pr = pwPaywall.getBoundingClientRect();
       var br = document.getElementById("pw-subscribe-btn").getBoundingClientRect();
       var cx = br.left + br.width / 2 - pr.left;
@@ -1071,11 +1210,22 @@
       }, 1200);
     }
     pwButtons.forEach(function (b) { b.addEventListener("click", startUnlock); });
+    document.getElementById("mw-dock-sub").addEventListener("click", startUnlock);
     pwSubChip.addEventListener("click", function (e) {
       e.stopPropagation();
       if (pwPopover.classList.contains("open")) closePopover(); else openPopover();
     });
     document.getElementById("sp-close").addEventListener("click", closePopover);
+    pwScrim.addEventListener("click", closePopover);
+
+    // Touch devices have no hover, so the info tooltips need an explicit tap toggle.
+    if (window.matchMedia("(hover: none)").matches) {
+      document.addEventListener("click", function (e) {
+        var hit = e.target.closest ? e.target.closest(".ct-info") : null;
+        document.querySelectorAll(".ct-info.tip-open").forEach(function (el) { if (el !== hit) el.classList.remove("tip-open"); });
+        if (hit && !e.target.closest(".tooltip a")) { e.preventDefault(); hit.classList.toggle("tip-open"); }
+      });
+    }
     document.addEventListener("mousedown", function (e) {
       if (pwPopover.classList.contains("open") && !pwPopover.contains(e.target) && !pwSubChip.contains(e.target)) closePopover();
     });
