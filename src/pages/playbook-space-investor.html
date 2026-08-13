@@ -213,21 +213,10 @@
     .pb-scroll { height: 100%; overflow-y: auto; overflow-x: hidden; }
 
     /* Paywall overlay — Figma 13377:272836: white 50% + blur 10; bubbles white/l12/r8/p12, shadow 0 -6 10 4% */
-    .paywall { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; overflow: hidden; background: rgba(255,255,255,0.5); }
+    .paywall { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; overflow: hidden; background: var(--b0-container, #fff); }
     .paywall.revealing { pointer-events: none; }
     /* unlock wave — a light ring riding the radial-mask wavefront (driven per-frame from JS) */
     .pw-wave { position: absolute; z-index: 55; border-radius: 50%; border: 1.5px solid rgba(73,163,166,0.5); box-shadow: 0 0 28px rgba(73,163,166,0.22), inset 0 0 28px rgba(73,163,166,0.16); opacity: 0; pointer-events: none; }
-    .pw-blur { position: absolute; inset: 0; pointer-events: none; }
-    .pw-blur i { position: absolute; inset: 0; display: block; -webkit-backdrop-filter: blur(var(--b)); backdrop-filter: blur(var(--b)); -webkit-mask-image: linear-gradient(to bottom, transparent var(--m0), #000 var(--m1), #000 var(--m2), transparent var(--m3)); mask-image: linear-gradient(to bottom, transparent var(--m0), #000 var(--m1), #000 var(--m2), transparent var(--m3)); }
-    /* Stops are pixel-capped, not proportional: the sharp band at the top stays
-       ~100px tall no matter how tall the veil gets (a percentage ramp would keep
-       exposing more readable content as the window grows), and everything past
-       ~700px sits at full blur. min(px, %) keeps short viewports proportional.
-       Overlap zones compound (two backdrop layers cascade ≈ √(a²+b²)). */
-    .pw-blur i:nth-child(1) { --b: 1.5px; --m0: 0px;              --m1: min(100px, 12.5%); --m2: min(300px, 37.5%); --m3: min(400px, 50%); }
-    .pw-blur i:nth-child(2) { --b: 3px;   --m0: min(200px, 25%);  --m1: min(300px, 37.5%); --m2: min(500px, 62.5%); --m3: min(600px, 75%); }
-    .pw-blur i:nth-child(3) { --b: 4px;   --m0: min(400px, 50%);  --m1: min(500px, 62.5%); --m2: min(700px, 87.5%); --m3: 100%; }
-    .pw-blur i:nth-child(4) { --b: 5px;   --m0: min(600px, 75%);  --m1: min(700px, 87.5%); --m2: 100%;              --m3: 100%; }
     .paywall-feed { position: relative; z-index: 1; }
     .paywall-feed { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 28px; overflow: auto; }
     /* Middle content cap — Figma "Max" 13381:295002 */
@@ -330,7 +319,6 @@
     .mw-topbar, .mw-dock { display: none; }
     .sp-scrim { position: fixed; inset: 0; z-index: 65; display: none; background: rgba(20,20,28,0.38); opacity: 0; transition: opacity 0.3s ease; }
     .sp-grab { display: none; }
-    .pu-long { display: inline; }
 
     /* Two columns survive while Left (flex:1) can shrink: its widest unbreakable
        row is benefit line 3 at 20px (~350px incl. icons), so stack below
@@ -371,18 +359,17 @@
       .ident { gap: var(--spacing-s); }
 
       /* ── paywall — Max 13433:84007: p 40/20, col gap 40 ── */
-      .paywall-feed { padding: 40px 16px 110px; -webkit-overflow-scrolling: touch; }
+      .paywall-feed { padding: 16px 16px 110px; -webkit-overflow-scrolling: touch; }
       .pw-max { gap: 28px; max-width: none; margin: 0; }
       .purchase { gap: 20px; }
       .pu-benefits { gap: 8px; }
-      .pu-lock { width: 56px; height: 56px; }
-      .pu-lock img { width: 28px; height: 28px; }
+      .pu-lock { width: 48px; height: 48px; }
+      .pu-lock img { width: 26px; height: 26px; }
       .pu-benefits { gap: 8px; }
       .pu-row { gap: 8px; font-size: 16px; line-height: 26px; letter-spacing: 0.16px; color: var(--text-n9, rgba(0,0,0,0.9)); }
       .pu-row .ic { width: 20px; height: 20px; margin-top: 3px; }
       .pwb-so { width: 22px; height: 22px; }
       .pu-cta { gap: 12px; }
-      .pu-long { display: none; }
       .pu-price .v { font-size: 28px; line-height: 38px; letter-spacing: 0.28px; }
       .pu-price .u { font-size: 16px; line-height: 26px; letter-spacing: 0.16px; }
       .pu-cta { width: 100%; }
@@ -427,12 +414,10 @@
       .ct-info .tooltip { left: auto; right: -4px; max-width: calc(100vw - 48px); }
     }
 
-    /* Touch: press feedback replaces hover; layered backdrop blur is too heavy */
+    /* Touch: press feedback replaces hover */
     @media (hover: none) {
       .pwb-btn:active, .pb-btn-subscribe:active, .sp-imbtn:active { opacity: 0.85; }
       .pb-chip:active, .pb-pill:active, .pb-iconbtn:active, .sp-close:active, .mw-btn:active, .mw-back:active, .mw-dock-item:active { opacity: 0.7; }
-      .pw-blur i:nth-child(1), .pw-blur i:nth-child(2), .pw-blur i:nth-child(3) { display: none; }
-      .pw-blur i:nth-child(4) { -webkit-mask-image: none; mask-image: none; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
     }
   </style>
 </head>
@@ -585,13 +570,12 @@
   <div class="paywall" id="paywall">
     <!-- Figma: fill #FFF 50% + progressive background blur 0→20 (top→bottom).
          CSS has no native progressive backdrop blur — six banded layers approximate it. -->
-    <div class="pw-blur" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="paywall-feed">
       <div class="pw-max">
       <div class="purchase">
         <span class="pu-lock"><img src="https://alva-ai-static.b-cdn.net/icons/locked-f.svg" alt="" /></span>
         <div class="pu-benefits">
-          <div class="pu-row"><span class="ic"></span><span>Full live dashboard<span class="pu-long"> — portfolio, charts, AI commentary</span></span></div>
+          <div class="pu-row"><span class="ic"></span><span>Full live dashboard</span></div>
           <div class="pu-row"><span class="ic"></span><span>Real-time alerts as every signal fires</span></div>
           <div class="pu-row"><span class="ic"></span><span>Delivered to Alva and your IM</span>
             <span class="pwb-socials">
