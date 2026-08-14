@@ -1,7 +1,7 @@
 /**
  * [INPUT]: setup checklist task launches and successful product interactions
- * [OUTPUT]: cross-route onboarding progress for the primary sidebar experience
- * [POS]: app state — keeps the sidebar checklist truthful while pages unmount/remount
+ * [OUTPUT]: session-only onboarding progress for the primary sidebar experience
+ * [POS]: app state — survives SPA navigation, but intentionally resets on browser refresh for demo testing
  */
 
 import { useSyncExternalStore } from 'react';
@@ -28,10 +28,6 @@ interface SetupChecklistState {
   hidden: boolean;
 }
 
-type StoredSetupChecklistState = Pick<SetupChecklistState, 'completed' | 'hidden'>;
-
-const SETUP_STORAGE_KEY = 'alva-freshman.setup-checklist.v1';
-
 const EMPTY_COMPLETION: Record<SetupTaskId, boolean> = {
   profile: false,
   'chat-app': false,
@@ -40,55 +36,9 @@ const EMPTY_COMPLETION: Record<SetupTaskId, boolean> = {
   memory: false,
 };
 
-function readStoredSetupState(): StoredSetupChecklistState | null {
-  if (typeof window === 'undefined') return null;
-
-  try {
-    const raw = window.localStorage.getItem(SETUP_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<StoredSetupChecklistState>;
-    const completed = parsed.completed;
-    if (!completed) return null;
-
-    return {
-      completed: {
-        profile: Boolean(completed.profile),
-        'chat-app': Boolean(completed['chat-app']),
-        automation: Boolean(completed.automation),
-        playbook: Boolean(completed.playbook),
-        memory: Boolean(completed.memory),
-      },
-      hidden: Boolean(parsed.hidden),
-    };
-  } catch {
-    return null;
-  }
-}
-
-function persistSetupState(completed: Record<SetupTaskId, boolean>, hidden: boolean) {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(SETUP_STORAGE_KEY, JSON.stringify({ completed, hidden }));
-  } catch {
-    // The in-memory demo still works when browser storage is unavailable.
-  }
-}
-
-function taskFromHash(): SetupTaskId | null {
-  if (typeof window === 'undefined') return null;
-  const query = window.location.hash.split('?')[1];
-  if (!query) return null;
-  const task = new URLSearchParams(query).get('setupTask');
-  return task === 'profile' || task === 'chat-app' || task === 'automation' || task === 'playbook' || task === 'memory'
-    ? task
-    : null;
-}
-
-const storedSetupState = readStoredSetupState();
-
 let state: SetupChecklistState = {
-  activeTask: taskFromHash(),
-  completed: storedSetupState?.completed ?? { ...EMPTY_COMPLETION },
+  activeTask: null,
+  completed: { ...EMPTY_COMPLETION },
   connectedImId: null,
   automationId: null,
   followedPlaybookId: null,
@@ -97,7 +47,7 @@ let state: SetupChecklistState = {
   launchVersion: 0,
   nudgePlayed: false,
   panelOpen: false,
-  hidden: storedSetupState?.hidden ?? false,
+  hidden: false,
 };
 
 const listeners = new Set<() => void>();
@@ -131,18 +81,10 @@ export function markSetupNudgePlayed() {
 }
 
 export function hideSetupChecklist() {
-  persistSetupState(state.completed, true);
   setState({ hidden: true, nudgePlayed: true, panelOpen: false });
 }
 
 export function resetSetupChecklistPreview() {
-  if (typeof window !== 'undefined') {
-    try {
-      window.localStorage.removeItem(SETUP_STORAGE_KEY);
-    } catch {
-      // The in-memory reset below remains sufficient for the current tab.
-    }
-  }
   setState({
     activeTask: null,
     completed: { ...EMPTY_COMPLETION },
@@ -173,7 +115,6 @@ export function completeSetupTask(
 ) {
   const completed = { ...state.completed, [task]: true };
   const allComplete = Object.values(completed).every(Boolean);
-  persistSetupState(completed, state.hidden);
   setState({
     ...details,
     activeTask: state.activeTask === task ? null : state.activeTask,
@@ -191,16 +132,4 @@ export function completeSetupTask(
   if (proTrialPreview) nextParams.set('proTrial', proTrialPreview);
   const nextQuery = nextParams.toString();
   window.history.replaceState(null, '', `#${page}${nextQuery ? `?${nextQuery}` : ''}`);
-}
-
-if (typeof window !== 'undefined') {
-  window.addEventListener('storage', (event) => {
-    if (event.key !== SETUP_STORAGE_KEY) return;
-    const stored = readStoredSetupState();
-    setState({
-      completed: stored?.completed ?? { ...EMPTY_COMPLETION },
-      hidden: stored?.hidden ?? false,
-      panelOpen: false,
-    });
-  });
 }
