@@ -13,6 +13,7 @@ const indexPath = path.join(demoDir, 'index.html');
 const switcherFileName = '_switcher.js';
 const switcherPath = path.join(demoDir, switcherFileName);
 const switcherTag = '<script src="/demo/_switcher.js" defer></script>';
+const demoStatuses = new Set(['active', 'exploration', 'archived']);
 
 const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
 
@@ -138,6 +139,42 @@ async function gitLastModified(repoRelativePath, absolutePath) {
   }
 }
 
+async function isShallowRepository() {
+  try {
+    const { stdout } = await execFileAsync('git', ['rev-parse', '--is-shallow-repository'], { cwd: rootDir });
+    return stdout.trim() === 'true';
+  } catch {
+    return false;
+  }
+}
+
+// A shallow submodule cannot see the commits that originally created or last
+// changed most demo files. Preserve the checked-in index metadata in that case
+// instead of rewriting every author/date from the shallow boundary commit.
+async function readExistingGeneratedMetadata() {
+  try {
+    const html = await readFile(indexPath, 'utf8');
+    const metadata = new Map();
+    const rowRegex = /<a class="demo-row" href="([^"]+)">([\s\S]*?)<\/a>/g;
+    let match;
+
+    while ((match = rowRegex.exec(html)) !== null) {
+      const author = match[2].match(/<span class="demo-author">@([^<]+)<\/span>/)?.[1];
+      const updated = match[2].match(/<span class="demo-updated">Updated ([^<]+)<\/span>/)?.[1];
+      if (author || updated) {
+        metadata.set(decodeEntities(match[1]), {
+          author: author ? decodeEntities(author) : null,
+          updated: updated ? decodeEntities(updated) : null,
+        });
+      }
+    }
+
+    return metadata;
+  } catch {
+    return new Map();
+  }
+}
+
 async function githubLoginFor({ sha, name, email }) {
   if (loginCache.has(email)) return loginCache.get(email);
   let login = null;
@@ -188,6 +225,18 @@ function extractTitle(html, fallback) {
   return fallback;
 }
 
+function extractDemoStatus(html) {
+  const match = html.match(/<meta\s+name=["']demo-status["']\s+content=["']([^"']+)["'][^>]*>/i);
+  const status = match?.[1]?.trim().toLowerCase();
+  return demoStatuses.has(status) ? status : 'active';
+}
+
+function demoStatusLabel(status) {
+  if (status === 'exploration') return 'Exploration';
+  if (status === 'archived') return 'Archived';
+  return '';
+}
+
 async function collectHtmlFiles(currentDir = demoDir) {
   const entries = await readdir(currentDir, { withFileTypes: true });
   const files = [];
@@ -209,13 +258,16 @@ async function collectHtmlFiles(currentDir = demoDir) {
 
     const contents = await readFile(absolutePath, 'utf8');
     const repoRelativePath = path.posix.join('public/demo', relativePath.replaceAll(path.sep, '/'));
+    const route = routeFromRelativePath(relativePath);
+    const preserved = existingGeneratedMetadata.get(route);
     files.push({
       title: extractTitle(contents, titleFromRelativePath(relativePath)),
-      route: routeFromRelativePath(relativePath),
+      route,
       relativePath: relativePath.replaceAll(path.sep, '/'),
       summary: extractSummary(contents),
-      author: await resolveAuthor(contents, relativePath),
-      updated: await gitLastModified(repoRelativePath, absolutePath),
+      status: extractDemoStatus(contents),
+      author: preserved?.author ?? await resolveAuthor(contents, relativePath),
+      updated: preserved?.updated ?? await gitLastModified(repoRelativePath, absolutePath),
     });
   }
 
@@ -235,7 +287,10 @@ function renderList(files) {
   const rows = files.map((file) => `
           <a class="demo-row" href="${escapeHtml(file.route)}">
             <span class="demo-main">
-              <span class="demo-title">${escapeHtml(file.title)}</span>
+              <span class="demo-title-line">
+                <span class="demo-title">${escapeHtml(file.title)}</span>
+                ${file.status !== 'active' ? `<span class="demo-status demo-status-${escapeHtml(file.status)}">${demoStatusLabel(file.status)}</span>` : ''}
+              </span>
               ${file.summary ? `<span class="demo-summary">${escapeHtml(file.summary)}</span>` : ''}
             </span>
             <span class="demo-meta">
@@ -358,6 +413,30 @@ function renderPage(files) {
         overflow-wrap: anywhere;
       }
 
+      .demo-title-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .demo-status {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        padding: 2px 7px;
+        background: var(--grey-g01);
+        color: var(--text-n5);
+        font-size: 10px;
+        line-height: 16px;
+        letter-spacing: 0.1px;
+        text-transform: uppercase;
+      }
+
+      .demo-status-exploration {
+        background: rgba(73, 163, 166, 0.1);
+        color: var(--main-m1);
+      }
+
       .demo-summary {
         font-size: 13px;
         line-height: 20px;
@@ -451,8 +530,16 @@ ${renderList(files)}
 `;
 }
 
-// 最新更新的排在最前（updated 为 YYYY-MM-DD，可直接字符串降序）；同日期回退文件名字母序，保证稳定。
+// Active / exploration demos come before archived snapshots. Within each
+// lifecycle, latest update comes first; file name keeps ties stable.
+const existingGeneratedMetadata = await isShallowRepository()
+  ? await readExistingGeneratedMetadata()
+  : new Map();
+
 const files = (await collectHtmlFiles()).sort((left, right) => {
+  const rank = { active: 0, exploration: 1, archived: 2 };
+  const byStatus = rank[left.status] - rank[right.status];
+  if (byStatus !== 0) return byStatus;
   const byDate = String(right.updated ?? '').localeCompare(String(left.updated ?? ''));
   return byDate !== 0 ? byDate : collator.compare(left.relativePath, right.relativePath);
 });
@@ -470,6 +557,9 @@ const SWITCHER_CSS = `
 .ads-item-row { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; }
 .ads-item-label { font-size: 13px; font-weight: 400; line-height: 22px; letter-spacing: 0.13px; color: rgba(0,0,0,0.9); }
 .ads-item-tag { flex: 0 0 auto; font-size: 10px; font-weight: 400; line-height: 14px; letter-spacing: 0.1px; color: #49a3a6; }
+.ads-item-tags { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; }
+.ads-item-state { border-radius: 999px; padding: 1px 6px; background: #f5f5f5; font-size: 9px; font-weight: 400; line-height: 14px; letter-spacing: 0.09px; color: rgba(0,0,0,0.5); text-transform: uppercase; }
+.ads-item-state-exploration { background: rgba(73,163,166,0.1); color: #49a3a6; }
 .ads-item-sub { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 400; line-height: 18px; letter-spacing: 0.12px; color: rgba(0,0,0,0.5); }
 .ads-divider { height: 1px; background: rgba(0,0,0,0.05); margin: 6px 0; }
 .ads-bar { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
@@ -483,7 +573,7 @@ const SWITCHER_CSS = `
 `.trim();
 
 function renderSwitcherScript(files) {
-  const demos = files.map((file) => ({ title: file.title, route: file.route }));
+  const demos = files.map((file) => ({ title: file.title, route: file.route, status: file.status }));
   return `// Auto-generated by scripts/generate-demo-index.mjs — do not edit by hand.
 (function () {
   'use strict';
@@ -528,24 +618,26 @@ function renderSwitcherScript(files) {
     menu.hidden = true;
     menu.setAttribute('role', 'menu');
 
-    function makeItem(label, sub, isActive, route) {
+    function makeItem(label, sub, isActive, route, status) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'ads-item' + (isActive ? ' ads-item-active' : '');
-      var row = '<span class="ads-item-row"><span class="ads-item-label">' + esc(label) + '</span>' + (isActive ? '<span class="ads-item-tag">Current</span>' : '') + '</span>';
+      var state = status === 'exploration' ? 'Exploration' : status === 'archived' ? 'Archived' : '';
+      var tags = (isActive ? '<span class="ads-item-tag">Viewing</span>' : '') + (state ? '<span class="ads-item-state ads-item-state-' + esc(status) + '">' + state + '</span>' : '');
+      var row = '<span class="ads-item-row"><span class="ads-item-label">' + esc(label) + '</span>' + (tags ? '<span class="ads-item-tags">' + tags + '</span>' : '') + '</span>';
       var subline = sub ? '<span class="ads-item-sub">' + esc(sub) + '</span>' : '';
       b.innerHTML = row + subline;
       b.addEventListener('click', function () { go(route); });
       return b;
     }
 
-    menu.appendChild(makeItem('Demo index', 'All available product demos', indexActive, INDEX_ROUTE));
+    menu.appendChild(makeItem('Demo index', 'All available product demos', indexActive, INDEX_ROUTE, 'active'));
     var divider = document.createElement('div');
     divider.className = 'ads-divider';
     menu.appendChild(divider);
     for (var j = 0; j < DEMOS.length; j++) {
       var d = DEMOS[j];
-      menu.appendChild(makeItem(d.title, d.route, active && active.route === d.route, d.route));
+      menu.appendChild(makeItem(d.title, d.route, active && active.route === d.route, d.route, d.status));
     }
 
     var bar = document.createElement('div');
