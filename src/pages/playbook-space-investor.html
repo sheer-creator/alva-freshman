@@ -242,13 +242,31 @@
     @keyframes pwFadeIn { from { opacity: 0; } to { opacity: 1; } }
     .alerts-feed { display: flex; flex-direction: column; width: 100%; }
     .pw-msg { display: flex; align-items: flex-start; gap: 8px; width: 100%; }
-    .pw-msg:not(:last-child) { margin-bottom: -88px; }
-    .pw-msg.h200 { height: 200px; }  /* row is 200 while its 220 bubble hangs 20 under the next card */
+    .pw-msg:not(:last-child) { margin-bottom: -108px; }
+    .pw-msg.h200 { height: 220px; }
     .pw-ava { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; background-color: var(--main-m1-10, rgba(73,163,166,0.1)); background-image: var(--si-avatar); background-size: cover; background-position: center; }
-    .pw-bubble { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; height: 220px; overflow: hidden; padding: 12px; background: var(--b0-container, #fff); border: 0.5px solid var(--line-l12, rgba(0,0,0,0.12)); border-radius: var(--radius-ct-l, 8px); }
+    .pw-bubble { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; height: 220px; overflow: hidden; padding: 12px; background: var(--b0-container, #fff); border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2)); border-radius: var(--radius-ct-l, 8px); }
     .pw-bubble::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 100%); pointer-events: none; }
     /* top card carries no shadow; the two beneath cast 0 -6 20 5% upward */
     .pw-msg.op50 .pw-bubble, .pw-msg:last-child .pw-bubble { box-shadow: 0 -6px 20px rgba(0,0,0,0.05); }
+
+    /* ── locked tail (13947:114079 + 13947:114297) — the stack keeps going, but behind the paywall ── */
+    .pw-collapsed { display: flex; flex-direction: column; align-items: center; padding-left: 32px; margin-top: -12px; }
+    .pw-collapsed i { display: block; height: 8px; background: var(--b-common-white, #fff); border: 0.5px solid var(--line-l2, rgba(0,0,0,0.2)); border-top: 0; border-radius: 0 0 4px 4px; transform-origin: top center; }
+    .pw-collapsed .s2 { width: 400px; max-width: 100%; z-index: 2; }
+    .pw-collapsed .s3 { width: 340px; max-width: calc(100% - 60px); z-index: 1; }
+    .pw-newer { display: flex; align-items: center; gap: 12px; height: 20px; }
+    .pw-newer .ln { flex: 1; min-width: 0; height: 0; border-top: 0.5px solid var(--line-l12, rgba(0,0,0,0.12)); transform-origin: center; }
+    .pw-newer .pill { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5, rgba(0,0,0,0.5)); white-space: nowrap; }
+    .pw-newer .pill .ic { width: 14px; height: 14px; flex-shrink: 0; background: currentColor; -webkit-mask: url(https://alva-ai-static.b-cdn.net/icons/locked-l.svg) center / contain no-repeat; mask: url(https://alva-ai-static.b-cdn.net/icons/locked-l.svg) center / contain no-repeat; }
+    /* entrance: a 4th, quieter beat after the three cards — hint, not payload */
+    .pw-collapsed, .pw-newer { animation: pwTailIn 0.45s ease-out 0.9s both; }
+    @keyframes pwTailIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: none; } }
+    /* unlock: the seal gives way before the wipe reaches this corner */
+    .paywall.revealing .pw-collapsed i { opacity: 0; transform: translateY(6px) scaleY(0.4); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .paywall.revealing .pw-collapsed .s3 { transition-delay: 0.06s; }
+    .paywall.revealing .pw-newer .pill { opacity: 0; transition: opacity 0.22s ease; }
+    .paywall.revealing .pw-newer .ln { opacity: 0; transform: scaleX(1.35); transition: opacity 0.3s ease, transform 0.3s ease; }
     .pw-msg.op30 .pw-ava, .pw-msg.op30 .pw-bubble > * { opacity: 0.3; }
     .pw-msg.op50 .pw-ava, .pw-msg.op50 .pw-bubble > * { opacity: 0.5; }
     .pw-meta { font-size: 12px; line-height: 20px; letter-spacing: 0.12px; color: var(--text-n5, rgba(0,0,0,0.5)); }
@@ -384,6 +402,10 @@
       .pw-msg:last-child { width: 100%; height: auto; animation-delay: 0.15s; }
       .pw-bubble { height: auto; box-shadow: 0 -6px 20px rgba(0,0,0,0.05); }
       .pw-bubble::after { content: none; }   /* card is sized to its content — nothing to crop */
+      .pw-collapsed { padding-left: 0; }
+      .pw-collapsed .s2 { width: 88%; }
+      .pw-collapsed .s3 { width: 74%; max-width: none; }
+      .pw-newer { gap: 8px; }
 
       /* ── Subscribed popover → sheet (kept from the v7 pass) ── */
       .sp-scrim { display: block; pointer-events: none; }
@@ -591,7 +613,7 @@
         </div>
       </div>
       <div class="alerts-stack">
-        <div class="paywall-kicker">Alerts from this playbook</div>
+        <div class="paywall-kicker">Recently delivered alerts</div>
         <div class="alerts-feed">
         <div class="pw-msg h200 op30">
           <span class="pw-ava"></span>
@@ -627,6 +649,12 @@
             </div>
           </div>
         </div>
+        </div>
+        <div class="pw-collapsed" aria-hidden="true"><i class="s2"></i><i class="s3"></i></div>
+        <div class="pw-newer">
+          <span class="ln"></span>
+          <span class="pill"><i class="ic"></i>Unlock to view the latest alerts</span>
+          <span class="ln"></span>
         </div>
       </div>
       </div>
