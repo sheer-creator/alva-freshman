@@ -18,9 +18,9 @@ import './onboarding-preview-demo.css';
 const FONT = "'Delight', sans-serif";
 
 export type OnboardingPreviewVariant = 'inline' | 'value-card' | 'conversation' | 'channel' | 'stream';
-type PresetId = 'portfolio-watch' | 'alpha-radar' | 'smart-screener';
+export type PresetId = 'portfolio-watch' | 'alpha-radar' | 'smart-screener';
 
-interface Preset {
+export interface Preset {
   id: PresetId;
   name: string;
   shortName: string;
@@ -44,7 +44,7 @@ interface PreviewExample {
   evidence: { source: string; text: string }[];
 }
 
-const PRESETS: Preset[] = [
+export const PRESETS: Preset[] = [
   {
     id: 'portfolio-watch',
     name: 'Watch your portfolio 24/7',
@@ -422,7 +422,7 @@ function NativeMessage({
   );
 }
 
-function SetupGui({
+export function SetupGui({
   preset,
   channel,
   compact = false,
@@ -438,13 +438,15 @@ function SetupGui({
   const [cadence, setCadence] = useState(preset.cadence);
   const [delivery, setDelivery] = useState(channel ? 'This channel' : 'Alva + Telegram');
   const [created, setCreated] = useState(false);
+  const hasOfficialAccess = preset.id === 'alpha-radar' || preset.id === 'portfolio-watch';
 
   useEffect(() => {
     setFocus(preset.focusValues);
     setSources(new Set(preset.sourceValues));
     setCadence(preset.cadence);
+    setDelivery(channel ? 'This channel' : 'Alva + Telegram');
     setCreated(false);
-  }, [preset]);
+  }, [channel, preset]);
 
   const toggleSource = (source: string) => {
     setSources((current) => {
@@ -562,6 +564,17 @@ function SetupGui({
         </label>
       </div>
 
+      {hasOfficialAccess && (
+        <div className="opd-official-access" role="note">
+          <span className="opd-official-access__icon"><CdnIcon name="gift-l" size={14} color="currentColor" /></span>
+          <p>
+            <strong>Gifted Pro is active · 3 days left</strong>
+            <span>Ends Aug 20 · 14:30 GMT+8 · No automatic charge</span>
+          </p>
+          <span className="opd-official-access__meter" role="img" aria-label="Three days of gifted Pro remaining"><i /><i /><i /></span>
+        </div>
+      )}
+
       <div className="opd-setup-actions">
         {!minimal && (
           <div>
@@ -580,6 +593,16 @@ function SetupGui({
           )}
         </button>
       </div>
+      {created && hasOfficialAccess && (
+        <div className="opd-setup-complete" role="status">
+          <span className="opd-setup-complete__mark"><CdnIcon name="check-l1" size={14} color="currentColor" /></span>
+          <div>
+            <strong>{preset.shortName} is live</strong>
+            <span>{cadence} · {delivery}</span>
+          </div>
+          <p>Runs with gifted Pro until Aug 20 · 14:30 GMT+8, then pauses with settings and history saved.</p>
+        </div>
+      )}
     </form>
   );
 }

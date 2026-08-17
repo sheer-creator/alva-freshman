@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="leozhou" />
-    <title>Alpha Radar · Conversion Experiments</title>
+    <title>Official Automations · Access & Conversion Demo</title>
     <style>
       html,
       body {
@@ -36,16 +36,17 @@
   </head>
   <body>
     <p class="demo-summary">
-      Standalone Alpha Radar conversion experiments for a three-day Pro pass, a $1.99 introductory month, a Credits-to-Pro upgrade, and native Telegram or Discord messages.
+      Official Automation access demo for Alpha Radar and Portfolio Watch, with retained $1.99 and Credits-to-Pro experiments plus native Telegram or Discord messages.
     </p>
-    <iframe id="demo-frame" title="Alpha Radar conversion experiments"></iframe>
+    <iframe id="demo-frame" title="Official Automation access and conversion demo"></iframe>
     <script>
       const allowedStages = new Set(['onboarding', 'day-1', 'ending-soon', 'final', 'paused']);
       const params = new URLSearchParams(window.location.search);
       const stage = allowedStages.has(params.get('stage')) ? params.get('stage') : 'onboarding';
       const plan = params.get('plan') === 'intro' || params.get('plan') === 'credits' || params.get('plan') === 'im' ? params.get('plan') : 'pass';
+      const automation = params.get('automation') === 'portfolio-watch' ? 'portfolio-watch' : 'alpha-radar';
       const appUrl = new URL('../', window.location.href);
-      appUrl.hash = `agent?preview=alpha-radar-pro-pass&plan=${plan}&stage=${stage}`;
+      appUrl.hash = `agent?preview=alpha-radar-pro-pass&plan=${plan}&automation=${automation}&stage=${stage}`;
       document.getElementById('demo-frame').src = appUrl.toString();
     </script>
     <script src="/demo/_switcher.js" defer></script>
