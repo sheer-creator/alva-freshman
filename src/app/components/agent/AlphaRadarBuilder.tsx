@@ -292,6 +292,7 @@ export const ALPHA_RADAR_STYLES = `
 .alpha-pro-setup-footer__icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: #fff; background: #49a3a6; box-shadow: 0 0 0 4px rgba(73,163,166,.1); }
 .alpha-pro-setup-footer__copy { min-width: 0; display: flex; flex-direction: column; }
 .alpha-pro-setup-footer__copy strong { overflow: hidden; color: rgba(0,0,0,.84); font-size: 13px; line-height: 20px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.alpha-pro-setup-footer__copy small { overflow: hidden; color: rgba(0,0,0,.48); font-size: 10px; line-height: 16px; text-overflow: ellipsis; white-space: nowrap; }
 .alpha-pro-setup-footer__actions { display: flex; align-items: center; gap: 12px; }
 .alpha-pro-setup-footer__meter { width: 54px; flex: 0 0 auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; }
 .alpha-pro-setup-footer__meter span { height: 4px; border-radius: 99px; background: #49a3a6; }
@@ -492,7 +493,7 @@ function AlphaRadarFomoPreview({
             <p>Choose the voices, podcasts, and market sources you want Alva to monitor every day.</p>
             <button type="button" onClick={onUnlock}>
               {offer === 'pro-pass' && <CdnIcon name="gift-l" size={14} color="currentColor" />}
-              <span>{offer === 'pro-pass' ? 'Unlock with my 3-day Pro pass' : offer === 'intro-price' ? 'Unlock Alpha Radar · $1.99 first month' : 'Build my Alpha Radar'}</span>
+              <span>{offer === 'pro-pass' ? 'Build with gifted Pro' : offer === 'intro-price' ? 'Unlock Alpha Radar · $1.99 first month' : 'Build my Alpha Radar'}</span>
             </button>
           </div>
         </div>
@@ -1010,7 +1011,8 @@ function AlphaRadarPanel({
                 {conversionOffer === 'intro-price' ? '$' : <CdnIcon name="gift-l" size={14} color="currentColor" />}
               </span>
               <span className="alpha-pro-setup-footer__copy">
-                <strong>{conversionOffer === 'intro-price' ? '$1.99 today · then $19.90/month from Sep 13' : 'Your Pro pass starts when Alpha Radar goes live'}</strong>
+                <strong>{conversionOffer === 'intro-price' ? '$1.99 today · then $19.90/month from Sep 13' : 'Gifted Pro is active · Ends Aug 20 at 14:30 GMT+8'}</strong>
+                {conversionOffer === 'pro-pass' && <small>No automatic charge · Alpha Radar pauses when access ends</small>}
               </span>
             </div>
             <div className="alpha-pro-setup-footer__actions">
@@ -1156,6 +1158,10 @@ function CompleteView({
               <span style={tx(12, 20, N5)}>Language</span>
               <span style={tx(12, 20, N9)}>{summary.language}</span>
             </div>
+            <div className="flex items-center gap-[8px]">
+              <span style={tx(12, 20, N5)}>Delivery</span>
+              <span style={tx(12, 20, N9)}>Alva + Telegram</span>
+            </div>
           </div>
           <div className="alpha-pro-actions">
             <button
@@ -1171,8 +1177,8 @@ function CompleteView({
         {proTrial && (
           <div className="alpha-access-row">
             <div className="alpha-access-row__status">
-              <strong>{conversionOffer === 'intro-price' ? 'Alpha Radar active · $1.99 paid' : conversionOffer === 'credits' ? 'Pro trial active · 3,000 Daily Credits' : 'Pro pass active · 3 days left'}</strong>
-              <small>{conversionOffer === 'intro-price' ? 'Renews Sep 13 at $19.90/month · Cancel anytime' : conversionOffer === 'credits' ? 'Build used 184 · 2,816 left today · Drops to 500/day after your trial' : 'Ends Aug 16 at 8:00 PM · Alpha Radar pauses after your final report'}</small>
+              <strong>{conversionOffer === 'intro-price' ? 'Alpha Radar active · $1.99 paid' : conversionOffer === 'credits' ? 'Pro trial active · 3,000 Daily Credits' : 'Gifted Pro · Active · 3 days left'}</strong>
+              <small>{conversionOffer === 'intro-price' ? 'Renews Sep 13 at $19.90/month · Cancel anytime' : conversionOffer === 'credits' ? 'Build used 184 · 2,816 left today · Drops to 500/day after your trial' : 'Ends Aug 20 at 14:30 GMT+8 · Pauses then · No automatic charge'}</small>
             </div>
             {conversionOffer === 'pro-pass' && (
               <span className="alpha-access-meter" role="img" aria-label="All three days of Pro pass access remaining"><span className="is-active" /><span className="is-active" /><span className="is-active" /></span>
