@@ -1,0 +1,372 @@
+/* ========== actions.js — 全局交互（data-act 派发） ========== */
+import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, evidenceCounts } from './data.js';
+import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
+import { cardBack, entityAv } from './cards.js';
+import { setAskCtx, setPendingAsk, setDiscTab, obPickEntity } from './screens.js';
+
+const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
+const rerender = () => window.__rerender && window.__rerender();
+
+/* 当前页弹起对话 composer：卡片作为引用元素，发送后才进入 Ask */
+function openComposer(it, prefill) {
+  const first = it.entity_refs[0];
+  openSheet(`
+    <div class="quote-card">
+      <div class="qc-head">${first ? entityAv(first, 20) : ''}<span>${FEEDS[it.feed].name} · ${it.published}</span></div>
+      <div class="qc-title">${it.headline}</div>
+    </div>
+    <textarea class="composer-ta" id="composerTa" rows="3" placeholder="Ask anything about this…">${prefill || ''}</textarea>
+    <div class="sheet-cta" style="margin-top:12px">
+      <button class="btn btn-ask" style="width:100%;flex:1" data-act="composer-send" data-item="${it.id}">${I.send}Ask Alva</button>
+    </div>`);
+  setTimeout(() => {
+    const ta = document.getElementById('composerTa');
+    if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
+  }, 380);
+}
+
+export const ACTIONS = {
+  /* ---- 基础导航 ---- */
+  back: () => back(),
+  nav: (el) => nav(el.dataset.to),
+  'sheet-close': () => closeSheet(),
+  'toast-msg': (el) => toast(el.dataset.msg, I.check),
+  'reset-demo': () => { if (confirm('Reset the demo and restart onboarding?')) resetDemo(); },
+
+  /* ---- onboarding ---- */
+  'ob-start': () => nav('#/onboard/entities'),
+  'ob-start-sources': () => nav('#/onboard/sources'),
+  'ob-ent': (el) => {
+    const on = toggleIn(store.entities, el.dataset.id);
+    el.classList.toggle('on', on);
+    const n = store.entities.length;
+    const count = document.getElementById('entCount');
+    if (count) count.textContent = n ? `${n} selected` : 'Pick 3–8 to start';
+    const next = document.getElementById('entNext');
+    if (next) { next.disabled = n < 1; next.style.opacity = n < 1 ? '.4' : '1'; }
+  },
+  'ob-ent-dd': (el) => {
+    toggleIn(store.entities, el.dataset.id);
+    obPickEntity(el.dataset.id);
+  },
+  'ob-search-clear': () => {
+    const input = document.getElementById('entSearch');
+    if (input) { input.value = ''; input.focus(); }
+    window.__entSearch('');
+  },
+  'ob-watch': (el) => {
+    toggleIn(store.watches, el.dataset.w);
+    const draft = (document.getElementById('watchInput') || {}).value || '';
+    rerender();
+    const input = document.getElementById('watchInput');
+    if (input && draft) input.value = draft;
+  },
+  'ob-watch-add': () => {
+    const input = document.getElementById('watchInput');
+    const v = input && input.value.trim();
+    if (v && !store.watches.includes(v)) { store.watches.push(v); save(); }
+    rerender();
+  },
+  'ob-watch-next': () => {
+    const input = document.getElementById('watchInput');
+    const v = input && input.value.trim();
+    if (v && !store.watches.includes(v)) { store.watches.push(v); save(); }
+    nav('#/onboard/sources');
+  },
+  'ob-finish': () => {
+    store.onboarded = true;
+    store.awaySeen = true; // 新用户首次进入不展示 recap
+    for (const f of ['nvda_events', 'ai_watch', 'earnings']) if (!store.feeds.includes(f)) store.feeds.push(f);
+    save();
+    nav('#/home');
+    setTimeout(() => toast('Tip: cards flip — try “Behind this”', I.flip), 1800);
+  },
+
+  /* ---- connect flows ---- */
+  'add-source': (el) => {
+    const on = toggleIn(store.sources, el.dataset.id);
+    if (el.classList.contains('src-add')) { el.classList.toggle('on', on); el.textContent = on ? 'Added' : 'Add'; }
+    else rerender();
+    toast(on ? `${SOURCES[el.dataset.id].name} added to your feed` : `${SOURCES[el.dataset.id].name} removed`);
+  },
+  'custom-source': (el) => {
+    el.classList.remove('dim'); el.classList.add('on'); el.textContent = 'Requested';
+    toast('Added as a Custom Source — 2 of 5 slots used');
+  },
+  'byos-sheet': () => openSheet(`
+    <h3>Add a custom source</h3>
+    <p class="sub">Paste a URL or handle. Alva indexes it for you — it counts toward your 5 custom slots.</p>
+    <div class="watch-add" style="margin-top:16px">
+      <input class="watch-custom" id="byosInput" placeholder="e.g. substack.com/@stratechery or @jim"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.nextElementSibling.click()}">
+      <button class="btn btn-teal-solid watch-add-btn" data-act="byos-add">Add</button>
+    </div>
+    <p class="ent-none" style="margin-top:12px">Newsletters, X accounts, RSS, YouTube channels and podcasts are supported.</p>`),
+  'byos-add': () => {
+    const input = document.getElementById('byosInput');
+    const v = input && input.value.trim();
+    if (!v) { toast('Paste a URL or handle first', I.x); return; }
+    closeSheet();
+    toast(`${v} added as a Custom Source — 2 of 5 slots used`);
+  },
+  'disc-search-clear': () => {
+    const input = document.getElementById('discSearch');
+    if (input) { input.value = ''; input.focus(); }
+    window.__discSearch('');
+  },
+  'x-done': () => { store.connected.x = true; save(); back(); },
+  'tg-toggle': (el) => {
+    const i = Number(el.dataset.i);
+    TG_CHATS.channels[i].selected = !TG_CHATS.channels[i].selected;
+    el.querySelector('.check').classList.toggle('on', TG_CHATS.channels[i].selected);
+  },
+  'tg-done': () => {
+    store.connected.telegram = TG_CHATS.channels.some((c) => c.selected);
+    if (store.connected.telegram && !store.sources.includes('alpha_group')) store.sources.push('alpha_group');
+    save();
+    toast('Private feed created — only you can see it', I.shield);
+    back();
+  },
+
+  /* ---- home（stage 场外切换：不在 For You 时先回到 For You） ---- */
+  mode: (el) => {
+    store.mode = el.dataset.m;
+    save();
+    if ((location.hash || '').replace(/^#\/?/, '').startsWith('home') || location.hash === '' || location.hash === '#/') rerender();
+    else nav('#/home');
+  },
+
+  /* ---- card flip ---- */
+  flip: (el) => {
+    const scene = el.closest('.flip-scene');
+    const inner = scene.querySelector('.flip-inner');
+    const front = scene.querySelector('.flip-face');
+    scene.style.height = front.offsetHeight + 'px';
+    inner.style.height = front.offsetHeight + 'px';
+    scene.classList.add('flipped');
+  },
+  unflip: (el) => {
+    if (el.closest('.sheet')) return closeSheet();
+    el.closest('.flip-scene').classList.remove('flipped');
+  },
+  'flip-imm': (el) => {
+    const it = item(el);
+    openSheet(`<div style="padding-top:2px">${cardBack(it)}</div>`);
+  },
+  'evi-sheet': (el) => {
+    const it = item(el);
+    openSheet(`<div style="padding-top:2px">${cardBack(it)}</div>`);
+  },
+
+  /* ---- 打开对象 ---- */
+  'open-detail': (el) => nav('#/context/' + el.dataset.item),
+  'open-entity': (el) => { if (el.dataset.id) nav('#/entity/' + el.dataset.id); },
+  'open-feed': (el) => nav('#/feed/' + el.dataset.id),
+  'open-source': (el) => nav('#/source/' + el.dataset.id),
+  'open-creator': (el) => nav('#/creator/' + el.dataset.id),
+  'you-feeds': () => nav('#/discover'),
+
+  /* ---- actions ---- */
+  'ask-item': (el) => openComposer(item(el), ''),
+  'cta-prompt': (el) => { const it = item(el); openComposer(it, it.cta.value); },
+  'composer-send': (el) => {
+    const it = item(el);
+    const ta = document.getElementById('composerTa');
+    const q = (ta && ta.value.trim()) || (it.cta && it.cta.value) || `What should I make of “${it.headline}”?`;
+    setAskCtx(it.id);
+    setPendingAsk(q);
+    closeSheet();
+    nav('#/ask');
+  },
+  'cta-url': (el) => {
+    const it = item(el);
+    toast(`Opens ${it.cta.value} — original source`, I.link);
+  },
+  'disc-tab': (el) => { setDiscTab(el.dataset.t); rerender(); },
+  'ask-entity': () => { setAskCtx(null); nav('#/ask'); },
+  'clear-ctx': () => { setAskCtx(null); rerender(); },
+  'ask-send': (el) => {
+    const input = document.getElementById('askInput');
+    const q = el.dataset.q || (input && input.value.trim());
+    if (!q) return;
+    if (input) input.value = '';
+    const sugs = document.getElementById('askSugs');
+    if (sugs) sugs.style.display = 'none';
+    const reply = document.getElementById('askReply');
+    reply.innerHTML = `<div class="bub" style="margin-bottom:10px;background:var(--teal-dim);border-color:var(--teal-line);color:var(--t1)">${q}</div>
+      <div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>`;
+    setTimeout(() => {
+      reply.lastElementChild.innerHTML = `Short answer: <b>the evidence leans yes</b>.<br><br>
+        Two primary signals this week — hyperscaler commentary and HBM contract pricing — both moved in the direction of accelerating capex. One mixed signal (enterprise deployment doubts on Reddit) hasn’t been corroborated by a primary source.<br><br>
+        Want me to track this question and flag anything that challenges it?`;
+    }, 1400);
+  },
+  'save-item': (el) => {
+    const on = toggleIn(store.saved, el.dataset.item);
+    el.classList.toggle('on', on);
+    toast(on ? 'Saved' : 'Removed from saved', I.save);
+  },
+  'play-clip': () => toast('Opens the episode at 41:22 on the source platform', I.play),
+
+  /* ---- track sheet ---- */
+  'track-item': (el) => {
+    const it = item(el);
+    if (store.tracks.includes(it.id)) {
+      toggleIn(store.tracks, it.id);
+      toast('Track removed');
+      rerender();
+      return;
+    }
+    openSheet(`
+      <h3>Track this context</h3>
+      <p class="sub">Alva watches the sources behind “${it.headline}” and notifies you when something meaningful changes.</p>
+      <div class="freq-list" id="freqList">
+        ${[['important', 'Important only', 'Material changes and reversals'], ['daily', 'Daily digest', 'One summary each morning'], ['all', 'All updates', 'Every new confirmation or challenge']]
+          .map(([id, nm, ds], i) => `<button class="freq-row ${i === 0 ? 'on' : ''}" data-act="freq-pick" data-id="${id}"><span class="meta"><span class="nm">${nm}</span><div class="ds">${ds}</div></span><span class="radio"></span></button>`).join('')}
+      </div>
+      <div class="sheet-cta"><button class="btn btn-teal-solid" data-act="track-confirm" data-item="${it.id}">${I.bell}Start tracking</button></div>`);
+  },
+  'freq-pick': (el) => {
+    el.closest('.freq-list').querySelectorAll('.freq-row').forEach((r) => r.classList.toggle('on', r === el));
+  },
+  'track-confirm': (el) => {
+    if (!store.tracks.includes(el.dataset.item)) store.tracks.push(el.dataset.item);
+    save();
+    closeSheet();
+    toast('Tracking — updates land in For You and push', I.bell);
+    rerender();
+  },
+
+  /* ---- premium unlock ---- */
+  unlock: (el) => {
+    const f = FEEDS[el.dataset.feed];
+    openSheet(`
+      <div class="prem-head">
+        <img class="av-img" src="img/av-bruce.jpeg" width="46" height="46" alt="">
+        <div><h3>${f.name}</h3><p class="sub">${f.owner} · ${f.cadence} · ${f.access}</p></div>
+      </div>
+      <div class="prem-benefits">
+        <div class="b">${I.check}<span>Full essays and live thesis tracking in your For You</span></div>
+        <div class="b">${I.check}<span>Creator-approved summaries — never paywall leaks</span></div>
+        <div class="b">${I.check}<span>Ask Alva against the full archive</span></div>
+      </div>
+      <div class="sheet-cta">
+        <button class="btn btn-teal-solid" data-act="unlock-confirm" data-feed="${f.id}">Subscribe · $39/mo</button>
+      </div>
+      <p class="sub" style="text-align:center;margin-top:12px">Demo checkout — nothing is charged. Revenue is shared with ${f.owner}.</p>`);
+  },
+  'unlock-confirm': (el) => {
+    store.unlocked[el.dataset.feed] = true;
+    save();
+    closeSheet();
+    toast('Unlocked — full content is now in your feed');
+    rerender();
+  },
+
+  /* ---- automation 管理（卡背 Manage 入口 → 暂停/退订） ---- */
+  'open-automation': (el) => nav('#/automation/' + el.dataset.id),
+  'auto-pause': (el) => {
+    const paused = toggleIn(store.paused, el.dataset.id);
+    toast(paused ? 'Automation paused' : 'Automation resumed', paused ? I.pause : I.play);
+    rerender();
+  },
+  'auto-unsub': (el) => {
+    const f = FEEDS[el.dataset.id];
+    openSheet(`
+      <h3>Unsubscribe from ${f.name}?</h3>
+      <p class="sub">Its cards leave your For You. Your history stays, and you can re-subscribe from Discover anytime.</p>
+      <div class="sheet-cta" style="display:flex;gap:8px">
+        <button class="btn btn-dim" style="flex:1" data-act="sheet-close">Keep it</button>
+        <button class="btn btn-danger" style="flex:1" data-act="auto-unsub-confirm" data-id="${f.id}">Unsubscribe</button>
+      </div>`);
+  },
+  'auto-unsub-confirm': (el) => {
+    const id = el.dataset.id;
+    const i = store.feeds.indexOf(id);
+    if (i >= 0) store.feeds.splice(i, 1);
+    save();
+    closeSheet();
+    toast(`Unsubscribed from ${FEEDS[id].name}`, I.x);
+    rerender();
+  },
+
+  /* ---- tune / source management ---- */
+  'manage-sheet': () => {
+    const ids = [...new Set([...store.sources, 'nvda_ir', 'mkt_data', 'x_analysts'])];
+    openSheet(`
+      <h3>Your sources</h3>
+      <p class="sub">Everything feeding your For You. Mute lowers priority; remove takes it out.</p>
+      <div style="margin-top:14px">${ids.map((id) => {
+        const s = SOURCES[id];
+        const muted = store.muted.includes(id);
+        return `<div class="sm-row">
+          <span class="meta"><span class="nm">${s.name}</span><div class="ds">${s.platform} · ${s.access}</div></span>
+          <span class="sm-act">
+            <button class="${muted ? 'muted' : ''}" data-act="mute-toggle" data-id="${id}">${muted ? 'Muted' : 'Mute'}</button>
+            ${store.sources.includes(id) ? `<button data-act="remove-source" data-id="${id}">Remove</button>` : ''}
+          </span>
+        </div>`;
+      }).join('')}</div>
+      <div class="sheet-cta"><button class="btn btn-dim" style="width:100%" data-act="sheet-close">Done</button></div>`);
+  },
+  'mute-toggle': (el) => {
+    const on = toggleIn(store.muted, el.dataset.id);
+    el.classList.toggle('muted', on);
+    el.textContent = on ? 'Muted' : 'Mute';
+  },
+  'remove-source': (el) => {
+    toggleIn(store.sources, el.dataset.id);
+    el.closest('.sm-row').style.opacity = '0.35';
+    el.disabled = true;
+    toast(`${SOURCES[el.dataset.id].name} removed`);
+  },
+  'feed-src-sheet': (el) => {
+    const f = FEEDS[el.dataset.id];
+    openSheet(`
+      <h3>Sources in this feed</h3>
+      <p class="sub">${f.owner === 'Alva' ? 'Official feed — you can view its composition, follow or mute, but not edit it.' : 'This creator manages the composition.'}</p>
+      <div style="margin-top:14px">${f.sources.map((id) => {
+        const s = SOURCES[id];
+        return `<div class="sm-row" data-act="open-source" data-id="${id}" role="button">
+          <span class="meta"><span class="nm">${s.name}</span><div class="ds">${s.platform} · ${s.modality} · ${s.access}</div></span>
+          ${I.chevR}
+        </div>`;
+      }).join('')}</div>`);
+  },
+  'manage-feed-src': (el) => ACTIONS['manage-sheet'](el),
+
+  /* ---- portfolio ---- */
+  'connect-broker': () => {
+    openSheet(`
+      <h3>Connect a brokerage</h3>
+      <p class="sub">Read-only access to positions. Alva never places trades without an explicit confirmation flow.</p>
+      <div class="freq-list">${BROKERS.map((b) => `
+        <button class="freq-row" data-act="broker-pick" data-id="${b.id}" data-name="${b.name}">
+          <span class="mono-av" style="width:38px;height:38px;font-size:13px;background:hsl(${b.hue} 28% 16%);color:hsl(${b.hue} 65% 68%)">${b.name.slice(0, 2).toUpperCase()}</span>
+          <span class="meta"><span class="nm">${b.name}</span><div class="ds">OAuth · read-only positions</div></span>
+          <span class="radio"></span>
+        </button>`).join('')}
+      </div>
+      <p class="sub" style="text-align:center;margin-top:14px">Demo connection — no real account is linked.</p>`);
+  },
+  'broker-pick': (el) => {
+    store.brokerage = el.dataset.name;
+    save();
+    closeSheet();
+    toast(`${el.dataset.name} connected — positions now shape your feed`, I.link);
+    rerender();
+  },
+
+  /* ---- follows ---- */
+  'follow-feed': (el) => {
+    const on = toggleIn(store.feeds, el.dataset.id);
+    if (el.classList.contains('follow-sm')) { el.classList.toggle('on', on); el.textContent = on ? 'Following' : 'Follow'; }
+    else rerender();
+    toast(on ? `Following ${FEEDS[el.dataset.id].name}` : 'Unfollowed');
+  },
+  'follow-entity': (el) => {
+    const on = toggleIn(store.entities, el.dataset.id);
+    rerender();
+    toast(on ? `Following ${el.dataset.id} — coverage added to For You` : 'Unfollowed');
+  },
+};
