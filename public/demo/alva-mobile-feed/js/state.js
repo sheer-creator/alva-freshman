@@ -46,6 +46,9 @@ export function toggleIn(arr, v) {
   return i < 0;
 }
 
+/* goal 多行 markdown：第一行即标题（单行场景用） */
+export const goalTitle = () => (store.goal || '').split('\n')[0].replace(/^goal:\s*/i, '').trim();
+
 export function nav(hash) { location.hash = hash; }
 export function back() { history.back(); }
 

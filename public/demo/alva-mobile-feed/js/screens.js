@@ -1,6 +1,6 @@
 /* ========== screens.js — 页面渲染 ========== */
 import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
-import { store, save, I, nav } from './state.js';
+import { store, save, I, nav, goalTitle } from './state.js';
 import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, approvalCard, isHeld } from './cards.js';
 
 export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
@@ -343,9 +343,13 @@ function sHome(page) {
     const wrap = document.createElement('div');
     wrap.className = 'imm-wrap';
     wrap.style.cssText = 'position:relative;flex:1;overflow:hidden';
+    const recapSlide = `<section class="imm-slide imm-recap">
+      <div class="imm-bg no-img" style="background:radial-gradient(140% 90% at 80% 0%, #17302d 0%, #0A0E0F 60%)"><div class="scrim"></div></div>
+      <div class="imm-content">${recapModule()}</div></section>`;
+    const totalSlides = visible.length + 1;
     wrap.innerHTML = `<div class="imm-top"><span>For You</span></div>
-      <div class="imm-scroll">${visible.map((it, i) => immersiveSlide(it, i, visible.length)).join('')}</div>
-      <div class="imm-dots">${visible.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
+      <div class="imm-scroll">${recapSlide}${visible.map((it, i) => immersiveSlide(it, i + 1, totalSlides)).join('')}</div>
+      <div class="imm-dots">${Array.from({ length: totalSlides }, (_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
     page.appendChild(wrap);
     const scroll = wrap.querySelector('.imm-scroll');
     const curIdx = () => Math.round(scroll.scrollTop / scroll.clientHeight);
@@ -367,7 +371,7 @@ function sHome(page) {
       }
       if (Math.abs(e.deltaY) < 10) return;
       const cur = curIdx();
-      const target = Math.max(0, Math.min(visible.length - 1, cur + Math.sign(e.deltaY)));
+      const target = Math.max(0, Math.min(totalSlides - 1, cur + Math.sign(e.deltaY)));
       if (target === cur) return;
       locked = true;
       unlockAt = now + 700;
@@ -383,7 +387,7 @@ function recapModule() {
     return `
     <div class="recap reveal">
       <div class="rc-head">While you were away</div>
-      <div class="rc-goal" data-act="nav" data-to="#/goal" role="button">${I.bolt}<span>Goal “${store.goal}” — on track</span>${I.chevR}</div>
+      <div class="rc-goal" data-act="nav" data-to="#/goal" role="button">${I.bolt}<span>Goal “${goalTitle()}” — on track</span>${I.chevR}</div>
       <div class="rc-row" data-act="open-detail" data-item="${REPORT.delivered.item}" role="button"><span class="n">1</span><span class="tx">${REPORT.delivered.text}</span>${I.chevR}</div>
       ${APPROVALS.map((a, i) => `<div class="rc-row" data-act="scroll-appr" role="button"><span class="n">${i + 2}</span><span class="tx">${a.title} — <b>${store.approvals[a.id] || 'needs you'}</b></span>${I.chevR}</div>`).join('')}
       <div class="rc-row dim"><span class="n">+</span><span class="tx">${REPORT.watching}</span></div>
@@ -662,10 +666,12 @@ function sGoal(page) {
         <p class="auto-promise">Alva researches and monitors around this goal. Every proposed action comes to you for approval — nothing executes on its own.</p>
       </div>
       <div class="auto-rows">
-        <div class="auto-row" data-act="goal-sheet" role="button"><span class="k">Instruction</span><span class="v">${store.goal}</span>${I.chevR}</div>
         <div class="auto-row"><span class="k">Delivers to</span><span class="v">For You · Approvals</span></div>
         <div class="auto-row"><span class="k">Status</span><span class="v">${pending ? `${pending} proposal needs you` : 'On track'}</span></div>
       </div>
+      <div class="sec-label" style="margin:24px 0 10px">Instruction</div>
+      <pre class="goal-md" data-act="goal-sheet" role="button">${store.goal}</pre>
+      <p class="ent-none" style="margin-top:8px">Tap to edit. First line is the goal, the rest are limits.</p>
       <div class="sec-label" style="margin:26px 0 2px">Run history</div>
       <div class="auto-rows" style="border-top:none">
         ${[...store.decisions].reverse().map((d) => `<div class="auto-row"><span class="k">${d.at}</span><span class="v" style="font-weight:400">${d.title}</span><span class="dec-tag ${d.choice}">${d.choice}</span></div>`).join('') || '<p class="ent-none">No runs yet.</p>'}
@@ -822,7 +828,7 @@ function askSetup() {
     <div class="su-head"><span class="lbl">Finish setting up</span><span class="n">${doneN}/3</span><button class="su-x" data-act="setup-dismiss" aria-label="Dismiss">${I.x}</button></div>
     ${items.map((it) => `<div class="su-row ${it.done ? 'done' : ''}">
       <span class="su-ic">${it.done ? I.check : ''}</span>
-      <span class="su-lb">${it.label}${it.act === 'goal-sheet' && store.goal ? ` — <i>“${store.goal}”</i>` : ''}</span>
+      <span class="su-lb">${it.label}${it.act === 'goal-sheet' && store.goal ? ` — <i>“${goalTitle()}”</i>` : ''}</span>
       ${it.done ? '' : `<button class="su-btn" data-act="${it.act}">${it.btn}</button>`}
     </div>`).join('')}
   </div>`;
@@ -837,7 +843,7 @@ function askTasksView() {
   const goalRow = store.goal
     ? `<div class="list-row" data-act="nav" data-to="#/goal" role="button">
         <span class="ic-cir">${I.bolt}</span>
-        <span class="meta"><span class="nm">${store.goal}</span><div class="ds">Trading goal · ${pending ? `${pending} proposal needs you` : 'on track'}</div></span>${I.chevR}</div>`
+        <span class="meta"><span class="nm">${goalTitle()}</span><div class="ds">Trading goal · ${pending ? `${pending} proposal needs you` : 'on track'}</div></span>${I.chevR}</div>`
     : `<div class="list-row" data-act="goal-sheet" role="button">
         <span class="ic-cir dim">${I.bolt}</span>
         <span class="meta"><span class="nm">Set a trading goal</span><div class="ds">Alva works it and brings proposals for approval</div></span>${I.chevR}</div>`;
@@ -854,7 +860,7 @@ function askTasksView() {
 function askMemoryView() {
   const holdings = store.brokerage ? HOLDINGS.map((h) => h.entity) : store.manualHoldings;
   return `
-    <div class="mem-note">${I.doc}<span>What Alva remembers about you — synced to <b>user.md</b> in your agent memory.</span></div>
+    <p class="mem-cap">What Alva remembers about you — synced to user.md in your agent memory.</p>
     <div class="d-sec"><div class="sec-label">Identity</div>
       <div class="mem-row"><span class="k">Role</span><span class="v">Independent trader</span></div>
       <div class="mem-row"><span class="k">Markets</span><span class="v">US equities · Crypto</span></div>
@@ -864,11 +870,10 @@ function askMemoryView() {
       ${store.watches.length ? store.watches.map((w) => `<div class="mem-row"><span class="v">“${w}”</span></div>`).join('') : '<p class="ent-none">No watches yet.</p>'}
     </div>
     <div class="d-sec"><div class="sec-label">Goal</div>
-      ${store.goal ? `<div class="mem-row" data-act="nav" data-to="#/goal" role="button"><span class="v">“${store.goal}”</span>${I.chevR}</div>` : '<p class="ent-none">No goal set.</p>'}
+      ${store.goal ? `<div class="mem-row" data-act="nav" data-to="#/goal" role="button"><span class="v">“${goalTitle()}”</span>${I.chevR}</div>` : '<p class="ent-none">No goal set.</p>'}
     </div>
-    <div class="d-sec"><div class="sec-label">Decisions</div>
-      <div class="mem-cal">${I.spark}<span><b>72% calibrated</b> · ${store.decisions.length} decisions tracked</span></div>
-      ${[...store.decisions].reverse().map((d) => `<div class="mem-row"><span class="dec-tag ${d.choice}">${d.choice}</span><span class="v" style="font-weight:400">${d.title}</span><span class="t">${d.at}</span></div>`).join('')}
+    <div class="d-sec"><div class="sec-label">Decisions · 72% calibrated</div>
+      ${[...store.decisions].reverse().map((d) => `<div class="mem-row"><span class="t">${d.at}</span><span class="v">${d.title} — <i class="dc ${d.choice}">${d.choice}</i></span></div>`).join('')}
     </div>`;
 }
 
@@ -889,24 +894,13 @@ function sAsk(page) {
     ${tabs}
     <div class="ask-body">
       ${askSetup()}
-      <div class="ask-hero">
-        <h1>${item ? 'Ask about this context' : `What do you want to <em>understand</em>?`}</h1>
-        ${item ? `<div class="ask-ctx-chip">${I.spark}<span>${item.headline}</span><button class="x" data-act="clear-ctx">${I.x}</button></div>` : ''}
+      ${item ? `<div class="ask-ctx-chip" style="margin-bottom:14px">${I.spark}<span>${item.headline}</span><button class="x" data-act="clear-ctx">${I.x}</button></div>` : ''}
+      <div class="ask-reply ask-thread" id="askReply">
+        <div class="chat-day">Today</div>
+        <div class="bub">Morning. I read <b>19 posts</b> overnight across your sources. Two things stand out:<br><br><b>1 · NVDA</b> — capex expectations moved higher; price is near your add zone.<br><b>2 · HBM</b> — pricing signals firmed after MU's print.<br><br>Anything you want me to dig into?</div>
       </div>
-      <div class="ask-sugs" id="askSugs">
-        ${(item ? [
-          `Does this change my ${store.watches.length ? 'watch' : 'thesis'}: “${watchFor(item) || 'AI capex is accelerating'}”?`,
-          'What would the bear case need to be true?',
-          'Compare this against the last two quarters',
-        ] : [
-          'Review what changed for my follows this week',
-          'Compare NVDA and AMD on AI revenue exposure',
-          'Build a monitor for HBM pricing changes',
-        ]).map((s) => `<button class="ask-sug" data-act="ask-send" data-q="${s}">${s}</button>`).join('')}
-      </div>
-      <div class="ask-reply" id="askReply"></div>
       <div class="ask-composer">
-        <input id="askInput" placeholder="Ask anything about your markets…">
+        <input id="askInput" placeholder="Ask about your feed or a ticker…">
         <button class="send" data-act="ask-send">${I.send}</button>
       </div>
     </div>`;
@@ -961,17 +955,11 @@ function sYou(page) {
     </div>
     <div class="you-secs">
       ${portfolioSec()}
-      <div class="d-sec"><div class="sec-label">Following</div>
-        <div class="rel-row">${store.entities.map((e) => `<button class="chip on" data-act="open-entity" data-id="${e}">${entityChipLabel(e)}</button>`).join('') || '<span style="font-size:14px;color:var(--t3)">Nothing yet</span>'}</div>
-      </div>
-      ${store.goal ? `<div class="d-sec"><div class="sec-label">Trading goal</div>
-        <div class="mgmt-row" data-act="nav" data-to="#/goal" role="button"><span class="ic">${I.bolt}</span><span class="meta"><span class="nm">${store.goal}</span><div class="ds">Every action needs your approval</div></span>${I.chevR}</div></div>` : ''}
-      ${store.watches.length ? `<div class="d-sec"><div class="sec-label">Your watches</div>
-        ${store.watches.map((w) => `<div class="ask-ctx-chip" style="margin-top:6px">${I.eye}<span>“${w}”</span></div>`).join('')}
-        <p style="font-size:13px;color:var(--t3);margin-top:10px">New evidence gets flagged as supports / challenges in your feed.</p></div>` : ''}
-      <div class="d-sec"><div class="sec-label">Feeds & sources</div>
-        <div class="mgmt-row" data-act="you-feeds" role="button"><span class="ic">${I.spark}</span><span class="meta"><span class="nm">Followed channels</span><div class="ds">${store.feeds.length} active</div></span>${I.chevR}</div>
-        <div class="mgmt-row" data-act="manage-sheet" role="button"><span class="ic">${I.gear}</span><span class="meta"><span class="nm">Added sources</span><div class="ds">${store.sources.length} sources · ${store.muted.length} muted</div></span>${I.chevR}</div>
+      <div class="d-sec"><div class="sec-label">Manage</div>
+        ${store.goal ? `<div class="mgmt-row" data-act="nav" data-to="#/goal" role="button"><span class="ic">${I.bolt}</span><span class="meta"><span class="nm">${goalTitle()}</span><div class="ds">Trading goal · every action needs your approval</div></span>${I.chevR}</div>` : ''}
+        <div class="mgmt-row" data-act="following-sheet" role="button"><span class="ic">${I.eye}</span><span class="meta"><span class="nm">Following</span><div class="ds">${store.entities.length} markets & themes</div></span>${I.chevR}</div>
+        <div class="mgmt-row" data-act="you-feeds" role="button"><span class="ic">${I.spark}</span><span class="meta"><span class="nm">Channels & automations</span><div class="ds">${store.feeds.length} active${store.goal ? ' · 1 goal' : ''}</div></span>${I.chevR}</div>
+        <div class="mgmt-row" data-act="manage-sheet" role="button"><span class="ic">${I.gear}</span><span class="meta"><span class="nm">Sources</span><div class="ds">${store.sources.length} added · ${store.muted.length} muted</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="toast-msg" data-msg="Connected accounts are mocked in this demo" role="button"><span class="ic">${I.link}</span><span class="meta"><span class="nm">Connected accounts</span><div class="ds">${store.connected.x ? 'X · ' : ''}${store.connected.telegram ? 'Telegram' : store.connected.x ? '' : 'None yet'}</div></span>${I.chevR}</div>
       </div>
       <div class="d-sec"><div class="sec-label">Activity</div>

@@ -1,5 +1,5 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, APPROVALS, evidenceCounts } from './data.js';
+import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, APPROVALS, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv } from './cards.js';
 import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, obPickEntity } from './screens.js';
@@ -174,6 +174,11 @@ export const ACTIONS = {
   },
 
   'ask-tab': (el) => { setAskTab(el.dataset.t); rerender(); },
+  'following-sheet': () => {
+    const chips = store.entities.map((id) => `<button class="chip on" data-act="open-entity" data-id="${id}">${entityChipLabel(id)}</button>`).join('');
+    openSheet(`<h3>Following</h3><p class="sub">${store.entities.length} markets, themes and people shaping your For You.</p>
+      <div class="rel-row" style="margin-top:14px">${chips || '<span class="ent-none">Nothing yet — pick some in Discover.</span>'}</div>`);
+  },
 
   /* ---- Ask 补课清单 ---- */
   'setup-dismiss': () => { store.askSetupDismissed = true; save(); rerender(); },
@@ -193,21 +198,9 @@ export const ACTIONS = {
     </div>`),
   'goal-sheet': (el) => openSheet(`
     <h3>${store.goal ? 'Edit your trading goal' : 'Set a trading goal'}</h3>
-    <p class="sub">One sentence. Alva works it in the background — research, monitoring, proposals. Every action comes to you for approval.</p>
-    <div class="watch-presets" style="margin-top:14px">
-      ${['Build AI infra exposure on pullbacks', 'De-risk before NVDA earnings', 'Rotate memory-cycle gains into BTC'].map((g) => `<button class="watch-preset" data-act="goal-preset" data-g="${g}">${g}</button>`).join('')}
-    </div>
-    <div class="watch-add" style="margin-top:12px">
-      <input class="watch-custom" id="goalInput" placeholder="Or write your own…"
-        value="${((el && el.dataset && el.dataset.prefill) || store.goal || '').replace(/"/g, '&quot;')}"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();this.nextElementSibling.click()}">
-      <button class="btn btn-teal-solid watch-add-btn" data-act="goal-save">Set goal</button>
-    </div>
-    <p class="ent-none" style="margin-top:12px">No trades happen without your approval. You can revoke anytime.</p>`),
-  'goal-preset': (el) => {
-    const input = document.getElementById('goalInput');
-    if (input) input.value = el.dataset.g;
-  },
+    <p class="sub">Plain instructions. First line is the goal, the rest are limits — Alva proposes, you approve.</p>
+    <textarea class="composer-ta goal-ta" id="goalInput" rows="6">${(el && el.dataset && el.dataset.prefill) || store.goal || 'Add NVDA on pullbacks below $175\n\n- Size: up to +1.5% per add\n- Horizon: 3\u20136 months\n- Never execute without my approval'}</textarea>
+    <div class="sheet-cta"><button class="btn btn-teal-solid" style="flex:1" data-act="goal-save">Save goal</button></div>`),
   'goal-save': () => {
     const input = document.getElementById('goalInput');
     const v = input && input.value.trim();
@@ -300,16 +293,18 @@ export const ACTIONS = {
     const q = el.dataset.q || (input && input.value.trim());
     if (!q) return;
     if (input) input.value = '';
-    const sugs = document.getElementById('askSugs');
-    if (sugs) sugs.style.display = 'none';
     const reply = document.getElementById('askReply');
     if (!reply) return;
     const ctxItem = askCtx ? ITEMS.find((it) => it.id === askCtx) : null;
-    reply.innerHTML = `<div class="bub" style="margin-bottom:10px;background:var(--teal-dim);border-color:var(--teal-line);color:var(--t1)">${q}</div>
-      <div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>`;
+    reply.insertAdjacentHTML('beforeend', `<div class="bub user">${q}</div>
+      <div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>`);
     const answer = reply.lastElementChild;
+    answer.scrollIntoView({ block: 'end', behavior: 'smooth' });
     setTimeout(() => {
-      if (answer && answer.isConnected) answer.innerHTML = askAnswer(ctxItem, q);
+      if (answer && answer.isConnected) {
+        answer.innerHTML = askAnswer(ctxItem, q);
+        answer.scrollIntoView({ block: 'end', behavior: 'smooth' });
+      }
     }, 1400);
   },
   'save-item': (el) => {

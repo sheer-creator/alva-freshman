@@ -3,7 +3,7 @@
  * 价值信息（what_changed / metric diff / evidence）放正面。
  */
 import { ENTITIES, SOURCES, PROJECTIONS, FEEDS, HOLDINGS, evidenceCounts, entityChipLabel } from './data.js';
-import { store, I } from './state.js';
+import { store, I, goalTitle } from './state.js';
 
 /* ---- 小部件 ---- */
 export function monoAv(label, hue, size = 36, round = false) {
@@ -348,7 +348,7 @@ export function approvalCard(ap) {
   const st = store.approvals[ap.id];
   const srcs = ap.evidence.map((sid) => SOURCES[sid].name).join(' · ');
   return `<div class="card appr reveal" data-item="${ap.item}">
-    <div class="appr-tag">${I.bolt}<span>Proposed for your goal — “${store.goal}”</span></div>
+    <div class="appr-tag">${I.bolt}<span>Proposed for your goal — “${goalTitle()}”</span></div>
     <div class="card-head" style="margin:12px 0 8px">
       <span class="ent">${entityAv(ap.entity, 26)}<span class="tick">${ap.entity}</span></span>
     </div>
@@ -358,9 +358,9 @@ export function approvalCard(ap) {
     ${st
       ? `<div class="appr-done ${st}">${st === 'approved' ? I.check + '<span>Approved — executing on paper. Revert anytime in your goal.</span>' : I.x + '<span>Rejected — Alva will recalibrate the proposal.</span>'}</div>`
       : `<div class="card-actions">
-          <button class="btn btn-teal-solid" data-act="approve" data-id="${ap.id}">${I.check}Approve</button>
-          <button class="btn btn-ghost" data-act="reject" data-id="${ap.id}">Reject</button>
-          <button class="btn btn-ghost" style="flex:none;width:46px;padding:0" data-act="ask-item" data-item="${ap.item}" aria-label="Ask Alva">${I.ask}</button>
+          <button class="btn btn-teal-solid" style="flex:1.4" data-act="approve" data-id="${ap.id}">${I.check}Approve</button>
+          <button class="btn btn-ghost" style="flex:1" data-act="reject" data-id="${ap.id}">Reject</button>
+          <button class="btn btn-ghost btn-icon" data-act="ask-item" data-item="${ap.item}" aria-label="Ask Alva">${I.ask}</button>
         </div>`}
   </div>`;
 }
