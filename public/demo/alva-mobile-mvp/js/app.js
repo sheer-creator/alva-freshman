@@ -7,6 +7,16 @@ const pagesEl = document.getElementById('pages');
 const tabbar = document.getElementById('tabbar');
 let stack = [];
 
+/* A short cold-start brand moment. It is intentionally CSS-driven: no video payload,
+ * and reduced-motion users get a brief static mark instead of the moving signal field. */
+const launchScreen = document.getElementById('launch-screen');
+if (launchScreen) {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const leaveAfter = reduced ? 420 : 1600;
+  window.setTimeout(() => launchScreen.classList.add('leave'), leaveAfter);
+  window.setTimeout(() => launchScreen.remove(), leaveAfter + (reduced ? 80 : 620));
+}
+
 function parse(hash) {
   const h = (hash || '#/').replace(/^#\/?/, '');
   return h === '' ? (store.onboarded ? 'home' : 'welcome') : h;

@@ -39,6 +39,10 @@ export function renderRoute(route, page) {
 function sWelcome(page) {
   page.classList.add('welcome');
   page.innerHTML = `
+    <div class="welcome-art" aria-hidden="true">
+      <span class="welcome-flow primary"></span>
+      <span class="welcome-flow echo"></span>
+    </div>
     <div class="welcome-body">
       ${logoImg}
       <h1>Two feeds.<br><em>Zero noise.</em></h1>

@@ -7,6 +7,7 @@
  */
 import { ENTITIES, SOURCES, FEEDS, entityChipLabel, itemSources } from './data.js';
 import { store, I } from './state.js';
+import { renderMarkdown, splitMarkdown } from './markdown.js';
 
 /* ---- 小部件 ---- */
 export function monoAv(label, hue, size = 36, round = false) {
@@ -59,6 +60,18 @@ export function entStrip(id, size = 40) {
 }
 export const entStrips = (item) => `<div class="ent-strips">${item.entity_refs.map((id) => entStrip(id)).join('')}</div>`;
 
+/* Stream cards need compact market context, not a second dashboard inside the card. */
+function tickerToken(id) {
+  const e = ENTITIES[id];
+  return `<button class="ticker-token" data-act="open-entity" data-id="${id}" aria-label="Open ${e.ticker}">
+    ${entityAv(id, 22)}
+    <b>${e.ticker}</b>
+    <span class="ticker-price">${e.price}</span>
+    <span class="ticker-delta ${e.dir}">${e.delta}</span>
+  </button>`;
+}
+export const tickerRail = (item) => `<div class="ticker-rail ${item.entity_refs.length > 1 ? 'multi' : ''}">${item.entity_refs.map(tickerToken).join('')}</div>`;
+
 /* ---- 溯源入口：source 头像叠放 + 数量，点开卡背 ---- */
 export function provRow(item, act = 'flip') {
   const srcs = itemSources(item).slice(0, 4).map((id) => SOURCES[id]);
@@ -80,61 +93,56 @@ function cardHead(item) {
   </div>`;
 }
 
-/* 事实/归因 bullets：每条 claim 带来源引用 chip */
-function factList(rows) {
-  return `<div class="fact-list">${rows.map((f) => {
-    const first = SOURCES[f.sources ? f.sources[0] : f.source];
-    const extra = f.sources && f.sources.length > 1 ? ` +${f.sources.length - 1}` : '';
-    return `<div class="fact"><span class="fact-dot"></span><span class="fact-tx">${f.text}
-      <button class="src-chip" data-act="open-source" data-id="${first.id}">${first.name}${extra}</button></span></div>`;
-  }).join('')}</div>`;
+const wave = [9,15,22,13,27,18,31,12,24,19,28,15,23,11,29,17,25,13,20,10];
+
+function audioHero(item, hero) {
+  const source = SOURCES[item.source];
+  const cover = hero || (item.media && item.media.hero ? { src: item.media.hero, alt: item.media.alt } : null);
+  return `<button class="audio-hero ${cover ? 'has-cover' : 'no-cover'}" data-act="play-clip" data-item="${item.id}" aria-label="Play clip from ${source.name}">
+    ${cover ? `<img src="${cover.src}" alt="${cover.alt}" loading="lazy">` : ''}
+    <span class="audio-inner">
+      <span class="audio-source">${srcAvatar(source, 28)}<span><b>${source.name}</b><i>${item.ep}</i></span><em>${item.at}</em></span>
+      <span class="audio-transport">
+        <span class="audio-play">${I.play}</span>
+        <span class="audio-wave" aria-hidden="true">${wave.map((h, i) => `<i style="--h:${h}px;--i:${i}"></i>`).join('')}</span>
+        <span class="audio-label">Play clip</span>
+      </span>
+    </span>
+  </button>`;
 }
 
-const insightBlock = (label, text) => `<div class="wc-block"><span class="wc-k">${label}</span><p>${text}</p></div>`;
-
-/* ---- 三种卡型的正面主体：head = 来源，标的行紧跟图/头部，是卡内第一要素 ---- */
-function alphaBody(item) {
-  const s = SOURCES[item.source];
-  const hasMedia = item.media && item.media.hero;
-  return `
-    ${cardHead(item)}
-    ${hasMedia ? `<div class="card-media-top" data-act="open-detail" data-item="${item.id}" role="button"><img src="${item.media.hero}" alt="${item.media.alt}" loading="lazy"></div>` : ''}
-    ${entStrips(item)}
-    <h2 class="card-headline" data-act="open-detail" data-item="${item.id}" role="button">${item.headline}</h2>
-    <div class="clip" data-act="play-clip" data-item="${item.id}">
-      <span class="play">${I.play}</span>
-      <div><q>${item.quote}</q><div class="t">${item.speaker} · ${s.name} · ${item.at}</div></div>
-    </div>
-    ${insightBlock('Why it’s alpha', item.insight)}`;
+function imageHero(item, hero) {
+  if (!hero) return '';
+  return `<div class="card-media-top" data-act="open-detail" data-item="${item.id}" role="button"><img src="${hero.src}" alt="${hero.alt}" loading="lazy"></div>`;
 }
 
-function eventBody(item) {
-  const hasMedia = item.media && item.media.hero;
-  return `
-    ${cardHead(item)}
-    ${hasMedia ? `<div class="card-media-top" data-act="open-detail" data-item="${item.id}" role="button"><img src="${item.media.hero}" alt="${item.media.alt}" loading="lazy"></div>` : ''}
-    ${entStrips(item)}
-    <h2 class="card-headline" data-act="open-detail" data-item="${item.id}" role="button">${item.headline}</h2>
-    <p class="card-summary">${item.summary}</p>
-    ${factList(item.facts)}
-    ${insightBlock('Why it matters', item.why)}`;
+function marketHero(item) {
+  return `<div class="market-hero" data-act="open-detail" data-item="${item.id}" role="button">
+    <div class="market-metric"><b class="${item.move.dir}">${item.move.value}</b><span>${item.move.label}</span></div>
+    ${sparkSVG(item.move.spark, item.move.dir, 300, 78, true)}
+  </div>`;
 }
 
-function anomalyBody(item) {
-  return `
-    ${cardHead(item)}
-    ${entStrips(item)}
-    <h2 class="card-headline" data-act="open-detail" data-item="${item.id}" role="button">${item.headline}</h2>
-    <div class="rec-ta">${sparkSVG(item.move.spark, item.move.dir, 300, 72, true)}</div>
-    <div class="move-lbl">${item.move.label}</div>
-    <div class="wc-block" style="border:none;padding:0;background:none;margin-top:14px"><span class="wc-k">Why it’s moving</span></div>
-    ${factList(item.attribution)}`;
+function fallbackMarkdown(item) {
+  if (item.kind === 'alpha') return `## ${item.headline}\n\n> ${item.quote}\n\n**Why it’s alpha:** ${item.insight}`;
+  if (item.kind === 'anomaly') return `## ${item.headline}\n\n${item.attribution.map((a) => `- ${a.text}`).join('\n')}`;
+  return `## ${item.headline}\n\n${item.summary}\n\n${item.facts.map((f) => `- ${f.text}`).join('\n')}\n\n**Why it matters:** ${item.why}`;
+}
+
+/* Feed output is Markdown. UI-specific media/ticker treatment is projection only. */
+function cardBody(item) {
+  const { hero, body } = splitMarkdown(item.content_md || fallbackMarkdown(item));
+  const media = item.kind === 'alpha' ? audioHero(item, hero)
+    : item.kind === 'anomaly' ? marketHero(item)
+      : imageHero(item, hero);
+  return `${cardHead(item)}${media}${tickerRail(item)}
+    <div class="md-content" data-act="open-detail" data-item="${item.id}">${renderMarkdown(body)}</div>`;
 }
 
 /* ========== stream card ========== */
 export function streamCard(item, idx = 0) {
-  const body = { alpha: alphaBody, event: eventBody, anomaly: anomalyBody }[item.kind](item);
-  const front = `<div class="card flip-face">
+  const body = cardBody(item);
+  const front = `<div class="card flip-face feed-${item.feed} kind-${item.kind}">
     ${body}
     <div class="card-actions">
       ${provRow(item, 'flip')}

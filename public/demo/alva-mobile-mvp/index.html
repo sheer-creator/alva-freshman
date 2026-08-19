@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0A0E0F">
 <title>Alva Mobile MVP — Alpha & Following</title>
+<link rel="preload" as="image" href="img/art/alva-signal-flow-splash.jpg">
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/screens.css">
 </head>
@@ -15,6 +16,16 @@
   <button class="st-reset" data-act="reset-demo">Reset demo</button>
 </div>
 <div id="device">
+  <div id="launch-screen" aria-hidden="true">
+    <div class="launch-art">
+      <span class="launch-flow primary"></span>
+      <span class="launch-flow echo"></span>
+    </div>
+    <div class="launch-brand">
+      <img src="img/logo-alva.svg" alt="">
+      <p>Your AI Investing Agent</p>
+    </div>
+  </div>
   <div id="statusbar">
     <span class="sb-time">9:41</span>
     <span class="sb-island"></span>

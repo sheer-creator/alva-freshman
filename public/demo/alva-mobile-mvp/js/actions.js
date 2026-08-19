@@ -115,6 +115,15 @@ export const ACTIONS = {
   },
   'play-clip': (el) => {
     const it = item(el);
+    const hero = el.closest('.audio-hero');
+    if (hero) {
+      const playing = hero.classList.toggle('playing');
+      const icon = hero.querySelector('.audio-play');
+      const label = hero.querySelector('.audio-label');
+      if (icon) icon.innerHTML = playing ? I.pause : I.play;
+      if (label) label.textContent = playing ? 'Playing preview' : 'Play clip';
+      return;
+    }
     toast(`Opens the episode at ${it ? it.at : ''} on the source platform`, I.play);
   },
 

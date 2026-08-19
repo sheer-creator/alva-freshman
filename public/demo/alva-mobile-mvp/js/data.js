@@ -111,6 +111,8 @@ export const FEEDS = {
 
 /* ========== Feed Items ==========
  * kind: 'alpha'（podcast 片段）/ 'event'（重要事件）/ 'anomaly'（异动归因）
+ * content_md = Automation 的原始 Feed 正文；图片仍是标准 Markdown image link。
+ * entity_refs / sources / move 是 Context Card 的投影元数据，不改变正文结构。
  * t = 分钟前（仅用于混排排序），published = 展示文案。
  */
 export const ITEMS = [
@@ -119,6 +121,14 @@ export const ITEMS = [
     id: 'f_nvda_sweep', feed: 'following', kind: 'event', t: 0, published: 'Just now', fresh: true,
     entity_refs: ['NVDA'],
     headline: 'Unusual NVDA call sweep just printed',
+    content_md: `## Unusual NVDA call sweep just printed
+
+A Sep **$190 call sweep** crossed for $4.2M above the ask — the third aggressive print this morning.
+
+- Sep $190C sweep, $4.2M premium, executed above the ask. [Unusual Whales](source:uwhales)
+- Call volume is running 2.1× average with skew steepening. [Market data](source:mkt_data)
+
+**Why it matters:** Someone is paying up for immediate upside exposure ahead of the Aug 28 earnings print.`,
     summary: 'A Sep $190 call sweep crossed for $4.2M above the ask — the third aggressive print this morning.',
     why: 'Sweeps above the ask signal urgency: someone is paying up for immediate upside exposure ahead of the Aug 28 earnings print.',
     facts: [
@@ -132,6 +142,16 @@ export const ITEMS = [
     id: 'f_tsla_dmv', feed: 'following', kind: 'event', t: 32, published: '32m ago',
     entity_refs: ['TSLA'],
     headline: 'Tesla pulled its robotaxi expansion forward to Q4',
+    content_md: `![Autonomous vehicle on an Austin city street](img/hero-robotaxi-v2.jpg)
+
+## Tesla pulled its robotaxi expansion forward to Q4
+
+A Texas DMV filing shows an expanded service area and a fleet target **two quarters ahead** of the stated plan — not yet acknowledged by the company.
+
+- The filing lists a Q4 fleet target, ahead of “mid next year”. [Bloomberg](source:bloomberg)
+- Options skew hasn’t moved yet; the market hasn’t priced the filing. [Market data](source:mkt_data)
+
+**Why it matters:** Filings usually lead announcements. If confirmed, the robotaxi narrative gets a hard date.`,
     summary: 'A Texas DMV filing shows an expanded service area and a fleet target two quarters ahead of the stated plan — not yet acknowledged by the company.',
     why: 'Filings usually lead announcements. If confirmed, the robotaxi narrative gets a hard date.',
     facts: [
@@ -144,6 +164,16 @@ export const ITEMS = [
     id: 'f_nvda_capex', feed: 'following', kind: 'event', t: 41, published: '41m ago',
     entity_refs: ['NVDA'],
     headline: 'Second hyperscaler this week raised capex guidance',
+    content_md: `![AI datacenter racks](img/hero-nvda-datacenter.jpg)
+
+## Second hyperscaler this week raised capex guidance
+
+Two of the four largest cloud buyers lifted full-year capex in the same week, both citing AI infrastructure demand.
+
+- Both raises point to accelerated datacenter buildouts, not one-off projects. [Reuters](source:reuters)
+- Supply-chain checks show Blackwell allocation shifting from availability to priority. [@dylan522p](source:dylan)
+
+**Why it matters:** Two independent raises move the read from “steady ramp” to **accelerating ramp**. FY27 consensus for NVIDIA’s data-center line looks low.`,
     summary: 'Two of the four largest cloud buyers lifted full-year capex in the same week, both citing AI infrastructure demand.',
     why: 'Two independent raises in one week moves the read from “steady ramp” to “accelerating ramp” — FY27 consensus for NVIDIA’s data-center line looks low.',
     facts: [
@@ -156,6 +186,16 @@ export const ITEMS = [
     id: 'f_meta_filing', feed: 'following', kind: 'event', t: 540, published: '9h ago',
     entity_refs: ['META'],
     headline: 'A utility filing just corroborated Meta’s multi-year AI spend',
+    content_md: `![Power grid at dusk](img/hero-capex-grid.jpg)
+
+## A utility filing just corroborated Meta’s multi-year AI spend
+
+A grid-interconnect request tied to a Meta datacenter campus implies committed capacity through 2028 — spend that no earnings-call walk-back can quietly cancel.
+
+- The request covers phased capacity through 2028. [Bloomberg](source:bloomberg)
+- The same pattern appeared across two other hyperscaler campuses this quarter. [@dylan522p](source:dylan)
+
+**Why it matters:** Committed interconnects are the hardest evidence of capex intent. The debate keeps resolving toward **more, for longer**.`,
     summary: 'A grid-interconnect request tied to a Meta datacenter campus implies committed capacity through 2028 — spend that no earnings-call walk-back can quietly cancel.',
     why: 'Committed interconnects are the hardest evidence of capex intent. The AI spend debate keeps resolving toward “more, for longer”.',
     facts: [
@@ -168,6 +208,13 @@ export const ITEMS = [
     id: 'f_aapl_brk', feed: 'following', kind: 'event', t: 1500, published: '1d ago',
     entity_refs: ['AAPL'],
     headline: 'Berkshire trimmed Apple for a fourth straight quarter',
+    content_md: `## Berkshire trimmed Apple for a fourth straight quarter
+
+The latest 13F shows another reduction — the stake is now roughly **half its 2023 peak**. No comment from Omaha, as usual.
+
+- The position was reduced again in the latest filing. [Reuters](source:reuters)
+
+**Why it matters:** One seller doesn’t make a thesis, but four consecutive trims is a pattern — and AAPL’s largest holder keeps choosing cash instead.`,
     summary: 'The latest 13F shows another reduction — the stake is now roughly half its 2023 peak. No comment from Omaha, as usual.',
     why: 'One seller doesn’t make a thesis, but four consecutive trims is a pattern — and AAPL’s largest holder keeps choosing cash instead.',
     facts: [
@@ -180,6 +227,11 @@ export const ITEMS = [
     id: 'f_mu_move', feed: 'following', kind: 'anomaly', t: 68, published: '1h ago',
     entity_refs: ['MU'],
     headline: 'MU is up 5.8% on 2.4× average volume',
+    content_md: `## MU is up 5.8% on 2.4× average volume
+
+- SK Hynix said HBM output is effectively sold out through 2026 — a read-through to the whole memory complex. [Reuters](source:reuters)
+- A Sep $150 call sweep printed $3.1M above the ask an hour after the headline. [Unusual Whales](source:uwhales)
+- It is the largest single-day move since June; short interest was near a 12-month high coming in. [Market data](source:mkt_data)`,
     move: { value: '+5.8%', dir: 'up', label: 'Today · 2.4× avg volume', spark: [42, 43, 43, 44, 46, 45, 47, 50, 54, 57, 60, 63] },
     attribution: [
       { text: 'SK Hynix said HBM output is effectively sold out through 2026 — read-through to the whole memory complex.', source: 'reuters' },
@@ -191,6 +243,10 @@ export const ITEMS = [
     id: 'f_btc_flow', feed: 'following', kind: 'anomaly', t: 150, published: '2h ago',
     entity_refs: ['BTC'],
     headline: 'BTC reclaimed $118K while equities chopped sideways',
+    content_md: `## BTC reclaimed $118K while equities chopped sideways
+
+- Spot ETFs took in **+$412M**, a sixth straight day of net inflows. [The Kobeissi Letter](source:kobeissi)
+- Strength is concentrated in two issuers, consistent with allocator buying rather than momentum chasing. [Market data](source:mkt_data)`,
     move: { value: '+1.8%', dir: 'up', label: 'Today · decoupled from risk assets', spark: [50, 49, 48, 49, 48, 50, 52, 53, 55, 56, 58, 60] },
     attribution: [
       { text: 'Spot ETFs took in +$412M — a sixth straight day of net inflows.', source: 'kobeissi' },
@@ -201,6 +257,10 @@ export const ITEMS = [
     id: 'f_amd_prints', feed: 'following', kind: 'anomaly', t: 185, published: '3h ago',
     entity_refs: ['AMD'],
     headline: 'AMD dark-pool prints keep clustering at $186',
+    content_md: `## AMD dark-pool prints keep clustering at $186
+
+- Block-sized prints hit the same level for a third straight session — an accumulation pattern, not noise. [Unusual Whales](source:uwhales)
+- A hyperscaler is reportedly expanding its MI-series evaluation to production workloads. [Bloomberg](source:bloomberg)`,
     move: { value: '+3.1%', dir: 'up', label: 'Today · 3rd session of clustered prints', spark: [48, 47, 48, 49, 48, 50, 51, 53, 52, 55, 57, 58] },
     attribution: [
       { text: 'Block-sized dark-pool prints at the same level for a third straight session — an accumulation pattern, not noise.', source: 'uwhales' },
@@ -215,6 +275,13 @@ export const ITEMS = [
     source: 'bg2', ep: 'E82 · “The trillion-dollar buildout”', at: '41:05', speaker: 'Brad Gerstner',
     quote: 'Every incremental dollar of hyperscaler free cash flow is going into compute. The 2027 capex numbers you see published are floors, not targets.',
     headline: 'Gerstner: published 2027 capex numbers are floors, not targets',
+    content_md: `![Studio microphone](img/hero-podcast.jpg)
+
+## Gerstner: published 2027 capex numbers are floors, not targets
+
+> Every incremental dollar of hyperscaler free cash flow is going into compute. The 2027 capex numbers you see published are floors, not targets.
+
+**Why it’s alpha:** Consensus still models FY27 hyperscaler capex as a plateau. If those numbers are floors, datacenter revenue estimates for NVIDIA and its supply chain are too low — and this comes from someone who talks to those CFOs.`,
     media: { hero: 'img/hero-podcast.jpg', alt: 'Studio microphone' },
     insight: 'Consensus still models FY27 hyperscaler capex as a plateau. If those numbers are floors, datacenter revenue estimates for NVIDIA and its supply chain are too low — and this read comes from someone who talks to those CFOs.',
   },
@@ -224,6 +291,13 @@ export const ITEMS = [
     source: 'oddlots', ep: 'How the stablecoin bill rewires money markets', at: '23:40', speaker: 'Guest · payments researcher',
     quote: 'The bill quietly makes regulated exchanges the default custodians of reserve flows. That fee pool doesn’t exist on anyone’s model yet.',
     headline: 'The stablecoin bill creates a fee pool nobody is modeling',
+    content_md: `![US Capitol at night](img/hero-capitol.jpg)
+
+## The stablecoin bill creates a fee pool nobody is modeling
+
+> The bill quietly makes regulated exchanges the default custodians of reserve flows. That fee pool doesn’t exist on anyone’s model yet.
+
+**Why it’s alpha:** Sell-side models value Coinbase on trading fees. A custody-and-reserves revenue line from stablecoin regulation is a different business with recurring economics — named in the episode, absent from every published model.`,
     media: { hero: 'img/hero-capitol.jpg', alt: 'US Capitol at night' },
     insight: 'Sell-side models value Coinbase on trading fees. A custody-and-reserves revenue line from stablecoin regulation is a different business with recurring economics — named in the episode, absent from every published model.',
   },
@@ -233,6 +307,11 @@ export const ITEMS = [
     source: 'allin', ep: 'E214', at: '41:22', speaker: 'David Friedberg',
     quote: 'Every CFO we talk to has an inference line item now. Two years ago it didn’t exist. We’re underestimating inference demand by an order of magnitude.',
     headline: '“We’re underestimating inference demand by an order of magnitude”',
+    content_md: `## “We’re underestimating inference demand by an order of magnitude”
+
+> Every CFO we talk to has an inference line item now. Two years ago it didn’t exist. We’re underestimating inference demand by an order of magnitude.
+
+**Why it’s alpha:** Training demand is priced in; inference demand mostly isn’t. If it compounds the way this claims, deployment capacity — including second-source GPUs — gets bid, and current buildouts are a floor rather than a peak.`,
     insight: 'Training demand is priced in; inference demand mostly isn’t. If it compounds the way this claims, deployment capacity — including second-source GPUs — gets bid, and current buildouts are a floor rather than a peak.',
   },
   {
@@ -241,6 +320,13 @@ export const ITEMS = [
     source: 'investlike', ep: 'A memory-cycle veteran on this cycle', at: '58:30', speaker: 'Guest · 20-yr semis PM',
     quote: 'I’ve traded five memory cycles. This is the first one where contract pricing is locked two years out. The cycle didn’t get better — it got replaced.',
     headline: 'A five-cycle memory PM says this one is structurally different',
+    content_md: `![Memory chip macro](img/hero-hbm-macro.jpg)
+
+## A five-cycle memory PM says this one is structurally different
+
+> I’ve traded five memory cycles. This is the first one where contract pricing is locked two years out. The cycle didn’t get better — it got replaced.
+
+**Why it’s alpha:** Micron still trades on cycle-average multiples. If HBM contract visibility extends into 2027, the multiple framework itself is stale — and this aired 13 hours before today’s SK Hynix sold-out headline.`,
     media: { hero: 'img/hero-hbm-macro.jpg', alt: 'Memory chip macro' },
     insight: 'Micron still trades on cycle-average multiples. If HBM contract visibility really extends into 2027, the multiple framework itself is stale — and this aired 13 hours before today’s SK Hynix sold-out headline.',
   },
@@ -250,6 +336,11 @@ export const ITEMS = [
     source: 'dwarkesh', ep: 'The economics of inference', at: '1:12:08', speaker: 'Guest · frontier-lab researcher',
     quote: 'Serving cost per token is collapsing faster than anyone outside the labs realizes. The constraint moved from training compute to distribution.',
     headline: 'Serving costs are collapsing faster than the market realizes',
+    content_md: `## Serving costs are collapsing faster than the market realizes
+
+> Serving cost per token is collapsing faster than anyone outside the labs realizes. The constraint moved from training compute to distribution.
+
+**Why it’s alpha:** If inference gets cheap, value shifts from chip vendors to whoever owns distribution — platforms with billions of users capture AI margin the market is still assigning to semis.`,
     insight: 'The contrarian read: if inference gets cheap, value shifts from chip vendors to whoever owns distribution — platforms with billions of users capture AI margin the market is still assigning to semis.',
   },
   {
@@ -258,6 +349,11 @@ export const ITEMS = [
     source: 'acquired', ep: 'TSMC, part II', at: '2:05:44', speaker: 'Ben Gilbert',
     quote: 'Everyone models wafer capacity. The actual constraint on every AI chip shipping next year is advanced packaging — and TSMC owns essentially all of it.',
     headline: 'The real 2027 constraint is packaging, and TSMC owns it',
+    content_md: `## The real 2027 constraint is packaging, and TSMC owns it
+
+> Everyone models wafer capacity. The actual constraint on every AI chip shipping next year is advanced packaging — and TSMC owns essentially all of it.
+
+**Why it’s alpha:** CoWoS capacity, not wafers, decides who ships accelerators in 2027. That makes TSMC the toll collector on the entire AI buildout — a position the usual foundry-multiple framing undervalues.`,
     insight: 'CoWoS capacity, not wafers, decides who ships accelerators in 2027. That makes TSMC the toll collector on the entire AI buildout — a position the usual foundry-multiple framing undervalues.',
   },
 ];

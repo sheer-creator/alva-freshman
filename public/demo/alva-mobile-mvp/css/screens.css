@@ -1557,3 +1557,382 @@ svg .thin { stroke-width: 1; }
 /* 修复：.page 是 flex column，内容超长时 tabs 行会被 flex 压扁——禁止收缩 */
 .ask-tabs { flex: none; }
 .topbar, .hero-head, .detail-hero { flex: none; }
+
+/* ========== Alva signal-field art direction ========== */
+
+/* True cold-start splash: brand SVG stays native; only the atmospheric field is raster. */
+#launch-screen {
+  position: absolute; inset: 0; z-index: 100;
+  overflow: hidden; pointer-events: auto;
+  background: #050A0B;
+  opacity: 1; transform: scale(1);
+  transition: opacity .58s ease, transform .72s cubic-bezier(.22,.9,.3,1);
+}
+#launch-screen.leave { opacity: 0; transform: scale(1.018); }
+.launch-art { position: absolute; inset: 0; overflow: hidden; }
+.launch-flow {
+  position: absolute; inset: -4%;
+  background: url('../img/art/alva-signal-flow-splash.jpg') 50% 0 / cover no-repeat;
+  will-change: transform, opacity;
+}
+.launch-flow.primary { animation: launchFlowIn 3.2s cubic-bezier(.2,.72,.22,1) both; }
+.launch-flow.echo {
+  inset: -8%; opacity: .18; mix-blend-mode: screen;
+  filter: saturate(1.12) brightness(1.04);
+  -webkit-mask-image: linear-gradient(142deg, transparent 5%, #000 28%, #000 59%, transparent 78%);
+  mask-image: linear-gradient(142deg, transparent 5%, #000 28%, #000 59%, transparent 78%);
+  animation: launchFlowEcho 3.5s cubic-bezier(.2,.72,.22,1) both;
+}
+.launch-art::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(68% 30% at 50% 62%, rgba(5,10,11,.35), transparent 72%),
+    linear-gradient(180deg, rgba(5,10,11,.02), rgba(5,10,11,.12) 43%, #050A0B 69%, #050A0B 100%);
+}
+.launch-brand {
+  position: absolute; z-index: 2; left: 0; right: 0; top: 61%;
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0; transform: translateY(12px);
+  animation: launchBrandIn .72s .28s var(--ease) forwards;
+}
+.launch-brand img { width: 140px; height: auto; }
+.launch-brand p {
+  margin-top: 15px; color: rgba(225,239,236,.68);
+  font-size: 14px; font-weight: 500; letter-spacing: .18px;
+}
+@keyframes launchFlowIn {
+  from { transform: translate3d(-2.4%, -2%, 0) scale(1.1); filter: brightness(.72); }
+  to { transform: translate3d(.8%, .6%, 0) scale(1.035); filter: brightness(1); }
+}
+@keyframes launchFlowEcho {
+  from { transform: translate3d(5%, -3%, 0) scale(1.14); opacity: 0; }
+  to { transform: translate3d(-3%, 2%, 0) scale(1.07); opacity: .2; }
+}
+@keyframes launchBrandIn { to { opacity: 1; transform: translateY(0); } }
+
+/* The generated splash stays text-free; live type and the native SVG logo remain crisp above it. */
+.welcome {
+  isolation: isolate;
+  background: #050A0B;
+}
+.welcome-art {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+  background: #050A0B;
+}
+.welcome-flow {
+  position: absolute; inset: -3%;
+  background: url('../img/art/alva-signal-flow-splash.jpg') 50% 0 / cover no-repeat;
+  will-change: transform, opacity;
+}
+.welcome-flow.primary {
+  opacity: .94;
+  animation: welcomeFlowDrift 15s ease-in-out infinite alternate;
+}
+.welcome-flow.echo {
+  inset: -7%;
+  opacity: .16;
+  mix-blend-mode: screen;
+  filter: saturate(1.14) brightness(1.05);
+  -webkit-mask-image: linear-gradient(142deg, transparent 6%, #000 27%, #000 57%, transparent 76%);
+  mask-image: linear-gradient(142deg, transparent 6%, #000 27%, #000 57%, transparent 76%);
+  animation: welcomeFlowEcho 10s ease-in-out infinite alternate;
+}
+.welcome-art::before {
+  content: ''; position: absolute; z-index: 2;
+  width: 48%; height: 86%; left: -58%; top: -14%;
+  background: linear-gradient(104deg, transparent, rgba(193,255,248,.09) 47%, transparent 58%);
+  mix-blend-mode: screen; transform: skewX(-14deg);
+  animation: welcomeSignalSweep 9s 1.2s ease-in-out infinite;
+}
+.welcome-art::after {
+  content: ''; position: absolute; inset: 0; z-index: 3;
+  background:
+    radial-gradient(92% 58% at 48% 16%, transparent 38%, rgba(3,8,9,.2) 82%),
+    linear-gradient(180deg, rgba(5,10,11,.02) 0%, rgba(5,10,11,.08) 41%, #050A0B 64%, #050A0B 100%);
+}
+.welcome-body { position: relative; z-index: 2; }
+
+@keyframes welcomeFlowDrift {
+  0% { transform: translate3d(-1.2%, -1.1%, 0) scale(1.035); }
+  50% { transform: translate3d(1.2%, .25%, 0) scale(1.065); }
+  100% { transform: translate3d(-.35%, 1%, 0) scale(1.045); }
+}
+@keyframes welcomeFlowEcho {
+  from { transform: translate3d(-3.5%, 1%, 0) scale(1.07); opacity: .08; }
+  to { transform: translate3d(4.5%, -2%, 0) scale(1.13); opacity: .2; }
+}
+@keyframes welcomeSignalSweep {
+  0%, 18% { transform: translateX(0) skewX(-14deg); opacity: 0; }
+  36% { opacity: .72; }
+  63%, 100% { transform: translateX(390%) skewX(-14deg); opacity: 0; }
+}
+
+/* One generated signal ribbon gives every Context Card a shared visual signature. */
+.card {
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(137,210,202,.13);
+  background:
+    radial-gradient(110% 72% at 90% -18%, rgba(73,163,166,.08), transparent 54%),
+    linear-gradient(165deg, rgba(16,24,25,.985), rgba(11,18,19,.995));
+}
+.card::before {
+  content: ''; position: absolute; z-index: 0;
+  width: 410px; height: 231px; right: -158px; top: -82px;
+  background: url('../img/art/alva-signal-ribbon.jpg') center / cover no-repeat;
+  mix-blend-mode: screen; opacity: .11; pointer-events: none;
+  transform: rotate(-3deg);
+  -webkit-mask-image: linear-gradient(132deg, transparent 8%, #000 34%, #000 66%, transparent 91%);
+  mask-image: linear-gradient(132deg, transparent 8%, #000 34%, #000 66%, transparent 91%);
+}
+.card > * { position: relative; z-index: 1; }
+.card.feed-following::before {
+  right: -132px; top: -68px;
+  transform: scaleX(-1) rotate(-5deg);
+  opacity: .13;
+}
+.card.kind-anomaly::before {
+  top: 30px; right: -118px;
+  opacity: .18;
+}
+
+/* Let the same signal briefly meet photography, like a live intelligence layer over source media. */
+.card-media-top { isolation: isolate; }
+.card-media-top img { position: relative; z-index: 0; }
+.card-media-top::before {
+  content: ''; position: absolute; z-index: 1;
+  left: 18%; right: -16%; bottom: -26%; height: 72%;
+  background: url('../img/art/alva-signal-ribbon.jpg') 66% 50% / cover no-repeat;
+  mix-blend-mode: screen; opacity: .17; pointer-events: none;
+  transform: rotate(-2deg);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 38%, #000 78%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 38%, #000 78%, transparent);
+}
+.card-media-top::after { z-index: 2; }
+
+.flip-back {
+  isolation: isolate; overflow: hidden;
+  background:
+    radial-gradient(100% 60% at 94% 0%, rgba(73,163,166,.12), transparent 56%),
+    linear-gradient(165deg, #131D1F, #0E1617);
+}
+.flip-back::before {
+  content: ''; position: absolute; z-index: 0;
+  width: 430px; height: 242px; right: -170px; top: -78px;
+  background: url('../img/art/alva-signal-ribbon.jpg') center / cover no-repeat;
+  mix-blend-mode: screen; opacity: .14; pointer-events: none;
+  transform: scaleX(-1) rotate(-4deg);
+  -webkit-mask-image: linear-gradient(135deg, transparent 12%, #000 36%, #000 63%, transparent 88%);
+  mask-image: linear-gradient(135deg, transparent 12%, #000 36%, #000 63%, transparent 88%);
+}
+.flip-back > * { position: relative; z-index: 1; }
+
+/* The anomaly chart becomes a small branded data window rather than another neutral box. */
+.rec-ta { position: relative; isolation: isolate; overflow: hidden; }
+.rec-ta::before {
+  content: ''; position: absolute; z-index: 0; inset: -40% -20% -55% 24%;
+  background: url('../img/art/alva-signal-ribbon.jpg') center / cover no-repeat;
+  mix-blend-mode: screen; opacity: .1; pointer-events: none;
+}
+.rec-ta > * { position: relative; z-index: 1; }
+
+.ready-stage::before {
+  content: ''; position: absolute; inset: 8% -24%;
+  background: url('../img/art/alva-signal-ribbon.jpg') center / cover no-repeat;
+  mix-blend-mode: screen; opacity: .1; pointer-events: none;
+  animation: readySignalDrift 9s ease-in-out infinite alternate;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 10%, transparent 70%);
+  mask-image: radial-gradient(ellipse at center, #000 10%, transparent 70%);
+}
+@keyframes readySignalDrift {
+  from { transform: translateX(-2%) scale(1.02); }
+  to { transform: translateX(3%) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #launch-screen { transition-duration: .01s; }
+  .launch-flow.primary, .launch-flow.echo, .launch-brand,
+  .welcome-flow.primary, .welcome-flow.echo, .welcome-art::before,
+  .ready-stage::before { animation: none; }
+  .launch-flow.primary, .launch-brand { transform: none; opacity: 1; }
+  .launch-flow.echo { opacity: .08; transform: none; }
+  .welcome-flow.primary { transform: none; }
+  .welcome-flow.echo { opacity: .1; transform: none; }
+  .welcome-art::before { display: none; }
+}
+
+/* ========== Markdown-first Context Cards ========== */
+
+/* Primary podcast media: cover, episode identity and audio transport are one surface. */
+.audio-hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: block; width: calc(100% + 2px); aspect-ratio: 16 / 9.4;
+  margin: 0 -1px 12px; border-radius: 14px; text-align: left;
+  background:
+    radial-gradient(100% 120% at 82% 10%, rgba(73,163,166,.28), transparent 52%),
+    #0B1516;
+  border: 1px solid rgba(207,242,237,.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.audio-hero > img {
+  position: absolute; inset: 0; z-index: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  filter: saturate(.82) contrast(1.08) brightness(.82);
+  transition: transform .7s var(--ease), filter .3s ease;
+}
+.audio-hero::before {
+  content: ''; position: absolute; z-index: 1; inset: 22% -18% -20% 18%;
+  background: url('../img/art/alva-signal-ribbon.jpg') 64% 50% / cover no-repeat;
+  mix-blend-mode: screen; opacity: .25; pointer-events: none;
+  -webkit-mask-image: linear-gradient(92deg, transparent, #000 34%, #000 82%, transparent);
+  mask-image: linear-gradient(92deg, transparent, #000 34%, #000 82%, transparent);
+}
+.audio-hero.no-cover::before { inset: -8% -12%; opacity: .48; }
+.audio-hero::after {
+  content: ''; position: absolute; inset: 0; z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(3,7,8,.28), transparent 36%, rgba(3,7,8,.22) 54%, rgba(3,7,8,.94) 100%),
+    linear-gradient(90deg, rgba(3,7,8,.36), transparent 60%);
+  pointer-events: none;
+}
+.audio-inner {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 13px;
+}
+.audio-source { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.audio-source .av-img, .audio-source .mono-av { flex: none; box-shadow: 0 4px 16px rgba(0,0,0,.28); }
+.audio-source > span { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 1px; }
+.audio-source b { font-size: 12.5px; font-weight: 650; color: rgba(244,247,246,.96); }
+.audio-source i {
+  overflow: hidden; color: rgba(220,232,229,.68); font-size: 11.5px; font-style: normal;
+  white-space: nowrap; text-overflow: ellipsis;
+}
+.audio-source em {
+  flex: none; padding: 5px 8px; border-radius: 999px;
+  background: rgba(5,10,11,.54); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(237,246,244,.8); font-size: 11px; font-style: normal;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.audio-transport { display: flex; align-items: center; gap: 10px; }
+.audio-play {
+  flex: none; width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(85,217,203,.94); color: #062B27;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.audio-play svg { width: 16px; height: 16px; fill: currentColor; stroke: none; margin-left: 2px; }
+.audio-hero.playing .audio-play svg { fill: none; stroke: currentColor; stroke-width: 2.2; margin-left: 0; }
+.audio-wave {
+  flex: 1; height: 34px; min-width: 0;
+  display: flex; align-items: center; gap: 2px;
+  overflow: hidden; opacity: .76;
+  -webkit-mask-image: linear-gradient(90deg, #000 75%, transparent);
+  mask-image: linear-gradient(90deg, #000 75%, transparent);
+}
+.audio-wave i {
+  flex: 1; min-width: 2px; max-width: 3px; height: var(--h);
+  border-radius: 2px; background: rgba(218,248,244,.9);
+  transform-origin: center;
+}
+.audio-label { flex: none; color: rgba(232,243,240,.78); font-size: 11.5px; font-weight: 550; }
+.audio-hero.playing { border-color: rgba(85,217,203,.34); }
+.audio-hero.playing > img { transform: scale(1.025); filter: saturate(.9) contrast(1.08) brightness(.76); }
+.audio-hero.playing .audio-wave i { animation: audioWave .72s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -38ms); }
+@keyframes audioWave { to { transform: scaleY(.38); opacity: .54; } }
+
+/* Ticker is compact market metadata, not another card nested inside the card. */
+.ticker-rail {
+  display: flex; gap: 7px; max-width: 100%; overflow-x: auto;
+  margin: 1px 0 13px; padding-bottom: 1px;
+  scrollbar-width: none;
+}
+.ticker-rail::-webkit-scrollbar { display: none; }
+.ticker-token {
+  flex: 0 0 auto; min-width: 0; height: 34px;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 10px 5px 5px; border-radius: 999px;
+  background: rgba(255,255,255,.026); border: 1px solid rgba(220,239,235,.1);
+  color: var(--t1); text-align: left;
+  transition: background .15s, border-color .15s, transform .12s;
+}
+.ticker-token:active { transform: scale(.97); background: rgba(255,255,255,.05); border-color: var(--teal-line); }
+.ticker-token .tick-logo { width: 22px !important; height: 22px !important; border-color: rgba(255,255,255,.12); }
+.ticker-token b { font-size: 12.5px; font-weight: 700; letter-spacing: .1px; }
+.ticker-price { color: #81908D; font-size: 11.5px; }
+.ticker-delta { font-size: 11.5px; font-weight: 650; }
+.ticker-delta.up { color: var(--up); }
+.ticker-delta.down { color: var(--down); }
+.ticker-rail.multi .ticker-price { display: none; }
+
+/* An anomaly chart is media; its explanation remains unstructured Markdown below. */
+.market-hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: 146px; margin: 0 -1px 12px; padding: 15px 14px 11px;
+  display: flex; flex-direction: column;
+  border-radius: 14px; border: 1px solid rgba(220,239,235,.1);
+  background:
+    radial-gradient(100% 120% at 92% 0%, rgba(73,163,166,.13), transparent 54%),
+    rgba(255,255,255,.022);
+}
+.market-hero::before {
+  content: ''; position: absolute; z-index: 0; inset: -20% -26% 4% 14%;
+  background: url('../img/art/alva-signal-ribbon.jpg') center / cover no-repeat;
+  mix-blend-mode: screen; opacity: .16;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 38%, #000 78%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 38%, #000 78%, transparent);
+}
+.market-hero > * { position: relative; z-index: 1; }
+.market-metric { display: flex; align-items: baseline; gap: 9px; }
+.market-metric b { font-size: 25px; font-weight: 700; letter-spacing: -.35px; }
+.market-metric b.up { color: var(--up); }
+.market-metric b.down { color: var(--down); }
+.market-metric span { color: var(--t3); font-size: 11.5px; }
+.market-hero .spark { width: 100%; height: 78px; margin-top: auto; }
+.market-hero .spark path { stroke-width: 1.65; }
+
+/* The content below media is intentionally plain Markdown typography. */
+.md-content { color: var(--t2); cursor: pointer; }
+.md-content h2, .md-content h3, .md-content h4 {
+  margin: 0 0 8px; color: var(--t1);
+  font-size: 18px; font-weight: 600; line-height: 1.28; letter-spacing: -.2px;
+}
+.md-content h4 { font-size: 15px; }
+.md-content p { margin: 0 0 10px; font-size: 13.7px; line-height: 1.52; }
+.md-content p:last-child { margin-bottom: 0; }
+.md-content strong { color: #DCE6E4; font-weight: 600; }
+.md-content em { color: #C3CFCC; }
+.md-content code {
+  padding: 1px 5px; border-radius: 5px;
+  background: rgba(255,255,255,.05); color: #C9D6D3;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em;
+}
+.md-content blockquote {
+  position: relative; margin: 11px 0 12px; padding: 0 0 0 13px;
+  color: #C8D3D1; font-size: 13.7px; line-height: 1.52;
+}
+.md-content blockquote::before {
+  content: ''; position: absolute; left: 0; top: 2px; bottom: 2px;
+  width: 2px; border-radius: 2px; background: var(--teal); opacity: .72;
+}
+.md-content ul { display: flex; flex-direction: column; gap: 7px; margin: 10px 0 11px; list-style: none; }
+.md-content li {
+  position: relative; padding-left: 16px;
+  color: var(--t2); font-size: 13.4px; line-height: 1.5;
+}
+.md-content li::before {
+  content: ''; position: absolute; left: 1px; top: 8px;
+  width: 4px; height: 4px; border-radius: 50%; background: #71807D;
+}
+.md-link {
+  display: inline; padding: 0 0 1px; border: none; border-bottom: 1px solid rgba(85,217,203,.28);
+  border-radius: 0; color: #88CFC7; font: inherit; text-decoration: none;
+}
+.md-link:active { color: var(--teal); border-bottom-color: var(--teal); }
+.md-image { overflow: hidden; margin: 10px 0 12px; border-radius: 12px; border: 1px solid var(--line); }
+.md-image img { display: block; width: 100%; height: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .audio-hero > img, .audio-hero.playing .audio-wave i { animation: none; transition: none; transform: none; }
+}
