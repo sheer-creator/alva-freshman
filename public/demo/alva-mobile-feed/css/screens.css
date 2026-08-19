@@ -529,7 +529,8 @@
 }
 .watch-custom:focus { border-color: var(--teal-line); }
 .watch-custom::placeholder { color: var(--t3); }
-.watch-add-btn { flex: none; height: 46px; padding: 0 18px; }
+/* width:auto 覆盖 .btn-teal-solid 的 width:100%，否则输入框被挤没 */
+.watch-add-btn { flex: none; width: auto; height: 46px; padding: 0 18px; }
 
 /* connect sources */
 .conn-list { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
@@ -769,6 +770,8 @@
 .sm-row .nm { font-size: 15px; font-weight: 500; }
 .sm-row .ds { font-size: 12.5px; color: var(--t3); margin-top: 1px; }
 .sm-row > svg { flex: none; width: 15px; height: 15px; stroke: var(--t3); stroke-width: 2; }
+.sm-done { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--teal); }
+.sm-done svg { width: 13px; height: 13px; stroke: var(--teal); stroke-width: 2.4; }
 .sm-act { display: flex; gap: 6px; }
 .sm-act button {
   height: 32px; padding: 0 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
@@ -839,3 +842,89 @@
   font-size: 22px; font-weight: 600; letter-spacing: -0.2px; color: var(--t1);
   text-shadow: 0 1px 8px rgba(0,0,0,0.6);
 }
+
+/* ========== Chat 三 tab（下划线式，feed 详情页复用） ========== */
+.ask-tabs { display: flex; gap: 24px; padding: 2px var(--pad) 0; border-bottom: 1px solid var(--line); }
+.ask-tabs button { position: relative; padding: 9px 0 12px; font-size: 14.5px; font-weight: 500; color: var(--t3); background: none; }
+.ask-tabs button.on { color: var(--t1); }
+.ask-tabs button.on::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 1px; background: var(--teal); }
+.feed-tabs { margin-top: 4px; }
+
+/* ========== Market tab：ticker 栏位小切换 ========== */
+.mkt-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.mini-tabs { display: flex; gap: 16px; }
+.mini-tabs button { font-size: 12.5px; font-weight: 500; color: var(--t3); background: none; padding: 4px 0; }
+.mini-tabs button.on { color: var(--teal); }
+
+/* ========== Figure 小卡（quote 最近发言） ========== */
+.fig-card {
+  display: block; width: 100%; text-align: left; margin-bottom: 10px;
+  padding: 14px 16px; border-radius: 16px;
+  background: var(--bg1); border: 1px solid var(--line);
+}
+.fig-card:active { border-color: var(--teal-line); }
+.fig-card .fh { display: flex; align-items: center; gap: 11px; }
+.fig-card .fh .meta { flex: 1; min-width: 0; }
+.fig-card .fh .nm { font-size: 15px; font-weight: 600; }
+.fig-card .fh .ds { font-size: 12.5px; color: var(--t3); margin-top: 1px; }
+.fig-card .fh > svg { flex: none; width: 15px; height: 15px; stroke: var(--t3); stroke-width: 2; }
+.fig-card blockquote { margin: 11px 0 0; padding-left: 11px; border-left: 2px solid var(--teal-line); font-size: 14px; line-height: 1.5; color: var(--t2); }
+.fig-card .src { margin-top: 7px; font-size: 12px; color: var(--t3); }
+
+/* Figure 详情：大引用块 */
+.fig-quote {
+  margin: 4px 0 0; padding: 16px 18px; border-radius: 16px;
+  background: var(--bg1); border: 1px solid var(--line);
+  font-size: 16.5px; line-height: 1.5; color: var(--t1); font-weight: 500;
+}
+.fig-quote .src { display: block; margin-top: 9px; font-size: 12.5px; color: var(--t3); font-weight: 400; }
+
+/* ========== 通用小件：决策/影响 tag、行内文字链接 ========== */
+.dec-tag { flex: none; font-size: 11.5px; font-weight: 600; color: var(--t3); background: rgba(255,255,255,0.05); border-radius: 7px; padding: 3px 8px; text-transform: capitalize; }
+.dec-tag.approved { color: var(--teal); background: var(--teal-dim); }
+.dec-tag.rejected { color: var(--down); background: rgba(255,99,99,0.09); }
+.txt-lnk { display: inline; background: none; padding: 0; font-size: inherit; color: var(--teal); }
+/* feed 详情 sub 行内的状态点（st-dot 默认给 flex 容器用，这里要 inline） */
+.hero-head .sub .st-dot { display: inline-block; width: 8px; height: 8px; box-shadow: none; vertical-align: 1px; }
+
+/* ========== Chat：Memory tab（user.md 可视化，安静的 k/v 行） ========== */
+.mem-cap { font-size: 13px; color: var(--t3); line-height: 1.5; margin: 8px 0 2px; }
+.mem-row {
+  display: flex; align-items: baseline; gap: 12px; width: 100%; text-align: left;
+  padding: 11px 0; border-bottom: 1px solid var(--line);
+  font-size: 14px; line-height: 1.45; color: var(--t1);
+}
+.mem-row:last-child { border-bottom: none; }
+.mem-row .k { flex: none; width: 76px; font-size: 12.5px; color: var(--t3); }
+.mem-row .v { flex: 1; min-width: 0; }
+.mem-row .t { flex: none; font-size: 12px; color: var(--t3); }
+.mem-row > svg { flex: none; align-self: center; width: 14px; height: 14px; stroke: var(--t3); stroke-width: 2; }
+.mem-row .dc { font-style: normal; font-weight: 600; }
+.mem-row .dc.approved { color: var(--teal); }
+.mem-row .dc.rejected { color: var(--down); }
+
+/* ========== Chat：Tasks tab（automation / 子任务行） ========== */
+.ic-cir {
+  flex: none; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--teal-dim); border: 1px solid var(--teal-line);
+  display: flex; align-items: center; justify-content: center;
+}
+.ic-cir svg { width: 17px; height: 17px; stroke: var(--teal); fill: none; stroke-width: 2; }
+.ic-cir.dim { background: rgba(255,255,255,0.04); border-color: var(--line2); }
+.ic-cir.dim svg { stroke: var(--t3); }
+.task-tag { flex: none; font-size: 11.5px; font-weight: 600; border-radius: 7px; padding: 3px 8px; }
+.task-tag.running { color: var(--teal); background: var(--teal-dim); }
+.task-tag.done { color: var(--t3); background: rgba(255,255,255,0.05); }
+.next-run { flex: none; font-size: 12.5px; color: var(--t3); }
+.next-run.paused { color: var(--t3); font-style: italic; }
+.next-run.attn { color: var(--teal); font-weight: 600; }
+
+/* ========== Goal：instruction 块 + 编辑 textarea ========== */
+.goal-md {
+  width: 100%; text-align: left; white-space: pre-wrap; word-break: break-word;
+  margin: 0; padding: 15px 16px; border-radius: 16px;
+  background: var(--bg1); border: 1px solid var(--line);
+  font-family: var(--font); font-size: 14px; line-height: 1.6; color: var(--t2);
+}
+.goal-md::first-line { font-weight: 600; color: var(--t1); }
+.goal-ta { font-family: var(--font); font-size: 14.5px; line-height: 1.55; min-height: 148px; }

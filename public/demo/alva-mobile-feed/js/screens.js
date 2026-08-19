@@ -1,5 +1,5 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, RECAP_ARTICLE, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, RECAP_ARTICLE, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, FIGURES, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, I, nav, toast, goalTitle } from './state.js';
 import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, isHeld } from './cards.js';
 
@@ -92,7 +92,7 @@ export function renderRoute(route, page) {
     you: sYou,
     entity: () => sEntity(a, page),
     feed: () => sFeed(a, page),
-    automation: () => sAutomation(a, page),
+    automation: () => sFeed(a, page, 'settings'),
     goal: sGoal,
     recap: sRecapDeck,
     source: () => sSource(a, page),
@@ -317,7 +317,7 @@ function sOnboard(step, page) {
       <p class="ob-sub">Built from ${store.entities.length || 3} follows${store.sources.length ? `, ${store.sources.length} sources you added` : ''}${store.watches.length ? ' and your watches' : ''}. Here’s a first look.</p>
       <div class="pv-card-mini">${streamCard(first)}</div>
       <div class="pv-group">
-        <div class="sec-label">Also in your channels</div>
+        <div class="sec-label">Also in your feeds</div>
         ${channels.map((f) => `<div class="pv-row">${monoAv(FEEDS[f].owner === 'Alva' ? 'AL' : FEEDS[f].owner.slice(0, 2).toUpperCase(), 174, 34)}<span class="nm">${FEEDS[f].name}</span><span class="k">${FEEDS[f].owner} · ${FEEDS[f].cadence}</span></div>`).join('')}
       </div>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="ob-finish">Open For You</button></div>`;
@@ -397,7 +397,7 @@ function recapModule() {
 function streamView(items) {
   const cards = items.length
     ? items.map((it, i) => streamCard(it, i + 1)).join('')
-    : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a channel in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore channels</button></div>`;
+    : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a feed in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore feeds</button></div>`;
   return `<div class="feed-scroll">${recapModule()}${cards}</div>`;
 }
 
@@ -453,7 +453,7 @@ function priceMini(item) {
 }
 
 /* ========== discover ========== */
-let discTab = 'all';
+let discTab = 'market';
 export function setDiscTab(t) { discTab = t; }
 
 const marketRow = (m) => { const e = ENTITIES[m]; return `<div class="list-row" data-act="open-entity" data-id="${m}" role="button">
@@ -462,10 +462,10 @@ const marketRow = (m) => { const e = ENTITIES[m]; return `<div class="list-row" 
   <span class="price"><div class="v">${e.price}</div><div class="c" style="color:var(--${e.dir})">${e.delta}</div></span>
 </div>`; };
 
-const channelRow = (f) => { const fd = FEEDS[f]; const on = store.feeds.includes(f); return `<div class="list-row">
+const feedRow = (f) => { const fd = FEEDS[f]; const on = store.feeds.includes(f); return `<div class="list-row">
   ${monoAv(fd.owner === 'Alva' ? 'AL' : fd.owner.slice(0, 2).toUpperCase(), fd.access === 'premium' ? 40 : 174, 40)}
   <span class="meta" data-act="open-feed" data-id="${f}" role="button"><span class="nm">${fd.name} ${fd.access !== 'public' ? accessBadge(fd.access) : ''}</span><div class="ds">${fd.owner} · ${fd.cadence}</div></span>
-  <button class="follow-sm ${on ? 'on' : ''}" data-act="follow-feed" data-id="${f}">${on ? 'Following' : 'Follow'}</button>
+  <button class="follow-sm ${on ? 'on' : ''}" data-act="follow-feed" data-id="${f}">${on ? 'Subscribed' : 'Subscribe'}</button>
 </div>`; };
 
 const creatorRow = (c) => { const cr = CREATORS[c]; return `<div class="list-row" data-act="open-creator" data-id="${c}" role="button">
@@ -487,45 +487,62 @@ const entityRow = (id) => { const e = ENTITIES[id]; return `<div class="list-row
   ${I.chevR}
 </div>`; };
 
-/* BYOS 入口：目录之外的源，用户自己带进来（§6.1 Custom available） */
-const byosRow = `<button class="byos-row" data-act="byos-sheet">
+/* BYOS 入口：目录之外的源，用户自己带进来（§6.1 Custom available）。
+   与 Chat 补课清单的 “Bring your own sources” 打开同一个 sheet（setup-sources）。 */
+const byosRow = `<button class="byos-row" data-act="setup-sources">
   <span class="ic">${I.plus}</span>
-  <span class="meta"><span class="nm">Add a custom source</span><div class="ds">Paste a URL or handle — newsletters, X, RSS, YouTube</div></span>
+  <span class="meta"><span class="nm">Add a custom source</span><div class="ds">X · Telegram · email newsletters · Substack · RSS</div></span>
   ${I.chevR}
 </button>`;
 
 /* 私有 feed 属于 You 页，公共目录只列 public/premium */
 const publicFeedIds = () => Object.keys(FEEDS).filter((id) => FEEDS[id].access !== 'private');
 
-function discBodyHtml(tab) {
-  const allMarkets = Object.values(ENTITIES).filter((e) => e.kind === 'market').map((e) => e.id);
-  /* 已连接账号推荐：X follows 里还没加进 Alva 的源 */
-  const connSug = store.connected.x ? ['dylan', 'kobeissi', 'uwhales'].filter((id) => !store.sources.includes(id)) : [];
-  const connModule = store.connected.x
-    ? (connSug.length ? connSug.map(catalogRow).join('') : '<p class="ent-none">Everything from your X follows is already in.</p>')
-    : `<div class="list-row" data-act="nav" data-to="#/onboard/x" role="button">
-        ${monoAv('𝕏', 200, 40, true)}
-        <span class="meta"><span class="nm">Connect X</span><div class="ds">Import who you follow as sources</div></span>
-        ${I.chevR}
-      </div>`;
+/* Market tab 的 ticker 栏位：Trending / Following / Holdings 小 tab 切换 */
+let mktTab = 'trending';
+export function setMktTab(t) { mktTab = t; }
 
+function mktTickerIds(t) {
+  if (t === 'trending') return DISCOVER.movers;
+  if (t === 'following') return store.entities.filter((id) => ENTITIES[id] && ENTITIES[id].kind === 'market');
+  return store.brokerage ? HOLDINGS.map((h) => h.entity) : store.manualHoldings;
+}
+export function mktListHtml(t) {
+  const ids = mktTickerIds(t);
+  if (ids.length) return ids.map(marketRow).join('');
+  return t === 'following'
+    ? '<p class="ent-none" style="padding:10px 0">Nothing yet — follow a ticker and it shows up here.</p>'
+    : `<p class="ent-none" style="padding:10px 0">No holdings yet — <button class="txt-lnk" data-act="connect-broker">connect your brokerage</button> to see them here.</p>`;
+}
+
+/* Figure 小卡：头像 + 最近发言引用，点击进详情 */
+const figCard = (id) => { const e = ENTITIES[id]; const fg = FIGURES[id]; return `
+  <button class="fig-card" data-act="open-entity" data-id="${id}">
+    <div class="fh">${entityAv(id, 40)}<span class="meta"><span class="nm">${e.name}</span><div class="ds">${e.role}</div></span>${I.chevR}</div>
+    <blockquote>“${fg.quote}”</blockquote>
+    <div class="src">${fg.where} · ${fg.when}</div>
+  </button>`; };
+
+/* 三个 tab 对应三类对象：Market（Entity：ticker/theme/figure）、Feed（官方 + 创作者的 marketplace）、Source */
+function discBodyHtml(tab) {
+  const byKind = (k) => Object.values(ENTITIES).filter((e) => e.kind === k).map((e) => e.id);
+  const official = publicFeedIds().filter((id) => FEEDS[id].owner === 'Alva');
+  const fromCreators = publicFeedIds().filter((id) => FEEDS[id].owner !== 'Alva');
   return {
-    all: `
-      <div class="sec-label">Trending themes</div>${themeTiles()}
-      <div class="d-sec"><div class="sec-label">Movers worth understanding</div>${DISCOVER.movers.map(marketRow).join('')}</div>
-      <div class="d-sec"><div class="sec-label">Popular channels</div>${DISCOVER.popularFeeds.map(channelRow).join('')}</div>
-      <div class="d-sec"><div class="sec-label">Creators</div>${DISCOVER.creators.map(creatorRow).join('')}</div>
-      <div class="d-sec"><div class="sec-label">From your connected accounts</div>${connModule}</div>`,
-    markets: `
-      <div class="sec-label">Trending themes</div>${themeTiles()}
-      <div class="d-sec"><div class="sec-label">Markets</div>${allMarkets.map(marketRow).join('')}</div>`,
-    channels: `
-      <div class="sec-label" style="margin-top:4px">Channels — continuous coverage you can follow</div>
-      ${publicFeedIds().map(channelRow).join('')}`,
-    creators: `
-      <div class="sec-label" style="margin-top:4px">Creators</div>
-      ${Object.keys(CREATORS).map(creatorRow).join('')}`,
-    sources: catalogGroups() + byosRow,
+    market: `
+      <div class="sec-label">Themes</div>${themeTiles()}
+      <div class="d-sec">
+        <div class="mkt-head"><span class="sec-label" style="margin:0">Tickers</span>
+          <div class="mini-tabs" id="mktTabs">${[['trending', 'Trending'], ['following', 'Following'], ['holdings', 'Holdings']].map(([t, lbl]) =>
+            `<button class="${mktTab === t ? 'on' : ''}" data-act="mkt-tab" data-t="${t}">${lbl}</button>`).join('')}</div>
+        </div>
+        <div id="mktList">${mktListHtml(mktTab)}</div>
+      </div>
+      <div class="d-sec"><div class="sec-label">Figures</div>${byKind('figure').map(figCard).join('')}</div>`,
+    feed: `
+      <div class="sec-label">By Alva — official coverage</div>${official.map(feedRow).join('')}
+      <div class="d-sec"><div class="sec-label">From creators</div>${fromCreators.map(feedRow).join('')}</div>`,
+    sources: byosRow + catalogGroups(),
   }[tab];
 }
 
@@ -535,17 +552,17 @@ function discResultsHtml(q) {
   const has = (s) => (s || '').toLowerCase().includes(ql);
   const markets = Object.values(ENTITIES).filter((e) => e.kind === 'market' && (has(e.ticker) || has(e.name))).map((e) => e.id);
   const others = Object.values(ENTITIES).filter((e) => e.kind !== 'market' && (has(e.name) || has(e.role))).map((e) => e.id);
-  const channels = publicFeedIds().filter((id) => has(FEEDS[id].name) || has(FEEDS[id].owner));
+  const feeds = publicFeedIds().filter((id) => has(FEEDS[id].name) || has(FEEDS[id].owner));
   const creators = Object.keys(CREATORS).filter((id) => has(CREATORS[id].name) || CREATORS[id].expertise.some(has));
   const sources = Object.values(SOURCES).filter((s) => s.access !== 'private' && (has(s.name) || has(s.platform))).map((s) => s.id);
   const secs = [];
-  if (markets.length) secs.push(`<div class="d-sec"><div class="sec-label">Markets</div>${markets.map(marketRow).join('')}</div>`);
-  if (others.length) secs.push(`<div class="d-sec"><div class="sec-label">Themes & people</div>${others.map(entityRow).join('')}</div>`);
-  if (channels.length) secs.push(`<div class="d-sec"><div class="sec-label">Channels</div>${channels.map(channelRow).join('')}</div>`);
+  if (markets.length) secs.push(`<div class="d-sec"><div class="sec-label">Tickers</div>${markets.map(marketRow).join('')}</div>`);
+  if (others.length) secs.push(`<div class="d-sec"><div class="sec-label">Themes & figures</div>${others.map(entityRow).join('')}</div>`);
+  if (feeds.length) secs.push(`<div class="d-sec"><div class="sec-label">Feeds</div>${feeds.map(feedRow).join('')}</div>`);
   if (creators.length) secs.push(`<div class="d-sec"><div class="sec-label">Creators</div>${creators.map(creatorRow).join('')}</div>`);
   if (sources.length) secs.push(`<div class="d-sec"><div class="sec-label">Sources</div>${sources.map(catalogRow).join('')}</div>`);
   return secs.length ? secs.join('')
-    : `<div class="empty"><h4>No matches</h4><p>Try a ticker, a channel, a creator — or add it yourself.</p></div>${byosRow}`;
+    : `<div class="empty"><h4>No matches</h4><p>Try a ticker, a feed, a creator — or add it yourself.</p></div>${byosRow}`;
 }
 
 window.__discSearch = (q) => {
@@ -559,11 +576,11 @@ window.__discSearch = (q) => {
 };
 
 function sDiscover(page) {
-  const TABS = [['all', 'All'], ['markets', 'Markets'], ['channels', 'Channels'], ['creators', 'Creators'], ['sources', 'Sources']];
+  const TABS = [['market', 'Market'], ['feed', 'Feed'], ['sources', 'Sources']];
   page.innerHTML = `
     <div class="topbar"><span class="lg-title">Discover</span><span class="spacer"></span></div>
     <div class="ent-search disc-search">${I.search}
-      <input id="discSearch" placeholder="Search markets, channels, creators, sources…" oninput="window.__discSearch(this.value)"
+      <input id="discSearch" placeholder="Search tickers, themes, feeds, sources…" oninput="window.__discSearch(this.value)"
         onkeydown="if(event.key==='Escape'){this.value='';window.__discSearch('')}">
       <button class="clr" id="discClr" data-act="disc-search-clear" hidden aria-label="Clear search">${I.x}</button>
     </div>
@@ -575,6 +592,23 @@ function sDiscover(page) {
 function followCount(t) { return { AI_INFRA: '12.4K', HBM: '3.8K', NUCLEAR: '5.1K', STABLECOIN: '7.7K', ROBOTAXI: '4.2K' }[t] || '2K'; }
 
 /* ========== entity page ========== */
+/* Figure 详情的拟真段落：最新发言 + 影响面 + 近期动向（数据见 data.js FIGURES） */
+function figureSecs(id) {
+  const fg = FIGURES[id];
+  return `
+    <div class="d-sec">
+      <blockquote class="fig-quote">“${fg.quote}”<span class="src">${fg.where} · ${fg.when}</span></blockquote>
+    </div>
+    <div class="stat-strip">
+      ${fg.stats.map(([n, k]) => `<div class="cell"><div class="n">${n}</div><div class="k">${k}</div></div>`).join('')}
+    </div>
+    <div class="d-sec"><div class="sec-label">Recent moves</div>
+      <div class="auto-rows" style="border-top:none">
+        ${fg.moves.map((m) => `<div class="auto-row"><span class="k" style="flex:none;width:52px">${m.at}</span><span class="v" style="font-weight:400;white-space:normal">${m.text}</span><span class="dec-tag">${m.impact}</span></div>`).join('')}
+      </div>
+    </div>`;
+}
+
 function sEntity(id, page) {
   const e = ENTITIES[id];
   if (!e) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
@@ -594,12 +628,13 @@ function sEntity(id, page) {
       </div>
     </div>
     <div class="page-secs">
+      ${e.kind === 'figure' && FIGURES[id] ? figureSecs(id) : ''}
       ${related.length ? `<div class="d-sec"><div class="sec-label">Today’s context</div>${related.map((it, i) => streamCard(it, i)).join('')}</div>` : ''}
-      <div class="d-sec"><div class="sec-label">Channels covering ${e.kind === 'market' ? e.ticker : e.name}</div>
+      <div class="d-sec"><div class="sec-label">Feeds covering ${e.kind === 'market' ? e.ticker : e.name}</div>
         ${feeds.map((f) => { const fon = store.feeds.includes(f.id); return `<div class="list-row">
           ${monoAv('AL', 174, 40)}
           <span class="meta" data-act="open-feed" data-id="${f.id}" role="button"><span class="nm">${f.name}</span><div class="ds">${f.owner} · ${f.cadence}</div></span>
-          <button class="follow-sm ${fon ? 'on' : ''}" data-act="follow-feed" data-id="${f.id}">${fon ? 'Following' : 'Follow'}</button>
+          <button class="follow-sm ${fon ? 'on' : ''}" data-act="follow-feed" data-id="${f.id}">${fon ? 'Subscribed' : 'Subscribe'}</button>
         </div>`; }).join('') || '<p style="font-size:14px;color:var(--t3)">Covered by the generic market projection.</p>'}
       </div>
       <div class="d-sec"><div class="sec-label">Key sources</div>
@@ -612,33 +647,77 @@ function sEntity(id, page) {
     </div>`;
 }
 
-/* ========== feed detail ========== */
-function sFeed(id, page) {
+/* ========== feed detail（= Automation：默认看 Output，横切 Settings 管理） ========== */
+let feedTab = 'output';
+export function setFeedTab(t) { feedTab = t; }
+
+function feedOutputHtml(f, items) {
+  return `
+    <div class="d-sec"><p style="font-size:15px;color:var(--t2)">${f.promise}</p></div>
+    <div class="stat-strip">
+      <div class="cell"><div class="n">${f.sources.length}</div><div class="k">Sources</div></div>
+      <div class="cell"><div class="n">${f.runs}</div><div class="k">Runs</div></div>
+      <div class="cell"><div class="n">${f.cadence.split(' ')[0]}</div><div class="k">Cadence</div></div>
+    </div>
+    ${items.length ? `<div class="d-sec"><div class="sec-label">Recent</div>${items.map((it, i) => streamCard(it, i)).join('')}</div>` : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Next update ${f.cadence.toLowerCase()}</h4><p>Subscribe to get it in your For You.</p></div>`}`;
+}
+
+/* Settings：对齐真实产品 AlertAutomationRow —— hairline 行 + 安静的文字动作 */
+function feedSettingsHtml(f) {
+  const id = f.id;
+  const paused = store.paused.includes(id);
+  const subscribed = store.feeds.includes(id);
+  const trackedItems = ITEMS.filter((item) => item.feed === id && store.tracks.includes(item.id));
+  const srcAvs = f.sources.slice(0, 4).map((sid) => {
+    const s = SOURCES[sid];
+    return s.avatar ? `<img src="img/${s.avatar}" alt="">` : `<span>${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`;
+  }).join('');
+  const delivers = store.connected.telegram ? 'For You · Telegram' : 'For You';
+  return `
+    <div class="auto-rows" style="margin-top:6px">
+      <div class="auto-row">
+        <span class="k">Status</span>
+        <span class="v">${paused ? 'Paused' : 'Active'}</span>
+        <button class="txt-act" data-act="auto-pause" data-id="${id}">${paused ? 'Resume' : 'Pause'}</button>
+      </div>
+      <div class="auto-row" data-act="feed-src-sheet" data-id="${id}" role="button">
+        <span class="k">Sources</span>
+        <span class="v"><span class="src-stack sm">${srcAvs}</span>${f.sources.length}</span>
+        ${I.chevR}
+      </div>
+      <div class="auto-row"><span class="k">Delivers to</span><span class="v">${delivers}</span></div>
+      <div class="auto-row"><span class="k">Next run</span><span class="v">${paused ? 'Paused' : f.next_run}</span></div>
+    </div>
+    ${trackedItems.length ? `<div class="d-sec auto-tracks"><div class="sec-label">Tracked context</div>
+      ${trackedItems.map((item) => `<div class="list-row" data-act="open-detail" data-item="${item.id}" role="button">
+        ${item.entity_refs[0] ? entityAv(item.entity_refs[0], 38) : monoAv('AL', 174, 38)}
+        <span class="meta"><span class="nm">${item.headline}</span><div class="ds">Updates follow this automation</div></span>${I.chevR}
+      </div>`).join('')}</div>` : ''}
+    ${subscribed
+      ? `<button class="txt-act danger auto-unsub" data-act="auto-unsub" data-id="${id}">Unsubscribe</button>`
+      : `<button class="txt-act teal auto-unsub" data-act="follow-feed" data-id="${id}">Subscribe</button>`}`;
+}
+
+function sFeed(id, page, initTab) {
   const f = FEEDS[id];
   if (!f) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
+  if (initTab) feedTab = initTab;
   const items = ITEMS.filter((it) => it.feed === id);
   const on = store.feeds.includes(id);
-  const mine = f.owner === 'You';
+  const paused = store.paused.includes(id);
   page.innerHTML = `${backBar()}
     <div class="hero-head">
       <div class="row1">
         ${monoAv(f.owner === 'Alva' ? 'AL' : f.owner.slice(0, 2).toUpperCase(), f.access === 'premium' ? 40 : f.access === 'private' ? 260 : 174, 52)}
-        <div><h1 style="font-size:23px">${f.name}</h1><div class="sub">${f.owner} · ${f.cadence} · ${f.access}</div></div>
+        <div><h1 style="font-size:23px">${f.name}</h1><div class="sub"><span class="st-dot ${paused ? 'off' : ''}" style="margin-right:2px"></span>${f.owner} · Last run ${f.last_run} · ${f.cadence}</div></div>
       </div>
       <div class="actions">
-        <button class="btn ${on ? 'btn-ghost' : 'btn-teal-solid'}" style="flex:1" data-act="follow-feed" data-id="${id}">${on ? I.check + 'Following' : I.plus + 'Follow'}</button>
-        ${mine ? `<button class="btn btn-ghost" style="flex:1" data-act="manage-feed-src" data-id="${id}">${I.gear}Manage sources</button>` : `<button class="btn btn-ghost" style="flex:1" data-act="feed-src-sheet" data-id="${id}">${I.eye}Sources</button>`}
+        <button class="btn ${on ? 'btn-ghost' : 'btn-teal-solid'}" style="flex:1" data-act="follow-feed" data-id="${id}">${on ? I.check + 'Subscribed' : I.plus + 'Subscribe'}</button>
       </div>
     </div>
-    <div class="page-secs">
-      <div class="d-sec"><p style="font-size:15px;color:var(--t2)">${f.promise}</p></div>
-      <div class="stat-strip">
-        <div class="cell"><div class="n">${f.sources.length}</div><div class="k">Sources</div></div>
-        <div class="cell"><div class="n">${f.entities.length || '—'}</div><div class="k">Entities</div></div>
-        <div class="cell"><div class="n">${f.cadence.split(' ')[0]}</div><div class="k">Cadence</div></div>
-      </div>
-      ${items.length ? `<div class="d-sec"><div class="sec-label">Recent</div>${items.map((it, i) => streamCard(it, i)).join('')}</div>` : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Next update ${f.cadence.toLowerCase()}</h4><p>Follow to get it in your For You.</p></div>`}
-    </div>`;
+    <div class="ask-tabs feed-tabs">${[['output', 'Output'], ['settings', 'Settings']].map(([t, lbl]) =>
+      `<button class="${feedTab === t ? 'on' : ''}" data-act="feed-tab" data-t="${t}">${lbl}</button>`).join('')}</div>
+    <div class="page-secs">${feedTab === 'settings' ? feedSettingsHtml(f) : feedOutputHtml(f, items)}</div>`;
 }
 
 /* ========== recap 滑卡页：Tinder 式逐张处理回访事项 ========== */
@@ -842,52 +921,7 @@ function sGoal(page) {
     </div>`;
 }
 
-/* ========== automation 管理页（对齐真实产品 AlertAutomationRow：状态点 + meta 线 +
- * hairline 行，pause/unsubscribe 都是安静的文字动作，不做大按钮） ========== */
-function sAutomation(id, page) {
-  const f = FEEDS[id];
-  if (!f) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
-  const paused = store.paused.includes(id);
-  const subscribed = store.feeds.includes(id);
-  const trackedItems = ITEMS.filter((item) => item.feed === id && store.tracks.includes(item.id));
-  const srcAvs = f.sources.slice(0, 4).map((sid) => {
-    const s = SOURCES[sid];
-    return s.avatar ? `<img src="img/${s.avatar}" alt="">` : `<span>${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`;
-  }).join('');
-  const delivers = store.connected.telegram ? 'For You · Telegram' : 'For You';
-  page.innerHTML = `${backBar('Automation')}
-    <div class="page-secs">
-      <div class="auto-head">
-        <div class="auto-title"><span class="st-dot ${paused ? 'off' : ''}"></span><h1>${f.name}</h1></div>
-        <div class="auto-meta">${f.owner} · Last run ${f.last_run} · ${f.cadence} · ${f.runs} runs</div>
-        <p class="auto-promise">${f.promise}</p>
-      </div>
-      <div class="auto-rows">
-        <div class="auto-row">
-          <span class="k">Status</span>
-          <span class="v">${paused ? 'Paused' : 'Active'}</span>
-          <button class="txt-act" data-act="auto-pause" data-id="${id}">${paused ? 'Resume' : 'Pause'}</button>
-        </div>
-        <div class="auto-row" data-act="feed-src-sheet" data-id="${id}" role="button">
-          <span class="k">Sources</span>
-          <span class="v"><span class="src-stack sm">${srcAvs}</span>${f.sources.length}</span>
-          ${I.chevR}
-        </div>
-        <div class="auto-row">
-          <span class="k">Delivers to</span>
-          <span class="v">${delivers}</span>
-        </div>
-      </div>
-      ${trackedItems.length ? `<div class="d-sec auto-tracks"><div class="sec-label">Tracked context</div>
-        ${trackedItems.map((item) => `<div class="list-row" data-act="open-detail" data-item="${item.id}" role="button">
-          ${item.entity_refs[0] ? entityAv(item.entity_refs[0], 38) : monoAv('AL', 174, 38)}
-          <span class="meta"><span class="nm">${item.headline}</span><div class="ds">Updates follow this automation</div></span>${I.chevR}
-        </div>`).join('')}</div>` : ''}
-      ${subscribed
-        ? `<button class="txt-act danger auto-unsub" data-act="auto-unsub" data-id="${id}">Unsubscribe</button>`
-        : `<button class="txt-act teal auto-unsub" data-act="follow-feed" data-id="${id}">Subscribe</button>`}
-    </div>`;
-}
+/* automation 管理页已并入 feed 详情（Settings tab）：#/automation/:id → sFeed(id, 'settings') */
 
 /* ========== source detail ========== */
 function sSource(id, page) {
@@ -982,7 +1016,7 @@ function askSetup() {
   if (store.askSetupDismissed) return '';
   const items = [
     { done: !!store.brokerage || store.manualHoldings.length > 0, label: 'Connect your portfolio', act: 'connect-broker', btn: 'Connect' },
-    { done: store.sources.length > 0 || store.connected.x || store.connected.telegram, label: 'Bring your own sources', act: 'setup-sources', btn: 'Add' },
+    { done: store.sources.length > 0 || Object.values(store.connected).some(Boolean), label: 'Bring your own sources', act: 'setup-sources', btn: 'Add' },
     { done: !!store.goal, label: 'Set a trading goal', act: 'goal-sheet', btn: 'Set' },
   ];
   const doneN = items.filter((i) => i.done).length;
@@ -1000,7 +1034,7 @@ function askSetup() {
 let askTab = 'chat';
 export function setAskTab(t) { askTab = t; }
 
-/* 统一的 Automation 列表：Goal（特化）+ Channel（followed feed）+ Track（context 级）。
+/* 统一的 Automation 列表：goal / followed feed / watch 只是 source 不同。
  * Chat 的 Tasks tab 与 You 页共用同一数据与同一视图。 */
 export function automationRows() {
   const pending = APPROVALS.filter((a) => !store.approvals[a.id]).length;

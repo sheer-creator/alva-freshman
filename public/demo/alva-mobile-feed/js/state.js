@@ -7,7 +7,7 @@ const DEFAULTS = {
   watches: [],
   feeds: [],
   sources: [],
-  connected: { x: false, telegram: false },
+  connected: { x: false, telegram: false, email: false, substack: false },
   tracks: [],
   saved: [],
   unlocked: {},
