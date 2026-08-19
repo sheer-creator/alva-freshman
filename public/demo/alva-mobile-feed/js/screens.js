@@ -927,31 +927,45 @@ function sGoal(page) {
 function sSource(id, page) {
   const s = SOURCES[id];
   if (!s) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
-  const usedBy = Object.values(FEEDS).filter((f) => f.sources.includes(id));
+  const cited = ITEMS.filter((it) => it.evidence.some((ev) => ev.source === id));
   const added = store.sources.includes(id);
   const cr = s.creator ? CREATORS[s.creator] : null;
+  /* Alva 官方收录（非用户私有、非创作者已连接）→ 页尾免责声明 */
+  const indexed = s.access !== 'private' && (!cr || !cr.connected);
+  const covers = (s.covers || []).map(entityChipLabel);
+  const inFeed = FEEDS[store.sourceFeeds[id]];
+  const addedLabel = inFeed ? `In ${inFeed.name}` : 'In your feed';
+  const stats = [
+    `<span>cited in <b>${cited.length}</b> context${cited.length === 1 ? '' : 's'}</span>`,
+    covers.length ? `<span>covers <b>${covers.join(', ')}</b></span>` : '',
+  ].filter(Boolean).join('<i class="dot"></i>');
   page.innerHTML = `${backBar()}
     <div class="hero-head">
       <div class="row1">
-        ${s.avatar ? `<img class="av-img" src="img/${s.avatar}" width="52" height="52" alt="">` : monoAv(s.name.slice(0, 2).toUpperCase(), s.access === 'private' ? 260 : 174, 52, true)}
+        ${s.avatar ? `<img class="av-img" src="img/${s.avatar}" width="56" height="56" alt="">` : monoAv(s.name.replace(/^[@r]\/?/, '').slice(0, 2).toUpperCase(), s.access === 'private' ? 260 : 174, 56, true)}
         <div><h1 style="font-size:22px">${s.name}</h1><div class="sub">${s.platform} · ${s.modality}</div></div>
         <span style="margin-left:auto">${accessBadge(s.access)}</span>
       </div>
-      ${!cr || cr.connected ? '' : `<div class="indexed-note">${I.eye}<span><b>Indexed by Alva</b> — a public source. Own it? Connect it to manage and monetize.</span></div>`}
+      <div class="src-stats">${stats}</div>
+      ${s.kind === 'creator' && (!cr || !cr.connected) ? `<div class="indexed-note">${I.eye}<span><b>Indexed by Alva</b> — a public source. Own it? Connect it to manage and monetize.</span></div>` : ''}
       <div class="actions">
-        <button class="btn ${added ? 'btn-ghost' : 'btn-teal-solid'}" style="flex:1" data-act="add-source" data-id="${id}">${added ? I.check + 'In your feed' : I.plus + 'Add to my feed'}</button>
+        <button class="btn ${added ? 'btn-ghost' : 'btn-teal-solid'}" style="flex:1" data-act="add-source-sheet" data-id="${id}">${added ? I.check + addedLabel : I.plus + 'Add to my feed'}</button>
         <button class="btn btn-ghost" style="flex:1" data-act="toast-msg" data-msg="Opens the original on ${s.platform}">${I.link}Open original</button>
       </div>
     </div>
     <div class="page-secs">
       ${s.access === 'private' ? `<div class="tg-note" style="margin-top:16px">${I.shield}<span>Only you can use insights from this source. It never enters public feeds.</span></div>` : ''}
-      <div class="d-sec"><div class="sec-label">Used by</div>
-        ${usedBy.map((f) => `<div class="list-row" data-act="open-feed" data-id="${f.id}" role="button">${monoAv('AL', 174, 38)}<span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.owner}</div></span>${I.chevR}</div>`).join('') || '<p style="font-size:14px;color:var(--t3)">Not in any feed yet.</p>'}
-      </div>
-      <div class="d-sec"><div class="sec-label">Recently cited in</div>
-        ${ITEMS.filter((it) => it.evidence.some((ev) => ev.source === id)).slice(0, 3).map((it) => `<div class="orig-link" data-act="open-detail" data-item="${it.id}" role="button">${I.chevR}<span>${it.headline}</span></div>`).join('')}
-      </div>
+      ${s.recent?.length ? `<div class="d-sec"><div class="sec-label">Recent from this source</div>
+        ${s.recent.map((r) => `<div class="recent-row">
+          <div class="rc-top"><span class="rc-kind">${r.kind}</span><span class="rc-t">${r.t}</span></div>
+          <div class="rc-text">${r.text}</div>
+        </div>`).join('')}
+      </div>` : ''}
+      ${cited.length ? `<div class="d-sec"><div class="sec-label">Recently cited in</div>
+        ${cited.slice(0, 3).map((it) => `<div class="orig-link" data-act="open-detail" data-item="${it.id}" role="button">${I.doc}<span>${it.headline}</span></div>`).join('')}
+      </div>` : ''}
       ${cr ? `<div class="d-sec"><div class="sec-label">Creator</div><div class="list-row" data-act="open-creator" data-id="${cr.id}" role="button"><img class="av-img" src="img/${cr.avatar}" width="40" height="40" alt=""><span class="meta"><span class="nm">${cr.name}</span><div class="ds">${cr.expertise.join(' · ')}</div></span>${I.chevR}</div></div>` : ''}
+      ${indexed ? `<div class="src-disclaimer">${I.shield}<span><b>About this source</b> — Alva indexes only publicly available information from ${s.platform}. Every citation is attributed to its original source and links back to it; nothing is republished in full. Content is removed at the owner’s request.</span></div>` : ''}
     </div>`;
 }
 
