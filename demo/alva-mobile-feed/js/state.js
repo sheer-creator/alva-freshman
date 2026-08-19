@@ -7,6 +7,8 @@ const DEFAULTS = {
   watches: [],
   feeds: [],
   sources: [],
+  /* source id → 用户把它加进了哪个 automation（'__personal' = 个人 feed） */
+  sourceFeeds: {},
   connected: { x: false, telegram: false, email: false, substack: false },
   tracks: [],
   saved: [],
