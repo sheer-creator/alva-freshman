@@ -29,27 +29,107 @@ export const ENTITIES = {
   POWELL:     { id: 'POWELL', kind: 'figure', name: 'Jerome Powell', role: 'Fed Chair',  img: 'img/people/powell.jpg' },
 };
 
-/* ========== Sources ========== */
+/* ========== Sources ==========
+ * recent：该源头的近期内容样例（Source 详情页 “Recent from this source”）。
+ */
 export const SOURCES = {
-  nvda_ir:      { id: 'nvda_ir',      name: 'NVIDIA IR',            platform: 'Company IR', modality: 'Document',     access: 'public',  kind: 'primary' },
-  sec:          { id: 'sec',          name: 'SEC Filings',          platform: 'SEC',        modality: 'Document',     access: 'public',  kind: 'primary' },
-  dylan:        { id: 'dylan',        name: '@dylan522p',           platform: 'X',          modality: 'Post',         access: 'public',  kind: 'creator', creator: 'semianalysis', avatar: 'av-jaxoxyz.jpeg' },
-  semianalysis: { id: 'semianalysis', name: 'SemiAnalysis',         platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'semianalysis', avatar: 'av-lake.jpeg' },
-  doomberg:     { id: 'doomberg',     name: 'Doomberg',             platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'doomberg', avatar: 'av-bruce.jpeg' },
-  localllama:   { id: 'localllama',   name: 'r/LocalLLaMA',         platform: 'Reddit',     modality: 'Conversation', access: 'public',  kind: 'community' },
-  alpha_group:  { id: 'alpha_group',  name: 'Crypto Alpha Group',   platform: 'Telegram',   modality: 'Conversation', access: 'private', kind: 'private' },
-  allin:        { id: 'allin',        name: 'All-In Podcast',       platform: 'Podcast',    modality: 'Audio',        access: 'public',  kind: 'creator', avatar: 'av-snarketh.jpeg' },
-  capitol:      { id: 'capitol',      name: 'Congressional disclosures', platform: 'Gov',   modality: 'Document',     access: 'public',  kind: 'primary' },
-  mkt_data:     { id: 'mkt_data',     name: 'Market data',          platform: 'Alva',       modality: 'Structured',   access: 'public',  kind: 'data' },
-  x_analysts:   { id: 'x_analysts',   name: 'Verified X analysts',  platform: 'X',          modality: 'Post',         access: 'public',  kind: 'community' },
-  kobeissi:     { id: 'kobeissi',     name: '@KobeissiLetter',      platform: 'X',          modality: 'Post',         access: 'public',  kind: 'creator', avatar: 'av-zet.jpeg', covers: ['NVDA', 'BTC'] },
-  uwhales:      { id: 'uwhales',      name: '@unusual_whales',      platform: 'X',          modality: 'Post',         access: 'public',  kind: 'creator', avatar: 'ava-3.png', covers: ['NVDA', 'AMD'] },
-  citrini:      { id: 'citrini',      name: 'Citrini Research',     platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', avatar: 'av-citrini.jpg', covers: ['AI_INFRA'] },
-  transcript:   { id: 'transcript',   name: 'The Transcript',       platform: 'Substack',   modality: 'Article',      access: 'public',  kind: 'creator', covers: ['NVDA', 'META'] },
-  oddlots:      { id: 'oddlots',      name: 'Odd Lots',             platform: 'Podcast',    modality: 'Audio',        access: 'public',  kind: 'creator', avatar: 'ava-6.png', covers: ['STABLECOIN'] },
-  asianometry:  { id: 'asianometry',  name: 'Asianometry',          platform: 'YouTube',    modality: 'Video',        access: 'public',  kind: 'creator', covers: ['HBM', 'AI_INFRA'] },
-  wsb:          { id: 'wsb',          name: 'r/wallstreetbets',     platform: 'Reddit',     modality: 'Conversation', access: 'public',  kind: 'community', covers: ['TSLA'] },
-  fomc:         { id: 'fomc',         name: 'FOMC statements',      platform: 'Federal Reserve', modality: 'Document', access: 'public', kind: 'primary', covers: [] },
+  nvda_ir:      { id: 'nvda_ir',      name: 'NVIDIA IR',            platform: 'Company IR', modality: 'Document',     access: 'public',  kind: 'primary',
+    recent: [
+      { t: '2d ago', kind: 'Press release', text: 'Q2 FY26 results: Data Center revenue $41.1B, up 56% YoY — Blackwell ramp “ahead of plan”.' },
+      { t: '1w ago', kind: 'Event', text: 'CFO at BofA conference: Blackwell allocation effectively sold out into mid-2026.' },
+    ] },
+  sec:          { id: 'sec',          name: 'SEC Filings',          platform: 'SEC',        modality: 'Document',     access: 'public',  kind: 'primary',
+    recent: [
+      { t: '32m ago', kind: 'Filing', text: 'TSLA — Texas DMV filing shows expanded robotaxi service area and a Q4 fleet target.' },
+      { t: '1d ago', kind: '13F', text: 'Berkshire trims AAPL for a fourth straight quarter; adds to OXY.' },
+      { t: '2d ago', kind: '8-K', text: 'META utility interconnect filing corroborates committed multi-year datacenter spend.' },
+    ] },
+  dylan:        { id: 'dylan',        name: '@dylan522p',           platform: 'X',          modality: 'Post',         access: 'public',  kind: 'creator', creator: 'semianalysis', avatar: 'av-jaxoxyz.jpeg',
+    recent: [
+      { t: '2h ago', kind: 'Post', text: '“HBM3E lead times now 31 weeks. Checked with two OSATs — this is allocation, not logistics.”' },
+      { t: '1d ago', kind: 'Thread', text: '12 posts on Blackwell rack yields and what they mean for Q4 supply.' },
+      { t: '3d ago', kind: 'Post', text: '“Everyone models GPU supply. Nobody models the substrate. That’s the trade.”' },
+    ] },
+  semianalysis: { id: 'semianalysis', name: 'SemiAnalysis',         platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'semianalysis', avatar: 'av-lake.jpeg',
+    recent: [
+      { t: '2h ago', kind: 'Article', text: 'The capex debate is over — hyperscaler 2027 AI budgets are already committed.' },
+      { t: '4d ago', kind: 'Article', text: 'Blackwell allocation checks: who actually gets racks in Q4.' },
+    ] },
+  doomberg:     { id: 'doomberg',     name: 'Doomberg',             platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'doomberg', avatar: 'av-bruce.jpeg',
+    recent: [
+      { t: '3d ago', kind: 'Premium essay', text: 'The nuclear restart trade has a second act — fuel-cycle scarcity, 2,900 words.' },
+      { t: '1w ago', kind: 'Essay', text: 'Natural gas is the bridge nobody wants to name.' },
+    ] },
+  localllama:   { id: 'localllama',   name: 'r/LocalLLaMA',         platform: 'Reddit',     modality: 'Conversation', access: 'public',  kind: 'community',
+    recent: [
+      { t: '41m ago', kind: 'Thread', text: '“Enterprise inference demand is pull-forward, not structural” — 214 comments, split.' },
+      { t: '5h ago', kind: 'Thread', text: 'Benchmarks: on-prem H200 clusters vs cloud pricing for 70B-class models.' },
+    ] },
+  alpha_group:  { id: 'alpha_group',  name: 'Crypto Alpha Group',   platform: 'Telegram',   modality: 'Conversation', access: 'private', kind: 'private',
+    recent: [
+      { t: '12m ago', kind: 'Messages', text: '14 messages on corporate BTC treasuries — stance flipped to accumulation window.' },
+      { t: '3h ago', kind: 'Messages', text: 'ETF flow print +$412M sparked a re-read of yesterday’s distribution thesis.' },
+    ] },
+  allin:        { id: 'allin',        name: 'All-In Podcast',       platform: 'Podcast',    modality: 'Audio',        access: 'public',  kind: 'creator', avatar: 'av-snarketh.jpeg',
+    recent: [
+      { t: '9h ago', kind: 'Episode', text: 'E214 · “We’re underestimating inference demand by an order of magnitude” · from 41:22.' },
+      { t: '1w ago', kind: 'Episode', text: 'E213 · Rates, the deficit and what breaks first.' },
+    ] },
+  capitol:      { id: 'capitol',      name: 'Congressional disclosures', platform: 'Gov',   modality: 'Document',     access: 'public',  kind: 'primary',
+    recent: [
+      { t: '6h ago', kind: 'Disclosure', text: 'Three members bought NVDA and AMD within five sessions ahead of the export-rule markup.' },
+      { t: '1d ago', kind: 'Disclosure', text: 'Senate filing: $250K–500K in COIN calls, disclosed on the deadline.' },
+    ] },
+  mkt_data:     { id: 'mkt_data',     name: 'Market data',          platform: 'Alva',       modality: 'Structured',   access: 'public',  kind: 'data',
+    recent: [
+      { t: 'Live', kind: 'Series', text: 'BTC ETF net flow +$412M — sixth straight positive session.' },
+      { t: 'Live', kind: 'Series', text: 'NVDA options: call skew steepening into the Aug 28 print.' },
+    ] },
+  x_analysts:   { id: 'x_analysts',   name: 'Verified X analysts',  platform: 'X',          modality: 'Post',         access: 'public',  kind: 'community',
+    recent: [
+      { t: '1h ago', kind: 'Posts', text: '4 verified analysts aligned on HBM contract pricing holding firm through Q4.' },
+      { t: '4h ago', kind: 'Posts', text: '2 analysts flagged the same Texas DMV robotaxi filing within an hour.' },
+    ] },
+  kobeissi:     { id: 'kobeissi',     name: '@KobeissiLetter',      platform: 'X',          modality: 'Post',         access: 'public',  kind: 'creator', avatar: 'av-zet.jpeg', covers: ['NVDA', 'BTC'],
+    recent: [
+      { t: '3h ago', kind: 'Post', text: '“The S&P 500 has now gone 41 sessions without a 1% down day.”' },
+      { t: '8h ago', kind: 'Post', text: 'BTC and gold rising together — the debasement trade in one chart.' },
+    ] },
+  uwhales:      { id: 'uwhales',      name: '@unusual_whales',      platform: 'X',          modality: 'Post',         access: 'public',  kind: 'creator', avatar: 'ava-3.png', covers: ['NVDA', 'AMD'],
+    recent: [
+      { t: '55m ago', kind: 'Post', text: 'Unusual NVDA call sweep: Sep $190C, $4.2M premium, above ask.' },
+      { t: '2h ago', kind: 'Post', text: 'AMD dark-pool prints clustering at $186 — third session in a row.' },
+    ] },
+  citrini:      { id: 'citrini',      name: 'Citrini Research',     platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', avatar: 'av-citrini.jpg', covers: ['AI_INFRA'],
+    recent: [
+      { t: '2d ago', kind: 'Article', text: 'Fiscal primacy, part III — refreshing the AI infrastructure basket.' },
+      { t: '1w ago', kind: 'Article', text: 'The grid is the bottleneck after the bottleneck.' },
+    ] },
+  transcript:   { id: 'transcript',   name: 'The Transcript',       platform: 'Substack',   modality: 'Article',      access: 'public',  kind: 'creator', covers: ['NVDA', 'META'],
+    recent: [
+      { t: '1d ago', kind: 'Article', text: 'This week in earnings calls: “capacity” mentioned 214 times — a record.' },
+      { t: '1w ago', kind: 'Article', text: 'CFOs are now guiding AI spend as a separate line item.' },
+    ] },
+  oddlots:      { id: 'oddlots',      name: 'Odd Lots',             platform: 'Podcast',    modality: 'Audio',        access: 'public',  kind: 'creator', avatar: 'ava-6.png', covers: ['STABLECOIN'],
+    recent: [
+      { t: '2d ago', kind: 'Episode', text: 'Why the stablecoin bill quietly rewires money-market plumbing.' },
+      { t: '6d ago', kind: 'Episode', text: 'The Treasury basis trade, explained by the people doing it.' },
+    ] },
+  asianometry:  { id: 'asianometry',  name: 'Asianometry',          platform: 'YouTube',    modality: 'Video',        access: 'public',  kind: 'creator', covers: ['HBM', 'AI_INFRA'],
+    recent: [
+      { t: '5d ago', kind: 'Video', text: 'The HBM bottleneck, explained from the fab floor · 18 min.' },
+      { t: '2w ago', kind: 'Video', text: 'Advanced packaging: why CoWoS capacity decides who ships.' },
+    ] },
+  wsb:          { id: 'wsb',          name: 'r/wallstreetbets',     platform: 'Reddit',     modality: 'Conversation', access: 'public',  kind: 'community', covers: ['TSLA'],
+    recent: [
+      { t: '28m ago', kind: 'Thread', text: 'TSLA robotaxi filing megathread — 1.4K comments and counting.' },
+      { t: '3h ago', kind: 'Thread', text: 'Loss porn turned thesis: the MU earnings straddle debate.' },
+    ] },
+  fomc:         { id: 'fomc',         name: 'FOMC statements',      platform: 'Federal Reserve', modality: 'Document', access: 'public', kind: 'primary', covers: [],
+    recent: [
+      { t: '2w ago', kind: 'Statement', text: 'July statement: “inflation remains somewhat elevated” — language unchanged.' },
+      { t: '3w ago', kind: 'Minutes', text: 'June minutes: two participants favored a cut “as soon as September”.' },
+    ] },
 };
 
 /* ========== Creators ========== */

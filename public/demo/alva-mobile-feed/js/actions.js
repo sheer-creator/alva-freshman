@@ -1,7 +1,7 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
 import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
-import { cardBack, entityAv } from './cards.js';
+import { cardBack, entityAv, monoAv } from './cards.js';
 import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, setMktTab, mktListHtml, setFeedTab, obPickEntity } from './screens.js';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
@@ -116,9 +116,49 @@ export const ACTIONS = {
   /* ---- connect flows ---- */
   'add-source': (el) => {
     const on = toggleIn(store.sources, el.dataset.id);
+    if (!on) { delete store.sourceFeeds[el.dataset.id]; save(); }
     if (el.classList.contains('src-add')) { el.classList.toggle('on', on); el.textContent = on ? 'Added' : 'Add'; }
     else rerender();
     toast(on ? `${SOURCES[el.dataset.id].name} added to your feed` : `${SOURCES[el.dataset.id].name} removed`);
+  },
+  /* Source 详情页的 Add to my feed：底部浮层选择加入哪个 automation。
+   * Feed 列表 = 用户的 Automation 列表；已添加时点按即移除。 */
+  'add-source-sheet': (el) => {
+    const id = el.dataset.id;
+    if (store.sources.includes(id)) {
+      toggleIn(store.sources, id);
+      delete store.sourceFeeds[id];
+      save();
+      rerender();
+      return;
+    }
+    const s = SOURCES[id];
+    const feeds = store.feeds.map((fid) => FEEDS[fid]).filter(Boolean);
+    openSheet(`
+      <h3>Add to my feed</h3>
+      <p class="sub">Pick the automation that should read ${s.name}. Its cards will cite it in your For You.</p>
+      <div class="freq-list" id="feedPickList">
+        ${feeds.map((f, i) => `<button class="freq-row ${i === 0 ? 'on' : ''}" data-act="freq-pick" data-id="${f.id}">
+          ${monoAv(f.owner === 'Alva' ? 'AL' : f.owner.slice(0, 2).toUpperCase(), 174, 38)}
+          <span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.sources.length} source${f.sources.length > 1 ? 's' : ''} · ${f.cadence}</div></span>
+          <span class="radio"></span>
+        </button>`).join('')}
+        <button class="freq-row ${feeds.length ? '' : 'on'}" data-act="freq-pick" data-id="__personal">
+          <span class="ic-cir">${I.plus}</span>
+          <span class="meta"><span class="nm">My personal feed</span><div class="ds">A new automation for the sources you bring</div></span>
+          <span class="radio"></span>
+        </button>
+      </div>
+      <div class="sheet-cta"><button class="btn btn-teal-solid" style="flex:1" data-act="add-source-confirm" data-id="${id}">${I.plus}Add source</button></div>`);
+  },
+  'add-source-confirm': (el) => {
+    const id = el.dataset.id;
+    const picked = document.querySelector('#feedPickList .freq-row.on');
+    if (!store.sources.includes(id)) store.sources.push(id);
+    store.sourceFeeds[id] = picked ? picked.dataset.id : '__personal';
+    save();
+    closeSheet();
+    rerender();
   },
   'custom-source': (el) => {
     el.classList.remove('dim'); el.classList.add('on'); el.textContent = 'Requested';
@@ -431,6 +471,8 @@ export const ACTIONS = {
   },
   'remove-source': (el) => {
     toggleIn(store.sources, el.dataset.id);
+    delete store.sourceFeeds[el.dataset.id];
+    save();
     el.closest('.sm-row').style.opacity = '0.35';
     el.disabled = true;
     toast(`${SOURCES[el.dataset.id].name} removed`);
