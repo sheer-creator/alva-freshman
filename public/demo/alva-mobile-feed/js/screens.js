@@ -357,9 +357,16 @@ function sHome(page) {
       <div class="imm-content">${recapModule()}</div>
       ${immersivePeek(visible[0])}
     </section>`;
-    const totalSlides = visible.length + 1;
+    /* 推荐卡在 immersive 里是独立一屏（复用 recCard；关闭动作只在 stream 提供） */
+    const recSlide = (r) => `<section class="imm-slide imm-rec">
+      <div class="imm-bg no-img" style="background:radial-gradient(120% 80% at 20% 0%, #14302b 0%, #0A0E0F 60%)"><div class="scrim"></div></div>
+      <div class="imm-content">${recCard(r)}</div></section>`;
+    const recs = activeRecs();
+    const totalSlides = visible.length + recs.length + 1;
+    const slideArr = visible.map((it, i) => immersiveSlide(it, i + 1, totalSlides));
+    recs.forEach((r, i) => slideArr.splice(Math.min(slideArr.length, 2 + i * 4), 0, recSlide(r)));
     wrap.innerHTML = `<div class="imm-top"><span>For You</span></div>
-      <div class="imm-scroll">${recapSlide}${visible.map((it, i) => immersiveSlide(it, i + 1, totalSlides)).join('')}</div>
+      <div class="imm-scroll">${recapSlide}${slideArr.join('')}</div>
       <div class="imm-dots">${Array.from({ length: totalSlides }, (_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
     page.appendChild(wrap);
     const scroll = wrap.querySelector('.imm-scroll');
@@ -369,24 +376,23 @@ function sHome(page) {
       wrap.querySelectorAll('.imm-dots i').forEach((d, i) => d.classList.toggle('on', i === idx));
     }, { passive: true });
     /* 桌面滚轮 / 触控板：整屏翻页，一次一张（触屏靠 scroll-snap-stop: always）。
-     * 防惯性连击：翻页后锁定，且必须等事件流出现 >150ms 的安静间隙（新手势）才解锁。 */
-    let locked = false, lastEvt = 0, unlockAt = 0;
+     * 防惯性连击：翻页后锁定，事件流出现 >150ms 安静间隙（= 新手势）即解锁——
+     * 鼠标滚轮每格间隔天然 >150ms，所以格格响应；触控板惯性尾巴间隔小，被吃掉。 */
+    let locked = false, lastEvt = 0, target = null;
     scroll.addEventListener('wheel', (e) => {
       e.preventDefault();
       const now = performance.now();
-      const gap = now - lastEvt;
+      const fresh = now - lastEvt > 150;
       lastEvt = now;
-      if (locked) {
-        if (now >= unlockAt && gap > 150) locked = false; // 安静间隙后的首个事件 = 新手势
-        else return;
-      }
+      if (locked && !fresh) return;
       if (Math.abs(e.deltaY) < 10) return;
-      const cur = curIdx();
-      const target = Math.max(0, Math.min(totalSlides - 1, cur + Math.sign(e.deltaY)));
-      if (target === cur) return;
+      /* 平滑滚动进行中时以在途目标为基准，连续翻页不读错位置 */
+      const cur = locked && target !== null ? target : curIdx();
+      const next = Math.max(0, Math.min(totalSlides - 1, cur + Math.sign(e.deltaY)));
+      if (next === cur) { locked = false; return; }
       locked = true;
-      unlockAt = now + 700;
-      scroll.scrollTo({ top: target * scroll.clientHeight, behavior: 'smooth' });
+      target = next;
+      scroll.scrollTo({ top: next * scroll.clientHeight, behavior: 'smooth' });
     }, { passive: false });
   }
 }
