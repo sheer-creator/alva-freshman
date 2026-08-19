@@ -2,7 +2,7 @@
 import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv } from './cards.js';
-import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, obPickEntity } from './screens.js';
+import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, setMktTab, mktListHtml, setFeedTab, obPickEntity } from './screens.js';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();
@@ -125,14 +125,14 @@ export const ACTIONS = {
     toast('Added as a Custom Source — 2 of 5 slots used');
   },
   'byos-sheet': () => openSheet(`
-    <h3>Add a custom source</h3>
-    <p class="sub">Paste a URL or handle. Alva indexes it for you — it counts toward your 5 custom slots.</p>
+    <h3>Import RSS or paste a URL</h3>
+    <p class="sub">Paste a feed URL or handle. Alva indexes it for you — it counts toward your 5 custom slots.</p>
     <div class="watch-add" style="margin-top:16px">
-      <input class="watch-custom" id="byosInput" placeholder="e.g. substack.com/@stratechery or @jim"
+      <input class="watch-custom" id="byosInput" placeholder="e.g. stratechery.com/feed or @jim"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.nextElementSibling.click()}">
       <button class="btn btn-teal-solid watch-add-btn" data-act="byos-add">Add</button>
     </div>
-    <p class="ent-none" style="margin-top:12px">Newsletters, X accounts, RSS, YouTube channels and podcasts are supported.</p>`),
+    <p class="ent-none" style="margin-top:12px">RSS/OPML, newsletters, X accounts, YouTube channels and podcasts are supported.</p>`),
   'byos-add': () => {
     const input = document.getElementById('byosInput');
     const v = input && input.value.trim();
@@ -159,20 +159,36 @@ export const ACTIONS = {
 
   /* ---- Ask 补课清单 ---- */
   'setup-dismiss': () => { store.askSetupDismissed = true; save(); rerender(); },
-  'setup-sources': () => openSheet(`
-    <h3>Bring your own sources</h3>
-    <p class="sub">Connect an account to import who you already follow, or add a single source directly.</p>
+  /* 自定义源统一入口：Chat 补课清单与 Discover Sources tab 底部走同一个 sheet */
+  'setup-sources': () => {
+    const done = (k) => store.connected[k] ? `<span class="sm-done">${I.check}Connected</span>` : I.chevR;
+    openSheet(`
+    <h3>Add a custom source</h3>
+    <p class="sub">Connect an account to import what you already follow, or add a single source directly.</p>
     <div style="margin-top:14px">
       <div class="sm-row" data-act="nav" data-to="#/onboard/x" role="button">
-        <span class="meta"><span class="nm">Connect X</span><div class="ds">Import who you follow</div></span>${I.chevR}
+        <span class="meta"><span class="nm">Connect X</span><div class="ds">Import who you follow</div></span>${done('x')}
       </div>
       <div class="sm-row" data-act="nav" data-to="#/onboard/telegram" role="button">
-        <span class="meta"><span class="nm">Connect Telegram</span><div class="ds">Choose channels — private stays private</div></span>${I.chevR}
+        <span class="meta"><span class="nm">Connect Telegram</span><div class="ds">Choose channels — private stays private</div></span>${done('telegram')}
+      </div>
+      <div class="sm-row" data-act="conn-lite" data-k="email" role="button">
+        <span class="meta"><span class="nm">Connect email</span><div class="ds">Read the newsletters already in your inbox</div></span>${done('email')}
+      </div>
+      <div class="sm-row" data-act="conn-lite" data-k="substack" role="button">
+        <span class="meta"><span class="nm">Connect Substack</span><div class="ds">Import your subscriptions</div></span>${done('substack')}
       </div>
       <div class="sm-row" data-act="byos-sheet" role="button">
-        <span class="meta"><span class="nm">Add a custom source</span><div class="ds">Paste a URL or handle</div></span>${I.chevR}
+        <span class="meta"><span class="nm">Import RSS or paste a URL</span><div class="ds">Any feed, handle or newsletter link</div></span>${I.chevR}
       </div>
-    </div>`),
+    </div>`);
+  },
+  /* 轻量连接（demo）：email / substack 无独立授权页，点击即标记已连接，原地换状态 */
+  'conn-lite': (el) => {
+    store.connected[el.dataset.k] = true;
+    save();
+    if (el.lastElementChild) el.lastElementChild.outerHTML = `<span class="sm-done">${I.check}Connected</span>`;
+  },
   'goal-sheet': (el) => openSheet(`
     <h3>${store.goal ? 'Edit your trading goal' : 'Set a trading goal'}</h3>
     <p class="sub">Plain instructions. First line is the goal, the rest are limits — Alva proposes, you approve.</p>
@@ -241,7 +257,15 @@ export const ACTIONS = {
   /* ---- 打开对象 ---- */
   'open-detail': (el) => nav('#/context/' + el.dataset.item),
   'open-entity': (el) => { if (el.dataset.id) nav('#/entity/' + el.dataset.id); },
-  'open-feed': (el) => nav('#/feed/' + el.dataset.id),
+  'open-feed': (el) => { setFeedTab('output'); nav('#/feed/' + el.dataset.id); },
+  'feed-tab': (el) => { setFeedTab(el.dataset.t); rerender(); },
+  /* Market tab 的 ticker 栏位切换：原地换列表，不整页重绘 */
+  'mkt-tab': (el) => {
+    setMktTab(el.dataset.t);
+    const list = document.getElementById('mktList');
+    if (list) list.innerHTML = mktListHtml(el.dataset.t);
+    document.querySelectorAll('#mktTabs button').forEach((b) => b.classList.toggle('on', b === el));
+  },
   'open-source': (el) => nav('#/source/' + el.dataset.id),
   'open-creator': (el) => nav('#/creator/' + el.dataset.id),
   'you-feeds': () => nav('#/discover'),
