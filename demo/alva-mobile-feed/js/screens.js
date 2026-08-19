@@ -38,7 +38,6 @@ function itemScore(item) {
     + entityMatches * 100
     + sourceMatches * 40
     + (store.tracks.includes(item.id) ? 12 : 0)
-    + (store.saved.includes(item.id) ? 4 : 0)
     + (store.watches.length && PROJECTIONS[item.id]?.watch ? 8 : 0);
 }
 
@@ -50,15 +49,6 @@ function rankItems(items) {
 }
 
 const homeItems = () => rankItems(ITEMS.filter((item) => itemIsAvailable(item)));
-const previewItems = () => rankItems(ITEMS.filter((item) => itemIsAvailable(item, false)));
-
-function previewFeedIds(first) {
-  const relevant = Object.values(FEEDS)
-    .filter((feed) => feed.access !== 'private' && feed.entities.some((id) => store.entities.includes(id)))
-    .map((feed) => feed.id);
-  return [...new Set([first.feed, ...relevant, ...store.feeds])].slice(0, 3);
-}
-
 function catalogRow(sid) {
   const s = SOURCES[sid];
   const added = store.sources.includes(sid);
@@ -205,11 +195,14 @@ function sOnboard(step, page) {
         <span class="ent-count" id="entCount">${store.entities.length ? `${store.entities.length} selected` : 'Pick 3–8 to start'}</span>
         <button class="txt-act teal" data-act="ob-select-all">${ONBOARD_ENTITIES.every((o) => store.entities.includes(o.id)) ? 'Clear all' : 'Select all'}</button>
       </div>
-      <div class="sec-label ob-watch-label">What are you trying to figure out? <i>optional</i></div>
-      <div class="rel-row">${WATCH_PRESETS.map((w) => `<button class="chip ${store.watches.includes(w) ? 'on' : ''}" data-act="ob-watch" data-w="${w}">${w}</button>`).join('')}</div>
-      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/portfolio" ${store.entities.length < 1 ? 'disabled style="opacity:.4"' : ''} id="entNext">Continue</button></div>`;
+      <div class="ob-watch-panel">
+        <div class="sec-label ob-watch-label">What are you trying to figure out? <i>Optional</i></div>
+        <div class="rel-row">${WATCH_PRESETS.map((w) => `<button class="chip ${store.watches.includes(w) ? 'on' : ''}" data-act="ob-watch" data-w="${w}">${w}</button>`).join('')}</div>
+      </div>
+      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="ob-to-portfolio" ${store.entities.length < 1 ? 'disabled style="opacity:.4"' : ''} id="entNext">Continue</button></div>`;
   } else if (step === 'portfolio') {
     const marketIds = Object.values(ENTITIES).filter((e) => e.kind === 'market').map((e) => e.id);
+    const orderedMarketIds = [...marketIds].sort((a, b) => Number(store.entities.includes(b)) - Number(store.entities.includes(a)));
     const n = store.manualHoldings.length;
     page.innerHTML = `${obTop('portfolio', '#/onboard/sources')}
       <h1 class="ob-h1">What are you holding?</h1>
@@ -220,10 +213,11 @@ function sOnboard(step, page) {
         <span class="st">${store.brokerage ? I.check : I.chevR}</span>
       </button>
       <div class="sec-label" style="margin:24px 0 0">Or add holdings manually</div>
-      <div class="ent-grid">${marketIds.map((id) => {
+      <div class="ent-grid holdings-grid">${orderedMarketIds.map((id) => {
         const e = ENTITIES[id];
         const on = store.manualHoldings.includes(id);
-        return `<button class="ent-chip ${on ? 'on' : ''}" data-act="ob-hold" data-id="${id}">${entityAv(id, 34)}<span><span class="nm">${e.ticker}</span><div class="ht">${on ? 'Holding' : e.name}</div></span></button>`;
+        const inherited = store.entities.includes(id);
+        return `<button class="ent-chip ${on ? 'on' : ''}" data-act="ob-hold" data-id="${id}">${entityAv(id, 34)}<span><span class="nm">${e.ticker}</span><div class="ht">${on ? (inherited ? 'Selected above' : 'Holding') : e.name}</div></span></button>`;
       }).join('')}</div>
       <p class="ent-count">${store.brokerage ? 'Synced from your broker' : n ? `${n} holding${n > 1 ? 's' : ''}` : 'You can skip this — nothing breaks'}</p>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/sources">Continue</button></div>`;
@@ -310,21 +304,44 @@ function sOnboard(step, page) {
       </div>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="tg-done">Create my private feed</button></div>`;
   } else if (step === 'preview') {
-    const first = previewItems()[0] || ITEMS[0];
-    const channels = previewFeedIds(first);
+    const selected = store.entities.slice(0, 3);
+    const details = [
+      `${store.entities.length || 3} follows`,
+      store.sources.length ? `${store.sources.length} sources` : '',
+      store.watches.length ? `${store.watches.length} question${store.watches.length > 1 ? 's' : ''}` : '',
+    ].filter(Boolean).join(' · ');
     page.innerHTML = `${obTop('preview')}
-      <h1 class="ob-h1">Your feed is ready</h1>
-      <p class="ob-sub">Built from ${store.entities.length || 3} follows${store.sources.length ? `, ${store.sources.length} sources you added` : ''}${store.watches.length ? ' and your watches' : ''}. Here’s a first look.</p>
-      <div class="pv-card-mini">${streamCard(first)}</div>
-      <div class="pv-group">
-        <div class="sec-label">Also in your feeds</div>
-        ${channels.map((f) => `<div class="pv-row">${monoAv(FEEDS[f].owner === 'Alva' ? 'AL' : FEEDS[f].owner.slice(0, 2).toUpperCase(), 174, 34)}<span class="nm">${FEEDS[f].name}</span><span class="k">${FEEDS[f].owner} · ${FEEDS[f].cadence}</span></div>`).join('')}
+      <div class="ready-copy">
+        <span class="ready-kicker">Personalized for you</span>
+        <h1 class="ob-h1">Your feed is ready</h1>
+        <p class="ob-sub">${details}. New context will arrive here as your markets and sources move.</p>
       </div>
+      <div class="ready-stage" aria-hidden="true">
+        <div class="ready-aura"></div>
+        <div class="ready-stack"><i></i><i></i><span>${I.spark}</span></div>
+        ${selected.map((id, i) => `<span class="ready-node n${i + 1}">${entityAv(id, 38)}</span>`).join('')}
+        <div class="ready-line l1"></div><div class="ready-line l2"></div><div class="ready-line l3"></div>
+      </div>
+      <p class="ready-note">Sources stay visible. Actions stay yours.</p>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="ob-finish">Open For You</button></div>`;
   }
 }
 
 /* ========== home / for you ========== */
+function immersivePeek(item) {
+  if (!item) return '';
+  const first = item.entity_refs[0];
+  const e = ENTITIES[first];
+  const label = e ? (e.kind === 'market' ? e.ticker : e.name) : FEEDS[item.feed].name;
+  const sourceCount = Math.min(item.evidence.length, 4);
+  return `<button class="imm-next-peek" data-act="open-detail" data-item="${item.id}" aria-label="Open ${item.headline}">
+    ${item.media?.hero ? `<img src="${item.media.hero}" alt="">` : ''}
+    <span class="imm-peek-scrim"></span>
+    <span class="imm-peek-head">${first ? entityAv(first, 27) : ''}<b>${label}</b><i>${item.published}</i></span>
+    <span class="imm-peek-copy"><b>${item.headline}</b><i>${item.summary}</i><em>${sourceCount} source${sourceCount > 1 ? 's' : ''}</em></span>
+  </button>`;
+}
+
 function sHome(page) {
   const mode = store.mode;
   const visible = homeItems();
@@ -337,7 +354,9 @@ function sHome(page) {
     wrap.style.cssText = 'position:relative;flex:1;overflow:hidden';
     const recapSlide = `<section class="imm-slide imm-recap">
       <div class="imm-bg no-img" style="background:radial-gradient(140% 90% at 80% 0%, #17302d 0%, #0A0E0F 60%)"><div class="scrim"></div></div>
-      <div class="imm-content">${recapModule()}</div></section>`;
+      <div class="imm-content">${recapModule()}</div>
+      ${immersivePeek(visible[0])}
+    </section>`;
     const totalSlides = visible.length + 1;
     wrap.innerHTML = `<div class="imm-top"><span>For You</span></div>
       <div class="imm-scroll">${recapSlide}${visible.map((it, i) => immersiveSlide(it, i + 1, totalSlides)).join('')}</div>
@@ -1218,9 +1237,6 @@ function sYou(page) {
         <div class="mgmt-row" data-act="following-sheet" role="button"><span class="ic">${I.eye}</span><span class="meta"><span class="nm">Following</span><div class="ds">${store.entities.length} markets & themes</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="manage-sheet" role="button"><span class="ic">${I.gear}</span><span class="meta"><span class="nm">Sources</span><div class="ds">${store.sources.length} added · ${store.muted.length} muted</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="toast-msg" data-msg="Connected accounts are mocked in this demo" role="button"><span class="ic">${I.link}</span><span class="meta"><span class="nm">Connected accounts</span><div class="ds">${store.connected.x ? 'X · ' : ''}${store.connected.telegram ? 'Telegram' : store.connected.x ? '' : 'None yet'}</div></span>${I.chevR}</div>
-      </div>
-      <div class="d-sec"><div class="sec-label">Activity</div>
-        <div class="mgmt-row" data-act="saved-sheet" role="button"><span class="ic">${I.save}</span><span class="meta"><span class="nm">Saved</span><div class="ds">${store.saved.length} contexts</div></span>${I.chevR}</div>
       </div>
       <div class="d-sec"><div class="sec-label">Custom source quota</div>
         <div class="quota"><div style="display:flex;justify-content:space-between;font-size:13.5px"><span style="color:var(--t2)">1 of 5 slots used</span><span style="color:var(--teal);font-weight:600">Pro</span></div><div class="quota-bar"><i></i></div></div>
