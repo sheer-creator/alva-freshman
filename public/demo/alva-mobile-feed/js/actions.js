@@ -1,5 +1,5 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv, monoAv } from './cards.js';
 import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, setMktTab, mktListHtml, setFeedTab, obPickEntity } from './screens.js';
@@ -96,6 +96,12 @@ export const ACTIONS = {
   'ob-watch': (el) => {
     toggleIn(store.watches, el.dataset.w);
     el.classList.toggle('on', store.watches.includes(el.dataset.w));
+  },
+  'ob-to-portfolio': () => {
+    const selectedMarkets = store.entities.filter((id) => ENTITIES[id]?.kind === 'market');
+    store.manualHoldings = [...new Set([...selectedMarkets, ...store.manualHoldings])];
+    save();
+    nav('#/onboard/portfolio');
   },
   'ob-select-all': () => {
     const ids = ONBOARD_ENTITIES.map((o) => o.id);
@@ -348,12 +354,6 @@ export const ACTIONS = {
       }
     }, 1400);
   },
-  'save-item': (el) => {
-    const on = toggleIn(store.saved, el.dataset.item);
-    el.classList.toggle('on', on);
-    toast(on ? 'Saved' : 'Removed from saved', I.save);
-  },
-  'saved-sheet': () => activitySheet('Saved context', store.saved, 'Save a card and it will appear here.'),
   'tracks-sheet': () => activitySheet('Tracks & automations', store.tracks, 'Track a context and it will appear here.'),
   'play-clip': () => toast('Opens the episode at 41:22 on the source platform', I.play),
 

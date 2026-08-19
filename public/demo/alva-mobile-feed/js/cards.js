@@ -99,21 +99,7 @@ export function watchFlag(item) {
   return `<span class="watch-flag ${proj.watch}"><span class="dot"></span>${label}</span>`;
 }
 
-/* ---- 溯源入口：source 头像叠放 + 一句因由，点开看"背后发生了什么" ---- */
-function provShortReason(item) {
-  const b = becauseFor(item)[0];
-  if (!b) return 'why you see this';
-  if (b.t === 'entity') {
-    return `${entityChipLabel(b.id)}${isHeld(b.id) ? ', which you hold' : ''}`;
-  }
-  if (b.t === 'source') return `${SOURCES[b.id].name}, your source`;
-  if (b.t === 'feed') return FEEDS[b.id].name;
-  if (b.t === 'private') return 'your private source';
-  if (b.t === 'watch') return 'your watch';
-  if (b.t === 'explore') return b.label;
-  return 'why you see this';
-}
-
+/* ---- 溯源入口：source 头像叠放 + source 数量，点开看完整依据 ---- */
 export function provRow(item, act = 'evi-sheet') {
   const srcs = item.evidence.slice(0, 4).map((ev) => SOURCES[ev.source]);
   const stack = srcs.map((s) => s.avatar
@@ -121,8 +107,7 @@ export function provRow(item, act = 'evi-sheet') {
     : `<span>${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`).join('');
   return `<button class="prov-row" data-act="${act}" data-item="${item.id}" aria-label="Behind this card">
     <span class="src-stack">${stack}</span>
-    <span class="prov-tx">For you · ${provShortReason(item)}</span>
-    <span class="prov-chev">${I.chevR}</span>
+    <span class="prov-tx">${srcs.length} source${srcs.length > 1 ? 's' : ''}</span>
   </button>`;
 }
 
@@ -199,7 +184,13 @@ function ctaButton(item, locked) {
   if (item.cta.kind === 'url') {
     return `<button class="btn btn-ghost" data-act="cta-url" data-item="${item.id}">${I.link}${item.cta.label}</button>`;
   }
-  return `<button class="btn btn-ghost" data-act="cta-prompt" data-item="${item.id}">${I.send}${item.cta.label}</button>`;
+  return `<button class="btn btn-ghost" data-act="cta-prompt" data-item="${item.id}">${item.cta.label}</button>`;
+}
+
+function secondaryTrackButton(item, locked) {
+  if (locked || !['what_changed', 'signal', 'important_event'].includes(item.archetype)) return '';
+  const tracked = store.tracks.includes(item.id);
+  return `<button class="btn btn-ghost action-track ${tracked ? 'on' : ''}" data-act="track-item" data-item="${item.id}">${I.track}${tracked ? 'Tracking' : 'Track'}</button>`;
 }
 
 /* ---- card head ---- */
@@ -224,8 +215,6 @@ function cardHead(item) {
 /* ========== stream card（文本/图表优先，紧凑） ========== */
 export function streamCard(item, idx = 0) {
   const locked = item.access === 'premium' && !store.unlocked[item.feed];
-  const tracked = store.tracks.includes(item.id);
-  const savedOn = store.saved.includes(item.id);
 
   const hasMedia = !locked && item.media && item.media.hero;
   const front = `<div class="card flip-face">
@@ -242,8 +231,7 @@ export function streamCard(item, idx = 0) {
     ${!locked ? provRow(item, 'flip') : ''}
     <div class="card-actions">
       <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}">${I.ask}Ask Alva</button>
-      ${ctaButton(item, locked)}
-      <button class="btn btn-icon ${savedOn ? 'on' : ''}" data-act="save-item" data-item="${item.id}" aria-label="Save">${I.save}</button>
+      <div class="context-actions">${ctaButton(item, locked)}${secondaryTrackButton(item, locked)}</div>
     </div>
   </div>`;
 
@@ -335,7 +323,7 @@ export function immersiveSlide(item, idx, total) {
       ${!locked ? provRow(item, 'flip-imm') : ''}
       <div class="imm-actions">
         <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}">${I.ask}Ask Alva</button>
-        ${ctaButton(item, locked)}
+        <div class="context-actions">${ctaButton(item, locked)}${secondaryTrackButton(item, locked)}</div>
       </div>
     </div>
   </section>`;
