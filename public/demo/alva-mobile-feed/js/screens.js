@@ -22,6 +22,43 @@ export function srcAvatar(s, size = 40) {
   return monoAv(s.name.replace(/^[@r]\/?/, '').slice(0, 2).toUpperCase(), hue, size, true);
 }
 
+/* ---- 轻量个性化：只排序现有 demo 数据，不构造推荐系统 ---- */
+function itemIsAvailable(item, requireFollowedFeed = true) {
+  if (requireFollowedFeed && item.access !== 'private' && !store.feeds.includes(item.feed)) return false;
+  if (store.paused.includes(item.feed)) return false;
+  if (item.access === 'private' && !store.connected.telegram) return false;
+  if (store.muted.includes(item.evidence[0]?.source)) return false;
+  return true;
+}
+
+function itemScore(item) {
+  const entityMatches = item.entity_refs.filter((id) => store.entities.includes(id)).length;
+  const sourceMatches = item.evidence.filter((ev) => store.sources.includes(ev.source)).length;
+  return (item.feed === store.lastFollowedFeed ? 1000 : 0)
+    + entityMatches * 100
+    + sourceMatches * 40
+    + (store.tracks.includes(item.id) ? 12 : 0)
+    + (store.saved.includes(item.id) ? 4 : 0)
+    + (store.watches.length && PROJECTIONS[item.id]?.watch ? 8 : 0);
+}
+
+function rankItems(items) {
+  return items
+    .map((item, index) => ({ item, index, score: itemScore(item) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(({ item }) => item);
+}
+
+const homeItems = () => rankItems(ITEMS.filter((item) => itemIsAvailable(item)));
+const previewItems = () => rankItems(ITEMS.filter((item) => itemIsAvailable(item, false)));
+
+function previewFeedIds(first) {
+  const relevant = Object.values(FEEDS)
+    .filter((feed) => feed.access !== 'private' && feed.entities.some((id) => store.entities.includes(id)))
+    .map((feed) => feed.id);
+  return [...new Set([first.feed, ...relevant, ...store.feeds, 'brief'])].slice(0, 3);
+}
+
 function catalogRow(sid) {
   const s = SOURCES[sid];
   const added = store.sources.includes(sid);
@@ -261,14 +298,15 @@ function sOnboard(step, page) {
       </div>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="tg-done">Create my private feed</button></div>`;
   } else if (step === 'preview') {
-    const first = ITEMS.find((it) => it.entity_refs.some((e) => store.entities.includes(e))) || ITEMS[0];
+    const first = previewItems()[0] || ITEMS[0];
+    const channels = previewFeedIds(first);
     page.innerHTML = `${obTop('preview')}
       <h1 class="ob-h1">Your feed is ready</h1>
       <p class="ob-sub">Built from ${store.entities.length || 3} follows${store.sources.length ? `, ${store.sources.length} sources you added` : ''}${store.watches.length ? ' and your watches' : ''}. Here’s a first look.</p>
       <div class="pv-card-mini">${streamCard(first)}</div>
       <div class="pv-group">
         <div class="sec-label">Also in your channels</div>
-        ${['nvda_events', 'ai_watch', 'brief'].map((f) => `<div class="pv-row">${monoAv('AL', 174, 34)}<span class="nm">${FEEDS[f].name}</span><span class="k">${FEEDS[f].owner} · ${FEEDS[f].cadence}</span></div>`).join('')}
+        ${channels.map((f) => `<div class="pv-row">${monoAv(FEEDS[f].owner === 'Alva' ? 'AL' : FEEDS[f].owner.slice(0, 2).toUpperCase(), 174, 34)}<span class="nm">${FEEDS[f].name}</span><span class="k">${FEEDS[f].owner} · ${FEEDS[f].cadence}</span></div>`).join('')}
       </div>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="ob-finish">Open For You</button></div>`;
   }
@@ -277,7 +315,7 @@ function sOnboard(step, page) {
 /* ========== home / for you ========== */
 function sHome(page) {
   const mode = store.mode;
-  const visible = ITEMS.filter((it) => !(it.access === 'private' && !store.connected.telegram) && !store.muted.includes(it.evidence[0]?.source));
+  const visible = homeItems();
   page.innerHTML = mode === 'stream'
     ? `<div class="topbar"><span class="lg-title">For You</span><span class="spacer"></span></div>${streamView(visible)}`
     : '';
@@ -326,7 +364,10 @@ function streamView(items) {
         <span class="tk">${u.entity}</span><span class="tx">${u.text}</span>${I.chevR}
       </div>`).join('')}
     </div>` : '';
-  return `<div class="feed-scroll">${away}${items.map((it, i) => streamCard(it, i + 1)).join('')}</div>`;
+  const cards = items.length
+    ? items.map((it, i) => streamCard(it, i + 1)).join('')
+    : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a channel in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore channels</button></div>`;
+  return `<div class="feed-scroll">${away}${cards}</div>`;
 }
 
 /* ========== context detail ========== */
@@ -576,6 +617,7 @@ function sAutomation(id, page) {
   if (!f) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
   const paused = store.paused.includes(id);
   const subscribed = store.feeds.includes(id);
+  const trackedItems = ITEMS.filter((item) => item.feed === id && store.tracks.includes(item.id));
   const srcAvs = f.sources.slice(0, 4).map((sid) => {
     const s = SOURCES[sid];
     return s.avatar ? `<img src="img/${s.avatar}" alt="">` : `<span>${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`;
@@ -604,6 +646,11 @@ function sAutomation(id, page) {
           <span class="v">${delivers}</span>
         </div>
       </div>
+      ${trackedItems.length ? `<div class="d-sec auto-tracks"><div class="sec-label">Tracked context</div>
+        ${trackedItems.map((item) => `<div class="list-row" data-act="open-detail" data-item="${item.id}" role="button">
+          ${item.entity_refs[0] ? entityAv(item.entity_refs[0], 38) : monoAv('AL', 174, 38)}
+          <span class="meta"><span class="nm">${item.headline}</span><div class="ds">Updates follow this automation</div></span>${I.chevR}
+        </div>`).join('')}</div>` : ''}
       ${subscribed
         ? `<button class="txt-act danger auto-unsub" data-act="auto-unsub" data-id="${id}">Unsubscribe</button>`
         : `<button class="txt-act teal auto-unsub" data-act="follow-feed" data-id="${id}">Subscribe</button>`}
@@ -698,11 +745,31 @@ export let askCtx = null;
 export function setAskCtx(id) { askCtx = id; }
 let pendingAsk = null;
 export function setPendingAsk(q) { pendingAsk = q; }
+/* Ask 顶部补课清单：onboarding 跳过的三件事，可关闭常驻 */
+function askSetup() {
+  if (store.askSetupDismissed) return '';
+  const items = [
+    { done: !!store.brokerage, label: 'Connect your portfolio', act: 'connect-broker', btn: 'Connect' },
+    { done: store.sources.length > 0 || store.connected.x || store.connected.telegram, label: 'Bring your own sources', act: 'setup-sources', btn: 'Add' },
+    { done: !!store.goal, label: 'Set a trading goal', act: 'goal-sheet', btn: 'Set' },
+  ];
+  const doneN = items.filter((i) => i.done).length;
+  return `<div class="setup-card">
+    <div class="su-head"><span class="lbl">Finish setting up</span><span class="n">${doneN}/3</span><button class="su-x" data-act="setup-dismiss" aria-label="Dismiss">${I.x}</button></div>
+    ${items.map((it) => `<div class="su-row ${it.done ? 'done' : ''}">
+      <span class="su-ic">${it.done ? I.check : ''}</span>
+      <span class="su-lb">${it.label}${it.act === 'goal-sheet' && store.goal ? ` — <i>“${store.goal}”</i>` : ''}</span>
+      ${it.done ? '' : `<button class="su-btn" data-act="${it.act}">${it.btn}</button>`}
+    </div>`).join('')}
+  </div>`;
+}
+
 function sAsk(page) {
   const item = askCtx ? ITEMS.find((it) => it.id === askCtx) : null;
   page.innerHTML = `
     <div class="topbar"><span class="lg-title">Ask</span><span class="spacer"></span></div>
     <div class="ask-body">
+      ${askSetup()}
       <div class="ask-hero">
         <h1>${item ? 'Ask about this context' : `What do you want to <em>understand</em>?`}</h1>
         ${item ? `<div class="ask-ctx-chip">${I.spark}<span>${item.headline}</span><button class="x" data-act="clear-ctx">${I.x}</button></div>` : ''}
@@ -787,8 +854,8 @@ function sYou(page) {
         <div class="mgmt-row" data-act="toast-msg" data-msg="Connected accounts are mocked in this demo" role="button"><span class="ic">${I.link}</span><span class="meta"><span class="nm">Connected accounts</span><div class="ds">${store.connected.x ? 'X · ' : ''}${store.connected.telegram ? 'Telegram' : store.connected.x ? '' : 'None yet'}</div></span>${I.chevR}</div>
       </div>
       <div class="d-sec"><div class="sec-label">Activity</div>
-        <div class="mgmt-row" data-act="toast-msg" data-msg="Saved contexts live here" role="button"><span class="ic">${I.save}</span><span class="meta"><span class="nm">Saved</span><div class="ds">${store.saved.length} contexts</div></span>${I.chevR}</div>
-        <div class="mgmt-row" data-act="toast-msg" data-msg="Tracks notify you when conditions change" role="button"><span class="ic">${I.bell}</span><span class="meta"><span class="nm">Tracks & automations</span><div class="ds">${store.tracks.length} running</div></span>${I.chevR}</div>
+        <div class="mgmt-row" data-act="saved-sheet" role="button"><span class="ic">${I.save}</span><span class="meta"><span class="nm">Saved</span><div class="ds">${store.saved.length} contexts</div></span>${I.chevR}</div>
+        <div class="mgmt-row" data-act="tracks-sheet" role="button"><span class="ic">${I.bell}</span><span class="meta"><span class="nm">Tracks & automations</span><div class="ds">${store.tracks.length} running</div></span>${I.chevR}</div>
       </div>
       <div class="d-sec"><div class="sec-label">Custom source quota</div>
         <div class="quota"><div style="display:flex;justify-content:space-between;font-size:13.5px"><span style="color:var(--t2)">1 of 5 slots used</span><span style="color:var(--teal);font-weight:600">Pro</span></div><div class="quota-bar"><i></i></div></div>

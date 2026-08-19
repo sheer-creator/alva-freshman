@@ -39,10 +39,29 @@ export function accessBadge(access) {
 }
 
 /* ---- because line（读 projection + 持仓联动，不读 item） ---- */
+function reasonIsActive(reason) {
+  if (reason.t === 'entity') return store.entities.includes(reason.id);
+  if (reason.t === 'source') return store.sources.includes(reason.id);
+  if (reason.t === 'feed') return store.feeds.includes(reason.id);
+  if (reason.t === 'private') return store.connected.telegram && store.sources.includes(reason.id);
+  if (reason.t === 'watch') return store.watches.length > 0;
+  return reason.t === 'explore';
+}
+
+function becauseFor(item) {
+  const projected = PROJECTIONS[item.id]?.because || [];
+  const active = projected.filter((reason) => reason.t !== 'explore' && reasonIsActive(reason));
+  const feedReason = { t: 'feed', id: item.feed };
+  if (item.feed === store.lastFollowedFeed && store.feeds.includes(item.feed)) {
+    return [feedReason, ...active.filter((reason) => reason.t !== 'feed' || reason.id !== item.feed)];
+  }
+  if (active.length) return active;
+  if (store.feeds.includes(item.feed)) return [feedReason];
+  return projected.filter((reason) => reason.t === 'explore');
+}
+
 function becauseParts(item) {
-  const proj = PROJECTIONS[item.id];
-  if (!proj) return [];
-  return proj.because.map((b) => {
+  return becauseFor(item).map((b) => {
     if (b.t === 'entity') {
       const held = store.brokerage && HOLDINGS.some((h) => h.entity === b.id);
       return `<b>${entityChipLabel(b.id)}</b>${held ? ', which you hold' : ''}`;
@@ -80,9 +99,8 @@ export function watchFlag(item) {
 
 /* ---- 溯源入口：source 头像叠放 + 一句因由，点开看"背后发生了什么" ---- */
 function provShortReason(item) {
-  const proj = PROJECTIONS[item.id];
-  if (!proj || !proj.because.length) return 'why you see this';
-  const b = proj.because[0];
+  const b = becauseFor(item)[0];
+  if (!b) return 'why you see this';
   if (b.t === 'entity') {
     const held = store.brokerage && HOLDINGS.some((h) => h.entity === b.id);
     return `${entityChipLabel(b.id)}${held ? ', which you hold' : ''}`;
@@ -241,8 +259,9 @@ export function streamCard(item, idx = 0) {
 /* ========== behind this card（反面：只有两件事 —— 原始 source + 为什么推给你） ========== */
 export function cardBack(item) {
   const proj = PROJECTIONS[item.id] || { because: [] };
+  const reasons = becauseFor(item);
   const feed = FEEDS[item.feed];
-  const whyRows = proj.because.map((b) => {
+  const whyRows = reasons.map((b) => {
     if (b.t === 'entity') return `You follow <b>${entityChipLabel(b.id)}</b>`;
     if (b.t === 'source') return `You added <b>${SOURCES[b.id].name}</b>`;
     if (b.t === 'feed') return `You follow <b>${FEEDS[b.id].name}</b>`;
@@ -251,7 +270,7 @@ export function cardBack(item) {
     if (b.t === 'explore') return b.label;
     return '';
   }).join('<br>');
-  const watchRow = proj.watch && store.watches.length && !proj.because.some(b => b.t === 'watch')
+  const watchRow = proj.watch && store.watches.length && !reasons.some(b => b.t === 'watch')
     ? `<br>${proj.watch === 'supports' ? 'Supports' : proj.watch === 'challenges' ? 'Challenges' : 'Adds evidence to'} your watch — <span class="wq">“${watchFor(item)}”</span>` : '';
 
   return `

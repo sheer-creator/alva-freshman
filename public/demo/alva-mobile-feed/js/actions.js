@@ -2,7 +2,7 @@
 import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv } from './cards.js';
-import { setAskCtx, setPendingAsk, setDiscTab, obPickEntity } from './screens.js';
+import { askCtx, setAskCtx, setPendingAsk, setDiscTab, obPickEntity } from './screens.js';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();
@@ -23,6 +23,40 @@ function openComposer(it, prefill) {
     const ta = document.getElementById('composerTa');
     if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
   }, 380);
+}
+
+function contextRows(ids) {
+  return ids.map((id) => ITEMS.find((it) => it.id === id)).filter(Boolean).map((it) => `
+    <div class="list-row" data-act="open-detail" data-item="${it.id}" role="button">
+      ${it.entity_refs[0] ? entityAv(it.entity_refs[0], 40) : ''}
+      <span class="meta"><span class="nm">${it.headline}</span><div class="ds">${FEEDS[it.feed].name} · ${it.published}</div></span>
+      ${I.chevR}
+    </div>`).join('');
+}
+
+function activitySheet(title, ids, empty) {
+  openSheet(`<h3>${title}</h3><p class="sub">${ids.length ? `${ids.length} context${ids.length > 1 ? 's' : ''}` : empty}</p>
+    <div class="activity-list">${contextRows(ids)}</div>`);
+}
+
+function askAnswer(it) {
+  if (!it) return `Short answer: <b>the evidence leans yes</b>.<br><br>
+    The strongest signals are moving in the same direction, while the main counter-signal is still unconfirmed.`;
+  const facts = (it.facts || []).slice(0, 2).map((fact) => `<li>${fact.text}</li>`).join('');
+  const tracked = store.tracks.includes(it.id);
+  return `<b>${it.summary}</b>${facts ? `<ul>${facts}</ul>` : ''}
+    <div class="ask-next">
+      <span>${tracked ? 'Alva is already watching for a meaningful change.' : 'Want Alva to flag the next confirmation or reversal?'}</span>
+      <button class="btn btn-ghost" data-act="${tracked ? 'open-automation' : 'track-item'}" data-${tracked ? 'id' : 'item'}="${tracked ? it.feed : it.id}" data-track-cta="${it.id}">
+        ${tracked ? I.gear + 'Manage automation' : I.bell + 'Track this context'}
+      </button>
+    </div>`;
+}
+
+function clearFeedActivity(feedId) {
+  store.tracks = store.tracks.filter((id) => ITEMS.find((it) => it.id === id)?.feed !== feedId);
+  store.paused = store.paused.filter((id) => id !== feedId);
+  if (store.lastFollowedFeed === feedId) store.lastFollowedFeed = null;
 }
 
 export const ACTIONS = {
@@ -77,6 +111,7 @@ export const ACTIONS = {
     store.onboarded = true;
     store.awaySeen = true; // 新用户首次进入不展示 recap
     for (const f of ['nvda_events', 'ai_watch', 'earnings']) if (!store.feeds.includes(f)) store.feeds.push(f);
+    store.lastFollowedFeed = null;
     save();
     nav('#/home');
     setTimeout(() => toast('Tip: cards flip — try “Behind this”', I.flip), 1800);
@@ -109,6 +144,49 @@ export const ACTIONS = {
     closeSheet();
     toast(`${v} added as a Custom Source — 2 of 5 slots used`);
   },
+  /* ---- Ask 补课清单 ---- */
+  'setup-dismiss': () => { store.askSetupDismissed = true; save(); rerender(); },
+  'setup-sources': () => openSheet(`
+    <h3>Bring your own sources</h3>
+    <p class="sub">Connect an account to import who you already follow, or add a single source directly.</p>
+    <div style="margin-top:14px">
+      <div class="sm-row" data-act="nav" data-to="#/onboard/x" role="button">
+        <span class="meta"><span class="nm">Connect X</span><div class="ds">Import who you follow</div></span>${I.chevR}
+      </div>
+      <div class="sm-row" data-act="nav" data-to="#/onboard/telegram" role="button">
+        <span class="meta"><span class="nm">Connect Telegram</span><div class="ds">Choose channels — private stays private</div></span>${I.chevR}
+      </div>
+      <div class="sm-row" data-act="byos-sheet" role="button">
+        <span class="meta"><span class="nm">Add a custom source</span><div class="ds">Paste a URL or handle</div></span>${I.chevR}
+      </div>
+    </div>`),
+  'goal-sheet': () => openSheet(`
+    <h3>Set a trading goal</h3>
+    <p class="sub">One sentence. Alva works it in the background — research, monitoring, proposals. Every action comes to you for approval.</p>
+    <div class="watch-presets" style="margin-top:14px">
+      ${['Build AI infra exposure on pullbacks', 'De-risk before NVDA earnings', 'Rotate memory-cycle gains into BTC'].map((g) => `<button class="watch-preset" data-act="goal-preset" data-g="${g}">${g}</button>`).join('')}
+    </div>
+    <div class="watch-add" style="margin-top:12px">
+      <input class="watch-custom" id="goalInput" placeholder="Or write your own…"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.nextElementSibling.click()}">
+      <button class="btn btn-teal-solid watch-add-btn" data-act="goal-save">Set goal</button>
+    </div>
+    <p class="ent-none" style="margin-top:12px">No trades happen without your approval. You can revoke anytime.</p>`),
+  'goal-preset': (el) => {
+    const input = document.getElementById('goalInput');
+    if (input) input.value = el.dataset.g;
+  },
+  'goal-save': () => {
+    const input = document.getElementById('goalInput');
+    const v = input && input.value.trim();
+    if (!v) { toast('Write or pick a goal first', I.x); return; }
+    store.goal = v;
+    save();
+    closeSheet();
+    toast('Goal set — Alva starts working it', I.check);
+    rerender();
+  },
+
   'disc-search-clear': () => {
     const input = document.getElementById('discSearch');
     if (input) { input.value = ''; input.focus(); }
@@ -193,12 +271,13 @@ export const ACTIONS = {
     const sugs = document.getElementById('askSugs');
     if (sugs) sugs.style.display = 'none';
     const reply = document.getElementById('askReply');
+    if (!reply) return;
+    const ctxItem = askCtx ? ITEMS.find((it) => it.id === askCtx) : null;
     reply.innerHTML = `<div class="bub" style="margin-bottom:10px;background:var(--teal-dim);border-color:var(--teal-line);color:var(--t1)">${q}</div>
       <div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>`;
+    const answer = reply.lastElementChild;
     setTimeout(() => {
-      reply.lastElementChild.innerHTML = `Short answer: <b>the evidence leans yes</b>.<br><br>
-        Two primary signals this week — hyperscaler commentary and HBM contract pricing — both moved in the direction of accelerating capex. One mixed signal (enterprise deployment doubts on Reddit) hasn’t been corroborated by a primary source.<br><br>
-        Want me to track this question and flag anything that challenges it?`;
+      if (answer && answer.isConnected) answer.innerHTML = askAnswer(ctxItem);
     }, 1400);
   },
   'save-item': (el) => {
@@ -206,6 +285,8 @@ export const ACTIONS = {
     el.classList.toggle('on', on);
     toast(on ? 'Saved' : 'Removed from saved', I.save);
   },
+  'saved-sheet': () => activitySheet('Saved context', store.saved, 'Save a card and it will appear here.'),
+  'tracks-sheet': () => activitySheet('Tracks & automations', store.tracks, 'Track a context and it will appear here.'),
   'play-clip': () => toast('Opens the episode at 41:22 on the source platform', I.play),
 
   /* ---- track sheet ---- */
@@ -230,11 +311,16 @@ export const ACTIONS = {
     el.closest('.freq-list').querySelectorAll('.freq-row').forEach((r) => r.classList.toggle('on', r === el));
   },
   'track-confirm': (el) => {
-    if (!store.tracks.includes(el.dataset.item)) store.tracks.push(el.dataset.item);
+    const id = el.dataset.item;
+    if (!store.tracks.includes(id)) store.tracks.push(id);
     save();
     closeSheet();
     toast('Tracking — updates land in For You and push', I.bell);
-    rerender();
+    const inline = document.querySelector(`[data-track-cta="${id}"]`);
+    const trackedItem = ITEMS.find((it) => it.id === id);
+    if (inline && trackedItem) {
+      inline.outerHTML = `<button class="btn btn-ghost" data-act="open-automation" data-id="${trackedItem.feed}" data-track-cta="${id}">${I.gear}Manage automation</button>`;
+    } else rerender();
   },
 
   /* ---- premium unlock ---- */
@@ -284,6 +370,7 @@ export const ACTIONS = {
     const id = el.dataset.id;
     const i = store.feeds.indexOf(id);
     if (i >= 0) store.feeds.splice(i, 1);
+    clearFeedActivity(id);
     save();
     closeSheet();
     toast(`Unsubscribed from ${FEEDS[id].name}`, I.x);
@@ -360,6 +447,12 @@ export const ACTIONS = {
   /* ---- follows ---- */
   'follow-feed': (el) => {
     const on = toggleIn(store.feeds, el.dataset.id);
+    if (on) {
+      store.lastFollowedFeed = el.dataset.id;
+      const paused = store.paused.indexOf(el.dataset.id);
+      if (paused >= 0) store.paused.splice(paused, 1);
+    } else clearFeedActivity(el.dataset.id);
+    save();
     if (el.classList.contains('follow-sm')) { el.classList.toggle('on', on); el.textContent = on ? 'Following' : 'Follow'; }
     else rerender();
     toast(on ? `Following ${FEEDS[el.dataset.id].name}` : 'Unfollowed');

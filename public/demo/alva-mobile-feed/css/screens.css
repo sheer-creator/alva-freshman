@@ -247,6 +247,34 @@
 .fb-manage .mg-chev { flex: none; display: inline-flex; }
 .fb-manage .mg-chev svg { width: 15px; height: 15px; stroke: var(--t3); stroke-width: 2; }
 
+/* ============ Ask 补课清单 ============ */
+.setup-card {
+  margin: 2px 0 18px; padding: 14px 16px 6px;
+  background: var(--bg1); border: 1px solid var(--line); border-radius: var(--r-card);
+}
+.su-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.su-head .lbl { font-size: 11.5px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--t3); }
+.su-head .n { font-size: 12px; font-weight: 600; color: var(--teal); }
+.su-head .su-x { margin-left: auto; display: inline-flex; width: 26px; height: 26px; align-items: center; justify-content: center; border-radius: 50%; color: var(--t3); }
+.su-head .su-x svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2; }
+.su-head .su-x:active { background: var(--bg3); }
+.su-row { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-top: 1px solid var(--line); }
+.su-ic {
+  flex: none; width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--line2); display: inline-flex; align-items: center; justify-content: center;
+}
+.su-row.done .su-ic { border-color: var(--teal); background: var(--teal-dim); }
+.su-ic svg { width: 12px; height: 12px; stroke: var(--teal); stroke-width: 2.4; }
+.su-lb { flex: 1; min-width: 0; font-size: 14px; color: var(--t1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.su-lb i { font-style: normal; color: var(--t3); font-size: 12.5px; }
+.su-row.done .su-lb { color: var(--t2); }
+.su-btn {
+  flex: none; height: 30px; padding: 0 13px; border-radius: 999px;
+  background: var(--teal-dim); border: 1px solid var(--teal-line); color: var(--teal);
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+.su-btn:active { background: var(--bg3); }
+
 /* ============ automation 管理页（无盒子：状态点 + meta 线 + hairline 行） ============ */
 .st-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 3.5px var(--teal-dim); }
 .st-dot.off { background: var(--t3); box-shadow: 0 0 0 3.5px rgba(255,255,255,0.05); }
@@ -275,6 +303,7 @@
 .txt-act.danger { color: var(--down); }
 .txt-act.teal { color: var(--teal); }
 .auto-unsub { display: block; margin: 26px auto 0; font-size: 14px; }
+.auto-tracks { margin-top: 24px; }
 .btn-danger { background: rgba(255,97,89,0.09); border: 1px solid rgba(255,97,89,0.3); color: var(--down); }
 
 /* ============ For You: immersive ============ */
@@ -642,6 +671,10 @@
 .ask-reply { margin-top: 22px; }
 .ask-reply .bub { background: var(--bg1); border: 1px solid var(--line); border-radius: 20px; padding: 17px; font-size: 15px; line-height: 1.6; color: var(--t2); }
 .ask-reply .bub b { color: var(--t1); font-weight: 600; }
+.ask-reply .bub ul { margin: 12px 0 0 18px; display: grid; gap: 8px; }
+.ask-next { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 11px; }
+.ask-next > span { font-size: 13.5px; color: var(--t3); line-height: 1.45; }
+.ask-next .btn { width: 100%; }
 .typing { display: inline-flex; gap: 5px; padding: 6px 2px; }
 .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: blink 1.2s infinite; }
 .typing i:nth-child(2) { animation-delay: 0.2s; } .typing i:nth-child(3) { animation-delay: 0.4s; }
@@ -683,6 +716,7 @@
 /* ============ sheets content ============ */
 .sheet h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
 .sheet .sub { font-size: 14px; color: var(--t3); margin-top: 4px; line-height: 1.45; }
+.activity-list { margin-top: 14px; }
 .freq-list { display: flex; flex-direction: column; gap: 9px; margin-top: 18px; }
 .freq-row {
   display: flex; align-items: center; gap: 12px; padding: 15px 16px;
