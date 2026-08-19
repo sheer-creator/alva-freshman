@@ -19,8 +19,12 @@ const DEFAULTS = {
   manualHoldings: [],
   approvals: {},
   mode: 'stream',
-  awaySeen: false,
   brokerage: null,
+  /* 决策留痕（Memory tab / goal run history）：预置两条拟真历史 */
+  decisions: [
+    { title: 'Rotate 2% MU into NVDA on HBM read-through', choice: 'approved', at: 'Aug 8' },
+    { title: 'Trim TSLA ahead of the robotaxi event', choice: 'rejected', at: 'Aug 12' },
+  ],
 };
 
 export const store = (() => {

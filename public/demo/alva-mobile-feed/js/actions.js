@@ -1,8 +1,8 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, evidenceCounts } from './data.js';
+import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, APPROVALS, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv } from './cards.js';
-import { askCtx, setAskCtx, setPendingAsk, setDiscTab, obPickEntity } from './screens.js';
+import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, obPickEntity } from './screens.js';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();
@@ -39,9 +39,14 @@ function activitySheet(title, ids, empty) {
     <div class="activity-list">${contextRows(ids)}</div>`);
 }
 
-function askAnswer(it) {
+function askAnswer(it, q) {
+  const goalNudge = store.goal ? '' : `
+    <div class="ask-next">
+      <span>This reads like a standing objective. Make it a goal — Alva will watch it and bring proposals for your approval.</span>
+      <button class="btn btn-ghost" data-act="goal-sheet" data-prefill="${(q || '').replace(/"/g, '&quot;')}">${I.bolt}Set as goal</button>
+    </div>`;
   if (!it) return `Short answer: <b>the evidence leans yes</b>.<br><br>
-    The strongest signals are moving in the same direction, while the main counter-signal is still unconfirmed.`;
+    The strongest signals are moving in the same direction, while the main counter-signal is still unconfirmed.${goalNudge}`;
   const facts = (it.facts || []).slice(0, 2).map((fact) => `<li>${fact.text}</li>`).join('');
   const tracked = store.tracks.includes(it.id);
   return `<b>${it.summary}</b>${facts ? `<ul>${facts}</ul>` : ''}
@@ -50,13 +55,23 @@ function askAnswer(it) {
       <button class="btn btn-ghost" data-act="${tracked ? 'open-automation' : 'track-item'}" data-${tracked ? 'id' : 'item'}="${tracked ? it.feed : it.id}" data-track-cta="${it.id}">
         ${tracked ? I.gear + 'Manage automation' : I.bell + 'Track this context'}
       </button>
-    </div>`;
+    </div>${goalNudge}`;
 }
 
 function clearFeedActivity(feedId) {
   store.tracks = store.tracks.filter((id) => ITEMS.find((it) => it.id === id)?.feed !== feedId);
   store.paused = store.paused.filter((id) => id !== feedId);
   if (store.lastFollowedFeed === feedId) store.lastFollowedFeed = null;
+}
+
+/* 拍板：写 approvals 状态 + 决策留痕（Memory tab / goal run history 共用） */
+function decide(id, choice) {
+  store.approvals[id] = choice;
+  const ap = APPROVALS.find((a) => a.id === id);
+  if (ap) store.decisions.push({ title: ap.title, choice, at: 'Today' });
+  save();
+  toast(choice === 'approved' ? 'Approved — executing on paper' : 'Rejected — Alva will recalibrate', choice === 'approved' ? I.check : undefined);
+  rerender();
 }
 
 export const ACTIONS = {
@@ -109,7 +124,6 @@ export const ACTIONS = {
   },
   'ob-finish': () => {
     store.onboarded = true;
-    store.awaySeen = true; // 新用户首次进入不展示 recap
     for (const f of ['nvda_events', 'ai_watch', 'earnings']) if (!store.feeds.includes(f)) store.feeds.push(f);
     store.lastFollowedFeed = null;
     save();
@@ -146,18 +160,8 @@ export const ACTIONS = {
   },
   /* ---- goal / approval（Report 态） ---- */
   'ob-hold': (el) => { toggleIn(store.manualHoldings, el.dataset.id); rerender(); },
-  approve: (el) => {
-    store.approvals[el.dataset.id] = 'approved';
-    save();
-    toast('Approved — executing on paper', I.check);
-    rerender();
-  },
-  reject: (el) => {
-    store.approvals[el.dataset.id] = 'rejected';
-    save();
-    toast('Rejected — Alva will recalibrate');
-    rerender();
-  },
+  approve: (el) => decide(el.dataset.id, 'approved'),
+  reject: (el) => decide(el.dataset.id, 'rejected'),
   'scroll-appr': () => {
     const c = document.querySelector('.card.appr');
     if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -166,8 +170,10 @@ export const ACTIONS = {
     store.goal = '';
     save();
     toast('Goal revoked — back to recap');
-    rerender();
+    if (location.hash.includes('/goal')) back(); else rerender();
   },
+
+  'ask-tab': (el) => { setAskTab(el.dataset.t); rerender(); },
 
   /* ---- Ask 补课清单 ---- */
   'setup-dismiss': () => { store.askSetupDismissed = true; save(); rerender(); },
@@ -185,14 +191,15 @@ export const ACTIONS = {
         <span class="meta"><span class="nm">Add a custom source</span><div class="ds">Paste a URL or handle</div></span>${I.chevR}
       </div>
     </div>`),
-  'goal-sheet': () => openSheet(`
-    <h3>Set a trading goal</h3>
+  'goal-sheet': (el) => openSheet(`
+    <h3>${store.goal ? 'Edit your trading goal' : 'Set a trading goal'}</h3>
     <p class="sub">One sentence. Alva works it in the background — research, monitoring, proposals. Every action comes to you for approval.</p>
     <div class="watch-presets" style="margin-top:14px">
       ${['Build AI infra exposure on pullbacks', 'De-risk before NVDA earnings', 'Rotate memory-cycle gains into BTC'].map((g) => `<button class="watch-preset" data-act="goal-preset" data-g="${g}">${g}</button>`).join('')}
     </div>
     <div class="watch-add" style="margin-top:12px">
       <input class="watch-custom" id="goalInput" placeholder="Or write your own…"
+        value="${((el && el.dataset && el.dataset.prefill) || store.goal || '').replace(/"/g, '&quot;')}"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.nextElementSibling.click()}">
       <button class="btn btn-teal-solid watch-add-btn" data-act="goal-save">Set goal</button>
     </div>
@@ -302,7 +309,7 @@ export const ACTIONS = {
       <div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>`;
     const answer = reply.lastElementChild;
     setTimeout(() => {
-      if (answer && answer.isConnected) answer.innerHTML = askAnswer(ctxItem);
+      if (answer && answer.isConnected) answer.innerHTML = askAnswer(ctxItem, q);
     }, 1400);
   },
   'save-item': (el) => {

@@ -90,13 +90,7 @@ window.__rerender = () => {
   updateChrome(route);
 };
 
-/* 回访 recap：新 session 且已 onboard → 展示 Since you were away */
-import { save } from './state.js';
-if (store.onboarded && !sessionStorage.getItem('alva_session')) {
-  store.awaySeen = false;
-  save();
-}
-sessionStorage.setItem('alva_session', '1');
+/* demo 预设：recap 模块常显（拟真数据由 data.js 提供） */
 
 /* boot */
 if (!location.hash) location.hash = store.onboarded ? '#/home' : '#/welcome';

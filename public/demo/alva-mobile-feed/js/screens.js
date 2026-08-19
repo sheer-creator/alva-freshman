@@ -93,6 +93,7 @@ export function renderRoute(route, page) {
     entity: () => sEntity(a, page),
     feed: () => sFeed(a, page),
     automation: () => sAutomation(a, page),
+    goal: sGoal,
     source: () => sSource(a, page),
     creator: () => sCreator(a, page),
   }[root];
@@ -382,14 +383,13 @@ function recapModule() {
     return `
     <div class="recap reveal">
       <div class="rc-head">While you were away</div>
-      <div class="rc-goal">${I.bolt}<span>Goal “${store.goal}” — on track</span></div>
+      <div class="rc-goal" data-act="nav" data-to="#/goal" role="button">${I.bolt}<span>Goal “${store.goal}” — on track</span>${I.chevR}</div>
       <div class="rc-row" data-act="open-detail" data-item="${REPORT.delivered.item}" role="button"><span class="n">1</span><span class="tx">${REPORT.delivered.text}</span>${I.chevR}</div>
       ${APPROVALS.map((a, i) => `<div class="rc-row" data-act="scroll-appr" role="button"><span class="n">${i + 2}</span><span class="tx">${a.title} — <b>${store.approvals[a.id] || 'needs you'}</b></span>${I.chevR}</div>`).join('')}
       <div class="rc-row dim"><span class="n">+</span><span class="tx">${REPORT.watching}</span></div>
       <button class="rc-cta" data-act="scroll-appr">${pending.length ? `Review · ${pending.length} item${pending.length > 1 ? 's need' : ' needs'} you` : I.check + 'All caught up'}</button>
     </div>`;
   }
-  if (store.awaySeen) return '';
   return `
     <div class="recap reveal">
       <div class="rc-head">Since you were away</div>
@@ -647,6 +647,33 @@ function sFeed(id, page) {
     </div>`;
 }
 
+/* ========== goal 管理页（goal = 无执行权的 Automation：instruction + run history） ========== */
+function sGoal(page) {
+  if (!store.goal) {
+    page.innerHTML = `${backBar('Goal')}<div class="empty"><div class="glyph">${I.bolt}</div><h4>No trading goal yet</h4><p>Set one and Alva works it in the background — every action needs your approval.</p><button class="btn btn-teal-solid" data-act="goal-sheet">Set a goal</button></div>`;
+    return;
+  }
+  const pending = APPROVALS.filter((a) => !store.approvals[a.id]).length;
+  page.innerHTML = `${backBar('Goal')}
+    <div class="page-secs">
+      <div class="auto-head">
+        <div class="auto-title"><span class="st-dot"></span><h1>Trading goal</h1></div>
+        <div class="auto-meta">You · Continuous · no execution authority</div>
+        <p class="auto-promise">Alva researches and monitors around this goal. Every proposed action comes to you for approval — nothing executes on its own.</p>
+      </div>
+      <div class="auto-rows">
+        <div class="auto-row" data-act="goal-sheet" role="button"><span class="k">Instruction</span><span class="v">${store.goal}</span>${I.chevR}</div>
+        <div class="auto-row"><span class="k">Delivers to</span><span class="v">For You · Approvals</span></div>
+        <div class="auto-row"><span class="k">Status</span><span class="v">${pending ? `${pending} proposal needs you` : 'On track'}</span></div>
+      </div>
+      <div class="sec-label" style="margin:26px 0 2px">Run history</div>
+      <div class="auto-rows" style="border-top:none">
+        ${[...store.decisions].reverse().map((d) => `<div class="auto-row"><span class="k">${d.at}</span><span class="v" style="font-weight:400">${d.title}</span><span class="dec-tag ${d.choice}">${d.choice}</span></div>`).join('') || '<p class="ent-none">No runs yet.</p>'}
+      </div>
+      <button class="txt-act danger auto-unsub" data-act="goal-revoke">Revoke goal</button>
+    </div>`;
+}
+
 /* ========== automation 管理页（对齐真实产品 AlertAutomationRow：状态点 + meta 线 +
  * hairline 行，pause/unsubscribe 都是安静的文字动作，不做大按钮） ========== */
 function sAutomation(id, page) {
@@ -801,10 +828,65 @@ function askSetup() {
   </div>`;
 }
 
+/* Ask 三 tab：Chat（对话）/ Tasks（goal + tracks）/ Memory（user.md 可视化 + 决策留痕） */
+let askTab = 'chat';
+export function setAskTab(t) { askTab = t; }
+
+function askTasksView() {
+  const pending = APPROVALS.filter((a) => !store.approvals[a.id]).length;
+  const goalRow = store.goal
+    ? `<div class="list-row" data-act="nav" data-to="#/goal" role="button">
+        <span class="ic-cir">${I.bolt}</span>
+        <span class="meta"><span class="nm">${store.goal}</span><div class="ds">Trading goal · ${pending ? `${pending} proposal needs you` : 'on track'}</div></span>${I.chevR}</div>`
+    : `<div class="list-row" data-act="goal-sheet" role="button">
+        <span class="ic-cir dim">${I.bolt}</span>
+        <span class="meta"><span class="nm">Set a trading goal</span><div class="ds">Alva works it and brings proposals for approval</div></span>${I.chevR}</div>`;
+  const trackRows = store.tracks.map((id) => ITEMS.find((it) => it.id === id)).filter(Boolean).map((it) => `
+    <div class="list-row" data-act="open-detail" data-item="${it.id}" role="button">
+      ${it.entity_refs[0] ? entityAv(it.entity_refs[0], 40) : monoAv('AL', 174, 40)}
+      <span class="meta"><span class="nm">${it.headline}</span><div class="ds">Tracking · ${FEEDS[it.feed].name}</div></span>${I.chevR}
+    </div>`).join('');
+  return `
+    <div class="d-sec"><div class="sec-label">Standing</div>${goalRow}</div>
+    <div class="d-sec"><div class="sec-label">Tracks</div>${trackRows || '<p class="ent-none">Track a context from any card and it appears here.</p>'}</div>`;
+}
+
+function askMemoryView() {
+  const holdings = store.brokerage ? HOLDINGS.map((h) => h.entity) : store.manualHoldings;
+  return `
+    <div class="mem-note">${I.doc}<span>What Alva remembers about you — synced to <b>user.md</b> in your agent memory.</span></div>
+    <div class="d-sec"><div class="sec-label">Identity</div>
+      <div class="mem-row"><span class="k">Role</span><span class="v">Independent trader</span></div>
+      <div class="mem-row"><span class="k">Markets</span><span class="v">US equities · Crypto</span></div>
+      <div class="mem-row"><span class="k">Holdings</span><span class="v">${holdings.length ? holdings.join(' · ') : 'Not shared yet'}</span></div>
+    </div>
+    <div class="d-sec"><div class="sec-label">Watching</div>
+      ${store.watches.length ? store.watches.map((w) => `<div class="mem-row"><span class="v">“${w}”</span></div>`).join('') : '<p class="ent-none">No watches yet.</p>'}
+    </div>
+    <div class="d-sec"><div class="sec-label">Goal</div>
+      ${store.goal ? `<div class="mem-row" data-act="nav" data-to="#/goal" role="button"><span class="v">“${store.goal}”</span>${I.chevR}</div>` : '<p class="ent-none">No goal set.</p>'}
+    </div>
+    <div class="d-sec"><div class="sec-label">Decisions</div>
+      <div class="mem-cal">${I.spark}<span><b>72% calibrated</b> · ${store.decisions.length} decisions tracked</span></div>
+      ${[...store.decisions].reverse().map((d) => `<div class="mem-row"><span class="dec-tag ${d.choice}">${d.choice}</span><span class="v" style="font-weight:400">${d.title}</span><span class="t">${d.at}</span></div>`).join('')}
+    </div>`;
+}
+
 function sAsk(page) {
   const item = askCtx ? ITEMS.find((it) => it.id === askCtx) : null;
+  if (pendingAsk) askTab = 'chat';
+  const tabs = `<div class="ask-tabs">${[['chat', 'Chat'], ['tasks', 'Tasks'], ['memory', 'Memory']].map(([t, lbl]) =>
+    `<button class="${askTab === t ? 'on' : ''}" data-act="ask-tab" data-t="${t}">${lbl}</button>`).join('')}</div>`;
+  if (askTab !== 'chat') {
+    page.innerHTML = `
+      <div class="topbar"><span class="lg-title">Ask</span><span class="spacer"></span></div>
+      ${tabs}
+      <div class="ask-body" style="padding-top:6px">${askTab === 'tasks' ? askTasksView() : askMemoryView()}</div>`;
+    return;
+  }
   page.innerHTML = `
     <div class="topbar"><span class="lg-title">Ask</span><span class="spacer"></span></div>
+    ${tabs}
     <div class="ask-body">
       ${askSetup()}
       <div class="ask-hero">
@@ -883,8 +965,7 @@ function sYou(page) {
         <div class="rel-row">${store.entities.map((e) => `<button class="chip on" data-act="open-entity" data-id="${e}">${entityChipLabel(e)}</button>`).join('') || '<span style="font-size:14px;color:var(--t3)">Nothing yet</span>'}</div>
       </div>
       ${store.goal ? `<div class="d-sec"><div class="sec-label">Trading goal</div>
-        <div class="ask-ctx-chip" style="margin-top:2px">${I.bolt}<span>“${store.goal}”</span></div>
-        <p style="font-size:13px;color:var(--t3);margin-top:10px">Alva works this goal in the background — every action needs your approval. <button class="txt-act danger" style="padding:0;font-size:13px" data-act="goal-revoke">Revoke</button></p></div>` : ''}
+        <div class="mgmt-row" data-act="nav" data-to="#/goal" role="button"><span class="ic">${I.bolt}</span><span class="meta"><span class="nm">${store.goal}</span><div class="ds">Every action needs your approval</div></span>${I.chevR}</div></div>` : ''}
       ${store.watches.length ? `<div class="d-sec"><div class="sec-label">Your watches</div>
         ${store.watches.map((w) => `<div class="ask-ctx-chip" style="margin-top:6px">${I.eye}<span>“${w}”</span></div>`).join('')}
         <p style="font-size:13px;color:var(--t3);margin-top:10px">New evidence gets flagged as supports / challenges in your feed.</p></div>` : ''}
