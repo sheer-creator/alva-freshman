@@ -490,6 +490,10 @@
 .ent-none { font-size: 14px; color: var(--t3); }
 .ent-img { flex: none; border-radius: 50%; object-fit: cover; border: 1px solid var(--line2); background: var(--bg3); }
 .ent-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; padding-bottom: 8px; }
+.ent-count-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ent-count-row .ent-count { margin: 0; }
+.ob-watch-label { margin: 26px 0 12px; }
+.ob-watch-label i { font-style: normal; color: var(--t3); text-transform: none; letter-spacing: 0; font-weight: 400; }
 .ent-chip {
   display: flex; align-items: center; gap: 10px;
   padding: 12px 16px 12px 12px; border-radius: 18px;

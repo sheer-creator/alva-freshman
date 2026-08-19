@@ -1,5 +1,5 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, entityChipLabel, evidenceCounts } from './data.js';
+import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv } from './cards.js';
 import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, obPickEntity } from './screens.js';
@@ -95,22 +95,14 @@ export const ACTIONS = {
   },
   'ob-watch': (el) => {
     toggleIn(store.watches, el.dataset.w);
-    const draft = (document.getElementById('watchInput') || {}).value || '';
-    rerender();
-    const input = document.getElementById('watchInput');
-    if (input && draft) input.value = draft;
+    el.classList.toggle('on', store.watches.includes(el.dataset.w));
   },
-  'ob-watch-add': () => {
-    const input = document.getElementById('watchInput');
-    const v = input && input.value.trim();
-    if (v && !store.watches.includes(v)) { store.watches.push(v); save(); }
+  'ob-select-all': () => {
+    const ids = ONBOARD_ENTITIES.map((o) => o.id);
+    const allOn = ids.every((id) => store.entities.includes(id));
+    store.entities = allOn ? store.entities.filter((id) => !ids.includes(id)) : [...new Set([...store.entities, ...ids])];
+    save();
     rerender();
-  },
-  'ob-watch-next': () => {
-    const input = document.getElementById('watchInput');
-    const v = input && input.value.trim();
-    if (v && !store.watches.includes(v)) { store.watches.push(v); save(); }
-    nav('#/onboard/sources');
   },
   'ob-finish': () => {
     store.onboarded = true;

@@ -116,7 +116,7 @@ function sWelcome(page) {
 }
 
 /* ========== onboarding ========== */
-const OB_STEPS = ['entities', 'portfolio', 'question', 'sources', 'preview'];
+const OB_STEPS = ['entities', 'portfolio', 'sources', 'preview'];
 function obProgress(step) {
   const idx = OB_STEPS.indexOf(step);
   return `<div class="ob-progress">${OB_STEPS.map((s, i) => `<i class="${i <= idx ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -201,12 +201,17 @@ function sOnboard(step, page) {
         <div class="ent-dd" id="entDd" hidden></div>
       </div>
       <div class="ent-grid" id="entGrid">${entGridHtml()}</div>
-      <p class="ent-count" id="entCount">${store.entities.length ? `${store.entities.length} selected` : 'Pick 3–8 to start'}</p>
+      <div class="ent-count-row">
+        <span class="ent-count" id="entCount">${store.entities.length ? `${store.entities.length} selected` : 'Pick 3–8 to start'}</span>
+        <button class="txt-act teal" data-act="ob-select-all">${ONBOARD_ENTITIES.every((o) => store.entities.includes(o.id)) ? 'Clear all' : 'Select all'}</button>
+      </div>
+      <div class="sec-label ob-watch-label">What are you trying to figure out? <i>optional</i></div>
+      <div class="rel-row">${WATCH_PRESETS.map((w) => `<button class="chip ${store.watches.includes(w) ? 'on' : ''}" data-act="ob-watch" data-w="${w}">${w}</button>`).join('')}</div>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/portfolio" ${store.entities.length < 1 ? 'disabled style="opacity:.4"' : ''} id="entNext">Continue</button></div>`;
   } else if (step === 'portfolio') {
     const marketIds = Object.values(ENTITIES).filter((e) => e.kind === 'market').map((e) => e.id);
     const n = store.manualHoldings.length;
-    page.innerHTML = `${obTop('portfolio', '#/onboard/question')}
+    page.innerHTML = `${obTop('portfolio', '#/onboard/sources')}
       <h1 class="ob-h1">What are you holding?</h1>
       <p class="ob-sub">Optional — your For You gets built around what you actually hold. Alva never trades without your explicit approval.</p>
       <button class="conn-row ${store.brokerage ? 'done' : ''}" data-act="connect-broker" style="margin-top:22px">
@@ -221,21 +226,7 @@ function sOnboard(step, page) {
         return `<button class="ent-chip ${on ? 'on' : ''}" data-act="ob-hold" data-id="${id}">${entityAv(id, 34)}<span><span class="nm">${e.ticker}</span><div class="ht">${on ? 'Holding' : e.name}</div></span></button>`;
       }).join('')}</div>
       <p class="ent-count">${store.brokerage ? 'Synced from your broker' : n ? `${n} holding${n > 1 ? 's' : ''}` : 'You can skip this — nothing breaks'}</p>
-      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/question">Continue</button></div>`;
-  } else if (step === 'question') {
-    const customs = store.watches.filter((w) => !WATCH_PRESETS.includes(w));
-    const n = store.watches.length;
-    page.innerHTML = `${obTop('question', '#/onboard/sources')}
-      <h1 class="ob-h1">What are you trying to figure out?</h1>
-      <p class="ob-sub">Pick any that fit, or add your own. Alva keeps each as a watch — new evidence gets flagged for or against it.</p>
-      <div class="watch-presets">${[...WATCH_PRESETS, ...customs].map((w) => `<button class="watch-preset ${store.watches.includes(w) ? 'on' : ''}" data-act="ob-watch" data-w="${w}">${w}</button>`).join('')}</div>
-      <div class="watch-add">
-        <input class="watch-custom" id="watchInput" placeholder="Add your own question…"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();this.nextElementSibling.click()}">
-        <button class="btn btn-ghost watch-add-btn" data-act="ob-watch-add">${I.plus}Add</button>
-      </div>
-      <p class="ent-count">${n ? `${n} watch${n > 1 ? 'es' : ''}` : 'Optional — you can add these later'}</p>
-      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="ob-watch-next">Continue</button></div>`;
+      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/sources">Continue</button></div>`;
   } else if (step === 'sources') {
     const conn = store.connected;
     page.innerHTML = `${obTop('sources', '#/onboard/preview')}
