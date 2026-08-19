@@ -76,6 +76,7 @@ export const I = {
   bolt: '<svg viewBox="0 0 24 24"><path d="M13 3 5 13.5h5.5L11 21l8-10.5h-5.5L13 3Z"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5L8 5.5Z"/></svg>',
   pause: '<svg viewBox="0 0 24 24"><path d="M9 5.5v13M15 5.5v13"/></svg>',
+  clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
   bell: '<svg viewBox="0 0 24 24"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.7 6.2 1.7 6.2H4.3S6 14.5 6 9.5Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg>',
   link: '<svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 6 .5l3-3a4 4 0 0 0-5.5-5.5l-1.7 1.7"/><path d="M14 10a4 4 0 0 0-6-.5l-3 3a4 4 0 0 0 5.5 5.5l1.7-1.7"/></svg>',
   gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.2 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2.2-1.3l-.4-2.5h-4l-.4 2.5a7 7 0 0 0-2.2 1.3l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2.2 1.3l.4 2.5h4l.4-2.5a7 7 0 0 0 2.2-1.3l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2Z"/></svg>',
@@ -86,13 +87,9 @@ export const I = {
   search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8 21 21"/></svg>',
 };
 
-/* ========== toast ========== */
-export function toast(msg, icon) {
-  const root = document.getElementById('toast-root');
-  root.innerHTML = `<div class="toast">${icon || I.check}<span>${msg}</span></div>`;
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => { root.innerHTML = ''; }, 2600);
-}
+/* ========== toast（按产品反馈停用：位置遮挡操作区且驻留过久。
+ * 状态反馈由界面自身的状态变化承担；保留签名以免动全部调用方） ========== */
+export function toast() {}
 
 /* ========== sheet ========== */
 export function openSheet(html) {

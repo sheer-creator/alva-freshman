@@ -708,10 +708,11 @@ function sRecapDeck(page) {
       </div>
       <div class="deck-controls" id="deckControls">
         <button class="dk-btn no" data-deck="left" aria-label="Skip">${I.x}</button>
+        <button class="dk-btn later" data-deck="later" aria-label="Decide later">${I.clock}</button>
         <span class="dk-count" id="deckCount"></span>
         <button class="dk-btn yes" data-deck="right" aria-label="Act">${I.check}</button>
       </div>
-      <p class="deck-hint">Swipe right to act · left to skip</p>
+      <p class="deck-hint">Right to act · left to skip · clock to revisit</p>
     </div>`;
   attachDeck(page, cards);
 }
@@ -733,7 +734,7 @@ function attachDeck(page, cards) {
       el.style.opacity = d > 2 ? '0' : '1';
     });
     const done = top >= cards.length;
-    count.textContent = done ? '' : `${top + 1} / ${cards.length}`;
+    count.textContent = done ? '' : `${cards.length - top} left`;
     controls.style.display = done ? 'none' : '';
     hint.style.display = done ? 'none' : '';
     page.querySelector('.deck-done').classList.toggle('show', done);
@@ -743,6 +744,18 @@ function attachDeck(page, cards) {
     if (top >= cards.length) return;
     const c = cards[top];
     const el = els[top];
+    if (dir === 'later') {
+      /* 再想想：滑向下方后回到队尾 */
+      el.style.transition = 'transform 0.3s ease, opacity 0.25s ease';
+      el.style.transform = 'translateY(60px) scale(0.92)';
+      el.style.opacity = '0';
+      cards.push(c);
+      els.push(el);
+      top += 1;
+      setTimeout(() => { el.style.transition = 'none'; update(); }, 320);
+      setTimeout(update, 80);
+      return;
+    }
     el.style.transition = 'transform 0.35s ease, opacity 0.3s ease';
     el.style.transform = `translateX(${dir === 'right' ? 480 : -480}px) rotate(${dir === 'right' ? 16 : -16}deg)`;
     el.style.opacity = '0';
@@ -1001,11 +1014,22 @@ export function automationRows() {
       <span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.cadence} · ${f.owner}</div></span>
       <span class="next-run ${paused ? 'paused' : ''}">${paused ? 'Paused' : f.next_run}</span>${I.chevR}</div>`;
   }).join('');
-  const trackRows = store.tracks.map((id) => ITEMS.find((it) => it.id === id)).filter(Boolean).map((it) => `
-    <div class="list-row" data-act="open-detail" data-item="${it.id}" role="button">
-      ${it.entity_refs[0] ? entityAv(it.entity_refs[0], 40) : monoAv('AL', 174, 40)}
-      <span class="meta"><span class="nm">${it.headline}</span><div class="ds">Watching for meaningful change</div></span>
-      <span class="task-tag">Track</span>${I.chevR}</div>`).join('');
+  /* Track 锚定在对象（ticker/theme/figure）上：一个对象可挂多条 watch */
+  const trackByObj = {};
+  store.tracks.map((id) => ITEMS.find((it) => it.id === id)).filter(Boolean).forEach((it) => {
+    const key = it.entity_refs[0] || `feed:${it.feed}`;
+    (trackByObj[key] = trackByObj[key] || []).push(it);
+  });
+  const trackRows = Object.entries(trackByObj).map(([key, items]) => {
+    const isFeed = key.startsWith('feed:');
+    const label = isFeed ? FEEDS[key.slice(5)].name : entityChipLabel(key);
+    const av = isFeed ? monoAv('AL', 174, 40) : entityAv(key, 40);
+    const first = items[0];
+    return `<div class="list-row" data-act="${isFeed ? 'open-detail' : 'open-entity'}" data-${isFeed ? `item="${first.id}"` : `id="${key}"`} role="button">
+      ${av}
+      <span class="meta"><span class="nm">${label}</span><div class="ds">${items.length > 1 ? `${items.length} watches running` : `Watching: ${first.headline}`}</div></span>
+      <span class="task-tag">Track</span>${I.chevR}</div>`;
+  }).join('');
   return goalRow + channelRows + trackRows;
 }
 export const automationCount = () => store.feeds.length + store.tracks.length + (store.goal ? 1 : 0);

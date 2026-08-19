@@ -235,12 +235,10 @@ export function streamCard(item, idx = 0) {
     <p class="card-summary">${locked ? '' : item.summary}</p>
     ${locked ? lockPanel(item) : `
       ${factList(item)}
-      ${metricDiff(item)}
       ${signalStrip(item)}
       ${briefList(item)}
       ${clipBlock(item)}
     `}
-    <div class="flag-row">${!locked ? watchFlag(item) : ''}</div>
     ${!locked ? provRow(item, 'flip') : ''}
     <div class="card-actions">
       <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}">${I.ask}Ask Alva</button>

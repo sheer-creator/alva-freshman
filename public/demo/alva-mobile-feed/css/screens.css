@@ -343,6 +343,8 @@
 .dk-btn:active { transform: scale(0.92); }
 .dk-btn svg { width: 21px; height: 21px; stroke-width: 2.2; }
 .dk-btn.no svg { stroke: var(--down); }
+.dk-btn.later { width: 44px; height: 44px; }
+.dk-btn.later svg { width: 17px; height: 17px; stroke: var(--t2); }
 .dk-btn.yes svg { stroke: var(--up); }
 .dk-count { min-width: 44px; text-align: center; font-size: 12.5px; color: var(--t3); }
 .deck-hint { flex: none; text-align: center; font-size: 12px; color: var(--t3); margin-top: 10px; }
