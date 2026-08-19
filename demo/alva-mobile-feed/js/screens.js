@@ -364,7 +364,7 @@ function sHome(page) {
     const recs = activeRecs();
     const totalSlides = visible.length + recs.length + 1;
     const slideArr = visible.map((it, i) => immersiveSlide(it, i + 1, totalSlides));
-    recs.forEach((r, i) => slideArr.splice(Math.min(slideArr.length, 2 + i * 4), 0, recSlide(r)));
+    recs.forEach((r, i) => slideArr.splice(Math.min(slideArr.length, 2 + i * 3), 0, recSlide(r)));
     wrap.innerHTML = `<div class="imm-top"><span>For You</span></div>
       <div class="imm-scroll">${recapSlide}${slideArr.join('')}</div>
       <div class="imm-dots">${Array.from({ length: totalSlides }, (_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -423,7 +423,12 @@ function recapModule() {
  * 不是 Context Card —— 推荐的是 Automation 本身，CTA = Subscribe，
  * 理由行与卡背 Why 同一套语言，预览行引用它最近一次 run 的输出。 */
 function activeRecs() {
-  return RECS.filter((r) => !store.feeds.includes(r.feed) && !store.dismissedRecs.includes(r.feed));
+  return RECS.filter((r) => {
+    if (store.dismissedRecs.includes(r.id)) return false;
+    if (r.feed) return !store.feeds.includes(r.feed);
+    if (r.entity) return !store.entities.includes(r.entity);
+    return r.basket.some((id) => !store.entities.includes(id));
+  });
 }
 
 /* 推荐理由：优先动态命中（feed 覆盖的对象 ∩ 你关注/持有的），兜底用预设文案 */
@@ -436,13 +441,61 @@ function recWhy(r) {
   return r.why;
 }
 
+/* 卡壳共用：tag 行 + because + CTA，中段按类型分 */
+function recShell(r, tagText, body, cta) {
+  return `<article class="card rec-card reveal" data-rec="${r.id}">
+    <div class="rec-tag"><span>${I.spark}${tagText}</span>
+      <button class="rec-x" data-act="rec-dismiss" data-id="${r.id}" aria-label="Dismiss">${I.x}</button></div>
+    ${body}
+    <div class="because">${r.entity || r.basket ? r.why : recWhy(r)}</div>
+    <div class="card-actions" style="margin-top:12px">${cta}</div>
+  </article>`;
+}
+
+const entPrice = (e) => e.price ? `<span class="price"><div class="v">${e.price}</div><div class="c" style="color:var(--${e.dir})">${e.delta}</div></span>` : '';
+
 function recCard(r) {
+  /* entity 型：单个标的。叙事版 preview 挂真实 context item；技术面版（r.ta）画走势 + 信号 chips */
+  if (r.entity) {
+    const e = ENTITIES[r.entity];
+    const it = ITEMS.find((x) => x.id === r.item);
+    const taBlock = r.ta ? `
+      <div class="rec-ta">${sparkSVG(r.ta.spark, r.ta.dir, 300, 72, true)}</div>
+      <div class="signal-inline">${r.ta.chips.map((c, i) => `<span class="cell ${i === 0 && r.ta.dir === 'up' ? 'up' : ''}">${c}</span>`).join('')}</div>` : '';
+    return recShell(r, r.ta ? 'Technical setup' : 'Suggested for you', `
+      <div class="rec-head" data-act="open-entity" data-id="${e.id}" role="button">
+        ${entityAv(e.id, 40)}
+        <span class="meta"><span class="nm">${e.ticker}</span><div class="ds">${e.name}</div></span>
+        ${entPrice(e)}
+      </div>
+      ${taBlock}
+      <p class="rec-promise">${r.pitch}</p>
+      ${it ? `<div class="rec-preview" data-act="open-detail" data-item="${it.id}" role="button">
+        <span class="q">“${it.headline}”</span><span class="t">${FEEDS[it.feed].name} · ${it.published}</span>
+      </div>` : ''}`,
+      `<button class="btn btn-teal-solid" style="flex:1.2" data-act="rec-follow" data-id="${e.id}" data-rec-id="${r.id}">${I.plus}Follow ${e.ticker}</button>
+       <button class="btn btn-ghost" style="flex:1" data-act="trade-chat" data-id="${e.id}">${I.bolt}Trade</button>`);
+  }
+  /* basket 型：一组标的，一条逻辑串起来 */
+  if (r.basket) {
+    const rows = r.basket.map((id) => { const e = ENTITIES[id]; return `
+      <div class="rec-ent-row" data-act="open-entity" data-id="${id}" role="button">
+        ${entityAv(id, 34)}
+        <span class="meta"><span class="nm">${e.ticker}</span><span class="ds">${e.name}</span></span>
+        ${entPrice(e)}
+      </div>`; }).join('');
+    return recShell(r, 'Suggested basket', `
+      <div class="rec-head"><span class="meta"><span class="nm">${r.title}</span><div class="ds">${r.basket.length} tickers · one signal</div></span></div>
+      <p class="rec-promise">${r.pitch}</p>
+      <div class="rec-basket">${rows}</div>`,
+      `<button class="btn btn-teal-solid" style="flex:1.2" data-act="rec-follow-basket" data-rec-id="${r.id}">${I.plus}Follow all ${r.basket.length}</button>
+       <button class="btn btn-ghost" style="flex:1" data-act="trade-chat" data-basket="${r.id}">${I.bolt}Trade</button>`);
+  }
+  /* feed 型：新上线 Automation */
   const f = FEEDS[r.feed];
   const cr = r.creator ? CREATORS[r.creator] : null;
   const av = cr ? `<img class="av-img" src="img/${cr.avatar}" width="40" height="40" alt="">` : monoAv('AL', 174, 40);
-  return `<article class="card rec-card reveal" data-rec="${r.feed}">
-    <div class="rec-tag"><span>${I.spark}New automation · ${f.owner}</span>
-      <button class="rec-x" data-act="rec-dismiss" data-id="${r.feed}" aria-label="Dismiss">${I.x}</button></div>
+  return recShell(r, `New automation · ${f.owner}`, `
     <div class="rec-head" data-act="open-feed" data-id="${r.feed}" role="button">
       ${av}
       <span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.owner} · ${f.cadence} · ${f.runs} run${f.runs > 1 ? 's' : ''}</div></span>
@@ -451,18 +504,14 @@ function recCard(r) {
     <p class="rec-promise">${f.promise}</p>
     <div class="rec-preview" data-act="open-feed" data-id="${r.feed}" role="button">
       <span class="q">“${r.preview}”</span><span class="t">${r.previewAt}</span>
-    </div>
-    <div class="because">${recWhy(r)}</div>
-    <div class="card-actions" style="margin-top:12px">
-      <button class="btn btn-teal-solid" style="flex:1" data-act="rec-subscribe" data-id="${r.feed}">${I.plus}Subscribe</button>
-    </div>
-  </article>`;
+    </div>`,
+    `<button class="btn btn-teal-solid" style="flex:1" data-act="rec-subscribe" data-id="${r.feed}">${I.plus}Subscribe</button>`);
 }
 
 function streamView(items) {
   const arr = items.map((it, i) => streamCard(it, i + 1));
-  /* 推荐卡穿插在第 2、6 张后面，不抢开屏 */
-  activeRecs().forEach((r, i) => arr.splice(Math.min(arr.length, 2 + i * 4), 0, recCard(r)));
+  /* 推荐卡从第 2 张后开始、每隔 2 张内容穿插一张，不抢开屏 */
+  activeRecs().forEach((r, i) => arr.splice(Math.min(arr.length, 2 + i * 3), 0, recCard(r)));
   const cards = arr.length ? arr.join('')
     : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a feed in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore feeds</button></div>`;
   return `<div class="feed-scroll">${recapModule()}${cards}</div>`;
