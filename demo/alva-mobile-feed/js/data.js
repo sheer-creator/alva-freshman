@@ -159,6 +159,9 @@ export const FEEDS = {
   tg_alpha:     { id: 'tg_alpha',     name: 'My Telegram Alpha',       owner: 'You',    access: 'private', cadence: 'Continuous', entities: ['BTC'], sources: ['alpha_group'], last_run: '12m ago', next_run: 'Live', runs: 1041, promise: 'Your private groups, distilled. Only you can see this.' },
   brief:        { id: 'brief',        name: 'Morning Market Brief',    owner: 'Alva',   access: 'public',  cadence: 'Daily 7:00', entities: [], sources: ['mkt_data', 'sec', 'x_analysts'], last_run: '7:00 today', next_run: 'Tomorrow 7:00', runs: 365, promise: 'The five minutes that set up your trading day.' },
   congress:     { id: 'congress',     name: 'Congressional Trades',    owner: 'Alva',   access: 'public',  cadence: 'On disclosure', entities: [], sources: ['capitol'], last_run: '1d ago', next_run: 'On filing', runs: 128, promise: 'Every disclosed trade on the Hill, linked to what members oversee.' },
+  /* 新上线的 Automation（For You 推荐卡的对象）：runs 少 = 刚发布 */
+  fed_path:     { id: 'fed_path',     name: 'Fed Path Tracker',        owner: 'Alva',   access: 'public',  cadence: 'On Fed signal', entities: ['POWELL'], sources: ['fomc', 'mkt_data', 'x_analysts'], last_run: '2h ago', next_run: 'On signal', runs: 3, isNew: true, promise: 'Every rate-path signal — speeches, minutes, futures pricing — folded into one running view.' },
+  hbm_ledger:   { id: 'hbm_ledger',   name: 'HBM Supply Ledger',       owner: 'SemiAnalysis', access: 'public', cadence: 'Weekly', entities: ['HBM', 'MU'], sources: ['semianalysis', 'dylan', 'mkt_data'], last_run: '1d ago', next_run: 'Fri', runs: 1, isNew: true, promise: 'A running ledger of HBM supply, pricing and who is locked in — updated every week.' },
 };
 
 /* ========== Feed Items ==========
@@ -519,6 +522,12 @@ export const HOLDINGS = [
   { entity: 'NVDA', qty: '24 sh', value: '$4,349', pnl: '+18.4%', dir: 'up' },
   { entity: 'BTC', qty: '0.21 BTC', value: '$24,868', pnl: '+6.2%', dir: 'up' },
   { entity: 'TSLA', qty: '10 sh', value: '$2,498', pnl: '−3.1%', dir: 'down' },
+];
+
+/* ========== For You 推荐卡：新上线的 Automation（官方 / Creator），流内一等卡位 ========== */
+export const RECS = [
+  { feed: 'fed_path', why: 'Because you follow Jerome Powell', preview: 'Three Fed speakers, one message: September is live', previewAt: 'Latest run · 2h ago' },
+  { feed: 'hbm_ledger', creator: 'semianalysis', why: 'Because you follow HBM', preview: 'SK Hynix sold out through 2026 — the ledger opens tight', previewAt: 'First run · 1d ago' },
 ];
 
 /* ========== Discover ========== */

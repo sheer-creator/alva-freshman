@@ -1,5 +1,5 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, RECAP_ARTICLE, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, FIGURES, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, RECAP_ARTICLE, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, FIGURES, RECS, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, I, nav, toast, goalTitle } from './state.js';
 import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, isHeld } from './cards.js';
 
@@ -357,9 +357,16 @@ function sHome(page) {
       <div class="imm-content">${recapModule()}</div>
       ${immersivePeek(visible[0])}
     </section>`;
-    const totalSlides = visible.length + 1;
+    /* 推荐卡在 immersive 里是独立一屏（复用 recCard；关闭动作只在 stream 提供） */
+    const recSlide = (r) => `<section class="imm-slide imm-rec">
+      <div class="imm-bg no-img" style="background:radial-gradient(120% 80% at 20% 0%, #14302b 0%, #0A0E0F 60%)"><div class="scrim"></div></div>
+      <div class="imm-content">${recCard(r)}</div></section>`;
+    const recs = activeRecs();
+    const totalSlides = visible.length + recs.length + 1;
+    const slideArr = visible.map((it, i) => immersiveSlide(it, i + 1, totalSlides));
+    recs.forEach((r, i) => slideArr.splice(Math.min(slideArr.length, 2 + i * 4), 0, recSlide(r)));
     wrap.innerHTML = `<div class="imm-top"><span>For You</span></div>
-      <div class="imm-scroll">${recapSlide}${visible.map((it, i) => immersiveSlide(it, i + 1, totalSlides)).join('')}</div>
+      <div class="imm-scroll">${recapSlide}${slideArr.join('')}</div>
       <div class="imm-dots">${Array.from({ length: totalSlides }, (_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
     page.appendChild(wrap);
     const scroll = wrap.querySelector('.imm-scroll');
@@ -369,24 +376,23 @@ function sHome(page) {
       wrap.querySelectorAll('.imm-dots i').forEach((d, i) => d.classList.toggle('on', i === idx));
     }, { passive: true });
     /* 桌面滚轮 / 触控板：整屏翻页，一次一张（触屏靠 scroll-snap-stop: always）。
-     * 防惯性连击：翻页后锁定，且必须等事件流出现 >150ms 的安静间隙（新手势）才解锁。 */
-    let locked = false, lastEvt = 0, unlockAt = 0;
+     * 防惯性连击：翻页后锁定，事件流出现 >150ms 安静间隙（= 新手势）即解锁——
+     * 鼠标滚轮每格间隔天然 >150ms，所以格格响应；触控板惯性尾巴间隔小，被吃掉。 */
+    let locked = false, lastEvt = 0, target = null;
     scroll.addEventListener('wheel', (e) => {
       e.preventDefault();
       const now = performance.now();
-      const gap = now - lastEvt;
+      const fresh = now - lastEvt > 150;
       lastEvt = now;
-      if (locked) {
-        if (now >= unlockAt && gap > 150) locked = false; // 安静间隙后的首个事件 = 新手势
-        else return;
-      }
+      if (locked && !fresh) return;
       if (Math.abs(e.deltaY) < 10) return;
-      const cur = curIdx();
-      const target = Math.max(0, Math.min(totalSlides - 1, cur + Math.sign(e.deltaY)));
-      if (target === cur) return;
+      /* 平滑滚动进行中时以在途目标为基准，连续翻页不读错位置 */
+      const cur = locked && target !== null ? target : curIdx();
+      const next = Math.max(0, Math.min(totalSlides - 1, cur + Math.sign(e.deltaY)));
+      if (next === cur) { locked = false; return; }
       locked = true;
-      unlockAt = now + 700;
-      scroll.scrollTo({ top: target * scroll.clientHeight, behavior: 'smooth' });
+      target = next;
+      scroll.scrollTo({ top: next * scroll.clientHeight, behavior: 'smooth' });
     }, { passive: false });
   }
 }
@@ -413,9 +419,51 @@ function recapModule() {
     </div>`;
 }
 
+/* ========== 推荐卡：新上线的 Automation（官方 / Creator）作为流内一等卡位 ==========
+ * 不是 Context Card —— 推荐的是 Automation 本身，CTA = Subscribe，
+ * 理由行与卡背 Why 同一套语言，预览行引用它最近一次 run 的输出。 */
+function activeRecs() {
+  return RECS.filter((r) => !store.feeds.includes(r.feed) && !store.dismissedRecs.includes(r.feed));
+}
+
+/* 推荐理由：优先动态命中（feed 覆盖的对象 ∩ 你关注/持有的），兜底用预设文案 */
+function recWhy(r) {
+  const f = FEEDS[r.feed];
+  const held = f.entities.find((id) => isHeld(id));
+  if (held) return `Because you hold <b>${entityChipLabel(held)}</b>`;
+  const followed = f.entities.find((id) => store.entities.includes(id));
+  if (followed) return `Because you follow <b>${entityChipLabel(followed)}</b>`;
+  return r.why;
+}
+
+function recCard(r) {
+  const f = FEEDS[r.feed];
+  const cr = r.creator ? CREATORS[r.creator] : null;
+  const av = cr ? `<img class="av-img" src="img/${cr.avatar}" width="40" height="40" alt="">` : monoAv('AL', 174, 40);
+  return `<article class="card rec-card reveal" data-rec="${r.feed}">
+    <div class="rec-tag"><span>${I.spark}New automation · ${f.owner}</span>
+      <button class="rec-x" data-act="rec-dismiss" data-id="${r.feed}" aria-label="Dismiss">${I.x}</button></div>
+    <div class="rec-head" data-act="open-feed" data-id="${r.feed}" role="button">
+      ${av}
+      <span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.owner} · ${f.cadence} · ${f.runs} run${f.runs > 1 ? 's' : ''}</div></span>
+      ${I.chevR}
+    </div>
+    <p class="rec-promise">${f.promise}</p>
+    <div class="rec-preview" data-act="open-feed" data-id="${r.feed}" role="button">
+      <span class="q">“${r.preview}”</span><span class="t">${r.previewAt}</span>
+    </div>
+    <div class="because">${recWhy(r)}</div>
+    <div class="card-actions" style="margin-top:12px">
+      <button class="btn btn-teal-solid" style="flex:1" data-act="rec-subscribe" data-id="${r.feed}">${I.plus}Subscribe</button>
+    </div>
+  </article>`;
+}
+
 function streamView(items) {
-  const cards = items.length
-    ? items.map((it, i) => streamCard(it, i + 1)).join('')
+  const arr = items.map((it, i) => streamCard(it, i + 1));
+  /* 推荐卡穿插在第 2、6 张后面，不抢开屏 */
+  activeRecs().forEach((r, i) => arr.splice(Math.min(arr.length, 2 + i * 4), 0, recCard(r)));
+  const cards = arr.length ? arr.join('')
     : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a feed in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore feeds</button></div>`;
   return `<div class="feed-scroll">${recapModule()}${cards}</div>`;
 }
@@ -483,7 +531,7 @@ const marketRow = (m) => { const e = ENTITIES[m]; return `<div class="list-row" 
 
 const feedRow = (f) => { const fd = FEEDS[f]; const on = store.feeds.includes(f); return `<div class="list-row">
   ${monoAv(fd.owner === 'Alva' ? 'AL' : fd.owner.slice(0, 2).toUpperCase(), fd.access === 'premium' ? 40 : 174, 40)}
-  <span class="meta" data-act="open-feed" data-id="${f}" role="button"><span class="nm">${fd.name} ${fd.access !== 'public' ? accessBadge(fd.access) : ''}</span><div class="ds">${fd.owner} · ${fd.cadence}</div></span>
+  <span class="meta" data-act="open-feed" data-id="${f}" role="button"><span class="nm">${fd.name} ${fd.access !== 'public' ? accessBadge(fd.access) : ''}</span><div class="ds">${fd.isNew ? '<i class="new-flag">New</i>' : ''}${fd.owner} · ${fd.cadence}</div></span>
   <button class="follow-sm ${on ? 'on' : ''}" data-act="follow-feed" data-id="${f}">${on ? 'Subscribed' : 'Subscribe'}</button>
 </div>`; };
 
