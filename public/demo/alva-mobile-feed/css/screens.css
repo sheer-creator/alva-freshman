@@ -1306,3 +1306,77 @@
 /* immersive 里的推荐屏：卡片垂直居中，关闭动作只在 stream 提供 */
 .imm-rec .imm-content { margin: auto 0; }
 .imm-rec .rec-x { display: none; }
+
+/* ========== recap 滑卡页（Tinder 式审批 deck）——补回丢失的整块样式 ========== */
+.deck-wrap { display: flex; flex-direction: column; flex: 1; padding: 6px var(--pad) 20px; }
+.deck { position: relative; flex: 1; min-height: 430px; }
+.deck-card {
+  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end;
+  background: var(--bg1); border: 1px solid var(--line2); border-radius: 22px;
+  padding: 20px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+  box-shadow: 0 24px 60px -30px rgba(0,0,0,0.8); will-change: transform;
+}
+.deck-card h3 { position: relative; font-size: 21px; font-weight: 700; line-height: 1.25; letter-spacing: -0.2px; margin-top: 10px; }
+.deck-card p { position: relative; font-size: 14.5px; line-height: 1.55; color: var(--t2); margin-top: 8px; }
+.dk-img { position: absolute; inset: 0 0 auto 0; height: 46%; }
+.dk-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
+.dk-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(16,22,23,0) 25%, var(--bg1) 100%); }
+.dk-tag { position: relative; display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.9px; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+.dk-tag svg { width: 12px; height: 12px; stroke: var(--teal); fill: none; stroke-width: 2; }
+.dk-ent { position: relative; display: flex; align-items: center; gap: 9px; }
+.dk-ent b { font-size: 15px; font-weight: 700; }
+.dk-ent .t { font-size: 12px; color: var(--t3); margin-left: auto; }
+.dk-meta { position: relative; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); font-size: 12.5px; color: var(--t3); line-height: 1.5; }
+.dk-ovl {
+  position: absolute; top: 22px; z-index: 5; padding: 7px 14px; border-radius: 10px;
+  font-size: 15px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  opacity: 0; border: 2.5px solid; pointer-events: none;
+}
+.dk-yes { left: 18px; transform: rotate(-12deg); color: var(--up); border-color: var(--up); background: rgba(52,227,154,0.12); }
+.dk-no { right: 18px; transform: rotate(12deg); color: var(--down); border-color: var(--down); background: rgba(255,99,99,0.12); }
+.deck-controls { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 18px; }
+.dk-btn {
+  width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--bg1); border: 1px solid var(--line2); transition: transform 0.12s;
+}
+.dk-btn:active { transform: scale(0.9); }
+.dk-btn svg { width: 22px; height: 22px; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.dk-btn.no svg { stroke: var(--down); }
+.dk-btn.yes svg { stroke: var(--up); }
+.dk-btn.later { width: 44px; height: 44px; }
+.dk-btn.later svg { width: 18px; height: 18px; stroke: var(--t3); }
+.dk-count { font-size: 12.5px; color: var(--t3); min-width: 44px; text-align: center; }
+.deck-hint { text-align: center; font-size: 12px; color: var(--t3); margin-top: 10px; }
+.deck-done { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+.deck-done .glyph {
+  width: 52px; height: 52px; border-radius: 50%; margin-bottom: 8px;
+  background: var(--teal-dim); border: 1px solid var(--teal-line);
+  display: flex; align-items: center; justify-content: center;
+}
+.deck-done .glyph svg { width: 22px; height: 22px; stroke: var(--teal); fill: none; stroke-width: 2.2; }
+.deck-done h4 { font-size: 18px; font-weight: 650; }
+.deck-done p { font-size: 14px; color: var(--t3); }
+.deck-done .btn { margin-top: 14px; }
+
+/* 杂项小类补齐 */
+.pf-copy { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.pf-copy p { font-size: 13px; color: var(--t3); line-height: 1.5; }
+svg .thin { stroke-width: 1; }
+
+/* ========== 推荐卡：entity / basket 型 ========== */
+.rec-head .price { flex: none; text-align: right; }
+.rec-head .price .v { font-size: 15px; font-weight: 700; }
+.rec-head .price .c { font-size: 12px; font-weight: 600; margin-top: 1px; }
+.rec-basket { margin-top: 11px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); padding: 2px 13px; }
+.rec-ent-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 0; border-top: 1px solid var(--line); }
+.rec-ent-row:first-child { border-top: none; }
+.rec-ent-row .meta { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 7px; }
+.rec-ent-row .nm { font-size: 14px; font-weight: 700; }
+.rec-ent-row .ds { font-size: 12.5px; color: var(--t3); }
+.rec-ent-row .price { flex: none; text-align: right; }
+.rec-ent-row .price .v { font-size: 13.5px; font-weight: 600; }
+.rec-ent-row .price .c { font-size: 11.5px; font-weight: 600; }
+/* 技术面推荐：全宽走势图 */
+.rec-ta { margin-top: 12px; padding: 10px 12px 6px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); }
+.rec-ta svg.spark { width: 100%; height: auto; display: block; }
+.rec-card .signal-inline { margin-top: 9px; }

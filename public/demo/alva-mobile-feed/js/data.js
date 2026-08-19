@@ -704,10 +704,27 @@ export const HOLDINGS = [
   { entity: 'TSLA', qty: '10 sh', value: '$2,498', pnl: '−3.1%', dir: 'down' },
 ];
 
-/* ========== For You 推荐卡：新上线的 Automation（官方 / Creator），流内一等卡位 ========== */
+/* ========== For You 推荐卡：流内一等卡位，三型 ==========
+ * feed 型：新上线的 Automation（官方 / Creator），CTA = Subscribe
+ * entity 型：推荐单个标的，CTA = Follow；preview 挂真实 context item，可点进详情
+ * basket 型：推荐一组标的（同一逻辑串起来的篮子），CTA = Follow all */
 export const RECS = [
-  { feed: 'fed_path', why: 'Because you follow Jerome Powell', preview: 'Three Fed speakers, one message: September is live', previewAt: 'Latest run · 2h ago' },
-  { feed: 'hbm_ledger', creator: 'semianalysis', why: 'Because you follow HBM', preview: 'SK Hynix sold out through 2026 — the ledger opens tight', previewAt: 'First run · 1d ago' },
+  { id: 'fed_path', feed: 'fed_path', why: 'Because you follow Jerome Powell', preview: 'Three Fed speakers, one message: September is live', previewAt: 'Latest run · 2h ago' },
+  { id: 'mu', entity: 'MU', pitch: 'The purest listed play on HBM tightness — the theme running through your feed all week.',
+    why: 'Because you hold <b>NVDA</b> — Micron supplies the HBM inside its racks', item: 'it_hbm_supply' },
+  { id: 'hbm_ledger', feed: 'hbm_ledger', creator: 'semianalysis', why: 'Because you follow HBM', preview: 'SK Hynix sold out through 2026 — the ledger opens tight', previewAt: 'First run · 1d ago' },
+  { id: 'blackwell_chain', basket: ['TSM', 'SMCI', 'AMD'], title: 'The Blackwell supply chain',
+    pitch: 'Three names that move when NVIDIA guides — the foundry, the racks, and the second-source GPU.',
+    why: 'Because you hold <b>NVDA</b> — these carry the same demand signal' },
+  /* 技术面推荐：entity + ta（走势 spark + 信号 chips + 一句技术读法） */
+  { id: 'coin_breakout', entity: 'COIN',
+    ta: { spark: [42, 44, 43, 45, 44, 46, 47, 46, 49, 53, 58, 64], dir: 'up', chips: ['Breakout', 'Volume +38%', '20-day high'] },
+    pitch: 'Cleared a 3-week base on rising volume — momentum confirmed above the prior high.',
+    why: 'Because you follow <b>BTC</b> — COIN trades its beta with leverage' },
+  { id: 'googl_pullback', entity: 'GOOGL',
+    ta: { spark: [64, 62, 60, 56, 52, 48, 45, 43, 42, 42, 43, 44], dir: 'down', chips: ['At 100-DMA', 'RSI 34', 'Base intact'] },
+    pitch: 'First touch of the 100-day since March, with selling pressure fading at the level.',
+    why: 'Because you follow <b>AI Infrastructure</b> — the cheapest mega-cap way in' },
 ];
 
 /* ========== Discover ========== */

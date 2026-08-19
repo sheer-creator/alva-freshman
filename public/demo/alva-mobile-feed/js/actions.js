@@ -1,5 +1,5 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ENTITIES, ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, ITEMS, SOURCES, FEEDS, RECS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv, monoAv } from './cards.js';
 import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, setMktTab, mktListHtml, setFeedTab, obPickEntity } from './screens.js';
@@ -45,6 +45,18 @@ function askAnswer(it, q) {
       <span>This reads like a standing objective. Make it a goal — Alva will watch it and bring proposals for your approval.</span>
       <button class="btn btn-ghost" data-act="goal-sheet" data-prefill="${(q || '').replace(/"/g, '&quot;')}">${I.bolt}Set as goal</button>
     </div>`;
+  /* Trade 交接：AI 出交易方案，执行永远走 Approval（无自主执行权） */
+  if (/^Trade\b/.test(q || '')) {
+    const tick = (q.match(/^Trade ([A-Z]{2,6})\b/) || [])[1];
+    const label = tick || 'the basket';
+    return `On it. Here's my plan for <b>${label}</b> — nothing executes without you:
+      <ul>
+        <li><b>Entry</b> — scale in on weakness toward the 20-day, two fills, no chasing.</li>
+        <li><b>Size</b> — 1.2% of portfolio${tick ? '' : ', split evenly across the three'}.</li>
+        <li><b>Invalidation</b> — a close below last week's low ends the trade, no averaging down.</li>
+      </ul>
+      I'll route the first order to you as an <b>Approval</b> — it shows up in “While you were away” for a one-tap confirm.${goalNudge}`;
+  }
   if (!it) return `Short answer: <b>the evidence leans yes</b>.<br><br>
     The strongest signals are moving in the same direction, while the main counter-signal is still unconfirmed.${goalNudge}`;
   const facts = (it.facts || []).slice(0, 2).map((fact) => `<li>${fact.text}</li>`).join('');
@@ -318,6 +330,44 @@ export const ACTIONS = {
         <p>Next run ${f.next_run.toLowerCase()} — output lands here in For You.</p></div>
         <button class="txt-act teal" data-act="open-feed" data-id="${id}">View</button>
       </div>`;
+  },
+  /* entity / basket 型推荐：Follow 后原地变确认态 */
+  'rec-follow': (el) => {
+    const id = el.dataset.id;
+    if (!store.entities.includes(id)) store.entities.push(id);
+    save();
+    const card = el.closest('.rec-card');
+    if (card) card.innerHTML = `
+      <div class="rec-done">
+        <span class="ic">${I.check}</span>
+        <div class="tx"><b>Following ${entityChipLabel(id)}</b>
+        <p>Its context now shapes your For You.</p></div>
+        <button class="txt-act teal" data-act="open-entity" data-id="${id}">View</button>
+      </div>`;
+  },
+  'rec-follow-basket': (el) => {
+    const rec = RECS.find((r) => r.id === el.dataset.recId);
+    if (!rec) return;
+    rec.basket.forEach((id) => { if (!store.entities.includes(id)) store.entities.push(id); });
+    save();
+    const card = el.closest('.rec-card');
+    if (card) card.innerHTML = `
+      <div class="rec-done">
+        <span class="ic">${I.check}</span>
+        <div class="tx"><b>Following ${rec.basket.map((id) => entityChipLabel(id)).join(' · ')}</b>
+        <p>The whole basket now shapes your For You.</p></div>
+      </div>`;
+  },
+  /* ---- Trade = 派活给 AI：带着交易指令交接进 Chat，Alva 出方案、订单走审批 ---- */
+  'trade-chat': (el) => {
+    const basket = el.dataset.basket ? RECS.find((r) => r.id === el.dataset.basket) : null;
+    const q = basket
+      ? `Trade ${basket.title} as one basket (${basket.basket.map((id) => ENTITIES[id].ticker).join(' · ')}) — propose sizing across the three and route every order for my approval.`
+      : `Trade ${ENTITIES[el.dataset.id].ticker} — propose entry, size and invalidation, and route the order for my approval.`;
+    setAskCtx(null);
+    setPendingAsk(q);
+    setAskTab('chat');
+    nav('#/ask');
   },
   'rec-dismiss': (el) => {
     store.dismissedRecs.push(el.dataset.id);
