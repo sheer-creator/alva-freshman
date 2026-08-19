@@ -295,6 +295,7 @@
 /* next run 文本（channel automation 行） */
 .next-run { flex: none; font-size: 12px; color: var(--t3); white-space: nowrap; }
 .next-run.paused { color: var(--mixed); }
+.next-run.attn { color: var(--teal); font-weight: 600; }
 
 /* ============ recap 滑卡页（Tinder 式 CTA） ============ */
 .deck-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 6px var(--pad) calc(var(--sab) + 14px); }

@@ -818,10 +818,11 @@ function sGoal(page) {
     <div class="page-secs">
       <div class="auto-head">
         <div class="auto-title"><span class="st-dot"></span><h1>Trading goal</h1></div>
-        <div class="auto-meta">You · Continuous · no execution authority</div>
+        <div class="auto-meta">You · Agentic loop · no execution authority</div>
         <p class="auto-promise">Alva researches and monitors around this goal. Every proposed action comes to you for approval — nothing executes on its own.</p>
       </div>
       <div class="auto-rows">
+        <div class="auto-row"><span class="k">Sources</span><span class="v">Your portfolio · market data</span></div>
         <div class="auto-row"><span class="k">Delivers to</span><span class="v">For You · Approvals</span></div>
         <div class="auto-row"><span class="k">Status</span><span class="v">${pending ? `${pending} proposal needs you` : 'On track'}</span></div>
       </div>
@@ -1001,36 +1002,35 @@ export function automationRows() {
   const goalRow = store.goal
     ? `<div class="list-row" data-act="nav" data-to="#/goal" role="button">
         <span class="ic-cir">${I.bolt}</span>
-        <span class="meta"><span class="nm">${goalTitle()}</span><div class="ds">${pending ? `${pending} proposal needs you` : 'On track'} · every action needs approval</div></span>
-        <span class="task-tag">Goal</span>${I.chevR}</div>`
+        <span class="meta"><span class="nm">${goalTitle()}</span><div class="ds">Your portfolio + market data · agentic loop</div></span>
+        <span class="next-run ${pending ? 'attn' : ''}">${pending ? `${pending} needs you` : 'Live'}</span>${I.chevR}</div>`
     : `<div class="list-row" data-act="goal-sheet" role="button">
         <span class="ic-cir dim">${I.bolt}</span>
-        <span class="meta"><span class="nm">Set a trading goal</span><div class="ds">A specialized automation — Alva proposes, you approve</div></span>${I.chevR}</div>`;
-  const channelRows = store.feeds.map((id) => FEEDS[id]).filter(Boolean).map((f) => {
+        <span class="meta"><span class="nm">Set a trading goal</span><div class="ds">Runs on your portfolio — Alva proposes, you approve</div></span>${I.chevR}</div>`;
+  const feedRows = store.feeds.map((id) => FEEDS[id]).filter(Boolean).map((f) => {
     const paused = store.paused.includes(f.id);
     return `
     <div class="list-row" data-act="nav" data-to="#/automation/${f.id}" role="button">
       ${monoAv(f.owner === 'Alva' ? 'AL' : f.owner.slice(0, 2).toUpperCase(), 174, 40)}
-      <span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.cadence} · ${f.owner}</div></span>
+      <span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.sources.length} source${f.sources.length > 1 ? 's' : ''} · ${f.cadence}</div></span>
       <span class="next-run ${paused ? 'paused' : ''}">${paused ? 'Paused' : f.next_run}</span>${I.chevR}</div>`;
   }).join('');
-  /* Track 锚定在对象（ticker/theme/figure）上：一个对象可挂多条 watch */
+  /* watch 型 automation：source = 某个对象的 coverage */
   const trackByObj = {};
   store.tracks.map((id) => ITEMS.find((it) => it.id === id)).filter(Boolean).forEach((it) => {
     const key = it.entity_refs[0] || `feed:${it.feed}`;
     (trackByObj[key] = trackByObj[key] || []).push(it);
   });
-  const trackRows = Object.entries(trackByObj).map(([key, items]) => {
+  const watchRows = Object.entries(trackByObj).map(([key, items]) => {
     const isFeed = key.startsWith('feed:');
     const label = isFeed ? FEEDS[key.slice(5)].name : entityChipLabel(key);
     const av = isFeed ? monoAv('AL', 174, 40) : entityAv(key, 40);
-    const first = items[0];
-    return `<div class="list-row" data-act="${isFeed ? 'open-detail' : 'open-entity'}" data-${isFeed ? `item="${first.id}"` : `id="${key}"`} role="button">
+    return `<div class="list-row" data-act="${isFeed ? 'open-detail' : 'open-entity'}" data-${isFeed ? `item="${items[0].id}"` : `id="${key}"`} role="button">
       ${av}
-      <span class="meta"><span class="nm">${label}</span><div class="ds">${items.length > 1 ? `${items.length} watches running` : `Watching: ${first.headline}`}</div></span>
-      <span class="task-tag">Track</span>${I.chevR}</div>`;
+      <span class="meta"><span class="nm">${label} watch</span><div class="ds">${label} coverage · agentic loop${items.length > 1 ? ` · ${items.length} watches` : ''}</div></span>
+      <span class="next-run">Live</span>${I.chevR}</div>`;
   }).join('');
-  return goalRow + channelRows + trackRows;
+  return goalRow + feedRows + watchRows;
 }
 export const automationCount = () => store.feeds.length + store.tracks.length + (store.goal ? 1 : 0);
 
@@ -1161,7 +1161,7 @@ function sYou(page) {
     <div class="you-secs">
       ${portfolioSec()}
       <div class="d-sec"><div class="sec-label">Manage</div>
-        <div class="mgmt-row" data-act="you-automations" role="button"><span class="ic">${I.bolt}</span><span class="meta"><span class="nm">Automations</span><div class="ds">${automationCount()} recurring — ${store.goal ? '1 goal · ' : ''}${store.feeds.length} channel${store.feeds.length === 1 ? '' : 's'} · ${store.tracks.length} track${store.tracks.length === 1 ? '' : 's'}</div></span>${I.chevR}</div>
+        <div class="mgmt-row" data-act="you-automations" role="button"><span class="ic">${I.bolt}</span><span class="meta"><span class="nm">Automations</span><div class="ds">${automationCount()} running — different sources, same loop</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="following-sheet" role="button"><span class="ic">${I.eye}</span><span class="meta"><span class="nm">Following</span><div class="ds">${store.entities.length} markets & themes</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="manage-sheet" role="button"><span class="ic">${I.gear}</span><span class="meta"><span class="nm">Sources</span><div class="ds">${store.sources.length} added · ${store.muted.length} muted</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="toast-msg" data-msg="Connected accounts are mocked in this demo" role="button"><span class="ic">${I.link}</span><span class="meta"><span class="nm">Connected accounts</span><div class="ds">${store.connected.x ? 'X · ' : ''}${store.connected.telegram ? 'Telegram' : store.connected.x ? '' : 'None yet'}</div></span>${I.chevR}</div>
