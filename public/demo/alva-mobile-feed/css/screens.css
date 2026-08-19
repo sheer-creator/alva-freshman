@@ -886,3 +886,45 @@
 .txt-lnk { display: inline; background: none; padding: 0; font-size: inherit; color: var(--teal); }
 /* feed 详情 sub 行内的状态点（st-dot 默认给 flex 容器用，这里要 inline） */
 .hero-head .sub .st-dot { display: inline-block; width: 8px; height: 8px; box-shadow: none; vertical-align: 1px; }
+
+/* ========== Chat：Memory tab（user.md 可视化，安静的 k/v 行） ========== */
+.mem-cap { font-size: 13px; color: var(--t3); line-height: 1.5; margin: 8px 0 2px; }
+.mem-row {
+  display: flex; align-items: baseline; gap: 12px; width: 100%; text-align: left;
+  padding: 11px 0; border-bottom: 1px solid var(--line);
+  font-size: 14px; line-height: 1.45; color: var(--t1);
+}
+.mem-row:last-child { border-bottom: none; }
+.mem-row .k { flex: none; width: 76px; font-size: 12.5px; color: var(--t3); }
+.mem-row .v { flex: 1; min-width: 0; }
+.mem-row .t { flex: none; font-size: 12px; color: var(--t3); }
+.mem-row > svg { flex: none; align-self: center; width: 14px; height: 14px; stroke: var(--t3); stroke-width: 2; }
+.mem-row .dc { font-style: normal; font-weight: 600; }
+.mem-row .dc.approved { color: var(--teal); }
+.mem-row .dc.rejected { color: var(--down); }
+
+/* ========== Chat：Tasks tab（automation / 子任务行） ========== */
+.ic-cir {
+  flex: none; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--teal-dim); border: 1px solid var(--teal-line);
+  display: flex; align-items: center; justify-content: center;
+}
+.ic-cir svg { width: 17px; height: 17px; stroke: var(--teal); fill: none; stroke-width: 2; }
+.ic-cir.dim { background: rgba(255,255,255,0.04); border-color: var(--line2); }
+.ic-cir.dim svg { stroke: var(--t3); }
+.task-tag { flex: none; font-size: 11.5px; font-weight: 600; border-radius: 7px; padding: 3px 8px; }
+.task-tag.running { color: var(--teal); background: var(--teal-dim); }
+.task-tag.done { color: var(--t3); background: rgba(255,255,255,0.05); }
+.next-run { flex: none; font-size: 12.5px; color: var(--t3); }
+.next-run.paused { color: var(--t3); font-style: italic; }
+.next-run.attn { color: var(--teal); font-weight: 600; }
+
+/* ========== Goal：instruction 块 + 编辑 textarea ========== */
+.goal-md {
+  width: 100%; text-align: left; white-space: pre-wrap; word-break: break-word;
+  margin: 0; padding: 15px 16px; border-radius: 16px;
+  background: var(--bg1); border: 1px solid var(--line);
+  font-family: var(--font); font-size: 14px; line-height: 1.6; color: var(--t2);
+}
+.goal-md::first-line { font-weight: 600; color: var(--t1); }
+.goal-ta { font-family: var(--font); font-size: 14.5px; line-height: 1.55; min-height: 148px; }
