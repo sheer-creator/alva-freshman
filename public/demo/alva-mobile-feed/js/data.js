@@ -446,7 +446,31 @@ export const DISCOVER = {
   trendingThemes: ['AI_INFRA', 'HBM', 'NUCLEAR', 'STABLECOIN', 'ROBOTAXI'],
   popularFeeds: ['ai_watch', 'earnings', 'congress', 'brief', 'doom_macro'],
   creators: ['semianalysis', 'doomberg'],
-  movers: ['NVDA', 'AMD', 'MU', 'TSLA'],
+  movers: ['NVDA', 'AMD', 'MU', 'TSLA', 'BTC', 'SMCI'],
+};
+
+/* Figure 的最近发言与动向（示例内容，模型生成）：Market tab 小卡 + 详情页 */
+export const FIGURES = {
+  JENSEN: {
+    quote: 'Demand for Blackwell is incredible — we are supply-constrained well into next year.',
+    where: 'Goldman Sachs Tech Conference', when: '2d ago',
+    stats: [['1.2K', 'Mentions this week'], ['+2.7%', 'Moved NVDA'], ['9', 'Sources tracking']],
+    moves: [
+      { at: '2d ago', text: 'Reaffirmed Blackwell supply constraint through 2026 on stage at Goldman', impact: 'NVDA +2.7%' },
+      { at: '1w ago', text: 'Met TSMC leadership in Taipei on CoWoS capacity expansion', impact: 'TSM +1.9%' },
+      { at: '3w ago', text: 'Announced $100B UK AI-infrastructure partnership with OpenAI', impact: 'AI Infra theme' },
+    ],
+  },
+  POWELL: {
+    quote: 'The time has come for policy to adjust — the direction of travel is clear.',
+    where: 'Jackson Hole', when: '4d ago',
+    stats: [['Sep 17', 'Next decision'], ['84%', 'Cut odds priced'], ['6', 'Sources tracking']],
+    moves: [
+      { at: '4d ago', text: 'Jackson Hole speech opened the door to a September cut', impact: 'SPX +1.1%' },
+      { at: '2w ago', text: 'July FOMC minutes showed two dissents pushing for an immediate cut', impact: 'Yields −8bp' },
+      { at: '1mo ago', text: 'Told Congress the rates path stays “meeting by meeting” under tariff uncertainty', impact: 'Neutral' },
+    ],
+  },
 };
 
 /* ========== Helpers ========== */

@@ -2,7 +2,7 @@
 import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv } from './cards.js';
-import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, obPickEntity } from './screens.js';
+import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, setMktTab, mktListHtml, setFeedTab, obPickEntity } from './screens.js';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();
@@ -257,7 +257,15 @@ export const ACTIONS = {
   /* ---- 打开对象 ---- */
   'open-detail': (el) => nav('#/context/' + el.dataset.item),
   'open-entity': (el) => { if (el.dataset.id) nav('#/entity/' + el.dataset.id); },
-  'open-feed': (el) => nav('#/feed/' + el.dataset.id),
+  'open-feed': (el) => { setFeedTab('output'); nav('#/feed/' + el.dataset.id); },
+  'feed-tab': (el) => { setFeedTab(el.dataset.t); rerender(); },
+  /* Market tab 的 ticker 栏位切换：原地换列表，不整页重绘 */
+  'mkt-tab': (el) => {
+    setMktTab(el.dataset.t);
+    const list = document.getElementById('mktList');
+    if (list) list.innerHTML = mktListHtml(el.dataset.t);
+    document.querySelectorAll('#mktTabs button').forEach((b) => b.classList.toggle('on', b === el));
+  },
   'open-source': (el) => nav('#/source/' + el.dataset.id),
   'open-creator': (el) => nav('#/creator/' + el.dataset.id),
   'you-feeds': () => nav('#/discover'),
