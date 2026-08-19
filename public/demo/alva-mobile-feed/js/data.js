@@ -354,6 +354,19 @@ export const APPROVALS = [
     item: 'it_nvda_blackwell',
   },
 ];
+/* 无 goal 时的 recap 文章（TLDR daily，正文引用 Context Card） */
+export const RECAP_ARTICLE = {
+  title: 'Capex reaccelerates, BTC flows flip',
+  meta: '3 updates · 2 min read',
+  lead: 'Two of your follows moved in the same direction overnight — toward more AI capex, sooner. The third is a challenge to that read worth keeping in view.',
+  sections: [
+    { text: 'The week’s supply-chain checks pushed hyperscaler capex expectations higher again. Allocation chatter has shifted from availability to priority, which historically front-runs guidance revisions.', item: 'it_nvda_blackwell' },
+    { text: 'On the crypto side, ETF inflows reversed yesterday’s decline in a single session. Your private group reads it as treasury demand rather than momentum chasing.', item: 'it_tg_btc' },
+    { text: 'The pushback: two new sources argue the demand surge is pull-forward, not structural. This is the strongest challenge to your watch this week.', item: 'it_allin_pod' },
+  ],
+  closing: 'Net: the capex thesis strengthened, with one credible counter-read. Worth a look before the MU print.',
+};
+
 /* 会话派生的一次性子 Task（示例；由 Chat 里的请求 spin off） */
 export const TASKS = [
   { id: 'tk_hbm_map', title: 'Map HBM price transmission to NVDA margins', status: 'running', from: 'Spun off from chat · 20m ago' },

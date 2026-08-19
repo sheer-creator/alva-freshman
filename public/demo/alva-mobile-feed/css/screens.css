@@ -251,137 +251,23 @@
 .rc-cta:active { background: var(--bg1); }
 .rc-cta svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.8; }
 
-/* ============ Approval 卡 ============ */
-.card.appr { border-color: var(--teal-line); }
-.appr-tag { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; color: var(--teal); }
-.appr-tag svg { flex: none; width: 13px; height: 13px; stroke: var(--teal); stroke-width: 1.8; }
-.appr-tag span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.appr-impact { margin-top: 11px; font-size: 12.5px; color: var(--t3); }
-.appr-done {
-  display: flex; align-items: center; gap: 9px; margin-top: 13px;
-  padding: 11px 13px; border-radius: var(--r-ctl); font-size: 13.5px;
-}
-.appr-done.approved { background: rgba(52,227,154,0.08); border: 1px solid rgba(52,227,154,0.25); color: var(--up); }
-.appr-done.rejected { background: var(--bg3); border: 1px solid var(--line2); color: var(--t2); }
-.appr-done svg { flex: none; width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; }
-
-/* ============ Ask tabs（Chat / Tasks / Memory） ============ */
-.ask-tabs { display: flex; gap: 22px; padding: 0 var(--pad) 12px; border-bottom: 1px solid var(--line); }
-.ask-tabs button {
-  position: relative; padding: 4px 0 10px; font-size: 14.5px; font-weight: 500;
-  color: var(--t3); transition: color 0.15s;
-}
-.ask-tabs button.on { color: var(--t1); }
-.ask-tabs button.on::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
-  border-radius: 2px; background: var(--t1);
-}
-
-/* ---- Memory tab（user.md 可视化 + 决策留痕，安静版） ---- */
-.mem-cap { font-size: 13px; color: var(--t3); line-height: 1.5; margin-bottom: 20px; }
-.mem-row { display: flex; align-items: baseline; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
-.mem-row:first-of-type { border-top: none; }
-.mem-row .k { flex: none; width: 76px; font-size: 12.5px; color: var(--t3); }
-.mem-row .v { flex: 1; min-width: 0; font-size: 14px; color: var(--t1); line-height: 1.5; }
-.mem-row .v .dc { font-style: normal; font-weight: 500; }
-.mem-row .v .dc.approved { color: var(--up); }
-.mem-row .v .dc.rejected { color: var(--t3); }
-.mem-row .t { flex: none; width: 52px; font-size: 12px; color: var(--t3); }
-.mem-row > svg { flex: none; width: 13px; height: 13px; stroke: var(--t3); stroke-width: 2; align-self: center; }
-.dec-tag { flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
-.dec-tag.approved { color: var(--up); background: rgba(52,227,154,0.09); border: 1px solid rgba(52,227,154,0.25); }
-.dec-tag.rejected { color: var(--t3); background: var(--bg3); border: 1px solid var(--line2); }
-
-/* next run 文本（channel automation 行） */
-.next-run { flex: none; font-size: 12px; color: var(--t3); white-space: nowrap; }
-.next-run.paused { color: var(--mixed); }
-.next-run.attn { color: var(--teal); font-weight: 600; }
-
-/* ============ recap 滑卡页（Tinder 式 CTA） ============ */
-.deck-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 6px var(--pad) calc(var(--sab) + 14px); }
-.deck { position: relative; flex: 1; min-height: 0; touch-action: pan-y; }
-.deck-card {
-  position: absolute; inset: 0 0 12px;
-  display: flex; flex-direction: column; justify-content: flex-end; gap: 10px;
-  background: var(--bg1); border: 1px solid var(--line2); border-radius: var(--r-card);
-  padding: 20px; overflow: hidden; cursor: grab; user-select: none;
-  transition: transform 0.25s ease, opacity 0.25s ease;
-  will-change: transform;
-}
-.deck-card h3 { font-size: 21px; font-weight: 600; line-height: 1.25; letter-spacing: -0.2px; }
-.deck-card p { font-size: 14.5px; line-height: 1.55; color: var(--t2); }
-.deck-card .dk-img { position: absolute; inset: 0 0 auto; height: 46%; }
-.deck-card .dk-img img { width: 100%; height: 100%; object-fit: cover; }
-.deck-card .dk-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, var(--bg1) 100%); }
-.deck-card > *:not(.dk-img):not(.dk-ovl) { position: relative; z-index: 2; }
-.dk-tag { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; color: var(--teal); }
-.dk-tag svg { flex: none; width: 13px; height: 13px; stroke: var(--teal); stroke-width: 1.8; }
-.dk-ent { display: flex; align-items: center; gap: 9px; font-size: 14px; }
-.dk-ent b { font-weight: 700; }
-.dk-ent .t { margin-left: auto; font-size: 12px; color: var(--t3); }
-.dk-meta { font-size: 12.5px; color: var(--t3); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 11px; }
-.dk-ovl {
-  position: absolute; top: 22px; z-index: 5; opacity: 0; pointer-events: none;
-  font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 7px 14px; border-radius: 10px; border: 2.5px solid;
-}
-.dk-yes { left: 18px; transform: rotate(-12deg); color: var(--up); border-color: var(--up); }
-.dk-no { right: 18px; transform: rotate(12deg); color: var(--down); border-color: var(--down); }
-.deck-done {
-  position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; text-align: center; padding: 0 30px;
-}
-.deck-done.show { display: flex; }
-.deck-done .glyph { width: 54px; height: 54px; border-radius: 50%; background: var(--teal-dim); border: 1px solid var(--teal-line); display: flex; align-items: center; justify-content: center; }
-.deck-done .glyph svg { width: 24px; height: 24px; stroke: var(--teal); stroke-width: 2; }
-.deck-done h4 { font-size: 19px; font-weight: 600; }
-.deck-done p { font-size: 14px; color: var(--t3); margin-bottom: 8px; }
-.deck-controls { flex: none; display: flex; align-items: center; justify-content: center; gap: 26px; padding-top: 14px; }
-.dk-btn {
-  width: 54px; height: 54px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  background: var(--bg2); border: 1px solid var(--line2); transition: transform 0.13s;
-}
-.dk-btn:active { transform: scale(0.92); }
-.dk-btn svg { width: 21px; height: 21px; stroke-width: 2.2; }
-.dk-btn.no svg { stroke: var(--down); }
-.dk-btn.later { width: 44px; height: 44px; }
-.dk-btn.later svg { width: 17px; height: 17px; stroke: var(--t2); }
-.dk-btn.yes svg { stroke: var(--up); }
-.dk-count { min-width: 44px; text-align: center; font-size: 12.5px; color: var(--t3); }
-.deck-hint { flex: none; text-align: center; font-size: 12px; color: var(--t3); margin-top: 10px; }
-
-/* Task 类型标签：Goal/Channel/Track（循环）与 Running/Done（子任务） */
-.task-tag {
-  flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-  padding: 3px 9px; border-radius: 999px;
-  color: var(--t3); background: var(--bg3); border: 1px solid var(--line2);
-}
-.task-tag.running { color: var(--teal); background: var(--teal-dim); border-color: var(--teal-line); }
-.task-tag.done { color: var(--t3); }
-
-/* Tasks tab 的圆图标 */
-.ic-cir {
-  flex: none; width: 40px; height: 40px; border-radius: 50%;
-  background: var(--teal-dim); border: 1px solid var(--teal-line);
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.ic-cir svg { width: 17px; height: 17px; stroke: var(--teal); stroke-width: 1.8; }
-.ic-cir.dim { background: var(--bg3); border-color: var(--line2); }
-.ic-cir.dim svg { stroke: var(--t3); }
-
-/* goal instruction：markdown 结构化展示 */
-.goal-md {
-  width: 100%; padding: 15px 16px; margin: 0;
+/* ============ recap 文章页（无 goal 的 TLDR daily） ============ */
+.recap-article { padding: 4px var(--pad) 40px; max-width: 100%; }
+.ra-meta { font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--t3); margin-bottom: 10px; }
+.recap-article h1 { font-size: 27px; font-weight: 600; line-height: 1.2; letter-spacing: -0.4px; margin-bottom: 14px; }
+.recap-article p { font-size: 15.5px; line-height: 1.65; color: var(--t2); margin-bottom: 16px; }
+.recap-article .ra-lead { font-size: 16.5px; color: var(--t1); }
+.ra-ref {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  margin: 2px 0 20px; padding: 12px 14px; text-align: left;
   background: var(--bg1); border: 1px solid var(--line); border-radius: var(--r-ctl);
-  font-family: var(--font); font-size: 14.5px; line-height: 1.65; color: var(--t1);
-  white-space: pre-wrap; word-break: break-word; cursor: pointer;
+  color: var(--t1); cursor: pointer; transition: border-color 0.15s;
 }
-.goal-md::first-line { font-weight: 600; }
-.goal-ta { min-height: 150px; font-size: 14.5px; line-height: 1.6; }
-
-/* immersive 首屏 recap：卡片垂直居中 */
-.imm-recap .imm-content { margin: auto 0; }
-.imm-recap .recap { background: rgba(16,22,23,0.82); backdrop-filter: blur(10px); margin-bottom: 0; }
+.ra-ref:active { border-color: var(--teal-line); }
+.ra-ref .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ra-ref .meta b { font-size: 14px; font-weight: 500; line-height: 1.35; }
+.ra-ref .meta i { font-style: normal; font-size: 12px; color: var(--t3); }
+.ra-ref > svg { flex: none; width: 14px; height: 14px; stroke: var(--t3); stroke-width: 2; }
 
 /* ============ Ask 补课清单 ============ */
 .setup-card {

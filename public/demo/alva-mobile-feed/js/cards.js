@@ -340,25 +340,3 @@ export function immersiveSlide(item, idx, total) {
     </div>
   </section>`;
 }
-
-/* ========== Approval 卡（goal 驱动的待拍板动作，Report 态置顶） ========== */
-export function approvalCard(ap) {
-  const st = store.approvals[ap.id];
-  const srcs = ap.evidence.map((sid) => SOURCES[sid].name).join(' · ');
-  return `<div class="card appr reveal" data-item="${ap.item}">
-    <div class="appr-tag">${I.bolt}<span>Proposed for your goal — “${goalTitle()}”</span></div>
-    <div class="card-head" style="margin:12px 0 8px">
-      <span class="ent">${entityAv(ap.entity, 26)}<span class="tick">${ap.entity}</span></span>
-    </div>
-    <h3 class="card-headline" style="font-size:17.5px">${ap.title}</h3>
-    <p class="card-summary">${ap.rationale}</p>
-    <div class="appr-impact">${ap.impact} · based on ${srcs}</div>
-    ${st
-      ? `<div class="appr-done ${st}">${st === 'approved' ? I.check + '<span>Approved — executing on paper. Revert anytime in your goal.</span>' : I.x + '<span>Rejected — Alva will recalibrate the proposal.</span>'}</div>`
-      : `<div class="card-actions">
-          <button class="btn btn-teal-solid" style="flex:1.4" data-act="approve" data-id="${ap.id}">${I.check}Approve</button>
-          <button class="btn btn-ghost" style="flex:1" data-act="reject" data-id="${ap.id}">Reject</button>
-          <button class="btn btn-ghost btn-icon" data-act="ask-item" data-item="${ap.item}" aria-label="Ask Alva">${I.ask}</button>
-        </div>`}
-  </div>`;
-}

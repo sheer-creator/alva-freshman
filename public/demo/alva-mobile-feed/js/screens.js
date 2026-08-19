@@ -1,7 +1,7 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, RECAP_ARTICLE, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, I, nav, toast, goalTitle } from './state.js';
-import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, approvalCard, isHeld } from './cards.js';
+import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, isHeld } from './cards.js';
 
 export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
 
@@ -388,9 +388,8 @@ function recapModule() {
     return `
     <div class="recap reveal">
       <div class="rc-head">While you were away</div>
-      <div class="rc-goal" data-act="nav" data-to="#/goal" role="button">${I.bolt}<span>Goal “${goalTitle()}” — on track</span>${I.chevR}</div>
       <div class="rc-row" data-act="open-detail" data-item="${REPORT.delivered.item}" role="button"><span class="n">1</span><span class="tx">${REPORT.delivered.text}</span>${I.chevR}</div>
-      ${APPROVALS.map((a, i) => `<div class="rc-row" data-act="scroll-appr" role="button"><span class="n">${i + 2}</span><span class="tx">${a.title} — <b>${store.approvals[a.id] || 'needs you'}</b></span>${I.chevR}</div>`).join('')}
+      ${APPROVALS.map((a, i) => `<div class="rc-row" data-act="nav" data-to="#/recap" role="button"><span class="n">${i + 2}</span><span class="tx">${a.title} — <b>${store.approvals[a.id] || 'needs you'}</b></span>${I.chevR}</div>`).join('')}
       <div class="rc-row dim"><span class="n">+</span><span class="tx">${REPORT.watching}</span></div>
       <button class="rc-cta" data-act="nav" data-to="#/recap">${pending.length ? `Review · ${pending.length} item${pending.length > 1 ? 's need' : ' needs'} you` : I.check + 'All caught up'}</button>
     </div>`;
@@ -405,11 +404,10 @@ function recapModule() {
 }
 
 function streamView(items) {
-  const apprCards = store.goal ? APPROVALS.map(approvalCard).join('') : '';
   const cards = items.length
     ? items.map((it, i) => streamCard(it, i + 1)).join('')
     : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a channel in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore channels</button></div>`;
-  return `<div class="feed-scroll">${recapModule()}${apprCards}${cards}</div>`;
+  return `<div class="feed-scroll">${recapModule()}${cards}</div>`;
 }
 
 /* ========== context detail ========== */
@@ -654,16 +652,10 @@ function sFeed(id, page) {
 
 /* ========== recap 滑卡页：Tinder 式逐张处理回访事项 ========== */
 function deckItems() {
-  const cards = [];
-  if (store.goal) {
-    APPROVALS.filter((a) => !store.approvals[a.id]).forEach((a) => cards.push({ kind: 'approval', ap: a }));
-    const d = ITEMS.find((it) => it.id === REPORT.delivered.item);
-    if (d) cards.push({ kind: 'context', item: d });
-  }
-  AWAY.updates.forEach((u) => {
-    const it = ITEMS.find((x) => x.id === u.item);
-    if (it && !cards.some((c) => c.item && c.item.id === it.id)) cards.push({ kind: 'context', item: it });
-  });
+  /* 有 goal 才有 deck：审批集中处理地（内容 TLDR 走文章页） */
+  const cards = APPROVALS.filter((a) => !store.approvals[a.id]).map((a) => ({ kind: 'approval', ap: a }));
+  const d = ITEMS.find((it) => it.id === REPORT.delivered.item);
+  if (d) cards.push({ kind: 'context', item: d });
   return cards;
 }
 
@@ -697,7 +689,29 @@ function deckDecide(ap, choice) {
   save();
 }
 
+/* 无 goal：TLDR daily recap 文章，正文内嵌可跳转的 Context Card 引用 */
+function sRecapArticle(page) {
+  const a = RECAP_ARTICLE;
+  const ref = (id) => {
+    const it = ITEMS.find((x) => x.id === id);
+    if (!it) return '';
+    return `<button class="ra-ref" data-act="open-detail" data-item="${it.id}">
+      ${it.entity_refs[0] ? entityAv(it.entity_refs[0], 30) : monoAv('AL', 174, 30)}
+      <span class="meta"><b>${it.headline}</b><i>${FEEDS[it.feed].name} · ${it.published}</i></span>${I.chevR}
+    </button>`;
+  };
+  page.innerHTML = `${backBar('Since you were away')}
+    <article class="recap-article">
+      <div class="ra-meta">Wednesday, August 19 · ${a.meta}</div>
+      <h1>${a.title}</h1>
+      <p class="ra-lead">${a.lead}</p>
+      ${a.sections.map((sec) => `<p>${sec.text}</p>${ref(sec.item)}`).join('')}
+      <p>${a.closing}</p>
+    </article>`;
+}
+
 function sRecapDeck(page) {
+  if (!store.goal) return sRecapArticle(page);
   const cards = deckItems();
   page.innerHTML = `${backBar(store.goal ? 'While you were away' : 'Since you were away')}
     <div class="deck-wrap">

@@ -1,5 +1,5 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, APPROVALS, entityChipLabel, evidenceCounts } from './data.js';
+import { ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv } from './cards.js';
 import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, obPickEntity } from './screens.js';
@@ -62,16 +62,6 @@ function clearFeedActivity(feedId) {
   store.tracks = store.tracks.filter((id) => ITEMS.find((it) => it.id === id)?.feed !== feedId);
   store.paused = store.paused.filter((id) => id !== feedId);
   if (store.lastFollowedFeed === feedId) store.lastFollowedFeed = null;
-}
-
-/* 拍板：写 approvals 状态 + 决策留痕（Memory tab / goal run history 共用） */
-function decide(id, choice) {
-  store.approvals[id] = choice;
-  const ap = APPROVALS.find((a) => a.id === id);
-  if (ap) store.decisions.push({ title: ap.title, choice, at: 'Today' });
-  save();
-  toast(choice === 'approved' ? 'Approved — executing on paper' : 'Rejected — Alva will recalibrate', choice === 'approved' ? I.check : undefined);
-  rerender();
 }
 
 export const ACTIONS = {
@@ -160,12 +150,6 @@ export const ACTIONS = {
   },
   /* ---- goal / approval（Report 态） ---- */
   'ob-hold': (el) => { toggleIn(store.manualHoldings, el.dataset.id); rerender(); },
-  approve: (el) => decide(el.dataset.id, 'approved'),
-  reject: (el) => decide(el.dataset.id, 'rejected'),
-  'scroll-appr': () => {
-    const c = document.querySelector('.card.appr');
-    if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  },
   'goal-revoke': () => {
     store.goal = '';
     save();
