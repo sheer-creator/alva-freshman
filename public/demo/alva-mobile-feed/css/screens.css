@@ -529,7 +529,8 @@
 }
 .watch-custom:focus { border-color: var(--teal-line); }
 .watch-custom::placeholder { color: var(--t3); }
-.watch-add-btn { flex: none; height: 46px; padding: 0 18px; }
+/* width:auto 覆盖 .btn-teal-solid 的 width:100%，否则输入框被挤没 */
+.watch-add-btn { flex: none; width: auto; height: 46px; padding: 0 18px; }
 
 /* connect sources */
 .conn-list { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
@@ -769,6 +770,8 @@
 .sm-row .nm { font-size: 15px; font-weight: 500; }
 .sm-row .ds { font-size: 12.5px; color: var(--t3); margin-top: 1px; }
 .sm-row > svg { flex: none; width: 15px; height: 15px; stroke: var(--t3); stroke-width: 2; }
+.sm-done { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--teal); }
+.sm-done svg { width: 13px; height: 13px; stroke: var(--teal); stroke-width: 2.4; }
 .sm-act { display: flex; gap: 6px; }
 .sm-act button {
   height: 32px; padding: 0 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600;

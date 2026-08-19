@@ -317,7 +317,7 @@ function sOnboard(step, page) {
       <p class="ob-sub">Built from ${store.entities.length || 3} follows${store.sources.length ? `, ${store.sources.length} sources you added` : ''}${store.watches.length ? ' and your watches' : ''}. Here’s a first look.</p>
       <div class="pv-card-mini">${streamCard(first)}</div>
       <div class="pv-group">
-        <div class="sec-label">Also in your channels</div>
+        <div class="sec-label">Also in your feeds</div>
         ${channels.map((f) => `<div class="pv-row">${monoAv(FEEDS[f].owner === 'Alva' ? 'AL' : FEEDS[f].owner.slice(0, 2).toUpperCase(), 174, 34)}<span class="nm">${FEEDS[f].name}</span><span class="k">${FEEDS[f].owner} · ${FEEDS[f].cadence}</span></div>`).join('')}
       </div>
       <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="ob-finish">Open For You</button></div>`;
@@ -397,7 +397,7 @@ function recapModule() {
 function streamView(items) {
   const cards = items.length
     ? items.map((it, i) => streamCard(it, i + 1)).join('')
-    : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a channel in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore channels</button></div>`;
+    : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a feed in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore feeds</button></div>`;
   return `<div class="feed-scroll">${recapModule()}${cards}</div>`;
 }
 
@@ -453,7 +453,7 @@ function priceMini(item) {
 }
 
 /* ========== discover ========== */
-let discTab = 'all';
+let discTab = 'market';
 export function setDiscTab(t) { discTab = t; }
 
 const marketRow = (m) => { const e = ENTITIES[m]; return `<div class="list-row" data-act="open-entity" data-id="${m}" role="button">
@@ -462,7 +462,7 @@ const marketRow = (m) => { const e = ENTITIES[m]; return `<div class="list-row" 
   <span class="price"><div class="v">${e.price}</div><div class="c" style="color:var(--${e.dir})">${e.delta}</div></span>
 </div>`; };
 
-const channelRow = (f) => { const fd = FEEDS[f]; const on = store.feeds.includes(f); return `<div class="list-row">
+const feedRow = (f) => { const fd = FEEDS[f]; const on = store.feeds.includes(f); return `<div class="list-row">
   ${monoAv(fd.owner === 'Alva' ? 'AL' : fd.owner.slice(0, 2).toUpperCase(), fd.access === 'premium' ? 40 : 174, 40)}
   <span class="meta" data-act="open-feed" data-id="${f}" role="button"><span class="nm">${fd.name} ${fd.access !== 'public' ? accessBadge(fd.access) : ''}</span><div class="ds">${fd.owner} · ${fd.cadence}</div></span>
   <button class="follow-sm ${on ? 'on' : ''}" data-act="follow-feed" data-id="${f}">${on ? 'Following' : 'Follow'}</button>
@@ -487,44 +487,30 @@ const entityRow = (id) => { const e = ENTITIES[id]; return `<div class="list-row
   ${I.chevR}
 </div>`; };
 
-/* BYOS 入口：目录之外的源，用户自己带进来（§6.1 Custom available） */
-const byosRow = `<button class="byos-row" data-act="byos-sheet">
+/* BYOS 入口：目录之外的源，用户自己带进来（§6.1 Custom available）。
+   与 Chat 补课清单的 “Bring your own sources” 打开同一个 sheet（setup-sources）。 */
+const byosRow = `<button class="byos-row" data-act="setup-sources">
   <span class="ic">${I.plus}</span>
-  <span class="meta"><span class="nm">Add a custom source</span><div class="ds">Paste a URL or handle — newsletters, X, RSS, YouTube</div></span>
+  <span class="meta"><span class="nm">Add a custom source</span><div class="ds">X · Telegram · email newsletters · Substack · RSS</div></span>
   ${I.chevR}
 </button>`;
 
 /* 私有 feed 属于 You 页，公共目录只列 public/premium */
 const publicFeedIds = () => Object.keys(FEEDS).filter((id) => FEEDS[id].access !== 'private');
 
+/* 三个 tab 对应三类对象：Market（Entity：ticker/theme/figure）、Feed（官方 + 创作者的 marketplace）、Source */
 function discBodyHtml(tab) {
-  const allMarkets = Object.values(ENTITIES).filter((e) => e.kind === 'market').map((e) => e.id);
-  /* 已连接账号推荐：X follows 里还没加进 Alva 的源 */
-  const connSug = store.connected.x ? ['dylan', 'kobeissi', 'uwhales'].filter((id) => !store.sources.includes(id)) : [];
-  const connModule = store.connected.x
-    ? (connSug.length ? connSug.map(catalogRow).join('') : '<p class="ent-none">Everything from your X follows is already in.</p>')
-    : `<div class="list-row" data-act="nav" data-to="#/onboard/x" role="button">
-        ${monoAv('𝕏', 200, 40, true)}
-        <span class="meta"><span class="nm">Connect X</span><div class="ds">Import who you follow as sources</div></span>
-        ${I.chevR}
-      </div>`;
-
+  const byKind = (k) => Object.values(ENTITIES).filter((e) => e.kind === k).map((e) => e.id);
+  const official = publicFeedIds().filter((id) => FEEDS[id].owner === 'Alva');
+  const fromCreators = publicFeedIds().filter((id) => FEEDS[id].owner !== 'Alva');
   return {
-    all: `
-      <div class="sec-label">Trending themes</div>${themeTiles()}
-      <div class="d-sec"><div class="sec-label">Movers worth understanding</div>${DISCOVER.movers.map(marketRow).join('')}</div>
-      <div class="d-sec"><div class="sec-label">Popular channels</div>${DISCOVER.popularFeeds.map(channelRow).join('')}</div>
-      <div class="d-sec"><div class="sec-label">Creators</div>${DISCOVER.creators.map(creatorRow).join('')}</div>
-      <div class="d-sec"><div class="sec-label">From your connected accounts</div>${connModule}</div>`,
-    markets: `
-      <div class="sec-label">Trending themes</div>${themeTiles()}
-      <div class="d-sec"><div class="sec-label">Markets</div>${allMarkets.map(marketRow).join('')}</div>`,
-    channels: `
-      <div class="sec-label" style="margin-top:4px">Channels — continuous coverage you can follow</div>
-      ${publicFeedIds().map(channelRow).join('')}`,
-    creators: `
-      <div class="sec-label" style="margin-top:4px">Creators</div>
-      ${Object.keys(CREATORS).map(creatorRow).join('')}`,
+    market: `
+      <div class="sec-label">Tickers</div>${byKind('market').map(marketRow).join('')}
+      <div class="d-sec"><div class="sec-label">Themes</div>${themeTiles()}</div>
+      <div class="d-sec"><div class="sec-label">Figures</div>${byKind('figure').map(entityRow).join('')}</div>`,
+    feed: `
+      <div class="sec-label">By Alva — official coverage</div>${official.map(feedRow).join('')}
+      <div class="d-sec"><div class="sec-label">From creators</div>${fromCreators.map(feedRow).join('')}</div>`,
     sources: catalogGroups() + byosRow,
   }[tab];
 }
@@ -535,17 +521,17 @@ function discResultsHtml(q) {
   const has = (s) => (s || '').toLowerCase().includes(ql);
   const markets = Object.values(ENTITIES).filter((e) => e.kind === 'market' && (has(e.ticker) || has(e.name))).map((e) => e.id);
   const others = Object.values(ENTITIES).filter((e) => e.kind !== 'market' && (has(e.name) || has(e.role))).map((e) => e.id);
-  const channels = publicFeedIds().filter((id) => has(FEEDS[id].name) || has(FEEDS[id].owner));
+  const feeds = publicFeedIds().filter((id) => has(FEEDS[id].name) || has(FEEDS[id].owner));
   const creators = Object.keys(CREATORS).filter((id) => has(CREATORS[id].name) || CREATORS[id].expertise.some(has));
   const sources = Object.values(SOURCES).filter((s) => s.access !== 'private' && (has(s.name) || has(s.platform))).map((s) => s.id);
   const secs = [];
-  if (markets.length) secs.push(`<div class="d-sec"><div class="sec-label">Markets</div>${markets.map(marketRow).join('')}</div>`);
-  if (others.length) secs.push(`<div class="d-sec"><div class="sec-label">Themes & people</div>${others.map(entityRow).join('')}</div>`);
-  if (channels.length) secs.push(`<div class="d-sec"><div class="sec-label">Channels</div>${channels.map(channelRow).join('')}</div>`);
+  if (markets.length) secs.push(`<div class="d-sec"><div class="sec-label">Tickers</div>${markets.map(marketRow).join('')}</div>`);
+  if (others.length) secs.push(`<div class="d-sec"><div class="sec-label">Themes & figures</div>${others.map(entityRow).join('')}</div>`);
+  if (feeds.length) secs.push(`<div class="d-sec"><div class="sec-label">Feeds</div>${feeds.map(feedRow).join('')}</div>`);
   if (creators.length) secs.push(`<div class="d-sec"><div class="sec-label">Creators</div>${creators.map(creatorRow).join('')}</div>`);
   if (sources.length) secs.push(`<div class="d-sec"><div class="sec-label">Sources</div>${sources.map(catalogRow).join('')}</div>`);
   return secs.length ? secs.join('')
-    : `<div class="empty"><h4>No matches</h4><p>Try a ticker, a channel, a creator — or add it yourself.</p></div>${byosRow}`;
+    : `<div class="empty"><h4>No matches</h4><p>Try a ticker, a feed, a creator — or add it yourself.</p></div>${byosRow}`;
 }
 
 window.__discSearch = (q) => {
@@ -559,11 +545,11 @@ window.__discSearch = (q) => {
 };
 
 function sDiscover(page) {
-  const TABS = [['all', 'All'], ['markets', 'Markets'], ['channels', 'Channels'], ['creators', 'Creators'], ['sources', 'Sources']];
+  const TABS = [['market', 'Market'], ['feed', 'Feed'], ['sources', 'Sources']];
   page.innerHTML = `
     <div class="topbar"><span class="lg-title">Discover</span><span class="spacer"></span></div>
     <div class="ent-search disc-search">${I.search}
-      <input id="discSearch" placeholder="Search markets, channels, creators, sources…" oninput="window.__discSearch(this.value)"
+      <input id="discSearch" placeholder="Search tickers, themes, feeds, sources…" oninput="window.__discSearch(this.value)"
         onkeydown="if(event.key==='Escape'){this.value='';window.__discSearch('')}">
       <button class="clr" id="discClr" data-act="disc-search-clear" hidden aria-label="Clear search">${I.x}</button>
     </div>
@@ -595,7 +581,7 @@ function sEntity(id, page) {
     </div>
     <div class="page-secs">
       ${related.length ? `<div class="d-sec"><div class="sec-label">Today’s context</div>${related.map((it, i) => streamCard(it, i)).join('')}</div>` : ''}
-      <div class="d-sec"><div class="sec-label">Channels covering ${e.kind === 'market' ? e.ticker : e.name}</div>
+      <div class="d-sec"><div class="sec-label">Feeds covering ${e.kind === 'market' ? e.ticker : e.name}</div>
         ${feeds.map((f) => { const fon = store.feeds.includes(f.id); return `<div class="list-row">
           ${monoAv('AL', 174, 40)}
           <span class="meta" data-act="open-feed" data-id="${f.id}" role="button"><span class="nm">${f.name}</span><div class="ds">${f.owner} · ${f.cadence}</div></span>
@@ -982,7 +968,7 @@ function askSetup() {
   if (store.askSetupDismissed) return '';
   const items = [
     { done: !!store.brokerage || store.manualHoldings.length > 0, label: 'Connect your portfolio', act: 'connect-broker', btn: 'Connect' },
-    { done: store.sources.length > 0 || store.connected.x || store.connected.telegram, label: 'Bring your own sources', act: 'setup-sources', btn: 'Add' },
+    { done: store.sources.length > 0 || Object.values(store.connected).some(Boolean), label: 'Bring your own sources', act: 'setup-sources', btn: 'Add' },
     { done: !!store.goal, label: 'Set a trading goal', act: 'goal-sheet', btn: 'Set' },
   ];
   const doneN = items.filter((i) => i.done).length;
@@ -1000,7 +986,7 @@ function askSetup() {
 let askTab = 'chat';
 export function setAskTab(t) { askTab = t; }
 
-/* 统一的 Automation 列表：Goal（特化）+ Channel（followed feed）+ Track（context 级）。
+/* 统一的 Automation 列表：goal / followed feed / watch 只是 source 不同。
  * Chat 的 Tasks tab 与 You 页共用同一数据与同一视图。 */
 export function automationRows() {
   const pending = APPROVALS.filter((a) => !store.approvals[a.id]).length;

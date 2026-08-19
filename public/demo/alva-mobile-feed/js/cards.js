@@ -69,7 +69,7 @@ function becauseParts(item) {
       return `<b>${entityChipLabel(b.id)}</b>${isHeld(b.id) ? ', which you hold' : ''}`;
     }
     if (b.t === 'source') return `<b>${SOURCES[b.id].name}</b>, a source you added`;
-    if (b.t === 'feed') return `<b>${FEEDS[b.id].name}</b>, a channel you follow`;
+    if (b.t === 'feed') return `<b>${FEEDS[b.id].name}</b>, a feed you follow`;
     if (b.t === 'private') return `<b>your private ${SOURCES[b.id].platform} source</b>`;
     if (b.t === 'watch') return `<b>your watch</b>`;
     if (b.t === 'explore') return b.label;
