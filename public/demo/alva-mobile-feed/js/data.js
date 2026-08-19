@@ -24,7 +24,7 @@ export const ENTITIES = {
   HBM:        { id: 'HBM',        kind: 'theme', name: 'HBM',               hue: 174, img: 'img/hero-hbm-macro.jpg' },
   STABLECOIN: { id: 'STABLECOIN', kind: 'theme', name: 'Stablecoin',        hue: 174, img: 'img/tickers/usdc.png' },
   NUCLEAR:    { id: 'NUCLEAR',    kind: 'theme', name: 'Nuclear',           hue: 174, img: 'img/hero-nuclear.jpg' },
-  ROBOTAXI:   { id: 'ROBOTAXI',   kind: 'theme', name: 'Robotaxi',          hue: 174, img: 'img/hero-robotaxi.jpg' },
+  ROBOTAXI:   { id: 'ROBOTAXI',   kind: 'theme', name: 'Robotaxi',          hue: 174, img: 'img/hero-robotaxi-v2.jpg' },
   JENSEN:     { id: 'JENSEN', kind: 'figure', name: 'Jensen Huang',  role: 'NVIDIA CEO', img: 'img/people/jensen.jpg' },
   POWELL:     { id: 'POWELL', kind: 'figure', name: 'Jerome Powell', role: 'Fed Chair',  img: 'img/people/powell.jpg' },
 };
@@ -50,12 +50,12 @@ export const SOURCES = {
       { t: '1d ago', kind: 'Thread', text: '12 posts on Blackwell rack yields and what they mean for Q4 supply.' },
       { t: '3d ago', kind: 'Post', text: '“Everyone models GPU supply. Nobody models the substrate. That’s the trade.”' },
     ] },
-  semianalysis: { id: 'semianalysis', name: 'SemiAnalysis',         platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'semianalysis', avatar: 'av-lake.jpeg',
+  semianalysis: { id: 'semianalysis', name: 'SemiAnalysis',         platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'semianalysis', avatar: 'av-semiconductor-research-v2.png',
     recent: [
       { t: '2h ago', kind: 'Article', text: 'The capex debate is over — hyperscaler 2027 AI budgets are already committed.' },
       { t: '4d ago', kind: 'Article', text: 'Blackwell allocation checks: who actually gets racks in Q4.' },
     ] },
-  doomberg:     { id: 'doomberg',     name: 'Doomberg',             platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'doomberg', avatar: 'av-bruce.jpeg',
+  doomberg:     { id: 'doomberg',     name: 'Doomberg',             platform: 'Substack',   modality: 'Article',      access: 'premium', kind: 'creator', creator: 'doomberg', avatar: 'av-energy-macro-v2.png',
     recent: [
       { t: '3d ago', kind: 'Premium essay', text: 'The nuclear restart trade has a second act — fuel-cycle scarcity, 2,900 words.' },
       { t: '1w ago', kind: 'Essay', text: 'Natural gas is the bridge nobody wants to name.' },
@@ -70,7 +70,7 @@ export const SOURCES = {
       { t: '12m ago', kind: 'Messages', text: '14 messages on corporate BTC treasuries — stance flipped to accumulation window.' },
       { t: '3h ago', kind: 'Messages', text: 'ETF flow print +$412M sparked a re-read of yesterday’s distribution thesis.' },
     ] },
-  allin:        { id: 'allin',        name: 'All-In Podcast',       platform: 'Podcast',    modality: 'Audio',        access: 'public',  kind: 'creator', avatar: 'av-snarketh.jpeg',
+  allin:        { id: 'allin',        name: 'All-In Podcast',       platform: 'Podcast',    modality: 'Audio',        access: 'public',  kind: 'creator', avatar: 'av-podcast-studio-v2.png',
     recent: [
       { t: '9h ago', kind: 'Episode', text: 'E214 · “We’re underestimating inference demand by an order of magnitude” · from 41:22.' },
       { t: '1w ago', kind: 'Episode', text: 'E213 · Rates, the deficit and what breaks first.' },
@@ -136,14 +136,14 @@ export const SOURCES = {
 export const CREATORS = {
   semianalysis: {
     id: 'semianalysis', name: 'SemiAnalysis', handle: 'Dylan Patel', connected: false,
-    avatar: 'av-lake.jpeg', expertise: ['Semiconductors', 'AI Infrastructure'],
+    avatar: 'av-semiconductor-research-v2.png', expertise: ['Semiconductors', 'AI Infrastructure'],
     bio: 'Deep supply-chain research on semiconductors and AI infrastructure.',
     sources: ['semianalysis', 'dylan'], followers: '18.2K on Alva',
     radar: { accuracy: 86, alpha: 78, depth: 92, consistency: 81, risk: 70, timing: 74 },
   },
   doomberg: {
     id: 'doomberg', name: 'Doomberg', handle: 'Doomberg', connected: true,
-    avatar: 'av-bruce.jpeg', expertise: ['Energy', 'Macro'],
+    avatar: 'av-energy-macro-v2.png', expertise: ['Energy', 'Macro'],
     bio: 'Energy-first macro research. The green chicken.',
     sources: ['doomberg'], followers: '11.4K on Alva',
     radar: { accuracy: 79, alpha: 74, depth: 88, consistency: 85, risk: 76, timing: 68 },
@@ -379,7 +379,7 @@ export const ITEMS = [
     summary: 'A regulatory filing in Texas reveals an expanded service area and a fleet target two quarters ahead of the stated plan.',
     what_changed: 'Fleet target moved from “mid next year” to Q4 this year, per the filing — not yet acknowledged by the company.',
     why_matters: 'Filings usually lead announcements. If confirmed, the robotaxi narrative gets a hard date.',
-    media: { hero: 'img/hero-robotaxi.jpg', alt: 'Autonomous vehicle' },
+    media: { hero: 'img/hero-robotaxi-v2.jpg', alt: 'Autonomous vehicle on an Austin city street' },
     facts: [
       { text: 'A Texas DMV filing shows an expanded service area and a Q4 fleet target \u2014 two quarters ahead of plan.', sources: ['sec', 'x_analysts'] },
       { text: 'Options skew hasn\u2019t moved yet; the market hasn\u2019t priced the filing.', sources: ['mkt_data'] },
