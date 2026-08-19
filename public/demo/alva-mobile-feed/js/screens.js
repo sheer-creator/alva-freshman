@@ -473,7 +473,8 @@ function recCard(r) {
       ${it ? `<div class="rec-preview" data-act="open-detail" data-item="${it.id}" role="button">
         <span class="q">“${it.headline}”</span><span class="t">${FEEDS[it.feed].name} · ${it.published}</span>
       </div>` : ''}`,
-      `<button class="btn btn-teal-solid" style="flex:1" data-act="rec-follow" data-id="${e.id}" data-rec-id="${r.id}">${I.plus}Follow ${e.ticker}</button>`);
+      `<button class="btn btn-teal-solid" style="flex:1.2" data-act="rec-follow" data-id="${e.id}" data-rec-id="${r.id}">${I.plus}Follow ${e.ticker}</button>
+       <button class="btn btn-ghost" style="flex:1" data-act="trade-chat" data-id="${e.id}">${I.bolt}Trade</button>`);
   }
   /* basket 型：一组标的，一条逻辑串起来 */
   if (r.basket) {
@@ -487,7 +488,8 @@ function recCard(r) {
       <div class="rec-head"><span class="meta"><span class="nm">${r.title}</span><div class="ds">${r.basket.length} tickers · one signal</div></span></div>
       <p class="rec-promise">${r.pitch}</p>
       <div class="rec-basket">${rows}</div>`,
-      `<button class="btn btn-teal-solid" style="flex:1" data-act="rec-follow-basket" data-rec-id="${r.id}">${I.plus}Follow all ${r.basket.length}</button>`);
+      `<button class="btn btn-teal-solid" style="flex:1.2" data-act="rec-follow-basket" data-rec-id="${r.id}">${I.plus}Follow all ${r.basket.length}</button>
+       <button class="btn btn-ghost" style="flex:1" data-act="trade-chat" data-basket="${r.id}">${I.bolt}Trade</button>`);
   }
   /* feed 型：新上线 Automation */
   const f = FEEDS[r.feed];
