@@ -3,30 +3,6 @@
 /* ============ For You: stream ============ */
 .feed-scroll { padding: 0 14px 24px; }
 
-/* Since you were away */
-.away {
-  position: relative; overflow: hidden;
-  background: var(--bg1);
-  border: 1px solid var(--line); border-radius: var(--r-card);
-  padding: 18px 18px 6px; margin-bottom: 14px;
-}
-.away::before {
-  content: ''; position: absolute; left: 0; top: 16px; bottom: 16px; width: 2.5px;
-  border-radius: 2px; background: linear-gradient(180deg, var(--teal), transparent);
-}
-.away-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; padding-left: 6px; }
-.away-head .lbl { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--t3); }
-.away-head .n { font-size: 13px; font-weight: 600; color: var(--teal); }
-.away-row {
-  display: grid; grid-template-columns: 76px 1fr 14px; gap: 10px; align-items: center;
-  padding: 12px 0 12px 6px; border-top: 1px solid var(--line); cursor: pointer;
-}
-.away-row:first-of-type { border-top: none; }
-.away-row .tk { font-size: 12.5px; font-weight: 700; letter-spacing: 0.4px; color: var(--t1); }
-.away-row .tx { font-size: 14px; color: var(--t2); line-height: 1.4; }
-.away-row svg { width: 14px; height: 14px; stroke: var(--t3); fill: none; stroke-width: 2; stroke-linecap: round; }
-.away-row:active .tx { color: var(--t1); }
-
 /* ---- context card (stream · 文本/图表优先) ---- */
 .card {
   background: var(--bg1);
@@ -246,6 +222,48 @@
 .fb-manage .mg-tx i { font-style: normal; font-size: 12.5px; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fb-manage .mg-chev { flex: none; display: inline-flex; }
 .fb-manage .mg-chev svg { width: 15px; height: 15px; stroke: var(--t3); stroke-width: 2; }
+
+/* ============ recap / report（Ground 式回访模块，两态共用容器） ============ */
+.recap {
+  background: var(--bg2); border: 1px solid var(--line2); border-radius: var(--r-card);
+  padding: 16px 16px 14px; margin-bottom: 14px;
+}
+.rc-head { font-size: 11.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--t3); }
+.rc-goal { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--teal); }
+.rc-goal svg { flex: none; width: 14px; height: 14px; stroke: var(--teal); stroke-width: 1.8; }
+.rc-row {
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 11px 0; border-top: 1px solid var(--line);
+}
+.rc-row:first-of-type { border-top: none; margin-top: 6px; }
+.rc-row[role="button"] { cursor: pointer; }
+.rc-row .n { flex: none; width: 14px; font-size: 14px; font-weight: 700; color: var(--t3); }
+.rc-row .tx { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.45; color: var(--t1); }
+.rc-row .tx b { font-weight: 600; }
+.rc-row.dim .tx, .rc-row.dim .n { color: var(--t3); font-size: 13px; font-weight: 400; }
+.rc-row > svg { flex: none; width: 13px; height: 13px; stroke: var(--t3); stroke-width: 2; align-self: center; }
+.rc-cta {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; height: 42px; margin-top: 12px; border-radius: 999px;
+  background: var(--bg3); border: 1px solid var(--line2); color: var(--t1);
+  font-size: 13.5px; font-weight: 500; cursor: pointer; transition: background 0.15s;
+}
+.rc-cta:active { background: var(--bg1); }
+.rc-cta svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.8; }
+
+/* ============ Approval 卡 ============ */
+.card.appr { border-color: var(--teal-line); }
+.appr-tag { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; color: var(--teal); }
+.appr-tag svg { flex: none; width: 13px; height: 13px; stroke: var(--teal); stroke-width: 1.8; }
+.appr-tag span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.appr-impact { margin-top: 11px; font-size: 12.5px; color: var(--t3); }
+.appr-done {
+  display: flex; align-items: center; gap: 9px; margin-top: 13px;
+  padding: 11px 13px; border-radius: var(--r-ctl); font-size: 13.5px;
+}
+.appr-done.approved { background: rgba(52,227,154,0.08); border: 1px solid rgba(52,227,154,0.25); color: var(--up); }
+.appr-done.rejected { background: var(--bg3); border: 1px solid var(--line2); color: var(--t2); }
+.appr-done svg { flex: none; width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; }
 
 /* ============ Ask 补课清单 ============ */
 .setup-card {

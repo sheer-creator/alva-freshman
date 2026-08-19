@@ -339,6 +339,24 @@ export const AWAY = {
     { entity: 'BTC', text: 'ETF inflow reversed yesterday’s decline', item: 'it_tg_btc' },
     { entity: 'AI INFRA', text: '2 new sources challenged your watch', item: 'it_allin_pod' },
   ],
+  more: 'Congressional trades, Doomberg macro view',
+};
+
+/* ========== Goal 驱动的工作汇报（away 模块 Report 态样例） ========== */
+export const APPROVALS = [
+  {
+    id: 'ap_nvda_add',
+    entity: 'NVDA',
+    title: 'Add 1.5% to NVDA on the pullback',
+    rationale: 'NVDA pulled back 3.2% into your add zone while capex evidence strengthened — two primary sources confirm the Blackwell ramp.',
+    impact: 'Position 4.1% → 5.6% · paper only',
+    evidence: ['nvda_ir', 'semianalysis'],
+    item: 'it_nvda_blackwell',
+  },
+];
+export const REPORT = {
+  delivered: { text: 'HBM weekly note is ready — takeaway turned bullish', item: 'it_hbm_supply' },
+  watching: 'Watching: HBM pricing signals after MU earnings',
 };
 
 /* ========== Onboarding catalogs ========== */

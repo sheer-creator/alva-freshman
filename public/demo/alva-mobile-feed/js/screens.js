@@ -1,7 +1,7 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, I, nav } from './state.js';
-import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor } from './cards.js';
+import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, approvalCard, isHeld } from './cards.js';
 
 export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
 
@@ -114,7 +114,7 @@ function sWelcome(page) {
 }
 
 /* ========== onboarding ========== */
-const OB_STEPS = ['entities', 'question', 'sources', 'preview'];
+const OB_STEPS = ['entities', 'portfolio', 'question', 'sources', 'preview'];
 function obProgress(step) {
   const idx = OB_STEPS.indexOf(step);
   return `<div class="ob-progress">${OB_STEPS.map((s, i) => `<i class="${i <= idx ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -200,7 +200,26 @@ function sOnboard(step, page) {
       </div>
       <div class="ent-grid" id="entGrid">${entGridHtml()}</div>
       <p class="ent-count" id="entCount">${store.entities.length ? `${store.entities.length} selected` : 'Pick 3–8 to start'}</p>
-      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/question" ${store.entities.length < 1 ? 'disabled style="opacity:.4"' : ''} id="entNext">Continue</button></div>`;
+      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/portfolio" ${store.entities.length < 1 ? 'disabled style="opacity:.4"' : ''} id="entNext">Continue</button></div>`;
+  } else if (step === 'portfolio') {
+    const marketIds = Object.values(ENTITIES).filter((e) => e.kind === 'market').map((e) => e.id);
+    const n = store.manualHoldings.length;
+    page.innerHTML = `${obTop('portfolio', '#/onboard/question')}
+      <h1 class="ob-h1">What are you holding?</h1>
+      <p class="ob-sub">Optional — your For You gets built around what you actually hold. Alva never trades without your explicit approval.</p>
+      <button class="conn-row ${store.brokerage ? 'done' : ''}" data-act="connect-broker" style="margin-top:22px">
+        <span class="ic" style="background:var(--teal-dim);color:var(--teal)">${I.link}</span>
+        <span class="meta"><span class="nm">${store.brokerage ? `Connected · ${store.brokerage}` : 'Connect your brokerage'}</span><div class="ds">${store.brokerage ? `${HOLDINGS.length} positions synced · read-only` : 'Read-only · revocable anytime'}</div></span>
+        <span class="st">${store.brokerage ? I.check : I.chevR}</span>
+      </button>
+      <div class="sec-label" style="margin:24px 0 0">Or add holdings manually</div>
+      <div class="ent-grid">${marketIds.map((id) => {
+        const e = ENTITIES[id];
+        const on = store.manualHoldings.includes(id);
+        return `<button class="ent-chip ${on ? 'on' : ''}" data-act="ob-hold" data-id="${id}">${entityAv(id, 34)}<span><span class="nm">${e.ticker}</span><div class="ht">${on ? 'Holding' : e.name}</div></span></button>`;
+      }).join('')}</div>
+      <p class="ent-count">${store.brokerage ? 'Synced from your broker' : n ? `${n} holding${n > 1 ? 's' : ''}` : 'You can skip this — nothing breaks'}</p>
+      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="nav" data-to="#/onboard/question">Continue</button></div>`;
   } else if (step === 'question') {
     const customs = store.watches.filter((w) => !WATCH_PRESETS.includes(w));
     const n = store.watches.length;
@@ -356,18 +375,36 @@ function sHome(page) {
   }
 }
 
+/* 回访模块两态：Recap（无 goal，卡片流 TLDR）/ Report（有 goal，工作汇报 + 待批） */
+function recapModule() {
+  if (store.goal) {
+    const pending = APPROVALS.filter((a) => !store.approvals[a.id]);
+    return `
+    <div class="recap reveal">
+      <div class="rc-head">While you were away</div>
+      <div class="rc-goal">${I.bolt}<span>Goal “${store.goal}” — on track</span></div>
+      <div class="rc-row" data-act="open-detail" data-item="${REPORT.delivered.item}" role="button"><span class="n">1</span><span class="tx">${REPORT.delivered.text}</span>${I.chevR}</div>
+      ${APPROVALS.map((a, i) => `<div class="rc-row" data-act="scroll-appr" role="button"><span class="n">${i + 2}</span><span class="tx">${a.title} — <b>${store.approvals[a.id] || 'needs you'}</b></span>${I.chevR}</div>`).join('')}
+      <div class="rc-row dim"><span class="n">+</span><span class="tx">${REPORT.watching}</span></div>
+      <button class="rc-cta" data-act="scroll-appr">${pending.length ? `Review · ${pending.length} item${pending.length > 1 ? 's need' : ' needs'} you` : I.check + 'All caught up'}</button>
+    </div>`;
+  }
+  if (store.awaySeen) return '';
+  return `
+    <div class="recap reveal">
+      <div class="rc-head">Since you were away</div>
+      ${AWAY.updates.map((u, i) => `<div class="rc-row" data-act="open-detail" data-item="${u.item}" role="button"><span class="n">${i + 1}</span><span class="tx"><b>${u.entity}</b> — ${u.text}</span>${I.chevR}</div>`).join('')}
+      ${AWAY.more ? `<div class="rc-row dim"><span class="n">+</span><span class="tx">${AWAY.more}</span></div>` : ''}
+      <button class="rc-cta" data-act="open-detail" data-item="${AWAY.updates[0].item}">${I.doc}Read · 2 min</button>
+    </div>`;
+}
+
 function streamView(items) {
-  const away = !store.awaySeen ? `
-    <div class="away reveal">
-      <div class="away-head"><span class="lbl">Since you were away</span><span class="n">${AWAY.updates.length} meaningful updates</span></div>
-      ${AWAY.updates.map((u) => `<div class="away-row" data-act="open-detail" data-item="${u.item}">
-        <span class="tk">${u.entity}</span><span class="tx">${u.text}</span>${I.chevR}
-      </div>`).join('')}
-    </div>` : '';
+  const apprCards = store.goal ? APPROVALS.map(approvalCard).join('') : '';
   const cards = items.length
     ? items.map((it, i) => streamCard(it, i + 1)).join('')
     : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a channel in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore channels</button></div>`;
-  return `<div class="feed-scroll">${away}${cards}</div>`;
+  return `<div class="feed-scroll">${recapModule()}${apprCards}${cards}</div>`;
 }
 
 /* ========== context detail ========== */
@@ -749,7 +786,7 @@ export function setPendingAsk(q) { pendingAsk = q; }
 function askSetup() {
   if (store.askSetupDismissed) return '';
   const items = [
-    { done: !!store.brokerage, label: 'Connect your portfolio', act: 'connect-broker', btn: 'Connect' },
+    { done: !!store.brokerage || store.manualHoldings.length > 0, label: 'Connect your portfolio', act: 'connect-broker', btn: 'Connect' },
     { done: store.sources.length > 0 || store.connected.x || store.connected.telegram, label: 'Bring your own sources', act: 'setup-sources', btn: 'Add' },
     { done: !!store.goal, label: 'Set a trading goal', act: 'goal-sheet', btn: 'Set' },
   ];
@@ -845,6 +882,9 @@ function sYou(page) {
       <div class="d-sec"><div class="sec-label">Following</div>
         <div class="rel-row">${store.entities.map((e) => `<button class="chip on" data-act="open-entity" data-id="${e}">${entityChipLabel(e)}</button>`).join('') || '<span style="font-size:14px;color:var(--t3)">Nothing yet</span>'}</div>
       </div>
+      ${store.goal ? `<div class="d-sec"><div class="sec-label">Trading goal</div>
+        <div class="ask-ctx-chip" style="margin-top:2px">${I.bolt}<span>“${store.goal}”</span></div>
+        <p style="font-size:13px;color:var(--t3);margin-top:10px">Alva works this goal in the background — every action needs your approval. <button class="txt-act danger" style="padding:0;font-size:13px" data-act="goal-revoke">Revoke</button></p></div>` : ''}
       ${store.watches.length ? `<div class="d-sec"><div class="sec-label">Your watches</div>
         ${store.watches.map((w) => `<div class="ask-ctx-chip" style="margin-top:6px">${I.eye}<span>“${w}”</span></div>`).join('')}
         <p style="font-size:13px;color:var(--t3);margin-top:10px">New evidence gets flagged as supports / challenges in your feed.</p></div>` : ''}

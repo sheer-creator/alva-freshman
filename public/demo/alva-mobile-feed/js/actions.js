@@ -144,6 +144,31 @@ export const ACTIONS = {
     closeSheet();
     toast(`${v} added as a Custom Source — 2 of 5 slots used`);
   },
+  /* ---- goal / approval（Report 态） ---- */
+  'ob-hold': (el) => { toggleIn(store.manualHoldings, el.dataset.id); rerender(); },
+  approve: (el) => {
+    store.approvals[el.dataset.id] = 'approved';
+    save();
+    toast('Approved — executing on paper', I.check);
+    rerender();
+  },
+  reject: (el) => {
+    store.approvals[el.dataset.id] = 'rejected';
+    save();
+    toast('Rejected — Alva will recalibrate');
+    rerender();
+  },
+  'scroll-appr': () => {
+    const c = document.querySelector('.card.appr');
+    if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  },
+  'goal-revoke': () => {
+    store.goal = '';
+    save();
+    toast('Goal revoked — back to recap');
+    rerender();
+  },
+
   /* ---- Ask 补课清单 ---- */
   'setup-dismiss': () => { store.askSetupDismissed = true; save(); rerender(); },
   'setup-sources': () => openSheet(`

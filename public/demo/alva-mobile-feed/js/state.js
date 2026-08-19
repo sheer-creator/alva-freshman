@@ -16,6 +16,8 @@ const DEFAULTS = {
   lastFollowedFeed: null,
   goal: '',
   askSetupDismissed: false,
+  manualHoldings: [],
+  approvals: {},
   mode: 'stream',
   awaySeen: false,
   brokerage: null,

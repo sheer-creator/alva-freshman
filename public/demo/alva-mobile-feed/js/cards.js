@@ -38,6 +38,9 @@ export function accessBadge(access) {
   return `<span class="badge">Public</span>`;
 }
 
+/* 持仓判定：券商同步或手动录入皆算 */
+export const isHeld = (id) => (store.brokerage && HOLDINGS.some((h) => h.entity === id)) || store.manualHoldings.includes(id);
+
 /* ---- because line（读 projection + 持仓联动，不读 item） ---- */
 function reasonIsActive(reason) {
   if (reason.t === 'entity') return store.entities.includes(reason.id);
@@ -63,8 +66,7 @@ function becauseFor(item) {
 function becauseParts(item) {
   return becauseFor(item).map((b) => {
     if (b.t === 'entity') {
-      const held = store.brokerage && HOLDINGS.some((h) => h.entity === b.id);
-      return `<b>${entityChipLabel(b.id)}</b>${held ? ', which you hold' : ''}`;
+      return `<b>${entityChipLabel(b.id)}</b>${isHeld(b.id) ? ', which you hold' : ''}`;
     }
     if (b.t === 'source') return `<b>${SOURCES[b.id].name}</b>, a source you added`;
     if (b.t === 'feed') return `<b>${FEEDS[b.id].name}</b>, a channel you follow`;
@@ -102,8 +104,7 @@ function provShortReason(item) {
   const b = becauseFor(item)[0];
   if (!b) return 'why you see this';
   if (b.t === 'entity') {
-    const held = store.brokerage && HOLDINGS.some((h) => h.entity === b.id);
-    return `${entityChipLabel(b.id)}${held ? ', which you hold' : ''}`;
+    return `${entityChipLabel(b.id)}${isHeld(b.id) ? ', which you hold' : ''}`;
   }
   if (b.t === 'source') return `${SOURCES[b.id].name}, your source`;
   if (b.t === 'feed') return FEEDS[b.id].name;
@@ -340,4 +341,26 @@ export function immersiveSlide(item, idx, total) {
       </div>
     </div>
   </section>`;
+}
+
+/* ========== Approval 卡（goal 驱动的待拍板动作，Report 态置顶） ========== */
+export function approvalCard(ap) {
+  const st = store.approvals[ap.id];
+  const srcs = ap.evidence.map((sid) => SOURCES[sid].name).join(' · ');
+  return `<div class="card appr reveal" data-item="${ap.item}">
+    <div class="appr-tag">${I.bolt}<span>Proposed for your goal — “${store.goal}”</span></div>
+    <div class="card-head" style="margin:12px 0 8px">
+      <span class="ent">${entityAv(ap.entity, 26)}<span class="tick">${ap.entity}</span></span>
+    </div>
+    <h3 class="card-headline" style="font-size:17.5px">${ap.title}</h3>
+    <p class="card-summary">${ap.rationale}</p>
+    <div class="appr-impact">${ap.impact} · based on ${srcs}</div>
+    ${st
+      ? `<div class="appr-done ${st}">${st === 'approved' ? I.check + '<span>Approved — executing on paper. Revert anytime in your goal.</span>' : I.x + '<span>Rejected — Alva will recalibrate the proposal.</span>'}</div>`
+      : `<div class="card-actions">
+          <button class="btn btn-teal-solid" data-act="approve" data-id="${ap.id}">${I.check}Approve</button>
+          <button class="btn btn-ghost" data-act="reject" data-id="${ap.id}">Reject</button>
+          <button class="btn btn-ghost" style="flex:none;width:46px;padding:0" data-act="ask-item" data-item="${ap.item}" aria-label="Ask Alva">${I.ask}</button>
+        </div>`}
+  </div>`;
 }
