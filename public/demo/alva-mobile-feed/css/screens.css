@@ -928,3 +928,45 @@
 }
 .goal-md::first-line { font-weight: 600; color: var(--t1); }
 .goal-ta { font-family: var(--font); font-size: 14.5px; line-height: 1.55; min-height: 148px; }
+
+/* ========== For You 推荐卡（新上线 Automation） ========== */
+.rec-card { border-color: var(--teal-line); }
+.rec-tag { display: flex; align-items: center; margin-bottom: 12px; }
+.rec-tag > span {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.9px; text-transform: uppercase; color: var(--teal);
+}
+.rec-tag > span svg { width: 12px; height: 12px; stroke: var(--teal); fill: none; stroke-width: 2; }
+.rec-x { margin-left: auto; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: none; }
+.rec-x svg { width: 13px; height: 13px; stroke: var(--t3); stroke-width: 2; }
+.rec-x:active svg { stroke: var(--t1); }
+.rec-head { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; }
+.rec-head .meta { flex: 1; min-width: 0; }
+.rec-head .nm { font-size: 16.5px; font-weight: 600; letter-spacing: -0.1px; }
+.rec-head .ds { font-size: 12.5px; color: var(--t3); margin-top: 1px; }
+.rec-head > svg { flex: none; width: 15px; height: 15px; stroke: var(--t3); stroke-width: 2; }
+.rec-promise { font-size: 14px; line-height: 1.5; color: var(--t2); margin-top: 9px; }
+.rec-preview {
+  display: block; width: 100%; text-align: left; margin-top: 11px;
+  padding: 11px 13px; border-radius: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+}
+.rec-preview .q { display: block; font-size: 13.5px; font-weight: 500; line-height: 1.45; color: var(--t1); }
+.rec-preview .t { display: block; margin-top: 5px; font-size: 11.5px; color: var(--t3); }
+.rec-card .because { margin-top: 11px; }
+
+/* 订阅后的确认态 */
+.rec-done { display: flex; align-items: flex-start; gap: 12px; padding: 2px 0; }
+.rec-done .ic {
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--teal-dim); border: 1px solid var(--teal-line);
+  display: flex; align-items: center; justify-content: center;
+}
+.rec-done .ic svg { width: 15px; height: 15px; stroke: var(--teal); stroke-width: 2.4; }
+.rec-done .tx { flex: 1; min-width: 0; }
+.rec-done .tx b { font-size: 14.5px; font-weight: 600; }
+.rec-done .tx p { font-size: 13px; color: var(--t3); margin-top: 3px; line-height: 1.45; }
+.rec-done .txt-act { margin: 0; padding: 4px 0; }
+
+/* Discover Feed 列表里的新上线标记 */
+.new-flag { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--teal); margin-right: 5px; }

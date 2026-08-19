@@ -14,6 +14,7 @@ const DEFAULTS = {
   muted: [],
   paused: [],
   lastFollowedFeed: null,
+  dismissedRecs: [],
   goal: '',
   askSetupDismissed: false,
   manualHoldings: [],

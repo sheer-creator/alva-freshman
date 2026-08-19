@@ -258,6 +258,30 @@ export const ACTIONS = {
   'open-detail': (el) => nav('#/context/' + el.dataset.item),
   'open-entity': (el) => { if (el.dataset.id) nav('#/entity/' + el.dataset.id); },
   'open-feed': (el) => { setFeedTab('output'); nav('#/feed/' + el.dataset.id); },
+  /* ---- 推荐卡（新上线 Automation）：订阅原地变确认态，关闭原地淡出 ---- */
+  'rec-subscribe': (el) => {
+    const id = el.dataset.id;
+    const f = FEEDS[id];
+    if (!store.feeds.includes(id)) store.feeds.push(id);
+    save();
+    const card = el.closest('.rec-card');
+    if (card) card.innerHTML = `
+      <div class="rec-done">
+        <span class="ic">${I.check}</span>
+        <div class="tx"><b>Subscribed to ${f.name}</b>
+        <p>Next run ${f.next_run.toLowerCase()} — output lands here in For You.</p></div>
+        <button class="txt-act teal" data-act="open-feed" data-id="${id}">View</button>
+      </div>`;
+  },
+  'rec-dismiss': (el) => {
+    store.dismissedRecs.push(el.dataset.id);
+    save();
+    const card = el.closest('.rec-card');
+    if (card) {
+      card.style.cssText = 'transition:opacity 0.25s ease, transform 0.25s ease; opacity:0; transform:scale(0.97)';
+      setTimeout(() => card.remove(), 260);
+    }
+  },
   'feed-tab': (el) => { setFeedTab(el.dataset.t); rerender(); },
   /* Market tab 的 ticker 栏位切换：原地换列表，不整页重绘 */
   'mkt-tab': (el) => {
