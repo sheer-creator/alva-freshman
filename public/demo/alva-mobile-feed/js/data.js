@@ -354,6 +354,12 @@ export const APPROVALS = [
     item: 'it_nvda_blackwell',
   },
 ];
+/* 会话派生的一次性子 Task（示例；由 Chat 里的请求 spin off） */
+export const TASKS = [
+  { id: 'tk_hbm_map', title: 'Map HBM price transmission to NVDA margins', status: 'running', from: 'Spun off from chat · 20m ago' },
+  { id: 'tk_bear_memo', title: 'NVDA bear case one-pager', status: 'done', from: 'Spun off from chat · yesterday' },
+];
+
 export const REPORT = {
   delivered: { text: 'HBM weekly note is ready — takeaway turned bullish', item: 'it_hbm_supply' },
   watching: 'Watching: HBM pricing signals after MU earnings',

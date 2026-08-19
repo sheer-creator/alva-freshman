@@ -174,6 +174,7 @@ export const ACTIONS = {
   },
 
   'ask-tab': (el) => { setAskTab(el.dataset.t); rerender(); },
+  'you-automations': () => { setAskTab('tasks'); nav('#/ask'); },
   'following-sheet': () => {
     const chips = store.entities.map((id) => `<button class="chip on" data-act="open-entity" data-id="${id}">${entityChipLabel(id)}</button>`).join('');
     openSheet(`<h3>Following</h3><p class="sub">${store.entities.length} markets, themes and people shaping your For You.</p>

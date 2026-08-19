@@ -292,6 +292,15 @@
 .dec-tag.approved { color: var(--up); background: rgba(52,227,154,0.09); border: 1px solid rgba(52,227,154,0.25); }
 .dec-tag.rejected { color: var(--t3); background: var(--bg3); border: 1px solid var(--line2); }
 
+/* Task 类型标签：Goal/Channel/Track（循环）与 Running/Done（子任务） */
+.task-tag {
+  flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px;
+  color: var(--t3); background: var(--bg3); border: 1px solid var(--line2);
+}
+.task-tag.running { color: var(--teal); background: var(--teal-dim); border-color: var(--teal-line); }
+.task-tag.done { color: var(--t3); }
+
 /* Tasks tab 的圆图标 */
 .ic-cir {
   flex: none; width: 40px; height: 40px; border-radius: 50%;

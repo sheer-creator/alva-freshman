@@ -1,5 +1,5 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, I, nav, goalTitle } from './state.js';
 import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, approvalCard, isHeld } from './cards.js';
 
@@ -838,23 +838,41 @@ function askSetup() {
 let askTab = 'chat';
 export function setAskTab(t) { askTab = t; }
 
-function askTasksView() {
+/* 统一的 Automation 列表：Goal（特化）+ Channel（followed feed）+ Track（context 级）。
+ * Chat 的 Tasks tab 与 You 页共用同一数据与同一视图。 */
+export function automationRows() {
   const pending = APPROVALS.filter((a) => !store.approvals[a.id]).length;
   const goalRow = store.goal
     ? `<div class="list-row" data-act="nav" data-to="#/goal" role="button">
         <span class="ic-cir">${I.bolt}</span>
-        <span class="meta"><span class="nm">${goalTitle()}</span><div class="ds">Trading goal · ${pending ? `${pending} proposal needs you` : 'on track'}</div></span>${I.chevR}</div>`
+        <span class="meta"><span class="nm">${goalTitle()}</span><div class="ds">${pending ? `${pending} proposal needs you` : 'On track'} · every action needs approval</div></span>
+        <span class="task-tag">Goal</span>${I.chevR}</div>`
     : `<div class="list-row" data-act="goal-sheet" role="button">
         <span class="ic-cir dim">${I.bolt}</span>
-        <span class="meta"><span class="nm">Set a trading goal</span><div class="ds">Alva works it and brings proposals for approval</div></span>${I.chevR}</div>`;
+        <span class="meta"><span class="nm">Set a trading goal</span><div class="ds">A specialized automation — Alva proposes, you approve</div></span>${I.chevR}</div>`;
+  const channelRows = store.feeds.map((id) => FEEDS[id]).filter(Boolean).map((f) => `
+    <div class="list-row" data-act="nav" data-to="#/automation/${f.id}" role="button">
+      ${monoAv(f.owner === 'Alva' ? 'AL' : f.owner.slice(0, 2).toUpperCase(), 174, 40)}
+      <span class="meta"><span class="nm">${f.name}</span><div class="ds">${store.paused.includes(f.id) ? 'Paused' : f.cadence} · ${f.owner}</div></span>
+      <span class="task-tag">Channel</span>${I.chevR}</div>`).join('');
   const trackRows = store.tracks.map((id) => ITEMS.find((it) => it.id === id)).filter(Boolean).map((it) => `
     <div class="list-row" data-act="open-detail" data-item="${it.id}" role="button">
       ${it.entity_refs[0] ? entityAv(it.entity_refs[0], 40) : monoAv('AL', 174, 40)}
-      <span class="meta"><span class="nm">${it.headline}</span><div class="ds">Tracking · ${FEEDS[it.feed].name}</div></span>${I.chevR}
-    </div>`).join('');
+      <span class="meta"><span class="nm">${it.headline}</span><div class="ds">Watching for meaningful change</div></span>
+      <span class="task-tag">Track</span>${I.chevR}</div>`).join('');
+  return goalRow + channelRows + trackRows;
+}
+export const automationCount = () => store.feeds.length + store.tracks.length + (store.goal ? 1 : 0);
+
+function askTasksView() {
+  const taskRows = TASKS.map((t) => `
+    <div class="list-row" data-act="toast-msg" data-msg="Sub-task sessions are mocked in this demo" role="button">
+      <span class="ic-cir ${t.status === 'done' ? 'dim' : ''}">${t.status === 'done' ? I.check : I.spark}</span>
+      <span class="meta"><span class="nm">${t.title}</span><div class="ds">${t.from}</div></span>
+      <span class="task-tag ${t.status}">${t.status === 'done' ? 'Done' : 'Running'}</span>${I.chevR}</div>`).join('');
   return `
-    <div class="d-sec"><div class="sec-label">Standing</div>${goalRow}</div>
-    <div class="d-sec"><div class="sec-label">Tracks</div>${trackRows || '<p class="ent-none">Track a context from any card and it appears here.</p>'}</div>`;
+    <div class="d-sec"><div class="sec-label">Tasks — spun off from chat</div>${taskRows}</div>
+    <div class="d-sec"><div class="sec-label">Automations — recurring</div>${automationRows()}</div>`;
 }
 
 function askMemoryView() {
@@ -877,6 +895,15 @@ function askMemoryView() {
     </div>`;
 }
 
+/* Chat 开场 = 回访 recap 的对话化渲染（与首页模块同一份数据） */
+function chatOpening() {
+  if (store.goal) {
+    const pending = APPROVALS.filter((a) => !store.approvals[a.id]);
+    return `Morning. While you were away I worked your goal — <b>“${goalTitle()}”</b>:<br><br>1 · ${REPORT.delivered.text}.<br>2 · ${pending.length ? `<b>${pending[0].title}</b> — waiting for your approval on For You.` : 'Your last proposal is settled — executing on paper.'}<br><br>${REPORT.watching}. Anything you want me to dig into?`;
+  }
+  return `Morning. Since you were away, ${AWAY.updates.length} things stand out:<br><br>${AWAY.updates.map((u, i) => `${i + 1} · <b>${u.entity}</b> — ${u.text}.`).join('<br>')}<br><br>Anything you want me to dig into?`;
+}
+
 function sAsk(page) {
   const item = askCtx ? ITEMS.find((it) => it.id === askCtx) : null;
   if (pendingAsk) askTab = 'chat';
@@ -884,20 +911,20 @@ function sAsk(page) {
     `<button class="${askTab === t ? 'on' : ''}" data-act="ask-tab" data-t="${t}">${lbl}</button>`).join('')}</div>`;
   if (askTab !== 'chat') {
     page.innerHTML = `
-      <div class="topbar"><span class="lg-title">Ask</span><span class="spacer"></span></div>
+      <div class="topbar"><span class="lg-title">Chat</span><span class="spacer"></span></div>
       ${tabs}
       <div class="ask-body" style="padding-top:6px">${askTab === 'tasks' ? askTasksView() : askMemoryView()}</div>`;
     return;
   }
   page.innerHTML = `
-    <div class="topbar"><span class="lg-title">Ask</span><span class="spacer"></span></div>
+    <div class="topbar"><span class="lg-title">Chat</span><span class="spacer"></span></div>
     ${tabs}
     <div class="ask-body">
       ${askSetup()}
       ${item ? `<div class="ask-ctx-chip" style="margin-bottom:14px">${I.spark}<span>${item.headline}</span><button class="x" data-act="clear-ctx">${I.x}</button></div>` : ''}
       <div class="ask-reply ask-thread" id="askReply">
         <div class="chat-day">Today</div>
-        <div class="bub">Morning. I read <b>19 posts</b> overnight across your sources. Two things stand out:<br><br><b>1 · NVDA</b> — capex expectations moved higher; price is near your add zone.<br><b>2 · HBM</b> — pricing signals firmed after MU's print.<br><br>Anything you want me to dig into?</div>
+        <div class="bub">${chatOpening()}</div>
       </div>
       <div class="ask-composer">
         <input id="askInput" placeholder="Ask about your feed or a ticker…">
@@ -956,15 +983,13 @@ function sYou(page) {
     <div class="you-secs">
       ${portfolioSec()}
       <div class="d-sec"><div class="sec-label">Manage</div>
-        ${store.goal ? `<div class="mgmt-row" data-act="nav" data-to="#/goal" role="button"><span class="ic">${I.bolt}</span><span class="meta"><span class="nm">${goalTitle()}</span><div class="ds">Trading goal · every action needs your approval</div></span>${I.chevR}</div>` : ''}
+        <div class="mgmt-row" data-act="you-automations" role="button"><span class="ic">${I.bolt}</span><span class="meta"><span class="nm">Automations</span><div class="ds">${automationCount()} recurring — ${store.goal ? '1 goal · ' : ''}${store.feeds.length} channel${store.feeds.length === 1 ? '' : 's'} · ${store.tracks.length} track${store.tracks.length === 1 ? '' : 's'}</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="following-sheet" role="button"><span class="ic">${I.eye}</span><span class="meta"><span class="nm">Following</span><div class="ds">${store.entities.length} markets & themes</div></span>${I.chevR}</div>
-        <div class="mgmt-row" data-act="you-feeds" role="button"><span class="ic">${I.spark}</span><span class="meta"><span class="nm">Channels & automations</span><div class="ds">${store.feeds.length} active${store.goal ? ' · 1 goal' : ''}</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="manage-sheet" role="button"><span class="ic">${I.gear}</span><span class="meta"><span class="nm">Sources</span><div class="ds">${store.sources.length} added · ${store.muted.length} muted</div></span>${I.chevR}</div>
         <div class="mgmt-row" data-act="toast-msg" data-msg="Connected accounts are mocked in this demo" role="button"><span class="ic">${I.link}</span><span class="meta"><span class="nm">Connected accounts</span><div class="ds">${store.connected.x ? 'X · ' : ''}${store.connected.telegram ? 'Telegram' : store.connected.x ? '' : 'None yet'}</div></span>${I.chevR}</div>
       </div>
       <div class="d-sec"><div class="sec-label">Activity</div>
         <div class="mgmt-row" data-act="saved-sheet" role="button"><span class="ic">${I.save}</span><span class="meta"><span class="nm">Saved</span><div class="ds">${store.saved.length} contexts</div></span>${I.chevR}</div>
-        <div class="mgmt-row" data-act="tracks-sheet" role="button"><span class="ic">${I.bell}</span><span class="meta"><span class="nm">Tracks & automations</span><div class="ds">${store.tracks.length} running</div></span>${I.chevR}</div>
       </div>
       <div class="d-sec"><div class="sec-label">Custom source quota</div>
         <div class="quota"><div style="display:flex;justify-content:space-between;font-size:13.5px"><span style="color:var(--t2)">1 of 5 slots used</span><span style="color:var(--teal);font-weight:600">Pro</span></div><div class="quota-bar"><i></i></div></div>
