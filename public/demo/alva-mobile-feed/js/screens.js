@@ -1,6 +1,6 @@
 /* ========== screens.js — 页面渲染 ========== */
 import { ENTITIES, SOURCES, CREATORS, FEEDS, ITEMS, PROJECTIONS, AWAY, APPROVALS, REPORT, TASKS, ONBOARD_ENTITIES, WATCH_PRESETS, X_IMPORT, TG_CHATS, DISCOVER, BROKERS, HOLDINGS, SOURCE_CATALOG, entityChipLabel, evidenceCounts } from './data.js';
-import { store, save, I, nav, goalTitle } from './state.js';
+import { store, save, I, nav, toast, goalTitle } from './state.js';
 import { streamCard, immersiveSlide, entityAv, monoAv, sparkSVG, accessBadge, becauseLine, cardBack, evidenceBar, watchFor, approvalCard, isHeld } from './cards.js';
 
 export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
@@ -56,7 +56,7 @@ function previewFeedIds(first) {
   const relevant = Object.values(FEEDS)
     .filter((feed) => feed.access !== 'private' && feed.entities.some((id) => store.entities.includes(id)))
     .map((feed) => feed.id);
-  return [...new Set([first.feed, ...relevant, ...store.feeds, 'brief'])].slice(0, 3);
+  return [...new Set([first.feed, ...relevant, ...store.feeds])].slice(0, 3);
 }
 
 function catalogRow(sid) {
@@ -94,6 +94,7 @@ export function renderRoute(route, page) {
     feed: () => sFeed(a, page),
     automation: () => sAutomation(a, page),
     goal: sGoal,
+    recap: sRecapDeck,
     source: () => sSource(a, page),
     creator: () => sCreator(a, page),
   }[root];
@@ -391,7 +392,7 @@ function recapModule() {
       <div class="rc-row" data-act="open-detail" data-item="${REPORT.delivered.item}" role="button"><span class="n">1</span><span class="tx">${REPORT.delivered.text}</span>${I.chevR}</div>
       ${APPROVALS.map((a, i) => `<div class="rc-row" data-act="scroll-appr" role="button"><span class="n">${i + 2}</span><span class="tx">${a.title} — <b>${store.approvals[a.id] || 'needs you'}</b></span>${I.chevR}</div>`).join('')}
       <div class="rc-row dim"><span class="n">+</span><span class="tx">${REPORT.watching}</span></div>
-      <button class="rc-cta" data-act="scroll-appr">${pending.length ? `Review · ${pending.length} item${pending.length > 1 ? 's need' : ' needs'} you` : I.check + 'All caught up'}</button>
+      <button class="rc-cta" data-act="nav" data-to="#/recap">${pending.length ? `Review · ${pending.length} item${pending.length > 1 ? 's need' : ' needs'} you` : I.check + 'All caught up'}</button>
     </div>`;
   }
   return `
@@ -399,7 +400,7 @@ function recapModule() {
       <div class="rc-head">Since you were away</div>
       ${AWAY.updates.map((u, i) => `<div class="rc-row" data-act="open-detail" data-item="${u.item}" role="button"><span class="n">${i + 1}</span><span class="tx"><b>${u.entity}</b> — ${u.text}</span>${I.chevR}</div>`).join('')}
       ${AWAY.more ? `<div class="rc-row dim"><span class="n">+</span><span class="tx">${AWAY.more}</span></div>` : ''}
-      <button class="rc-cta" data-act="open-detail" data-item="${AWAY.updates[0].item}">${I.doc}Read · 2 min</button>
+      <button class="rc-cta" data-act="nav" data-to="#/recap">${I.doc}Read · 2 min</button>
     </div>`;
 }
 
@@ -651,6 +652,148 @@ function sFeed(id, page) {
     </div>`;
 }
 
+/* ========== recap 滑卡页：Tinder 式逐张处理回访事项 ========== */
+function deckItems() {
+  const cards = [];
+  if (store.goal) {
+    APPROVALS.filter((a) => !store.approvals[a.id]).forEach((a) => cards.push({ kind: 'approval', ap: a }));
+    const d = ITEMS.find((it) => it.id === REPORT.delivered.item);
+    if (d) cards.push({ kind: 'context', item: d });
+  }
+  AWAY.updates.forEach((u) => {
+    const it = ITEMS.find((x) => x.id === u.item);
+    if (it && !cards.some((c) => c.item && c.item.id === it.id)) cards.push({ kind: 'context', item: it });
+  });
+  return cards;
+}
+
+function deckCard(c, i) {
+  if (c.kind === 'approval') {
+    const ap = c.ap;
+    return `<article class="deck-card" data-i="${i}">
+      <span class="dk-ovl dk-yes">Approve</span><span class="dk-ovl dk-no">Reject</span>
+      <div class="dk-tag">${I.bolt}<span>Proposal · your goal</span></div>
+      <div class="dk-ent">${entityAv(ap.entity, 28)}<b>${ap.entity}</b></div>
+      <h3>${ap.title}</h3>
+      <p>${ap.rationale}</p>
+      <div class="dk-meta">${ap.impact}</div>
+    </article>`;
+  }
+  const it = c.item;
+  const hasImg = it.media && it.media.hero;
+  return `<article class="deck-card" data-i="${i}">
+    <span class="dk-ovl dk-yes">Track</span><span class="dk-ovl dk-no">Skip</span>
+    ${hasImg ? `<div class="dk-img"><img src="${it.media.hero}" alt=""></div>` : ''}
+    <div class="dk-ent">${it.entity_refs[0] ? entityAv(it.entity_refs[0], 28) : monoAv('AL', 174, 28)}<b>${it.entity_refs[0] ? entityChipLabel(it.entity_refs[0]) : FEEDS[it.feed].name}</b><span class="t">${it.published}</span></div>
+    <h3>${it.headline}</h3>
+    <p>${it.summary}</p>
+    ${it.what_changed ? `<div class="dk-meta">${it.what_changed}</div>` : ''}
+  </article>`;
+}
+
+function deckDecide(ap, choice) {
+  store.approvals[ap.id] = choice;
+  store.decisions.push({ title: ap.title, choice, at: 'Today' });
+  save();
+}
+
+function sRecapDeck(page) {
+  const cards = deckItems();
+  page.innerHTML = `${backBar(store.goal ? 'While you were away' : 'Since you were away')}
+    <div class="deck-wrap">
+      <div class="deck" id="deck">
+        ${cards.map((c, i) => deckCard(c, i)).join('')}
+        <div class="deck-done"><div class="glyph">${I.check}</div><h4>All caught up</h4><p>Everything from this recap is handled.</p>
+          <button class="btn btn-teal-solid" data-act="nav" data-to="#/home">Back to For You</button></div>
+      </div>
+      <div class="deck-controls" id="deckControls">
+        <button class="dk-btn no" data-deck="left" aria-label="Skip">${I.x}</button>
+        <span class="dk-count" id="deckCount"></span>
+        <button class="dk-btn yes" data-deck="right" aria-label="Act">${I.check}</button>
+      </div>
+      <p class="deck-hint">Swipe right to act · left to skip</p>
+    </div>`;
+  attachDeck(page, cards);
+}
+
+function attachDeck(page, cards) {
+  let top = 0;
+  const deckEl = page.querySelector('#deck');
+  const els = [...deckEl.querySelectorAll('.deck-card')];
+  const count = page.querySelector('#deckCount');
+  const controls = page.querySelector('#deckControls');
+  const hint = page.querySelector('.deck-hint');
+
+  const update = () => {
+    els.forEach((el, i) => {
+      if (i < top) return;
+      const d = i - top;
+      el.style.zIndex = 100 - d;
+      el.style.transform = `translateY(${Math.min(d, 2) * 12}px) scale(${1 - Math.min(d, 2) * 0.04})`;
+      el.style.opacity = d > 2 ? '0' : '1';
+    });
+    const done = top >= cards.length;
+    count.textContent = done ? '' : `${top + 1} / ${cards.length}`;
+    controls.style.display = done ? 'none' : '';
+    hint.style.display = done ? 'none' : '';
+    page.querySelector('.deck-done').classList.toggle('show', done);
+  };
+
+  const act = (dir) => {
+    if (top >= cards.length) return;
+    const c = cards[top];
+    const el = els[top];
+    el.style.transition = 'transform 0.35s ease, opacity 0.3s ease';
+    el.style.transform = `translateX(${dir === 'right' ? 480 : -480}px) rotate(${dir === 'right' ? 16 : -16}deg)`;
+    el.style.opacity = '0';
+    if (c.kind === 'approval') {
+      deckDecide(c.ap, dir === 'right' ? 'approved' : 'rejected');
+      toast(dir === 'right' ? 'Approved — executing on paper' : 'Rejected — Alva will recalibrate', dir === 'right' ? I.check : I.x);
+    } else if (dir === 'right') {
+      if (!store.tracks.includes(c.item.id)) { store.tracks.push(c.item.id); save(); }
+      toast('Tracking — Alva will flag meaningful change', I.bell);
+    }
+    top += 1;
+    setTimeout(update, 60);
+  };
+
+  page.querySelectorAll('[data-deck]').forEach((b) => b.addEventListener('click', () => act(b.dataset.deck)));
+
+  let sx = 0, dragging = false, cur = null;
+  deckEl.addEventListener('pointerdown', (e) => {
+    if (top >= cards.length) return;
+    cur = els[top];
+    dragging = true;
+    sx = e.clientX;
+    cur.style.transition = 'none';
+  });
+  deckEl.addEventListener('pointermove', (e) => {
+    if (!dragging || !cur) return;
+    const dx = e.clientX - sx;
+    cur.style.transform = `translateX(${dx}px) rotate(${dx * 0.05}deg)`;
+    const yes = cur.querySelector('.dk-yes'), no = cur.querySelector('.dk-no');
+    if (yes) yes.style.opacity = Math.max(0, Math.min(1, dx / 80));
+    if (no) no.style.opacity = Math.max(0, Math.min(1, -dx / 80));
+  });
+  const end = (e) => {
+    if (!dragging || !cur) return;
+    dragging = false;
+    const dx = e.clientX - sx;
+    if (dx > 90) act('right');
+    else if (dx < -90) act('left');
+    else {
+      cur.style.transition = 'transform 0.25s ease';
+      cur.style.transform = '';
+      cur.querySelectorAll('.dk-ovl').forEach((o) => { o.style.opacity = 0; });
+      setTimeout(update, 260);
+    }
+    cur = null;
+  };
+  deckEl.addEventListener('pointerup', end);
+  deckEl.addEventListener('pointercancel', end);
+  update();
+}
+
 /* ========== goal 管理页（goal = 无执行权的 Automation：instruction + run history） ========== */
 function sGoal(page) {
   if (!store.goal) {
@@ -850,11 +993,14 @@ export function automationRows() {
     : `<div class="list-row" data-act="goal-sheet" role="button">
         <span class="ic-cir dim">${I.bolt}</span>
         <span class="meta"><span class="nm">Set a trading goal</span><div class="ds">A specialized automation — Alva proposes, you approve</div></span>${I.chevR}</div>`;
-  const channelRows = store.feeds.map((id) => FEEDS[id]).filter(Boolean).map((f) => `
+  const channelRows = store.feeds.map((id) => FEEDS[id]).filter(Boolean).map((f) => {
+    const paused = store.paused.includes(f.id);
+    return `
     <div class="list-row" data-act="nav" data-to="#/automation/${f.id}" role="button">
       ${monoAv(f.owner === 'Alva' ? 'AL' : f.owner.slice(0, 2).toUpperCase(), 174, 40)}
-      <span class="meta"><span class="nm">${f.name}</span><div class="ds">${store.paused.includes(f.id) ? 'Paused' : f.cadence} · ${f.owner}</div></span>
-      <span class="task-tag">Channel</span>${I.chevR}</div>`).join('');
+      <span class="meta"><span class="nm">${f.name}</span><div class="ds">${f.cadence} · ${f.owner}</div></span>
+      <span class="next-run ${paused ? 'paused' : ''}">${paused ? 'Paused' : f.next_run}</span>${I.chevR}</div>`;
+  }).join('');
   const trackRows = store.tracks.map((id) => ITEMS.find((it) => it.id === id)).filter(Boolean).map((it) => `
     <div class="list-row" data-act="open-detail" data-item="${it.id}" role="button">
       ${it.entity_refs[0] ? entityAv(it.entity_refs[0], 40) : monoAv('AL', 174, 40)}
@@ -884,8 +1030,16 @@ function askMemoryView() {
       <div class="mem-row"><span class="k">Markets</span><span class="v">US equities · Crypto</span></div>
       <div class="mem-row"><span class="k">Holdings</span><span class="v">${holdings.length ? holdings.join(' · ') : 'Not shared yet'}</span></div>
     </div>
+    <div class="d-sec"><div class="sec-label">Recent interests</div>
+      <div class="mem-row"><span class="v">${store.entities.slice(-4).reverse().map(entityChipLabel).join(' · ') || 'Nothing yet'}</span></div>
+      <div class="mem-row"><span class="v" style="color:var(--t3)">Opened HBM context 3× this week · asked about NVDA add levels</span></div>
+    </div>
     <div class="d-sec"><div class="sec-label">Watching</div>
       ${store.watches.length ? store.watches.map((w) => `<div class="mem-row"><span class="v">“${w}”</span></div>`).join('') : '<p class="ent-none">No watches yet.</p>'}
+    </div>
+    <div class="d-sec"><div class="sec-label">Thesis</div>
+      <div class="mem-row"><span class="v">“AI capex is a multi-year supercycle; memory is the tightest link in the chain.”</span><span class="t">Aug 15</span></div>
+      <div class="mem-row"><span class="v">“BTC treasury demand is structural, not cyclical.”</span><span class="t">Jul 30</span></div>
     </div>
     <div class="d-sec"><div class="sec-label">Goal</div>
       ${store.goal ? `<div class="mem-row" data-act="nav" data-to="#/goal" role="button"><span class="v">“${goalTitle()}”</span>${I.chevR}</div>` : '<p class="ent-none">No goal set.</p>'}

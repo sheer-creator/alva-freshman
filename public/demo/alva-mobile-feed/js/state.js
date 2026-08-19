@@ -5,7 +5,7 @@ const DEFAULTS = {
   onboarded: false,
   entities: [],
   watches: [],
-  feeds: ['brief'],
+  feeds: [],
   sources: [],
   connected: { x: false, telegram: false },
   tracks: [],
@@ -31,6 +31,11 @@ export const store = (() => {
   try { return { ...structuredClone(DEFAULTS), ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }
   catch { return structuredClone(DEFAULTS); }
 })();
+/* 旧数据迁移：brief 从默认 follow 改为可选（每日摘要场景由 recap 承担） */
+if (!store.briefMigrated) {
+  store.feeds = store.feeds.filter((f) => f !== 'brief');
+  store.briefMigrated = true;
+}
 /* 旧数据迁移：单条 watch → 多条 watches */
 if (store.watch) {
   if (!store.watches.includes(store.watch)) store.watches.push(store.watch);
