@@ -1,5 +1,5 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ENTITIES, ITEMS, SOURCES, FEEDS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
+import { ENTITIES, ITEMS, SOURCES, FEEDS, RECS, TG_CHATS, BROKERS, ONBOARD_ENTITIES, entityChipLabel, evidenceCounts } from './data.js';
 import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
 import { cardBack, entityAv, monoAv } from './cards.js';
 import { askCtx, setAskCtx, setPendingAsk, setDiscTab, setAskTab, setMktTab, mktListHtml, setFeedTab, obPickEntity } from './screens.js';
@@ -317,6 +317,33 @@ export const ACTIONS = {
         <div class="tx"><b>Subscribed to ${f.name}</b>
         <p>Next run ${f.next_run.toLowerCase()} — output lands here in For You.</p></div>
         <button class="txt-act teal" data-act="open-feed" data-id="${id}">View</button>
+      </div>`;
+  },
+  /* entity / basket 型推荐：Follow 后原地变确认态 */
+  'rec-follow': (el) => {
+    const id = el.dataset.id;
+    if (!store.entities.includes(id)) store.entities.push(id);
+    save();
+    const card = el.closest('.rec-card');
+    if (card) card.innerHTML = `
+      <div class="rec-done">
+        <span class="ic">${I.check}</span>
+        <div class="tx"><b>Following ${entityChipLabel(id)}</b>
+        <p>Its context now shapes your For You.</p></div>
+        <button class="txt-act teal" data-act="open-entity" data-id="${id}">View</button>
+      </div>`;
+  },
+  'rec-follow-basket': (el) => {
+    const rec = RECS.find((r) => r.id === el.dataset.recId);
+    if (!rec) return;
+    rec.basket.forEach((id) => { if (!store.entities.includes(id)) store.entities.push(id); });
+    save();
+    const card = el.closest('.rec-card');
+    if (card) card.innerHTML = `
+      <div class="rec-done">
+        <span class="ic">${I.check}</span>
+        <div class="tx"><b>Following ${rec.basket.map((id) => entityChipLabel(id)).join(' · ')}</b>
+        <p>The whole basket now shapes your For You.</p></div>
       </div>`;
   },
   'rec-dismiss': (el) => {
