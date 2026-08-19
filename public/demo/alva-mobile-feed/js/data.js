@@ -168,7 +168,7 @@ export const FEEDS = {
 export const ITEMS = [
   {
     id: 'it_nvda_blackwell',
-    cta: { kind: 'prompt', label: 'Test consensus', value: 'Is FY27 consensus revenue for NVDA still too low given the accelerating Blackwell ramp?' },
+    cta: { kind: 'prompt', label: 'Plan trade', value: 'Build a trade plan for NVDA around the accelerating Blackwell ramp. Give me an entry zone, invalidation level, upside target and the catalyst to watch.' },
     feed: 'nvda_events',
     archetype: 'what_changed',
     published: '18m ago',
@@ -201,7 +201,7 @@ export const ITEMS = [
   },
   {
     id: 'it_hbm_supply',
-    cta: { kind: 'prompt', label: 'Who gains most?', value: 'Which memory supplier gains most from HBM staying the bottleneck?' },
+    cta: { kind: 'prompt', label: 'Compare plays', value: 'Compare the listed ways to trade persistent HBM tightness. Rank the cleanest setups by upside, valuation and execution risk.' },
     feed: 'ai_watch',
     archetype: 'multi_source',
     published: '1h ago',
@@ -324,7 +324,7 @@ export const ITEMS = [
   },
   {
     id: 'it_brief',
-    cta: { kind: 'prompt', label: 'Walk me through', value: 'Walk me through today\u2019s three setups and what to watch at each event.' },
+    cta: { kind: 'prompt', label: 'Set levels', value: 'Turn today\u2019s three setups into a trading plan with entry levels, invalidation levels and the event that triggers each trade.' },
     feed: 'brief',
     archetype: 'brief',
     published: '7:00 AM',
@@ -369,7 +369,7 @@ export const ITEMS = [
   },
   {
     id: 'it_tsla_event',
-    cta: { kind: 'prompt', label: 'Explain filing', value: 'What exactly does Tesla\u2019s Texas DMV filing say, and how reliable are such filings as leading indicators?' },
+    cta: { kind: 'prompt', label: 'Price catalyst', value: 'Price the TSLA robotaxi filing as a catalyst. Map the bull, base and bear cases, then suggest an entry level and invalidation signal.' },
     feed: 'earnings',
     archetype: 'important_event',
     published: '32m ago',
