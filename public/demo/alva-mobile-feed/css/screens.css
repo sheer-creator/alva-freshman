@@ -970,3 +970,7 @@
 
 /* Discover Feed 列表里的新上线标记 */
 .new-flag { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--teal); margin-right: 5px; }
+
+/* immersive 里的推荐屏：卡片垂直居中，关闭动作只在 stream 提供 */
+.imm-rec .imm-content { margin: auto 0; }
+.imm-rec .rec-x { display: none; }
