@@ -1,8 +1,8 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, FEEDS, ITEMS, TASKS, FILES, ONBOARD_ENTITIES, DISCOVER, entityChipLabel, itemSources } from './data.js?v=20260820-cache1';
-import { store, save, I, nav } from './state.js?v=20260820-cache1';
-import { streamCard, composerContextMenu, entityAv, entityReference, monoAv, srcAvatar, sparkSVG, feedId, entStrips } from './cards.js?v=20260820-cache1';
-import { renderCompanyDetail, mountCompanyChart, destroyCompanyChart } from './company.js?v=20260820-cache1';
+import { ENTITIES, SOURCES, FEEDS, ITEMS, TASKS, FILES, ONBOARD_ENTITIES, DISCOVER, entityChipLabel, itemSources } from './data.js?v=local-mt10cd';
+import { store, save, I, nav } from './state.js?v=local-mt10cd';
+import { streamCard, composerContextMenu, entityAv, entityReference, monoAv, srcAvatar, sparkSVG, feedId, entStrips } from './cards.js?v=local-mt10cd';
+import { renderCompanyDetail, mountCompanyChart, destroyCompanyChart } from './company.js?v=local-mt10cd';
 
 export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
 
