@@ -15,9 +15,17 @@ const backBar = (title = '', extra = '') => `
   </div>`;
 
 const logoImg = `<img class="logo" src="img/logo-alva.svg" alt="Alva">`;
+let readyLeaveTimer;
+let readyRouteTimer;
+
+function clearReadyTransition() {
+  window.clearTimeout(readyLeaveTimer);
+  window.clearTimeout(readyRouteTimer);
+}
 
 /* ========== route table ========== */
 export function renderRoute(route, page) {
+  clearReadyTransition();
   destroyCompanyChart();
   const [root, a] = route.split('/');
   const fn = {
@@ -116,16 +124,27 @@ function sOnboard(page, step) {
   /* 收尾动效页：选完标的后的仪式感（aura + 节点连线），Skip 路径不经过这里 */
   if (step === 'ready') {
     const selected = store.entities.slice(0, 3);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    page.classList.add('ready-auto');
     page.innerHTML = `
       <div class="ob-top"><span></span><span></span><span style="width:36px"></span></div>
-      <div class="ready-copy"><h1 class="ob-h1">Your feed is ready</h1></div>
+      <div class="ready-copy" role="status" aria-live="polite"><h1 class="ob-h1">Your feed is ready</h1></div>
       <div class="ready-stage" aria-hidden="true">
         <div class="ready-aura"></div>
         <div class="ready-stack"><i></i><i></i><span>${I.spark}</span></div>
         ${selected.map((id, i) => `<span class="ready-node n${i + 1}">${entityAv(id, 38)}</span>`).join('')}
         <div class="ready-line l1"></div><div class="ready-line l2"></div><div class="ready-line l3"></div>
-      </div>
-      <div class="ob-cta-row"><button class="btn btn-teal-solid" data-act="ob-finish">Open For You</button></div>`;
+      </div>`;
+    readyLeaveTimer = window.setTimeout(() => {
+      if (!page.isConnected || location.hash !== '#/onboard/ready') return;
+      page.classList.add('ready-leaving');
+      readyRouteTimer = window.setTimeout(() => {
+        if (!page.isConnected || location.hash !== '#/onboard/ready') return;
+        store.onboarded = true;
+        save();
+        nav('#/home');
+      }, reducedMotion ? 20 : 420);
+    }, reducedMotion ? 520 : 1550);
     return;
   }
   page.innerHTML = `
