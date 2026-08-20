@@ -1380,3 +1380,195 @@ svg .thin { stroke-width: 1; }
 .rec-ta { margin-top: 12px; padding: 10px 12px 6px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); }
 .rec-ta svg.spark { width: 100%; height: auto; display: block; }
 .rec-card .signal-inline { margin-top: 9px; }
+
+/* ========== 2026-08-20 · MVP visual system on the full concept demo ==========
+ * Only presentation changes here. The full demo's routes, data and actions stay intact. */
+
+/* Shared page rhythm and typography. */
+.topbar {
+  padding-bottom: 10px;
+  background: linear-gradient(to bottom, var(--chrome) 64%, transparent);
+}
+.topbar .lg-title { font-size: 28px; line-height: 38px; font-weight: 400; letter-spacing: .28px; }
+.topbar .title { font-weight: 500; }
+.feed-scroll { padding: 2px 16px 32px; }
+.d-sec { margin-top: 24px; }
+.sec-label { color: var(--t3); font-size: 11px; font-weight: 500; letter-spacing: .55px; }
+
+/* MVP signal field, while retaining the full demo's two onboarding entry points. */
+.welcome { isolation: isolate; justify-content: flex-end; background: #050A0B; }
+.welcome-art { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #050A0B; }
+.welcome-flow {
+  position: absolute; inset: -3%;
+  background: url('../../alva-mobile-mvp/img/art/alva-signal-flow-splash.jpg') 50% 0 / cover no-repeat;
+  will-change: transform, opacity;
+}
+.welcome-flow.primary { opacity: .94; animation: fullWelcomeDrift 15s ease-in-out infinite alternate; }
+.welcome-flow.echo {
+  inset: -7%; opacity: .16; mix-blend-mode: screen; filter: saturate(1.14) brightness(1.05);
+  -webkit-mask-image: linear-gradient(142deg, transparent 6%, #000 27%, #000 57%, transparent 76%);
+  mask-image: linear-gradient(142deg, transparent 6%, #000 27%, #000 57%, transparent 76%);
+  animation: fullWelcomeEcho 10s ease-in-out infinite alternate;
+}
+.welcome-art::before {
+  content: ''; position: absolute; z-index: 2; width: 48%; height: 86%; left: -58%; top: -14%;
+  background: linear-gradient(104deg, transparent, rgba(193,255,248,.09) 47%, transparent 58%);
+  mix-blend-mode: screen; transform: skewX(-14deg); animation: fullWelcomeSweep 9s 1.2s ease-in-out infinite;
+}
+.welcome-art::after {
+  content: ''; position: absolute; inset: 0; z-index: 3;
+  background: radial-gradient(92% 58% at 48% 16%, transparent 38%, rgba(3,8,9,.2) 82%), linear-gradient(180deg, rgba(5,10,11,.02), rgba(5,10,11,.08) 41%, #050A0B 64%, #050A0B);
+}
+.welcome-body { position: relative; z-index: 2; display: flex; flex-direction: column; padding: 0 26px calc(var(--sab) + 22px); }
+.welcome-copy { margin-bottom: 28px; transform: translateY(-12px); }
+.welcome .logo { height: 25px; margin-bottom: 19px; }
+.welcome h1 { max-width: 310px; font-size: 32px; line-height: 1.08; font-weight: 500; letter-spacing: .12px; }
+.welcome p { max-width: 315px; margin: 12px 0 0; color: rgba(225,239,236,.66); font-size: 14px; line-height: 1.5; }
+.welcome .btn { height: 44px; border-radius: 6px; }
+.welcome .alt { align-self: center; margin-top: 13px; padding: 4px 8px; color: rgba(225,239,236,.48); font-size: 13px; }
+.welcome .alt b { color: rgba(225,239,236,.72); font-weight: 400; }
+@keyframes fullWelcomeDrift {
+  from { transform: translate3d(-1.2%, -1.1%, 0) scale(1.035); }
+  to { transform: translate3d(1.2%, 1%, 0) scale(1.065); }
+}
+@keyframes fullWelcomeEcho {
+  from { transform: translate3d(-3.5%, 1%, 0) scale(1.07); opacity: .08; }
+  to { transform: translate3d(4.5%, -2%, 0) scale(1.13); opacity: .2; }
+}
+@keyframes fullWelcomeSweep {
+  0%, 18% { transform: translateX(0) skewX(-14deg); opacity: 0; }
+  36% { opacity: .72; }
+  63%, 100% { transform: translateX(390%) skewX(-14deg); opacity: 0; }
+}
+
+/* Full onboarding, same content with MVP geometry. */
+.ob-h1 { margin-top: 23px; font-size: 30px; line-height: 1.12; font-weight: 400; letter-spacing: .26px; }
+.ob-sub { margin-top: 9px; font-size: 14px; line-height: 1.5; }
+.ob-progress i { width: 24px; height: 2px; }
+.ent-search { height: 44px; margin-top: 20px; padding: 0 13px; border: .5px solid var(--line2); border-radius: 6px; background: var(--bg1); }
+.ent-search input { font-size: 14px; }
+.ent-dd { border-radius: 8px; background: var(--bg1); }
+.ent-dd-row { border-radius: 4px; }
+.ent-grid { gap: 8px; }
+.ent-chip { padding: 10px 12px 10px 10px; border: .5px solid var(--line2); border-radius: 8px; background: var(--bg1); }
+.ent-chip .nm { font-size: 14px; font-weight: 500; }
+.ent-chip .ht { font-size: 11.5px; }
+.ent-chip.on { border-color: var(--teal-line); background: var(--teal-dim); box-shadow: none; }
+.conn-list { gap: 8px; }
+.conn-row { padding: 14px; border: .5px solid var(--line2); border-radius: 8px; background: var(--bg1); }
+.conn-row .ic { width: 38px; height: 38px; border-radius: 6px; }
+.conn-row .nm { font-size: 15px; font-weight: 500; }
+.src-add, .sm-act button { height: 32px; padding: 0 12px; border-radius: 4px; font-weight: 500; }
+.ob-cta-row { padding-top: 18px; background: linear-gradient(to top, var(--bg0) 72%, transparent); }
+.ob-cta-row .btn { height: 44px; }
+
+/* Context cards use the MVP's quiet product surfaces and one restrained signal texture. */
+.card, .recap, .theme-tile, .stat-strip, .radar-wrap, .setup-card, .pf-connect, .fig-card, .goal-md, .freq-row {
+  background: var(--bg1); border: .5px solid var(--line2); box-shadow: none;
+}
+.card { isolation: isolate; overflow: hidden; padding: 16px; border-radius: var(--r-card); }
+.card::before {
+  content: ''; position: absolute; z-index: 0; width: 410px; height: 231px; right: -158px; top: -82px;
+  background: url('../../alva-mobile-mvp/img/art/alva-signal-ribbon.jpg') center / cover no-repeat;
+  mix-blend-mode: screen; opacity: .055; pointer-events: none; transform: rotate(-3deg);
+  -webkit-mask-image: linear-gradient(132deg, transparent 8%, #000 34%, #000 66%, transparent 91%);
+  mask-image: linear-gradient(132deg, transparent 8%, #000 34%, #000 66%, transparent 91%);
+}
+.card > * { position: relative; z-index: 1; }
+.card-head { margin-bottom: 12px; }
+.card-head .tick { font-size: 13px; font-weight: 500; }
+.card-head .delta { font-size: 11.5px; font-weight: 500; }
+.card-head .theme, .card-head .time { color: var(--t3); font-size: 11.5px; }
+.card-headline { font-size: 18px; line-height: 1.45; font-weight: 500; letter-spacing: .12px; }
+.card-summary, .fact-tx { color: var(--t2); font-size: 14px; line-height: 22px; }
+.card-media-top { margin: 0 0 12px; border-radius: 8px; aspect-ratio: 16 / 9; }
+.card-media-top::after { border-radius: 8px; box-shadow: inset 0 0 0 .5px rgba(255,255,255,.12); }
+.src-chip { border-radius: 3px; background: var(--surface-soft); }
+.metric-row, .signal-inline .cell, .lock-panel { border-radius: 6px; background: var(--surface-soft); }
+.clip { border-radius: 8px; background: var(--surface-soft); border: .5px solid var(--line2); }
+.clip .play { width: 32px; height: 32px; border: .5px solid var(--teal-line); background: var(--teal-dim); }
+.card-actions { gap: 8px; margin-top: 14px; }
+.card-actions .btn { height: 36px; padding: 0 12px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+.card-actions .btn-ask { background: transparent; border: .5px solid var(--line2); color: var(--t1); }
+.card-actions .btn-ask:active { color: var(--teal); background: var(--surface-hover); border-color: var(--teal-line); }
+.card-actions .btn-ghost { background: transparent; border: .5px solid var(--line2); }
+.prov-row { margin-top: 12px; padding: 6px 9px 6px 6px; border: 0; border-radius: 6px; background: transparent; }
+.prov-row:active { background: var(--surface-hover); }
+.src-stack img, .src-stack span { border-color: var(--bg1); font-weight: 500; }
+.prov-tx { color: var(--t3); }
+.flip-back { border: .5px solid var(--line2); border-radius: var(--r-card); background: var(--bg1); }
+.fb-manage, .rec-preview, .rec-basket, .rec-ta { border-radius: 6px; background: var(--surface-soft); }
+.recap { padding: 14px; border-radius: 8px; }
+
+/* Product pages and their full-only modules. */
+.theme-tile { width: 136px; padding: 14px; border-radius: 8px; }
+.theme-tile .nm, .list-row .nm, .src-row .nm { font-weight: 500; }
+.byos-row, .fig-card, .fig-quote, .indexed-note, .src-disclaimer, .goal-md { border-radius: 8px; }
+.byos-row .ic { border-radius: 6px; }
+.follow-sm { width: 76px; height: 32px; padding: 0; border-radius: 4px; font-weight: 500; }
+.disc-tabs { gap: 18px; padding: 4px var(--pad) 0; border-bottom: .5px solid var(--line); }
+.disc-tabs .chip { padding: 7px 0 10px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--t3); font-weight: 400; }
+.disc-tabs .chip.on { border-color: var(--teal); background: transparent; color: var(--t1); font-weight: 500; }
+.mini-tabs button { font-weight: 400; }
+.mini-tabs button.on { color: var(--t1); }
+.hero-head h1, .pf-total, .stat-strip .n { font-weight: 400; letter-spacing: .25px; }
+.hero-head .actions .btn { height: 40px; border-radius: 6px; font-size: 14px; }
+.stat-strip, .radar-wrap { border-radius: 8px; }
+.auto-row, .list-row, .mgmt-row, .src-row, .mem-row { border-color: var(--line); }
+.auto-title h1 { font-weight: 400; letter-spacing: .24px; }
+
+/* Chat and settings mirror the compact MVP controls. */
+.ask-tabs { gap: 16px; border-bottom: .5px solid var(--line); }
+.ask-tabs button { font-weight: 400; }
+.ask-tabs button.on { font-weight: 500; }
+.ask-hero h1 { font-weight: 400; letter-spacing: .3px; }
+.ask-sug, .ask-reply .bub, .setup-card, .quote-card { border: .5px solid var(--line2); border-radius: 8px; background: var(--bg1); }
+.ask-reply .bub b { font-weight: 500; }
+.ask-composer input { height: 44px; padding: 0 14px; border: .5px solid var(--line2); border-radius: 6px; background: var(--bg1); font-size: 14px; }
+.ask-composer .send { width: 44px; height: 44px; border-radius: 6px; background: var(--teal); }
+.ask-composer .send svg { stroke: #fff; }
+.composer-ta { min-height: 64px; padding: 11px 13px; border: .5px solid var(--line2); border-radius: 6px; background: var(--bg1); font-size: 14px; }
+.you-head h1 { font-size: 24px; font-weight: 400; letter-spacing: .24px; }
+.you-head .mono-av { border-radius: 8px; }
+.pf-connect { padding: 16px; border-radius: 8px; }
+.mgmt-row { padding: 14px 0; }
+.mgmt-row .ic { width: 32px; height: 32px; border: 0; border-radius: 4px; background: transparent; }
+.mgmt-row .nm { font-size: 15px; font-weight: 400; }
+.mgmt-row .ds { font-size: 12px; }
+.sheet h3 { font-weight: 500; letter-spacing: .12px; }
+.freq-row { padding: 13px 14px; border-radius: 8px; }
+
+/* Recap approval remains a rich full-demo interaction, with the MVP material language. */
+.deck-card { border: .5px solid var(--line2); border-radius: 12px; background: var(--bg1); box-shadow: 0 24px 60px -34px rgba(0,0,0,.64); }
+.deck-card::before {
+  content: ''; position: absolute; inset: 0 0 42%; pointer-events: none;
+  background: url('../../alva-mobile-mvp/img/art/alva-signal-ribbon.jpg') 62% 48% / cover no-repeat;
+  opacity: .12; mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000, transparent 92%);
+}
+.deck-card > * { z-index: 1; }
+.dk-img::after { background: linear-gradient(to bottom, transparent 25%, var(--bg1) 100%); }
+.dk-meta { border-radius: 6px; background: var(--surface-soft); }
+.dk-btn { border: .5px solid var(--line2); background: var(--bg1); }
+
+/* Immersive keeps photography expressive but adopts the quieter controls. */
+.imm-bg .scrim { background: linear-gradient(180deg, rgba(5,7,8,.16), rgba(8,9,11,.25) 32%, rgba(14,15,18,.84) 66%, #15161A 100%); }
+.imm-bg.no-img {
+  background: #101719 url('../../alva-mobile-mvp/img/art/alva-signal-flow-splash.jpg') 54% 12% / 150% auto no-repeat !important;
+}
+.imm-bg.no-img::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,17,18,.04), rgba(15,20,22,.44) 44%, #15161A 100%);
+}
+.imm-headline { font-size: 24px; line-height: 1.24; font-weight: 500; letter-spacing: .12px; }
+.imm-summary { color: rgba(255,255,255,.68); }
+.ent-pill, .behind-pill { border-radius: 6px; }
+.imm-slide .prov-row { background: rgba(21,22,26,.58); border: .5px solid var(--line2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-flow.primary, .welcome-flow.echo, .welcome-art::before { animation: none; }
+  .welcome-flow.primary { transform: none; }
+  .welcome-flow.echo { opacity: .1; transform: none; }
+  .welcome-art::before { display: none; }
+}

@@ -96,10 +96,16 @@ export function renderRoute(route, page) {
 function sWelcome(page) {
   page.classList.add('welcome');
   page.innerHTML = `
+    <div class="welcome-art" aria-hidden="true">
+      <span class="welcome-flow primary"></span>
+      <span class="welcome-flow echo"></span>
+    </div>
     <div class="welcome-body">
-      ${logoImg}
-      <h1>Follow what matters.<br><em>Act with context.</em></h1>
-      <p>Alva reads your markets, your sources and your questions — and turns them into context you can act on.</p>
+      <div class="welcome-copy">
+        ${logoImg}
+        <h1>Follow what matters.<br><em>Act with context.</em></h1>
+        <p>Alva reads your markets, your sources and your questions — and turns them into context you can act on.</p>
+      </div>
       <button class="btn btn-teal-solid" data-act="ob-start">Pick what you follow</button>
       <div class="alt" data-act="ob-start-sources" role="button">Or start by <b>connecting your sources</b></div>
     </div>`;

@@ -90,7 +90,15 @@ window.__rerender = () => {
   updateChrome(route);
 };
 
-/* demo 预设：recap 模块常显（拟真数据由 data.js 提供） */
+/* Desktop keeps the same 430x932 phone geometry as the MVP at every viewport. */
+const device = document.getElementById('device');
+function fitDevice() {
+  if (window.innerWidth < 500) { device.style.transform = ''; return; }
+  const scale = Math.min(1, (window.innerHeight - 40) / 932, (window.innerWidth - 40) / 430);
+  device.style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', fitDevice);
+fitDevice();
 
 /* boot */
 if (!location.hash) location.hash = store.onboarded ? '#/home' : '#/welcome';
