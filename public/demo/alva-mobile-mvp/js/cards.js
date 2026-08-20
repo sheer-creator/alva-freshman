@@ -5,9 +5,9 @@
  *   anomaly — 异动 + 走势 + 逐条归因
  * 正面卡带 feed 标签（Alpha / Following）标明来源；卡背 = 溯源 + why。
  */
-import { ENTITIES, SOURCES, FEEDS, entityChipLabel, itemSources } from './data.js?v=20260820-cache1';
-import { store, I } from './state.js?v=20260820-cache1';
-import { renderMarkdown, splitMarkdown } from './markdown.js?v=20260820-cache1';
+import { ENTITIES, SOURCES, FEEDS, entityChipLabel, itemSources } from './data.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { store, I } from './state.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { renderMarkdown, splitMarkdown } from './markdown.js?v=__ALVA_MVP_ASSET_VERSION__';
 
 /* ---- 小部件 ---- */
 export function monoAv(label, hue, size = 36, round = false) {

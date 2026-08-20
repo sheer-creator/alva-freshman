@@ -1,8 +1,8 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, FEEDS, ITEMS, TASKS, FILES, ONBOARD_ENTITIES, DISCOVER, entityChipLabel, itemSources } from './data.js?v=20260820-cache1';
-import { store, save, I, nav } from './state.js?v=20260820-cache1';
-import { streamCard, composerContextMenu, entityAv, entityReference, monoAv, srcAvatar, sparkSVG, feedId, entStrips } from './cards.js?v=20260820-cache1';
-import { renderCompanyDetail, mountCompanyChart, destroyCompanyChart } from './company.js?v=20260820-cache1';
+import { ENTITIES, SOURCES, FEEDS, ITEMS, TASKS, FILES, ONBOARD_ENTITIES, DISCOVER, entityChipLabel, itemSources } from './data.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { store, save, I, nav } from './state.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { streamCard, composerContextMenu, entityAv, entityReference, monoAv, srcAvatar, sparkSVG, feedId, entStrips } from './cards.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { renderCompanyDetail, mountCompanyChart, destroyCompanyChart } from './company.js?v=__ALVA_MVP_ASSET_VERSION__';
 
 export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
 
