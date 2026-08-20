@@ -1,9 +1,9 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel } from './data.js';
-import { store, save, applyTheme, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
-import { cardBack, composerContextMenu, entityReference, srcAvatar } from './cards.js';
-import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setMktTab, mktListHtml, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js';
-import { setCompanyTab, setCompanyChartRange, setCompanySmartTab, setCompanyEarningsStage } from './company.js';
+import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel } from './data.js?v=20260820-cache1';
+import { store, save, applyTheme, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js?v=20260820-cache1';
+import { cardBack, composerContextMenu, entityReference, srcAvatar } from './cards.js?v=20260820-cache1';
+import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setMktTab, mktListHtml, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js?v=20260820-cache1';
+import { setCompanyTab, setCompanyChartRange, setCompanySmartTab, setCompanyEarningsStage } from './company.js?v=20260820-cache1';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();
