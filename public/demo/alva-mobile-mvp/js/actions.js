@@ -1,14 +1,37 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel } from './data.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel, itemSources } from './data.js?v=__ALVA_MVP_ASSET_VERSION__';
 import { store, save, applyTheme, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js?v=__ALVA_MVP_ASSET_VERSION__';
-import { cardBack, composerContextMenu, entityReference, srcAvatar } from './cards.js?v=__ALVA_MVP_ASSET_VERSION__';
-import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setMktTab, mktListHtml, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { composerContextMenu, entityReference, srcAvatar } from './cards.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js?v=__ALVA_MVP_ASSET_VERSION__';
 import { setCompanyTab, setCompanyChartRange, setCompanySmartTab, setCompanyEarningsStage } from './company.js?v=__ALVA_MVP_ASSET_VERSION__';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();
 const escapeHtml = (value) => String(value)
   .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+
+function sourceNote(it, id) {
+  if (it.kind === 'alpha') return `${it.ep} · ${it.at}`;
+  const row = it.kind === 'anomaly'
+    ? it.attribution.find((entry) => entry.source === id)
+    : it.facts.find((entry) => entry.sources.includes(id));
+  const note = row?.text || `${SOURCES[id].platform} · ${SOURCES[id].modality}`;
+  return note.length > 88 ? note.slice(0, 88) + '…' : note;
+}
+
+function cardSourcesSheet(it) {
+  const sourceIds = itemSources(it);
+  return `
+    <div class="source-sheet-head"><h3>Sources</h3><p>${sourceIds.length} source${sourceIds.length === 1 ? '' : 's'} behind this card</p></div>
+    <div class="source-sheet-list">${sourceIds.map((id) => {
+      const source = SOURCES[id];
+      return `<button class="source-sheet-row" data-act="open-source" data-id="${id}" aria-label="Open ${source.name} original source">
+        ${srcAvatar(source, 36)}
+        <span class="source-sheet-copy"><b>${source.name}</b><i>${sourceNote(it, id)}</i></span>
+        <span class="source-sheet-open">${I.link}</span>
+      </button>`;
+    }).join('')}</div>`;
+}
 
 /* 当前页弹起对话 composer：卡片作为引用元素，发送后才进入 Chat */
 function openComposer(it, prefill) {
@@ -115,13 +138,19 @@ export const ACTIONS = {
   },
 
   /* ---- 打开对象 ---- */
-  'open-detail': (el) => nav('#/context/' + el.dataset.item),
   'open-entity': (el) => { if (el.dataset.id) nav('#/entity/' + el.dataset.id); },
   'open-feed': (el) => { setFeedTab('output'); nav('#/feed/' + el.dataset.id); },
   'open-automation': (el) => nav('#/automation/' + el.dataset.id),
   'open-source': (el) => {
+    const source = SOURCES[el.dataset.id];
+    if (!source?.url) return;
     if (el.closest('.sheet')) closeSheet();
-    nav('#/source/' + el.dataset.id);
+    const opened = window.open(source.url, '_blank', 'noopener,noreferrer');
+    if (opened) opened.opener = null;
+  },
+  'card-sources-sheet': (el) => {
+    const it = item(el);
+    if (it) openSheet(cardSourcesSheet(it));
   },
 
   /* ---- Market / company detail ---- */
@@ -130,22 +159,6 @@ export const ACTIONS = {
   'entity-smart-tab': (el) => { setCompanySmartTab(el.dataset.tab); rerender(); },
   'entity-earnings-stage': (el) => { setCompanyEarningsStage(el.dataset.stage); rerender(); },
 
-  /* ---- card flip（卡背 = 溯源 + why） ---- */
-  flip: (el) => {
-    const scene = el.closest('.flip-scene');
-    const inner = scene.querySelector('.flip-inner');
-    const front = scene.querySelector('.flip-face');
-    scene.style.height = front.offsetHeight + 'px';
-    inner.style.height = front.offsetHeight + 'px';
-    scene.classList.add('flipped');
-  },
-  unflip: (el) => {
-    if (el.closest('.sheet')) return closeSheet();
-    el.closest('.flip-scene').classList.remove('flipped');
-  },
-  'evi-sheet': (el) => {
-    openSheet(`<div style="padding-top:2px">${cardBack(item(el))}</div>`);
-  },
   'play-clip': (el) => {
     const it = item(el);
     const hero = el.closest('.audio-hero');
@@ -158,27 +171,19 @@ export const ACTIONS = {
     toast(`Opens the episode at ${it ? it.at : ''} on the source platform`, I.play);
   },
 
-  /* ---- discover / follow ---- */
-  'disc-search-clear': () => {
-    const input = document.getElementById('discSearch');
+  /* ---- following ---- */
+  'following-search-clear': () => {
+    const input = document.getElementById('followingSearch');
     if (input) { input.value = ''; input.focus(); }
-    window.__discSearch('');
-  },
-  'mkt-tab': (el) => {
-    setMktTab(el.dataset.t);
-    const list = document.getElementById('mktList');
-    if (list) list.innerHTML = mktListHtml(el.dataset.t);
-    document.querySelectorAll('#mktTabs button').forEach((b) => b.classList.toggle('on', b === el));
+    window.__followingSearch('');
   },
   'follow-entity': (el) => {
     toggleIn(store.entities, el.dataset.id);
     rerender();
   },
-  /* 列表行内的 Follow 小按钮：原地换状态，不整页重绘 */
-  'follow-entity-sm': (el) => {
-    const on = toggleIn(store.entities, el.dataset.id);
-    el.classList.toggle('on', on);
-    el.textContent = on ? 'Following' : 'Follow';
+  'manage-follow-entity': (el) => {
+    toggleIn(store.entities, el.dataset.id);
+    rerender();
   },
   /* 标的行的 Follow 小圆钮：点击关注 → 闪一下确认再淡出（已关注不展示按钮） */
   'strip-follow': (el) => {
@@ -194,7 +199,7 @@ export const ACTIONS = {
   'following-sheet': () => {
     const chips = store.entities.map((id) => `<button class="chip on" data-act="open-entity" data-id="${id}">${entityChipLabel(id)}</button>`).join('');
     openSheet(`<h3>Following</h3><p class="sub">${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'} shaping your For You.</p>
-      <div class="rel-row" style="margin-top:14px">${chips || '<span class="ent-none">Nothing yet — pick some in Discover.</span>'}</div>`);
+      <div class="rel-row" style="margin-top:14px">${chips || '<span class="ent-none">Nothing yet — add tickers from You → Following.</span>'}</div>`);
   },
   'automation-sources-sheet': (el) => {
     const feed = FEEDS[el.dataset.id];
@@ -250,6 +255,7 @@ export const ACTIONS = {
     if (body) body.innerHTML = feedBodyHtml(el.dataset.id);
   },
   'you-automations': () => { setAskTab('automations'); nav('#/ask'); },
+  'you-following': () => nav('#/following'),
   /* Settings sheet：复用正式 Alva 的 400/500 字重、细分隔和显式主题选择。 */
   'settings-sheet': () => openSheet(`
     <div class="settings-head"><h3>Settings</h3><p>Choose how Alva looks and reaches you.</p></div>

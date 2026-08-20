@@ -25,68 +25,69 @@ export const ENTITIES = {
 
 /* ========== Sources ==========
  * alpha 的源：精选 podcast；following 的源：X + 新闻 + 行情数据。
- * recent：源头详情页 “Recent from this source” 的拟真样例。
+ * url：在 Sources 底部弹层中直达原始来源。
+ * recent：自动化页面使用的拟真样例。
  */
 export const SOURCES = {
   /* ---- podcasts（Alpha） ---- */
-  bg2:       { id: 'bg2',       name: 'BG2 Pod',              platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Brad Gerstner · Bill Gurley', avatar: 'sources/bg2.jpg',
+  bg2:       { id: 'bg2',       name: 'BG2 Pod',              platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Brad Gerstner · Bill Gurley', avatar: 'sources/bg2.jpg', url: 'https://www.youtube.com/@BG2Pod',
     recent: [
       { t: '2h ago', kind: 'Episode', text: 'E82 · “The trillion-dollar buildout” — hyperscaler capex, sovereign AI and what breaks first.' },
       { t: '1w ago', kind: 'Episode', text: 'E81 · Open-source models and the margin question.' },
     ] },
-  investlike: { id: 'investlike', name: 'Invest Like the Best', platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Patrick O’Shaughnessy', avatar: 'sources/invest-like-the-best.jpg',
+  investlike: { id: 'investlike', name: 'Invest Like the Best', platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Patrick O’Shaughnessy', avatar: 'sources/invest-like-the-best.jpg', url: 'https://joincolossus.com/episodes/',
     recent: [
       { t: '13h ago', kind: 'Episode', text: 'A memory-cycle veteran on why this one is structurally different.' },
       { t: '1w ago', kind: 'Episode', text: 'Compounding lessons from 20 years of semis investing.' },
     ] },
-  oddlots:   { id: 'oddlots',   name: 'Odd Lots',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Joe Weisenthal · Tracy Alloway', avatar: 'sources/odd-lots.jpg',
+  oddlots:   { id: 'oddlots',   name: 'Odd Lots',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Joe Weisenthal · Tracy Alloway', avatar: 'sources/odd-lots.jpg', url: 'https://www.bloomberg.com/oddlots-podcast',
     recent: [
       { t: '5h ago', kind: 'Episode', text: 'How the stablecoin bill quietly rewires money-market plumbing.' },
       { t: '6d ago', kind: 'Episode', text: 'The Treasury basis trade, explained by the people doing it.' },
     ] },
-  allin:     { id: 'allin',     name: 'All-In Podcast',       platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Chamath · Sacks · Friedberg · Calacanis', avatar: 'sources/all-in.jpg',
+  allin:     { id: 'allin',     name: 'All-In Podcast',       platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Chamath · Sacks · Friedberg · Calacanis', avatar: 'sources/all-in.jpg', url: 'https://www.allinpodcast.co/',
     recent: [
       { t: '9h ago', kind: 'Episode', text: 'E214 · “We’re underestimating inference demand by an order of magnitude” · from 41:22.' },
       { t: '1w ago', kind: 'Episode', text: 'E213 · Rates, the deficit and what breaks first.' },
     ] },
-  dwarkesh:  { id: 'dwarkesh',  name: 'Dwarkesh Podcast',     platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Dwarkesh Patel', avatar: 'sources/dwarkesh.jpg',
+  dwarkesh:  { id: 'dwarkesh',  name: 'Dwarkesh Podcast',     platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Dwarkesh Patel', avatar: 'sources/dwarkesh.jpg', url: 'https://www.dwarkesh.com/podcast',
     recent: [
       { t: '1d ago', kind: 'Episode', text: 'A frontier-lab researcher on serving costs and the economics of inference.' },
       { t: '2w ago', kind: 'Episode', text: 'What scaling laws still predict — and what they stopped predicting.' },
     ] },
-  acquired:  { id: 'acquired',  name: 'Acquired',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Ben Gilbert · David Rosenthal', avatar: 'sources/acquired.jpg',
+  acquired:  { id: 'acquired',  name: 'Acquired',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Ben Gilbert · David Rosenthal', avatar: 'sources/acquired.jpg', url: 'https://www.acquired.fm/episodes',
     recent: [
       { t: '2d ago', kind: 'Episode', text: 'TSMC, part II — advanced packaging and the moat nobody models.' },
       { t: '1mo ago', kind: 'Episode', text: 'Costco: the deep dive.' },
     ] },
 
   /* ---- X + news（Following） ---- */
-  dylan:     { id: 'dylan',     name: '@dylan522p',           platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/dylan522p.jpg',
+  dylan:     { id: 'dylan',     name: '@dylan522p',           platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/dylan522p.jpg', url: 'https://x.com/dylan522p',
     recent: [
       { t: '2h ago', kind: 'Post', text: '“HBM3E lead times now 31 weeks. Checked with two OSATs — this is allocation, not logistics.”' },
       { t: '1d ago', kind: 'Thread', text: '12 posts on Blackwell rack yields and what they mean for Q4 supply.' },
     ] },
-  kobeissi:  { id: 'kobeissi',  name: '@KobeissiLetter',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/kobeissi-letter.jpg',
+  kobeissi:  { id: 'kobeissi',  name: '@KobeissiLetter',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/kobeissi-letter.jpg', url: 'https://x.com/KobeissiLetter',
     recent: [
       { t: '3h ago', kind: 'Post', text: '“BTC spot ETFs: +$412M today, the 6th straight day of net inflows.”' },
       { t: '8h ago', kind: 'Post', text: 'BTC and gold rising together — the debasement trade in one chart.' },
     ] },
-  uwhales:   { id: 'uwhales',   name: '@unusual_whales',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/unusual-whales.png',
+  uwhales:   { id: 'uwhales',   name: '@unusual_whales',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/unusual-whales.png', url: 'https://x.com/unusual_whales',
     recent: [
       { t: '55m ago', kind: 'Post', text: 'Unusual MU call sweep: Sep $150C, $3.1M premium, above ask.' },
       { t: '2h ago', kind: 'Post', text: 'AMD dark-pool prints clustering at $186 — third session in a row.' },
     ] },
-  reuters:   { id: 'reuters',   name: 'Reuters',              platform: 'News', modality: 'Article', kind: 'news', avatar: 'sources/reuters.jpg',
+  reuters:   { id: 'reuters',   name: 'Reuters',              platform: 'News', modality: 'Article', kind: 'news', avatar: 'sources/reuters.jpg', url: 'https://www.reuters.com/',
     recent: [
       { t: '41m ago', kind: 'Wire', text: 'Second hyperscaler this week raises full-year capex guidance, citing AI demand.' },
       { t: '1h ago', kind: 'Wire', text: 'SK Hynix says HBM output effectively sold out through 2026.' },
     ] },
-  bloomberg: { id: 'bloomberg', name: 'Bloomberg',            platform: 'News', modality: 'Article', kind: 'news', avatar: 'sources/bloomberg-professional.jpg',
+  bloomberg: { id: 'bloomberg', name: 'Bloomberg',            platform: 'News', modality: 'Article', kind: 'news', avatar: 'sources/bloomberg-professional.jpg', url: 'https://www.bloomberg.com/',
     recent: [
       { t: '32m ago', kind: 'Story', text: 'Tesla filing in Texas points to a broader robotaxi service area and a Q4 fleet target.' },
       { t: '9h ago', kind: 'Story', text: 'Meta utility filing corroborates committed multi-year datacenter spend.' },
     ] },
-  mkt_data:  { id: 'mkt_data',  name: 'Market data',          platform: 'Alva', modality: 'Structured', kind: 'data', mark: 'A', hue: 174,
+  mkt_data:  { id: 'mkt_data',  name: 'Market data',          platform: 'Alva', modality: 'Structured', kind: 'data', mark: 'A', hue: 174, url: 'https://alva.ai/markets',
     recent: [
       { t: 'Live', kind: 'Series', text: 'MU +5.8% on 2.4× average volume — largest single-day move since June.' },
       { t: 'Live', kind: 'Series', text: 'BTC ETF net flow +$412M — sixth straight positive session.' },
@@ -426,7 +427,7 @@ export const FILES = [
   { name: 'portfolio-snapshot.csv', kind: 'Export', size: '3 KB', t: '1w ago', from: 'Exported from chat' },
 ];
 
-/* ========== Onboarding / Discover ========== */
+/* ========== Onboarding / Following ========== */
 export const ONBOARD_ENTITIES = [
   { id: 'NVDA', hint: 'AI compute' }, { id: 'TSLA', hint: 'EV · Robotaxi' },
   { id: 'BTC', hint: 'Crypto' }, { id: 'MU', hint: 'Memory' },
@@ -434,10 +435,6 @@ export const ONBOARD_ENTITIES = [
   { id: 'TSM', hint: 'Foundry' }, { id: 'COIN', hint: 'Crypto equities' },
   { id: 'AAPL', hint: 'Consumer tech' }, { id: 'GOOGL', hint: 'Search · AI' },
 ];
-
-export const DISCOVER = {
-  movers: ['MU', 'AMD', 'COIN', 'NVDA', 'TSM', 'TSLA'],
-};
 
 /* ========== Helpers ========== */
 export const entityChipLabel = (id) => ENTITIES[id] ? ENTITIES[id].ticker : id;
