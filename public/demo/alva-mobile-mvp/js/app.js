@@ -1,7 +1,7 @@
 /* ========== app.js — router & boot ========== */
-import { store, closeSheet } from './state.js?v=20260820-cache1';
-import { renderRoute, TAB_ROUTES } from './screens.js?v=20260820-cache1';
-import { ACTIONS } from './actions.js?v=20260820-cache1';
+import { store, closeSheet } from './state.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { renderRoute, TAB_ROUTES } from './screens.js?v=__ALVA_MVP_ASSET_VERSION__';
+import { ACTIONS } from './actions.js?v=__ALVA_MVP_ASSET_VERSION__';
 
 const pagesEl = document.getElementById('pages');
 const tabbar = document.getElementById('tabbar');
