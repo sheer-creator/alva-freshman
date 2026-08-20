@@ -3113,3 +3113,213 @@ svg .thin { stroke-width: 1; }
   .company-trades-head, .company-trade-row { grid-template-columns: minmax(88px, 1.25fr) .58fr .82fr .62fr; gap: 4px; }
   .company-trade-row { font-size: 10px; }
 }
+
+/* ========== For You display density ==========
+ * Compact is a reading mode, not a second card schema. The Markdown projection
+ * stays intact in the DOM while large media and secondary blocks are folded away. */
+.feed-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: .5px solid var(--line2);
+  border-radius: 7px;
+  background: var(--bg1);
+  color: var(--t3);
+  font-size: 11.5px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: .12px;
+  transition: color .18s ease, border-color .18s ease, background .18s ease, transform .12s ease;
+}
+.feed-view-toggle:active { transform: scale(.96); }
+.feed-view-toggle.on {
+  border-color: var(--teal-line);
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+.feed-view-glyph {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  width: 13px;
+  height: 13px;
+}
+.feed-view-glyph i {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: .78;
+  transition: transform .22s var(--ease), opacity .18s ease;
+}
+.feed-view-glyph i:nth-child(2) { width: 10px; }
+.feed-view-toggle.on .feed-view-glyph i { transform: scaleX(.86); transform-origin: left center; opacity: 1; }
+
+.compact-feed { padding-top: 0; }
+.compact-feed .flip-scene { margin-bottom: 8px; }
+.compact-feed .card.flip-face {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  grid-template-areas:
+    "head head"
+    "ticker ticker"
+    "copy media"
+    "actions actions";
+  column-gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+}
+.compact-feed .card-head {
+  grid-area: head;
+  min-height: 18px;
+  margin-bottom: 8px;
+}
+.compact-feed .feed-id { font-size: 10.5px; letter-spacing: .48px; }
+.compact-feed .card-head .time { font-size: 10.5px; }
+
+/* In compact mode ticker context leads the story, rather than trailing its media. */
+.compact-feed .ticker-rail {
+  grid-area: ticker;
+  gap: 6px;
+  margin: 0 0 9px;
+  padding: 0;
+}
+.compact-feed .ticker-token {
+  height: 35px;
+  padding: 4px 9px 4px 4px;
+  border-color: var(--teal-line);
+  background: linear-gradient(110deg, var(--teal-dim), var(--bg2) 74%);
+}
+.compact-feed .ticker-token .tick-logo { width: 25px !important; height: 25px !important; }
+.compact-feed .ticker-token b { color: var(--t1); font-size: 12.5px; font-weight: 600; }
+.compact-feed .ticker-price,
+.compact-feed .ticker-delta { font-size: 11.5px; }
+
+/* Media becomes a quiet square thumbnail; Standard and detail retain the full hero. */
+.compact-feed .card-media-top,
+.compact-feed .audio-hero,
+.compact-feed .market-hero,
+.compact-feed .data-hero {
+  grid-area: media;
+  display: block;
+  align-self: start;
+  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 8px;
+}
+.compact-feed .card-media-top img { width: 100%; height: 100%; object-fit: cover; }
+.compact-feed .md-image { display: none; }
+
+/* Podcast thumbnail keeps the cover and a single precise play affordance. */
+.compact-feed .audio-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.compact-feed .audio-source,
+.compact-feed .audio-wave { display: none; }
+.compact-feed .audio-transport { display: grid; place-items: center; }
+.compact-feed .audio-play {
+  width: 28px;
+  height: 28px;
+  border-width: .5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.24);
+}
+.compact-feed .audio-play svg { width: 11px; height: 11px; margin-left: 1px; }
+.compact-feed .audio-hero.playing .audio-play svg { margin-left: 0; }
+.compact-feed .audio-hero::before { inset: 18% -35% -24% 12%; opacity: .2; }
+.compact-feed .audio-hero::after {
+  background: linear-gradient(180deg, rgba(3,7,8,.08), rgba(3,7,8,.5));
+}
+
+/* Data thumbnails preserve the chart texture without squeezing desktop labels. */
+.compact-feed .data-hero-head,
+.compact-feed .data-primary { display: none; }
+.compact-feed .data-hero svg {
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 138px;
+  max-width: none;
+  transform: translateX(-50%);
+}
+.compact-feed .market-hero {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 7px 5px;
+}
+.compact-feed .market-metric { gap: 0; }
+.compact-feed .market-metric b { font-size: 14px; line-height: 17px; font-weight: 500; }
+.compact-feed .market-metric span { display: none; }
+.compact-feed .market-hero .spark { width: 78px; height: 34px; margin: auto -7px -2px; }
+
+.compact-feed .md-content { grid-area: copy; min-width: 0; }
+.compact-feed .card.flip-face:not(:has(> .card-media-top, > .audio-hero, > .market-hero, > .data-hero)) .md-content {
+  grid-column: 1 / -1;
+}
+.compact-feed .md-content > * { display: none; }
+.compact-feed .md-content > h2:first-child,
+.compact-feed .md-content > h3:first-child,
+.compact-feed .md-content > h4:first-child {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--t1);
+  font-size: 15.5px;
+  line-height: 21px;
+  font-weight: 500;
+  letter-spacing: .08px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.compact-feed .md-content > h2:first-child + p,
+.compact-feed .md-content > h3:first-child + p,
+.compact-feed .md-content > h4:first-child + p,
+.compact-feed .md-content > h2:first-child + blockquote,
+.compact-feed .md-content > h3:first-child + blockquote,
+.compact-feed .md-content > h4:first-child + blockquote {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 4px 0 0;
+  padding: 0;
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 17px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.compact-feed .md-content > blockquote::before { display: none; }
+.compact-feed .card-actions {
+  grid-area: actions;
+  min-height: 30px;
+  margin-top: 9px;
+}
+.compact-feed .card-actions > .btn-ask {
+  min-width: 94px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 11.5px;
+}
+.compact-feed .ask-alva-mark { width: 12px; height: 12px; }
+.compact-feed .src-stack > img,
+.compact-feed .src-stack > .source-avatar { width: 20px; height: 20px; }
+.compact-feed .card-actions .prov-more { line-height: 14px; }
+
+[data-theme="light"] .compact-feed .ticker-token {
+  border-color: rgba(73,163,166,.25);
+  background: linear-gradient(110deg, rgba(73,163,166,.09), #fff 76%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-view-toggle,
+  .feed-view-glyph i { transition: none; }
+}

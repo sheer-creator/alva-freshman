@@ -198,13 +198,18 @@ function followNudge() {
 function sHome(page) {
   const items = itemsForYou();
   const arr = items.map((it, i) => streamCard(it, i + 1));
+  const compact = store.feedCompact === true;
   if (!store.entities.length) arr.splice(Math.min(arr.length, 1), 0, followNudge());
   const cards = arr.length ? arr.join('')
     : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a ticker in Discover to bring context into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Open Discover</button></div>`;
   page.innerHTML = `
-    <div class="topbar"><span class="lg-title">For You</span><span class="spacer"></span></div>
+    <div class="topbar"><span class="lg-title">For You</span><span class="spacer"></span>
+      <button class="feed-view-toggle ${compact ? 'on' : ''}" data-act="toggle-feed-compact" aria-label="${compact ? 'Use standard feed view' : 'Use compact feed view'}" aria-pressed="${compact}">
+        <span class="feed-view-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+    </div>
     <div class="ptr" id="ptr"><span class="ptr-ic">${I.spark}</span></div>
-    <div class="feed-scroll">${cards}</div>`;
+    <div class="feed-scroll ${compact ? 'compact-feed' : ''}">${cards}</div>`;
   attachPtr(page);
 }
 
