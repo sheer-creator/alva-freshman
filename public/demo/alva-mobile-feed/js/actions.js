@@ -80,6 +80,11 @@ export const ACTIONS = {
   /* ---- 基础导航 ---- */
   back: () => back(),
   nav: (el) => nav(el.dataset.to),
+  'toggle-feed-compact': () => {
+    store.feedCompact = !store.feedCompact;
+    save();
+    rerender();
+  },
   'sheet-close': () => closeSheet(),
   'toast-msg': (el) => toast(el.dataset.msg, I.check),
   'reset-demo': () => { if (confirm('Reset the demo and restart onboarding?')) resetDemo(); },

@@ -21,6 +21,7 @@ const DEFAULTS = {
   manualHoldings: [],
   approvals: {},
   mode: 'stream',
+  feedCompact: false,
   brokerage: null,
   /* 决策留痕（Memory tab / goal run history）：预置两条拟真历史 */
   decisions: [
