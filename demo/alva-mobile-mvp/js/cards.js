@@ -3,11 +3,11 @@
  *   alpha   — podcast 原始片段 + ticker tag + Why it’s alpha
  *   event   — 关注标的的重要事件 + Why it matters + 带来源的事实
  *   anomaly — 异动 + 走势 + 逐条归因
- * 正面卡带 feed 标签（Alpha / Following）标明来源；卡背 = 溯源 + why。
+ * 卡片本身就是 MVP 的内容终点；Sources 与 Ask Alva 通过底部弹层承接二级交互。
  */
-import { ENTITIES, SOURCES, FEEDS, entityChipLabel, itemSources } from './data.js?v=local-mt10cd';
-import { store, I } from './state.js?v=local-mt10cd';
-import { renderMarkdown, splitMarkdown } from './markdown.js?v=local-mt10cd';
+import { ENTITIES, SOURCES, FEEDS, entityChipLabel, itemSources } from './data.js?v=local-mt1dyd';
+import { store, I } from './state.js?v=local-mt1dyd';
+import { renderMarkdown, splitMarkdown } from './markdown.js?v=local-mt1dyd';
 
 /* ---- 小部件 ---- */
 export function monoAv(label, hue, size = 36, round = false) {
@@ -109,19 +109,18 @@ function tickerToken(id) {
 }
 export const tickerRail = (item) => `<div class="ticker-rail ${item.entity_refs.length > 1 ? 'multi' : ''}">${item.entity_refs.map(tickerToken).join('')}</div>`;
 
-/* ---- 溯源入口：source 头像叠放 + 数量，点开卡背 ---- */
-export function provRow(item, act = 'flip') {
+/* ---- 溯源入口：source 头像叠放 + 数量，点开底部列表 ---- */
+export function provRow(item) {
   const sourceIds = itemSources(item);
   const srcs = sourceIds.slice(0, 3).map((id) => SOURCES[id]);
   const remaining = sourceIds.length - srcs.length;
   const stack = srcs.map((s) => srcAvatar(s, 22)).join('');
-  return `<button class="prov-row" data-act="${act}" data-item="${item.id}" aria-label="View ${sourceIds.length} source${sourceIds.length > 1 ? 's' : ''}">
+  return `<button class="prov-row" data-act="card-sources-sheet" data-item="${item.id}" aria-label="View ${sourceIds.length} source${sourceIds.length > 1 ? 's' : ''}">
     <span class="src-stack">${stack}</span>
     ${remaining > 0 ? `<span class="prov-more">+${remaining}</span>` : ''}
     <span class="prov-chev">${I.chevR}</span>
   </button>`;
 }
-export const evidenceBar = (item) => provRow(item, 'evi-sheet');
 
 /* ---- card head：automation 来源 + 时间（ticker 的表达交给 entStrip） ---- */
 function cardHead(item) {
@@ -150,7 +149,7 @@ function audioHero(item, hero) {
 
 function imageHero(item, hero) {
   if (!hero) return '';
-  return `<div class="card-media-top" data-act="open-detail" data-item="${item.id}" role="button"><img src="${hero.src}" alt="${hero.alt}" loading="lazy"></div>`;
+  return `<div class="card-media-top"><img src="${hero.src}" alt="${hero.alt}" loading="lazy"></div>`;
 }
 
 const chartScale = (value, min, max, top, bottom) => bottom - ((value - min) / (max - min || 1)) * (bottom - top);
@@ -181,7 +180,7 @@ function candlestickHero(item) {
   }).join('');
   const resistanceY = chartScale(v.resistance, min, max, top, bottom);
   const supportY = chartScale(v.support, min, max, top, bottom);
-  return `<div class="data-hero candlestick-hero" data-act="open-detail" data-item="${item.id}" role="button">
+  return `<div class="data-hero candlestick-hero">
     <div class="data-hero-head"><span>${v.eyebrow}</span><em class="signal-badge">${v.badge}</em></div>
     <div class="data-primary"><b>${v.value}</b><span class="${item.move.dir}">${item.move.value}</span><i>${v.note}</i></div>
     <svg class="candle-chart" viewBox="0 0 320 118" role="img" aria-label="${v.aria}">
@@ -210,7 +209,7 @@ function columnsHero(item) {
       <text x="${x + 17}" y="103" text-anchor="middle">${label}</text>
     </g>`;
   }).join('');
-  return `<div class="data-hero columns-hero" data-act="open-detail" data-item="${item.id}" role="button">
+  return `<div class="data-hero columns-hero">
     <div class="data-hero-head"><span>${v.eyebrow}</span><span class="chart-legend"><i></i>${v.compareLabel}<i></i>${v.actualLabel}</span></div>
     <div class="data-primary"><b>${v.value}</b><span class="up">${v.delta}</span><i>${v.note}</i></div>
     <svg class="column-chart" viewBox="0 0 320 108" role="img" aria-label="${v.aria}">
@@ -234,7 +233,7 @@ function flowHero(item) {
       <text x="${x + 11}" y="103" text-anchor="middle">${v.labels[i]}</text>
     </g>`;
   }).join('');
-  return `<div class="data-hero flow-hero" data-act="open-detail" data-item="${item.id}" role="button">
+  return `<div class="data-hero flow-hero">
     <div class="data-hero-head"><span>${v.eyebrow}</span><em class="signal-badge">${v.badge}</em></div>
     <div class="data-primary"><b>${v.value}</b><span class="up">${v.delta}</span><i>${v.note}</i></div>
     <svg class="flow-chart" viewBox="0 0 320 108" role="img" aria-label="${v.aria}">
@@ -252,7 +251,7 @@ function visualHero(item) {
 }
 
 function marketHero(item) {
-  return `<div class="market-hero" data-act="open-detail" data-item="${item.id}" role="button">
+  return `<div class="market-hero">
     <div class="market-metric"><b class="${item.move.dir}">${item.move.value}</b><span>${item.move.label}</span></div>
     ${sparkSVG(item.move.spark, item.move.dir, 300, 78, true)}
   </div>`;
@@ -272,7 +271,7 @@ function cardBody(item) {
       : item.kind === 'anomaly' ? marketHero(item)
       : imageHero(item, hero);
   return `${cardHead(item)}${media}${tickerRail(item)}
-    <div class="md-content" data-act="open-detail" data-item="${item.id}">${renderMarkdown(body)}</div>`;
+    <div class="md-content">${renderMarkdown(body)}</div>`;
 }
 
 /* ========== stream card ========== */
@@ -281,47 +280,9 @@ export function streamCard(item, idx = 0) {
   const front = `<div class="card flip-face feed-${item.feed} kind-${item.kind}">
     ${body}
     <div class="card-actions">
-      ${provRow(item, 'flip')}
+      ${provRow(item)}
       <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}"><span class="ask-alva-mark" aria-hidden="true"></span>Ask Alva</button>
     </div>
   </div>`;
-  return `<div class="flip-scene reveal" style="animation-delay:${Math.min(idx * 60, 300)}ms" data-item="${item.id}">
-    <div class="flip-inner">
-      ${front}
-      <div class="flip-back">${cardBack(item)}</div>
-    </div>
-  </div>`;
-}
-
-/* ========== behind this card（反面：原始 source + 为什么推给你） ========== */
-export function cardBack(item) {
-  const feed = FEEDS[item.feed];
-  const why = item.feed === 'alpha'
-    ? `From <b>Alpha</b> — a curated set of podcasts Alva listens to for you${item.entity_refs.some((id) => store.entities.includes(id)) ? `, surfaced first because you follow <b>${entityChipLabel(item.entity_refs.find((id) => store.entities.includes(id)))}</b>` : ''}`
-    : `You follow <b>${entityChipLabel(item.entity_refs[0])}</b> — Following watches it across X and the newswire`;
-  const noteFor = (id) => {
-    if (item.kind === 'alpha') return `${item.ep} · ${item.at}`;
-    const row = item.kind === 'anomaly'
-      ? item.attribution.find((a) => a.source === id)
-      : item.facts.find((f) => f.sources.includes(id));
-    return row ? row.text.slice(0, 64) + (row.text.length > 64 ? '…' : '') : SOURCES[id].modality;
-  };
-  return `
-    <div class="fb-head"><span class="lbl">Behind this card</span><button class="behind-pill" data-act="unflip">${I.x}Back</button></div>
-    <div class="fb-sec">Sources</div>
-    <div class="ev-list">${itemSources(item).map((id) => {
-      const s = SOURCES[id];
-      return `<div class="ev-row" data-act="open-source" data-id="${id}" role="button">
-        ${srcAvatar(s, 30, 'ev-av')}
-        <div class="src"><div class="nm">${s.name}</div><div class="nt">${noteFor(id)}</div></div>
-        <span class="ev-chev">${I.chevR}</span>
-      </div>`;
-    }).join('')}</div>
-    <div class="fb-sec">Why you're seeing this</div>
-    <div class="fb-why">${why}</div>
-    <button class="fb-manage" data-act="open-automation" data-id="${item.feed}">
-      ${I.gear}
-      <span class="mg-tx"><b>Manage this automation</b><i>${feed.name} · ${feed.cadence}</i></span>
-      <span class="mg-chev">${I.chevR}</span>
-    </button>`;
+  return `<div class="flip-scene reveal" style="animation-delay:${Math.min(idx * 60, 300)}ms" data-item="${item.id}">${front}</div>`;
 }

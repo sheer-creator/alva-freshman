@@ -1,10 +1,10 @@
 /* ========== screens.js — 页面渲染 ========== */
-import { ENTITIES, SOURCES, FEEDS, ITEMS, TASKS, FILES, ONBOARD_ENTITIES, DISCOVER, entityChipLabel, itemSources } from './data.js?v=local-mt10cd';
-import { store, save, I, nav } from './state.js?v=local-mt10cd';
-import { streamCard, composerContextMenu, entityAv, entityReference, monoAv, srcAvatar, sparkSVG, feedId, entStrips } from './cards.js?v=local-mt10cd';
-import { renderCompanyDetail, mountCompanyChart, destroyCompanyChart } from './company.js?v=local-mt10cd';
+import { ENTITIES, SOURCES, FEEDS, ITEMS, TASKS, FILES, ONBOARD_ENTITIES, entityChipLabel } from './data.js?v=local-mt1dyd';
+import { store, save, I, nav } from './state.js?v=local-mt1dyd';
+import { streamCard, composerContextMenu, entityAv, entityReference, monoAv, srcAvatar } from './cards.js?v=local-mt1dyd';
+import { renderCompanyDetail, mountCompanyChart, destroyCompanyChart } from './company.js?v=local-mt1dyd';
 
-export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
+export const TAB_ROUTES = ['home', 'ask', 'you'];
 
 /* ---- shared chrome ---- */
 const backBar = (title = '', extra = '') => `
@@ -32,14 +32,12 @@ export function renderRoute(route, page) {
     welcome: sWelcome,
     onboard: () => sOnboard(page, a),
     home: sHome,
-    context: () => sContext(a, page),
-    discover: sDiscover,
+    following: sFollowing,
     ask: sAsk,
     you: sYou,
     entity: () => sEntity(a, page),
     feed: () => sFeed(a, page),
     automation: () => sFeed(a, page, 'settings'),
-    source: () => sSource(a, page),
   }[root];
   if (fn) fn(page);
   else page.innerHTML = `${backBar()}<div class="empty"><h4>Not found</h4></div>`;
@@ -190,7 +188,7 @@ function followNudge() {
       <div class="ds">Events and move attribution for what you actually watch</div></span></div>
     <p class="rec-promise">Alpha runs with zero setup. Following needs to know your tickers — pick a few and its cards join this feed.</p>
     <div class="card-actions" style="margin-top:12px">
-      <button class="btn btn-teal-solid" style="flex:1" data-act="nav" data-to="#/discover">${I.plus}Pick tickers</button>
+      <button class="btn btn-teal-solid" style="flex:1" data-act="nav" data-to="#/following">${I.plus}Add tickers</button>
     </div>
   </div>`;
 }
@@ -201,7 +199,7 @@ function sHome(page) {
   const compact = store.feedCompact === true;
   if (!store.entities.length) arr.splice(Math.min(arr.length, 1), 0, followNudge());
   const cards = arr.length ? arr.join('')
-    : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a ticker in Discover to bring context into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Open Discover</button></div>`;
+    : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Add a ticker to bring its context into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/following">Manage Following</button></div>`;
   page.innerHTML = `
     <div class="topbar"><span class="lg-title">For You</span><span class="spacer"></span>
       <button class="feed-view-toggle ${compact ? 'on' : ''}" data-act="toggle-feed-compact" aria-label="${compact ? 'Use standard feed view' : 'Use compact feed view'}" aria-pressed="${compact}">
@@ -262,121 +260,53 @@ function attachPtr(page) {
   page.addEventListener('pointercancel', end);
 }
 
-/* ========== context detail ==========
- * 尾部统一一个 Sources 区（无 Evidence 概念）：每行 = 来源 + 它贡献了什么。
- */
-function sourcesSec(item) {
-  const rows = item.kind === 'alpha'
-    ? [{ id: item.source, note: `${item.ep} · ${item.at}` }]
-    : item.kind === 'anomaly'
-      ? item.attribution.map((a) => ({ id: a.source, note: a.text }))
-      : item.facts.map((f) => ({ id: f.sources[0], note: f.text }));
-  return `<div class="d-sec"><div class="sec-label">Sources</div>
-    ${rows.map((r) => `<div class="orig-link" data-act="open-source" data-id="${r.id}" role="button">${I.link}<span><b>${SOURCES[r.id].name}</b> — ${r.note}</span></div>`).join('')}
-  </div>`;
-}
-
-function alphaDetail(item) {
-  return `
-    <div class="d-sec">
-      <div class="clip" data-act="play-clip" data-item="${item.id}">
-        <span class="play">${I.play}</span>
-        <div><q>${item.quote}</q><div class="t">${item.speaker} · ${SOURCES[item.source].name} · ${item.at}</div></div>
-      </div>
-    </div>
-    <div class="d-sec"><div class="sec-label">Why it’s alpha</div><p>${item.insight}</p></div>
-    ${sourcesSec(item)}`;
-}
-
-function eventDetail(item) {
-  return `
-    <div class="d-sec"><div class="sec-label">What happened</div><p>${item.summary}</p></div>
-    <div class="d-sec"><div class="sec-label">Why it matters</div><p>${item.why}</p></div>
-    ${sourcesSec(item)}`;
-}
-
-function anomalyDetail(item) {
-  return `
-    <div class="d-sec">
-      <div class="rec-ta">${sparkSVG(item.move.spark, item.move.dir, 300, 72, true)}</div>
-      <div class="move-lbl">${item.move.value} · ${item.move.label}</div>
-    </div>
-    <div class="d-sec"><div class="sec-label">Why it’s moving</div>
-      ${item.attribution.map((a) => `<p style="margin-bottom:10px">${a.text}</p>`).join('')}
-    </div>
-    ${sourcesSec(item)}`;
-}
-
-function sContext(id, page) {
-  const item = ITEMS.find((it) => it.id === id);
-  if (!item) { page.innerHTML = backBar() + '<div class="empty"><h4>Context not found</h4></div>'; return; }
-  const hasHero = item.media && item.media.hero;
-  page.innerHTML = `
-    ${hasHero ? `<div class="detail-hero"><img src="${item.media.hero}" alt="${item.media.alt}"><div class="scrim"></div>${backBar('', `<button class="behind-pill" data-act="evi-sheet" data-item="${item.id}">${I.flip}Behind this</button>`)}</div>` : backBar('', `<button class="behind-pill" data-act="evi-sheet" data-item="${item.id}">${I.flip}Behind this</button>`)}
-    <div class="detail-body ${hasHero ? '' : 'no-hero'}">
-      <div class="card-head" style="margin-top:${hasHero ? 0 : 8}px">
-        ${feedId(item)}
-        <span class="time">${item.published}</span>
-      </div>
-      <h1 class="detail-headline">${item.headline}</h1>
-      ${entStrips(item)}
-      ${{ alpha: alphaDetail, event: eventDetail, anomaly: anomalyDetail }[item.kind](item)}
-      <div class="detail-cta">
-        <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}">${I.ask}Ask Alva</button>
-      </div>
-    </div>`;
-}
-
-/* ========== discover（MVP：只有 Market） ========== */
-const marketRow = (m) => { const e = ENTITIES[m]; const on = store.entities.includes(m); return `<div class="list-row">
+/* ========== Following 管理（MVP：You 的二级页面） ========== */
+const followingRow = (m) => { const e = ENTITIES[m]; const on = store.entities.includes(m); return `<div class="list-row following-row">
   <span data-act="open-entity" data-id="${m}" role="button" style="display:contents">${entityAv(m, 40)}</span>
   <span class="meta" data-act="open-entity" data-id="${m}" role="button"><span class="nm">${e.ticker}</span><div class="ds">${e.name}</div></span>
   <span class="price"><div class="v">${e.price}</div><div class="c" style="color:var(--${e.dir})">${e.delta}</div></span>
-  <button class="follow-sm ${on ? 'on' : ''}" data-act="follow-entity-sm" data-id="${m}">${on ? 'Following' : 'Follow'}</button>
+  <button class="follow-sm ${on ? 'on' : ''}" data-act="manage-follow-entity" data-id="${m}" aria-pressed="${on}">${on ? 'Following' : 'Follow'}</button>
 </div>`; };
 
-let mktTab = 'trending';
-export function setMktTab(t) { mktTab = t; }
-
-export function mktListHtml(t) {
-  const ids = t === 'trending' ? DISCOVER.movers : store.entities.filter((id) => ENTITIES[id]);
-  if (ids.length) return ids.map(marketRow).join('');
-  return '<p class="ent-none" style="padding:10px 0">Nothing yet — follow a ticker and it shows up here.</p>';
-}
-
-function discResultsHtml(q) {
+function followingResultsHtml(q) {
   const ql = q.toLowerCase();
   const hits = Object.values(ENTITIES).filter((e) => e.ticker.toLowerCase().includes(ql) || e.name.toLowerCase().includes(ql)).map((e) => e.id);
-  return hits.length ? `<div class="d-sec">${hits.map(marketRow).join('')}</div>`
+  return hits.length ? `<div class="d-sec following-section"><div class="sec-label">Results</div>${hits.map(followingRow).join('')}</div>`
     : `<div class="empty"><h4>No matches</h4><p>Try a ticker like PLTR, or a company name.</p></div>`;
 }
 
-window.__discSearch = (q) => {
+window.__followingSearch = (q) => {
   q = q.trim();
-  const body = document.getElementById('discBody');
-  const clr = document.getElementById('discClr');
+  const body = document.getElementById('followingBody');
+  const clr = document.getElementById('followingClr');
   if (clr) clr.hidden = !q;
-  if (body) body.innerHTML = q ? discResultsHtml(q) : discBodyHtml();
+  if (body) body.innerHTML = q ? followingResultsHtml(q) : followingBodyHtml();
 };
 
-function discBodyHtml() {
+function followingBodyHtml() {
+  const selected = store.entities.filter((id) => ENTITIES[id]);
+  const selectedSet = new Set(selected);
+  const suggestions = ONBOARD_ENTITIES.map((item) => item.id).filter((id) => !selectedSet.has(id));
   return `
-    <div class="mkt-head"><span class="sec-label" style="margin:0">Tickers</span>
-      <div class="mini-tabs" id="mktTabs">${[['trending', 'Trending'], ['following', 'Following']].map(([t, lbl]) =>
-        `<button class="${mktTab === t ? 'on' : ''}" data-act="mkt-tab" data-t="${t}">${lbl}</button>`).join('')}</div>
+    <div class="d-sec following-section">
+      <div class="sec-label">Following</div>
+      ${selected.length ? selected.map(followingRow).join('') : '<p class="ent-none following-empty">No tickers yet. Add one below.</p>'}
     </div>
-    <div id="mktList">${mktListHtml(mktTab)}</div>`;
+    ${suggestions.length ? `<div class="d-sec following-section"><div class="sec-label">Add tickers</div>${suggestions.map(followingRow).join('')}</div>` : ''}`;
 }
 
-function sDiscover(page) {
+function sFollowing(page) {
   page.innerHTML = `
-    <div class="topbar"><span class="lg-title">Discover</span><span class="spacer"></span></div>
-    <div class="ent-search disc-search">${I.search}
-      <input id="discSearch" placeholder="Search tickers…" oninput="window.__discSearch(this.value)"
-        onkeydown="if(event.key==='Escape'){this.value='';window.__discSearch('')}">
-      <button class="clr" id="discClr" data-act="disc-search-clear" hidden aria-label="Clear search">${I.x}</button>
+    ${backBar('Following')}
+    <div class="following-manage">
+      <div class="ent-search following-search">${I.search}
+        <input id="followingSearch" placeholder="Search tickers…" oninput="window.__followingSearch(this.value)"
+          onkeydown="if(event.key==='Escape'){this.value='';window.__followingSearch('')}">
+        <button class="clr" id="followingClr" data-act="following-search-clear" hidden aria-label="Clear search">${I.x}</button>
+      </div>
+      <div id="followingBody">${followingBodyHtml()}</div>
     </div>
-    <div class="disc-body" id="discBody" style="margin-top:6px">${discBodyHtml()}</div>`;
+  `;
 }
 
 /* ========== entity page ========== */
@@ -398,7 +328,7 @@ function feedOutputHtml(f, items) {
   return `
     <div class="d-sec"><p style="font-size:15px;color:var(--t2)">${f.promise}</p></div>
     ${items.length ? `<div class="d-sec"><div class="sec-label">Recent output</div>${items.map((it, i) => streamCard(it, i)).join('')}</div>`
-      : `<div class="empty"><div class="glyph">${I.spark}</div><h4>No output for your follows yet</h4><p>Follow a few tickers in Discover — this automation builds around them.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Open Discover</button></div>`}`;
+      : `<div class="empty"><div class="glyph">${I.spark}</div><h4>No output for your follows yet</h4><p>Add a few tickers and this automation will build around them.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/following">Manage Following</button></div>`}`;
 }
 
 function feedSettingsHtml(f) {
@@ -424,7 +354,7 @@ function feedSettingsHtml(f) {
       ${f.id === 'following' ? `<section class="auto-field">
         <div class="auto-field-head"><span>Entities</span><p>The tickers Alva reads across your selected sources.</p></div>
         <button class="auto-entry" data-act="following-sheet">
-          <span class="auto-entry-main"><b>${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'}</b><i>${store.entities.slice(0, 4).map(entityChipLabel).join(' · ') || 'Choose tickers in Discover'}</i></span>${I.chevR}
+          <span class="auto-entry-main"><b>${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'}</b><i>${store.entities.slice(0, 4).map(entityChipLabel).join(' · ') || 'Add tickers from You → Following'}</i></span>${I.chevR}
         </button>
       </section>` : ''}
 
@@ -515,37 +445,6 @@ function sFeed(id, page, initTab) {
     <div class="page-secs" id="feedBody">${feedBodyHtml(id)}</div>`;
 }
 
-/* ========== source detail ========== */
-function sSource(id, page) {
-  const s = SOURCES[id];
-  if (!s) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
-  const cited = ITEMS.filter((it) => itemSources(it).includes(id));
-  const feed = Object.values(FEEDS).find((f) => f.sources.includes(id));
-  page.innerHTML = `${backBar()}
-    <div class="hero-head">
-      <div class="row1">
-        ${srcAvatar(s, 56)}
-        <div><h1 style="font-size:22px">${s.name}</h1><div class="sub">${s.platform} · ${s.modality}${s.hosts ? ' · ' + s.hosts : ''}</div></div>
-      </div>
-      <div class="src-stats"><span>cited in <b>${cited.length}</b> context${cited.length === 1 ? '' : 's'}</span>${feed ? `<i class="dot"></i><span>read by <b>${feed.name}</b></span>` : ''}</div>
-      <div class="actions">
-        <button class="btn btn-ghost" style="flex:1" data-act="toast-msg" data-msg="Opens the original on ${s.platform}">${I.link}Open original</button>
-      </div>
-    </div>
-    <div class="page-secs">
-      ${s.recent?.length ? `<div class="d-sec"><div class="sec-label">Recent from this source</div>
-        ${s.recent.map((r) => `<div class="recent-row">
-          <div class="rc-top"><span class="rc-kind">${r.kind}</span><span class="rc-t">${r.t}</span></div>
-          <div class="rc-text">${r.text}</div>
-        </div>`).join('')}
-      </div>` : ''}
-      ${cited.length ? `<div class="d-sec"><div class="sec-label">Recently cited in</div>
-        ${cited.slice(0, 3).map((it) => `<div class="orig-link" data-act="open-detail" data-item="${it.id}" role="button">${I.doc}<span>${it.headline}</span></div>`).join('')}
-      </div>` : ''}
-      <div class="src-disclaimer">${I.eye}<span><b>About this source</b> — Alva indexes only publicly available content. Every citation is attributed and links back to the original; nothing is republished in full.</span></div>
-    </div>`;
-}
-
 /* ========== ask（Chat / Tasks / Memory） ========== */
 export let askCtx = null;
 function normalizeAskContext(value) {
@@ -616,7 +515,7 @@ function askMemoryView() {
       <div class="mem-row"><span class="k">Markets</span><span class="v">US equities · Crypto</span></div>
     </div>
     <div class="d-sec"><div class="sec-label">Following</div>
-      <div class="mem-row"><span class="v">${store.entities.length ? store.entities.map(entityChipLabel).join(' · ') : 'Nothing yet — pick tickers in Discover'}</span></div>
+      <div class="mem-row"><span class="v">${store.entities.length ? store.entities.map(entityChipLabel).join(' · ') : 'Nothing yet — add tickers in Following'}</span></div>
     </div>
     <div class="d-sec"><div class="sec-label">Recent interests</div>
       <div class="mem-row"><span class="v" style="color:var(--t3)">Opened HBM context 3× this week · asked about MU’s move</span></div>
@@ -630,7 +529,7 @@ function askMemoryView() {
 /* Chat 开场：把 For You 里最新的两三条说成一句话（与 feed 同一份数据） */
 function chatOpening() {
   const top = itemsForYou().slice(0, 3);
-  if (!top.length) return 'Morning. Your feeds are warming up — follow a few tickers in Discover and I’ll have more to report. Anything you want me to dig into?';
+  if (!top.length) return 'Morning. Your feeds are warming up — add a few tickers in You → Following and I’ll have more to report. Anything you want me to dig into?';
   return `Morning. ${top.length} things stand out from your feeds:<br><br>${top.map((it, i) =>
     `${i + 1} · <b>${it.kind === 'alpha' ? SOURCES[it.source].name : entityChipLabel(it.entity_refs[0])}</b> — ${it.headline}.`).join('<br>')}<br><br>Anything you want me to dig into?`;
 }
@@ -728,6 +627,7 @@ function sYou(page) {
         </div>
       </div>
       <div class="d-sec">
+        ${row('you-following', I.eye, 'Following', `${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'}`)}
         ${row('toast-msg|Language settings are mocked in this demo', I.doc, 'Language', '', '<span class="rw-val">English</span>')}
         ${row('settings-sheet', I.gear, 'Settings', '')}
         ${row('toast-msg|Support chat is mocked in this demo', I.ask, 'Contact us', '')}
