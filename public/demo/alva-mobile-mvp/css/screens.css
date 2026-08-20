@@ -440,10 +440,8 @@
 .welcome-body { padding: 0 26px calc(var(--sab) + 20px); }
 .welcome .logo { height: 34px; margin-bottom: 26px; }
 .welcome h1 { font-size: 40px; font-weight: 700; line-height: 1.12; letter-spacing: -0.6px; }
-.welcome h1 em { font-style: normal; color: var(--teal); }
-.welcome p { font-size: 16px; color: var(--t2); line-height: 1.55; margin: 14px 0 30px; max-width: 92%; }
-.welcome .alt { text-align: center; margin-top: 14px; font-size: 14.5px; color: var(--t3); }
-.welcome .alt b { color: var(--teal); font-weight: 500; }
+.welcome-copy + .btn { margin-top: 28px; }
+.welcome .alt { display: block; width: 100%; margin-top: 14px; text-align: center; font-size: 14.5px; color: var(--t3); }
 
 /* entity picker */
 .ent-search {
@@ -1139,9 +1137,17 @@
     linear-gradient(180deg, #091011, var(--bg0) 56%);
 }
 .welcome-body { padding: 0 26px calc(var(--sab) + 22px); }
-.welcome .logo { height: 31px; margin-bottom: 24px; }
-.welcome h1 { font-size: 37px; line-height: 1.09; letter-spacing: -0.78px; }
-.welcome p { font-size: 15px; line-height: 1.52; margin: 15px 0 26px; color: #9DA9A7; }
+.welcome-copy { transform: translateY(-10px); }
+.welcome .logo { height: 25px; margin-bottom: 20px; }
+.welcome h1 {
+  max-width: 100%;
+  font-size: clamp(23px, 7.45vw, 29px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -.35px;
+  white-space: nowrap;
+}
+.welcome-copy + .btn { margin-top: 26px; }
 .welcome .btn { height: 48px; border-radius: 13px; }
 .welcome .alt { font-size: 14px; margin-top: 15px; }
 
@@ -1247,8 +1253,7 @@
 .sec-label { letter-spacing: 0.64px; }
 
 @media (max-height: 760px) {
-  .welcome h1 { font-size: 34px; }
-  .welcome p { margin-bottom: 22px; }
+  .welcome-copy + .btn { margin-top: 22px; }
   .imm-headline { font-size: 22px; }
   .imm-wc { margin-top: 10px; }
   .imm-actions { margin-top: 12px; }

@@ -46,11 +46,12 @@ function sWelcome(page) {
       <span class="welcome-flow echo"></span>
     </div>
     <div class="welcome-body">
-      ${logoImg}
-      <h1>Two feeds.<br><em>Zero noise.</em></h1>
-      <p><b>Alpha</b> pulls raw moments from the best podcasts and tells you why they matter. <b>Following</b> watches your tickers across X and the newswire.</p>
-      <button class="btn btn-teal-solid" data-act="ob-start">Pick your tickers</button>
-      <div class="alt" data-act="ob-finish" role="button">Or <b>skip</b> — Alpha works without any setup</div>
+      <div class="welcome-copy">
+        ${logoImg}
+        <h1>Your AI Investing Agent.</h1>
+      </div>
+      <button class="btn btn-teal-solid" data-act="ob-start">Choose tickers to start</button>
+      <button class="alt" data-act="ob-finish">Skip</button>
     </div>`;
 }
 
