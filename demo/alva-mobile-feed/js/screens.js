@@ -351,8 +351,13 @@ function immersivePeek(item) {
 function sHome(page) {
   const mode = store.mode;
   const visible = homeItems();
+  const compact = store.feedCompact === true;
   page.innerHTML = mode === 'stream'
-    ? `<div class="topbar"><span class="lg-title">For You</span><span class="spacer"></span></div>${streamView(visible)}`
+    ? `<div class="topbar"><span class="lg-title">For You</span><span class="spacer"></span>
+        <button class="feed-view-toggle ${compact ? 'on' : ''}" data-act="toggle-feed-compact" aria-label="${compact ? 'Use standard feed view' : 'Use compact feed view'}" aria-pressed="${compact}">
+          <span class="feed-view-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+      </div>${streamView(visible)}`
     : '';
   if (mode === 'immersive') {
     const wrap = document.createElement('div');
@@ -516,11 +521,12 @@ function recCard(r) {
 
 function streamView(items) {
   const arr = items.map((it, i) => streamCard(it, i + 1));
+  const compact = store.feedCompact === true;
   /* 推荐卡从第 2 张后开始、每隔 2 张内容穿插一张，不抢开屏 */
   activeRecs().forEach((r, i) => arr.splice(Math.min(arr.length, 2 + i * 3), 0, recCard(r)));
   const cards = arr.length ? arr.join('')
     : `<div class="empty"><div class="glyph">${I.spark}</div><h4>Your feed is quiet</h4><p>Follow a feed in Discover to bring context back into For You.</p><button class="btn btn-teal-solid" data-act="nav" data-to="#/discover">Explore feeds</button></div>`;
-  return `<div class="feed-scroll">${recapModule()}${cards}</div>`;
+  return `<div class="feed-scroll ${compact ? 'compact-feed' : ''}">${recapModule()}${cards}</div>`;
 }
 
 /* ========== context detail ========== */

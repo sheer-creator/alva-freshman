@@ -170,7 +170,8 @@ body > .ads-root {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; gap: 10px;
   padding: calc(var(--sat) + 8px) var(--pad) 12px;
-  background: linear-gradient(to bottom, var(--chrome) 72%, transparent);
+  background: var(--chrome);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
 }
 .topbar .logo { height: 26px; width: auto; }
 .topbar .title { font-size: 17px; font-weight: 500; letter-spacing: 0.1px; position: absolute; left: 50%; transform: translateX(-50%); }
@@ -231,12 +232,11 @@ body > .ads-root {
 }
 #tabbar .tab-label { transition: transform .28s var(--ease), opacity .22s ease; }
 #tabbar .alva-tab-mark {
-  display: block; width: 21px; height: 21px; background: currentColor;
-  -webkit-mask-image: url('../img/logo-alva.svg');
-  -webkit-mask-repeat: no-repeat; -webkit-mask-position: left center; -webkit-mask-size: 84px 21px;
-  mask-image: url('../img/logo-alva.svg'); mask-repeat: no-repeat; mask-position: left center; mask-size: 84px 21px;
+  display: block; width: 19px; height: 19px; overflow: visible;
+  fill: currentColor; stroke: none;
   transition: transform .28s var(--ease), filter .24s ease;
 }
+#tabbar .alva-tab-mark path { fill: currentColor; stroke: none; }
 #tabbar .alva-tab-icon::after {
   content: ''; position: absolute; inset: 2px 7px; z-index: -2;
   border: 1px solid var(--teal-line); border-radius: 50%; opacity: 0; transform: scale(.42);
