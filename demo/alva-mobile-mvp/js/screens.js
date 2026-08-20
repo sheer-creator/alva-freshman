@@ -380,6 +380,8 @@ function feedSettingsHtml(f) {
   const paused = store.paused.includes(f.id);
   const alerts = store.automationAlerts[f.id] !== false;
   const email = store.automationEmail[f.id] === true;
+  const visibleSources = f.sources.slice(0, 3);
+  const hiddenSourceCount = f.sources.length - visibleSources.length;
   const instruction = (store.automationInstructions[f.id] ?? f.instructions)
     .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
   const nextRun = paused ? 'Paused' : f.next_run;
@@ -387,14 +389,11 @@ function feedSettingsHtml(f) {
     <div class="auto-settings">
       <section class="auto-field">
         <div class="auto-field-head"><span>Sources</span><p>The people and sources Alva monitors for ${f.name}.</p></div>
-        <div class="auto-source-panel">
-          ${f.sources.map((sid) => { const s = SOURCES[sid]; return `<button class="auto-source-row" data-act="open-source" data-id="${sid}">
-            ${srcAvatar(s, 32)}
-            <span><b>${s.name}</b><i>${s.platform} · ${s.modality}${s.hosts ? ' · ' + s.hosts : ''}</i></span>
-            ${I.chevR}
-          </button>`; }).join('')}
-        </div>
-        <p class="auto-field-note">Official automation — these sources are curated by Alva and can grow over time.</p>
+        <button class="auto-entry auto-source-summary" data-act="automation-sources-sheet" data-id="${f.id}" aria-label="View ${f.sources.length} sources">
+          <span class="src-stack">${visibleSources.map((sid) => srcAvatar(SOURCES[sid], 22)).join('')}</span>
+          ${hiddenSourceCount > 0 ? `<span class="prov-more">+${hiddenSourceCount}</span>` : ''}
+          <span class="auto-source-summary-spacer"></span>${I.chevR}
+        </button>
       </section>
 
       ${f.id === 'following' ? `<section class="auto-field">

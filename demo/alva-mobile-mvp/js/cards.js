@@ -79,7 +79,7 @@ export function sparkSVG(points, dir, w = 96, h = 34, endDot = true) {
 
 /* feed 身份：卡头主体 = 这张卡来自哪个 automation（Alpha / Following） */
 export const feedId = (item) =>
-  `<button class="feed-id ${item.feed}" data-act="open-feed" data-id="${item.feed}">${item.feed === 'alpha' ? I.spark : I.eye}${FEEDS[item.feed].name}</button>`;
+  `<button class="feed-id ${item.feed}" data-act="open-feed" data-id="${item.feed}"><span class="st-dot" aria-hidden="true"></span>${FEEDS[item.feed].name}</button>`;
 
 /* 标的行：显性、结构化的 ticker 表达
  * logo + 代码/名称 + 极简走势 + 价格/涨跌 + Follow 状态按钮，整行可点进标的页。 */

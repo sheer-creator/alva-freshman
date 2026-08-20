@@ -242,30 +242,105 @@ body > .ads-root {
   border-top: 1px solid var(--line);
 }
 #tabbar .tab {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  min-width: 64px; padding: 2px 0;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 64px; padding: 1px 0 2px;
   color: var(--t3); font-size: 10.5px; font-weight: 400; letter-spacing: 0.12px;
-  transition: color 0.18s;
+  transition: color .22s ease;
 }
-#tabbar .tab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s ease; }
+#tabbar .tab-icon {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 28px;
+  border-radius: 10px;
+  transition: transform .28s var(--ease);
+}
+#tabbar .tab-icon::before {
+  content: '';
+  position: absolute;
+  inset: 2px 1px;
+  z-index: -1;
+  border-radius: 9px;
+  background: var(--teal-dim);
+  opacity: 0;
+  transform: scale(.68);
+  transition: opacity .22s ease, transform .34s var(--ease);
+}
+#tabbar .tab-icon svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-width .22s ease, transform .28s var(--ease);
+}
+#tabbar .tab-label { transition: transform .28s var(--ease), opacity .22s ease; }
 #tabbar .alva-tab-mark {
   display: block;
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   background: currentColor;
   -webkit-mask-image: url('../img/logo-alva.svg');
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: left center;
-  -webkit-mask-size: 88px 22px;
+  -webkit-mask-size: 84px 21px;
   mask-image: url('../img/logo-alva.svg');
   mask-repeat: no-repeat;
   mask-position: left center;
-  mask-size: 88px 22px;
-  transition: transform .15s ease;
+  mask-size: 84px 21px;
+  transition: transform .28s var(--ease), filter .24s ease;
 }
-#tabbar .tab.on { color: var(--teal); }
-#tabbar .tab:active svg,
-#tabbar .tab:active .alva-tab-mark { transform: scale(0.9); }
+#tabbar .alva-tab-icon::after {
+  content: '';
+  position: absolute;
+  inset: 2px 7px;
+  z-index: -2;
+  border: 1px solid var(--teal-line);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(.42);
+}
+#tabbar .tab.on { color: var(--teal); font-weight: 500; }
+#tabbar .tab.on .tab-icon { transform: translateY(-1px); animation: tab-icon-settle .42s var(--ease); }
+#tabbar .tab.on .tab-icon::before { opacity: 1; transform: scale(1); }
+#tabbar .tab.on .tab-icon svg { stroke-width: 1.9; }
+#tabbar .tab.on .tab-label { transform: translateY(-.5px); }
+#tabbar .tab.on .alva-tab-mark {
+  filter: drop-shadow(0 2px 5px rgba(73,163,166,.22));
+  animation: alva-tab-gather .48s var(--ease);
+}
+#tabbar .tab.on .alva-tab-icon::after { animation: alva-tab-signal .52s ease-out; }
+#tabbar .tab:active .tab-icon { transform: translateY(0) scale(.92); transition-duration: .1s; }
+
+@keyframes tab-icon-settle {
+  0% { transform: translateY(1px) scale(.9); }
+  58% { transform: translateY(-2px) scale(1.035); }
+  100% { transform: translateY(-1px) scale(1); }
+}
+@keyframes alva-tab-gather {
+  0% { transform: scale(.7) rotate(-5deg); opacity: .45; }
+  62% { transform: scale(1.1) rotate(1.5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@keyframes alva-tab-signal {
+  0% { opacity: .72; transform: scale(.45); }
+  100% { opacity: 0; transform: scale(1.65); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #tabbar .tab,
+  #tabbar .tab-icon,
+  #tabbar .tab-icon::before,
+  #tabbar .tab-icon svg,
+  #tabbar .tab-label,
+  #tabbar .alva-tab-mark { transition: none; animation: none !important; }
+  #tabbar .tab.on .alva-tab-icon::after { animation: none; }
+}
 
 /* ========== buttons ========== */
 .btn {

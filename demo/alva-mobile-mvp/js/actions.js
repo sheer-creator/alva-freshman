@@ -1,7 +1,7 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
 import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel } from './data.js';
 import { store, save, applyTheme, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
-import { cardBack, composerContextMenu, entityReference } from './cards.js';
+import { cardBack, composerContextMenu, entityReference, srcAvatar } from './cards.js';
 import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setMktTab, mktListHtml, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js';
 import { setCompanyTab, setCompanyChartRange, setCompanySmartTab, setCompanyEarningsStage } from './company.js';
 
@@ -114,7 +114,10 @@ export const ACTIONS = {
   'open-entity': (el) => { if (el.dataset.id) nav('#/entity/' + el.dataset.id); },
   'open-feed': (el) => { setFeedTab('output'); nav('#/feed/' + el.dataset.id); },
   'open-automation': (el) => nav('#/automation/' + el.dataset.id),
-  'open-source': (el) => nav('#/source/' + el.dataset.id),
+  'open-source': (el) => {
+    if (el.closest('.sheet')) closeSheet();
+    nav('#/source/' + el.dataset.id);
+  },
 
   /* ---- Market / company detail ---- */
   'entity-tab': (el) => { setCompanyTab(el.dataset.tab); rerender(); },
@@ -188,13 +191,29 @@ export const ACTIONS = {
     openSheet(`<h3>Following</h3><p class="sub">${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'} shaping your For You.</p>
       <div class="rel-row" style="margin-top:14px">${chips || '<span class="ent-none">Nothing yet — pick some in Discover.</span>'}</div>`);
   },
+  'automation-sources-sheet': (el) => {
+    const feed = FEEDS[el.dataset.id];
+    if (!feed) return;
+    const rows = feed.sources.map((sourceId) => {
+      const source = SOURCES[sourceId];
+      return `<button class="auto-source-row" data-act="open-source" data-id="${sourceId}">
+        ${srcAvatar(source, 32)}
+        <span class="auto-source-copy"><b>${source.name}</b><i>${source.platform} · ${source.modality}${source.hosts ? ' · ' + source.hosts : ''}</i></span>
+        ${I.chevR}
+      </button>`;
+    }).join('');
+    openSheet(`<h3>Sources</h3><p class="sub">The people and sources Alva monitors for ${feed.name}.</p>
+      <div class="auto-source-panel auto-source-sheet-panel">${rows}</div>
+      <p class="auto-field-note auto-source-sheet-note">Official automation — this list is curated by Alva and can grow over time.</p>`);
+  },
 
   /* ---- automation ---- */
   /* tab 原地切换（不整页重绘：#/automation/:id 路由会把 tab 重置回 settings） */
   'feed-tab': (el) => {
     setFeedTab(el.dataset.t);
-    document.querySelectorAll('.feed-tabs button').forEach((b) => b.classList.toggle('on', b === el));
-    const body = document.getElementById('feedBody');
+    const page = el.closest('.page');
+    page?.querySelectorAll('.feed-tabs button').forEach((b) => b.classList.toggle('on', b === el));
+    const body = page?.querySelector('#feedBody');
     if (body) body.innerHTML = feedBodyHtml(el.dataset.id);
   },
   'auto-pause': (el) => {
@@ -210,7 +229,7 @@ export const ACTIONS = {
   'auto-alerts': (el) => {
     store.automationAlerts[el.dataset.id] = store.automationAlerts[el.dataset.id] === false;
     save();
-    const body = document.getElementById('feedBody');
+    const body = el.closest('.page')?.querySelector('#feedBody');
     if (body) body.innerHTML = feedBodyHtml(el.dataset.id);
   },
   'auto-email': (el) => {
@@ -222,7 +241,7 @@ export const ACTIONS = {
   'auto-reset-instructions': (el) => {
     delete store.automationInstructions[el.dataset.id];
     save();
-    const body = document.getElementById('feedBody');
+    const body = el.closest('.page')?.querySelector('#feedBody');
     if (body) body.innerHTML = feedBodyHtml(el.dataset.id);
   },
   'you-automations': () => { setAskTab('automations'); nav('#/ask'); },
