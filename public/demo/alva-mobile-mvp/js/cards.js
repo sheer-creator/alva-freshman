@@ -22,10 +22,47 @@ export function entityAv(id, size = 36) {
   return monoAv(e.ticker, e.hue, size);
 }
 
-export function srcAvatar(s, size = 40) {
-  if (s.avatar) return `<img class="av-img" src="img/${s.avatar}" width="${size}" height="${size}" alt="">`;
-  const hue = { Podcast: 285, X: 200, News: 26, Alva: 174 }[s.platform] ?? 174;
-  return monoAv(s.name.replace(/^[@r]\/?/, '').slice(0, 2).toUpperCase(), hue, size, true);
+/* Unified Composer context token: compact, explicit and removable. It mirrors
+ * the production MentionNode/Attachment geometry while using the ticker mark
+ * that is more useful on the mobile investing surface. */
+export function entityReference(id, { removable = true, action = 'remove-composer-entity' } = {}) {
+  const e = ENTITIES[id];
+  if (!e) return '';
+  return `<span class="entity-ref-chip" data-entity="${id}">
+    ${entityAv(id, 20)}
+    <span class="entity-ref-label"><b>${e.ticker}</b><i>${e.name}</i></span>
+    ${removable ? `<button data-act="${action}" aria-label="Remove ${e.ticker} reference">${I.x}</button>` : ''}
+  </span>`;
+}
+
+/* Mirrors the real Unified Composer's add menu. Entity mentions are created by
+ * entity surfaces, not exposed as a generic picker here. */
+export function composerContextMenu() {
+  const options = [
+    ['Playbooks', 'sidebar-dashboard-normal.svg', true],
+    ['Automations', 'lightning-l.svg', true],
+    ['Files/photos', 'clip-l.svg', true],
+    ['Portfolio accounts', 'wallet-l.svg', true],
+    ['Skills hub', 'skill-l.svg', true],
+    ['GPT-5.5', 'think-l.svg', true],
+    ['Recent chats', 'sidebar-thread-normal.svg', true],
+    ['Upload new files', 'upload-l.svg', false],
+  ];
+  return `<div class="composer-add-popover" hidden>
+    <div class="composer-add-list">${options.map(([label, icon, hasNext]) => `<button data-act="composer-menu-action" data-label="${label}">
+      <span class="composer-menu-icon" style="--composer-menu-icon:url('../img/icons/composer/${icon}')"></span><span class="composer-menu-label">${label}</span>${hasNext ? I.chevR : ''}
+    </button>`).join('')}</div>
+  </div>`;
+}
+
+export function srcAvatar(s, size = 40, extraClass = '') {
+  if (s.avatar) return `<img class="av-img source-avatar-img ${extraClass}" src="img/${s.avatar}" width="${size}" height="${size}" alt="${s.name}" loading="lazy">`;
+  const hue = s.hue ?? ({ Podcast: 285, X: 200, News: 26, Alva: 174 }[s.platform] ?? 174);
+  const mark = s.mark || s.name.replace(/^[@r]\/?/, '').slice(0, 2).toUpperCase();
+  const inner = s.platform === 'Alva'
+    ? '<span class="source-alva-mark" aria-hidden="true"></span>'
+    : `<span class="source-avatar-label">${mark}</span>`;
+  return `<span class="source-avatar source-${s.id} ${extraClass}" style="--av-size:${size}px;--source-hue:${hue}" role="img" aria-label="${s.name}">${inner}</span>`;
 }
 
 export function sparkSVG(points, dir, w = 96, h = 34, endDot = true) {
@@ -74,13 +111,14 @@ export const tickerRail = (item) => `<div class="ticker-rail ${item.entity_refs.
 
 /* ---- 溯源入口：source 头像叠放 + 数量，点开卡背 ---- */
 export function provRow(item, act = 'flip') {
-  const srcs = itemSources(item).slice(0, 4).map((id) => SOURCES[id]);
-  const stack = srcs.map((s) => s.avatar
-    ? `<img src="img/${s.avatar}" alt="${s.name}">`
-    : `<span>${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`).join('');
-  return `<button class="prov-row" data-act="${act}" data-item="${item.id}" aria-label="Behind this card">
+  const sourceIds = itemSources(item);
+  const srcs = sourceIds.slice(0, 3).map((id) => SOURCES[id]);
+  const remaining = sourceIds.length - srcs.length;
+  const stack = srcs.map((s) => srcAvatar(s, 22)).join('');
+  return `<button class="prov-row" data-act="${act}" data-item="${item.id}" aria-label="View ${sourceIds.length} source${sourceIds.length > 1 ? 's' : ''}">
     <span class="src-stack">${stack}</span>
-    <span class="prov-tx">${srcs.length} source${srcs.length > 1 ? 's' : ''}</span>
+    ${remaining > 0 ? `<span class="prov-more">+${remaining}</span>` : ''}
+    <span class="prov-chev">${I.chevR}</span>
   </button>`;
 }
 export const evidenceBar = (item) => provRow(item, 'evi-sheet');
@@ -93,7 +131,7 @@ function cardHead(item) {
   </div>`;
 }
 
-const wave = [9,15,22,13,27,18,31,12,24,19,28,15,23,11,29,17,25,13,20,10];
+const wave = [5,8,12,7,14,9,16,6,13,9,15,8,12,6,15,9,13,7,10,5];
 
 function audioHero(item, hero) {
   const source = SOURCES[item.source];
@@ -105,7 +143,6 @@ function audioHero(item, hero) {
       <span class="audio-transport">
         <span class="audio-play">${I.play}</span>
         <span class="audio-wave" aria-hidden="true">${wave.map((h, i) => `<i style="--h:${h}px;--i:${i}"></i>`).join('')}</span>
-        <span class="audio-label">Play clip</span>
       </span>
     </span>
   </button>`;
@@ -114,6 +151,104 @@ function audioHero(item, hero) {
 function imageHero(item, hero) {
   if (!hero) return '';
   return `<div class="card-media-top" data-act="open-detail" data-item="${item.id}" role="button"><img src="${hero.src}" alt="${hero.alt}" loading="lazy"></div>`;
+}
+
+const chartScale = (value, min, max, top, bottom) => bottom - ((value - min) / (max - min || 1)) * (bottom - top);
+
+function candlestickHero(item) {
+  const v = item.visual;
+  const candles = v.candles;
+  const all = candles.flatMap((c) => [c[1], c[2], v.support, v.resistance]);
+  const min = Math.min(...all), max = Math.max(...all);
+  const left = 16, right = 304, top = 10, bottom = 82;
+  const step = (right - left) / candles.length;
+  const maxVolume = Math.max(...candles.map((c) => c[4]));
+  const candleSvg = candles.map((c, i) => {
+    const [open, high, low, close, volume] = c;
+    const x = left + step * i + step / 2;
+    const yo = chartScale(open, min, max, top, bottom);
+    const yc = chartScale(close, min, max, top, bottom);
+    const yh = chartScale(high, min, max, top, bottom);
+    const yl = chartScale(low, min, max, top, bottom);
+    const up = close >= open;
+    const bodyY = Math.min(yo, yc), bodyH = Math.max(2.4, Math.abs(yc - yo));
+    const volumeH = Math.max(2, (volume / maxVolume) * 18);
+    return `<g class="candle ${up ? 'up' : 'down'}">
+      <line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${yh.toFixed(1)}" y2="${yl.toFixed(1)}"/>
+      <rect x="${(x - 5).toFixed(1)}" y="${bodyY.toFixed(1)}" width="10" height="${bodyH.toFixed(1)}" rx="1.5"/>
+      <rect class="volume" x="${(x - 5).toFixed(1)}" y="${(112 - volumeH).toFixed(1)}" width="10" height="${volumeH.toFixed(1)}" rx="1"/>
+    </g>`;
+  }).join('');
+  const resistanceY = chartScale(v.resistance, min, max, top, bottom);
+  const supportY = chartScale(v.support, min, max, top, bottom);
+  return `<div class="data-hero candlestick-hero" data-act="open-detail" data-item="${item.id}" role="button">
+    <div class="data-hero-head"><span>${v.eyebrow}</span><em class="signal-badge">${v.badge}</em></div>
+    <div class="data-primary"><b>${v.value}</b><span class="${item.move.dir}">${item.move.value}</span><i>${v.note}</i></div>
+    <svg class="candle-chart" viewBox="0 0 320 118" role="img" aria-label="${v.aria}">
+      <g class="chart-grid"><line x1="16" x2="304" y1="22" y2="22"/><line x1="16" x2="304" y1="52" y2="52"/><line x1="16" x2="304" y1="82" y2="82"/></g>
+      <line class="level resistance" x1="16" x2="304" y1="${resistanceY.toFixed(1)}" y2="${resistanceY.toFixed(1)}"/>
+      <line class="level support" x1="16" x2="304" y1="${supportY.toFixed(1)}" y2="${supportY.toFixed(1)}"/>
+      <text class="level-label resistance" x="242" y="${Math.max(11, resistanceY - 4).toFixed(1)}" text-anchor="end">RES ${v.resistance.toFixed(1)}</text>
+      <text class="level-label support" x="242" y="${Math.min(80, supportY - 4).toFixed(1)}" text-anchor="end">SUP ${v.support.toFixed(1)}</text>
+      ${candleSvg}
+    </svg>
+  </div>`;
+}
+
+function columnsHero(item) {
+  const v = item.visual;
+  const max = Math.max(...v.actual, ...v.compare) * 1.12;
+  const base = 82, chartTop = 8;
+  const group = 72;
+  const bars = v.labels.map((label, i) => {
+    const x = 26 + i * group;
+    const compareH = (v.compare[i] / max) * (base - chartTop);
+    const actualH = (v.actual[i] / max) * (base - chartTop);
+    return `<g class="column-group">
+      <rect class="compare" x="${x}" y="${(base - compareH).toFixed(1)}" width="15" height="${compareH.toFixed(1)}" rx="2"/>
+      <rect class="actual" x="${x + 19}" y="${(base - actualH).toFixed(1)}" width="15" height="${actualH.toFixed(1)}" rx="2"/>
+      <text x="${x + 17}" y="103" text-anchor="middle">${label}</text>
+    </g>`;
+  }).join('');
+  return `<div class="data-hero columns-hero" data-act="open-detail" data-item="${item.id}" role="button">
+    <div class="data-hero-head"><span>${v.eyebrow}</span><span class="chart-legend"><i></i>${v.compareLabel}<i></i>${v.actualLabel}</span></div>
+    <div class="data-primary"><b>${v.value}</b><span class="up">${v.delta}</span><i>${v.note}</i></div>
+    <svg class="column-chart" viewBox="0 0 320 108" role="img" aria-label="${v.aria}">
+      <g class="chart-grid"><line x1="16" x2="304" y1="26" y2="26"/><line x1="16" x2="304" y1="54" y2="54"/><line x1="16" x2="304" y1="82" y2="82"/></g>
+      ${bars}
+    </svg>
+  </div>`;
+}
+
+function flowHero(item) {
+  const v = item.visual;
+  const max = Math.max(...v.values.map(Math.abs));
+  const base = 82, top = 10;
+  const step = 46;
+  const bars = v.values.map((value, i) => {
+    const h = Math.max(3, Math.abs(value) / max * (base - top));
+    const x = 22 + i * step;
+    const y = value >= 0 ? base - h : base;
+    return `<g class="flow-bar ${value >= 0 ? 'up' : 'down'} ${i === v.values.length - 1 ? 'latest' : ''}">
+      <rect x="${x}" y="${y.toFixed(1)}" width="22" height="${h.toFixed(1)}" rx="3"/>
+      <text x="${x + 11}" y="103" text-anchor="middle">${v.labels[i]}</text>
+    </g>`;
+  }).join('');
+  return `<div class="data-hero flow-hero" data-act="open-detail" data-item="${item.id}" role="button">
+    <div class="data-hero-head"><span>${v.eyebrow}</span><em class="signal-badge">${v.badge}</em></div>
+    <div class="data-primary"><b>${v.value}</b><span class="up">${v.delta}</span><i>${v.note}</i></div>
+    <svg class="flow-chart" viewBox="0 0 320 108" role="img" aria-label="${v.aria}">
+      <line class="flow-baseline" x1="16" x2="304" y1="82" y2="82"/>${bars}
+    </svg>
+  </div>`;
+}
+
+function visualHero(item) {
+  if (!item.visual) return '';
+  if (item.visual.type === 'candlestick') return candlestickHero(item);
+  if (item.visual.type === 'columns') return columnsHero(item);
+  if (item.visual.type === 'flow') return flowHero(item);
+  return '';
 }
 
 function marketHero(item) {
@@ -133,7 +268,8 @@ function fallbackMarkdown(item) {
 function cardBody(item) {
   const { hero, body } = splitMarkdown(item.content_md || fallbackMarkdown(item));
   const media = item.kind === 'alpha' ? audioHero(item, hero)
-    : item.kind === 'anomaly' ? marketHero(item)
+    : item.visual ? visualHero(item)
+      : item.kind === 'anomaly' ? marketHero(item)
       : imageHero(item, hero);
   return `${cardHead(item)}${media}${tickerRail(item)}
     <div class="md-content" data-act="open-detail" data-item="${item.id}">${renderMarkdown(body)}</div>`;
@@ -146,7 +282,7 @@ export function streamCard(item, idx = 0) {
     ${body}
     <div class="card-actions">
       ${provRow(item, 'flip')}
-      <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}">${I.ask}Ask Alva</button>
+      <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}"><span class="ask-alva-mark" aria-hidden="true"></span>Ask Alva</button>
     </div>
   </div>`;
   return `<div class="flip-scene reveal" style="animation-delay:${Math.min(idx * 60, 300)}ms" data-item="${item.id}">
@@ -175,11 +311,8 @@ export function cardBack(item) {
     <div class="fb-sec">Sources</div>
     <div class="ev-list">${itemSources(item).map((id) => {
       const s = SOURCES[id];
-      const av = s.avatar
-        ? `<img class="ev-av" src="img/${s.avatar}" alt="">`
-        : `<span class="ev-av mono">${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`;
       return `<div class="ev-row" data-act="open-source" data-id="${id}" role="button">
-        ${av}
+        ${srcAvatar(s, 30, 'ev-av')}
         <div class="src"><div class="nm">${s.name}</div><div class="nt">${noteFor(id)}</div></div>
         <span class="ev-chev">${I.chevR}</span>
       </div>`;

@@ -5,6 +5,12 @@ const DEFAULTS = {
   onboarded: false,
   entities: [],
   paused: [],
+  notifications: true,
+  theme: 'dark',
+  automationAlerts: {},
+  automationEmail: {},
+  automationInstructions: {},
+  manualRuns: {},
 };
 
 export const store = (() => {
@@ -13,6 +19,15 @@ export const store = (() => {
 })();
 
 export function save() { localStorage.setItem(KEY, JSON.stringify(store)); }
+export function applyTheme(value = store.theme) {
+  const theme = value === 'light' ? 'light' : 'dark';
+  store.theme = theme;
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) themeColor.setAttribute('content', theme === 'light' ? '#F6F6F6' : '#15161A');
+  return theme;
+}
 export function resetDemo() { localStorage.removeItem(KEY); location.hash = '#/welcome'; location.reload(); }
 export function toggleIn(arr, v) {
   const i = arr.indexOf(v);
@@ -24,10 +39,13 @@ export function toggleIn(arr, v) {
 export function nav(hash) { location.hash = hash; }
 export function back() { history.back(); }
 
+applyTheme();
+
 /* ========== icons（stroke 统一 1.8–2，24 viewBox） ========== */
 export const I = {
   back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
   chevR: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
+  chevDown: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
   ask: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 1 1-3.1-6.3L21 5l-.9 3.4c.6 1.1.9 2.3.9 3.6Z"/><circle cx="8.8" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12.4" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r=".9" fill="currentColor" stroke="none"/></svg>',
   flip: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="8" r=".5" fill="currentColor"/></svg>',
   check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',

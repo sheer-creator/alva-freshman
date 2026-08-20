@@ -3,8 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#0A0E0F">
+<meta name="theme-color" content="#15161A">
 <title>Alva Mobile MVP — Alpha & Following</title>
+<script>
+  (() => {
+    let theme = 'dark';
+    try {
+      const saved = JSON.parse(localStorage.getItem('alva_mvp_demo_v1') || '{}');
+      if (saved.theme === 'light') theme = 'light';
+    } catch (_) {}
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#F6F6F6' : '#15161A';
+  })();
+</script>
 <link rel="preload" as="image" href="img/art/alva-signal-flow-splash.jpg">
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/screens.css">
@@ -46,8 +58,8 @@
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
         <span>Discover</span>
       </button>
-      <button class="tab" data-tab="ask" aria-label="Ask">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+      <button class="tab" data-tab="ask" aria-label="Chat">
+        <span class="alva-tab-mark" aria-hidden="true"></span>
         <span>Chat</span>
       </button>
       <button class="tab" data-tab="you" aria-label="You">
@@ -60,6 +72,7 @@
   <div id="toast-root"></div>
   <div id="home-indicator"></div>
 </div>
+<script src="js/vendor/lightweight-charts.standalone.production.js"></script>
 <script type="module" src="js/app.js"></script>
     <script src="/demo/_switcher.js" defer></script>
   </body>

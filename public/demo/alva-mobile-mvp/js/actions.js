@@ -1,11 +1,14 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
 import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel } from './data.js';
-import { store, save, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
-import { cardBack, entityAv } from './cards.js';
-import { askCtx, setAskCtx, setPendingAsk, setAskTab, setMktTab, mktListHtml, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js';
+import { store, save, applyTheme, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js';
+import { cardBack, composerContextMenu, entityReference } from './cards.js';
+import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setMktTab, mktListHtml, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js';
+import { setCompanyTab, setCompanyChartRange, setCompanySmartTab, setCompanyEarningsStage } from './company.js';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();
+const escapeHtml = (value) => String(value)
+  .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
 /* 当前页弹起对话 composer：卡片作为引用元素，发送后才进入 Chat */
 function openComposer(it, prefill) {
@@ -13,14 +16,25 @@ function openComposer(it, prefill) {
     ? `${SOURCES[it.source].name} · ${it.published}`
     : `${FEEDS[it.feed].name} · ${it.published}`;
   openSheet(`
-    <div class="quote-card">
-      <div class="qc-head">${it.kind === 'alpha' ? '' : entityAv(it.entity_refs[0], 20)}<span>${head}</span></div>
-      <div class="qc-title">${it.headline}</div>
+    <div class="composer-sheet-head"><h3>Ask Alva</h3><p>${head}</p></div>
+    <div class="alva-composer sheet-composer">
+      <div class="composer-attachments">
+        <div class="composer-quote" data-composer-quote="${it.id}">
+          <i aria-hidden="true"></i><span>${it.headline}</span>
+          <button data-act="remove-composer-quote" aria-label="Remove quoted card">${I.x}</button>
+        </div>
+      </div>
+      <div class="composer-input-row">
+        <div class="composer-add-wrap">
+          <button class="composer-tool" data-act="composer-toggle-add" aria-label="Add context" aria-expanded="false">${I.plus}</button>
+          ${composerContextMenu()}
+        </div>
+        <textarea class="composer-ta" id="composerTa" rows="1" placeholder="Ask anything about this…">${prefill || ''}</textarea>
+        <span class="composer-model">GPT-5.5</span>
+        <button class="composer-send" data-act="composer-send" data-item="${it.id}" aria-label="Send message">${I.send}</button>
+      </div>
     </div>
-    <textarea class="composer-ta" id="composerTa" rows="3" placeholder="Ask anything about this…">${prefill || ''}</textarea>
-    <div class="sheet-cta" style="margin-top:12px">
-      <button class="btn btn-ask" style="width:100%;flex:1" data-act="composer-send" data-item="${it.id}">${I.send}Ask Alva</button>
-    </div>`);
+  `);
   setTimeout(() => {
     const ta = document.getElementById('composerTa');
     if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
@@ -28,7 +42,12 @@ function openComposer(it, prefill) {
 }
 
 /* canned 回答：按卡型给贴题的答案，末尾引用来源 */
-function askAnswer(it) {
+function askAnswer(it, entityId) {
+  if (!it && entityId) {
+    const entity = ENTITIES[entityId];
+    return `<b>${entity.name} is trading at ${entity.price}</b>, ${entity.delta} today.<br><br>
+      Two things matter now: whether the latest move is backed by a durable change in expectations, and whether the next operating datapoint confirms it. I’d change my mind if price keeps moving while primary-source evidence weakens.`;
+  }
   if (!it) return `Short answer: <b>the evidence leans yes</b>.<br><br>
     The strongest signals in your feeds point the same direction, and the main counter-signal is still unconfirmed. Open any card and ask from there — I’ll answer against its sources.`;
   if (it.kind === 'alpha') {
@@ -97,6 +116,12 @@ export const ACTIONS = {
   'open-automation': (el) => nav('#/automation/' + el.dataset.id),
   'open-source': (el) => nav('#/source/' + el.dataset.id),
 
+  /* ---- Market / company detail ---- */
+  'entity-tab': (el) => { setCompanyTab(el.dataset.tab); rerender(); },
+  'entity-chart-range': (el) => { setCompanyChartRange(el.dataset.range); rerender(); },
+  'entity-smart-tab': (el) => { setCompanySmartTab(el.dataset.tab); rerender(); },
+  'entity-earnings-stage': (el) => { setCompanyEarningsStage(el.dataset.stage); rerender(); },
+
   /* ---- card flip（卡背 = 溯源 + why） ---- */
   flip: (el) => {
     const scene = el.closest('.flip-scene');
@@ -119,9 +144,7 @@ export const ACTIONS = {
     if (hero) {
       const playing = hero.classList.toggle('playing');
       const icon = hero.querySelector('.audio-play');
-      const label = hero.querySelector('.audio-label');
       if (icon) icon.innerHTML = playing ? I.pause : I.play;
-      if (label) label.textContent = playing ? 'Playing preview' : 'Play clip';
       return;
     }
     toast(`Opens the episode at ${it ? it.at : ''} on the source platform`, I.play);
@@ -175,70 +198,160 @@ export const ACTIONS = {
     if (body) body.innerHTML = feedBodyHtml(el.dataset.id);
   },
   'auto-pause': (el) => {
-    const paused = toggleIn(store.paused, el.dataset.id);
+    toggleIn(store.paused, el.dataset.id);
+    rerender();
+  },
+  'auto-run-now': (el) => {
+    store.manualRuns[el.dataset.id] = Date.now();
+    save();
+    toast('Automation started', I.play);
+    rerender();
+  },
+  'auto-alerts': (el) => {
+    store.automationAlerts[el.dataset.id] = store.automationAlerts[el.dataset.id] === false;
+    save();
     const body = document.getElementById('feedBody');
-    if (body) body.innerHTML = feedBodyHtml(el.dataset.id); else rerender();
-    const dot = document.querySelector('.hero-head .st-dot');
-    if (dot) dot.classList.toggle('off', paused);
+    if (body) body.innerHTML = feedBodyHtml(el.dataset.id);
+  },
+  'auto-email': (el) => {
+    store.automationEmail[el.dataset.id] = store.automationEmail[el.dataset.id] !== true;
+    save();
+    el.classList.toggle('on', store.automationEmail[el.dataset.id]);
+    el.setAttribute('aria-checked', String(store.automationEmail[el.dataset.id]));
+  },
+  'auto-reset-instructions': (el) => {
+    delete store.automationInstructions[el.dataset.id];
+    save();
+    const body = document.getElementById('feedBody');
+    if (body) body.innerHTML = feedBodyHtml(el.dataset.id);
   },
   'you-automations': () => { setAskTab('automations'); nav('#/ask'); },
-  /* Settings sheet：Notifications 开关与 Log out 都收在这里 */
+  /* Settings sheet：复用正式 Alva 的 400/500 字重、细分隔和显式主题选择。 */
   'settings-sheet': () => openSheet(`
-    <h3>Settings</h3>
-    <div style="margin-top:10px">
+    <div class="settings-head"><h3>Settings</h3><p>Choose how Alva looks and reaches you.</p></div>
+    <div class="settings-group">
       <div class="sm-row">
         <span class="meta"><span class="nm">Notifications</span><div class="ds">Impactful events only</div></span>
-        <button class="switch ${store.notifications !== false ? 'on' : ''}" data-act="toggle-notif" aria-label="Toggle notifications"><i></i></button>
+        <button class="switch ${store.notifications !== false ? 'on' : ''}" data-act="toggle-notif" role="switch" aria-checked="${store.notifications !== false}" aria-label="Toggle notifications"><i class="switch-thumb"></i></button>
       </div>
-      <div class="sm-row" data-act="toast-msg" data-msg="Appearance is fixed to dark in this demo" role="button">
-        <span class="meta"><span class="nm">Appearance</span><div class="ds">Dark</div></span>${I.chevR}
+      <div class="appearance-row">
+        <span class="meta"><span class="nm">Appearance</span><div class="ds">Switches instantly and stays on this device</div></span>
+        <div class="theme-options" role="radiogroup" aria-label="Appearance">
+          <button class="theme-choice ${store.theme === 'light' ? 'on' : ''}" data-act="set-theme" data-theme="light" role="radio" aria-checked="${store.theme === 'light'}">
+            <span class="theme-preview light" aria-hidden="true"><i></i><i></i></span><span>Light</span>${I.check}
+          </button>
+          <button class="theme-choice ${store.theme !== 'light' ? 'on' : ''}" data-act="set-theme" data-theme="dark" role="radio" aria-checked="${store.theme !== 'light'}">
+            <span class="theme-preview dark" aria-hidden="true"><i></i><i></i></span><span>Dark</span>${I.check}
+          </button>
+        </div>
       </div>
       <div class="sm-row" data-act="toast-msg" data-msg="Data controls are mocked in this demo" role="button">
         <span class="meta"><span class="nm">Data & privacy</span><div class="ds">Sources, memory and exports</div></span>${I.chevR}
       </div>
     </div>
-    <button class="txt-act danger" style="display:block;margin:20px auto 6px" data-act="reset-demo">Log out</button>`),
+    <button class="txt-act danger settings-logout" data-act="reset-demo">Log out</button>`),
   'toggle-notif': (el) => {
     store.notifications = store.notifications === false;
     save();
     el.classList.toggle('on', store.notifications !== false);
+    el.setAttribute('aria-checked', String(store.notifications !== false));
+  },
+  'set-theme': (el) => {
+    const theme = applyTheme(el.dataset.theme);
+    save();
+    document.querySelectorAll('.theme-choice').forEach((choice) => {
+      const selected = choice.dataset.theme === theme;
+      choice.classList.toggle('on', selected);
+      choice.setAttribute('aria-checked', String(selected));
+    });
   },
 
   /* ---- ask ---- */
   'ask-tab': (el) => { setAskTab(el.dataset.t); rerender(); },
   'ask-entity': (el) => {
-    setAskCtx(null);
-    setPendingAsk(`What’s the state of play on ${ENTITIES[el.dataset.id].ticker}? Give me the two things that matter and what would change your mind.`);
+    setAskCtx({ itemId: null, entityIds: [el.dataset.id] });
+    setPendingAsk(null);
     setAskTab('chat');
     nav('#/ask');
   },
   'clear-ctx': () => { setAskCtx(null); rerender(); },
   'ask-item': (el) => openComposer(item(el), ''),
+  'composer-toggle-add': (el) => {
+    const popover = el.parentElement.querySelector('.composer-add-popover');
+    if (!popover) return;
+    const opening = popover.hidden;
+    document.querySelectorAll('.composer-add-popover').forEach((menu) => {
+      menu.hidden = true;
+      menu.parentElement.querySelector('[data-act="composer-toggle-add"]')?.setAttribute('aria-expanded', 'false');
+    });
+    popover.hidden = !opening;
+    el.setAttribute('aria-expanded', String(opening));
+  },
+  'composer-menu-action': (el) => {
+    const popover = el.closest('.composer-add-popover');
+    if (popover) popover.hidden = true;
+    const composer = el.closest('.alva-composer');
+    composer?.querySelector('[data-act="composer-toggle-add"]')?.setAttribute('aria-expanded', 'false');
+    composer?.querySelector('textarea')?.focus();
+  },
+  'remove-composer-entity': (el) => {
+    const composer = el.closest('.alva-composer');
+    const chip = el.closest('.entity-ref-chip');
+    const removedId = chip?.dataset.entity;
+    chip?.remove();
+    if (composer?.classList.contains('ask-composer') && removedId) {
+      const context = getAskContext();
+      setAskCtx({ ...context, entityIds: context.entityIds.filter((id) => id !== removedId) });
+    }
+    const attachments = composer?.querySelector('.composer-attachments');
+    if (attachments && !attachments.querySelector('.composer-quote, .entity-ref-chip')) attachments.hidden = true;
+  },
+  'remove-composer-quote': (el) => {
+    const composer = el.closest('.alva-composer');
+    el.closest('.composer-quote')?.remove();
+    if (composer?.classList.contains('ask-composer')) {
+      const context = getAskContext();
+      setAskCtx({ ...context, itemId: null });
+    }
+    const attachments = composer?.querySelector('.composer-attachments');
+    if (attachments && !attachments.querySelector('.composer-quote, .entity-ref-chip')) attachments.hidden = true;
+  },
   'composer-send': (el) => {
     const it = item(el);
-    const ta = document.getElementById('composerTa');
+    const composer = el.closest('.alva-composer');
+    const ta = composer?.querySelector('.composer-ta');
     const q = (ta && ta.value.trim()) || `What should I make of “${it.headline}”?`;
-    setAskCtx(it.id);
+    const entityIds = [...composer.querySelectorAll('[data-entity]')].map((chip) => chip.dataset.entity);
+    const itemId = composer?.querySelector('.composer-quote') ? it.id : null;
+    setAskCtx({ itemId, entityIds });
     setPendingAsk(q);
     setAskTab('chat');
     closeSheet();
     nav('#/ask');
   },
   'ask-send': (el) => {
-    const input = document.getElementById('askInput');
+    const composer = el.closest('.alva-composer');
+    const input = composer?.querySelector('#askInput') || document.getElementById('askInput');
     const q = el.dataset.q || (input && input.value.trim());
     if (!q) return;
     if (input) input.value = '';
     const reply = document.getElementById('askReply');
     if (!reply) return;
-    const ctxItem = askCtx ? ITEMS.find((it) => it.id === askCtx) : null;
-    reply.insertAdjacentHTML('beforeend', `<div class="bub user">${q}</div>
+    const context = getAskContext();
+    const entityIds = composer
+      ? [...composer.querySelectorAll('[data-entity]')].map((chip) => chip.dataset.entity)
+      : context.entityIds;
+    const liveContext = { ...context, entityIds };
+    setAskCtx(liveContext);
+    const ctxItem = liveContext.itemId ? ITEMS.find((it) => it.id === liveContext.itemId) : null;
+    const entityId = liveContext.entityIds[0];
+    reply.insertAdjacentHTML('beforeend', `<div class="bub user">${entityId ? `<div class="message-ref">${entityReference(entityId, { removable: false })}</div>` : ''}${escapeHtml(q)}</div>
       <div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>`);
     const answer = reply.lastElementChild;
     answer.scrollIntoView({ block: 'end', behavior: 'smooth' });
     setTimeout(() => {
       if (answer && answer.isConnected) {
-        answer.innerHTML = askAnswer(ctxItem);
+        answer.innerHTML = askAnswer(ctxItem, entityId);
         answer.scrollIntoView({ block: 'end', behavior: 'smooth' });
       }
     }, 1400);

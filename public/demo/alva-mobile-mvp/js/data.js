@@ -29,64 +29,64 @@ export const ENTITIES = {
  */
 export const SOURCES = {
   /* ---- podcasts（Alpha） ---- */
-  bg2:       { id: 'bg2',       name: 'BG2 Pod',              platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Brad Gerstner · Bill Gurley',
+  bg2:       { id: 'bg2',       name: 'BG2 Pod',              platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Brad Gerstner · Bill Gurley', avatar: 'sources/bg2.jpg',
     recent: [
       { t: '2h ago', kind: 'Episode', text: 'E82 · “The trillion-dollar buildout” — hyperscaler capex, sovereign AI and what breaks first.' },
       { t: '1w ago', kind: 'Episode', text: 'E81 · Open-source models and the margin question.' },
     ] },
-  investlike: { id: 'investlike', name: 'Invest Like the Best', platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Patrick O’Shaughnessy',
+  investlike: { id: 'investlike', name: 'Invest Like the Best', platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Patrick O’Shaughnessy', avatar: 'sources/invest-like-the-best.jpg',
     recent: [
       { t: '13h ago', kind: 'Episode', text: 'A memory-cycle veteran on why this one is structurally different.' },
       { t: '1w ago', kind: 'Episode', text: 'Compounding lessons from 20 years of semis investing.' },
     ] },
-  oddlots:   { id: 'oddlots',   name: 'Odd Lots',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Joe Weisenthal · Tracy Alloway', avatar: 'ava-6.png',
+  oddlots:   { id: 'oddlots',   name: 'Odd Lots',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Joe Weisenthal · Tracy Alloway', avatar: 'sources/odd-lots.jpg',
     recent: [
       { t: '5h ago', kind: 'Episode', text: 'How the stablecoin bill quietly rewires money-market plumbing.' },
       { t: '6d ago', kind: 'Episode', text: 'The Treasury basis trade, explained by the people doing it.' },
     ] },
-  allin:     { id: 'allin',     name: 'All-In Podcast',       platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Chamath · Sacks · Friedberg · Calacanis', avatar: 'av-podcast-studio-v2.png',
+  allin:     { id: 'allin',     name: 'All-In Podcast',       platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Chamath · Sacks · Friedberg · Calacanis', avatar: 'sources/all-in.jpg',
     recent: [
       { t: '9h ago', kind: 'Episode', text: 'E214 · “We’re underestimating inference demand by an order of magnitude” · from 41:22.' },
       { t: '1w ago', kind: 'Episode', text: 'E213 · Rates, the deficit and what breaks first.' },
     ] },
-  dwarkesh:  { id: 'dwarkesh',  name: 'Dwarkesh Podcast',     platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Dwarkesh Patel',
+  dwarkesh:  { id: 'dwarkesh',  name: 'Dwarkesh Podcast',     platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Dwarkesh Patel', avatar: 'sources/dwarkesh.jpg',
     recent: [
       { t: '1d ago', kind: 'Episode', text: 'A frontier-lab researcher on serving costs and the economics of inference.' },
       { t: '2w ago', kind: 'Episode', text: 'What scaling laws still predict — and what they stopped predicting.' },
     ] },
-  acquired:  { id: 'acquired',  name: 'Acquired',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Ben Gilbert · David Rosenthal',
+  acquired:  { id: 'acquired',  name: 'Acquired',             platform: 'Podcast', modality: 'Audio', kind: 'podcast', hosts: 'Ben Gilbert · David Rosenthal', avatar: 'sources/acquired.jpg',
     recent: [
       { t: '2d ago', kind: 'Episode', text: 'TSMC, part II — advanced packaging and the moat nobody models.' },
       { t: '1mo ago', kind: 'Episode', text: 'Costco: the deep dive.' },
     ] },
 
   /* ---- X + news（Following） ---- */
-  dylan:     { id: 'dylan',     name: '@dylan522p',           platform: 'X',    modality: 'Post', kind: 'x', avatar: 'av-jaxoxyz.jpeg',
+  dylan:     { id: 'dylan',     name: '@dylan522p',           platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/dylan522p.jpg',
     recent: [
       { t: '2h ago', kind: 'Post', text: '“HBM3E lead times now 31 weeks. Checked with two OSATs — this is allocation, not logistics.”' },
       { t: '1d ago', kind: 'Thread', text: '12 posts on Blackwell rack yields and what they mean for Q4 supply.' },
     ] },
-  kobeissi:  { id: 'kobeissi',  name: '@KobeissiLetter',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'av-zet.jpeg',
+  kobeissi:  { id: 'kobeissi',  name: '@KobeissiLetter',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/kobeissi-letter.jpg',
     recent: [
       { t: '3h ago', kind: 'Post', text: '“BTC spot ETFs: +$412M today, the 6th straight day of net inflows.”' },
       { t: '8h ago', kind: 'Post', text: 'BTC and gold rising together — the debasement trade in one chart.' },
     ] },
-  uwhales:   { id: 'uwhales',   name: '@unusual_whales',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'ava-3.png',
+  uwhales:   { id: 'uwhales',   name: '@unusual_whales',      platform: 'X',    modality: 'Post', kind: 'x', avatar: 'sources/unusual-whales.png',
     recent: [
       { t: '55m ago', kind: 'Post', text: 'Unusual MU call sweep: Sep $150C, $3.1M premium, above ask.' },
       { t: '2h ago', kind: 'Post', text: 'AMD dark-pool prints clustering at $186 — third session in a row.' },
     ] },
-  reuters:   { id: 'reuters',   name: 'Reuters',              platform: 'News', modality: 'Article', kind: 'news',
+  reuters:   { id: 'reuters',   name: 'Reuters',              platform: 'News', modality: 'Article', kind: 'news', avatar: 'sources/reuters.jpg',
     recent: [
       { t: '41m ago', kind: 'Wire', text: 'Second hyperscaler this week raises full-year capex guidance, citing AI demand.' },
       { t: '1h ago', kind: 'Wire', text: 'SK Hynix says HBM output effectively sold out through 2026.' },
     ] },
-  bloomberg: { id: 'bloomberg', name: 'Bloomberg',            platform: 'News', modality: 'Article', kind: 'news',
+  bloomberg: { id: 'bloomberg', name: 'Bloomberg',            platform: 'News', modality: 'Article', kind: 'news', avatar: 'sources/bloomberg-professional.jpg',
     recent: [
       { t: '32m ago', kind: 'Story', text: 'Tesla filing in Texas points to a broader robotaxi service area and a Q4 fleet target.' },
       { t: '9h ago', kind: 'Story', text: 'Meta utility filing corroborates committed multi-year datacenter spend.' },
     ] },
-  mkt_data:  { id: 'mkt_data',  name: 'Market data',          platform: 'Alva', modality: 'Structured', kind: 'data',
+  mkt_data:  { id: 'mkt_data',  name: 'Market data',          platform: 'Alva', modality: 'Structured', kind: 'data', mark: 'A', hue: 174,
     recent: [
       { t: 'Live', kind: 'Series', text: 'MU +5.8% on 2.4× average volume — largest single-day move since June.' },
       { t: 'Live', kind: 'Series', text: 'BTC ETF net flow +$412M — sixth straight positive session.' },
@@ -100,12 +100,14 @@ export const FEEDS = {
     sources: ['bg2', 'investlike', 'oddlots', 'allin', 'dwarkesh', 'acquired'],
     last_run: '12m ago', next_run: 'Live', runs: 1284,
     promise: 'Raw moments from a hand-picked set of podcasts — each tagged to its tickers, with a line on why it might be alpha.',
+    instructions: 'Listen for investable claims before they reach consensus. Preserve the speaker’s exact meaning, map each claim to the companies it could affect, and explain what would make the thesis wrong.',
   },
   following: {
     id: 'following', name: 'Following', owner: 'Alva', cadence: 'Continuous',
     sources: ['dylan', 'kobeissi', 'uwhales', 'reuters', 'bloomberg', 'mkt_data'],
     last_run: '3m ago', next_run: 'Live', runs: 5203,
     promise: 'Impactful events and move attribution for every ticker you follow — read from X and the newswire.',
+    instructions: 'Only surface material changes for the entities I follow. Separate the likely cause from confirming evidence, cite the original source, and say what the market may still be missing.',
   },
 };
 
@@ -180,13 +182,42 @@ Two of the four largest cloud buyers lifted full-year capex in the same week, bo
       { text: 'Both raises cite accelerated datacenter buildouts, not one-off projects.', sources: ['reuters'] },
       { text: 'Supply-chain checks point to Blackwell allocation shifting from availability to priority.', sources: ['dylan'] },
     ],
+    visual: {
+      type: 'columns', eyebrow: 'CLOUD CAPEX · FY26', value: '$392B', delta: '+12% vs prior', note: 'Two guidance raises this week',
+      labels: ['MSFT', 'META', 'GOOGL', 'AMZN'], compare: [105, 65, 82, 98], actual: [120, 72, 88, 112],
+      compareLabel: 'Prior', actualLabel: 'Current', aria: 'Four hyperscaler capex guidance bars, all revised higher',
+    },
     media: { hero: 'img/hero-nvda-datacenter.jpg', alt: 'AI datacenter racks' },
+  },
+  {
+    id: 'f_msft_earnings', feed: 'following', kind: 'event', t: 55, published: '55m ago',
+    entity_refs: ['MSFT'],
+    headline: 'Azure growth reaccelerated two points above consensus',
+    content_md: `## Azure growth reaccelerated two points above consensus
+
+Azure growth reached **39% YoY**, beating the Street by two points as AI workloads moved from pilots into production.
+
+- Azure growth accelerated for a third straight quarter. [Reuters](source:reuters)
+- The beat came with stable cloud gross margin, pushing back on the “AI revenue without profit” bear case. [Market data](source:mkt_data)
+
+**Why it matters:** This is the first quarter where faster AI growth and stable margin showed up together — the quality of the beat matters more than its size.`,
+    summary: 'Azure growth reached 39% YoY, beating the Street by two points as AI workloads moved from pilots into production.',
+    why: 'This is the first quarter where faster AI growth and stable margin showed up together — the quality of the beat matters more than its size.',
+    facts: [
+      { text: 'Azure growth accelerated for a third straight quarter.', sources: ['reuters'] },
+      { text: 'Cloud gross margin remained stable despite higher AI infrastructure depreciation.', sources: ['mkt_data'] },
+    ],
+    visual: {
+      type: 'columns', eyebrow: 'EARNINGS · AZURE GROWTH', value: '39%', delta: '+2 pts vs est.', note: 'YoY · constant currency',
+      labels: ['Q1', 'Q2', 'Q3', 'Q4'], compare: [28, 30, 34, 37], actual: [30, 32, 35, 39],
+      compareLabel: 'Estimate', actualLabel: 'Actual', aria: 'Azure quarterly growth actual versus estimate, with the latest quarter at 39 percent',
+    },
   },
   {
     id: 'f_meta_filing', feed: 'following', kind: 'event', t: 540, published: '9h ago',
     entity_refs: ['META'],
     headline: 'A utility filing just corroborated Meta’s multi-year AI spend',
-    content_md: `![Power grid at dusk](img/hero-capex-grid.jpg)
+    content_md: `![Hyperscale data center and electrical substation at dusk](img/hero-datacenter-power-v2.jpg)
 
 ## A utility filing just corroborated Meta’s multi-year AI spend
 
@@ -202,7 +233,7 @@ A grid-interconnect request tied to a Meta datacenter campus implies committed c
       { text: 'The interconnect request covers phased capacity through 2028.', sources: ['bloomberg'] },
       { text: 'Same pattern flagged across two other hyperscaler campuses this quarter.', sources: ['dylan'] },
     ],
-    media: { hero: 'img/hero-capex-grid.jpg', alt: 'Power grid at dusk' },
+    media: { hero: 'img/hero-datacenter-power-v2.jpg', alt: 'Hyperscale data center and electrical substation at dusk' },
   },
   {
     id: 'f_aapl_brk', feed: 'following', kind: 'event', t: 1500, published: '1d ago',
@@ -233,6 +264,17 @@ The latest 13F shows another reduction — the stake is now roughly **half its 2
 - A Sep $150 call sweep printed $3.1M above the ask an hour after the headline. [Unusual Whales](source:uwhales)
 - It is the largest single-day move since June; short interest was near a 12-month high coming in. [Market data](source:mkt_data)`,
     move: { value: '+5.8%', dir: 'up', label: 'Today · 2.4× avg volume', spark: [42, 43, 43, 44, 46, 45, 47, 50, 54, 57, 60, 63] },
+    visual: {
+      type: 'candlestick', eyebrow: 'MU · 1D', badge: 'BREAKOUT', value: '$138.60', note: '2.4× avg volume',
+      resistance: 136.0, support: 132.4,
+      candles: [
+        [128.4, 130.1, 127.6, 129.2, 36], [129.3, 130.0, 127.9, 128.6, 29],
+        [128.6, 131.0, 128.1, 130.4, 35], [130.3, 132.0, 129.8, 131.5, 40],
+        [131.4, 133.2, 130.9, 132.8, 48], [132.7, 134.4, 132.1, 133.9, 52],
+        [133.8, 136.1, 133.1, 135.4, 61], [135.2, 139.4, 134.9, 138.6, 96],
+      ],
+      aria: 'Micron daily candlestick chart breaking above 136 resistance on elevated volume, with support at 132.4',
+    },
     attribution: [
       { text: 'SK Hynix said HBM output is effectively sold out through 2026 — read-through to the whole memory complex.', source: 'reuters' },
       { text: 'A Sep $150 call sweep printed $3.1M above the ask an hour after the headline.', source: 'uwhales' },
@@ -248,6 +290,11 @@ The latest 13F shows another reduction — the stake is now roughly **half its 2
 - Spot ETFs took in **+$412M**, a sixth straight day of net inflows. [The Kobeissi Letter](source:kobeissi)
 - Strength is concentrated in two issuers, consistent with allocator buying rather than momentum chasing. [Market data](source:mkt_data)`,
     move: { value: '+1.8%', dir: 'up', label: 'Today · decoupled from risk assets', spark: [50, 49, 48, 49, 48, 50, 52, 53, 55, 56, 58, 60] },
+    visual: {
+      type: 'flow', eyebrow: 'SPOT ETF NET FLOW', badge: '6-DAY STREAK', value: '+$412M', delta: 'Today', note: 'Allocator-led, not leverage-led',
+      labels: ['Thu', 'Fri', 'Mon', 'Tue', 'Wed', 'Now'], values: [128, 214, 76, 305, 244, 412],
+      aria: 'Six consecutive positive Bitcoin spot ETF flow bars, latest session 412 million dollars',
+    },
     attribution: [
       { text: 'Spot ETFs took in +$412M — a sixth straight day of net inflows.', source: 'kobeissi' },
       { text: 'Flow strength is concentrated in two issuers, consistent with allocator buying rather than momentum chasing.', source: 'mkt_data' },
@@ -336,11 +383,14 @@ The latest 13F shows another reduction — the stake is now roughly **half its 2
     source: 'dwarkesh', ep: 'The economics of inference', at: '1:12:08', speaker: 'Guest · frontier-lab researcher',
     quote: 'Serving cost per token is collapsing faster than anyone outside the labs realizes. The constraint moved from training compute to distribution.',
     headline: 'Serving costs are collapsing faster than the market realizes',
-    content_md: `## Serving costs are collapsing faster than the market realizes
+    content_md: `![Edge compute infrastructure distributing across a city](img/hero-inference-distribution-v2.jpg)
+
+## Serving costs are collapsing faster than the market realizes
 
 > Serving cost per token is collapsing faster than anyone outside the labs realizes. The constraint moved from training compute to distribution.
 
 **Why it’s alpha:** If inference gets cheap, value shifts from chip vendors to whoever owns distribution — platforms with billions of users capture AI margin the market is still assigning to semis.`,
+    media: { hero: 'img/hero-inference-distribution-v2.jpg', alt: 'Edge compute infrastructure distributing across a city' },
     insight: 'The contrarian read: if inference gets cheap, value shifts from chip vendors to whoever owns distribution — platforms with billions of users capture AI margin the market is still assigning to semis.',
   },
   {
@@ -349,11 +399,14 @@ The latest 13F shows another reduction — the stake is now roughly **half its 2
     source: 'acquired', ep: 'TSMC, part II', at: '2:05:44', speaker: 'Ben Gilbert',
     quote: 'Everyone models wafer capacity. The actual constraint on every AI chip shipping next year is advanced packaging — and TSMC owns essentially all of it.',
     headline: 'The real 2027 constraint is packaging, and TSMC owns it',
-    content_md: `## The real 2027 constraint is packaging, and TSMC owns it
+    content_md: `![Advanced semiconductor packaging with chiplets and copper micro-bumps](img/hero-advanced-packaging-v2.jpg)
+
+## The real 2027 constraint is packaging, and TSMC owns it
 
 > Everyone models wafer capacity. The actual constraint on every AI chip shipping next year is advanced packaging — and TSMC owns essentially all of it.
 
 **Why it’s alpha:** CoWoS capacity, not wafers, decides who ships accelerators in 2027. That makes TSMC the toll collector on the entire AI buildout — a position the usual foundry-multiple framing undervalues.`,
+    media: { hero: 'img/hero-advanced-packaging-v2.jpg', alt: 'Advanced semiconductor packaging with chiplets and copper micro-bumps' },
     insight: 'CoWoS capacity, not wafers, decides who ships accelerators in 2027. That makes TSMC the toll collector on the entire AI buildout — a position the usual foundry-multiple framing undervalues.',
   },
 ];
