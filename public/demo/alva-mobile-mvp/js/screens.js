@@ -1,7 +1,8 @@
 /* ========== screens.js — 页面渲染 ========== */
 import { ENTITIES, SOURCES, FEEDS, ITEMS, TASKS, FILES, ONBOARD_ENTITIES, DISCOVER, entityChipLabel, itemSources } from './data.js';
 import { store, save, I, nav } from './state.js';
-import { streamCard, entityAv, monoAv, srcAvatar, sparkSVG, feedId, entStrips } from './cards.js';
+import { streamCard, composerContextMenu, entityAv, entityReference, monoAv, srcAvatar, sparkSVG, feedId, entStrips } from './cards.js';
+import { renderCompanyDetail, mountCompanyChart, destroyCompanyChart } from './company.js';
 
 export const TAB_ROUTES = ['home', 'discover', 'ask', 'you'];
 
@@ -17,6 +18,7 @@ const logoImg = `<img class="logo" src="img/logo-alva.svg" alt="Alva">`;
 
 /* ========== route table ========== */
 export function renderRoute(route, page) {
+  destroyCompanyChart();
   const [root, a] = route.split('/');
   const fn = {
     welcome: sWelcome,
@@ -39,6 +41,10 @@ export function renderRoute(route, page) {
 function sWelcome(page) {
   page.classList.add('welcome');
   page.innerHTML = `
+    <div class="welcome-art" aria-hidden="true">
+      <span class="welcome-flow primary"></span>
+      <span class="welcome-flow echo"></span>
+    </div>
     <div class="welcome-body">
       ${logoImg}
       <h1>Two feeds.<br><em>Zero noise.</em></h1>
@@ -352,24 +358,11 @@ function sDiscover(page) {
 function sEntity(id, page) {
   const e = ENTITIES[id];
   if (!e) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
-  const related = ITEMS.filter((it) => it.entity_refs.includes(id)).sort((a, b) => a.t - b.t);
-  const on = store.entities.includes(id);
-  page.innerHTML = `${backBar()}
-    <div class="hero-head">
-      <div class="row1">
-        ${entityAv(id, 52)}
-        <div><h1>${e.ticker}</h1><div class="sub">${e.name}</div></div>
-        <div class="px"><div class="v">${e.price}</div><div class="c" style="color:var(--${e.dir})">${e.delta}</div></div>
-      </div>
-      <div class="actions">
-        <button class="btn ${on ? 'btn-ghost' : 'btn-teal-solid'}" style="flex:1" data-act="follow-entity" data-id="${id}">${on ? I.check + 'Following' : I.plus + 'Follow'}</button>
-        <button class="btn btn-ghost" style="flex:1" data-act="ask-entity" data-id="${id}">${I.ask}Ask Alva</button>
-      </div>
-    </div>
-    <div class="page-secs">
-      ${on ? '' : `<p class="ent-none" style="margin-top:14px">Follow ${e.ticker} and its events and move attribution join your For You.</p>`}
-      ${related.length ? `<div class="d-sec"><div class="sec-label">Recent context</div>${related.map((it, i) => streamCard(it, i)).join('')}</div>` : `<div class="empty" style="padding:40px 20px"><h4>Quiet right now</h4><p>Nothing impactful on ${e.ticker} in the current window.</p></div>`}
-    </div>`;
+  page.innerHTML = `${backBar()}${renderCompanyDetail(id)}`;
+  queueMicrotask(() => {
+    page.querySelector('.company-tabs .on')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    mountCompanyChart(page, id);
+  });
 }
 
 /* ========== feed detail（= Automation：默认 Output，横切 Settings） ========== */
@@ -385,25 +378,86 @@ function feedOutputHtml(f, items) {
 
 function feedSettingsHtml(f) {
   const paused = store.paused.includes(f.id);
+  const alerts = store.automationAlerts[f.id] !== false;
+  const email = store.automationEmail[f.id] === true;
+  const instruction = (store.automationInstructions[f.id] ?? f.instructions)
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+  const nextRun = paused ? 'Paused' : f.next_run;
   return `
-    <div class="auto-rows" style="margin-top:6px">
-      <div class="auto-row">
-        <span class="k">Status</span>
-        <span class="v">${paused ? 'Paused' : 'Active'}</span>
-        <button class="txt-act" data-act="auto-pause" data-id="${f.id}">${paused ? 'Resume' : 'Pause'}</button>
-      </div>
-      <div class="auto-row"><span class="k">Delivers to</span><span class="v">For You</span></div>
-      <div class="auto-row"><span class="k">Next run</span><span class="v">${paused ? 'Paused' : f.next_run}</span></div>
-      ${f.id === 'following' ? `<div class="auto-row" data-act="following-sheet" role="button"><span class="k">Watching</span><span class="v">${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'}</span>${I.chevR}</div>` : ''}
-    </div>
-    <div class="d-sec"><div class="sec-label">Sources</div>
-      ${f.sources.map((sid) => { const s = SOURCES[sid]; return `<div class="list-row" data-act="open-source" data-id="${sid}" role="button">
-        ${srcAvatar(s, 40)}
-        <span class="meta"><span class="nm">${s.name}</span><div class="ds">${s.platform} · ${s.modality}${s.hosts ? ' · ' + s.hosts : ''}</div></span>
-        ${I.chevR}
-      </div>`; }).join('')}
-      <p class="ent-none" style="margin-top:10px">Official automation — the source list is curated by Alva and grows over time.</p>
+    <div class="auto-settings">
+      <section class="auto-field">
+        <div class="auto-field-head"><span>Sources</span><p>The people and sources Alva monitors for ${f.name}.</p></div>
+        <div class="auto-source-panel">
+          ${f.sources.map((sid) => { const s = SOURCES[sid]; return `<button class="auto-source-row" data-act="open-source" data-id="${sid}">
+            ${srcAvatar(s, 32)}
+            <span><b>${s.name}</b><i>${s.platform} · ${s.modality}${s.hosts ? ' · ' + s.hosts : ''}</i></span>
+            ${I.chevR}
+          </button>`; }).join('')}
+        </div>
+        <p class="auto-field-note">Official automation — these sources are curated by Alva and can grow over time.</p>
+      </section>
+
+      ${f.id === 'following' ? `<section class="auto-field">
+        <div class="auto-field-head"><span>Entities</span><p>The tickers Alva reads across your selected sources.</p></div>
+        <button class="auto-entry" data-act="following-sheet">
+          <span class="auto-entry-main"><b>${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'}</b><i>${store.entities.slice(0, 4).map(entityChipLabel).join(' · ') || 'Choose tickers in Discover'}</i></span>${I.chevR}
+        </button>
+      </section>` : ''}
+
+      <section class="auto-field">
+        <div class="auto-field-head"><span>Schedule</span><p>When this automation runs.</p></div>
+        <div class="auto-entry static">
+          <span class="auto-entry-main"><b>${f.cadence}</b><i>Next run · ${nextRun}</i></span>
+          <span class="auto-entry-meta">Local time</span>
+        </div>
+      </section>
+
+      <section class="auto-field">
+        <div class="auto-field-head with-control">
+          <span><b>Receive alerts</b><p>Choose where Alva sends alerts from this automation.</p></span>
+          <button class="switch ${alerts ? 'on' : ''}" data-act="auto-alerts" data-id="${f.id}" role="switch" aria-checked="${alerts}" aria-label="Receive alerts"><i class="switch-thumb"></i></button>
+        </div>
+        ${alerts ? `<div class="auto-delivery-list">
+          <div class="auto-delivery-row"><span class="auto-delivery-icon">${I.spark}</span><span><b>For You</b><i>Context cards in your feed</i></span><em>On</em></div>
+          <div class="auto-delivery-row"><span class="auto-delivery-icon">${I.bell}</span><span><b>Email alerts</b><i>High-impact events only</i></span><button class="switch ${email ? 'on' : ''}" data-act="auto-email" data-id="${f.id}" role="switch" aria-checked="${email}" aria-label="Email alerts"><i class="switch-thumb"></i></button></div>
+        </div>` : ''}
+      </section>
+
+      <section class="auto-field">
+        <div class="auto-field-head"><span>Language</span><p>Used for future alerts and previews.</p></div>
+        <button class="auto-entry" data-act="toast-msg" data-msg="Language selection is mocked in this demo">
+          <span class="auto-entry-main"><b>English</b></span>${I.chevR}
+        </button>
+      </section>
+
+      <section class="auto-field">
+        <div class="auto-field-head"><span>Agent instructions</span><p>What Alva does each time this automation runs.</p></div>
+        <textarea class="auto-instructions" rows="5" aria-label="Agent instructions" oninput="window.__saveAutoInstructions('${f.id}', this.value)">${instruction}</textarea>
+        <div class="auto-instruction-foot"><span>Changes save on this device</span><button data-act="auto-reset-instructions" data-id="${f.id}">Reset</button></div>
+      </section>
     </div>`;
+}
+
+window.__saveAutoInstructions = (id, value) => {
+  store.automationInstructions[id] = value;
+  save();
+};
+
+function feedRunsHtml(f) {
+  const justRan = Boolean(store.manualRuns[f.id]);
+  const rows = [
+    { when: justRan ? 'Just now' : f.last_run, status: 'Completed', duration: f.id === 'alpha' ? '38s' : '24s', output: f.id === 'alpha' ? '7 cards' : '4 cards' },
+    { when: f.id === 'alpha' ? '42m ago' : '18m ago', status: 'Completed', duration: f.id === 'alpha' ? '41s' : '22s', output: f.id === 'alpha' ? '5 cards' : '2 cards' },
+    { when: f.id === 'alpha' ? '1h ago' : '36m ago', status: 'Completed', duration: f.id === 'alpha' ? '36s' : '26s', output: f.id === 'alpha' ? '6 cards' : '3 cards' },
+  ];
+  return `<div class="auto-runs">
+    <div class="auto-runs-summary"><span><b>${f.runs.toLocaleString()}</b><i>Total runs</i></span><span><b>${f.id === 'alpha' ? '99.8%' : '99.9%'}</b><i>Success rate</i></span></div>
+    <div class="auto-runs-list">${rows.map((run) => `<div class="auto-run-row">
+      <span class="run-state">${I.check}</span>
+      <span class="run-main"><b>${run.when}</b><i>${run.status} · ${run.duration}</i></span>
+      <span class="run-output">${run.output}</span>${I.chevR}
+    </div>`).join('')}</div>
+  </div>`;
 }
 
 /* tab 对应的内容体（sFeed 首绘与 feed-tab 原地切换共用） */
@@ -412,7 +466,9 @@ export function feedBodyHtml(id) {
   const items = ITEMS.filter((it) => it.feed === id)
     .filter((it) => it.feed === 'alpha' || it.entity_refs.some((eid) => store.entities.includes(eid)))
     .sort((a, b) => a.t - b.t);
-  return feedTab === 'settings' ? feedSettingsHtml(f) : feedOutputHtml(f, items);
+  if (feedTab === 'settings') return feedSettingsHtml(f);
+  if (feedTab === 'runs') return feedRunsHtml(f);
+  return feedOutputHtml(f, items);
 }
 
 function sFeed(id, page, initTab) {
@@ -420,14 +476,17 @@ function sFeed(id, page, initTab) {
   if (!f) { page.innerHTML = backBar() + '<div class="empty"><h4>Not found</h4></div>'; return; }
   if (initTab) feedTab = initTab;
   const paused = store.paused.includes(id);
-  page.innerHTML = `${backBar()}
-    <div class="hero-head">
-      <div class="row1">
-        ${monoAv('AL', 174, 52)}
-        <div><h1 style="font-size:23px">${f.name}</h1><div class="sub"><span class="st-dot ${paused ? 'off' : ''}" style="margin-right:2px"></span>${f.owner} · Last run ${f.last_run} · ${f.cadence}</div></div>
-      </div>
+  const lastRun = store.manualRuns[id] ? 'Just now' : f.last_run;
+  page.innerHTML = `${backBar('', `<div class="auto-head-actions">
+      <button class="auto-icon-action" data-act="auto-pause" data-id="${id}" aria-label="${paused ? 'Resume' : 'Pause'} ${f.name}">${paused ? I.play : I.pause}</button>
+      <button class="auto-run-now" data-act="auto-run-now" data-id="${id}">${I.play}<span>Run now</span></button>
+    </div>`)}
+    <div class="automation-hero">
+      <div class="automation-title"><span class="st-dot ${paused ? 'off' : ''}"></span><h1>${f.name}</h1></div>
+      <div class="automation-meta"><span>${f.owner}</span><i></i><span>${paused ? 'Paused' : 'Active'}</span><i></i><span>Last run ${lastRun}</span><i></i><span>${f.runs.toLocaleString()} runs</span></div>
+      <p>${f.promise}</p>
     </div>
-    <div class="ask-tabs feed-tabs">${[['output', 'Output'], ['settings', 'Settings']].map(([t, lbl]) =>
+    <div class="ask-tabs feed-tabs">${[['output', 'Output'], ['settings', 'Settings'], ['runs', 'Runs']].map(([t, lbl]) =>
       `<button class="${feedTab === t ? 'on' : ''}" data-act="feed-tab" data-t="${t}" data-id="${id}">${lbl}</button>`).join('')}</div>
     <div class="page-secs" id="feedBody">${feedBodyHtml(id)}</div>`;
 }
@@ -465,7 +524,19 @@ function sSource(id, page) {
 
 /* ========== ask（Chat / Tasks / Memory） ========== */
 export let askCtx = null;
-export function setAskCtx(id) { askCtx = id; }
+function normalizeAskContext(value) {
+  if (!value) return { itemId: null, entityIds: [] };
+  if (typeof value === 'string') {
+    const item = ITEMS.find((it) => it.id === value);
+    return { itemId: value, entityIds: item?.entity_refs ? [...item.entity_refs] : [] };
+  }
+  return {
+    itemId: value.itemId || null,
+    entityIds: [...new Set((value.entityIds || []).filter((id) => ENTITIES[id]))],
+  };
+}
+export function setAskCtx(value) { askCtx = value ? normalizeAskContext(value) : null; }
+export function getAskContext() { return normalizeAskContext(askCtx); }
 let pendingAsk = null;
 export function setPendingAsk(q) { pendingAsk = q; }
 let askTab = 'chat';
@@ -540,8 +611,38 @@ function chatOpening() {
     `${i + 1} · <b>${it.kind === 'alpha' ? SOURCES[it.source].name : entityChipLabel(it.entity_refs[0])}</b> — ${it.headline}.`).join('<br>')}<br><br>Anything you want me to dig into?`;
 }
 
+function composerQuoteHtml(item) {
+  if (!item) return '';
+  return `<div class="composer-quote" data-composer-quote="${item.id}">
+    <i aria-hidden="true"></i><span>${item.headline}</span>
+    <button data-act="remove-composer-quote" aria-label="Remove quoted card">${I.x}</button>
+  </div>`;
+}
+
+function askComposerHtml(context, item) {
+  const entityIds = context.entityIds;
+  const firstEntity = entityIds[0] ? ENTITIES[entityIds[0]] : null;
+  const placeholder = firstEntity ? `Ask about ${firstEntity.name}…` : 'Ask Alva anything…';
+  return `<div class="alva-composer ask-composer">
+    <div class="composer-attachments" ${!item && !entityIds.length ? 'hidden' : ''}>
+      ${composerQuoteHtml(item)}
+      <div class="composer-ref-row">${entityIds.map((id) => entityReference(id)).join('')}</div>
+    </div>
+    <div class="composer-input-row">
+      <div class="composer-add-wrap">
+        <button class="composer-tool" data-act="composer-toggle-add" aria-label="Add context" aria-expanded="false">${I.plus}</button>
+        ${composerContextMenu()}
+      </div>
+      <textarea id="askInput" rows="1" placeholder="${placeholder}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.closest('.alva-composer').querySelector('[data-act=ask-send]').click()}"></textarea>
+      <span class="composer-model">GPT-5.5</span>
+      <button class="composer-send" data-act="ask-send" aria-label="Send message">${I.send}</button>
+    </div>
+  </div>`;
+}
+
 function sAsk(page) {
-  const item = askCtx ? ITEMS.find((it) => it.id === askCtx) : null;
+  const context = getAskContext();
+  const item = context.itemId ? ITEMS.find((it) => it.id === context.itemId) : null;
   if (pendingAsk) askTab = 'chat';
   const counts = { tasks: TASKS.length, automations: Object.keys(FEEDS).length, files: FILES.length };
   const tabs = `<div class="ask-tabs">${[['chat', 'Chat'], ['tasks', 'Tasks'], ['automations', 'Automations'], ['memory', 'Memory'], ['files', 'Files']].map(([t, lbl]) =>
@@ -558,15 +659,11 @@ function sAsk(page) {
     <div class="topbar"><span class="lg-title">Chat</span><span class="spacer"></span></div>
     ${tabs}
     <div class="ask-body">
-      ${item ? `<div class="ask-ctx-chip" style="margin-bottom:14px">${I.spark}<span>${item.headline}</span><button class="x" data-act="clear-ctx">${I.x}</button></div>` : ''}
       <div class="ask-reply ask-thread" id="askReply">
         <div class="chat-day">Today</div>
         <div class="bub">${chatOpening()}</div>
       </div>
-      <div class="ask-composer">
-        <input id="askInput" placeholder="Ask about your feed or a ticker…">
-        <button class="send" data-act="ask-send">${I.send}</button>
-      </div>
+      ${askComposerHtml(context, item)}
     </div>`;
   /* CTA 交接：带着 item 生成的 prompt 自动发问 */
   if (pendingAsk) {
@@ -607,7 +704,6 @@ function sYou(page) {
         </div>
       </div>
       <div class="d-sec">
-        ${row('following-sheet', I.eye, 'Following', `${store.entities.length} ticker${store.entities.length === 1 ? '' : 's'} shaping your For You`)}
         ${row('toast-msg|Language settings are mocked in this demo', I.doc, 'Language', '', '<span class="rw-val">English</span>')}
         ${row('settings-sheet', I.gear, 'Settings', '')}
         ${row('toast-msg|Support chat is mocked in this demo', I.ask, 'Contact us', '')}
