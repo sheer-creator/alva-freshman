@@ -72,6 +72,11 @@ export const ACTIONS = {
   'sheet-close': () => closeSheet(),
   'toast-msg': (el) => toast(el.dataset.msg, I.check),
   'reset-demo': () => { if (confirm('Reset the demo and restart onboarding?')) resetDemo(); },
+  'toggle-feed-compact': () => {
+    store.feedCompact = !store.feedCompact;
+    save();
+    rerender();
+  },
 
   /* ---- onboarding ---- */
   'ob-start': () => nav('#/onboard'),

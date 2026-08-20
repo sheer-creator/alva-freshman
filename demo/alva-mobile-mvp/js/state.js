@@ -7,6 +7,7 @@ const DEFAULTS = {
   paused: [],
   notifications: true,
   theme: 'dark',
+  feedCompact: false,
   automationAlerts: {},
   automationEmail: {},
   automationInstructions: {},
