@@ -3323,3 +3323,39 @@ svg .thin { stroke-width: 1; }
   .feed-view-toggle,
   .feed-view-glyph i { transition: none; }
 }
+
+/* You → Following: a focused ticker manager, not a second discovery surface. */
+.following-manage { padding: 0 var(--pad) 34px; }
+.following-search { margin-top: 2px; }
+.following-section { margin-top: 22px; }
+.following-section .sec-label { margin-bottom: 4px; }
+.following-empty { padding: 13px 0; border-top: 1px solid var(--line); }
+.following-row .price { min-width: 54px; }
+
+/* Card Sources uses the same compact bottom-sheet rhythm as Ask Alva. */
+.source-sheet-head p { margin-top: 2px; color: var(--t3); font-size: 12px; line-height: 18px; }
+.source-sheet-list { margin-top: 14px; }
+.source-sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 0;
+  border-top: .5px solid var(--line);
+  text-align: left;
+}
+.source-sheet-row:first-child { border-top: 0; }
+.source-sheet-row:active { opacity: .7; }
+.source-sheet-copy { flex: 1; min-width: 0; }
+.source-sheet-copy b,
+.source-sheet-copy i { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-sheet-copy b { color: var(--t1); font-size: 14px; line-height: 20px; font-weight: 500; }
+.source-sheet-copy i { margin-top: 1px; color: var(--t3); font-size: 11.5px; line-height: 17px; font-style: normal; }
+.source-sheet-open { display: flex; flex: none; color: var(--t3); }
+.source-sheet-open svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.8; }
+
+@media (max-width: 370px) {
+  .following-row { gap: 10px; }
+  .following-row .price { display: none; }
+}
