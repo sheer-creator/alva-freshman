@@ -20,6 +20,46 @@ export function entityAv(id, size = 36) {
   return monoAv(e.kind === 'market' ? e.ticker : e.name.slice(0, 2).toUpperCase(), e.hue, size);
 }
 
+/* Use the mark as geometry, not a cropped CSS mask. This stays intact in Dia/WebKit. */
+export function alvaMark(className = 'ask-alva-mark') {
+  return `<svg class="${className}" viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M9.413.108c1.002-.145 2.02-.145 3.022 0l.321.05.104.019a.82.82 0 0 1 .618.617l.018.104.05.323c.145 1.001.145 2.018 0 3.02l-.05.323-.018.104a.82.82 0 0 1-.618.617l-.104.019-.321.05c-.501.072-1.006.108-1.511.108l-.281.007a5.46 5.46 0 0 0-5.174 5.174l-.007.281c0 .505-.036 1.01-.108 1.511l-.051.321-.018.104a.82.82 0 0 1-.617.618l-.104.018-.323.05c-1.002.145-2.019.145-3.02 0l-.323-.05-.104-.018a.82.82 0 0 1-.617-.618l-.019-.104-.05-.321a10.56 10.56 0 0 1 0-3.022l.05-.321.019-.105a.82.82 0 0 1 .617-.616l.104-.019.323-.051c.5-.072 1.005-.108 1.51-.108l.039-.002a5.46 5.46 0 0 0 5.416-5.179l.006-.242.001-.039c0-.505.036-1.009.108-1.51l.051-.322.018-.104a.82.82 0 0 1 .617-.617l.105-.019.321-.05Z"/>
+    <path d="M12.434 8.301c-1.002-.145-2.019-.145-3.021 0l-.322.05-.104.018a.82.82 0 0 0-.617.617l-.019.105-.05.322a10.56 10.56 0 0 0 0 3.021l.05.322.019.104a.82.82 0 0 0 .617.618l.104.017.322.051c1.002.145 2.019.145 3.021 0l.322-.051.104-.017a.82.82 0 0 0 .618-.618l.018-.104.05-.322a10.56 10.56 0 0 0 0-3.021l-.05-.322-.018-.105a.82.82 0 0 0-.618-.617l-.104-.018-.322-.05ZM4.242.108c-1.002-.144-2.02-.144-3.022 0l-.321.05-.105.019a.82.82 0 0 0-.617.617l-.018.104-.05.322c-.145 1.002-.145 2.019 0 3.021l.05.322.018.104a.82.82 0 0 0 .617.617l.105.019.321.05c1.002.145 2.02.145 3.022 0l.321-.05.105-.019a.82.82 0 0 0 .617-.617l.018-.104.051-.322a10.56 10.56 0 0 0 0-3.021l-.051-.322-.018-.104a.82.82 0 0 0-.617-.617l-.105-.019-.321-.05Z"/>
+  </svg>`;
+}
+
+export function srcAvatar(source, size = 22, extraClass = '') {
+  if (source.avatar) return `<img class="source-avatar source-avatar-img ${extraClass}" src="img/${source.avatar}" width="${size}" height="${size}" alt="${source.name}" loading="lazy">`;
+  const hue = source.kind === 'primary' ? 204 : source.kind === 'creator' ? 174 : source.kind === 'private' ? 278 : 36;
+  const platform = (source.platform || '').toLowerCase();
+  const icon = platform === 'alva' ? alvaMark('source-alva-mark')
+    : platform === 'x' ? '<span class="source-glyph source-x">𝕏</span>'
+      : platform.includes('podcast') || source.modality === 'Audio' ? `<span class="source-glyph">${I.mic}</span>`
+        : platform.includes('telegram') ? '<span class="source-glyph source-tg">TG</span>'
+          : platform.includes('reddit') ? '<span class="source-glyph source-reddit">r/</span>'
+            : source.modality === 'Video' ? `<span class="source-glyph">${I.play}</span>`
+              : source.kind === 'data' ? alvaMark('source-alva-mark')
+                : `<span class="source-glyph">${source.modality === 'Document' || source.modality === 'Report' ? I.doc : I.globe}</span>`;
+  return `<span class="source-avatar source-${source.id} ${extraClass}" style="--av-size:${size}px;--source-hue:${hue}" role="img" aria-label="${source.name}">${icon}</span>`;
+}
+
+const feedId = (item) => `<button class="feed-id feed-${item.feed}" data-act="open-feed" data-id="${item.feed}"><span class="st-dot" aria-hidden="true"></span><span>${FEEDS[item.feed].name}</span></button>`;
+
+function tickerToken(id) {
+  const e = ENTITIES[id];
+  if (!e) return '';
+  const market = e.kind === 'market';
+  return `<button class="ticker-token ${market ? '' : 'theme-token'}" data-act="open-entity" data-id="${id}" aria-label="Open ${e.ticker || e.name}">
+    ${entityAv(id, 22)}<b>${e.ticker || e.name}</b>
+    ${market ? `<span class="ticker-price">${e.price}</span><span class="ticker-delta ${e.dir}">${e.delta}</span>` : ''}
+  </button>`;
+}
+
+export function tickerRail(item) {
+  const refs = (item.entity_refs || []).slice(0, 4);
+  return refs.length ? `<div class="ticker-rail ${refs.length > 1 ? 'multi' : ''}">${refs.map(tickerToken).join('')}</div>` : '';
+}
+
 export function sparkSVG(points, dir, w = 96, h = 34, endDot = true) {
   const min = Math.min(...points), max = Math.max(...points);
   const nx = (i) => (i / (points.length - 1)) * (w - 6) + 3;
@@ -101,13 +141,14 @@ export function watchFlag(item) {
 
 /* ---- 溯源入口：source 头像叠放 + source 数量，点开看完整依据 ---- */
 export function provRow(item, act = 'evi-sheet') {
-  const srcs = item.evidence.slice(0, 4).map((ev) => SOURCES[ev.source]);
-  const stack = srcs.map((s) => s.avatar
-    ? `<img src="img/${s.avatar}" alt="${s.name}">`
-    : `<span>${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`).join('');
-  return `<button class="prov-row" data-act="${act}" data-item="${item.id}" aria-label="Behind this card">
+  const sourceIds = [...new Set((item.evidence || []).map((ev) => ev.source))];
+  const shown = sourceIds.slice(0, 3).map((id) => SOURCES[id]).filter(Boolean);
+  const remaining = sourceIds.length - shown.length;
+  const stack = shown.map((source) => srcAvatar(source, 22)).join('');
+  return `<button class="prov-row" data-act="${act}" data-item="${item.id}" aria-label="View ${sourceIds.length} source${sourceIds.length === 1 ? '' : 's'}">
     <span class="src-stack">${stack}</span>
-    <span class="prov-tx">${srcs.length} source${srcs.length > 1 ? 's' : ''}</span>
+    ${remaining > 0 ? `<span class="prov-more">+${remaining}</span>` : ''}
+    <span class="prov-chev">${I.chevR}</span>
   </button>`;
 }
 
@@ -164,6 +205,33 @@ function clipBlock(item) {
   </div>`;
 }
 
+const wave = [5, 8, 12, 7, 14, 9, 16, 6, 13, 9, 15, 8, 12, 6, 15, 9, 13, 7, 10, 5];
+
+function audioHero(item) {
+  const clip = item.media && item.media.clip;
+  if (!clip) return '';
+  const sourceId = item.evidence && item.evidence[0] && item.evidence[0].source;
+  const source = SOURCES[sourceId] || { id: 'audio', name: 'Podcast', platform: 'Podcast', modality: 'Audio', kind: 'creator' };
+  const episode = (item.evidence && item.evidence[0] && item.evidence[0].note) || item.headline;
+  return `<button class="audio-hero has-cover" data-act="play-clip" data-item="${item.id}" aria-label="Play clip from ${source.name}">
+    <img src="${item.media.hero}" alt="${item.media.alt}" loading="lazy">
+    <span class="audio-inner">
+      <span class="audio-source">${srcAvatar(source, 28)}<span><b>${source.name}</b><i>${episode}</i></span><em>${clip.t}</em></span>
+      <span class="audio-transport"><span class="audio-play">${I.play}</span><span class="audio-wave" aria-hidden="true">${wave.map((height, i) => `<i style="--h:${height}px;--i:${i}"></i>`).join('')}</span></span>
+    </span>
+  </button>`;
+}
+
+function metricHero(item) {
+  const metric = item.metric_diff;
+  if (!metric || !metric.spark) return '';
+  return `<div class="data-hero" data-act="open-detail" data-item="${item.id}" role="button">
+    <div class="data-hero-head"><span>${metric.label}</span><em>${item.confidence}</em></div>
+    <div class="data-primary"><span>${metric.old}</span><i>→</i><b class="${metric.dir}">${metric.new}</b></div>
+    ${sparkSVG(metric.spark, metric.dir, 300, 78, true)}
+  </div>`;
+}
+
 function lockPanel(item) {
   if (item.access !== 'premium' || store.unlocked[item.feed]) return '';
   return `<div class="lock-panel">
@@ -195,19 +263,9 @@ function secondaryTrackButton(item, locked) {
 
 /* ---- card head ---- */
 function cardHead(item) {
-  const first = item.entity_refs[0];
-  const e = ENTITIES[first];
-  const themes = item.entity_refs.slice(1).map(entityChipLabel).join(' · ');
-  const feed = FEEDS[item.feed];
-  const label = e ? (e.kind === 'market' ? e.ticker : e.name) : feed.name;
-  const delta = e && e.kind === 'market' ? `<span class="delta ${e.dir}">${e.delta}</span>` : '';
   return `<div class="card-head">
-    <div class="ent" data-act="open-entity" data-id="${first || ''}" role="button">
-      ${first ? entityAv(first, 30) : monoAv('AL', 174, 30)}
-      <span class="tick">${label}</span>${delta}
-      <span class="theme">${themes || feed.name}</span>
-      ${item.access !== 'public' ? accessBadge(item.access) : ''}
-    </div>
+    ${feedId(item)}
+    ${item.access !== 'public' ? accessBadge(item.access) : ''}
     <span class="time">${item.published}</span>
   </div>`;
 }
@@ -215,23 +273,28 @@ function cardHead(item) {
 /* ========== stream card（文本/图表优先，紧凑） ========== */
 export function streamCard(item, idx = 0) {
   const locked = item.access === 'premium' && !store.unlocked[item.feed];
-
-  const hasMedia = !locked && item.media && item.media.hero;
-  const front = `<div class="card flip-face">
+  const hasAudio = !locked && item.media && item.media.clip;
+  const hasImage = !locked && !hasAudio && item.media && item.media.hero;
+  const hasMetric = !locked && !hasAudio && !hasImage && item.metric_diff && item.metric_diff.spark;
+  const front = `<div class="card flip-face feed-${item.feed} kind-${item.archetype}">
     ${cardHead(item)}
-    ${hasMedia ? `<div class="card-media-top" data-act="open-detail" data-item="${item.id}" role="button"><img src="${item.media.hero}" alt="${item.media.alt}" loading="lazy"></div>` : ''}
-    <h2 class="card-headline" data-act="open-detail" data-item="${item.id}" role="button">${item.headline}</h2>
-    <p class="card-summary">${locked ? '' : item.summary}</p>
-    ${locked ? lockPanel(item) : `
-      ${factList(item)}
-      ${signalStrip(item)}
-      ${briefList(item)}
-      ${clipBlock(item)}
-    `}
-    ${!locked ? provRow(item, 'flip') : ''}
+    ${hasAudio ? audioHero(item) : hasImage ? `<div class="card-media-top" data-act="open-detail" data-item="${item.id}" role="button"><img src="${item.media.hero}" alt="${item.media.alt}" loading="lazy"></div>` : hasMetric ? metricHero(item) : ''}
+    ${tickerRail(item)}
+    <div class="card-copy">
+      <h2 class="card-headline" data-act="open-detail" data-item="${item.id}" role="button">${item.headline}</h2>
+      <p class="card-summary">${locked ? '' : item.summary}</p>
+      ${locked ? lockPanel(item) : `
+        ${factList(item)}
+        ${signalStrip(item)}
+        ${briefList(item)}
+        ${hasAudio ? '' : clipBlock(item)}
+      `}
+    </div>
     <div class="card-actions">
-      <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}">${I.ask}Ask Alva</button>
-      <div class="context-actions">${ctaButton(item, locked)}${secondaryTrackButton(item, locked)}</div>
+      ${!locked ? provRow(item, 'flip') : ''}
+      ${ctaButton(item, locked)}
+      ${secondaryTrackButton(item, locked)}
+      <button class="btn btn-ask" data-act="ask-item" data-item="${item.id}">${alvaMark()}Ask Alva</button>
     </div>
   </div>`;
 
@@ -265,11 +328,8 @@ export function cardBack(item) {
     <div class="fb-sec">Sources</div>
     <div class="ev-list">${item.evidence.map((ev) => {
       const s = SOURCES[ev.source];
-      const av = s.avatar
-        ? `<img class="ev-av" src="img/${s.avatar}" alt="">`
-        : `<span class="ev-av mono">${s.name.replace(/^[@r]\/?/, '').slice(0, 1).toUpperCase()}</span>`;
       return `<div class="ev-row" data-act="open-source" data-id="${ev.source}" role="button">
-        ${av}
+        ${srcAvatar(s, 30, 'ev-av')}
         <div class="src"><div class="nm">${s.name}</div><div class="nt">${ev.note}</div></div>
         <span class="ev-chev">${I.chevR}</span>
       </div>`;
