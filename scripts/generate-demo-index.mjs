@@ -530,16 +530,12 @@ ${renderList(files)}
 `;
 }
 
-// Active / exploration demos come before archived snapshots. Within each
-// lifecycle, latest update comes first; file name keeps ties stable.
+// Latest update comes first regardless of lifecycle; file name keeps ties stable.
 const existingGeneratedMetadata = await isShallowRepository()
   ? await readExistingGeneratedMetadata()
   : new Map();
 
 const files = (await collectHtmlFiles()).sort((left, right) => {
-  const rank = { active: 0, exploration: 1, archived: 2 };
-  const byStatus = rank[left.status] - rank[right.status];
-  if (byStatus !== 0) return byStatus;
   const byDate = String(right.updated ?? '').localeCompare(String(left.updated ?? ''));
   return byDate !== 0 ? byDate : collator.compare(left.relativePath, right.relativePath);
 });

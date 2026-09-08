@@ -33,3 +33,7 @@ of truth. Do not keep a copied Product Spec in sync here.
 
 After changing a title or lifecycle marker, run `npm run demo:index` and commit
 the generated `index.html` and `_switcher.js`.
+
+The index and switcher sort by displayed update date, newest first, regardless
+of lifecycle. Equal dates use the file path as a stable tie-breaker. Lifecycle
+labels remain visible; undated entries come last.
