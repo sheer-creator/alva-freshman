@@ -5,9 +5,9 @@
  *   anomaly — 异动 + 走势 + 逐条归因
  * 卡片本身就是 MVP 的内容终点；Sources 与 Ask Alva 通过底部弹层承接二级交互。
  */
-import { ENTITIES, SOURCES, FEEDS, entityChipLabel, itemSources } from './data.js?v=local-mts1vz';
-import { store, I } from './state.js?v=local-mts1vz';
-import { renderMarkdown, splitMarkdown } from './markdown.js?v=local-mts1vz';
+import { ENTITIES, SOURCES, FEEDS, entityChipLabel, itemSources } from './data.js?v=local-mts24k';
+import { store, I } from './state.js?v=local-mts24k';
+import { renderMarkdown, splitMarkdown } from './markdown.js?v=local-mts24k';
 
 /* ---- 小部件 ---- */
 export function monoAv(label, hue, size = 36, round = false) {
