@@ -21,6 +21,8 @@ function originBadge(item){
  const label=labels[pool];
  return label?`<span class="origin origin-${pool}" title="${esc(label[1])}">${label[0]}</span>${pool==='related'?`<span class="related-score" title="${esc(scoreBreakdown(item.recommendationOrigin)+'；相对于 '+scoreReference(item.recommendationOrigin))}">${item.recommendationOrigin.score.toFixed(3)}</span>`:''}`:'';
 }
+function profileLabel(p){return p.id===1?'初次发现':`用户关注列表 ${String.fromCharCode(63+p.id)}`}
+function profileButton(p){return `<button class="profile" data-id="${p.id}"><span class="profile-prefix">${profileLabel(p)}</span><strong>${p.id===1?(p.savedCount?'已互动读者':'冷启动预设'):esc(p.name)}</strong><small class="profile-tickers">${p.tickers.length?'自选：'+p.tickers.map(esc).join(' · '):'无自选 ticker'}</small><small>预设 Saved：${p.savedCount||0} 条</small></button>`}
 function card(item){const t=item.thesis;if(!t||!t.catalog)return null;const s=t.catalog,uid=user;const el=document.createElement('article');el.className='card';el.dataset.key=item.itemKey;el.dataset.user=uid;el.thesis=t;
  const media=(s.media||[]).find(m=>m.type==='image'&&/^https:\/\//.test(m.url));
  el.innerHTML=`<div class="card-main" role="button" tabindex="0" aria-label="打开 ${esc(s.author_name)} 的观点"><div class="meta"><img class="avatar" src="${esc(t.owner.avatar_url)}" alt="" loading="lazy"><div><div class="author"><span>${esc(s.author_name)}</span>${originBadge(item)}</div><div class="date">@${esc(s.author_handle)} · ${dates(s.published_at)} · ${s.kind==='technical'?'技术观点':'基本面观点'}</div></div></div><div class="tickers">${s.tickers.map(v=>`<span class="ticker">$${esc(v)}</span>`).join('')}</div><div class="body">${esc(t.body)}</div>${media?`<img class="media" src="${esc(media.url)}" alt="${esc(media.alt||'来源图片')}" loading="lazy">`:''}</div><div class="actions"><button data-action="open">打开观点</button><button data-action="save" ${t.saved?'disabled':''}>${t.saved?'Saved':'Save'}</button><a class="source" href="${sourceLink(t)}" target="_blank" rel="noopener noreferrer">原始来源 ↗</a></div>`;
@@ -36,13 +38,13 @@ function load(){
  while(offset<items.length&&added<10){const it=items[offset++];const el=card({itemKey:'snapshot:'+it.id,thesis:thesis(it.id),recommendationOrigin:it});if(el){$('#feed').append(el);added++}}
  $('#status').textContent=offset>=items.length?'这份快照已读完，可切换兴趣或重新阅读。':'继续向下阅读';busy=false;
 }
-function select(uid){window.scrollTo(0,0);user=uid;offset=0;$('#feed').innerHTML='';const p=data.profiles.find(p=>p.id===uid);$('#subtitle').textContent=p.name+' · '+p.detail;$('#mobile').value=uid;document.querySelectorAll('.profile').forEach(b=>b.classList.toggle('active',+b.dataset.id===uid));$('#interests').innerHTML=p.tickers.length?p.tickers.map(t=>`<span class="pill">${esc(t)}</span>`).join(''):'<p>从零开始发现内容</p>';$('#debug').textContent=`快照 ${new Date(data.exportedAt).toLocaleString('zh-CN')} · 当前视角 ${data.feeds[uid].length} 条`;load()}
+function select(uid){window.scrollTo(0,0);user=uid;offset=0;$('#feed').innerHTML='';const p=data.profiles.find(p=>p.id===uid);$('#subtitle').textContent=p.name+' · '+(p.tickers.length?p.tickers.join(' / '):'无自选 ticker');$('#mobile').value=uid;document.querySelectorAll('.profile').forEach(b=>b.classList.toggle('active',+b.dataset.id===uid));$('#debug').textContent=`快照 ${new Date(data.exportedAt).toLocaleString('zh-CN')} · 当前视角 ${data.feeds[uid].length} 条`;load()}
 $('#refresh').onclick=()=>data&&select(user);
 $('#mobile').onchange=e=>select(+e.target.value);
 $('#reset').onclick=()=>{local={};persist();select(user);toast('已重置全部视角的本地保存')};
 new IntersectionObserver(e=>{if(e[0].isIntersecting)load()},{rootMargin:'500px'}).observe($('#sentinel'));
 fetch('snapshot.json').then(r=>{if(!r.ok)throw Error('快照加载失败');return r.json()}).then(d=>{
- data=d;$('#profiles').innerHTML=d.profiles.map(p=>`<button class="profile" data-id="${p.id}"><strong>${esc(p.name)}</strong><small>${esc(p.detail)}</small></button>`).join('');$('#mobile').innerHTML=d.profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');document.querySelectorAll('.profile').forEach(b=>b.onclick=()=>select(+b.dataset.id));$('#counts').innerHTML=Object.keys(d.theses).length+' <small>条当前 thesis</small>';$('#index').textContent='完整内容库 · 五个推荐视角';select(1);
+ data=d;d.profiles=d.profiles.map(p=>({...p,savedCount:d.baselineFollows[p.id].length}));$('#profiles').innerHTML=d.profiles.map(profileButton).join('');$('#mobile').innerHTML=d.profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');document.querySelectorAll('.profile').forEach(b=>b.onclick=()=>select(+b.dataset.id));$('#counts').innerHTML=Object.keys(d.theses).length+' <small>条当前 thesis</small>';$('#index').textContent='完整内容库 · 五个推荐视角';select(1);
 }).catch(e=>$('#status').textContent=e.message+'，请刷新页面重试。');
 
 const readerDialog=document.querySelector('#reader');
