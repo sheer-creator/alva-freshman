@@ -33,3 +33,16 @@ test('static assets have one data fetch and isolated inline source-label classes
  assert.ok(js.includes('class="origin origin-${pool}"'));assert.ok(html.includes('.origin.origin-related'));
  assert.ok(html.includes('静态快照'));assert.ok(html.includes('不实时重排'));
 });
+test('every Related score includes traceable entity and bounded freshness bonuses',()=>{
+ const asOf=Date.parse(d.rankingExperiment.asOf);
+ const hits=[...Object.values(d.related).flat(),...Object.values(d.feeds).flat().filter(h=>h.pool==='related')];
+ for(const h of hits){
+  assert.ok(d.theses[h.sourceThesisId]);assert.ok(h.entityBonus===0||h.entityBonus===0.05);
+  const age=Math.max(0,(asOf-Date.parse(d.theses[h.id].catalog.published_at))/86400000);
+  const expected=0.03*2**(-Math.max(0,age-30)/30);
+  assert.ok(h.freshnessBonus>0&&h.freshnessBonus<=0.03);
+  assert.ok(Math.abs(h.freshnessBonus-expected)<1e-10);
+  assert.ok(Math.abs(h.score-h.semantic-h.entityBonus-h.freshnessBonus)<1e-10);
+ }
+ assert.equal(d.rankingExperiment.baselineReplayVerified,true);
+});
