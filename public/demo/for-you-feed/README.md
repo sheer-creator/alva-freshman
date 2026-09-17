@@ -6,7 +6,7 @@ Open `/demo/for-you-feed/` through any static HTTP server. No backend, database,
 - Five interest profiles with complete, ordered backend feed snapshots and exact Direct / Related / Platform pool provenance, displayed as Following / Related / Trending.
 - Per-thesis Related results and scores exported from the running backend.
 - New isolated test readers use the original watchlists and thesis-follow baselines; previous manual QA read/hide events do not affect these streams.
-- Follow/hide state is stored only in this browser under `alva-for-you-snapshot-v1`. Reset clears this local state. Following never reranks the frozen stream, and hidden items are skipped until reset.
+- Saved thesis state is stored only in this browser under `alva-for-you-snapshot-v1`. Reset clears this local state. Saving never reranks the frozen stream. Click a card body to open the full text and its Related theses together; no hide action or hide filtering is applied.
 - Original images/avatars load from external source URLs. The content and recommendation data are static, but image availability depends on those hosts.
 - Trending reflects a local backend ranking without real popularity data; it is not evidence of production popularity. Historical updates are not included.
 
