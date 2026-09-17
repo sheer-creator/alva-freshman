@@ -46,3 +46,16 @@ test('every Related score includes traceable entity and bounded freshness bonuse
  }
  assert.equal(d.rankingExperiment.baselineReplayVerified,true);
 });
+test('published HTML pins matching code and data by content hash',async()=>{
+ const {createHash}=await import('node:crypto');
+ const hash=b=>createHash('sha256').update(b).digest('hex').slice(0,16);
+ const html=await readFile(new URL('index.html',root),'utf8');
+ const entry=html.match(/src="(releases\/app\.([a-f0-9]{16})\.js)"/);assert.ok(entry);
+ const app=await readFile(new URL(entry[1],root),'utf8');assert.equal(hash(app),entry[2]);
+ const source=await readFile(new URL('app.js',root),'utf8');
+ const data=app.match(/fetch\('(releases\/snapshot\.([a-f0-9]{16})\.json)'\)/);assert.ok(data);
+ const bytes=await readFile(new URL(data[1],root));assert.equal(hash(bytes),data[2]);
+ assert.deepEqual(bytes,await readFile(new URL('snapshot.json',root)));
+ assert.equal(app,source.replace("fetch('snapshot.json')",`fetch('${data[1]}')`));
+ assert.ok(!app.includes("$('#interests')"));
+});
