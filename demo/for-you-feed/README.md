@@ -11,3 +11,6 @@ Open `/demo/for-you-feed/` through any static HTTP server. No backend, database,
 - Trending reflects a local backend ranking without real popularity data; it is not evidence of production popularity. Historical updates are not included.
 
 `snapshot.json` records export time, source SHA-256, baseline follows, content, feeds and Related results. No embeddings, signed pagination tokens or credentials are included. This version previews a recency bonus on the complete semantic top-100 shortlist: 0.03 for the first 30 days, then halving every 30 days, using the fixed snapshot as-of time. Entity overlap still adds 0.05 once. Baseline replay is verified against the original backend streams before applying this experiment. Related scores include their source seed and each component. Backend code is unchanged pending user confirmation.
+
+## Asset versions
+Edit `app.js` and `snapshot.json`, then run `npm run demo:assets` (also run by prebuild/predev). The HTML references content-hashed JavaScript, which references matching content-hashed JSON. Commit the generated `releases/` files and updated HTML. Retain old releases for cached HTML; do not hand-edit generated assets.
