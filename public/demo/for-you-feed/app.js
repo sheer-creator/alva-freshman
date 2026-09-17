@@ -13,7 +13,7 @@ function scoreReference(hit){const t=data.theses[hit.sourceThesisId];return t?`$
 function openThesis(t,origin){
  const s=t.catalog,hits=data.related[t.id]||[];
  $('#reader-content').innerHTML=`<h2 id="reader-title">${esc(s.author_name)}</h2><div class="date">${esc(s.tickers.join(' / '))} · ${dates(s.published_at)}</div><p>${esc(t.body)}</p><a href="${sourceLink(t)}" target="_blank" rel="noopener noreferrer">查看原始来源 ↗</a>${origin?.pool==='related'?`<div class="score-breakdown">本条 For You 推荐分数：${scoreBreakdown(origin)}<br>召回种子：${esc(scoreReference(origin))}</div>`:''}<section class="related" aria-label="Related theses"><h3>Related theses</h3>${hits.length?hits.map(h=>{const r=data.theses[h.id];return `<article><strong>${esc(r.catalog.author_name)}</strong><small> · ${esc(r.catalog.tickers.join(' / '))} · ${dates(r.catalog.published_at)} · ${h.score.toFixed(3)}</small><div class="score-breakdown">${scoreBreakdown(h)}</div><p>${esc(r.body)}</p><a href="${sourceLink(r)}" target="_blank" rel="noopener noreferrer">原始来源 ↗</a></article>`}).join(''):'<p>暂无相关观点</p>'}</section>`;
- $('#reader').showModal();$('#reader').scrollTop=0;
+ $('#reader').showModal();$('#reader-content').scrollTop=0;
 }
 function originBadge(item){
  const pool=item.recommendationOrigin?.pool;
@@ -44,3 +44,9 @@ new IntersectionObserver(e=>{if(e[0].isIntersecting)load()},{rootMargin:'500px'}
 fetch('snapshot.json').then(r=>{if(!r.ok)throw Error('快照加载失败');return r.json()}).then(d=>{
  data=d;$('#profiles').innerHTML=d.profiles.map(p=>`<button class="profile" data-id="${p.id}"><strong>${esc(p.name)}</strong><small>${esc(p.detail)}</small></button>`).join('');$('#mobile').innerHTML=d.profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');document.querySelectorAll('.profile').forEach(b=>b.onclick=()=>select(+b.dataset.id));$('#counts').innerHTML=Object.keys(d.theses).length+' <small>条当前 thesis</small>';$('#index').textContent='完整内容库 · 五个推荐视角';select(1);
 }).catch(e=>$('#status').textContent=e.message+'，请刷新页面重试。');
+
+const readerDialog=document.querySelector('#reader');
+let readerBackdropPress=false;
+function outsideReader(event){const r=readerDialog.getBoundingClientRect();return event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom}
+readerDialog.addEventListener('pointerdown',event=>{readerBackdropPress=event.target===readerDialog&&outsideReader(event)});
+readerDialog.addEventListener('click',event=>{if(readerBackdropPress&&event.target===readerDialog&&outsideReader(event))readerDialog.close();readerBackdropPress=false});
