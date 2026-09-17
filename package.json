@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "demo:index": "node scripts/generate-demo-index.mjs",
-    "prebuild": "npm run demo:index",
-    "predev": "npm run demo:index",
+    "prebuild": "npm run demo:assets && npm run demo:index",
+    "predev": "npm run demo:assets && npm run demo:index",
     "build": "vite build",
     "dev": "vite",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "demo:assets": "node scripts/version-for-you-assets.mjs"
   },
   "dependencies": {
     "echarts": "^6.0.0",
