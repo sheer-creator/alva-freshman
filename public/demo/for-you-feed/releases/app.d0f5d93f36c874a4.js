@@ -43,7 +43,7 @@ $('#refresh').onclick=()=>data&&select(user);
 $('#mobile').onchange=e=>select(+e.target.value);
 $('#reset').onclick=()=>{local={};persist();select(user);toast('已重置全部视角的本地保存')};
 new IntersectionObserver(e=>{if(e[0].isIntersecting)load()},{rootMargin:'500px'}).observe($('#sentinel'));
-fetch('snapshot.json').then(r=>{if(!r.ok)throw Error('快照加载失败');return r.json()}).then(d=>{
+fetch('releases/snapshot.52a6a11cfcf0ad61.json').then(r=>{if(!r.ok)throw Error('快照加载失败');return r.json()}).then(d=>{
  data=d;d.profiles=d.profiles.map(p=>({...p,savedCount:d.baselineFollows[p.id].length}));$('#profiles').innerHTML=d.profiles.map(profileButton).join('');$('#mobile').innerHTML=d.profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');document.querySelectorAll('.profile').forEach(b=>b.onclick=()=>select(+b.dataset.id));$('#counts').innerHTML=Object.keys(d.theses).length+' <small>条当前 thesis</small>';$('#index').textContent='完整内容库 · 五个推荐视角';select(1);
 }).catch(e=>$('#status').textContent=e.message+'，请刷新页面重试。');
 
