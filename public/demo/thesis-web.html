@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="demo-status" content="exploration" />
+    <meta name="demo-switcher" content="off" />
+    <meta
+      name="demo-summary"
+      content="Thesis 网页版详情页 · 三套结构方案可切换，默认进结构 3-2：固定单列、正文 960 居中，折叠预览 + 历史弹窗。"
+    />
+    <title>Alva Thesis · Web 详情页</title>
+    <script>
+      // 这页只是索引里的入口，真正的页面在主应用的路由里
+      location.replace('/#thesis-demo?layout=3-2');
+    </script>
+    <meta http-equiv="refresh" content="0; url=/#thesis-demo?layout=3-2" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #fff;
+        font-family: 'Delight', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: rgba(0, 0, 0, 0.9);
+      }
+      .wrap {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+      .hint {
+        font-size: 14px;
+        line-height: 22px;
+        letter-spacing: 0.14px;
+        color: rgba(0, 0, 0, 0.5);
+      }
+      a {
+        font-size: 14px;
+        line-height: 22px;
+        letter-spacing: 0.14px;
+        color: #49a3a6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <p class="hint">正在打开 Thesis 详情页…</p>
+      <a href="/#thesis-demo?layout=3-2">没有自动跳转的话点这里</a>
+    </div>
+  </body>
+</html>

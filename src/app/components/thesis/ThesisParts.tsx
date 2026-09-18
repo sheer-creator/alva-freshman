@@ -15,6 +15,7 @@ import {
   RELATED_THESES,
   type ThesisVersion,
   type ThesisMedia,
+  type ThesisTicker,
   type ThesisSignal,
   type RelatedThesis,
 } from '@/data/thesis-demo';
@@ -22,8 +23,8 @@ import {
 /* ══════════ 取自稿的排印 ══════════ */
 export const T14 = { fontSize: 14, lineHeight: '22px', letterSpacing: '0.14px' } as const;
 export const T12 = { fontSize: 12, lineHeight: '20px', letterSpacing: '0.12px' } as const;
-/** 正文段与段之间是一个空行 */
-export const PARA_GAP = 22;
+/** 段与段之间不空整行，给半行左右的间距 */
+export const PARA_GAP = 12;
 /** Baby 无 main-m2-10 这档，照稿写字面值 */
 const M2_10 = 'rgba(33,150,243,0.1)';
 
@@ -90,7 +91,22 @@ export function SourceLink({
 
 /* ══════════ Ticker chip ══════════ */
 
-export function TickerChip({ ticker }: { ticker: string }) {
+/** 稿 17067:67546：12 圆点，绿 m3 看涨 / 红 m4 看跌，内部 8 箭头转 45° 或 135° */
+function TickerDirection({ dir }: { dir: 'up' | 'down' }) {
+  return (
+    <span
+      className="flex size-[12px] shrink-0 items-center justify-center rounded-full"
+      style={{ background: dir === 'up' ? 'var(--main-m3, #2a9b7d)' : 'var(--main-m4, #e05357)' }}
+    >
+      <span className="flex" style={{ transform: `rotate(${dir === 'up' ? 45 : 135}deg)` }}>
+        <CdnIcon name="arrow-up-l1" size={8} color="#fff" />
+      </span>
+    </span>
+  );
+}
+
+export function TickerChip({ ticker }: { ticker: string | ThesisTicker }) {
+  const t = typeof ticker === 'string' ? { symbol: ticker, direction: undefined } : ticker;
   return (
     <div
       className="flex h-[28px] shrink-0 cursor-pointer items-center"
@@ -101,8 +117,9 @@ export function TickerChip({ ticker }: { ticker: string }) {
         background: 'var(--b-r05, rgba(0,0,0,0.05))',
       }}
     >
-      <TickerLogo ticker={ticker} size={16} />
-      <span style={{ ...T12, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{ticker}</span>
+      <TickerLogo ticker={t.symbol} size={16} />
+      <span style={{ ...T12, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{t.symbol}</span>
+      {t.direction && <TickerDirection dir={t.direction} />}
     </div>
   );
 }
@@ -233,7 +250,7 @@ export function FeedContent({
 
       <div className="flex w-full items-center overflow-hidden" style={{ gap: 'var(--spacing-xs, 8px)' }}>
         {version.tickers.map((t) => (
-          <TickerChip key={t} ticker={t} />
+          <TickerChip key={typeof t === 'string' ? t : t.symbol} ticker={t} />
         ))}
       </div>
     </div>
@@ -267,23 +284,45 @@ export function ThesisHeader() {
         </span>
         <span style={{ ...T12, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{THESIS_AUTHOR.role}</span>
       </div>
-      <div className="flex shrink-0 items-center justify-end" style={{ gap: 'var(--spacing-xxs, 4px)' }}>
+      {/* 稿 17067:84633：三个 32 高的方钮，间距 2；收藏是已收藏态（实心 + m1 青） */}
+      <div className="flex shrink-0 items-center justify-end" style={{ gap: 2 }}>
         <button
           type="button"
-          className="flex cursor-pointer items-center border-none bg-transparent"
-          style={{ gap: 'var(--spacing-xxs, 4px)', padding: 'var(--spacing-xs, 8px)' }}
-          aria-label="Save thesis"
+          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent"
+          style={{
+            gap: 'var(--spacing-xxs, 4px)',
+            padding: 'var(--spacing-xs, 8px)',
+            borderRadius: 'var(--radius-ct-m, 6px)',
+          }}
+          aria-label="Saved"
         >
-          <CdnIcon name="bookmark-l" size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
-          <span style={{ ...T12, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{THESIS_AUTHOR.saves}</span>
+          <CdnIcon name="bookmark-f" size={16} color="var(--main-m1, #49A3A6)" />
+          <span style={{ ...T12, color: 'var(--main-m1, #49A3A6)' }}>{THESIS_AUTHOR.saves}</span>
         </button>
         <button
           type="button"
-          className="flex cursor-pointer items-center border-none bg-transparent"
-          style={{ gap: 'var(--spacing-xxs, 4px)', padding: 'var(--spacing-xs, 8px)' }}
+          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent"
+          style={{
+            gap: 'var(--spacing-xxs, 4px)',
+            padding: 'var(--spacing-xs, 8px)',
+            borderRadius: 'var(--radius-ct-m, 6px)',
+          }}
           aria-label="Share thesis"
         >
-          <CdnIcon name="share-l" size={20} color="var(--text-n9, rgba(0,0,0,0.9))" />
+          <CdnIcon name="share-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+        </button>
+        <button
+          type="button"
+          className="flex h-[32px] cursor-pointer items-center border-none"
+          style={{
+            gap: 'var(--spacing-xxs, 4px)',
+            padding: 'var(--spacing-xs, 8px)',
+            borderRadius: 'var(--radius-ct-m, 6px)',
+            background: '#000',
+          }}
+          aria-label="More"
+        >
+          <CdnIcon name="more-l1" size={16} color="#fff" />
         </button>
       </div>
     </div>
@@ -307,7 +346,7 @@ export function HistoryRail({ isFirst, isLast }: { isFirst: boolean; isLast: boo
   return (
     <div
       className="relative flex w-[24px] shrink-0 flex-col items-center self-stretch"
-      style={{ paddingTop: 'var(--spacing-xxs, 4px)' }}
+      style={{ paddingTop: 3 }}
     >
       <span
         className="relative flex size-[14px] shrink-0 items-center justify-center rounded-full"
@@ -315,8 +354,8 @@ export function HistoryRail({ isFirst, isLast }: { isFirst: boolean; isLast: boo
       >
         <span className="size-[6px] rounded-full" style={{ background: 'rgba(0,0,0,0.2)' }} />
       </span>
-      {!isFirst && <span style={{ ...line, top: 0, height: 4 }} />}
-      {!isLast && <span style={{ ...line, top: 18, bottom: 0 }} />}
+      {!isFirst && <span style={{ ...line, top: 0, height: 3 }} />}
+      {!isLast && <span style={{ ...line, top: 17, bottom: 0 }} />}
     </div>
   );
 }
@@ -411,8 +450,9 @@ export function RelatedCard({ item }: { item: RelatedThesis }) {
       className="flex w-full flex-col items-start overflow-hidden"
       style={{
         gap: 'var(--spacing-s, 12px)',
-        padding: 'var(--spacing-l, 20px) 0 var(--spacing-xs, 8px)',
-        borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))',
+        padding: 'var(--spacing-m, 16px) var(--spacing-l, 20px) var(--spacing-s, 12px)',
+        border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+        borderRadius: 'var(--radius-ct-l, 8px)',
       }}
     >
       <div className="flex w-full flex-col items-start" style={{ gap: 'var(--spacing-xs, 8px)' }}>
@@ -474,7 +514,7 @@ export function RelatedCard({ item }: { item: RelatedThesis }) {
 
       <div className="flex w-full flex-wrap items-center" style={{ gap: 'var(--spacing-xs, 8px)' }}>
         {item.tickers.map((t) => (
-          <TickerChip key={t} ticker={t} />
+          <TickerChip key={typeof t === 'string' ? t : t.symbol} ticker={t} />
         ))}
       </div>
 
@@ -512,6 +552,47 @@ export function RelatedCard({ item }: { item: RelatedThesis }) {
   );
 }
 
+/** 稿上两列各 470、列间 20、顶部 20；放不下两列就退单列 */
+const MASONRY_TWO_COL_MIN = 960;
+
+function RelatedMasonry() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [twoCol, setTwoCol] = useState(false);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const apply = (w: number) => setTwoCol(w >= MASONRY_TWO_COL_MIN);
+    apply(el.getBoundingClientRect().width);
+    const ro = new ResizeObserver(([e]) => apply(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const columns: RelatedThesis[][] = twoCol ? [[], []] : [[]];
+  RELATED_THESES.forEach((r, i) => columns[twoCol ? i % 2 : 0].push(r));
+
+  return (
+    <div
+      ref={ref}
+      className="flex w-full items-start"
+      style={{ gap: 'var(--spacing-l, 20px)', paddingTop: 'var(--spacing-l, 20px)' }}
+    >
+      {columns.map((col, i) => (
+        <div
+          key={i}
+          className="flex min-w-0 flex-1 flex-col"
+          style={{ gap: 'var(--spacing-l, 20px)' }}
+        >
+          {col.map((r) => (
+            <RelatedCard key={r.id} item={r} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ══════════ 证据面板 · tab + 列表 ══════════ */
 
 export type EvidenceTab = 'signals' | 'related';
@@ -519,9 +600,12 @@ export type EvidenceTab = 'signals' | 'related';
 export function EvidencePanel({
   tab,
   onTabChange,
+  stickyTop = 0,
 }: {
   tab: EvidenceTab;
   onTabChange: (t: EvidenceTab) => void;
+  /** tab 行吸顶的偏移：主滚动区要让开 64 的页头，右侧栏自己滚则给 0 */
+  stickyTop?: number;
 }) {
   const items: { key: EvidenceTab; label: string }[] = [
     { key: 'signals', label: `Signals (${THESIS_SIGNALS.length})` },
@@ -530,8 +614,13 @@ export function EvidencePanel({
   return (
     <div className="flex w-full flex-col items-start">
       <div
-        className="flex w-full items-start"
-        style={{ gap: 'var(--spacing-s, 12px)', borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}
+        className="sticky z-[5] flex w-full items-start"
+        style={{
+          top: stickyTop,
+          gap: 'var(--spacing-s, 12px)',
+          background: 'var(--b0-container, #fff)',
+          borderBottom: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))',
+        }}
       >
         <div className="flex min-w-0 flex-1 items-center" style={{ gap: 'var(--spacing-m, 16px)' }}>
           {items.map((it) => {
@@ -558,9 +647,11 @@ export function EvidencePanel({
         </div>
       </div>
 
-      {tab === 'signals'
-        ? THESIS_SIGNALS.map((s) => <SignalCard key={s.id} signal={s} />)
-        : RELATED_THESES.map((r) => <RelatedCard key={r.id} item={r} />)}
+      {tab === 'signals' ? (
+        THESIS_SIGNALS.map((s) => <SignalCard key={s.id} signal={s} />)
+      ) : (
+        <RelatedMasonry />
+      )}
     </div>
   );
 }
@@ -631,17 +722,13 @@ export function HistoryModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           {versions.map((v, i) => (
-            <div
-              key={v.id}
-              className="flex w-full items-start"
-              style={{ gap: 'var(--spacing-xs, 8px)', paddingTop: i === 0 ? 'var(--spacing-s, 12px)' : 0 }}
-            >
+            <div key={v.id} className="flex w-full items-start" style={{ gap: 'var(--spacing-xs, 8px)' }}>
               <HistoryRail isFirst={i === 0} isLast={i === versions.length - 1} />
               <div
                 className="flex min-w-0 flex-1 flex-col items-start overflow-hidden"
-                style={{ paddingBottom: 40 }}
+                style={{ paddingBottom: 32 }}
               >
-                <FeedContent version={v} showLatestTag={false} />
+                <FeedContent version={v} showLatestTag />
               </div>
             </div>
           ))}

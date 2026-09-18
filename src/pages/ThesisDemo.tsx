@@ -150,19 +150,15 @@ function CollapsedPreview({
   sidePad?: number;
 }) {
   return (
-    <div className="relative w-full overflow-hidden" style={{ height: 110 }}>
+    <div className="relative w-full overflow-hidden" style={{ height: 240 }}>
       <div style={{ padding: sidePad ? `0 ${sidePad}px` : undefined }}>
       <div className="mx-auto w-full" style={{ maxWidth }}>
       <div className="flex w-full items-start" style={{ gap: 'var(--spacing-xs, 8px)' }}>
         {/* 折叠预览下面还有更多版本，竖线要继续往下画，交给渐变淡出 */}
         <HistoryRail isFirst={false} isLast={false} />
-        <div
-          className="flex min-w-0 flex-1 flex-col items-start overflow-hidden"
-          style={{ gap: 'var(--spacing-xs, 8px)' }}
-        >
-          <span style={{ ...T12, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{version.time}</span>
-          {/* 这里只露两三行就被渐变吃掉，段落连成一段，免得中间卡出半截空行 */}
-          <p style={{ ...T14, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{version.paragraphs.join(' ')}</p>
+        <div className="flex min-w-0 flex-1 flex-col items-start overflow-hidden">
+          {/* 渲染整段内容，由 240 的高度裁切，下半截交给渐变淡出 */}
+          <FeedContent version={version} showLatestTag={false} />
         </div>
       </div>
       </div>
@@ -171,13 +167,13 @@ function CollapsedPreview({
       <div className="absolute inset-x-0 bottom-0">
         <div
           style={{
-            height: 62,
+            height: 60,
             background: 'linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.95))',
           }}
         />
         <div
           className="flex w-full items-center justify-center"
-          style={{ background: 'rgba(255,255,255,0.95)', padding: '8px 0' }}
+          style={{ background: 'rgba(255,255,255,0.95)', height: 54 }}
         >
           <button
             type="button"
@@ -185,7 +181,7 @@ function CollapsedPreview({
             className="flex shrink-0 cursor-pointer items-center justify-center"
             style={{
               gap: 2,
-              padding: '5px 16px',
+              padding: '6px 16px',
               borderRadius: 960,
               background: 'var(--b0-container, #fff)',
               border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
@@ -224,7 +220,7 @@ function NarrowBody({
         <HistoryRail isFirst isLast={false} />
         <div
           className="flex min-w-0 flex-1 flex-col items-start overflow-hidden"
-          style={{ paddingBottom: 40 }}
+          style={{ paddingBottom: 32 }}
         >
           <FeedContent version={current} showLatestTag />
         </div>
@@ -235,7 +231,7 @@ function NarrowBody({
       )}
 
       <div style={{ paddingTop: 40 }}>
-        <EvidencePanel tab={tab} onTabChange={onTabChange} />
+        <EvidencePanel tab={tab} onTabChange={onTabChange} stickyTop={64} />
       </div>
     </>
   );
@@ -260,7 +256,7 @@ function Layout11({ tab, onTabChange }: { tab: EvidenceTab; onTabChange: (t: Evi
               <HistoryRail isFirst={i === 0} isLast={i === THESIS_VERSIONS.length - 1} />
               <div
                 className="flex min-w-0 flex-1 flex-col items-start overflow-hidden"
-                style={{ paddingBottom: 40 }}
+                style={{ paddingBottom: 32 }}
               >
                 <FeedContent version={v} showLatestTag />
               </div>
@@ -280,7 +276,7 @@ function Layout11({ tab, onTabChange }: { tab: EvidenceTab; onTabChange: (t: Evi
         </aside>
       )}
 
-      {historyOpen && <HistoryModal versions={history} onClose={() => setHistoryOpen(false)} />}
+      {historyOpen && <HistoryModal versions={THESIS_VERSIONS} onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }
@@ -304,7 +300,7 @@ function Layout12({ tab, onTabChange }: { tab: EvidenceTab; onTabChange: (t: Evi
             {/* 宽栏当前版本不带竖轨，历史全在右侧栏里 */}
             <FeedContent version={current} showLatestTag />
             <div style={{ paddingTop: 40 }}>
-              <EvidencePanel tab={tab} onTabChange={onTabChange} />
+              <EvidencePanel tab={tab} onTabChange={onTabChange} stickyTop={64} />
             </div>
           </>
         ) : (
@@ -327,7 +323,7 @@ function Layout12({ tab, onTabChange }: { tab: EvidenceTab; onTabChange: (t: Evi
               <HistoryRail isFirst={i === 0} isLast={i === history.length - 1} />
               <div
                 className="flex min-w-0 flex-1 flex-col items-start overflow-hidden"
-                style={{ paddingBottom: 40 }}
+                style={{ paddingBottom: 32 }}
               >
                 <FeedContent version={v} showLatestTag={false} />
               </div>
@@ -336,7 +332,7 @@ function Layout12({ tab, onTabChange }: { tab: EvidenceTab; onTabChange: (t: Evi
         </aside>
       )}
 
-      {historyOpen && <HistoryModal versions={history} onClose={() => setHistoryOpen(false)} />}
+      {historyOpen && <HistoryModal versions={THESIS_VERSIONS} onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }
@@ -362,7 +358,7 @@ function Layout32({ tab, onTabChange }: { tab: EvidenceTab; onTabChange: (t: Evi
             <HistoryRail isFirst isLast={false} />
             <div
               className="flex min-w-0 flex-1 flex-col items-start overflow-hidden"
-              style={{ paddingBottom: 40 }}
+              style={{ paddingBottom: 32 }}
             >
               <FeedContent version={current} showLatestTag />
             </div>
@@ -381,12 +377,12 @@ function Layout32({ tab, onTabChange }: { tab: EvidenceTab; onTabChange: (t: Evi
       )}
 
       <div style={{ padding: `0 ${SIDE_GUTTER}px 80px` }}>
-        <div className="mx-auto w-full" style={{ maxWidth: CONTENT_MAX, paddingTop: 40 }}>
-          <EvidencePanel tab={tab} onTabChange={onTabChange} />
+        <div className="mx-auto w-full" style={{ maxWidth: CONTENT_MAX, paddingTop: 28 }}>
+          <EvidencePanel tab={tab} onTabChange={onTabChange} stickyTop={64} />
         </div>
       </div>
 
-      {historyOpen && <HistoryModal versions={history} onClose={() => setHistoryOpen(false)} />}
+      {historyOpen && <HistoryModal versions={THESIS_VERSIONS} onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }

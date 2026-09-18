@@ -8,6 +8,12 @@
 
 const A = `${import.meta.env.BASE_URL}thesis-demo/`;
 
+/** 稿上 ticker chip 末尾的 12 圆点：绿=看涨、红=看跌，None 不占位 */
+export interface ThesisTicker {
+  symbol: string;
+  direction?: 'up' | 'down';
+}
+
 export interface ThesisMedia {
   /** public 下的文件名 */
   src: string;
@@ -24,7 +30,7 @@ export interface ThesisVersion {
   /** 正文末尾的来源行 */
   source: { label: string; href: string };
   media: ThesisMedia[];
-  tickers: string[];
+  tickers: (string | ThesisTicker)[];
 }
 
 export interface ThesisSignal {
@@ -57,7 +63,7 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
     latest: true,
     paragraphs: [
       'Retail participation is back, and the flow is concentrating in a handful of AI leaders rather than spreading across the tape. This thesis treats that concentration as the setup: own the name that supplies the compute, the name that monetizes it, and the venue where the retail flow gets executed.',
-      'NVDA remains the cleanest read on the build-out. Data center orders are still outrunning supply, and every pullback into the 50-day average has been bought within days. As long as that pattern holds, the trend is intact and dips are entries, not exits.',
+      'NVDA remains the cleanest read on the build-out, and every dip into the 50-day keeps getting bought.',
       'MSFT is the monetization leg. Azure growth is re-accelerating on AI workloads, and Copilot seat expansion turns capex into recurring revenue faster than the market credits. The stock has been consolidating under its summer high; a close above it would confirm the next leg.',
     ],
     source: TRADERSTEWIE,
@@ -68,7 +74,11 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
       { src: `${A}media-chart-amzn.png`, alt: 'Amazon AMZN price chart' },
       { src: `${A}media-chart-msft.png`, alt: 'Microsoft MSFT price chart' },
     ],
-    tickers: ['MSFT', 'NVDA'],
+    tickers: [
+      { symbol: 'MSFT', direction: 'up' },
+      { symbol: 'NVDA', direction: 'up' },
+      { symbol: 'HOOD', direction: 'down' },
+    ],
   },
   {
     id: 'v4',
@@ -80,7 +90,7 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
     ],
     source: TRADERSTEWIE,
     media: [{ src: `${A}media-chart-msft.png`, alt: 'Microsoft MSFT price chart' }],
-    tickers: ['MSFT', 'NVDA', 'HOOD'],
+    tickers: [{ symbol: 'MSFT', direction: 'up' }, { symbol: 'NVDA', direction: 'up' }, { symbol: 'HOOD', direction: 'down' }],
   },
   {
     id: 'v3',
@@ -91,7 +101,7 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
     ],
     source: TRADERSTEWIE,
     media: [],
-    tickers: ['MSFT', 'NVDA', 'HOOD'],
+    tickers: [{ symbol: 'MSFT', direction: 'up' }, { symbol: 'NVDA', direction: 'up' }, { symbol: 'HOOD', direction: 'down' }],
   },
   {
     id: 'v2',
@@ -105,7 +115,7 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
       { src: `${A}media-nvda-coins.png`, alt: 'NVDA daily chart annotation' },
       { src: `${A}media-chart-googl.png`, alt: 'Alphabet GOOGL price chart' },
     ],
-    tickers: ['MSFT', 'NVDA'],
+    tickers: [{ symbol: 'MSFT', direction: 'up' }, { symbol: 'NVDA', direction: 'up' }],
   },
   {
     id: 'v1',
@@ -116,7 +126,7 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
     ],
     source: TRADERSTEWIE,
     media: [],
-    tickers: ['MSFT', 'NVDA'],
+    tickers: [{ symbol: 'MSFT', direction: 'up' }, { symbol: 'NVDA', direction: 'up' }],
   },
 ];
 
@@ -219,7 +229,7 @@ export interface RelatedThesis {
   kind: 'new' | 'update';
   paragraphs: string[];
   charts: ThesisMedia[];
-  tickers: string[];
+  tickers: (string | ThesisTicker)[];
   saves: number;
   saved?: boolean;
 }
@@ -239,8 +249,8 @@ export const RELATED_THESES: RelatedThesis[] = [
     paragraphs: [
       'Azure surpassed $75 billion in annual revenue, up 34%. Microsoft added more than two gigawatts of datacenter capacity over the previous 12 months and now had over 400 datacenters across 70 regions…',
     ],
-    charts: [CHART_MSFT],
-    tickers: ['MSFT'],
+    charts: [],
+    tickers: [{ symbol: 'MSFT', direction: 'up' }],
     saves: 32,
     saved: true,
   },
@@ -256,7 +266,7 @@ export const RELATED_THESES: RelatedThesis[] = [
       'Under that scenario, part of the profit pool could move from model providers to AI infrastructure. He sees low delivery cost per token as the infrastructure advantage, while token efficiency would matter most at the model layer.',
     ],
     charts: [CHART_GOOGL, CHART_AMZN, CHART_MSFT],
-    tickers: ['GOOGL', 'AMZN', 'MSFT'],
+    tickers: [{ symbol: 'GOOGL', direction: 'up' }, { symbol: 'AMZN', direction: 'up' }, { symbol: 'MSFT', direction: 'up' }],
     saves: 32,
   },
   {
@@ -270,7 +280,7 @@ export const RELATED_THESES: RelatedThesis[] = [
       'Custom silicon is the next leg of the AI trade. As Microsoft scales Maia and Google scales TPU, Marvell and TSMC capture design and manufacturing spend that used to flow only to Nvidia.',
     ],
     charts: [],
-    tickers: ['TSM'],
+    tickers: [{ symbol: 'TSM', direction: 'up' }],
     saves: 32,
   },
   {
@@ -284,7 +294,7 @@ export const RELATED_THESES: RelatedThesis[] = [
       "Nvidia's data center revenue is still being underestimated. Inference is becoming the larger workload, and every cut in token price has been met with more usage, not less.",
     ],
     charts: [],
-    tickers: ['NVDA'],
+    tickers: [{ symbol: 'NVDA', direction: 'up' }],
     saves: 32,
   },
   {
@@ -298,7 +308,7 @@ export const RELATED_THESES: RelatedThesis[] = [
       'Hyperscaler capex only creates value if returns clear the cost of capital. Markets are pricing the spend as if that question were already settled, and the three largest spenders trade as if execution risk were zero.',
     ],
     charts: [CHART_GOOGL, CHART_AMZN, CHART_MSFT],
-    tickers: ['GOOGL', 'AMZN', 'MSFT'],
+    tickers: [{ symbol: 'GOOGL', direction: 'up' }, { symbol: 'AMZN', direction: 'up' }, { symbol: 'MSFT', direction: 'up' }],
     saves: 32,
   },
   {
@@ -311,8 +321,8 @@ export const RELATED_THESES: RelatedThesis[] = [
     paragraphs: [
       'The AI build-out is a multi-year cycle, not a quarter-to-quarter trade. Semis and cloud infrastructure remain the cleanest way to own it, and every 10% pullback has been a buying window.',
     ],
-    charts: [],
-    tickers: ['NVDA', 'MSFT'],
+    charts: [CHART_GOOGL, CHART_AMZN],
+    tickers: [{ symbol: 'NVDA', direction: 'up' }, { symbol: 'MSFT', direction: 'up' }],
     saves: 32,
   },
   {
@@ -326,7 +336,7 @@ export const RELATED_THESES: RelatedThesis[] = [
       'AMD is approaching its summer high as more buyers join the advance. The stock has broken higher after its last pullback stopped above the previous low, and rising volume makes the recovery more convincing.',
     ],
     charts: [],
-    tickers: ['AMD'],
+    tickers: [{ symbol: 'AMD', direction: 'up' }],
     saves: 32,
   },
   {
@@ -340,7 +350,7 @@ export const RELATED_THESES: RelatedThesis[] = [
       'Robinhood is becoming the default brokerage for the next generation of investors. Crypto and options are the wedge; wealth management is the prize.',
     ],
     charts: [],
-    tickers: ['HOOD'],
+    tickers: [{ symbol: 'HOOD', direction: 'up' }],
     saves: 32,
   },
 ];
