@@ -3,7 +3,7 @@
  * [OUTPUT]: Thesis 详情页（/thesis-demo）的作者、版本时间轴、Signals 数据
  * [POS]: Data 层 — 仅 ThesisDemo 页面使用
  *
- * 文案与素材逐条取自 Figma「对话框收起 · Signals」17029:51029 / 17029:51053。
+ * 文案与素材逐条取自 Figma「结构1补充」；当前版本以 17067:57615 为准（三段、两个 ticker）。
  */
 
 const A = `${import.meta.env.BASE_URL}thesis-demo/`;
@@ -59,7 +59,6 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
       'Retail participation is back, and the flow is concentrating in a handful of AI leaders rather than spreading across the tape. This thesis treats that concentration as the setup: own the name that supplies the compute, the name that monetizes it, and the venue where the retail flow gets executed.',
       'NVDA remains the cleanest read on the build-out. Data center orders are still outrunning supply, and every pullback into the 50-day average has been bought within days. As long as that pattern holds, the trend is intact and dips are entries, not exits.',
       'MSFT is the monetization leg. Azure growth is re-accelerating on AI workloads, and Copilot seat expansion turns capex into recurring revenue faster than the market credits. The stock has been consolidating under its summer high; a close above it would confirm the next leg.',
-      'HOOD is the toll road. Options and equity volumes track retail engagement in exactly these names, so it compounds the same flow from the other side. The risk to the whole setup is a broad de-risking in AI: if NVDA loses its trend, the other two legs weaken with it, and the position should be cut, not averaged.',
     ],
     source: TRADERSTEWIE,
     media: [
@@ -69,7 +68,7 @@ export const THESIS_VERSIONS: ThesisVersion[] = [
       { src: `${A}media-chart-amzn.png`, alt: 'Amazon AMZN price chart' },
       { src: `${A}media-chart-msft.png`, alt: 'Microsoft MSFT price chart' },
     ],
-    tickers: ['MSFT', 'NVDA', 'HOOD'],
+    tickers: ['MSFT', 'NVDA'],
   },
   {
     id: 'v4',

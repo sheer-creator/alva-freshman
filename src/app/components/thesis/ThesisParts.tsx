@@ -231,7 +231,17 @@ export function ThesisHeader() {
 /* ══════════ 版本竖轨 · 24 宽 · dot 14 · 0.5 竖线 ══════════ */
 
 export function HistoryRail({ isFirst, isLast }: { isFirst: boolean; isLast: boolean }) {
-  const line = '0.5px solid var(--line-l3, rgba(0,0,0,0.3))';
+  /**
+   * 线是 0.5px（稿上 Border/Default）。宽度给 width 而不是 border，并且落在整数 left 上：
+   * 轨道 24 宽、圆点中心在 12，若用 left:50% + translateX(-50%) 线会坐到 11.75，
+   * 在 2x 屏上横跨两个物理像素被抗锯齿摊开，看起来就比 0.5px 粗。
+   */
+  const line = {
+    position: 'absolute' as const,
+    left: 12,
+    width: 0.5,
+    background: 'var(--line-l3, rgba(0,0,0,0.3))',
+  };
   return (
     <div
       className="relative flex w-[24px] shrink-0 flex-col items-center self-stretch"
@@ -243,40 +253,8 @@ export function HistoryRail({ isFirst, isLast }: { isFirst: boolean; isLast: boo
       >
         <span className="size-[6px] rounded-full" style={{ background: 'rgba(0,0,0,0.2)' }} />
       </span>
-      {!isFirst && (
-        <span className="absolute left-1/2 top-0 h-[4px] w-0 -translate-x-1/2" style={{ borderLeft: line }} />
-      )}
-      {!isLast && (
-        <span className="absolute bottom-0 left-1/2 top-[18px] w-0 -translate-x-1/2" style={{ borderLeft: line }} />
-      )}
-    </div>
-  );
-}
-
-/** 时间轴收起 / 展开入口，挂在竖轨末端（结构 1-1 窄栏用） */
-export function RailLinkRow({
-  label,
-  icon,
-  onClick,
-}: {
-  label: string;
-  icon: 'arrow-right-l2' | 'arrow-up-l2';
-  onClick: () => void;
-}) {
-  return (
-    <div className="flex w-full items-start" style={{ gap: 'var(--spacing-xs, 8px)' }}>
-      <HistoryRail isFirst={false} isLast />
-      <button
-        type="button"
-        onClick={onClick}
-        className="flex min-w-0 flex-1 cursor-pointer items-center border-none bg-transparent p-0"
-        style={{ gap: 4 }}
-      >
-        <span className="whitespace-nowrap" style={{ ...T12, color: 'var(--main-m1, #49A3A6)' }}>
-          {label}
-        </span>
-        <CdnIcon name={icon} size={12} color="var(--main-m1, #49A3A6)" />
-      </button>
+      {!isFirst && <span style={{ ...line, top: 0, height: 4 }} />}
+      {!isLast && <span style={{ ...line, top: 18, bottom: 0 }} />}
     </div>
   );
 }
