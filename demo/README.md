@@ -34,6 +34,20 @@ of truth. Do not keep a copied Product Spec in sync here.
 After changing a title or lifecycle marker, run `npm run demo:index` and commit
 the generated `index.html` and `_switcher.js`.
 
+Multi-page demo bundles can expose only their shell in the generated index and
+keep the shared demo switcher out of an immersive or mobile experience:
+
+```html
+<!-- On internal HTML documents that should not become separate index rows -->
+<meta name="demo-index" content="hidden">
+
+<!-- On the bundle shell when its own navigation must remain unobstructed -->
+<meta name="demo-switcher" content="off">
+
+<!-- Optional index copy when the page body is not a useful summary -->
+<meta name="demo-summary" content="A concise description of this demo.">
+```
+
 The index and switcher sort by displayed update date, newest first, regardless
 of lifecycle. Equal dates use the file path as a stable tie-breaker. Lifecycle
 labels remain visible; undated entries come last.

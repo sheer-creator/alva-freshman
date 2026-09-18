@@ -1,0 +1,84 @@
+@property --splash-scale { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --splash-ink { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --splash-progress { syntax: '<number>'; inherits: true; initial-value: 0; }
+
+:root { --splash-hold: 1000ms; --splash-duration: 350ms; }
+
+/* Twitter's launch sequence: anticipation, masked crossfade, content settle.
+   Reference: reactnative.dev/blog/2018/01/18/implementing-twitters-app-loading-animation-in-react-native */
+.logo-splash {
+  --splash-symbol-width: 51px;
+  --splash-word-width: 145px;
+  --splash-logo-gap: 8px;
+  --splash-progress: 0;
+  --splash-anticipation: clamp(0, calc(var(--splash-progress) / .16), 1);
+  --splash-expansion: clamp(0, calc((var(--splash-progress) - .16) / .84), 1);
+  --splash-scale: calc(1 - .12 * var(--splash-anticipation) * var(--splash-anticipation) * (3 - 2 * var(--splash-anticipation)) + 383.12 * var(--splash-expansion) * var(--splash-expansion) * var(--splash-expansion) * var(--splash-expansion));
+  --splash-ink: clamp(0, calc((.5 - var(--splash-progress)) / .14), 1);
+  background: transparent;
+  isolation: isolate;
+}
+/* Keep antialiased logo edges opaque until the content crossfade begins. */
+.logo-splash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--m1);
+  opacity: var(--splash-ink);
+}
+.logo-splash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--m1);
+  -webkit-mask-image: linear-gradient(#000, #000), url(assets/wordmark-symbol.svg), url(assets/wordmark-text.svg);
+  mask-image: linear-gradient(#000, #000), url(assets/wordmark-symbol.svg), url(assets/wordmark-text.svg);
+  -webkit-mask-composite: xor, source-over, source-over;
+  mask-composite: exclude, add, add;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%, calc(var(--splash-symbol-width) * var(--splash-scale)) calc(50.586804px * var(--splash-scale)), calc(var(--splash-word-width) * var(--splash-scale)) calc(51.509769px * var(--splash-scale));
+  mask-position: center, calc(50% - (var(--splash-word-width) + var(--splash-logo-gap)) / 2 * var(--splash-scale)) center, calc(50% + (var(--splash-symbol-width) + var(--splash-logo-gap)) / 2 * var(--splash-scale)) center;
+  /* The lockup's center is between letters; clear the remaining gaps during the reveal. */
+  opacity: clamp(0, calc((.85 - var(--splash-progress)) / .35), 1);
+}
+.logo-splash-mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: var(--splash-logo-gap);
+  width: calc(var(--splash-symbol-width) + var(--splash-logo-gap) + var(--splash-word-width));
+  height: 52px;
+  transform: translate(-50%, -50%) scale(var(--splash-scale));
+  transform-origin: center;
+  opacity: var(--splash-ink);
+}
+.logo-splash-mark img { display: block; flex: none; height: auto; filter: brightness(0) invert(1); }
+.logo-splash-mark img:first-child { width: var(--splash-symbol-width); }
+.logo-splash-mark img:last-child { width: var(--splash-word-width); }
+.logo-splash:is(.is-leaving, .is-revealing) {
+  animation: alva-splash-reveal var(--splash-duration) linear var(--splash-hold) both;
+}
+.mvp-app:has(> .logo-splash.is-leaving) > .screens,
+.onboarding-app:has(> .logo-splash.is-revealing) > .welcome-screen {
+  --splash-progress: 0;
+  --splash-settle: clamp(0, calc((var(--splash-progress) - .16) / .84), 1);
+  scale: calc(1 + .08 * (1 - var(--splash-settle)) * (1 - var(--splash-settle)) * (1 - var(--splash-settle)));
+  transform-origin: center;
+  animation: alva-splash-content var(--splash-duration) linear var(--splash-hold) both;
+}
+@keyframes alva-splash-reveal {
+  from { --splash-progress: 0; }
+  to { --splash-progress: 1; }
+}
+@keyframes alva-splash-content {
+  from { --splash-progress: 0; }
+  to { --splash-progress: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-splash:is(.is-leaving, .is-revealing),
+  .mvp-app:has(> .logo-splash.is-leaving) > .screens,
+  .onboarding-app:has(> .logo-splash.is-revealing) > .welcome-screen { animation: none; scale: none; }
+}

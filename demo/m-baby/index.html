@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="RobertLee8888">
+<meta name="demo-switcher" content="off">
+<meta name="demo-summary" content="Mobile prototype gallery covering Thesis, MVP feeds and onboarding flows across supported iPhone and Android sizes.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Alva · Mobile prototypes</title>
+<meta name="description" content="Interactive mobile design prototypes for Alva — a list on the left, the running prototype on the right.">
+<meta name="theme-color" content="#f7f7f7">
+<link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
+<script>(function(){var p='',l='';try{p=localStorage.getItem('alva-mvp-appearance')||'';l=localStorage.getItem('alva-mvp-theme')||'';}catch(e){}if(!/^(system|light|dark)$/.test(p))p=l==='dark'?'dark':'system';var d=p==='dark'||(p==='system'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';})();</script>
+<link rel="stylesheet" href="shell.css?v=25">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     One page, two layouts.
+
+     ≥ 900px  → sidebar (the list) + stage (the running prototype)
+     < 900px  → two views, list ⇄ prototype, switched by the hash,
+                so the browser's own back gesture is the way back
+
+     Each prototype runs inside an iframe sized to one real phone
+     screen — which model is the device switcher's business. The body
+     around it is drawn here, by the shell — so the prototype itself is
+     always in its full-screen mode and never renders a mockup of its
+     own.
+     ═══════════════════════════════════════════════════════════ -->
+
+<div class="shell" id="shell">
+
+  <!-- ── The list ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-scroll">
+
+      <header class="sb-head">
+        <button class="brand" id="brandToggle" aria-controls="sidebar"
+                aria-label="Expand the list" disabled>
+          <img src="assets/wordmark-symbol.svg" class="wm-symbol" alt="">
+          <img src="assets/wordmark-text.svg" class="wm-text" alt="Alva">
+        </button>
+        <h1>Mobile prototypes</h1>
+        <button class="sb-collapse" id="collapseToggle" aria-expanded="true"
+                aria-controls="sidebar" aria-label="Collapse the list">«</button>
+      </header>
+
+      <div class="sb-search">
+        <input id="protoSearch" type="search" placeholder="Search prototypes"
+               aria-label="Search prototypes" autocomplete="off" spellcheck="false">
+      </div>
+
+      <nav class="proto-list" id="protoList" aria-label="Prototypes"></nav>
+      <p class="sb-empty" id="protoEmpty" hidden></p>
+
+      <p class="sb-foot" id="sbFoot"></p>
+
+    </div>
+  </aside>
+
+  <!-- ── The running prototype ── -->
+  <main class="stage" id="stage">
+
+    <div class="stage-fit" id="stageFit">
+      <div class="phone" aria-hidden="false">
+        <div class="phone-buttons" aria-hidden="true">
+          <span class="pb pb-action"></span>
+          <span class="pb pb-volup"></span>
+          <span class="pb pb-voldown"></span>
+          <span class="pb pb-power"></span>
+        </div>
+        <div class="phone-screen" id="phoneScreen">
+          <!-- shell.js mounts a fresh <iframe> here on every selection -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop-only stage chrome: one bar of cells, hairline-divided.
+         Every cell is its own target, edge to edge — no control is a small
+         thing floating inside a bigger container. -->
+    <div class="toolbar">
+      <a class="tb-cell tb-lead" id="figmaPill" href="#" target="_blank" rel="noopener" hidden>
+        <span id="figmaPillText">Figma source</span><span class="tb-ico">↗</span>
+      </a>
+      <button class="tb-cell tb-theme" id="themePill" type="button">
+        <span class="tb-theme-icon" aria-hidden="true"></span>
+        <span class="tb-label">
+          <span class="tb-sizer" aria-hidden="true">Light mode</span>
+          <span id="themeLabel">Dark mode</span>
+        </span>
+      </button>
+      <div class="tb-select" id="deviceGroup">
+        <button class="tb-cell tb-trigger" id="deviceTrigger"
+                aria-haspopup="listbox" aria-expanded="false" aria-label="Phone size">
+          <span class="tb-label">
+            <span class="tb-sizer" id="deviceSizer" aria-hidden="true"></span>
+            <span id="deviceLabel"></span>
+          </span><span class="tb-caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="tb-menu" id="deviceMenu" role="listbox" aria-label="Phone size" hidden>
+          <!-- shell.js renders one option per entry in DEVICES -->
+        </div>
+      </div>
+      <button class="tb-cell tb-primary" id="restartPill">Restart</button>
+    </div>
+
+  </main>
+
+</div>
+
+<script src="shell.js?v=39"></script>
+<script src="press-feedback.js?v=1"></script>
+</body>
+</html>
