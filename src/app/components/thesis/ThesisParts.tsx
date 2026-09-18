@@ -6,7 +6,7 @@
  * 逐参数取自 Figma「结构1补充」16985:112958 下的各帧。
  */
 
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
 import {
@@ -14,6 +14,7 @@ import {
   THESIS_SIGNALS,
   RELATED_THESES,
   type ThesisVersion,
+  type ThesisMedia,
   type ThesisSignal,
   type RelatedThesis,
 } from '@/data/thesis-demo';
@@ -106,6 +107,85 @@ export function TickerChip({ ticker }: { ticker: string }) {
   );
 }
 
+/* ══════════ 媒体行 · 溢出横滑 + 悬浮翻页箭头 ══════════ */
+
+/** 箭头照稿 17067:93516：36 圆形、纯黑底、白 0.3 描边、18 图标，悬停才出现 */
+function ScrollArrow({ dir, onClick }: { dir: 'left' | 'right'; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={dir === 'left' ? 'Previous images' : 'Next images'}
+      className="absolute top-1/2 flex size-[36px] -translate-y-1/2 cursor-pointer items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100"
+      style={{
+        ...(dir === 'left' ? { left: 0 } : { right: 0 }),
+        background: '#000',
+        border: '1px solid rgba(255,255,255,0.3)',
+        borderRadius: 960,
+        padding: 0,
+      }}
+    >
+      <CdnIcon name={dir === 'left' ? 'arrow-left-l1' : 'arrow-right-l1'} size={18} color="#fff" />
+    </button>
+  );
+}
+
+/** 一步滚一张：图宽 240 + 间距 8，停下来边缘总是完整的一张 */
+const MEDIA_STEP = 248;
+
+export function MediaRow({ items }: { items: ThesisMedia[] }) {
+  const scroller = useRef<HTMLDivElement>(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(true);
+
+  const sync = () => {
+    const el = scroller.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 1);
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1);
+  };
+
+  useLayoutEffect(() => {
+    sync();
+    const el = scroller.current;
+    if (!el) return;
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [items]);
+
+  if (items.length === 0) return null;
+
+  const step = (dir: 1 | -1) =>
+    scroller.current?.scrollBy({ left: dir * MEDIA_STEP, behavior: 'smooth' });
+
+  return (
+    <div className="group relative w-full">
+      <div
+        ref={scroller}
+        onScroll={sync}
+        className="thesis-media-row flex w-full items-start overflow-x-auto"
+        style={{ gap: 'var(--spacing-xs, 8px)' }}
+      >
+        {items.map((m, i) => (
+          <img
+            key={`${m.src}-${i}`}
+            src={m.src}
+            alt={m.alt}
+            className="h-[135px] w-[240px] shrink-0 object-cover"
+            style={{
+              borderRadius: 'var(--radius-ct-l, 8px)',
+              border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+            }}
+          />
+        ))}
+      </div>
+      {!atStart && <ScrollArrow dir="left" onClick={() => step(-1)} />}
+      {!atEnd && <ScrollArrow dir="right" onClick={() => step(1)} />}
+    </div>
+  );
+}
+
 /* ══════════ 一个版本的正文（时间 + 段落 + 媒体 + tickers） ══════════ */
 
 export function FeedContent({
@@ -149,25 +229,7 @@ export function FeedContent({
         </p>
       </div>
 
-      {version.media.length > 0 && (
-        <div
-          className="thesis-media-row flex w-full items-start overflow-x-auto"
-          style={{ gap: 'var(--spacing-xs, 8px)' }}
-        >
-          {version.media.map((m) => (
-            <img
-              key={m.src}
-              src={m.src}
-              alt={m.alt}
-              className="h-[135px] w-[240px] shrink-0 object-cover"
-              style={{
-                borderRadius: 'var(--radius-ct-l, 8px)',
-                border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <MediaRow items={version.media} />
 
       <div className="flex w-full items-center overflow-hidden" style={{ gap: 'var(--spacing-xs, 8px)' }}>
         {version.tickers.map((t) => (
@@ -408,25 +470,7 @@ export function RelatedCard({ item }: { item: RelatedThesis }) {
         </div>
       </div>
 
-      {item.charts.length > 0 && (
-        <div
-          className="thesis-media-row flex w-full items-start overflow-x-auto"
-          style={{ gap: 'var(--spacing-xs, 8px)' }}
-        >
-          {item.charts.map((c, i) => (
-            <img
-              key={`${c.src}-${i}`}
-              src={c.src}
-              alt={c.alt}
-              className="h-[135px] w-[240px] shrink-0 object-cover"
-              style={{
-                borderRadius: 'var(--radius-ct-l, 8px)',
-                border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <MediaRow items={item.charts} />
 
       <div className="flex w-full flex-wrap items-center" style={{ gap: 'var(--spacing-xs, 8px)' }}>
         {item.tickers.map((t) => (
