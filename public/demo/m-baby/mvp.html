@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="demo-index" content="hidden">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>MVP · For You, Alva, Market, Me · Alva prototypes</title>
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="assets/logo-portrait2.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Delight-SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<!-- Embedded in the prototypes shell? The shell draws the bezel and owns the
+     stage chrome, so the page renders as a bare full-screen app. Set before
+     the stylesheet loads so no mockup is ever painted. -->
+<script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
+<!-- Resolve the saved appearance before CSS loads so System and Dark never
+     flash a light frame. Legacy Dark choices survive; the old Light default
+     becomes the new System default. -->
+<script>(function(){var p='system',l='';try{p=localStorage.getItem('alva-mvp-appearance')||'';l=localStorage.getItem('alva-mvp-theme')||'';}catch(e){}if(!/^(system|light|dark)$/.test(p))p=l==='dark'?'dark':'system';var d=p==='dark'||(p==='system'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.appearance=p;document.documentElement.dataset.theme=d?'dark':'light';})();</script>
+<link rel="stylesheet" href="mvp.css?v=87">
+<link rel="stylesheet" href="splash.css?v=5">
+<script>if(new URLSearchParams(location.search).get('feed')==='social'){document.documentElement.dataset.feedVariant='social';document.title='Thesis · Alva prototypes';for(const href of ['mvp-social.css?v=7','mvp-thesis.css?v=7']){const css=document.createElement('link');css.rel='stylesheet';css.href=href;document.head.appendChild(css);}}</script>
+<link rel="stylesheet" href="device-chrome.css?v=2">
+</head>
+<body>
+
+<div class="desk">
+  <div class="phone" id="phone">
+    <div class="phone-buttons" aria-hidden="true">
+      <span class="pb pb-action"></span>
+      <span class="pb pb-volup"></span>
+      <span class="pb pb-voldown"></span>
+      <span class="pb pb-power"></span>
+    </div>
+    <div class="phone-screen">
+      <main class="mvp-app" id="mvpApp">
+
+        <div class="screens" id="screens">
+
+          <!-- ═══ For You ═══════════════════════════════════════ -->
+          <section class="screen current" id="screenFeed" data-tab="feed" aria-label="For You">
+            <header class="topbar"><h1>For You</h1></header>
+            <nav class="feed-filters" aria-label="Filter feed by ticker">
+              <div class="feed-filter-viewport">
+                <div class="feed-filter-list" id="feedFilters" role="tablist" aria-label="Recent tickers"></div>
+              </div>
+              <button class="feed-filter-all" id="allTickers" type="button" aria-label="Following tickers" aria-haspopup="dialog" aria-expanded="false">
+                <span class="ic" style="--ic:url(assets/ui-arrow-down-l2.svg)" aria-hidden="true"></span>
+              </button>
+            </nav>
+
+            <!-- The feed scrolls; the track inside it is what the pull moves,
+                 so the refresh gutter can sit just above the first card and
+                 come into view with it. -->
+            <div class="feed" id="feed">
+              <div class="feed-track" id="feedTrack">
+                <!-- Stands where the topbar is, so the bar can collapse without
+                     the scroll container's geometry moving under it. The refresh
+                     gutter hangs off its bottom edge. -->
+                <div class="lead" aria-hidden="true">
+                  <div class="refresh">
+                    <span class="refresh-loader" id="refreshLoader" aria-hidden="true">
+                      <span class="refresh-loader-rotor">
+                        <i class="refresh-loader-tile tile-1"></i>
+                        <i class="refresh-loader-tile tile-2"></i>
+                        <i class="refresh-loader-tile tile-3"></i>
+                        <i class="refresh-loader-tile tile-4"></i>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div class="cards" id="cards" role="tabpanel" aria-label="All feeds"></div>
+              </div>
+            </div>
+
+            <button class="pill gone" id="newPill" type="button" data-press-shadow aria-hidden="true" inert>
+              <span class="ic" style="--ic:url(assets/ui-arrow-up-l1.svg)" aria-hidden="true"></span>
+              <span id="newPillText"></span>
+            </button>
+          </section>
+
+          <!-- ═══ Market ════════════════════════════════════════ -->
+          <section class="screen" id="screenMarket" data-tab="market" aria-label="Market">
+            <div class="market-scroll" id="marketScroll">
+              <header class="market-title"><h1>Market</h1></header>
+              <div class="market-content">
+                <div class="market-search-recent">
+                  <label class="market-search" for="marketSearchInput">
+                    <span class="ic market-search-icon" style="--ic:url(assets/search.svg)" aria-hidden="true"></span>
+                    <input id="marketSearchInput" type="search" placeholder="Ticker or company" autocomplete="off" spellcheck="false">
+                  </label>
+                  <div class="market-chips" aria-label="Recent searches">
+                    <button type="button" class="market-chip">NVDA</button>
+                    <button type="button" class="market-chip">NWG</button>
+                    <button type="button" class="market-chip">SNDK</button>
+                  </div>
+                </div>
+                <section class="market-section" aria-label="Market lists">
+                  <div class="market-tabs" id="marketTabs">
+                    <div class="market-tab-list" role="tablist" aria-label="Market sections" data-tab-scroll>
+                      <button type="button" class="market-tab is-active" role="tab" aria-selected="true" data-market-tab="following">Following</button>
+                      <button type="button" class="market-tab" role="tab" aria-selected="false" data-market-tab="trending">Trending</button>
+                    </div>
+                    <button type="button" class="market-search-compact" id="marketSearchCompact" aria-label="Search tickers">
+                      <span class="ic" style="--ic:url(assets/search.svg)" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                  <div class="market-list" id="marketList"></div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ Chat (545:62465) ══════════════════════════════ -->
+          <section class="screen" id="screenChat" data-tab="chat" aria-label="Chat">
+            <header class="chat-top">
+              <span class="logo-tile" aria-hidden="true"><img src="assets/logo-portrait.svg" alt=""></span>
+              <h1>Alva</h1>
+              <button class="icon-btn" type="button" aria-label="What Alva can do" data-hint="Alva explains what it can do here — a later screen">
+                <span class="ic" style="--ic:url(assets/ui-explain-l.svg)" aria-hidden="true"></span>
+              </button>
+              <button class="icon-btn" type="button" aria-label="Chat settings" data-hint="Chat settings are a later screen">
+                <span class="ic" style="--ic:url(assets/ui-settings-l.svg)" aria-hidden="true"></span>
+              </button>
+            </header>
+
+            <nav class="strip" aria-label="Chat sections" role="tablist" data-tab-scroll>
+              <button class="strip-item on" type="button" role="tab" aria-selected="true">Chat</button>
+              <button class="strip-item" type="button" role="tab" aria-selected="false" data-hint="Tasks: 5 running automations">Tasks (5)</button>
+              <button class="strip-item" type="button" role="tab" aria-selected="false" data-hint="Alerts: 8 unread">Alerts (8)</button>
+              <button class="strip-item" type="button" role="tab" aria-selected="false" data-hint="Memory is what Alva keeps between threads">Memory</button>
+              <button class="strip-item" type="button" role="tab" aria-selected="false" data-hint="Files: 8 attached to this workspace">Files (8)</button>
+            </nav>
+
+            <div class="thread" id="thread">
+              <p class="bubble">Create today&rsquo;s FinTwit Digest from my chosen FinTwit list.</p>
+
+              <div class="answer">
+                <div class="answer-head">
+                  <span class="logo-tile" aria-hidden="true"><img src="assets/logo-portrait.svg" alt=""></span>
+                  <span class="answer-name">Alva</span>
+                  <span class="answer-time">10:28 PM</span>
+                </div>
+                <p>On it. I&rsquo;ll read today&rsquo;s posts from your 8 selected FinTwit accounts and condense them into one digest &mdash; top calls, ticker mentions, and sentiment shifts.</p>
+                <p>Want me to deliver this automatically each morning?</p>
+              </div>
+
+              <p class="bubble">Yes &mdash; send it to Telegram daily at 7:30 AM.</p>
+
+              <div class="answer">
+                <div class="answer-head">
+                  <span class="logo-tile" aria-hidden="true"><img src="assets/logo-portrait.svg" alt=""></span>
+                  <span class="answer-name">Alva</span>
+                  <span class="answer-time">10:28 PM</span>
+                </div>
+                <p>Done. Your FinTwit Digest is scheduled for 7:30 AM daily and will arrive in Telegram.</p>
+                <p>Today&rsquo;s edition: 8 accounts covered, 14 tickers flagged &mdash; NVDA and BTC drew the most bullish mentions.</p>
+                <p>Highlights: NVDA bulls at 68%, BTC reclaiming $104k, and rising chatter on power-grid names.</p>
+                <p>Tap any ticker in the digest to open its live snapshot.</p>
+              </div>
+            </div>
+
+            <div class="composer">
+              <div class="cbox">
+                <span class="ic ic-add" style="--ic:url(assets/ui-add-l2.svg)" aria-hidden="true"></span>
+                <span class="cbox-ph">Ask Alva anything. @ for context, / for skills</span>
+                <span class="ic ic-mic" style="--ic:url(assets/ui-microphone-l.svg)" aria-hidden="true"></span>
+                <span class="send" aria-hidden="true"><span class="ic" style="--ic:url(assets/ui-arrow-up-l1.svg)"></span></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ Me (360:37134) ════════════════════════════════ -->
+          <section class="screen" id="screenMe" data-tab="me" aria-label="Me">
+            <div class="me-body">
+
+              <div class="me-head">
+                <span class="me-av">
+                  <img src="assets/avatar-kaleo.png" alt="">
+                  <span class="me-badge" aria-hidden="true"><span class="ic" style="--ic:url(assets/ui-edit-l1.svg)"></span></span>
+                </span>
+                <span class="me-id">
+                  <span class="me-name-row">
+                    <span class="me-name">Sheer</span>
+                    <span class="tag tag-pro">Pro</span>
+                    <span class="tag tag-annual">Annual</span>
+                  </span>
+                  <span class="me-meta">
+                    <span>@sheer</span>
+                    <span class="me-div" aria-hidden="true"></span>
+                    <span>Joined 12/23/2025</span>
+                  </span>
+                </span>
+              </div>
+
+              <button class="row row-open" type="button" data-hint="Usage history is a later screen">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-credit-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Usage</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <div class="credits">
+                <span class="credits-left">
+                  <span class="credits-cap">Available</span>
+                  <span class="credits-num">12,000</span>
+                </span>
+                <span class="credits-right">
+                  <span class="credits-line"><span>Daily</span><b>1,000</b></span>
+                  <span class="credits-line"><span>Monthly</span><b>3,000</b></span>
+                  <span class="credits-line"><span>Pack</span><b>12,000</b></span>
+                </span>
+              </div>
+
+              <p class="me-group">Library</p>
+
+              <button class="row" id="followingRow" type="button">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-k-line-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Following tickers</span>
+                <span class="row-count" id="followCount">2</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <button class="row" type="button" data-hint="8 playbooks saved">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-playbooks-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Playbooks</span>
+                <span class="row-count">8</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <p class="me-group">Preferences</p>
+
+              <button class="row" type="button" data-hint="Language: English (US)">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-language-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Language</span>
+                <span class="row-count">English (US)</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <button class="row" id="appearanceRow" type="button" aria-haspopup="dialog" aria-expanded="false">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-mode-night-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Appearance</span>
+                <span class="row-count appearance-value" id="appearanceValue">System</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <button class="row" type="button" data-hint="Settings are a later screen">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-settings-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Settings</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <button class="row" type="button" data-hint="Support opens a chat with the team">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-cs-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Contact us</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <button class="row" type="button" data-hint="Signing out is a later screen">
+                <span class="ic ic-lead" style="--ic:url(assets/ui-logout-l.svg)" aria-hidden="true"></span>
+                <span class="row-label">Log Out</span>
+                <span class="ic ic-chev" style="--ic:url(assets/ui-arrow-right-l2.svg)" aria-hidden="true"></span>
+              </button>
+
+              <div class="me-social">
+                <button type="button" aria-label="Discord" data-hint="Alva on Discord">
+                  <span class="ic" style="--ic:url(assets/icon-discord.svg)" aria-hidden="true"></span>
+                </button>
+                <button type="button" aria-label="Telegram" data-hint="Alva on Telegram">
+                  <span class="ic" style="--ic:url(assets/icon-telegram.svg)" aria-hidden="true"></span>
+                </button>
+                <button type="button" aria-label="X" data-hint="Alva on X">
+                  <span class="ic" style="--ic:url(assets/ui-social-x.svg)" aria-hidden="true"></span>
+                </button>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+        <div class="system-bar" aria-hidden="true">
+          <div class="system-side system-left"><span>9:41</span></div>
+          <div class="dynamic-island"></div>
+          <div class="system-side system-right">
+            <span class="ic sb-signal" style="--ic:url(assets/status-signal.svg)"></span>
+            <span class="ic sb-wifi" style="--ic:url(assets/status-wifi.svg)"></span>
+            <span class="battery">
+              <span class="ic battery-outline" style="--ic:url(assets/battery-outline.svg)"></span>
+              <span class="ic battery-fill" style="--ic:url(assets/battery-fill.svg)"></span>
+              <span class="ic battery-end" style="--ic:url(assets/battery-end.svg)"></span>
+            </span>
+          </div>
+        </div>
+
+        <nav class="tab-bar" id="tabBar" aria-label="Main">
+          <div class="tabs" role="tablist">
+            <button class="tab is-active" type="button" role="tab" data-tab="feed" aria-selected="true" aria-label="For You">
+              <span class="tab-icon-slot" aria-hidden="true">
+                <span class="ic ic-off" style="--ic:url(assets/ui-for-you-l.svg)"></span>
+                <span class="ic ic-on" style="--ic:url(assets/ui-for-you-f.svg)"></span>
+                <span class="ic ic-refresh" style="--ic:url(assets/ui-for-you-refresh-f.svg)"></span>
+              </span>
+              <span>For You</span>
+            </button>
+            <button class="tab" type="button" role="tab" data-tab="chat" aria-selected="false">
+              <span class="ic ic-off" style="--ic:url(assets/ui-chat-ai-l.svg)" aria-hidden="true"></span>
+              <span class="ic ic-on" style="--ic:url(assets/ui-chat-ai-f.svg)" aria-hidden="true"></span>
+              <span>Alva</span>
+            </button>
+            <button class="tab" type="button" role="tab" data-tab="market" aria-selected="false">
+              <span class="ic ic-off" style="--ic:url(assets/ui-planet-l.svg)" aria-hidden="true"></span>
+              <span class="ic ic-on" style="--ic:url(assets/ui-planet-f.svg)" aria-hidden="true"></span>
+              <span>Market</span>
+            </button>
+            <button class="tab" type="button" role="tab" data-tab="me" aria-selected="false">
+              <span class="ic ic-off" style="--ic:url(assets/ui-me-l.svg)" aria-hidden="true"></span>
+              <span class="ic ic-on" style="--ic:url(assets/ui-me-f.svg)" aria-hidden="true"></span>
+              <span>Me</span>
+            </button>
+          </div>
+        </nav>
+
+        <!-- Out of the tab bar so it can sit above an open sheet, the way it
+             does in the design (the sheet's foot is the indicator's ground). -->
+        <div class="home-indicator" aria-hidden="true"><span></span></div>
+
+        <div class="startup-loader logo-splash" id="startupLoader" role="status" aria-label="Loading Alva" aria-hidden="false">
+          <div class="logo-splash-mark" aria-hidden="true"><img src="assets/wordmark-symbol.svg" alt=""><img src="assets/wordmark-text.svg" alt=""></div>
+        </div>
+
+        <!-- ═══ Overlays ═════════════════════════════════════════
+             One scrim, one sheet element. Both sheets are the same
+             object with a different top edge and a different body,
+             so only one can be open and the exit animation is shared. -->
+
+        <div class="scrim" id="scrim"></div>
+
+        <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-hidden="true">
+          <div class="grabber" aria-hidden="true"><span></span></div>
+          <header class="sheet-top" id="sheetTop"></header>
+          <div class="sheet-scroll" id="sheetBody"></div>
+        </section>
+
+        <div class="fs-scrim" id="fsScrim" aria-hidden="true"></div>
+        <section class="fs" id="fullChart" role="dialog" aria-modal="true" aria-hidden="true" aria-busy="false" aria-label="Chart">
+          <div class="fs-plot" id="fsPlot"></div>
+          <div class="fs-loader" id="fsLoader" role="status" aria-label="Loading chart" aria-hidden="true">
+            <img class="full-loader-mark" src="assets/logo-loading-light.svg" alt="">
+          </div>
+          <button class="fs-chart-type" id="fsChartType" type="button" data-press-shadow
+                  aria-label="Display: Candlesticks. Switch to line chart" aria-pressed="false">
+            <span class="ic" style="--ic:url(assets/ui-chart-candles-l.svg)" aria-hidden="true"></span>
+          </button>
+          <header class="fs-topbar">
+            <button class="fs-close" id="fsClose" type="button" aria-label="Close chart">
+              <span class="ic" style="--ic:url(assets/close-l1.svg)" aria-hidden="true"></span>
+            </button>
+          </header>
+          <nav class="fs-context" aria-label="Chart controls">
+            <div class="fs-grabber" aria-hidden="true"><span></span></div>
+            <div class="fs-switch-row">
+              <button class="fs-switch" id="fsPrev" type="button" aria-label="Previous chart">
+                <span class="ic" style="--ic:url(assets/ui-chart-arrow-left.svg)" aria-hidden="true"></span>
+              </button>
+              <button class="fs-entity" id="fsEntity" type="button">
+                <span class="fs-ticker" id="fsTicker"></span>
+                <span class="fs-details">Tap to view live chart</span>
+              </button>
+              <button class="fs-switch" id="fsNext" type="button" aria-label="Next chart">
+                <span class="ic" style="--ic:url(assets/ui-chart-arrow-right.svg)" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="fs-home" aria-hidden="true"><span></span></div>
+          </nav>
+        </section>
+
+        <div class="toast" id="toast" role="status"></div>
+
+      </main>
+    </div>
+  </div>
+
+  <nav class="stage-controls stage-controls-left" aria-label="Prototype navigation">
+    <a class="stage-pill" href="index.html#/mvp">← All prototypes</a>
+  </nav>
+  <div class="stage-controls">
+    <button class="stage-pill" id="themeButton" type="button">Dark mode</button>
+    <button class="stage-pill" id="restartButton" style="margin-left:8px">Restart</button>
+  </div>
+</div>
+
+<script src="assets/vendor/lightweight-charts.js"></script>
+<script src="mvp-source-data.js?v=79"></script>
+<script src="mvp-sources.js?v=79"></script>
+<script src="mvp-feed-reference.js?v=79"></script>
+<script src="mvp-feed-model.js?v=73"></script>
+<script src="mvp-feed-updates.js?v=1"></script>
+<script src="mvp.js?v=94"></script>
+<script src="press-feedback.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,800 @@
+/* ═══════════════════════════════════════════════════════════
+   Alva · Prototypes — the single-page shell
+
+   Two layouts, one page:
+
+   ≥ 900px   sidebar (the list) + stage (the running prototype).
+             The stage draws the selected device body; the iframe inside it is
+             exactly one phone screen, at whichever model the device
+             switcher is set to. --screen-w / --screen-h are the single
+             source of that size; everything else derives from them.
+
+   < 900px   two views, list ⇄ prototype, swapped by [data-view] on
+             <html>. The prototype fills the viewport with no bezel and
+             no added chrome — it is already running on a phone — and
+             the browser's own back gesture is the way back.
+
+   The prototypes keep their own CSS/JS and their own document, so they
+   can never collide with each other or with this shell.
+   ═══════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Delight';
+  src: url('assets/fonts/Delight-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Delight';
+  src: url('assets/fonts/Delight-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+:root {
+  --m1: #49a3a6;
+  --n9: rgba(0, 0, 0, 0.9);
+  --n7: rgba(0, 0, 0, 0.7);
+  --n5: rgba(0, 0, 0, 0.5);
+  --n3: rgba(0, 0, 0, 0.3);
+  --n10: #000;
+  --l07: rgba(0, 0, 0, 0.07);
+  /* ONE stroke colour for the whole frame. It used to be two — l07 inside a
+     region, l12 between regions — which read as some lines mattering more
+     than others when in fact they all do the same job: they are the only
+     thing separating anything on a page with a single ground. Unified on the
+     darker of the two, so every divider that was l07 comes up a step. */
+  --line: var(--l12);
+  --l12: rgba(0, 0, 0, 0.12);
+  --br03: rgba(0, 0, 0, 0.03);
+  --r-ct-l: 8px;
+  --r-btn-m: 6px;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --sidebar-w: 344px;
+
+  /* The wordmark, matched to the title's CAP HEIGHT rather than to its font
+     size. "Mobile prototypes" at 16px Medium measures 11.4px cap and 14.8px
+     ink; the mark used to be 18, which is 1.57× that cap and read as a
+     bigger thing sitting beside smaller text. 12 puts them level. */
+  --mark-h: 12px;
+
+  /* The mounted device. shell.js overwrites this pair from DEVICES; the
+     values here are the default (iPhone 17) so the stage is right on the
+     first paint, before any script has run. */
+  --screen-w: 402px;
+  --screen-h: 874px;
+
+  /* Device geometry defaults to iPhone 17 and is replaced as one record by
+     shell.js when a different model is selected. */
+  --bezel: 16px;
+  --phone-radius: 68px;
+  --screen-radius: 54px;
+  --screen-stroke: 6px;
+
+  /* The toolbar's height, and therefore the band the stage reserves for it.
+     A constant now — the bar is one row of cells that cannot wrap, so there
+     is nothing left to measure. */
+  --chrome-h: 44px;
+  --phone-w: calc(var(--screen-w) + 2 * var(--bezel));
+  --phone-h: calc(var(--screen-h) + 2 * var(--bezel));
+
+  /* ONE ground for the whole page — sidebar, stage and toolbar alike. They
+     are not separate surfaces that happen to be the same colour; they are
+     one surface with hairlines drawn on it, which is why none of them sets a
+     background of its own.
+
+     This is the design system's `background/b0` with `content/br03` over it,
+     flattened. It has to be flat rather than the token layered on white,
+     because the one thing that cannot be translucent is the dropdown — an
+     overlay has to be opaque or the toolbar reads through it — and having
+     the overlay and the page derive from two different expressions of the
+     same colour is how they drift apart. So: one value, named once.
+
+     Not white, deliberately. The phone's screen is the only white surface on
+     the page, and that is what makes it read as the object. */
+  --ground: #f7f7f7;
+  --screen-fill: #ffffff;
+  --action-fill: #000000;
+  --action-ink: #ffffff;
+  --action-hover: rgba(0, 0, 0, 0.9);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --n9: rgba(255, 255, 255, 0.9);
+  --n7: rgba(255, 255, 255, 0.7);
+  --n5: rgba(255, 255, 255, 0.5);
+  --n3: rgba(255, 255, 255, 0.3);
+  --n10: #ffffff;
+  --l07: rgba(255, 255, 255, 0.1);
+  --l12: rgba(255, 255, 255, 0.12);
+  --br03: rgba(255, 255, 255, 0.03);
+  --ground: #1c1d21;
+  --screen-fill: #15161a;
+  --action-fill: #ffffff;
+  --action-ink: #15161a;
+  --action-hover: rgba(255, 255, 255, 0.9);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Delight', -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.01em;
+  color: var(--n9);
+  background: var(--ground);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root[data-theme='dark'] .brand img { filter: invert(1); }
+
+img { display: block; -webkit-user-drag: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+[hidden] { display: none !important; }
+
+/* ─────────────────────────────────────────────
+   Frame
+   ───────────────────────────────────────────── */
+
+.shell {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+}
+
+/* ─────────────────────────────────────────────
+   Sidebar — the list
+   ───────────────────────────────────────────── */
+
+.sidebar {
+  position: relative;
+  overflow: hidden;
+  /* the hairline is the only thing separating it from the stage */
+  border-right: 0.5px solid var(--line);
+}
+.sidebar-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* No horizontal inset here. The gutter belongs to each block, so a row's
+     fill and its divider both reach the sidebar's edges — otherwise the row
+     is a card floating in a container, which is the shape being removed.
+
+     The MARK sits 20 from the top, matching the 20 each block carries on the
+     left, so it reads as equidistant from both edges. The padding is less
+     than 20 because the header row is 24 tall (the toggle, and the title's
+     line box) and centres the mark in it, which supplies the rest — hence
+     the subtraction rather than a bare number, so it survives the mark
+     changing size. Aligning the mark to the row's top instead would make the
+     number right and put the title's ink below it. */
+  padding: calc(20px - (24px - var(--mark-h)) / 2) 0 28px;
+}
+
+/* The header, the list and the footer are three bands, and a line is what
+   says so. */
+/* Brand and page on one line, divided by a rule. Two rows of identity plus a
+   two-line subtitle was three horizontal breaks before the list started; the
+   rule marks brand-vs-page without implying they are the same kind of thing,
+   which is what a dot-separated line would have done (U11). */
+.sb-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px 20px;
+  border-bottom: 0.5px solid var(--line);
+}
+/* Expanded it is brand and nothing else — `disabled`, so it is not a focus
+   stop either. Collapsed it becomes the way back, because by then it is the
+   only thing left on screen and a glyph beside it would be decoration. */
+.brand {
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: var(--mark-h);
+  gap: 3.5px;
+  transition: opacity 0.15s ease;
+}
+.brand:disabled { cursor: default; opacity: 1; }
+.brand:not(:disabled) { cursor: pointer; }
+.brand:not(:disabled):hover { opacity: 0.6; }
+.brand:focus-visible { outline: 2px solid var(--m1); outline-offset: 4px; }
+
+/* The discoverable half. A wordmark does not announce that it collapses
+   anything, so the expanded state carries an explicit control at the far end
+   of the header — the end a two-pane layout puts it.
+
+   A text glyph rather than an asset, because this shell already speaks that
+   way: the Figma cell ends in ↗ and the device cell in ▾. There is no clean
+   chevron in assets/ (they are all 45° corner arrows), and drawing one is
+   exactly what the icon rule forbids. */
+.sb-collapse {
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  color: var(--n7);
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+.sb-collapse:hover { color: var(--n9); }
+.sb-collapse:focus-visible { outline: 2px solid var(--m1); outline-offset: 0; }
+/* The symbol is a hair shorter than the text in the source art; keep that
+   ratio rather than setting both to one number. */
+.wm-symbol { height: calc(var(--mark-h) * 0.983); width: auto; }
+.wm-text { height: var(--mark-h); width: auto; }
+
+/* ── Search ──
+   A bare field filling its row, edge to edge. Not an input with a border and
+   a radius inside a padded container — that is the shape this shell spent the
+   day removing. Focus is a teal rule along the bottom edge, drawn as an inset
+   shadow so nothing shifts, because a fill would compete with the selected
+   row. */
+.sb-search {
+  border-bottom: 0.5px solid var(--line);
+  transition: box-shadow 0.15s ease;
+}
+.sb-search:focus-within { box-shadow: inset 0 -1.5px 0 0 var(--m1); }
+.sb-search input {
+  display: block;
+  width: 100%;
+  padding: 13px 20px;
+  border: 0;
+  background: none;
+  color: var(--n9);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: inherit;
+}
+.sb-search input::placeholder { color: var(--n7); }
+.sb-search input:focus { outline: 0; }
+/* the UA's clear button is a small control inside a field — the exact shape
+   being avoided here. Esc clears instead. */
+.sb-search input::-webkit-search-cancel-button,
+.sb-search input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+
+.sb-empty {
+  padding: 20px;
+  border-bottom: 0.5px solid var(--line);
+  color: var(--n7);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Sized to sit level with the 18px wordmark rather than to be a page
+   heading — the mockup is what the page is about. */
+.sb-head h1 {
+  padding-left: 12px;
+  border-left: 0.5px solid var(--line);
+  color: var(--n9);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+/* ── List items ── */
+
+/* Rows, not cards. A stack of bordered, shadowed, rounded, gapped cards is
+   four pieces of chrome saying the one thing a single hairline already
+   says. */
+.proto-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.proto-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 0;
+  border-bottom: 0.5px solid var(--line);
+  border-radius: 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* One text ladder, the same in both states: 15/Medium, 13, 11. Hierarchy
+   inside the row is size and weight; STATE is the fill and nothing else.
+   Dimming an unselected row to n5 read as hierarchy but measured 3.9:1 on
+   this ground — under AA on the two smallest lines, which are the ones that
+   can least afford it. */
+.proto-item .pi-title { color: var(--n9); }
+.proto-item .pi-sub { color: var(--n7); }
+
+/* Hover underlines the title. The selected row is the one fill on this page,
+   so a second fill appearing under the cursor would compete with it — and
+   read as selection wherever the pointer happened to be. These rows are
+   links, so an underline is both the honest affordance and free of colour. */
+.proto-item:hover .pi-title { text-decoration: underline; text-underline-offset: 2px; }
+.proto-item:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
+
+/* The only background on the page that differs from the ground. l07 over the
+   ground lands on #e6e6e6 — clearly a step down from #f7f7f7 without needing
+   a border, a rule or a shadow to help it, and it is the whole of the
+   selected state. */
+.proto-item[aria-current='true'] {
+  background: var(--l07);
+}
+
+/* spans inside an <a> must be blockified to stack */
+.pi-body { display: block; flex: 1; min-width: 0; }
+.pi-title, .pi-sub, .pi-meta { display: block; }
+
+.pi-title {
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 22px;
+}
+.pi-sub {
+  margin-top: 1px;
+  font-size: 13px;
+  line-height: 19px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pi-meta {
+  margin-top: 7px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--n7);
+}
+.pi-meta .dot { color: var(--n3); padding: 0 5px; }
+
+/* the chevron is the "this navigates" cue the two-view layout needs;
+   on desktop the selected row is its own indicator, so it is dropped */
+.pi-go { display: none; }
+
+.sb-foot {
+  /* No rule of its own: the line above it is the last row's bottom border,
+     which is also what keeps filtering from leaving a stray line where a
+     hidden row used to be. */
+  margin-top: 0;
+  padding: 16px 20px 0;
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--n7);
+}
+
+/* ── Collapsed ──
+   The column becomes as wide as what is left in it — the mark and the
+   toggle — so there is no rail width to keep in sync with its contents. */
+
+@media (min-width: 900px) {
+  /* The column goes to nothing — not to a rail. A rail is still a column,
+     and it would push the stage off-centre by its own width for no content.
+     The mark leaves the flow so it can stay on screen while the column it
+     lives in is zero, which is also why the sidebar stops clipping. */
+  html[data-sidebar='collapsed'] .shell {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+  html[data-sidebar='collapsed'] .sidebar {
+    border-right: 0;
+    overflow: visible;
+  }
+  html[data-sidebar='collapsed'] .sidebar-scroll { overflow: visible; }
+  html[data-sidebar='collapsed'] .sb-head { border-bottom: 0; }
+  html[data-sidebar='collapsed'] .sb-head h1,
+  html[data-sidebar='collapsed'] .sb-search,
+  html[data-sidebar='collapsed'] .proto-list,
+  html[data-sidebar='collapsed'] .sb-empty,
+  html[data-sidebar='collapsed'] .sb-foot { display: none; }
+
+  html[data-sidebar='collapsed'] .brand {
+    position: absolute;
+    z-index: 10;
+    /* 20 flat here: out of the flow there is no 24px row centring the 18px
+       mark, so no 3px to subtract. Same optical position either way. */
+    top: 20px;
+    left: 20px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Stage — the running prototype
+   ───────────────────────────────────────────── */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* The bottom band belongs to the stage chrome. Reserving it — rather than
+     letting the phone centre on the whole stage — is what keeps a pill from
+     ever landing on top of the phone in a short or narrow window.
+
+     Its size is measured, not guessed: shell.js sets --chrome-h from the
+     taller of the two bars. A fixed number was right only for the row that
+     happened to be there when it was written, and a narrow window wraps
+     that row onto a second line. */
+  padding: 24px 28px calc(var(--chrome-h) + 24px);
+}
+
+/* scaled by shell.js so the phone always fits, never blown up past 1:1 */
+.stage-fit {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  flex: none;
+  transform: scale(var(--fit, 1));
+  transform-origin: center center;
+}
+
+.phone {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--bezel);
+  border-radius: var(--phone-radius);
+  background: linear-gradient(145deg, #3f4147 0%, #17181c 55%, #3a3c42 100%);
+  /* The one object on the page allowed to have depth — which is the whole
+     point of taking it away from everything else. Two atmospheric drop
+     shadows became one, because on a flat ground a single soft shadow reads
+     as "this floats" and a stack of them reads as "this page is glossy". */
+  box-shadow:
+    inset 0 0 3px 1px rgba(255, 255, 255, 0.28),
+    inset 0 0 2px 5px rgba(255, 255, 255, 0.09),
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 24px 60px -16px rgba(23, 32, 34, 0.28);
+}
+.phone-buttons .pb {
+  position: absolute;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #26272b, #4c4e55 45%, #26272b);
+}
+.pb-action  { left: -2.5px; top: 178px; width: 3px; height: 34px; }
+.pb-volup   { left: -2.5px; top: 244px; width: 3px; height: 62px; }
+.pb-voldown { left: -2.5px; top: 320px; width: 3px; height: 62px; }
+.pb-power   { right: -2.5px; top: 274px; width: 3px; height: 100px; }
+
+.phone-screen {
+  position: relative;
+  width: var(--screen-w);
+  height: var(--screen-h);
+  overflow: hidden;
+  border-radius: var(--screen-radius);
+  background: var(--screen-fill);
+  box-shadow: 0 0 0 var(--screen-stroke) #000;
+}
+:root[data-device-platform='android'] .phone {
+  background: linear-gradient(145deg, #3a3d43 0%, #16171a 58%, #2b2e33 100%);
+  box-shadow:
+    inset 0 0 2px 1px rgba(255, 255, 255, 0.2),
+    inset 0 0 2px 3px rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.65),
+    0 24px 60px -16px rgba(23, 32, 34, 0.28);
+}
+:root[data-device-id='galaxy-a16-5g'] .phone {
+  background: linear-gradient(145deg, #26303a 0%, #10151a 58%, #202933 100%);
+}
+:root[data-device-id='galaxy-s25-ultra'] .phone {
+  background: linear-gradient(145deg, #777770 0%, #272824 58%, #575851 100%);
+}
+:root[data-device-platform='android'] .pb-action,
+:root[data-device-platform='android'] .pb-voldown { display: none; }
+:root[data-device-platform='android'] .pb-volup {
+  top: 168px;
+  right: -2.5px;
+  left: auto;
+  width: 3px;
+  height: 66px;
+}
+:root[data-device-platform='android'] .pb-power {
+  top: 252px;
+  right: -2.5px;
+  width: 3px;
+  height: 74px;
+}
+.phone-screen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--screen-fill);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.phone-screen iframe.ready { opacity: 1; }
+
+/* Empty stage — only reachable if the list is empty */
+.stage-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: var(--n7);
+}
+
+/* ── Stage chrome: one toolbar of cells ──
+
+   The reference is aspensearch.com: a hard grid of full-bleed cells divided
+   by hairlines, zero radius, no border on the target itself, no shadow, and
+   — the rule that drives all of it — **the cell IS the control**. There is
+   never a small button sitting inside a larger container, because the
+   container would then be decoration with a target hidden in it.
+
+   This replaces two clusters of rounded pills floating in the corners. It
+   also deletes machinery: a single flex row whose first cell grows cannot
+   wrap, so the bar-width measuring and the wrap handling are both gone. */
+
+.toolbar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: stretch;
+  height: var(--chrome-h);
+  /* same ground as everything else; the hairline is the separation */
+  border-top: 0.5px solid var(--line);
+}
+
+.tb-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 0 16px;
+  border: 0;
+  border-left: 0.5px solid var(--line);
+  border-radius: 0;
+  background: none;
+  /* The micro-label register of the reference: uppercase, 11px, tight. It
+     reads as a toolbar rather than as a row of buttons. */
+  color: var(--n7);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.toolbar > :first-child { border-left: 0; }
+
+/* The Figma cell takes the slack, so the bar is always full and the actions
+   stay hard against the right edge. Its label is the only thing here long
+   enough to need truncating. */
+/* Sized to its label, not to the slack. Letting it grow made a 800px cell
+   holding 200px of text — a target four times the size of the thing in it,
+   which is the same shape as a button floating in a container. The leftover
+   width is simply ground now, and the cell gets a right edge because it no
+   longer reaches the cells beside it. */
+.tb-lead {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 40%;
+  margin-right: auto;
+  border-right: 0.5px solid var(--line);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tb-lead > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tb-cell:hover { color: var(--n9); }
+
+/* The primary action, and the only cell that fills. It is the one thing in
+   the toolbar you press to change what is on screen rather than to change
+   what you are looking at, so it is the one thing that looks pressable. No
+   left hairline — the fill already ends the cell beside it. */
+.tb-primary {
+  border-left: 0;
+  background: var(--action-fill);
+  color: var(--action-ink);
+}
+.tb-primary:hover { background: var(--action-hover); color: var(--action-ink); }
+.tb-cell:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
+.tb-ico { flex: none; opacity: 0.5; text-transform: none; }
+
+.tb-theme-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  background: currentColor;
+  -webkit-mask: url('assets/ui-theme-l.svg') center / contain no-repeat;
+  mask: url('assets/ui-theme-l.svg') center / contain no-repeat;
+}
+
+/* Device switcher — one cell that opens a menu.
+
+   It was a readout cell plus three segment cells: four cells to express one
+   choice, and the size and the model were separated across two of them. One
+   cell now states both ("iPhone 17 Pro Max · 440 × 956") and the menu is
+   where the alternatives live.
+
+   The menu is the exception U13 allows: it floats over content it does not
+   own, so it carries its own hairline and fill. It still has no radius and
+   no shadow, and it is exactly the trigger's width — it reads as the cell
+   extending upward rather than as a panel arriving from somewhere. */
+
+.tb-select {
+  position: relative;
+  display: flex;
+  flex: none;
+}
+
+.tb-trigger {
+  /* the digits are three-by-three in every entry, so tabular figures hold
+     the size half steady */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tabular figures only fix the digits. The model name still varies — 
+   "iPhone 17" to "iPhone 17 Pro Max" swung this cell 55px and shoved the
+   Figma cell along with it. So the label is a one-cell grid holding both the
+   real text and an invisible copy of the LONGEST possible label, and the
+   longest one sets the width. shell.js fills the sizer from DEVICES, so it
+   cannot go stale when a device is added. */
+.tb-label { display: grid; }
+.tb-label > * { grid-area: 1 / 1; }
+.tb-sizer { visibility: hidden; }
+.tb-trigger[aria-expanded='true'] { color: var(--n9); }
+.tb-caret {
+  flex: none;
+  opacity: 0.5;
+  font-size: 9px;
+  transition: transform 0.15s ease;
+}
+.tb-trigger[aria-expanded='true'] .tb-caret { transform: rotate(180deg); }
+
+.tb-menu {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  border: 0.5px solid var(--line);
+  border-bottom: 0;
+  /* opaque, or the toolbar reads through it */
+  background: var(--ground);
+}
+
+.tb-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  height: 40px;
+  border: 0;
+  border-bottom: 0.5px solid var(--line);
+  border-radius: 0;
+  background: none;
+  color: var(--n7);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tb-option:last-child { border-bottom: 0; }
+.tb-option:hover { color: var(--n9); }
+.tb-option:focus-visible { outline: 2px solid var(--m1); outline-offset: -2px; }
+.tb-option[aria-selected='true'] { background: var(--l07); color: var(--n9); }
+.tb-option .opt-size {
+  /* subordinate by being right-aligned across a gap, not by being fainter —
+     n5 measures 3.9:1 on this ground */
+  color: var(--n7);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────
+   Two-view layout — list ⇄ prototype
+   ───────────────────────────────────────────── */
+
+@media (max-width: 899px) {
+
+  .shell { grid-template-columns: minmax(0, 1fr); }
+
+  /* only one view is mounted at a time, so a phone never pays for
+     the prototype's iframe while it is reading the list */
+  [data-view='list'] .stage { display: none; }
+  [data-view='demo'] .sidebar { display: none; }
+
+  /* ── List view: back to full-width cards ── */
+
+  .sidebar {
+    border-right: 0;
+  }
+  .sidebar-scroll {
+    padding: calc(20px - (24px - var(--mark-h)) / 2) 0 calc(48px + env(safe-area-inset-bottom));
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .sb-head { padding: 0 20px 24px; }
+  .sb-head h1 { font-size: 18px; line-height: 26px; }
+
+  .proto-list { gap: 0; }
+
+  /* Full-bleed rows on a phone: the divider runs edge to edge, so it reads as
+     a list rather than as cards that happen to be touching. */
+  .proto-item {
+    gap: 14px;
+    padding: 20px;
+    background: none;
+    border-bottom: 0.5px solid var(--line);
+  }
+  .proto-item .pi-title,
+  .proto-item[aria-current='true'] .pi-title { color: var(--n9); }
+  .proto-item .pi-sub,
+  .proto-item[aria-current='true'] .pi-sub { color: var(--n7); }
+  /* nothing is "current" while you are reading the list on a phone — the
+     selected row only means something when both halves are on screen */
+  .proto-item[aria-current='true'] { background: none; box-shadow: none; }
+  .pi-title { font-size: 18px; line-height: 28px; }
+  .pi-sub { font-size: 14px; line-height: 22px; -webkit-line-clamp: 3; }
+  .pi-meta { margin-top: 10px; font-size: 12px; line-height: 20px; }
+
+  .pi-go {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    opacity: 0.35;
+  }
+  .pi-go img { width: 9px; height: 9px; transform: rotate(135deg) scaleX(-1); }
+
+  .sb-foot { margin-top: 0; padding: 20px 20px 0; font-size: 12px; line-height: 20px; }
+
+  /* ── Prototype view: it is already running on a phone.
+        No bezel, no stage chrome, nothing but the prototype. ── */
+
+  .stage { padding: 0; }
+  .stage-fit {
+    width: 100%;
+    height: 100%;
+    transform: none;
+  }
+  .phone {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .phone-buttons,
+  .toolbar { display: none; }
+  /* Nothing to collapse in a one-pane layout: the mark is brand only (it is
+     already `disabled` while expanded, which is the state a phone is always
+     in) and the control does not appear at all. */
+  .sb-collapse { display: none; }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* Wide-but-single-view (a narrow desktop window, a tablet in portrait):
+   a phone UI stretched to 800px reads as broken, so the screen keeps its
+   own width and the stage shows through around it. */
+@media (min-width: 560px) and (max-width: 899px) {
+  .phone { width: var(--screen-w); margin: 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

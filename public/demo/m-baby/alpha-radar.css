@@ -1,0 +1,1479 @@
+@font-face {
+  font-family: 'Delight';
+  src: url('assets/fonts/Delight-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Delight';
+  src: url('assets/fonts/Delight-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Delight';
+  src: url('assets/fonts/Delight-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --m1: #49a3a6;
+  --m3: #2a9b7d;
+  --n9: rgba(0, 0, 0, 0.9);
+  --n7: rgba(0, 0, 0, 0.7);
+  --n5: rgba(0, 0, 0, 0.5);
+  --n3: rgba(0, 0, 0, 0.3);
+  --l07: rgba(0, 0, 0, 0.07);
+  --l12: rgba(0, 0, 0, 0.12);
+  --l2: rgba(0, 0, 0, 0.2);
+  --br03: rgba(0, 0, 0, 0.03);
+  --status-h: 59px;
+  --top-h: 56px;
+  --home-h: 34px;
+  --action-h: 92px;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; }
+
+body {
+  overflow: hidden;
+  background: #e8eaed;
+  color: var(--n9);
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button, input {
+  border: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0;
+}
+button { background: none; cursor: pointer; }
+img { display: block; pointer-events: none; -webkit-user-drag: none; }
+[hidden] { display: none !important; }
+
+.desk {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(900px 650px at 80% 0%, rgba(73, 163, 166, 0.15), transparent 60%),
+    radial-gradient(800px 600px at 8% 110%, rgba(73, 163, 166, 0.1), transparent 58%),
+    linear-gradient(180deg, #eef1f2 0%, #e3e7e9 100%);
+}
+
+.phone {
+  position: relative;
+  width: 425px;
+  height: 884px;
+  padding: 16px;
+  border-radius: 68px;
+  background: linear-gradient(145deg, #3f4147 0%, #17181c 55%, #3a3c42 100%);
+  box-shadow:
+    inset 0 0 3px 1px rgba(255,255,255,.28),
+    inset 0 0 2px 5px rgba(255,255,255,.09),
+    0 0 0 1px rgba(0,0,0,.55),
+    0 30px 60px -12px rgba(23,32,34,.45),
+    0 80px 120px -30px rgba(23,32,34,.35);
+  transform-origin: center;
+}
+.phone-screen {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  overflow: hidden;
+  border-radius: 54px;
+  background: #fff;
+  box-shadow: 0 0 0 6px #000;
+}
+.phone-buttons .pb {
+  position: absolute;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #26272b, #4c4e55 45%, #26272b);
+}
+.pb-action { top: 178px; left: -2.5px; width: 3px; height: 34px; }
+.pb-volup { top: 244px; left: -2.5px; width: 3px; height: 62px; }
+.pb-voldown { top: 320px; left: -2.5px; width: 3px; height: 62px; }
+.pb-power { top: 274px; right: -2.5px; width: 3px; height: 100px; }
+
+.stage-controls {
+  position: fixed;
+  right: 20px;
+  bottom: 18px;
+  display: flex;
+}
+.stage-controls-left { right: auto; left: 20px; }
+.stage-pill {
+  padding: 6px 14px;
+  border: .5px solid rgba(23,32,34,.12);
+  border-radius: 960px;
+  background: rgba(255,255,255,.62);
+  color: rgba(23,32,34,.55);
+  font-size: 12px;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+}
+.stage-pill:hover { border-color: var(--m1); color: var(--m1); }
+
+.radar-app {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #fff;
+}
+.screens { position: absolute; inset: 0; overflow: hidden; }
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--status-h) + var(--top-h)) 0 calc(var(--home-h) + var(--action-h));
+  background: #fff;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+.screen.current,
+.screen.animating { visibility: visible; }
+/* ─────────────────────────────────────────────
+   Intro · the two height tiers
+   Figma 14207:212889 / :213106 / :213002
+
+   Everything below the stage is fixed: Hero 270, CTA 80, indicator 34 —
+   384 in total. The card is 380 and always sits on the stage's bottom edge.
+   So the stage is the only elastic part, and where its surplus goes is the
+   whole design.
+
+   Above the card sit two blocks: the status bar's own space (minimum = the
+   bar's height, and the one that grows) and a fixed 16 below it. Together
+   they are what keeps the white card from ever ending up under the OS clock.
+   At a 62pt bar that is 78, putting the critical viewport at
+   78 + 380 + 384 = 842:
+
+     H ≥ 842   完整档 — stage = H − 384, and the surplus opens up ABOVE
+               the card (:213002, 430×932)
+     H < 842   压缩档 — the gap holds at its minimum and the stage crops the
+               card's BOTTOM by 842 − H. :213106 and :212889 are two samples
+               of this one tier, not two tiers.
+
+   The demo frames draw no status bar, so their labels are the
+   status-bar-less case (minimum 16, critical 780, crops of 18 and 120). On a
+   real 62pt device those same viewports crop 80 and 182.
+
+   Two earlier versions worth not going back to. `height: 469px` on the stage
+   is 852 − 384: right at exactly one viewport and silently wrong at every
+   other, because the surplus landed as dead space above the CTA instead of
+   above the card. And a flat 16px gap minimum put the card under the status
+   bar for every viewport between 780 and 842.
+   ───────────────────────────────────────────── */
+
+.screen.intro {
+  /* the CTA is in flow on this screen, so only the indicator is reserved */
+  padding: 0 0 var(--home-h);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.screen.intro::-webkit-scrollbar { display: none; }
+.screen.source-step {
+  padding-bottom: var(--home-h);
+}
+.screen.source-step .content {
+  padding-bottom: 140px;
+}
+
+.system-bar {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  height: var(--status-h);
+  pointer-events: none;
+}
+.system-side {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.system-left {
+  padding: 3px 0 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 21px;
+  letter-spacing: 0;
+}
+.dynamic-island {
+  flex: 0 0 125px;
+  width: 125px;
+  height: 37px;
+  border-radius: 100px;
+  background: #000;
+}
+.system-right {
+  gap: 8px;
+  padding: 3px 11px 0 0;
+}
+.system-right > img:first-child { width: 18px; height: 12px; }
+.system-right > img:nth-child(2) { width: 17px; height: 12px; }
+.battery { position: relative; width: 27.4px; height: 13px; }
+.battery-outline { position: absolute; inset: 0 auto auto 0; width: 25px; height: 13px; }
+.battery-fill { position: absolute; top: 2px; left: 2px; width: 21px; height: 9px; }
+.battery-end { position: absolute; top: 4.4px; right: 0; width: 1.4px; height: 4.2px; }
+
+.flow-topbar {
+  position: absolute;
+  z-index: 15;
+  top: var(--status-h);
+  right: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  height: var(--top-h);
+  background: #fff;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(100%, 0, 0);
+  transition: transform .44s var(--ease), visibility 0s linear .44s;
+}
+.radar-app.in-flow .flow-topbar {
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  transition: transform .44s var(--ease), visibility 0s;
+}
+.radar-app.editing-selection .progress,
+.radar-app.editing-selection .top-skip {
+  visibility: hidden;
+  pointer-events: none;
+}
+.radar-app.flow-entering .flow-topbar { transform: translate3d(100%, 0, 0); }
+.top-back, .top-skip { height: 56px; }
+.top-back {
+  display: grid;
+  place-items: center;
+  padding-left: 3px;
+}
+.top-back img {
+  width: 12px;
+  height: 12px;
+  transform: rotate(-135deg);
+}
+.top-skip {
+  padding: 0 16px 0 4px;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: right;
+}
+.progress {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 32px));
+  justify-content: center;
+  gap: 4px;
+}
+.progress-segment {
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--l07);
+}
+.progress-segment::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--m1);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .32s var(--ease);
+}
+.progress-segment.done::after { transform: scaleX(1); }
+
+.home-indicator {
+  position: absolute;
+  z-index: 25;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--home-h);
+  /* No fill. It used to be opaque white, and since it sits above the member
+     sheet (z 25 vs 18) it cut that sheet's button shadow off at a hard line
+     34px up. Nothing needs the fill: every screen pads its scroll area
+     34 + 92 off the bottom, so no content passes behind this band, and the
+     surface underneath (screen or sheet) is already white. */
+  pointer-events: none;
+}
+.home-indicator span {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 144px;
+  height: 5px;
+  border-radius: 100px;
+  background: #000;
+  transform: translateX(-50%);
+}
+
+.action-bar {
+  position: absolute;
+  z-index: 16;
+  right: 0;
+  bottom: var(--home-h);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0;
+  min-height: var(--action-h);
+  padding: 12px 16px 16px;
+  background: #fff;
+  transition: transform .44s var(--ease);
+}
+.action-fade { display: none; }
+.action-bar.source-action {
+  min-height: 156px;
+  gap: 8px;
+  padding-top: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0, rgba(255,255,255,.72) 40px, #fff 64px, #fff 100%);
+}
+.action-bar.source-action .action-fade {
+  display: none;
+}
+.selection-count {
+  height: 20px;
+  color: var(--n5);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+/* The intro's CTA is the last block in the stack rather than a pinned bar,
+   so that below the critical height the whole page scrolls and the CTA comes
+   with it. 16 + 48 = 80, the CTA block's height in all three frames. */
+.intro-action {
+  flex: none;
+  padding: 16px;
+  background: #fff;
+}
+
+.primary-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 6px;
+  background: var(--m1);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+  transition: transform .16s ease, filter .16s ease;
+}
+.primary-button:active { filter: brightness(.94); transform: scale(.98); }
+.primary-button:disabled {
+  cursor: default;
+  background: var(--l07);
+  color: var(--n3);
+  filter: none;
+  transform: none;
+}
+
+.screen-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.screen-scroll::-webkit-scrollbar { display: none; }
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 16px 24px;
+}
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.title-block h1 {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 34px;
+}
+.title-block p {
+  color: var(--n7);
+  font-size: 14px;
+  line-height: 22px;
+}
+.search {
+  width: 100%;
+  height: 40px;
+  padding: 9px 12px;
+  border: .5px solid var(--n3);
+  border-radius: 6px;
+  outline: 0;
+  background: #fff;
+  font-size: 14px;
+  line-height: 22px;
+}
+.search::placeholder { color: var(--n3); opacity: 1; }
+.search:focus { border-color: var(--m1); box-shadow: 0 0 0 1px rgba(73,163,166,.15); }
+
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.source-grid-wrap { position: relative; }
+.source-skeleton-grid {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  background: #fff;
+  opacity: 1;
+  pointer-events: none;
+}
+.source-skeleton-grid.is-fading {
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+.source-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  opacity: 1;
+  transition: opacity .28s ease, transform .28s var(--ease);
+  transition-delay: var(--item-delay, 0ms);
+}
+.source-card::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -10px -4px -5px;
+  border-radius: 16px;
+  background: var(--br03);
+  opacity: 0;
+  transition: opacity .16s ease;
+}
+.source-card:active { transform: scale(.97); transition-delay: 0ms; }
+.source-card:active::before { opacity: 1; }
+.source-grid.is-loading .source-card,
+.source-grid.is-revealing .source-card {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: none;
+}
+.source-skeleton {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 1;
+}
+.skeleton-avatar,
+.skeleton-line {
+  display: block;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(0,0,0,.05) 25%, rgba(0,0,0,.09) 38%, rgba(0,0,0,.05) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.25s ease-in-out infinite;
+}
+.skeleton-avatar { width: 86px; height: 86px; border-radius: 50%; }
+.skeleton-name { width: 76%; height: 12px; margin-top: 4px; }
+.skeleton-meta { width: 56%; height: 9px; }
+@keyframes skeleton-shimmer { to { background-position: -135% 0; } }
+.source-grid.is-entering .source-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+.source-avatar {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--br03);
+}
+.source-avatar > img { width: 100%; height: 100%; object-fit: cover; }
+.source-avatar.collage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.source-avatar.collage img { width: 43px; height: 43px; object-fit: cover; }
+.source-copy { width: 100%; min-width: 0; text-align: center; }
+.source-name {
+  display: block;
+  overflow: hidden;
+  color: var(--n9);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.source-meta {
+  display: block;
+  color: var(--n5);
+  font-size: 12px;
+  line-height: 18px;
+}
+.source-meta .rate { color: var(--m1); }
+.selected-badge {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transform: scale(.5);
+  transition: opacity .18s ease, transform .25s cubic-bezier(.34,1.3,.64,1);
+}
+.selected-badge::before {
+  content: '✓';
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--m3);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+.source-card.selected .selected-badge { opacity: 1; transform: scale(1); }
+.grid-empty {
+  grid-column: 1 / -1;
+  padding: 48px 24px;
+  color: var(--n5);
+  line-height: 22px;
+  text-align: center;
+}
+
+.intro-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Grow into the surplus, and shrink into the crop — min-height is what
+     stops it. Shrink must be ON: with `1 0 auto` the stage never goes below
+     its own 396 of content, so the crop regime never happens and the page
+     starts scrolling 18px too early. */
+  flex: 1 1 auto;
+  /* The stage can shrink until it is nothing but the gap, cropping the card
+     from the bottom the whole way. Reaching that needs a viewport under 462,
+     so no phone gets there — it is here so the card cannot be cropped out of
+     existence and the layout cannot invert. */
+  min-height: calc(var(--status-h) + 16px);
+  overflow: hidden;
+  padding: 0 16px;
+  background: var(--m1);
+}
+
+/* Two blocks above the card, because they are two different things.
+
+   `.intro-safe` is the status bar's own space. Its minimum IS the bar's
+   height — this is a full-screen app and the bar does not push content down,
+   it sits on top of it (`position: absolute; top: 0; z-index: 20`), so
+   anything the layout does not reserve, the bar covers.
+
+   That is measured, not assumed. With this minimum at 0 the card's top edge
+   goes under the clock on any device shorter than about 826: at 393 × 812 —
+   a 13 mini — by 14px, at 780 by 46, and at 764 and below by the bar's full
+   62. It is only invisible on the tall devices because their surplus happens
+   to exceed 62 anyway.
+
+   It is also the block that grows, so on a tall screen the surplus opens up
+   here, above the card.
+
+   `.intro-gap` is the 16 between the bar's space and the card, so the card
+   clears the chrome rather than sitting flush against it. Fixed, because it
+   is a gap and not slack.
+
+   Both read `var(--status-h)`, never 62: the shell writes the mounted
+   device's real inset into the prototype, and on a real phone the
+   prototype's own value applies. A literal would be right for one device and
+   wrong for every other — the defect this screen already shipped once. */
+.intro-safe {
+  flex: 1 0 0;
+  min-height: var(--status-h);
+}
+.intro-gap {
+  flex: none;
+  height: 16px;
+}
+/* The card's top inset is NOT its own padding: the design gives it
+   pad [0, 16, 16, 16] and lets 涨幅信息's 4 plus Identity/Payoff's 12 add up to
+   the 16 (13241:205621 and every later instance agree). Paying 16 here too
+   pushed $AMD down to 32 off the top edge. */
+.record-card {
+  flex: none;
+  height: 380px;
+  padding: 0 16px 16px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  /* The hairline is an inset shadow, not a border: the design's stroke is
+     INSIDE-aligned, so Figma still seats the first child at 16 from the outer
+     edge, while a CSS border would push it to 17 and shave 2 off the quote
+     block's width. Three shadows because the design has no bottom edge. */
+  box-shadow: inset 0 .5px 0 0 var(--l2),
+              inset .5px 0 0 0 var(--l2),
+              inset -.5px 0 0 0 var(--l2);
+  background: #fff;
+}
+.record-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+.record-identity,
+.profit {
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;   /* 12 + 26 + 4 + 38 = the design's 80; no fixed height,
+                          which used to cut the box 12 short and let the quote
+                          block ride up under the text */
+}
+.record-identity { min-width: 0; flex: 1; gap: 4px; }
+.record-id { display: flex; align-items: center; gap: 8px; }
+.stock-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+.ticker { font-size: 16px; font-weight: 500; line-height: 26px; }
+.bullish {
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: var(--m3);
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+}
+.published { display: flex; flex-direction: column; color: var(--n5); font-size: 12px; line-height: 20px; }
+.published span:first-child { margin-bottom: -2px; }
+.published span:last-child { color: var(--n7); }
+.profit { flex: 0 0 auto; align-items: flex-end; text-align: right; }
+.profit span { display: block; margin-bottom: -2px; color: var(--n5); font-size: 12px; line-height: 20px; }
+.profit strong { display: block; margin-bottom: -4px; color: var(--m3); font-size: 24px; font-weight: 500; line-height: 34px; }
+.profit small { color: var(--n7); font-size: 12px; line-height: 20px; }
+.quote {
+  position: relative;
+  margin-top: 12px;                    /* the card's gap */
+  padding: 12px 16px 12px 30px;        /* 16 to the rule + 2 rule + 12 gap */
+  border-radius: 6px;
+  background: var(--br03);
+  font-size: 12px;
+  line-height: 20px;
+}
+.quote::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  left: 16px;
+  width: 2px;
+  border-radius: 4px;
+  background: var(--m1);
+}
+.quote strong { display: block; margin-top: 4px; font-weight: 500; }
+.record-copy { margin-top: 16px; font-size: 12px; line-height: 20px; }
+.record-copy h2 { margin-bottom: 5px; font-size: 14px; font-weight: 500; line-height: 22px; }
+.intro-stage::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 24px;
+  background: linear-gradient(transparent, rgba(0,0,0,.05));
+}
+/* 48 + 26 + 8 + 68 + 8 + 44 + 8 + 28 + 32 = 270 — the Hero's height in all
+   three frames. Fixed on purpose: it is what the stage's elasticity is
+   measured against. */
+.intro-copy {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 48px 24px 32px;
+}
+.intro-wordmark { display: flex; align-items: flex-start; gap: 3px; height: 26px; }
+.intro-wordmark .wm-symbol { width: 18px; height: 18px; }
+.intro-wordmark .wm-text { width: auto; height: 18px; }
+.intro-copy h1 { font-size: 24px; font-weight: 500; line-height: 34px; }
+.intro-copy > p { color: var(--n7); font-size: 14px; line-height: 22px; }
+.source-icons { display: flex; gap: 8px; margin-top: 4px; }
+.source-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.source-x { display: grid; place-items: center; background: #000; }
+.source-x img { width: 16px; height: 16px; }
+
+.watch-card {
+  width: 100%;
+  overflow: hidden;
+  padding: 0 16px;
+  border: .5px solid var(--l2);
+  border-radius: 8px;
+}
+.watch-row {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 16px 0;
+  text-align: left;
+}
+.watch-row + .watch-row { border-top: .5px solid var(--l2); }
+.watch-head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+}
+.watch-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+}
+.watch-description {
+  width: 100%;
+  color: var(--n5);
+  font-size: 12px;
+  line-height: 20px;
+}
+.switch {
+  position: relative;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--l2);
+  transition: background .2s ease;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  transition: transform .24s var(--ease);
+}
+.switch.on { background: var(--m1); }
+.switch.on::after { transform: translateX(20px); }
+.switch.compact {
+  flex-basis: 24px;
+  width: 24px;
+  height: 12px;
+  border-radius: 100px;
+}
+.switch.compact::after {
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  box-shadow: none;
+}
+.switch.compact.on::after { transform: translateX(12px); }
+
+.summary-card,
+.delivery-card {
+  width: 100%;
+  overflow: hidden;
+  padding: 0 16px;
+  border: .5px solid var(--l2);
+  border-radius: 8px;
+}
+/* Row · 13718:47652 — collection collage, a "+", the individuals' stack,
+   the count, then the pencil. gap 8, padding-y 16, 24px content = 56 tall. */
+.summary-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  min-height: 56px;
+  gap: 8px;
+  padding: 16px 0;
+  text-align: left;
+}
+.summary-row + .summary-row { border-top: .5px solid var(--l2); }
+/* The whole row opens its picker, so it needs to feel like a row-sized target.
+   The tint is painted by a layer that reaches out to the card's inner edges and
+   takes no space, so nothing shifts on press. */
+.summary-row { position: relative; isolation: isolate; }
+.summary-row::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 -16px;
+  background: var(--br03);
+  opacity: 0;
+  transition: opacity .16s ease;
+}
+.summary-row:active::after { opacity: 1; }
+.avatar-stack { display: flex; padding-left: 1px; }
+.avatar-stack img {
+  width: 24px;
+  height: 24px;
+  margin-left: -8px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatar-stack img:first-child { margin-left: 0; }
+.summary-label { min-width: 0; flex: 1; font-size: 14px; line-height: 22px; }
+
+/* The collection, as its own collage avatar — same molecule as the grid card,
+   at 24px: a full circle clipping a 2×2 of 12px tiles. */
+.summary-collage {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--br03);
+}
+.summary-collage img { width: 12px; height: 12px; object-fit: cover; }
+
+/* Regular/14 · text/n9 (14200:20928) — it joins the two halves of the row,
+   which is why it is a glyph in the row and not part of the sentence. */
+.summary-plus {
+  flex: none;
+  color: var(--n9);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* Nothing selected (14159:48781): the row stops being a row-with-an-action and
+   becomes the action — the grey label is dropped and a single centred text
+   button carries it. Medium/14 in main/m1, gap 8, 16 + 22 + 16 = 54 tall, so
+   it sits a little tighter than the 56 of a filled row (whose avatar is 24). */
+.summary-row.is-empty {
+  justify-content: center;
+  min-height: 54px;
+}
+.summary-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--m1);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  white-space: nowrap;
+}
+/* add-l1's own 16px box — the glyph is a plus inside a ring at 5% inset, so
+   the asset is 16 wide and needs no padding of its own (14231:49610). */
+.summary-add img { width: 16px; height: 16px; }
+/* alpha-edit.svg is the exported Union glyph at its own 11.63 × 12.07, not a
+   padded 16 box — forcing it to 16×16 blew it up 37% and, because the asset
+   carries preserveAspectRatio="none", stretched it unevenly. Render it at its
+   real size and express the design's 16px icon box as the margins either side
+   (edit-l1 in 13718:47652 / 14159:48769: glyph inset ~13.9% / 11.0%). */
+.edit-icon {
+  flex: none;
+  width: 11.63px;
+  height: 12.07px;
+  margin: 0 2.19px;
+}
+.watch-summary {
+  display: grid;
+  grid-template-columns: 1fr .5px 1fr;
+  align-items: center;
+  min-height: 54px;
+  border-top: .5px solid var(--l2);
+}
+.watch-summary .divider { width: .5px; height: 30px; background: var(--l2); }
+.summary-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 12px;
+  font-size: 14px;
+  text-align: left;
+}
+.summary-option:last-child { padding: 0 0 0 12px; }
+.mini-check {
+  display: grid;
+  width: 15px;
+  height: 15px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--m3);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+}
+.delivery-card { margin-top: 0; }
+.delivery-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  min-height: 80px;
+  gap: 12px;
+  padding: 16px 0;
+  text-align: left;
+}
+.delivery-row + .delivery-row { border-top: .5px solid var(--l2); }
+/* Change opens a sheet, so the row owes you the same press acknowledgement a
+   summary row gives. Painted by a zero-space pseudo-element bled 16 past the
+   card's padding, so the tint spans the full width and nothing shifts. */
+.delivery-row { position: relative; isolation: isolate; }
+.delivery-row::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 -16px;
+  background: var(--br03);
+  opacity: 0;
+  transition: opacity .16s ease;
+}
+.delivery-row:active::after { opacity: 1; }
+.delivery-copy { flex: 1; }
+.delivery-label { display: block; color: var(--n5); font-size: 12px; line-height: 20px; }
+.delivery-value { display: block; font-size: 16px; font-weight: 500; line-height: 26px; }
+.change-button { color: var(--m1); font-size: 14px; line-height: 22px; }
+
+.login-screen,
+.building-screen {
+  padding: var(--status-h) 0 var(--home-h);
+}
+.login-dialog {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  padding: 156px 28px 16px;
+}
+.login-heading {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+.login-logo { width: 40px; height: 40px; }
+.login-heading h1 {
+  color: var(--n7);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 34px;
+}
+.login-heading p { color: var(--n5); font-size: 14px; line-height: 22px; }
+.login-actions {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 36px;
+}
+.login-button,
+.email-login {
+  display: flex;
+  width: 100%;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: .5px solid var(--n3);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+}
+.login-button img { width: 20px; height: 20px; object-fit: contain; }
+.social-login-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.login-button.icon-only { padding: 0; }
+.discord-mark { display: grid; width: 20px; height: 20px; place-items: center; border-radius: 50%; background: #5762e3; }
+.discord-mark img { width: 14px; height: 11px; }
+.login-divider { display: flex; align-items: center; gap: 16px; color: var(--n3); }
+.login-divider span { flex: 1; height: .5px; background: var(--l12); }
+.login-divider i { font-size: 14px; font-style: normal; line-height: 22px; }
+.email-login {
+  justify-content: flex-start;
+  padding: 0 16px;
+  color: var(--n3);
+  font-weight: 400;
+}
+.login-terms {
+  width: 100%;
+  margin-top: auto;
+  color: var(--n5);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+.login-terms strong { color: var(--n9); font-weight: 400; }
+
+.building-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  padding: 28px;
+}
+.building-ticker {
+  position: relative;
+  width: 337px;
+  height: 326px;
+  overflow: hidden;
+}
+.building-steps {
+  position: absolute;
+  top: 0;
+  left: 28px;
+  display: flex;
+  width: 280px;
+  flex-direction: column;
+  gap: 16px;
+  will-change: transform;
+}
+.building-step {
+  display: flex;
+  width: 100%;
+  height: 22px;
+  flex: 0 0 22px;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  color: var(--n3);
+  font-size: 14px;
+  line-height: 22px;
+  white-space: nowrap;
+}
+.building-step.done { color: var(--n5); }
+.building-step.current { color: var(--n9); font-weight: 500; }
+.building-icon { position: relative; display: block; flex: 0 0 20px; width: 20px; height: 20px; }
+.building-icon > img { width: 20px; height: 20px; }
+.building-loader { position: relative; display: block; width: 20px; height: 20px; animation: building-spin 1.8s steps(4) infinite; }
+.building-loader i { position: absolute; width: 7.5px; height: 7.5px; border-radius: 2px; background: var(--m1); }
+.building-loader i:nth-child(1) { top: 1px; left: 1px; background: #000; }
+.building-loader i:nth-child(2) { top: 1px; right: 1px; }
+.building-loader i:nth-child(3) { right: 1px; bottom: 1px; background: #000; }
+.building-loader i:nth-child(4) { bottom: 1px; left: 1px; }
+@keyframes building-spin { to { transform: rotate(360deg); } }
+.ticker-fade {
+  position: absolute;
+  z-index: 2;
+  right: -8px;
+  left: -8px;
+  height: 76px;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+.ticker-fade-top {
+  top: -8px;
+  height: 84px;
+  background: linear-gradient(180deg, #fff 0, #fff 10px, rgba(255,255,255,0) 100%);
+}
+.ticker-fade-top::before {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  height: 2px;
+  background: #fff;
+}
+.ticker-fade-bottom { bottom: 0; background: linear-gradient(180deg, rgba(255,255,255,0), #fff); }
+.building-copy { width: 100%; padding: 0 12px; text-align: center; }
+.building-copy h1 { font-size: 20px; font-weight: 400; line-height: 30px; }
+.building-copy p { margin-top: 4px; color: var(--n5); font-size: 14px; line-height: 22px; }
+.post-onboarding .flow-topbar { visibility: hidden; pointer-events: none; transform: translate3d(100%,0,0); }
+
+/* ─────────────────────────────────────────────
+   Change → selection sheet  (14236:48905)
+
+   Both Change rows open the same sheet. Its height has two bands, and this
+   is the shorter one: content height, capped at half the viewport (852 → 426).
+   That cap is the cross-checked convention — iOS's medium detent is
+   "approximately half the height of the screen", Material's
+   halfExpandedRatio defaults to 0.5, Flutter caps a modal sheet at 9/16 —
+   and it keeps the whole list inside the thumb's reach. It is a ceiling, not
+   a fixed height: three languages hug at 236, twenty-four hours hit 426 and
+   scroll. Past the cap the list is cut by the window with no bottom backing,
+   the way the collection sheet is.
+
+   Tapping an option commits it and closes. ✕, the scrim, a drag down or Esc
+   leave the value exactly as it was.
+   ───────────────────────────────────────────── */
+
+.sheet-layer {
+  position: absolute;
+  z-index: 19;               /* over the flow, under the OS chrome, as the
+                                collection sheet is — the status bar and the
+                                home indicator stay on top of both */
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear .38s;   /* hold it visible for the exit */
+}
+.sheet-layer.open {
+  visibility: visible;
+  pointer-events: auto;
+  transition: visibility 0s;
+}
+.sheet-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, .6);   /* main/m7 #00000099 */
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.sheet-layer.open .sheet-shade { opacity: 1; }
+.sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  max-height: 50%;                 /* the ½-viewport cap: 852 → 426 */
+  flex-direction: column;
+  overflow: hidden;                /* clipsContent — the radius has to bite */
+  border-radius: 12px 12px 0 0;
+  background: #fff;
+  transform: translateY(100%);
+  /* the entrance ease run backwards, so the exit decelerates out of the
+     screen instead of dropping 90% of the travel in the first frames */
+  transition: transform .38s cubic-bezier(1, 0, .68, .28);
+}
+.sheet-layer.open .sheet { transform: translateY(0); transition: transform .38s var(--ease); }
+.sheet.dragging { transition: none; }   /* the finger is the clock */
+.sheet-grabber {
+  display: flex;
+  flex: none;
+  height: 12px;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet-grabber span { width: 36px; height: 4px; border-radius: 4px; background: var(--l07); }
+.sheet-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+.sheet-close { flex: none; width: 20px; height: 20px; }
+.sheet-close img { width: 20px; height: 20px; }
+.sheet-head h2 { min-width: 0; flex: 1; font-size: 18px; font-weight: 500; line-height: 28px; }
+/* The zone qualifies the whole list, not any one row, so it reads once in the
+   header rather than 24 times down the options (14237:49014). */
+.sheet-meta { flex: none; color: var(--n5); font-size: 12px; line-height: 20px; }
+.sheet-options {
+  position: relative;              /* offsetTop measures from here */
+  min-height: 0;                   /* … so flex-shrink can hand it the cap */
+  overflow-y: auto;
+  padding: 0 8px var(--home-h);    /* 8 + the row's 12 = text on the 16 line;
+                                      the bottom pad clears the indicator when
+                                      the sheet hugs, and is scroll slack when
+                                      it is capped */
+  -webkit-overflow-scrolling: touch;
+}
+.sheet-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: left;
+}
+.sheet-option:active { background: var(--br03); }
+.sheet-option.selected { background: rgba(73, 163, 166, .08); color: var(--m1); }
+
+.toast {
+  position: absolute;
+  z-index: 50;
+  top: 68px;
+  left: 50%;
+  max-width: 320px;
+  padding: 9px 14px;
+  border-radius: 20px;
+  background: rgba(24,24,24,.88);
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -12px);
+  transition: opacity .2s ease, transform .3s var(--ease);
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 520px), (max-height: 700px) and (pointer: coarse) {
+  .desk { display: block; background: #fff; }
+  .phone { width: 100%; height: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .phone-buttons, .stage-controls { display: none; }
+  .phone-screen { width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+}
+
+/* ─────────────────────────────────────────────
+   Collection member sheet
+   Figma: Draft 13969:48088 row 2 (⑥ 14144:48617 / ⑦ 14144:48781)
+
+   Sheet at y=106, top radius 12, grabber strip 12; header 52 with
+   close-l1 on the LEFT (Switch-chats btnLeft position) + Medium/18
+   title; the rule line lives in the scroll area so it scrolls away
+   with the list; member cards are the page grid's own molecule,
+   3-up, read-only. The footer is in flow with no fill of its own —
+   the button's library shadow (0 10 20 @8%) is what reads as
+   "floating", and the list stays visible through the gaps.
+
+   z-order: above the flow topbar (15) and action bar (16), below the
+   system bar (20) and home indicator (25) — the scrim dims the app,
+   never the OS chrome, and the indicator sits on top of the sheet
+   exactly as in the frames.
+   ───────────────────────────────────────────── */
+
+.member-layer {
+  position: absolute;
+  z-index: 18;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  /* visibility cannot tween, so hold it until the slide-down has finished —
+     otherwise removing .open hides the sheet on the spot and the closing
+     animation never runs. This is what makes the dismissal mirror the
+     entrance: same 0.38s travel, same easing, same scrim fade. */
+  transition: visibility 0s linear .38s;
+}
+.member-layer.open {
+  visibility: visible;
+  pointer-events: auto;
+  transition: visibility 0s;   /* on the way in, appear at once */
+}
+
+.member-scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, .6);   /* main/m7 #00000099 */
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.member-layer.open .member-scrim { opacity: 1; }
+
+.member-sheet {
+  position: absolute;
+  top: 106px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: #fff;
+  transform: translateY(103%);
+  /* Leaving uses the time-reverse of --ease, cubic-bezier(0.32,.72,0,1) mirrored
+     about the diagonal. Reusing the entrance curve on the way out puts 92% of
+     the travel in the first 37% of the time — it reads as a snap, not as the
+     reverse of the entrance. Same 0.38s, mirrored shape, so the dismissal is
+     the entrance played backwards. */
+  transition: transform .38s cubic-bezier(1, 0, .68, .28);
+}
+.member-layer.open .member-sheet {
+  transform: translateY(0);
+  transition: transform .38s var(--ease);
+}
+
+.member-grabber {
+  display: grid;
+  height: 12px;
+  flex: none;
+  place-items: center;
+}
+.member-grabber span {
+  width: 36px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--l2);
+}
+
+.member-head {
+  display: flex;
+  height: 52px;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+.member-close {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  place-items: center;
+  transition: opacity .16s ease;
+}
+.member-close:active { opacity: .55; }
+.member-close img { width: 20px; height: 20px; }
+.member-head h2 {
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* clears the floating footer (110) so the last row can scroll above it */
+  padding: 0 16px 122px;
+}
+.member-rule {
+  /* Regular/14 · text/n7 (14157:212843) */
+  color: var(--n7);
+  font-size: 14px;
+  line-height: 22px;
+}
+.member-grid { margin-top: 16px; }
+/* member cards are the same molecule, but read-only — no press feedback */
+.member-grid .source-card { cursor: default; }
+.member-grid .source-card:active { transform: none; }
+.member-grid .source-card:active::before { opacity: 0; }
+
+.member-foot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  /* 50 = home indicator 34 + the 16 every other screen's action bar leaves under
+     its button, so the sheet's button lands at the same height as the rest of the
+     flow. It also gives the button's 0/10/20 shadow room to finish inside the
+     sheet instead of being cut off at the screen edge. */
+  padding: 12px 16px 50px;
+  pointer-events: none;   /* the list scrolls under it; only the button is real */
+}
+.member-follow {
+  display: flex;
+  width: 100%;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  background: var(--m1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .08);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+  pointer-events: auto;
+  transition: transform .16s ease, filter .16s ease,
+              background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.member-follow:active { filter: brightness(.96); transform: scale(.98); }
+.member-follow .follow-check {
+  display: none;
+  width: 20px;
+  height: 20px;
+}
+/* Selected state (14157:212995): white body, 0.5px main/m3 hairline, main/m3
+   label, and a filled check-f2 rather than the outline one. The hairline is an
+   inset shadow, not a border, so the button stays exactly 48 tall. */
+.member-follow.following {
+  gap: 8px;
+  background: #fff;                                   /* button/b-btn-primary-reverse */
+  box-shadow: inset 0 0 0 .5px var(--m3), 0 10px 20px rgba(0, 0, 0, .08);
+  color: var(--m3);
+}
+.member-follow.following .follow-check { display: block; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   Embedded in the prototypes shell (index.html)
+
+   The shell draws the iPhone bezel and owns the stage chrome, and the
+   iframe it mounts is exactly one phone screen — so inside it this page
+   is a bare, full-screen app. Opening the page directly is untouched:
+   these rules only apply in an iframe.
+   ═══════════════════════════════════════════════════════════ */
+
+html.embedded .desk {
+  display: block;
+  background: #fff;
+}
+html.embedded .phone {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  transform: none !important;   /* beats the standalone fit-to-window scale */
+}
+html.embedded .phone-buttons,
+html.embedded .stage-controls { display: none; }
+html.embedded .phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    transition-delay: 0s !important;   /* or the sheet's visibility lingers */
+    animation-duration: .01ms !important;
+  }
+}
