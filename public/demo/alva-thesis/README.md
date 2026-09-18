@@ -120,3 +120,5 @@ node --check public/demo/alva-thesis/data.js
 ~~~
 
 Tests cover attribution, varied statement length, selectable theses, source deduplication, independent follow relationships, three content origins, cross-ticker identity, private ownership, manual replies during paused tracking, empty/failed runs, reply validation and legacy-state persistence. Browser QA covers onboarding, feed, ticker/discussion links, evidence expansion, private creation and tracking controls.
+
+Thesis details include 30 scripted Alva tracking cards across ten main theses: two historical event checks and a dated audit per thesis. Audits distinguish the verdict, missing evidence and next checkpoint, with links into the existing source registry. All are labeled Demo replay; they are not live monitoring results. They join the detail discussion chronologically, support replies and private chat, and do not enter home delivery or private-thesis tracking.

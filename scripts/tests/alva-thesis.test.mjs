@@ -5,6 +5,60 @@ import { validBars, windowBars } from '../../public/demo/alva-thesis/market.js';
 import { RESEARCH_TABS, RESEARCH, EXTERNAL_PEERS, tickerViewPosts } from '../../public/demo/alva-thesis/research.js';
 import { freshState, readState, toggleFollow, createPersonal, revisePersonal, previewNextUpdate, rankedTheses, completeOnboarding, feedEntries, relatedTheses, thesisChoices, thesisUpdates, getUpdate, addReply, threadReplies, discussionPosts, setTracking, simulateRun, toggleTicker, thesisRoot, isResearchQuestion, discussionRelations, authorProfile, feedRefreshBatch, feedDelivery, sourcePreviewType } from '../../public/demo/alva-thesis/model.js';
 import { THESES, UPDATES, INTERESTS, SOURCES, AUTHORS } from '../../public/demo/alva-thesis/data.js';
+import { ALVA_TRACKING } from '../../public/demo/alva-thesis/tracking.js';
+import { thesisActivity } from '../../public/demo/alva-thesis/model.js';
+
+test('historical Alva replays cover ten theses with traceable events and bounded audits', () => {
+  assert.equal(ALVA_TRACKING.length, 30);
+  assert.equal(new Set(ALVA_TRACKING.map(post => post.id)).size, 30);
+  const ids = [...new Set(ALVA_TRACKING.map(post => post.thesisId))];
+  assert.equal(ids.length, 10);
+  for (const id of ids) {
+    assert.ok(THESES.some(thesis => thesis.id === id));
+    const posts = ALVA_TRACKING.filter(post => post.thesisId === id);
+    assert.equal(posts.filter(post => post.trackingType === 'event').length, 2);
+    const audit = posts.find(post => post.trackingType === 'audit');
+    assert.ok(audit.verdict && audit.gap && audit.next);
+    for (const post of posts) {
+      assert.equal(post.simulated, true);
+      assert.equal(post.speaker, 'Alva');
+      assert.ok(post.title && post.post && post.impact && post.next);
+      assert.ok(post.order <= Date.parse('2026-09-08'));
+      for (const sourceId of post.evidenceIds) {
+        assert.ok(SOURCES[sourceId]?.url.startsWith('https://'));
+        assert.ok(Date.parse(SOURCES[sourceId].date) <= post.order, `${id}: future evidence ${sourceId}`);
+      }
+    }
+  }
+});
+
+test('detail activity is newest-first without putting scripted tracking into the home queue', () => {
+  const state = {...freshState(), followed: THESES.map(thesis => thesis.id)};
+  for (const id of new Set(ALVA_TRACKING.map(post => post.thesisId))) {
+    const activity = thesisActivity(state, id);
+    assert.equal(activity.filter(post => post.trackingType).length, 3);
+    assert.ok(activity.every((post,index) => !index || activity[index-1].order >= post.order));
+    assert.ok(discussionPosts(state, id).every(post => !post.trackingType));
+  }
+  const feed = feedEntries(state);
+  assert.ok(feed.every(entry => !entry.update?.trackingType));
+  assert.ok(feedRefreshBatch(feed).every(id => !id.startsWith('tracking-')));
+  assert.deepEqual(thesisActivity(state, 'missing'), []);
+  const privateState = createPersonal(state, {id:'personal-audit-test', idea:'My memory thesis.', sourceId:'memory', focus:'Revenue & demand'});
+  assert.ok(thesisActivity(privateState,'personal-audit-test').every(post => !post.trackingType));
+});
+
+test('audit cards resolve to the right reply and private-chat context', () => {
+  const state = freshState(), id = 'tracking-memory-audit';
+  const post = getUpdate(state,'memory',id);
+  assert.equal(post.trackingType, 'audit');
+  assert.equal(getUpdate(state,'autonomy',id), undefined);
+  const replied = addReply(state, {thesisId:'memory',updateId:id,text:'Check qualified capacity.',id:'audit-reply'});
+  assert.equal(threadReplies(replied,post).length, 1);
+  assert.equal(threadReplies(replied,post)[0].text, 'Check qualified capacity.');
+  assert.equal(thesisActivity(replied,'memory')[0].id, 'audit-reply');
+  assert.equal(threadReplies(replied,getUpdate(state,'memory','tracking-memory-1')).length, 0);
+});
 
 test('ticker has one source-deduplicated stream with an effective thesis filter', () => {
   const state = freshState(), choices = thesisChoices('TSLA');
