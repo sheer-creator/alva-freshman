@@ -206,3 +206,142 @@ export const THESIS_SIGNALS: ThesisSignal[] = [
 
 /** Related theses tab 的条目数，稿上与 Signals 同为 8 */
 export const RELATED_THESES_COUNT = 8;
+
+/* ══════════ Related theses（结构 1-1 的第二个 tab） ══════════ */
+
+export interface RelatedThesis {
+  id: string;
+  avatar: string;
+  name: string;
+  role: string;
+  /** 相对或短日期，照稿 */
+  time: string;
+  /** 生命周期标签：新建 = 绿，更新 = 蓝 */
+  kind: 'new' | 'update';
+  paragraphs: string[];
+  charts: ThesisMedia[];
+  tickers: string[];
+  saves: number;
+  saved?: boolean;
+}
+
+const CHART_MSFT: ThesisMedia = { src: `${A}media-chart-msft.png`, alt: 'Microsoft MSFT price chart' };
+const CHART_GOOGL: ThesisMedia = { src: `${A}media-chart-googl.png`, alt: 'Alphabet GOOGL price chart' };
+const CHART_AMZN: ThesisMedia = { src: `${A}media-chart-amzn.png`, alt: 'Amazon AMZN price chart' };
+
+export const RELATED_THESES: RelatedThesis[] = [
+  {
+    id: 'satya-nadella',
+    avatar: `${A}avatar-satya-nadella.png`,
+    name: 'Satya Nadella',
+    role: 'Chairman & CEO, Microsoft',
+    time: '1h ago',
+    kind: 'new',
+    paragraphs: [
+      'Azure surpassed $75 billion in annual revenue, up 34%. Microsoft added more than two gigawatts of datacenter capacity over the previous 12 months and now had over 400 datacenters across 70 regions…',
+    ],
+    charts: [CHART_MSFT],
+    tickers: ['MSFT'],
+    saves: 32,
+    saved: true,
+  },
+  {
+    id: 'gavin-baker-related',
+    avatar: `${A}avatar-gavin-baker.png`,
+    name: 'Gavin Baker',
+    role: 'Managing Partner & CIO, Atreides',
+    time: 'Jul 13',
+    kind: 'update',
+    paragraphs: [
+      'Baker frames this as a possible shift, not an outcome already visible. If lower-priced open or closed models take share from frontier labs with high inference margins, customers could get more intelligence for each dollar and increase their token usage.',
+      'Under that scenario, part of the profit pool could move from model providers to AI infrastructure. He sees low delivery cost per token as the infrastructure advantage, while token efficiency would matter most at the model layer.',
+    ],
+    charts: [CHART_GOOGL, CHART_AMZN, CHART_MSFT],
+    tickers: ['GOOGL', 'AMZN', 'MSFT'],
+    saves: 32,
+  },
+  {
+    id: 'matt-bryson',
+    avatar: `${A}avatar-matt-bryson.png`,
+    name: 'Matt Bryson',
+    role: 'Managing Director, Equity Research · Wedbush',
+    time: 'Sep 9',
+    kind: 'new',
+    paragraphs: [
+      'Custom silicon is the next leg of the AI trade. As Microsoft scales Maia and Google scales TPU, Marvell and TSMC capture design and manufacturing spend that used to flow only to Nvidia.',
+    ],
+    charts: [],
+    tickers: ['TSM'],
+    saves: 32,
+  },
+  {
+    id: 'beth-kindig',
+    avatar: `${A}avatar-beth-kindig.png`,
+    name: 'Beth Kindig',
+    role: 'Lead Tech Analyst, I/O Fund',
+    time: 'Sep 8',
+    kind: 'new',
+    paragraphs: [
+      "Nvidia's data center revenue is still being underestimated. Inference is becoming the larger workload, and every cut in token price has been met with more usage, not less.",
+    ],
+    charts: [],
+    tickers: ['NVDA'],
+    saves: 32,
+  },
+  {
+    id: 'aswath-damodaran',
+    avatar: `${A}avatar-aswath-damodaran.png`,
+    name: 'Aswath Damodaran',
+    role: 'Professor of Finance, NYU Stern',
+    time: 'Sep 6',
+    kind: 'update',
+    paragraphs: [
+      'Hyperscaler capex only creates value if returns clear the cost of capital. Markets are pricing the spend as if that question were already settled, and the three largest spenders trade as if execution risk were zero.',
+    ],
+    charts: [CHART_GOOGL, CHART_AMZN, CHART_MSFT],
+    tickers: ['GOOGL', 'AMZN', 'MSFT'],
+    saves: 32,
+  },
+  {
+    id: 'dan-ives',
+    avatar: `${A}avatar-dan-ives.png`,
+    name: 'Dan Ives',
+    role: 'Managing Director, Wedbush',
+    time: 'Sep 5',
+    kind: 'new',
+    paragraphs: [
+      'The AI build-out is a multi-year cycle, not a quarter-to-quarter trade. Semis and cloud infrastructure remain the cleanest way to own it, and every 10% pullback has been a buying window.',
+    ],
+    charts: [],
+    tickers: ['NVDA', 'MSFT'],
+    saves: 32,
+  },
+  {
+    id: 'traderstewie',
+    avatar: `${A}avatar-traderstewie.png`,
+    name: 'Traderstewie',
+    role: 'Trader · Trade setup',
+    time: 'Sep 4',
+    kind: 'update',
+    paragraphs: [
+      'AMD is approaching its summer high as more buyers join the advance. The stock has broken higher after its last pullback stopped above the previous low, and rising volume makes the recovery more convincing.',
+    ],
+    charts: [],
+    tickers: ['AMD'],
+    saves: 32,
+  },
+  {
+    id: 'cathie-wood',
+    avatar: `${A}avatar-cathie-wood.png`,
+    name: 'Cathie Wood',
+    role: 'CEO & CIO, ARK Invest',
+    time: 'Sep 2',
+    kind: 'new',
+    paragraphs: [
+      'Robinhood is becoming the default brokerage for the next generation of investors. Crypto and options are the wedge; wealth management is the prize.',
+    ],
+    charts: [],
+    tickers: ['HOOD'],
+    saves: 32,
+  },
+];
