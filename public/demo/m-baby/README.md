@@ -2,7 +2,7 @@
 
 This directory contains the browser-ready runtime imported from
 [`RobertLee8888/m.baby`](https://github.com/RobertLee8888/m.baby) at commit
-`8bf2529`.
+`43edc10`.
 
 Open `/demo/m-baby/` for the prototype gallery. Its current entries are Thesis,
 MVP onboarding, Alpha Radar mobile onboarding, Immersive onboarding and MVP.
