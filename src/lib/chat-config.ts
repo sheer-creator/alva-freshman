@@ -61,6 +61,7 @@ export const PAGE_TITLES: Record<string, string> = {
   billing: 'Billing',
   'alva-agent': 'Alva',
   'portfolio-settings': 'Portfolio',
+  'thesis-demo': 'Thesis',
   ...PLAYBOOK_TITLES,
 };
 

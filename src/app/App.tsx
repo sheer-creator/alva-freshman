@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, useEffect, useTransition } from "react";
 import SearchModal from "@/app/components/SearchModal";
 import { ChatProvider } from "@/app/components/chat/ChatContext";
 
-export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-whatif" | "space-investor" | `thread/${string}` | `share/${string}`;
+export type Page = "new-chat" | "docs" | "api-keys" | "explore" | "explore-2" | "agent" | "alva-agent" | "alva-skills" | "user-profile" | "account" | "portfolio" | "portfolio-settings" | "pricing" | "billing" | "creator-earnings" | "automations" | "alva-chat-detail" | "referral-landing" | "playbook-referral" | "template-screener" | "template-whatif" | "space-investor" | "thesis-demo" | `thread/${string}` | `share/${string}`;
 
 /* ========== 按需加载页面 ========== */
 
@@ -31,13 +31,19 @@ const Automations = lazy(() => import("@/pages/Automations"));
 const TemplateScreener = lazy(() => import("@/pages/TemplateScreener"));
 const TemplateWhatif = lazy(() => import("@/pages/TemplateWhatif"));
 const SpaceInvestor = lazy(() => import("@/pages/SpaceInvestor"));
+const ThesisDemo = lazy(() => import("@/pages/ThesisDemo"));
 
 /* ========== URL hash 路由工具 ========== */
 
-const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "creator-earnings", "automations", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-whatif", "space-investor"];
+const VALID_PAGES: Page[] = ["new-chat", "docs", "api-keys", "explore", "explore-2", "agent", "alva-agent", "alva-skills", "user-profile", "account", "portfolio", "portfolio-settings", "pricing", "billing", "creator-earnings", "automations", "alva-chat-detail", "referral-landing", "playbook-referral", "template-screener", "template-whatif", "space-investor", "thesis-demo"];
 
 function getPageFromHash(): Page {
   const hash = window.location.hash.slice(1);
+  // 无 hash 时认路径末段，支持 /thesis-demo 这类直链
+  if (!hash) {
+    const seg = window.location.pathname.replace(/\/+$/, '').split('/').pop() ?? '';
+    if (VALID_PAGES.includes(seg as Page)) return seg as Page;
+  }
   if (hash.startsWith('thread/')) return hash as Page;
   if (hash.startsWith('share/') && hash.length > 6) return hash as Page;
   // 频道深链形如 #agent?concept=K&tab=tasks，路由只认 ? 之前的部分
@@ -130,6 +136,7 @@ export default function App() {
         {currentPage === "template-screener" && <TemplateScreener onNavigate={navigate} />}
         {currentPage === "template-whatif" && <TemplateWhatif onNavigate={navigate} />}
         {currentPage === "space-investor" && <SpaceInvestor onNavigate={navigate} />}
+        {currentPage === "thesis-demo" && <ThesisDemo onNavigate={navigate} />}
         {threadId && <Thread threadId={threadId} onNavigate={navigate} />}
         {shareId && <ConversationShare key={shareId} shareId={shareId} onNavigate={navigate} />}
       </Suspense>
