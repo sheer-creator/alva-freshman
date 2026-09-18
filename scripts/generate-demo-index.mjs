@@ -231,6 +231,12 @@ function extractDemoStatus(html) {
   return demoStatuses.has(status) ? status : 'active';
 }
 
+function demoMetaValue(html, name) {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = html.match(new RegExp(`<meta\\s+name=["']${escapedName}["']\\s+content=["']([^"']+)["'][^>]*>`, 'i'));
+  return match?.[1]?.trim() || '';
+}
+
 function demoStatusLabel(status) {
   if (status === 'exploration') return 'Exploration';
   if (status === 'archived') return 'Archived';
@@ -257,6 +263,7 @@ async function collectHtmlFiles(currentDir = demoDir) {
     if (relativePath === 'index.html') continue;
 
     const contents = await readFile(absolutePath, 'utf8');
+    if (demoMetaValue(contents, 'demo-index').toLowerCase() === 'hidden') continue;
     const repoRelativePath = path.posix.join('public/demo', relativePath.replaceAll(path.sep, '/'));
     const route = routeFromRelativePath(relativePath);
     const preserved = existingGeneratedMetadata.get(route);
@@ -264,8 +271,9 @@ async function collectHtmlFiles(currentDir = demoDir) {
       title: extractTitle(contents, titleFromRelativePath(relativePath)),
       route,
       relativePath: relativePath.replaceAll(path.sep, '/'),
-      summary: extractSummary(contents),
+      summary: demoMetaValue(contents, 'demo-summary') || extractSummary(contents),
       status: extractDemoStatus(contents),
+      switcherEnabled: demoMetaValue(contents, 'demo-switcher').toLowerCase() !== 'off',
       author: preserved?.author ?? await resolveAuthor(contents, relativePath),
       updated: preserved?.updated ?? await gitLastModified(repoRelativePath, absolutePath),
     });
@@ -686,6 +694,7 @@ function renderSwitcherScript(files) {
 async function injectSwitcher(targetFiles) {
   let injected = 0;
   for (const file of targetFiles) {
+    if (!file.switcherEnabled) continue;
     const absolutePath = path.join(demoDir, file.relativePath);
     const html = await readFile(absolutePath, 'utf8');
     if (html.includes('/demo/_switcher.js')) continue;
