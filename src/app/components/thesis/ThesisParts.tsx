@@ -288,7 +288,7 @@ export function ThesisHeader() {
       <div className="flex shrink-0 items-center justify-end" style={{ gap: 2 }}>
         <button
           type="button"
-          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent"
+          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent transition-colors hover:bg-[rgba(0,0,0,0.03)]"
           style={{
             gap: 'var(--spacing-xxs, 4px)',
             padding: 'var(--spacing-xs, 8px)',
@@ -301,7 +301,7 @@ export function ThesisHeader() {
         </button>
         <button
           type="button"
-          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent"
+          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent transition-colors hover:bg-[rgba(0,0,0,0.03)]"
           style={{
             gap: 'var(--spacing-xxs, 4px)',
             padding: 'var(--spacing-xs, 8px)',
@@ -313,16 +313,15 @@ export function ThesisHeader() {
         </button>
         <button
           type="button"
-          className="flex h-[32px] cursor-pointer items-center border-none"
+          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent transition-colors hover:bg-[rgba(0,0,0,0.03)]"
           style={{
             gap: 'var(--spacing-xxs, 4px)',
             padding: 'var(--spacing-xs, 8px)',
             borderRadius: 'var(--radius-ct-m, 6px)',
-            background: '#000',
           }}
           aria-label="More"
         >
-          <CdnIcon name="more-l1" size={16} color="#fff" />
+          <CdnIcon name="more-l1" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
         </button>
       </div>
     </div>
