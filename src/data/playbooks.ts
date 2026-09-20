@@ -32,6 +32,13 @@ export const PLAYBOOK_NAV_ITEMS: PlaybookNavItem[] = [
     ownerSeed: 'Space Investor',
     source: 'subscribed',
   },
+  {
+    page: 'thesis-demo',
+    title: 'Thesis Demo',
+    owner: 'Gavin Baker',
+    ownerSeed: 'Gavin Baker',
+    source: 'subscribed',
+  },
 ];
 
 export const PLAYBOOK_TITLES: Record<string, string> = Object.fromEntries(

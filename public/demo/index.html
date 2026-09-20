@@ -49,7 +49,54 @@
       }
 
       header {
-        margin-bottom: 28px;
+        margin-bottom: 20px;
+      }
+
+      .demo-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0 0 28px;
+      }
+
+      .demo-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: 0;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: transparent;
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 22px;
+        letter-spacing: 0.13px;
+        color: var(--text-n5);
+        cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
+      }
+
+      .demo-tab:hover {
+        background: rgba(0, 0, 0, 0.03);
+      }
+
+      .demo-tab.is-active {
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--text-n9);
+        font-weight: 500;
+      }
+
+      .demo-tab-count {
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.3);
+      }
+
+      .demo-tab.is-active .demo-tab-count {
+        color: var(--text-n5);
+      }
+
+      .demo-row[hidden] {
+        display: none;
       }
 
       h1 {
@@ -78,7 +125,8 @@
         opacity: 0.62;
       }
 
-      .demo-row:first-child {
+      .demo-row:first-child,
+      .demo-row.is-first {
         border-top: 0;
       }
 
@@ -212,8 +260,23 @@
         <h1>Demo Index</h1>
       </header>
 
+      <nav class="demo-tabs" role="tablist" aria-label="Filter demos by author">
+
+          <button class="demo-tab is-active" type="button" role="tab" aria-selected="true" data-filter="all">
+            All<span class="demo-tab-count">22</span>
+          </button>
+
+          <button class="demo-tab" type="button" role="tab" aria-selected="false" data-filter="zyfayes">
+            @zyfayes<span class="demo-tab-count">19</span>
+          </button>
+
+          <button class="demo-tab" type="button" role="tab" aria-selected="false" data-filter="RobertLee8888">
+            @RobertLee8888<span class="demo-tab-count">3</span>
+          </button>
+      </nav>
+
       <section class="demo-list" aria-label="Demo pages">
-        <a class="demo-row" href="/demo/m-baby/">
+        <a class="demo-row" href="/demo/m-baby/" data-author="RobertLee8888">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva · Mobile prototypes</span>
@@ -226,20 +289,7 @@
                       <span class="demo-updated">Updated 2026-09-18</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/thesis-web.html">
-                    <span class="demo-main">
-                      <span class="demo-title-line">
-                        <span class="demo-title">Alva Thesis · Web 详情页</span>
-                        <span class="demo-status demo-status-exploration">Exploration</span>
-                      </span>
-                      <span class="demo-summary">Thesis 网页版详情页 · 三套结构方案可切换，默认进结构 3-2：固定单列、正文 960 居中，折叠预览 + 历史弹窗。</span>
-                    </span>
-                    <span class="demo-meta">
-                      <span class="demo-author">@sheer-creator</span>
-                      <span class="demo-updated">Updated 2026-09-18</span>
-                    </span>
-                  </a>
-        <a class="demo-row" href="/demo/for-you-feed/">
+        <a class="demo-row" href="/demo/for-you-feed/" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">For You Feed · Real Recommendation Snapshot</span>
@@ -252,7 +302,7 @@
                       <span class="demo-updated">Updated 2026-09-17</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-thesis/">
+        <a class="demo-row" href="/demo/alva-thesis/" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva Thesis — Follow an idea</span>
@@ -261,11 +311,11 @@
                       <span class="demo-summary">Real sources. Historical dates. Memberships &amp; verification are simulated. No live AI, accounts or charges.</span>
                     </span>
                     <span class="demo-meta">
-                      <span class="demo-author">@Leo</span>
+                      <span class="demo-author">@zyfayes</span>
                       <span class="demo-updated">Updated 2026-09-08</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-mobile-feed/">
+        <a class="demo-row" href="/demo/alva-mobile-feed/" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva Mobile — Personal Market Context</span>
@@ -278,7 +328,7 @@
                       <span class="demo-updated">Updated 2026-08-20</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-mobile-mvp/">
+        <a class="demo-row" href="/demo/alva-mobile-mvp/" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva Mobile MVP — Alpha &amp; Following</span>
@@ -291,7 +341,7 @@
                       <span class="demo-updated">Updated 2026-08-20</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alpha-radar-pro-pass.html">
+        <a class="demo-row" href="/demo/alpha-radar-pro-pass.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Official Automations · Access &amp; Conversion Demo</span>
@@ -300,11 +350,11 @@
                       <span class="demo-summary">Official Automation access demo for Alpha Radar and Portfolio Watch, with retained $1.99 and Credits-to-Pro experiments plus native Telegram or Discord messages.</span>
                     </span>
                     <span class="demo-meta">
-                      <span class="demo-author">@leozhou</span>
+                      <span class="demo-author">@zyfayes</span>
                       <span class="demo-updated">Updated 2026-08-17</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-channel-workspace.html">
+        <a class="demo-row" href="/demo/alva-channel-workspace.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva Channel Concept Archive · 2026-06-10</span>
@@ -317,7 +367,7 @@
                       <span class="demo-updated">Updated 2026-08-14</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/onboarding-automation-preview.html">
+        <a class="demo-row" href="/demo/onboarding-automation-preview.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Automation Onboarding Preview</span>
@@ -326,11 +376,11 @@
                       <span class="demo-summary">Five interactive approaches for previewing and activating an Automation preset.</span>
                     </span>
                     <span class="demo-meta">
-                      <span class="demo-author">@leozhou</span>
+                      <span class="demo-author">@zyfayes</span>
                       <span class="demo-updated">Updated 2026-08-13</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/screener-interface-spec/">
+        <a class="demo-row" href="/demo/screener-interface-spec/" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva Screener Automation Results · 结构化接口规范</span>
@@ -339,11 +389,11 @@
                       <span class="demo-summary">官方 Screener 共有 5 个 Preset 。GUI 首次展示最多 10 条，后台保留排序后的前 100 条供用户继续追问。GUI 必须读取结构化结果，不能解析 notify/message 文案，也不能把脚本内部缩写字段直接暴露成长期接口。</span>
                     </span>
                     <span class="demo-meta">
-                      <span class="demo-author">@Alva Product × Frontend × Backend</span>
+                      <span class="demo-author">@zyfayes</span>
                       <span class="demo-updated">Updated 2026-08-07</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/preset-setup/">
+        <a class="demo-row" href="/demo/preset-setup/" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Preset Setup · Final Onboarding Concepts</span>
@@ -356,7 +406,7 @@
                       <span class="demo-updated">Updated 2026-08-06</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/static-kline-orcl.html">
+        <a class="demo-row" href="/demo/static-kline-orcl.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva × 静态 K 线 Demo · ORCL 真实回答</span>
@@ -369,7 +419,7 @@
                       <span class="demo-updated">Updated 2026-08-03</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v7.html">
+        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v7.html" data-author="RobertLee8888">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva — Mobile v7 (三场景 · 新用户 / 老用户 / 广告进入)</span>
@@ -378,11 +428,11 @@
                       <span class="demo-summary">Alva Mobile 重构 使用流程 Demo · alva.ai New user From Ad Returning user From playbook Chat in app 9:41 Which FinTwit accounts make money? Later Marcus Sterling shared 3,000 credits with you Log in and create a Playbook to earn credits 🎁 Sign up</span>
                     </span>
                     <span class="demo-meta">
-                      <span class="demo-author">@zyfayes</span>
+                      <span class="demo-author">@RobertLee8888</span>
                       <span class="demo-updated">Updated 2026-06-17</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/glendeborg-paid-user-journey.html">
+        <a class="demo-row" href="/demo/glendeborg-paid-user-journey.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva 付费用户旅程 - glendeborg</span>
@@ -395,7 +445,7 @@
                       <span class="demo-updated">Updated 2026-06-17</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-homepage-planb-kol-channel.html">
+        <a class="demo-row" href="/demo/alva-homepage-planb-kol-channel.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">FinTwit Digest Channel</span>
@@ -408,7 +458,7 @@
                       <span class="demo-updated">Updated 2026-06-16</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v6.html">
+        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v6.html" data-author="RobertLee8888">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva — Mobile v6 (三场景 · 新用户 / 老用户 / 广告进入)</span>
@@ -417,11 +467,11 @@
                       <span class="demo-summary">Alva Mobile 重构 使用流程 Demo · alva.ai New user Returning user From ad 9:41 Which FinTwit accounts make money? Later Turn ideas into live investing playbooks in minutes Log in to build, remix, and trade.</span>
                     </span>
                     <span class="demo-meta">
-                      <span class="demo-author">@zyfayes</span>
+                      <span class="demo-author">@RobertLee8888</span>
                       <span class="demo-updated">Updated 2026-06-16</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-homepage-planc.html">
+        <a class="demo-row" href="/demo/alva-homepage-planc.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva — Homepage Plan C (Single Channel MVP)</span>
@@ -434,7 +484,7 @@
                       <span class="demo-updated">Updated 2026-06-12</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v5.html">
+        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v5.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva — Mobile v5 (Single Channel MVP)</span>
@@ -447,7 +497,7 @@
                       <span class="demo-updated">Updated 2026-06-12</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-homepage-planb.html">
+        <a class="demo-row" href="/demo/alva-homepage-planb.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva — Homepage Plan B (Agent as Homepage)</span>
@@ -460,7 +510,7 @@
                       <span class="demo-updated">Updated 2026-06-11</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v4.html">
+        <a class="demo-row" href="/demo/alva-mobile/Alva Mobile v4.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva — Mobile v4 (push 归因 · Room-Digest · 只读 Automations · 未连接态)</span>
@@ -473,7 +523,7 @@
                       <span class="demo-updated">Updated 2026-06-11</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/alva-ask-fast-path-brief.html">
+        <a class="demo-row" href="/demo/alva-ask-fast-path-brief.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva Ask 轻量化方案 Brief</span>
@@ -486,7 +536,7 @@
                       <span class="demo-updated">Updated 2026-06-09</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/demo-playbook-template-creator-voice.html">
+        <a class="demo-row" href="/demo/demo-playbook-template-creator-voice.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Playbook Template Creator Voice Surfaces</span>
@@ -499,7 +549,7 @@
                       <span class="demo-updated">Updated 2026-06-09</span>
                     </span>
                   </a>
-        <a class="demo-row" href="/demo/logangallina77-paid-user-journey-cn.html">
+        <a class="demo-row" href="/demo/logangallina77-paid-user-journey-cn.html" data-author="zyfayes">
                     <span class="demo-main">
                       <span class="demo-title-line">
                         <span class="demo-title">Alva 付费用户旅程 - logangallina77</span>
@@ -516,6 +566,29 @@
 
       <footer>Generated from <code>public/demo</code>. Re-run <code>npm run demo:index</code> after adding pages.</footer>
     </main>
+    <script>
+      (function () {
+        var tabs = [].slice.call(document.querySelectorAll('.demo-tab'));
+        var rows = [].slice.call(document.querySelectorAll('.demo-row'));
+        tabs.forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            var filter = tab.getAttribute('data-filter');
+            tabs.forEach(function (other) {
+              var on = other === tab;
+              other.classList.toggle('is-active', on);
+              other.setAttribute('aria-selected', String(on));
+            });
+            var first = null;
+            rows.forEach(function (row) {
+              row.hidden = filter !== 'all' && row.getAttribute('data-author') !== filter;
+              if (!row.hidden && !first) first = row;
+              row.classList.remove('is-first');
+            });
+            if (first) first.classList.add('is-first');
+          });
+        });
+      })();
+    </script>
     <script src="/demo/_switcher.js" defer></script>
   </body>
 </html>

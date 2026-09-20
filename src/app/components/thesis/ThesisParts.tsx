@@ -6,7 +6,7 @@
  * 逐参数取自 Figma「结构1补充」16985:112958 下的各帧。
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CdnIcon } from '@/app/components/shared/CdnIcon';
 import { TickerLogo } from '@/app/components/shared/TickerLogo';
 import {
@@ -257,9 +257,151 @@ export function FeedContent({
   );
 }
 
+/* ══════════ 分享弹层（Figma 17157:27782，交互对齐 playbook） ══════════ */
+
+type Visibility = 'private' | 'public';
+
+const VISIBILITY_ROWS: { id: Visibility; icon: string; title: string; desc: string }[] = [
+  { id: 'private', icon: 'hide-l', title: 'Private', desc: 'Only you can see this.' },
+  { id: 'public', icon: 'global-l', title: 'Public', desc: 'Anyone can view for free.' },
+];
+
+function SharePopover({ onClose }: { onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visibility, setVisibility] = useState<Visibility>('public');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current) return;
+      // 点在触发按钮上时交给按钮自己 toggle，这里只管点到别处
+      if (!ref.current.parentElement?.contains(e.target as Node)) onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('mousedown', onDown);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('mousedown', onDown);
+    };
+  }, [onClose]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+    } catch {
+      /* 没有剪贴板权限就只给视觉反馈 */
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  };
+
+  return (
+    <div
+      ref={ref}
+      role="dialog"
+      aria-label="Share"
+      className="absolute right-0 z-50 flex w-[428px] flex-col"
+      style={{
+        top: 'calc(100% + 6px)',
+        gap: 'var(--spacing-l, 20px)',
+        padding: 'var(--spacing-l, 20px)',
+        background: 'var(--b0-container, #fff)',
+        border: '0.5px solid var(--line-l2, rgba(0,0,0,0.2))',
+        borderRadius: 'var(--radius-pop-popover, 8px)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.04)',
+      }}
+    >
+      <div className="flex h-[26px] w-full items-center" style={{ gap: 'var(--spacing-s, 12px)' }}>
+        <span
+          className="min-w-0 flex-1"
+          style={{ fontSize: 16, lineHeight: '26px', letterSpacing: '0.16px', fontWeight: 500, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}
+        >
+          Share
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="flex shrink-0 cursor-pointer items-center border-none bg-transparent p-0"
+        >
+          <CdnIcon name="close-l1" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+        </button>
+      </div>
+
+      <div
+        className="flex w-full flex-col items-center overflow-hidden"
+        style={{
+          gap: 'var(--spacing-m, 16px)',
+          padding: 'var(--spacing-m, 16px)',
+          borderRadius: 'var(--radius-ct-l, 8px)',
+          background: 'var(--b-r03, rgba(0,0,0,0.03))',
+        }}
+      >
+        {VISIBILITY_ROWS.map((row, i) => {
+          const on = visibility === row.id;
+          return (
+            <Fragment key={row.id}>
+              {i > 0 && (
+                <span
+                  className="w-full"
+                  style={{ height: 0, borderTop: '0.5px solid var(--line-l12, rgba(0,0,0,0.12))' }}
+                />
+              )}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setVisibility(row.id)}
+                className="flex w-full cursor-pointer items-center border-none bg-transparent p-0 text-left"
+                style={{ gap: 'var(--spacing-s, 12px)' }}
+              >
+                <span
+                  className="flex size-[36px] shrink-0 items-center justify-center rounded-full"
+                  style={{ background: on ? '#000' : 'var(--b-r05, rgba(0,0,0,0.05))' }}
+                >
+                  <CdnIcon
+                    name={row.icon}
+                    size={20}
+                    color={on ? '#fff' : 'var(--text-n5, rgba(0,0,0,0.5))'}
+                  />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col items-start">
+                  <span style={{ ...T14, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>{row.title}</span>
+                  <span style={{ ...T12, color: 'var(--text-n5, rgba(0,0,0,0.5))' }}>{row.desc}</span>
+                </span>
+                {on && <CdnIcon name="check-l1" size={16} color="var(--text-n7, rgba(0,0,0,0.7))" />}
+              </button>
+            </Fragment>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={copy}
+        className="flex h-[40px] w-full cursor-pointer items-center justify-center"
+        style={{
+          gap: 'var(--spacing-xs, 8px)',
+          padding: '9px var(--spacing-l, 20px)',
+          borderRadius: 'var(--radius-btn-m, 6px)',
+          background: 'var(--b0-container, #fff)',
+          border: '0.5px solid var(--line-l3, rgba(0,0,0,0.3))',
+        }}
+      >
+        <CdnIcon name={copied ? 'check-l1' : 'link-l'} size={18} color="var(--text-n9, rgba(0,0,0,0.9))" />
+        <span style={{ ...T14, fontWeight: 500, color: 'var(--text-n9, rgba(0,0,0,0.9))' }}>
+          {copied ? 'Copied' : 'Copy Link'}
+        </span>
+      </button>
+    </div>
+  );
+}
+
 /* ══════════ 页头 ══════════ */
 
 export function ThesisHeader() {
+  const [shareOpen, setShareOpen] = useState(false);
   return (
     <div
       className="flex shrink-0 items-center"
@@ -299,30 +441,25 @@ export function ThesisHeader() {
           <CdnIcon name="bookmark-f" size={16} color="var(--main-m1, #49A3A6)" />
           <span style={{ ...T12, color: 'var(--main-m1, #49A3A6)' }}>{THESIS_AUTHOR.saves}</span>
         </button>
-        <button
-          type="button"
-          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent transition-colors hover:bg-[rgba(0,0,0,0.03)]"
-          style={{
-            gap: 'var(--spacing-xxs, 4px)',
-            padding: 'var(--spacing-xs, 8px)',
-            borderRadius: 'var(--radius-ct-m, 6px)',
-          }}
-          aria-label="Share thesis"
-        >
-          <CdnIcon name="share-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-        </button>
-        <button
-          type="button"
-          className="flex h-[32px] cursor-pointer items-center border-none bg-transparent transition-colors hover:bg-[rgba(0,0,0,0.03)]"
-          style={{
-            gap: 'var(--spacing-xxs, 4px)',
-            padding: 'var(--spacing-xs, 8px)',
-            borderRadius: 'var(--radius-ct-m, 6px)',
-          }}
-          aria-label="More"
-        >
-          <CdnIcon name="more-l1" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
-        </button>
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={() => setShareOpen((v) => !v)}
+            className="flex h-[32px] cursor-pointer items-center border-none bg-transparent transition-colors hover:bg-[rgba(0,0,0,0.03)]"
+            style={{
+              gap: 'var(--spacing-xxs, 4px)',
+              padding: 'var(--spacing-xs, 8px)',
+              borderRadius: 'var(--radius-ct-m, 6px)',
+              background: shareOpen ? 'rgba(0,0,0,0.03)' : undefined,
+            }}
+            aria-label="Share thesis"
+            aria-haspopup="dialog"
+            aria-expanded={shareOpen}
+          >
+            <CdnIcon name="share-l" size={16} color="var(--text-n9, rgba(0,0,0,0.9))" />
+          </button>
+          {shareOpen && <SharePopover onClose={() => setShareOpen(false)} />}
+        </div>
       </div>
     </div>
   );

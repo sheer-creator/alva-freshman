@@ -197,11 +197,9 @@ async function githubLoginFor({ sha, name, email }) {
   return resolved;
 }
 
-async function resolveAuthor(html, relativePath) {
-  const metaMatch = html.match(/<meta\s+name=["']author["']\s+content=["']([^"']*)["']/i);
-  const metaAuthor = metaMatch ? cleanText(metaMatch[1]) : '';
-  if (metaAuthor) return metaAuthor;
-
+// 作者一律以 git 为准。页面里手写的 author 各人写法不统一（leozhou / zyfayes / Leo
+// 其实是同一个人），按 commit 查 GitHub login 才能把同一个人并到一个筛选项里。
+async function resolveAuthor(relativePath) {
   const creation = await gitCreationInfo(path.posix.join('public/demo', relativePath.replaceAll(path.sep, '/')));
   if (!creation) return 'sheer-creator'; // 尚未提交的新文件归本仓所有者
   return githubLoginFor(creation);
@@ -274,7 +272,7 @@ async function collectHtmlFiles(currentDir = demoDir) {
       summary: demoMetaValue(contents, 'demo-summary') || extractSummary(contents),
       status: extractDemoStatus(contents),
       switcherEnabled: demoMetaValue(contents, 'demo-switcher').toLowerCase() !== 'off',
-      author: preserved?.author ?? await resolveAuthor(contents, relativePath),
+      author: preserved?.author ?? await resolveAuthor(relativePath),
       updated: preserved?.updated ?? await gitLastModified(repoRelativePath, absolutePath),
     });
   }
@@ -293,7 +291,7 @@ function renderList(files) {
   }
 
   const rows = files.map((file) => `
-          <a class="demo-row" href="${escapeHtml(file.route)}">
+          <a class="demo-row" href="${escapeHtml(file.route)}" data-author="${escapeHtml(file.author || '')}">
             <span class="demo-main">
               <span class="demo-title-line">
                 <span class="demo-title">${escapeHtml(file.title)}</span>
@@ -313,6 +311,30 @@ function renderList(files) {
 ${rows.split('\n').map((line) => `        ${line}`).join('\n')}
       </section>
     `;
+}
+
+function renderAuthorTabs(files) {
+  const counts = new Map();
+  for (const file of files) {
+    if (!file.author) continue;
+    counts.set(file.author, (counts.get(file.author) ?? 0) + 1);
+  }
+  // 条目多的作者排前面，数量相同按名字
+  const authors = [...counts.entries()].sort(
+    (left, right) => right[1] - left[1] || collator.compare(left[0], right[0]),
+  );
+  if (authors.length === 0) return '';
+
+  const tab = (value, label, count, active) => `
+          <button class="demo-tab${active ? ' is-active' : ''}" type="button" role="tab" aria-selected="${active}" data-filter="${escapeHtml(value)}">
+            ${escapeHtml(label)}<span class="demo-tab-count">${count}</span>
+          </button>`;
+
+  return `
+      <nav class="demo-tabs" role="tablist" aria-label="Filter demos by author">
+${tab('all', 'All', files.length, true)}
+${authors.map(([name, count]) => tab(name, `@${name}`, count, false)).join('\n')}
+      </nav>`;
 }
 
 function renderPage(files) {
@@ -367,7 +389,54 @@ function renderPage(files) {
       }
 
       header {
-        margin-bottom: 28px;
+        margin-bottom: 20px;
+      }
+
+      .demo-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0 0 28px;
+      }
+
+      .demo-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: 0;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: transparent;
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 22px;
+        letter-spacing: 0.13px;
+        color: var(--text-n5);
+        cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
+      }
+
+      .demo-tab:hover {
+        background: rgba(0, 0, 0, 0.03);
+      }
+
+      .demo-tab.is-active {
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--text-n9);
+        font-weight: 500;
+      }
+
+      .demo-tab-count {
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.3);
+      }
+
+      .demo-tab.is-active .demo-tab-count {
+        color: var(--text-n5);
+      }
+
+      .demo-row[hidden] {
+        display: none;
       }
 
       h1 {
@@ -396,7 +465,8 @@ function renderPage(files) {
         opacity: 0.62;
       }
 
-      .demo-row:first-child {
+      .demo-row:first-child,
+      .demo-row.is-first {
         border-top: 0;
       }
 
@@ -529,9 +599,33 @@ function renderPage(files) {
       <header>
         <h1>Demo Index</h1>
       </header>
+${renderAuthorTabs(files)}
 ${renderList(files)}
       <footer>Generated from <code>public/demo</code>. Re-run <code>npm run demo:index</code> after adding pages.</footer>
     </main>
+    <script>
+      (function () {
+        var tabs = [].slice.call(document.querySelectorAll('.demo-tab'));
+        var rows = [].slice.call(document.querySelectorAll('.demo-row'));
+        tabs.forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            var filter = tab.getAttribute('data-filter');
+            tabs.forEach(function (other) {
+              var on = other === tab;
+              other.classList.toggle('is-active', on);
+              other.setAttribute('aria-selected', String(on));
+            });
+            var first = null;
+            rows.forEach(function (row) {
+              row.hidden = filter !== 'all' && row.getAttribute('data-author') !== filter;
+              if (!row.hidden && !first) first = row;
+              row.classList.remove('is-first');
+            });
+            if (first) first.classList.add('is-first');
+          });
+        });
+      })();
+    </script>
     <script src="/demo/_switcher.js" defer></script>
   </body>
 </html>
