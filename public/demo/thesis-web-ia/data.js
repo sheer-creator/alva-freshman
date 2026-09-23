@@ -471,9 +471,9 @@ export const NOTES = {
   },
   e: {
     foryou: [
-      '没有左侧栏：一级导航挪到顶栏（For You · Explore · Markets · Portfolio），Channels / Chats / Agent 收在顶栏「Alva」一页里；头像菜单的 Alva 也进这一页。',
+      '没有左侧栏：一级导航挪到顶栏（For You · Explore · Markets · Portfolio），Channels / Chats / Agent 收在顶栏「Alva Agent」一页里；头像菜单的 Alva Agent 也进这一页。',
       'For You 是阅读版式：一列 720 宽的大卡，首段放大成导语，图表和图片放大到 352 宽；右栏 People to follow / Trending tickers 不变。',
-      '页顶没有 composer：写东西走顶栏 Write 进全屏编辑器，阅读页只管读。',
+      '页顶没有 composer：写东西走顶栏 New Thesis 进全屏编辑器，阅读页只管读。',
       'Alva 收成右下角悬浮按钮，点开是盖在页面右侧的抽屉，不占常驻宽度；卡片上的 Ask Alva 也开这个抽屉并挂上下文。',
       '筛选条沿用 Alva-Library 子弹 Tab：All / Following / 热门 ticker。',
     ],
@@ -500,13 +500,13 @@ export const NOTES = {
     ],
     alva: [
       '参考 X 的 Grok：右下角圆角方形气泡，点开后气泡留在原地、卡片浮在它正上方，盖在右栏上不挤正文；头部只有一排图标：历史 / 展开成整页 / 新对话 / 收起；底部输入框带附件、@、模型选择（默认 GPT-5.6 Sol，照 global-chat spec）。',
-      '顶栏多一项 Alva，就是 spec 里的全屏 chat 页 / Agent Channel 页：左栏 New Chat + Channels（Agent channel、topic channel、+ 新建）+ Chats 历史，主区是当前频道。',
+      '顶栏多一项 Alva Agent，就是 spec 里的全屏 chat 页 / Agent Channel 页：左栏 New Chat + Channels（Agent channel、topic channel、+ 新建）+ Chats 历史，主区是当前频道。',
       '频道主区按 topic-channel spec 分 tab：Chat · Tasks · Memory · Alerts · Files；Agent channel 同一套。',
-      '抽屉和整页是同一个会话：抽屉头部的「展开」把当前对话带到 Alva 页（spec 的 Open chat page）。',
+      '抽屉和整页是同一个会话：抽屉头部的「展开」把当前对话带到 Alva Agent 页（spec 的 Open chat page）。',
       '内容站不需要 Work 模式：agent 是一页 + 一个抽屉，不是一层壳。',
     ],
     write: [
-      '顶栏 Write 直接进全屏编辑器，不再先弹两张卡：Write it yourself 就是这一页，Create with Alva 是编辑器右侧的抽屉。',
+      '顶栏 New Thesis 直接进全屏编辑器，不再先弹两张卡：Write it yourself 就是这一页，Create with Alva 是编辑器右侧的抽屉。',
       '编辑器模块照 app：作者行、Public 下拉、Regular/14 正文、ticker 芯片、108 图片卡、bold / ticker / polish 工具栏；Publish 挪到右上角（写作页惯例）。',
       'Create with Alva 打开后是两栏：左边草稿，右边对话。Alva 出的草稿卡可以 Open in editor 回填左边，或直接 Publish。',
       'Back 回 For You；发布后跳详情页。',
@@ -520,6 +520,12 @@ export const NOTES = {
     ],
   },
   patches: {
+    quick: [
+      '来源：X 首页顶部的发帖框（What’s happening?），不用离开时间线就能发。',
+      'For You 筛选条下面常驻一个发帖框：头像 + 正文（多行自动长高）→ 识别出的 ticker → 图片；工具栏和 app 编辑器一致（图片 / 加粗 / ticker / polish），右边 Public ▾ + Publish。',
+      '发完留在 For You，新 thesis 出现在列表最上面，Signals 照常后台生成；长文或要改排版时还是走顶栏 New Thesis 进全屏编辑器。',
+      '上下两条分割线接到正文列的竖线上，和卡片之间的横线同一套。',
+    ],
     entry: [
       '来源：小红书把「发布」做成左栏一级项，Substack 是导航下一颗 Create，Medium 是顶栏 Write；没有一家把入口藏在小标题里。',
       '四档对照：小标题 +（现状）/ 导航项 New thesis（For You 之后）/ Theses 组首行 / 双 CTA；点开都还是两张卡。',
@@ -559,7 +565,7 @@ export const OVERVIEW = {
   dirs: [
     { key: 'a', name: 'A · 挂进现有骨架', tagline: 'thesis 是 playbook 家族的一种内容，不加一级入口，改动最小。', rows: [['Sidebar', 'Channels 之下加一组 Theses（我的 + 收藏，+ 新建）'], ['浏览', 'Explore 加 Theses tab，与 playbook 共用筛选'], ['关注人', 'Explore › People tab'], ['详情', '独立页，单列 960'], ['创建', 'Sidebar Theses 组的 + → 弹层编辑器'], ['管理', 'Profile › Theses（Playbooks 之后）'], ['Search', '沿用公司搜索，只搜 ticker'], ['代价', 'For You 这条「关注的人在说什么」的流没有家']] },
     { key: 'b', name: 'B · For You 一级入口', tagline: 'For You 负责个性化消费与创建，Explore 统一承接四类主动发现；管理放 Profile。', rows: [['Sidebar', 'For You 放第一位，Explore 收进 Markets；不放 Search 项；Channels 下加 Theses 组（+ 新建）'], ['浏览', 'For You = 个性化 feed；Explore = Theses / Playbooks / People / Tickers'], ['详情', '独立页，单列 960'], ['创建', 'For You 顶部常驻 composer；Create with Alva 走对话面板'], ['管理', 'Profile › Theses'], ['Search', 'Explore 头部跨 Theses / Playbooks / People / Tickers 搜索'], ['代价', '多一个一级项；Follow 人与 Subscribe playbook 两套关系要讲清']] },
-    { key: 'e', short: 'C', name: 'C · 内容站 · 顶栏', tagline: 'thesis 是内容。去掉 Sidebar 和常驻对话面板，用内容站的壳读和写。', rows: [['导航', '顶栏 For You · Explore · Markets · Portfolio · Alva；Channels / Chats 在 Alva 页左栏'], ['浏览', 'For You 大卡阅读流 + 右栏；Explore 三 tab；Markets 落地页'], ['详情', '文章版式 720 一列，无 sticky 头'], ['创建', '顶栏 Write → 全屏编辑器；Create with Alva 是编辑器右侧抽屉'], ['管理', '头像菜单 › My theses（Profile 主态列表）'], ['Alva', '照 X Grok：圆角气泡（打开后留着）→ 上方浮出卡片（历史 / 展开 / 新对话 / 收起），可展开到 Alva 整页（Chat · Tasks · Memory · Alerts · Files），同一会话']] },
+    { key: 'e', short: 'C', name: 'C · 内容站 · 顶栏', tagline: 'thesis 是内容。去掉 Sidebar 和常驻对话面板，用内容站的壳读和写。', rows: [['导航', '顶栏 For You · Explore · Markets · Portfolio · Alva Agent；Channels / Chats 在 Alva Agent 页左栏'], ['浏览', 'For You 大卡阅读流 + 右栏；Explore 三 tab；Markets 落地页'], ['详情', '文章版式 720 一列，无 sticky 头'], ['创建', '顶栏 New Thesis → 全屏编辑器；Create with Alva 是编辑器右侧抽屉'], ['管理', '头像菜单 › My theses（Profile 主态列表）'], ['Alva', '照 X Grok：圆角气泡（打开后留着）→ 上方浮出卡片（历史 / 展开 / 新对话 / 收起），可展开到 Alva Agent 整页（Chat · Tasks · Memory · Alerts · Files），同一会话']] },
   ],
   questions: [
     { h: '追加 · 左侧订阅区放 playbook、thesis，还是都放', body: [
@@ -574,13 +580,14 @@ export const OVERVIEW = {
     ] },
   ],
   // 模块清单：对象 × 动作矩阵 + 按入口分组（用户 2026-09-23 要「整体考虑」用）
-  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的四个结构，做成 A / B 的开关，在顶部条上切；客态公开页用深链 ?guest=1 看。',
+  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的四个结构，做成 A / B 的开关，在顶部条上切；C 另有一个「顶部快速发表」开关；客态公开页用深链 ?guest=1 看。',
   patches: [
     ['补丁', '来源', '做法', '默认'],
     ['新建入口升一级', '小红书「发布」一级项 · Substack Create · Medium 顶栏 Write', '四档：小标题 + / 导航项 / 组内首行 / 双 CTA', '小标题 +（现状），下拉切'],
     ['详情右栏承接「相关」', 'Reddit Related posts · 知乎相关问题 · X Relevant people', '对话框关闭时右栏放 Related / Relevant people / Tickers，打开退回 tabs', '关，开关切'],
     ['全局搜索项', '五家都把搜索钉在顶栏', 'Sidebar CTA 下一条搜索行 → 居中弹窗查四类', '关，开关切'],
     ['Activity 一级项', 'Substack Activity', '新 signal / 关注的人更新 / 我的被收藏，一列可筛', '关，开关切'],
+    ['顶部快速发表（C）', 'X 首页顶部的发帖框', 'For You 筛选条下常驻一个发帖框：头像 + 正文 + 识别出的 ticker + app 编辑器同款工具 + Public ▾ + Publish；发完留在当前页，新 thesis 出现在最上面', '关，开关切'],
     ['客态公开页壳（M）', 'Medium 作者页 · X 客态单帖 · Reddit / 知乎公开态', 'thesis / 作者 / ticker 三页精简顶栏壳，其余登录门', '关，深链 ?guest=1'],
   ],
   matrix: [
@@ -613,7 +620,7 @@ export const OVERVIEW = {
   mapping: [
     ['app 屏', 'A · 挂进现有骨架', 'B · For You 一级', 'C · 内容站 · 顶栏'],
     ['For You tab', 'Explore › Theses tab', 'Sidebar › For You', '顶栏 For You（阅读流）'],
-    ['⊕ 新建 / 入口 sheet', 'Sidebar Theses 组的 + → 两条路 → 弹层编辑器', 'Theses 组的 + 或 For You 顶部 composer', '顶栏 Write → 全屏编辑器（两张卡并进编辑器：Write 就是这页，Create with Alva 是右侧抽屉）'],
+    ['⊕ 新建 / 入口 sheet', 'Sidebar Theses 组的 + → 两条路 → 弹层编辑器', 'Theses 组的 + 或 For You 顶部 composer', '顶栏 New Thesis → 全屏编辑器（两张卡并进编辑器：Write it yourself 就是这页，Create with Alva 是右侧抽屉）'],
     ['Select tickers / Permission 抽屉', '编辑器内下拉', '编辑器内下拉', '编辑器内下拉'],
     ['Polish 抽屉', '编辑器内弹层', '编辑器内弹层', '编辑器内弹层'],
     ['Create with Alva', 'New Chat → 对话面板', 'composer ✨ → 对话面板', '编辑器右侧抽屉'],
