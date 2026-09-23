@@ -1,5 +1,5 @@
 // Thesis · Web IA demo — 五方案共用一套渲染，DIRS 决定入口 / 导航 / 布局差异（E 另有自己的外壳）。无框架、无构建。
-import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925k';
+import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925q';
 
 /* ══════════ 方案配置 ══════════ */
 const DIRS = {
@@ -8,7 +8,7 @@ const DIRS = {
   // 大改造方案：换壳。topnav = 顶栏内容站。
   e: { key: 'e', short: 'C', name: '内容站 · 顶栏', home: 'foryou', screens: ['foryou', 'explore', 'markets', 'company', 'thesis', 'profile', 'write', 'alva'], compose: 'page', search: 'all', profileTabs: ['theses', 'playbooks', 'starred'], detail: 'article', cta: 'chat', exploreTabs: ['theses', 'playbooks', 'people'], shell: 'topnav' },
 };
-const SCREEN_LABEL = { overview: '总览', foryou: 'For You', explore: 'Explore', thesis: 'Thesis', profile: 'Profile', company: 'Company', write: 'Write', markets: 'Markets', activity: 'Activity', alva: 'Alva' };
+const SCREEN_LABEL = { overview: '总览', foryou: 'For You', explore: 'Explore', thesis: 'Thesis', profile: 'Profile', company: 'Company', write: 'Write', markets: 'Markets', activity: 'Activity', alva: 'Alva Agent' };
 const TAB_LABEL = { playbooks: 'Playbooks', theses: 'Theses', starred: 'Starred', purchased: 'Purchased', people: 'People', tickers: 'Tickers' };
 const TAGS = { new: 'New thesis', update: 'Thesis update', archived: 'Archived', private: 'Private', latest: 'Latest' };
 // Sidebar 订阅区的四种做法（与 A/B/C 正交），每个方案有自己的默认值
@@ -30,6 +30,7 @@ const state = {
   scrollTop: null, focus: null,
   mode: 'read', termFilter: 'all', // E 的 Read / Work；G 终端页的 All / Following / Mine
   agent: { channel: 'agent', tab: 'chat', chatIdx: 0 }, // C 的 Alva 页：当前频道 / tab / 选中的历史 chat
+  quickPost: false, // C 的补丁：For You 顶部快速发表（照 X）
   entry: 'plus', detailRail: false, globalSearch: false, activity: false, activityFilter: 'all', guest: false, // 线一补丁四个开关 + M 客态
 };
 
@@ -187,6 +188,7 @@ function onRoute() {
     if (state.composer.mode === 'inline' && r.screen !== 'foryou') state.composer.open = false;
     if (state.composer.mode === 'modal') state.composer.open = false;
     if (state.composer.mode === 'page' && r.screen !== 'write') state.composer.open = false;
+    if (state.composer.mode === 'quick' && r.screen !== 'foryou') closeComposer();
     state.termFilter = 'all'; state.activityFilter = 'all'; state.agent.tab = 'chat';
   }
   if (r.screen === 'thesis' && state.chat.mode !== 'build') state.chat.ctx = { type: 'thesis', id: r.param };
@@ -205,6 +207,7 @@ function onRoute() {
   if (q.history === '1' && r.screen === 'thesis') state.modal = { type: 'history', id: r.param };
   if (q.compose === '1' && r.screen !== 'overview') { Object.assign(state.composer, { open: true, mode: r.screen === 'write' ? 'page' : r.screen === 'foryou' && DIRS[r.dir].compose === 'inline' ? 'inline' : 'modal', kind: 'new', text: q.text || '', tickers: q.text ? detectTickers(q.text) : [], removed: [], media: [], visibility: 'public', thesisId: null, polish: null, alert: false, alertDismissed: false }); }
   if (q.entry && ENTRY_OPTIONS.some(([v]) => v === q.entry)) state.entry = q.entry;
+  if (q.quick) state.quickPost = q.quick === '1';
   if (q.rail) state.detailRail = q.rail === '1'; if (q.gsearch) state.globalSearch = q.gsearch === '1'; if (q.activity) state.activity = q.activity === '1'; if (q.guest) state.guest = q.guest === '1';
   // E 全页编辑器：直接进 write 也要有一个空 composer
   if (r.screen === 'write' && !state.composer.open) Object.assign(state.composer, { open: true, mode: 'page', kind: 'new', text: q.text || '', tickers: q.text ? detectTickers(q.text) : [], removed: [], media: [], visibility: 'public', thesisId: null, polish: null, alert: false, alertDismissed: false, publishing: false });
@@ -240,12 +243,12 @@ function afterRender() {
   $$('.cp-text').forEach(autosize);
   if (state.pendingMenu) { const el = $(`[data-menu="${state.pendingMenu}"]`); state.pendingMenu = null; if (el) { state.menu = el.dataset.menu; state.menuRect = el.getBoundingClientRect(); render(); return; } }
   if (state.focus) {
-    const sel = { composer: '.composer.open .cp-text, .cmp .cp-text, .ed .cp-text', chat: '.cin textarea', search: '.dlg-input input', picker: '.pk-search input', 'explore-search': '.page-head .search input' }[state.focus];
+    const sel = { composer: '.composer.open .cp-text, .cmp .cp-text, .ed .cp-text, .qpost .cp-text', chat: '.cin textarea', search: '.dlg-input input', picker: '.pk-search input', 'explore-search': '.page-head .search input' }[state.focus];
     const el = sel && $(sel); if (el) { el.focus(); if (el.setSelectionRange) { const n = el.value.length; el.setSelectionRange(n, n); } }
     state.focus = null;
   }
 }
-function autosize(el) { el.style.height = 'auto'; el.style.height = Math.max(el.classList.contains('size-modal') ? 160 : el.classList.contains('size-page') ? 240 : 110, el.scrollHeight) + 'px'; }
+function autosize(el) { el.style.height = 'auto'; el.style.height = Math.max(el.classList.contains('size-modal') ? 160 : el.classList.contains('size-page') ? 240 : el.classList.contains('size-quick') ? 52 : 110, el.scrollHeight) + 'px'; }
 function toast(text, ic = 'check-l1') { state.toast = { text, ic }; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { state.toast = null; const el = $('.toast'); if (el) el.remove(); }, 2400); }
 
 /* ══════════ demo 顶条 ══════════ */
@@ -253,7 +256,7 @@ function renderStrip() {
   const isOv = state.screen === 'overview'; const d = DIRS[state.dir];
   const states = [['default', '状态：默认'], ['first', '状态：首次进入'], ['empty', '状态：空列表'], ['error', '状态：加载失败']];
   // 顶部条只留一行：方案切换 · 竞品补丁开关和方案自己的下拉 · Demo index（对话框 / 说明 / 客态三个按钮已去掉，深链 ?chat=1 / ?notes=1 / ?guest=1 仍可用）
-  const patches = isOv ? '' : `<div class="strip-patches"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button><button class="strip-btn ${state.globalSearch ? 'on' : ''}" data-action="toggle-gsearch">全局搜索 ${state.globalSearch ? '开' : '关'}</button><button class="strip-btn ${state.activity ? 'on' : ''}" data-action="toggle-activity">Activity ${state.activity ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${d.shell ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Markets：分开</option></select>` : ''}</div>`;
+  const patches = isOv ? '' : `<div class="strip-patches"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button><button class="strip-btn ${state.globalSearch ? 'on' : ''}" data-action="toggle-gsearch">全局搜索 ${state.globalSearch ? '开' : '关'}</button><button class="strip-btn ${state.activity ? 'on' : ''}" data-action="toggle-activity">Activity ${state.activity ? '开' : '关'}</button>` : state.dir === 'e' ? `<button class="strip-btn ${state.quickPost ? 'on' : ''}" data-action="toggle-quickpost">顶部快速发表 ${state.quickPost ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${d.shell ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Markets：分开</option></select>` : ''}</div>`;
   return `<div class="strip-row1"><div class="strip-seg">${['a', 'b', 'e'].map((k) => `<button class="${!isOv && state.dir === k ? 'on' : ''}" data-action="dir" data-dir="${k}"><b>${DIRS[k].short}</b>${DIRS[k].name}</button>`).join('')}<button class="${isOv ? 'on' : ''}" data-go="overview">总览</button></div>${patches}<div class="strip-right"><a class="strip-link" href="/demo/">Demo index</a></div></div>`;
 }
 
@@ -502,10 +505,10 @@ function onComposerInput(el) {
   const cmp = $('.cmp'); if (cmp) { const t2 = document.createElement('div'); t2.innerHTML = composerModalHTML(); const a = cmp.querySelector('.cmp-foot'), b = t2.querySelector('.cmp-foot'); if (a && b) a.replaceWith(b); }
 }
 function patchComposer() {
-  const root = $('.composer.open, .cmp, .ed'); if (!root) return;
-  const tmp = document.createElement('div'); tmp.innerHTML = root.classList.contains('cmp') ? composerModalHTML() : root.classList.contains('ed') ? writeEditorHTML() : composerHTML(state.composer.mode);
+  const root = $('.composer.open, .cmp, .ed, .qpost'); if (!root) return;
+  const tmp = document.createElement('div'); tmp.innerHTML = root.classList.contains('cmp') ? composerModalHTML() : root.classList.contains('ed') ? writeEditorHTML() : root.classList.contains('qpost') ? quickComposerHTML() : composerHTML(state.composer.mode);
   const fresh = tmp.firstElementChild;
-  const swap = (sel) => { const a = root.querySelector(sel), b = fresh.querySelector(sel); if (a && b) a.replaceWith(b); else if (a && !b) a.remove(); else if (!a && b) { const anchor = root.querySelector('.cp-foot, .cmp-foot'); anchor.before(b); } };
+  const swap = (sel) => { const a = root.querySelector(sel), b = fresh.querySelector(sel); if (a && b) a.replaceWith(b); else if (a && !b) a.remove(); else if (!a && b) { const anchor = root.querySelector('.cp-foot, .cmp-foot, .qpost-foot'); anchor.before(b); } };
   swap('.cp-tickers'); swap('.alert');
   const pubA = root.querySelector('[data-action="compose-publish"]'), pubB = fresh.querySelector('[data-action="compose-publish"]'); if (pubA && pubB) pubA.replaceWith(pubB);
 }
@@ -530,6 +533,7 @@ function publish() {
   }
   const id = 'yggyll-' + Date.now().toString(36);
   THESES.unshift({ id, authorId: 'yggyll', kind: 'new', time: 'Just now', saves: 0, saved: false, status: 'active', visibility: c.visibility, signalsPending: true, versions: [{ time: 'Just now', latest: true, paragraphs: paras, source: src, media, tickers: tks }] });
+  if (c.mode === 'quick') { THESES[0].fresh = true; closeComposer(); toast('Thesis published'); setTimeout(() => { const t = byId(id); if (t) t.signalsPending = false; }, 7000); return; } // 照 X：发完留在 For You，新 thesis 出现在最上面
   closeComposer(); toast('Thesis published · Opening thesis…'); go(`${state.dir}/thesis/${id}`);
   setTimeout(() => { const t = byId(id); if (t) t.signalsPending = false; if (state.screen === 'thesis' && state.param === id) render(); }, 7000);
 }
@@ -823,13 +827,13 @@ function userMenu() {
   return menuHTML([
     { ic: 'user-profile-l', label: 'Profile', action: 'go-profile' },
     { ic: 'edit-l1', label: 'My theses', sub: 'Active · Archived · Private', action: 'go-mine' },
-    { ic: 'sidebar-agent-normal', label: 'Alva', sub: 'Channels · Chats · Agent', action: 'go-alva' },
+    { ic: 'sidebar-agent-normal', label: 'Alva Agent', sub: 'Channels · Chats · Agent', action: 'go-alva' },
     { ic: 'settings-l', label: 'Settings', action: 'noop-settings' },
   ]);
 }
 function renderTopShell() {
   const D = state.dir; const s = state.screen; const key = `${D}/${s}/${state.param}`;
-  const items = [['For You', `${D}/foryou`, s === 'foryou'], ['Explore', `${D}/explore/theses`, s === 'explore'], ['Markets', `${D}/markets`, s === 'markets' || s === 'company'], ['Portfolio', null, false], ['Alva', `${D}/alva`, s === 'alva']]
+  const items = [['For You', `${D}/foryou`, s === 'foryou'], ['Explore', `${D}/explore/theses`, s === 'explore'], ['Markets', `${D}/markets`, s === 'markets' || s === 'company'], ['Portfolio', null, false], ['Alva Agent', `${D}/alva`, s === 'alva']]
     .map(([l, goTo, on]) => `<span class="tn-item ${on ? 'on' : ''}" ${goTo ? `data-go="${goTo}"` : 'data-action="noop-portfolio"'}>${l}</span>`).join('');
   const inEditorAlva = s === 'write' && state.chat.mode === 'build';
   const drawer = state.chat.open && !inEditorAlva && s !== 'alva' ? `<div class="chat-drawer">${renderChat()}</div>` : '';
@@ -838,7 +842,7 @@ function renderTopShell() {
     <div class="tn-left"><img class="tn-logo" src="${LOGO_DARK}" alt="Alva" data-go="${D}/foryou"><nav class="tn-nav">${items}</nav></div>
     <div class="tn-right">
       <button class="tn-search" data-action="search-open">${icon('search-l', 16)}<span>Search</span></button>
-      <button class="btn pri" data-action="write">${icon('edit-l1', 14)}Write</button>
+      <button class="btn pri" data-action="write">${icon('edit-l1', 14)}New Thesis</button>
       <span class="menu-anchor"><button class="tn-user" data-action="menu" data-menu="user">${avatar(A('yggyll'), 32)}</button>${userMenu()}</span>
     </div>
   </header>
@@ -847,8 +851,8 @@ function renderTopShell() {
 // E · For You：阅读版式——一列 720 的大卡（首段放大成导语），右栏沿用 People to follow / Trending
 function renderReading() {
   const st = state.query.state || 'default'; const f = state.exploreFilter;
-  let list = visibleTheses().filter((t) => !A(t.authorId).me);
-  if (f === 'following') list = list.filter((t) => state.followed.has(t.authorId));
+  let list = visibleTheses().filter((t) => !A(t.authorId).me || t.fresh);
+  if (f === 'following') list = list.filter((t) => state.followed.has(t.authorId) || t.fresh);
   else if (TICKERS[f]) list = list.filter((t) => t.versions[0].tickers.some((x) => sym(x) === f));
   const chips = [['all', 'All'], ['following', 'Following'], ...['NVDA', 'MSFT', 'GOOGL', 'AMD', 'HOOD', 'MU'].map((s) => [s, s])];
   const head = `<div class="rd-head"><h1 class="title">For You</h1>${st === 'first' ? '' : `<div class="fchips">${chips.map(([k, l]) => `<button class="fchip ${f === k ? 'on' : ''}" data-action="efilter" data-val="${k}">${l}</button>`).join('')}</div>`}</div>`;
@@ -857,7 +861,8 @@ function renderReading() {
   else if (st === 'empty') body = emptyState('search-l', 'Nothing new yet', 'Follow a few people or tickers and their theses will show up here.');
   else if (st === 'error') body = emptyState('close-l1', "Couldn't load", 'Try again in a moment.', `<button class="btn pri" data-action="fystate-reset">Retry</button>`);
   else body = (list.length ? list.map((t) => thesisCard(t, 'story')).join('') : emptyState('search-l', 'Nothing new yet')) + `<div class="feed-end t12 n5">You're up to date</div>`;
-  return `<div class="page reading"><div class="rd-wrap"><div class="rd-main">${head}${body}</div><aside class="rail">${railPeople()}${railTrending()}</aside></div></div>`;
+  const quick = state.quickPost && st !== 'first' ? quickComposerHTML() : '';
+  return `<div class="page reading"><div class="rd-wrap"><div class="rd-main">${head}${quick}${body}</div><aside class="rail">${railPeople()}${railTrending()}</aside></div></div>`;
 }
 // E · Markets 落地页：搜索 + watchlist + Trending，卡片进公司页
 function renderMarkets() {
@@ -1073,6 +1078,31 @@ function renderAlvaPage() {
   return `<div class="page agent"><div class="ag-wrap">${left}<section class="ag-main"><div class="ag-top"><div class="row8">${icon(ag.chatIdx ? 'chat-l1' : ch.ic, 18)}<span class="col"><span class="t16 med">${esc(title)}</span><span class="t12 n5">${esc(sub)}</span></span></div><span class="grow"></span><button class="act" title="Agent settings" data-action="noop-settings">${icon('settings-l', 16)}</button></div>${tabs}${body}</section></div></div>`;
 }
 
+/* C · 顶部快速发表（竞品补丁，照 X 首页顶部的发帖框）：共用 state.composer，mode = 'quick'；工具与 app 编辑器一致（图片 / 加粗 / ticker / polish），发完留在当前页 */
+function ensureQuick() {
+  const c = state.composer; if (c.mode === 'quick') return;
+  Object.assign(c, { open: true, mode: 'quick', kind: 'new', text: '', tickers: [], removed: [], media: [], visibility: 'public', thesisId: null, polish: null, alert: false, alertDismissed: false, publishing: false });
+}
+function quickComposerHTML() {
+  const c = state.composer; const on = c.mode === 'quick'; const me = A('yggyll');
+  const text = on ? c.text : ''; const tickers = on ? c.tickers : []; const media = on ? c.media : [];
+  const visMenu = on && state.menu === 'vis' ? menuHTML([{ ic: 'go-l', label: 'Public', sub: 'Anyone can view for free.', action: 'set-vis', val: 'public' }, { ic: 'locked-l', label: 'Private', sub: 'Only you can see this.', action: 'set-vis', val: 'private' }]) : '';
+  const polishMenu = on && state.menu === 'polish' ? menuHTML([{ ic: 'refresh-l', label: 'Reformat', action: 'polish', val: 'reformat' }, { ic: 'minus-l1', label: 'Shorter', action: 'polish', val: 'shorter' }, { ic: 'add-l1', label: 'Enrich', action: 'polish', val: 'enrich' }], 'left') : '';
+  const can = on && c.text.trim().length > 0 && !c.publishing;
+  return `<div class="qpost"><div class="qpost-top">${avatar(me, 40)}<div class="qpost-col">
+    <textarea class="cp-text size-quick" data-input="composer" placeholder="What's your thesis?">${esc(text)}</textarea>
+    ${tickers.length ? `<div class="cp-tickers">${tickers.map((sy) => `<span class="chip tk">${logoImg(sy, 16)}<span>${sy}</span><button class="xs" data-action="ticker-remove" data-sym="${sy}">${icon('close-l1', 10)}</button></span>`).join('')}</div>` : '<div class="cp-tickers" hidden></div>'}
+    ${media.length ? `<div class="cp-media app">${media.map((m, i) => `<div class="mtile lg"><img src="${m.img}" alt=""><button class="x" data-action="media-remove" data-i="${i}">${icon('close-l1', 10)}</button></div>`).join('')}</div>` : ''}
+    ${on && c.polish ? polishHTML() : ''}
+  </div></div>
+  ${on && c.alert ? `<div class="alert">${icon('warning-f', 14, 'm4')}<span class="grow">No tickers detected — select them manually.</span><button class="act" data-action="alert-dismiss">${icon('close-l1', 12)}</button></div>` : ''}
+  <div class="qpost-foot">
+      <div class="tools app"><button class="tool" title="Add image" data-action="media-add">${licon('image-l')}</button><button class="tool" title="Bold" data-action="noop-bold">${licon('bold-l')}</button><span class="menu-anchor"><button class="tool ${on && state.menu === 'tickers' ? 'on' : ''}" title="Add ticker" data-action="menu" data-menu="tickers">${licon('ticker-l')}</button>${on && state.menu === 'tickers' ? tickerPicker() : ''}</span><span class="menu-anchor"><button class="tool ${on && (c.polish || state.menu === 'polish') ? 'on' : ''}" title="Polish" data-action="menu" data-menu="polish">${licon('polish-l')}</button>${polishMenu}</span></div>
+      <div class="row8"><span class="menu-anchor"><button class="vis-pill" data-action="menu" data-menu="vis">${cap(on ? c.visibility : 'public')}${icon('arrow-down-f2', 12)}</button>${visMenu}</span><button class="btn pri" data-action="compose-publish" ${can ? '' : 'disabled'}>${on && c.publishing ? `${squares()}<span>Publishing…</span>` : 'Publish'}</button></div>
+  </div>
+</div>`;
+}
+
 /* ══════════ 说明抽屉 ══════════ */
 function notesHTML() {
   const d = state.dir; const scr = state.screen; const groups = [];
@@ -1082,6 +1112,7 @@ function notesHTML() {
     push(`${DIRS[d].short} · ${SCREEN_LABEL[scr]}`, NOTES[d]?.[scr]);
     if (PATCH_DIRS.includes(d)) { if (state.entry !== 'plus') push('补丁 · 新建入口', NOTES.patches?.entry); if (state.detailRail && (scr === 'thesis' || scr === 'company')) push('补丁 · 详情右栏', NOTES.patches?.rail); if (state.globalSearch) push('补丁 · 全局搜索', NOTES.patches?.search); if (state.activity) push('补丁 · Activity', NOTES.patches?.activity); }
     if (state.guest) push('M · 客态公开页壳', NOTES.patches?.guest);
+    if (d === 'e' && state.quickPost) push('补丁 · 顶部快速发表', NOTES.patches?.quick);
     if (!DIRS[d].shell) push(`Sidebar ${(SB_OPTIONS.find(([v]) => v === sbVariant()) || [])[1] || ''}`, NOTES.sidebar?.[sbVariant()]);
     if (d === 'b') push(`Explore + Markets · ${state.mergeMarkets ? '合并' : '分开'}`, NOTES.merge?.[state.mergeMarkets ? 'on' : 'off']);
     if (state.composer.open || state.chat.mode === 'build' || scr === 'foryou' || scr === 'write') push('创建', NOTES[d]?.compose);
@@ -1130,6 +1161,7 @@ function renderLayer() {
 /* ══════════ 交互 ══════════ */
 function act(name, el) {
   const c = state.composer; const id = el.dataset.id; const val = el.dataset.val;
+  if (el.closest && el.closest('.qpost')) ensureQuick();
   if (state.guest && ['ask', 'save', 'follow', 'open-chat', 'toggle-chat', 'compose-new', 'compose-ticker', 'compose-open', 'compose-home', 'update', 'watch', 'subscribe', 'build', 'write', 'choose', 'history'].includes(name)) { toast('Sign in to continue', 'locked-l'); return; } // M：客态下一切会员动作都变成 Sign in
   switch (name) {
     case 'dir': switchDir(el.dataset.dir); return;
@@ -1163,6 +1195,7 @@ function act(name, el) {
     case 'import-x': state.xConnected = true; break;
     case 'choose': if (state.chosen.has(id)) state.chosen.delete(id); else state.chosen.add(id); break;
     case 'choose-continue': state.chosen.forEach((x) => state.followed.add(x)); state.chosen.clear(); toast(`Following ${state.followed.size} people`); go(`${state.dir}/foryou`); return;
+    case 'toggle-quickpost': state.quickPost = !state.quickPost; if (c.mode === 'quick') closeComposer(); break;
     /* C · Alva 页 */
     case 'go-alva': state.menu = null; go(`${state.dir}/alva`); return;
     case 'agent-ch': state.agent.channel = val; state.agent.chatIdx = 0; state.agent.tab = 'chat'; Object.assign(state.chat, { msgs: [], typing: false, mode: 'idle', ctx: null }); state.focus = 'chat'; break;
@@ -1245,6 +1278,7 @@ document.addEventListener('click', (e) => {
   if (goEl) { e.preventDefault(); const p = goEl.dataset.go; if (p === 'overview') go('overview'); else go(p); return; }
   if (actEl) { if (actEl.classList.contains('scrim') && e.target.closest('[data-stop]')) return; act(actEl.dataset.action, actEl); }
 });
+document.addEventListener('focusin', (e) => { if (e.target.matches?.('.qpost textarea')) ensureQuick(); });
 document.addEventListener('input', (e) => {
   const k = e.target.dataset.input; if (!k) return;
   if (k === 'composer') onComposerInput(e.target);
