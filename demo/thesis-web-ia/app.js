@@ -1,5 +1,5 @@
 // Thesis · Web IA demo — 五方案共用一套渲染，DIRS 决定入口 / 导航 / 布局差异（E 另有自己的外壳）。无框架、无构建。
-import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925e';
+import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925k';
 
 /* ══════════ 方案配置 ══════════ */
 const DIRS = {
@@ -14,8 +14,8 @@ const TAGS = { new: 'New thesis', update: 'Thesis update', archived: 'Archived',
 // Sidebar 订阅区的四种做法（与 A/B/C 正交），每个方案有自己的默认值
 const SB_DEFAULT = { a: 'playbooks', b: 'merged', e: 'merged' };
 const PATCH_DIRS = ['a', 'b']; // 线一四个补丁（新建入口 / 详情右栏 / 全局搜索 / Activity）生效的方案
-const ENTRY_OPTIONS = [['plus', '新建入口：小标题 +'], ['nav', '新建入口：导航项'], ['row', '新建入口：组内首行'], ['cta2', '新建入口：双 CTA']]; // e 只在 Work 模式用到
-const SB_OPTIONS = [['playbooks', '订阅区：Playbooks'], ['following', '订阅区：Following + Playbooks'], ['merged', '订阅区：合并 Following']];
+const ENTRY_OPTIONS = [['plus', '入口：小标题 +'], ['nav', '入口：导航项'], ['row', '入口：组内首行'], ['cta2', '入口：双 CTA']]; // e 只在 Work 模式用到
+const SB_OPTIONS = [['playbooks', '订阅区：Playbooks'], ['following', '订阅区：Following 分组'], ['merged', '订阅区：Following 混排']];
 
 /* ══════════ 状态 ══════════ */
 const state = {
@@ -226,7 +226,6 @@ function render() {
   const key = `${state.dir}/${state.screen}/${state.param}`;
   $('#demo-strip').innerHTML = renderStrip();
   const frame = $('#frame'); const shell = DIRS[state.dir].shell;
-  document.body.classList.toggle('strip2', state.screen !== 'overview');
   if (state.screen === 'overview') { frame.className = ''; frame.innerHTML = `<div class="main"><div class="main-scroll" data-key="${key}">${renderOverview()}</div></div>`; }
   else if (state.guest) { frame.className = 'topnav-shell public-shell'; frame.innerHTML = renderPublicShell(); } // M：客态公开页壳，对所有方案生效
   else if (shell === 'topnav') { frame.className = 'topnav-shell' + (state.chat.open && !(state.screen === 'write' && state.chat.mode === 'build') ? ' chat-open' : ''); frame.innerHTML = renderTopShell(); } // 抽屉开着时内容区让出右侧宽度、隐藏右栏
@@ -252,14 +251,10 @@ function toast(text, ic = 'check-l1') { state.toast = { text, ic }; render(); cl
 /* ══════════ demo 顶条 ══════════ */
 function renderStrip() {
   const isOv = state.screen === 'overview'; const d = DIRS[state.dir];
-  const states = [['default', '状态：默认'], ['first', '状态：首次进入（选人）'], ['empty', '状态：空列表'], ['error', '状态：加载失败']];
-  return `<div class="strip-row1"><div class="strip-seg">${['a', 'b', 'e'].map((k) => `<button class="${!isOv && state.dir === k ? 'on' : ''}" data-action="dir" data-dir="${k}"><b>${DIRS[k].short}</b>${DIRS[k].name}</button>`).join('')}<button class="${isOv ? 'on' : ''}" data-go="overview">总览</button></div>
-  <div class="strip-right">
-    ${isOv ? '' : `<button class="strip-btn ${state.chat.open ? 'on' : ''}" data-action="toggle-chat">对话框 ${state.chat.open ? '开' : '关'}</button>`}
-    <button class="strip-btn ${state.notes ? 'on' : ''}" data-action="toggle-notes">说明</button>
-    <a class="strip-link" href="/demo/">Demo index</a>
-  </div></div>
-  ${isOv ? '' : `<div class="strip-row2"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button><button class="strip-btn ${state.globalSearch ? 'on' : ''}" data-action="toggle-gsearch">全局搜索 ${state.globalSearch ? '开' : '关'}</button><button class="strip-btn ${state.activity ? 'on' : ''}" data-action="toggle-activity">Activity ${state.activity ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${isOv || (d.shell && !(state.dir === 'e' && state.mode === 'work')) ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${!isOv && state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Explore + Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Explore + Markets：分开</option></select>` : ''}<span class="strip-gap"></span><button class="strip-btn ${state.guest ? 'on' : ''}" data-action="toggle-guest">客态 · 公开页 ${state.guest ? '开' : '关'}</button></div>`}`;
+  const states = [['default', '状态：默认'], ['first', '状态：首次进入'], ['empty', '状态：空列表'], ['error', '状态：加载失败']];
+  // 顶部条只留一行：方案切换 · 竞品补丁开关和方案自己的下拉 · Demo index（对话框 / 说明 / 客态三个按钮已去掉，深链 ?chat=1 / ?notes=1 / ?guest=1 仍可用）
+  const patches = isOv ? '' : `<div class="strip-patches"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button><button class="strip-btn ${state.globalSearch ? 'on' : ''}" data-action="toggle-gsearch">全局搜索 ${state.globalSearch ? '开' : '关'}</button><button class="strip-btn ${state.activity ? 'on' : ''}" data-action="toggle-activity">Activity ${state.activity ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${d.shell ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Markets：分开</option></select>` : ''}</div>`;
+  return `<div class="strip-row1"><div class="strip-seg">${['a', 'b', 'e'].map((k) => `<button class="${!isOv && state.dir === k ? 'on' : ''}" data-action="dir" data-dir="${k}"><b>${DIRS[k].short}</b>${DIRS[k].name}</button>`).join('')}<button class="${isOv ? 'on' : ''}" data-go="overview">总览</button></div>${patches}<div class="strip-right"><a class="strip-link" href="/demo/">Demo index</a></div></div>`;
 }
 
 /* ══════════ Sidebar ══════════ */
@@ -280,7 +275,7 @@ function sbGroupsHTML(D, s, p, v, { channels = true, maxTheses = 6, afterChannel
   const thesesGroup = grp('Theses', entryRow + thesisRows, `<span data-action="menu-fixed" data-menu="new-thesis" title="New thesis">${icon('add-l2', 14)}</span>`);
   const mergedRows = MERGED_FOLLOWING.map((id) => (PLAYBOOK_NAV_ITEMS.some((x) => x.id === id) ? pbRow(id) : personRow(id))).join('');
   let groups = '';
-  if (channels) groups += grp('Channels', it('Alva', 'sidebar-agent-normal', null, false, 'open-chat') + SIDEBAR.channels.map((c) => it(c, 'sidebar-channel-normal', null, false, 'noop-channel')).join(''), `<span data-action="noop-channel" title="New channel">${icon('add-l2', 14)}</span>`);
+  if (channels) groups += grp('Channels', it('Alva', 'sidebar-agent-normal', null, false, 'noop-channel') + SIDEBAR.channels.map((c) => it(c, 'sidebar-channel-normal', null, false, 'noop-channel')).join(''), `<span data-action="noop-channel" title="New channel">${icon('add-l2', 14)}</span>`);
   groups += afterChannels;
   groups += thesesGroup;
   if (v === 'playbooks') groups += grp('Playbooks', pbItems);
@@ -295,9 +290,9 @@ function renderSidebar() {
   const grp = (label, items, action = '') => `<div class="sb-group"><div class="sb-head"><span class="sb-label">${label}</span>${action ? `<span class="sb-act">${action}</span>` : ''}</div>${items}</div>`;
   let cta;
   if (d.cta === 'chat-menu') cta = `<div class="sb-cta"><button data-action="menu" data-menu="cta">${PLUS}<span>New Chat</span>${icon('arrow-down-l2', 12)}</button>${state.menu === 'cta' ? menuHTML([{ ic: 'chat-new-l', label: 'New chat', action: 'open-chat' }, { ic: 'edit-l1', label: 'New thesis', action: 'compose-new' }], 'left') : ''}</div>`;
-  else if (d.cta === 'chat') cta = `<div class="sb-cta"><button data-action="open-chat">${PLUS}<span>New Chat</span></button></div>`;
+  else if (d.cta === 'chat') cta = `<div class="sb-cta"><button data-action="noop-newchat">${PLUS}<span>New Chat</span></button></div>`;
   else cta = `<div class="sb-cta"><button data-action="compose-home">${PLUS}<span>New thesis</span></button></div>`;
-  if (state.entry === 'cta2' && PATCH_DIRS.includes(D)) cta = `<div class="sb-cta dual"><button data-action="open-chat">${PLUS}<span>New Chat</span></button><button class="sec" data-action="menu-fixed" data-menu="new-thesis">${icon('edit-l1', 14)}<span>New thesis</span></button></div>`; // 补丁：双 CTA
+  if (state.entry === 'cta2' && PATCH_DIRS.includes(D)) cta = `<div class="sb-cta dual"><button data-action="noop-newchat">${PLUS}<span>New Chat</span></button><button class="sec" data-action="menu-fixed" data-menu="new-thesis">${icon('edit-l1', 14)}<span>New thesis</span></button></div>`; // 补丁：双 CTA
   const searchRow = state.globalSearch && PATCH_DIRS.includes(D) ? `<button class="tl-search sb-search" data-action="search-open">${icon('search-l', 14)}<span>Search</span></button>` : ''; // 补丁：全局搜索行（照五家顶栏搜索）
   let nav = '';
   if (D === 'a') nav = it('Explore', 'sidebar-discover-normal', `${D}/explore/theses`, s === 'explore') + it('Portfolio', 'sidebar-portfolio-normal', null, false, 'noop-portfolio') + it('Markets', 'sidebar-k-normal', null, s === 'company', 'search-open');
@@ -844,7 +839,7 @@ function renderTopShell() {
     <div class="tn-right">
       <button class="tn-search" data-action="search-open">${icon('search-l', 16)}<span>Search</span></button>
       <button class="btn pri" data-action="write">${icon('edit-l1', 14)}Write</button>
-      <span class="menu-anchor"><button class="tn-user" data-action="menu" data-menu="user">${avatar(A('yggyll'), 28)}</button>${userMenu()}</span>
+      <span class="menu-anchor"><button class="tn-user" data-action="menu" data-menu="user">${avatar(A('yggyll'), 32)}</button>${userMenu()}</span>
     </div>
   </header>
   <div class="main"><div class="main-scroll" data-key="${key}">${renderMain()}</div>${fab}</div>${drawer}`;
@@ -1102,7 +1097,7 @@ function renderOverview() {
   const o = OVERVIEW;
   return `<div class="ov"><div class="ov-kicker">Alva · Thesis · Web IA · 2026-09-23</div><h1>${esc(o.title)}</h1><p class="ov-sub">${esc(o.subtitle)}</p>${o.intro.map((p) => `<p class="ov-p">${esc(p)}</p>`).join('')}
     ${ovCards(o.dirs)}
-    <h2>线一 · 竞品补丁（顶部条第二行的开关）</h2><p class="ov-p">${esc(o.patchesIntro || '')}</p><table class="ov-map">${(o.patches || []).map((r, i) => `<tr>${r.map((c, j) => (i === 0 ? `<th>${esc(c)}</th>` : `<td class="${j === 0 ? 'k' : ''}">${esc(c)}</td>`)).join('')}</tr>`).join('')}</table>
+    <h2>线一 · 竞品补丁（顶部条上的开关）</h2><p class="ov-p">${esc(o.patchesIntro || '')}</p><table class="ov-map">${(o.patches || []).map((r, i) => `<tr>${r.map((c, j) => (i === 0 ? `<th>${esc(c)}</th>` : `<td class="${j === 0 ? 'k' : ''}">${esc(c)}</td>`)).join('')}</tr>`).join('')}</table>
     ${(o.questions || []).map((qq) => `<h2>${esc(qq.h)}</h2><ul class="ov-rules">${qq.body.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>`).join('')}
     <h2>模块清单 · 对象 × 动作</h2><table class="ov-map">${(o.matrix || []).map((r, i) => `<tr>${r.map((c, j) => (i === 0 ? `<th>${esc(c)}</th>` : `<td class="${j === 0 ? 'k' : ''}">${esc(c)}</td>`)).join('')}</tr>`).join('')}</table>
     <h2>模块清单 · 按入口分组</h2><div class="ov-groups">${(o.groups || []).map((g) => `<div class="ov-group"><h3>${esc(g.h)}</h3><table>${g.items.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table></div>`).join('')}</div>
@@ -1223,6 +1218,7 @@ function act(name, el) {
     case 'noop-portfolio': toast('Portfolio 沿用现有页面，不在本 demo 范围', 'explain-l'); return;
     case 'noop-playbook': toast('Playbook 页沿用现有页面，不在本 demo 范围', 'explain-l'); return;
     case 'noop-channel': toast('Channel 沿用现有，不在本 demo 范围', 'explain-l'); return;
+    case 'noop-newchat': toast('New Chat 沿用现有，不在本 demo 范围', 'explain-l'); return; // Sidebar 的 New Chat 在生产里是 /new_chat 页，不是右侧面板
     case 'subscribe': { if (state.subscribed.has(id)) state.subscribed.delete(id); else state.subscribed.add(id); break; }
     case 'noop-subscribe': toast('Subscribed', 'check-l1'); return;
     case 'watch': { const sy = el.dataset.sym; if (state.watchlist.has(sy)) state.watchlist.delete(sy); else state.watchlist.add(sy); const dlg = $('.dlg'); if (dlg) { const tmp = document.createElement('div'); tmp.innerHTML = searchDialog(); dlg.querySelector('.dlg-body').replaceWith(tmp.querySelector('.dlg-body')); hydrateCharts(); return; } break; }

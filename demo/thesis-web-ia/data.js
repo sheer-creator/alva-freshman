@@ -553,8 +553,8 @@ export const OVERVIEW = {
   title: 'Thesis on Web',
   subtitle: '浏览 · 创建 · 管理三条流程在 web 上的三套信息架构方案',
   intro: [
-    '同一套 mock 数据、同一个详情页组件，只换入口、导航和布局。顶部条随时切方案；「说明」里有每一屏改了什么、为什么。',
-    '对话框「关 / 开」两态都要看：打开后内容区从约 1212 压到 724 左右，右侧栏和两栏布局会退成单列。',
+    '同一套 mock 数据、同一个详情页组件，只换入口、导航和布局。顶部条随时切方案。',
+    '对话面板开 / 关两态都要看（从 Ask Alva 打开）：打开后内容区从约 1212 压到 724 左右，右侧栏和两栏布局会退成单列。',
   ],
   dirs: [
     { key: 'a', name: 'A · 挂进现有骨架', tagline: 'thesis 是 playbook 家族的一种内容，不加一级入口，改动最小。', rows: [['Sidebar', 'Channels 之下加一组 Theses（我的 + 收藏，+ 新建）'], ['浏览', 'Explore 加 Theses tab，与 playbook 共用筛选'], ['关注人', 'Explore › People tab'], ['详情', '独立页，单列 960'], ['创建', 'Sidebar Theses 组的 + → 弹层编辑器'], ['管理', 'Profile › Theses（Playbooks 之后）'], ['Search', '沿用公司搜索，只搜 ticker'], ['代价', 'For You 这条「关注的人在说什么」的流没有家']] },
@@ -574,14 +574,14 @@ export const OVERVIEW = {
     ] },
   ],
   // 模块清单：对象 × 动作矩阵 + 按入口分组（用户 2026-09-23 要「整体考虑」用）
-  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的四个结构，做成 A / B 的开关，顶部条第二行切；客态开关对所有方案生效。',
+  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的四个结构，做成 A / B 的开关，在顶部条上切；客态公开页用深链 ?guest=1 看。',
   patches: [
     ['补丁', '来源', '做法', '默认'],
     ['新建入口升一级', '小红书「发布」一级项 · Substack Create · Medium 顶栏 Write', '四档：小标题 + / 导航项 / 组内首行 / 双 CTA', '小标题 +（现状），下拉切'],
     ['详情右栏承接「相关」', 'Reddit Related posts · 知乎相关问题 · X Relevant people', '对话框关闭时右栏放 Related / Relevant people / Tickers，打开退回 tabs', '关，开关切'],
     ['全局搜索项', '五家都把搜索钉在顶栏', 'Sidebar CTA 下一条搜索行 → 居中弹窗查四类', '关，开关切'],
     ['Activity 一级项', 'Substack Activity', '新 signal / 关注的人更新 / 我的被收藏，一列可筛', '关，开关切'],
-    ['客态公开页壳（M）', 'Medium 作者页 · X 客态单帖 · Reddit / 知乎公开态', 'thesis / 作者 / ticker 三页精简顶栏壳，其余登录门', '关，按钮切'],
+    ['客态公开页壳（M）', 'Medium 作者页 · X 客态单帖 · Reddit / 知乎公开态', 'thesis / 作者 / ticker 三页精简顶栏壳，其余登录门', '关，深链 ?guest=1'],
   ],
   matrix: [
     ['对象', '在哪看到列表', '详情页', '新建 / 更新', '管理', '订阅 / 收藏关系', 'Ask Alva 上下文'],
