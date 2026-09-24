@@ -462,12 +462,6 @@ textarea, input { font-family: inherit; letter-spacing: inherit; }
 .ov-map th { text-align: left; font-weight: 400; color: var(--text-n5); font-size: 12px; padding: 8px 12px 8px 0; border-bottom: .5px solid var(--line-l3); }
 .ov-map td { vertical-align: top; padding: 10px 12px 10px 0; border-bottom: .5px solid var(--line-l12); font-size: 13px; line-height: 22px; }
 .ov-map td.k { color: var(--text-n7); width: 22%; }
-.ov-groups { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 40px; }
-@media (max-width: 1100px) { .ov-groups { grid-template-columns: 1fr; } }
-.ov-group h3 { font-size: 15px; line-height: 24px; font-weight: 500; margin-bottom: 4px; }
-.ov-group table { width: 100%; border-collapse: collapse; }
-.ov-group th { width: 34%; text-align: left; vertical-align: top; font-weight: 500; font-size: 13px; padding: 6px 8px 6px 0; border-top: .5px solid var(--line-l12); }
-.ov-group td { vertical-align: top; font-size: 13px; line-height: 22px; color: var(--text-n7); padding: 6px 0; border-top: .5px solid var(--line-l12); }
 .ov-map td.k { white-space: nowrap; }
 .ov-rules { padding-left: 18px; display: flex; flex-direction: column; gap: 8px; color: var(--text-n9); }
 .ov-foot { margin-top: 48px; color: var(--text-n5); font-size: 12px; }
@@ -568,8 +562,6 @@ table.mine td:nth-child(n+3):nth-child(-n+7) { white-space: nowrap; }
 table.mine .trunc2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 table.mine td.act-cell { text-align: right; padding-right: 0; }
 /* 总览：大改造两案两列 */
-.ov-cards.two { grid-template-columns: repeat(2, 1fr); }
-@media (max-width: 1100px) { .ov-cards.two { grid-template-columns: 1fr; } }
 
 /* ── 线一补丁：顶条第二行 / Sidebar 入口档位 / 搜索行 / 详情右栏 / Activity ── */
 #demo-strip { height: var(--strip-h); flex-direction: column; align-items: stretch; gap: 0; padding: 0 16px; }
@@ -703,3 +695,14 @@ table.mine td.act-cell { text-align: right; padding-right: 0; }
 /* C · Profile 主态列表：去掉卡片外框，一行一条，行间分割线 */
 .pf-list.lines { gap: 0; padding-top: 0; }
 .pf-list.lines .card.manage { border: 0; border-radius: 0; border-bottom: .5px solid var(--line-l12); padding: 20px 0; }
+
+/* 总览：五段编号（方案 · 补丁 · 待定 · 映射 · 共用规则），每段标题前一个青色编号 */
+.ov-sec { margin-top: 56px; }
+.ov-sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.ov .ov-sec-head h2 { margin: 0; }
+.ov-num { font-family: var(--font); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: .5px; color: var(--main-m1); }
+.ov-desc { color: var(--text-n5); max-width: 780px; margin-bottom: 16px; }
+.ov-desc.ov-after { margin: 12px 0 0; }
+.ov-sec .ov-cards { margin-top: 16px; }
+.ov-map.patches td:nth-child(2) { white-space: nowrap; color: var(--text-n7); }
+.ov-map.patches td:nth-child(4) { color: var(--text-n5); }
