@@ -1,5 +1,5 @@
 // Thesis · Web IA demo — 五方案共用一套渲染，DIRS 决定入口 / 导航 / 布局差异（E 另有自己的外壳）。无框架、无构建。
-import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925w';
+import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925x';
 
 /* ══════════ 方案配置 ══════════ */
 const DIRS = {
@@ -1112,16 +1112,15 @@ function notesHTML() {
 const ovCards = (list, cls = '') => `<div class="ov-cards ${cls}">${list.map((d) => `<div class="ov-card ${d.key === 'b' ? 'rec' : ''}"><div class="ov-card-head"><span class="ov-key">${d.short || d.key.toUpperCase()}</span><span class="ov-name">${esc(d.name.replace(/^[A-Z] · /, ''))}</span>${d.key === 'b' ? '<span class="tag new">推荐</span>' : ''}</div><p class="ov-tag">${esc(d.tagline)}</p><table>${d.rows.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table><button class="btn pri lg" data-action="dir" data-dir="${d.key}">进入方案 ${d.short || d.key.toUpperCase()}</button></div>`).join('')}</div>`;
 function renderOverview() {
   const o = OVERVIEW;
-  return `<div class="ov"><div class="ov-kicker">Alva · Thesis · Web IA · 2026-09-23</div><h1>${esc(o.title)}</h1><p class="ov-sub">${esc(o.subtitle)}</p>${o.intro.map((p) => `<p class="ov-p">${esc(p)}</p>`).join('')}
-    ${ovCards(o.dirs)}
-    <h2>线一 · 竞品补丁（顶部条上的开关）</h2><p class="ov-p">${esc(o.patchesIntro || '')}</p><table class="ov-map">${(o.patches || []).map((r, i) => `<tr>${r.map((c, j) => (i === 0 ? `<th>${esc(c)}</th>` : `<td class="${j === 0 ? 'k' : ''}">${esc(c)}</td>`)).join('')}</tr>`).join('')}</table>
-    ${(o.questions || []).map((qq) => `<h2>${esc(qq.h)}</h2><ul class="ov-rules">${qq.body.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>`).join('')}
-    <h2>模块清单 · 对象 × 动作</h2><table class="ov-map">${(o.matrix || []).map((r, i) => `<tr>${r.map((c, j) => (i === 0 ? `<th>${esc(c)}</th>` : `<td class="${j === 0 ? 'k' : ''}">${esc(c)}</td>`)).join('')}</tr>`).join('')}</table>
-    <h2>模块清单 · 按入口分组</h2><div class="ov-groups">${(o.groups || []).map((g) => `<div class="ov-group"><h3>${esc(g.h)}</h3><table>${g.items.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table></div>`).join('')}</div>
-    <h2>整体要一起定的几件事</h2><ul class="ov-rules">${(o.tensions || []).map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
-    <h2>app 屏 → web 位置</h2><table class="ov-map">${o.mapping.map((r, i) => `<tr>${r.map((c, j) => (i === 0 ? `<th>${esc(c)}</th>` : `<td class="${j === 0 ? 'k' : ''}">${esc(c)}</td>`)).join('')}</tr>`).join('')}</table>
-    <h2>所有方案共用的 web 规则</h2><ul class="ov-rules">${NOTES.common.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
-    <p class="ov-foot">demo 数据全部为 mock；人物与头像沿用 Figma 稿里的占位。行情为 Alva Arrays 日线快照（2026-03-02 → 2026-09-22 收盘，15 只 ticker）；thesis 的「发布时价」取该版本日期当天的收盘。</p></div>`;
+  const sec = (num, title, desc, body) => `<section class="ov-sec"><div class="ov-sec-head"><span class="ov-num">${num}</span><h2>${esc(title)}</h2></div>${desc ? `<p class="ov-desc">${esc(desc)}</p>` : ''}${body}</section>`;
+  const table = (rows, cls = '') => `<table class="ov-map ${cls}">${rows.map((r, i) => `<tr>${r.map((c, j) => (i === 0 ? `<th>${esc(c)}</th>` : `<td class="${j === 0 ? 'k' : ''}">${esc(c)}</td>`)).join('')}</tr>`).join('')}</table>`;
+  return `<div class="ov"><div class="ov-kicker">Alva · Thesis · Web IA · 2026-09-24</div><h1>${esc(o.title)}</h1><p class="ov-sub">${esc(o.subtitle)}</p><p class="ov-p">${esc(o.intro)}</p>
+    ${sec('01', '三个方案', '', ovCards(o.dirs))}
+    ${sec('02', '竞品补丁', o.patchesIntro, table(o.patches, 'patches'))}
+    ${sec('03', '还没定的事', '', `<ul class="ov-rules">${o.open.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`)}
+    ${sec('04', 'app 屏 → web 位置', '', `${table(o.mapping)}<p class="ov-desc ov-after">${esc(o.mappingSame)}</p>`)}
+    ${sec('05', '三个方案都一样的规则', '', `<ul class="ov-rules">${NOTES.common.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`)}
+    <p class="ov-foot">${esc(o.foot)}</p></div>`;
 }
 
 /* ══════════ 浮层 ══════════ */
