@@ -1,19 +1,19 @@
 // Thesis · Web IA demo — 五方案共用一套渲染，DIRS 决定入口 / 导航 / 布局差异（E 另有自己的外壳）。无框架、无构建。
-import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925r';
+import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925w';
 
 /* ══════════ 方案配置 ══════════ */
 const DIRS = {
-  a: { key: 'a', short: 'A', name: '挂进现有骨架', home: 'explore/theses', screens: ['explore', 'thesis', 'profile', 'company', 'activity'], compose: 'modal', search: 'tickers', profileTabs: ['playbooks', 'theses', 'starred', 'purchased'], detail: 'single', cta: 'chat', exploreTabs: ['theses', 'playbooks', 'people'], tickerDir: false },
-  b: { key: 'b', short: 'B', name: 'For You 一级入口', home: 'foryou', screens: ['foryou', 'explore', 'thesis', 'profile', 'company', 'activity'], compose: 'inline', search: 'all', profileTabs: ['playbooks', 'theses', 'starred', 'purchased'], detail: 'single', cta: 'chat', exploreTabs: ['theses', 'playbooks', 'people', 'tickers'] },
+  a: { key: 'a', short: 'A', name: '挂进现有骨架', home: 'explore/theses', screens: ['explore', 'thesis', 'profile', 'company'], compose: 'modal', search: 'tickers', profileTabs: ['playbooks', 'theses', 'starred', 'purchased'], detail: 'single', cta: 'chat', exploreTabs: ['theses', 'playbooks', 'people'], tickerDir: false },
+  b: { key: 'b', short: 'B', name: 'For You 一级入口', home: 'foryou', screens: ['foryou', 'explore', 'thesis', 'profile', 'company'], compose: 'inline', search: 'all', profileTabs: ['playbooks', 'theses', 'starred', 'purchased'], detail: 'single', cta: 'chat', exploreTabs: ['theses', 'playbooks', 'people', 'tickers'] },
   // 大改造方案：换壳。topnav = 顶栏内容站。
   e: { key: 'e', short: 'C', name: '内容站 · 顶栏', home: 'foryou', screens: ['foryou', 'explore', 'markets', 'company', 'thesis', 'profile', 'write', 'alva'], compose: 'page', search: 'all', profileTabs: ['theses', 'playbooks', 'starred'], detail: 'article', cta: 'chat', exploreTabs: ['theses', 'playbooks', 'people'], shell: 'topnav' },
 };
-const SCREEN_LABEL = { overview: '总览', foryou: 'For You', explore: 'Explore', thesis: 'Thesis', profile: 'Profile', company: 'Company', write: 'Write', markets: 'Markets', activity: 'Activity', alva: 'Alva Agent' };
+const SCREEN_LABEL = { overview: '总览', foryou: 'For You', explore: 'Explore', thesis: 'Thesis', profile: 'Profile', company: 'Company', write: 'Write', markets: 'Markets', alva: 'Alva Agent' };
 const TAB_LABEL = { playbooks: 'Playbooks', theses: 'Theses', starred: 'Starred', purchased: 'Purchased', people: 'People', tickers: 'Tickers' };
 const TAGS = { new: 'New thesis', update: 'Thesis update', archived: 'Archived', private: 'Private', latest: 'Latest' };
 // Sidebar 订阅区的四种做法（与 A/B/C 正交），每个方案有自己的默认值
 const SB_DEFAULT = { a: 'playbooks', b: 'merged', e: 'merged' };
-const PATCH_DIRS = ['a', 'b']; // 线一四个补丁（新建入口 / 详情右栏 / 全局搜索 / Activity）生效的方案
+const PATCH_DIRS = ['a', 'b']; // 线一补丁（新建入口 / 详情右栏）生效的方案
 const ENTRY_OPTIONS = [['plus', '入口：小标题 +'], ['nav', '入口：导航项'], ['row', '入口：组内首行'], ['cta2', '入口：双 CTA']]; // e 只在 Work 模式用到
 const SB_OPTIONS = [['playbooks', '订阅区：Playbooks'], ['following', '订阅区：Following 分组'], ['merged', '订阅区：Following 混排']];
 
@@ -32,7 +32,7 @@ const state = {
   agent: { channel: 'agent', tab: 'chat', chatIdx: 0 }, // C 的 Alva 页：当前频道 / tab / 选中的历史 chat
   quickPost: false, // C 的补丁：For You 顶部快速发表（照 X）
   threeCol: false, // C 的补丁：三列布局（照 X / 微博）
-  entry: 'plus', detailRail: false, globalSearch: false, activity: false, activityFilter: 'all', guest: false, // 线一补丁四个开关 + M 客态
+  entry: 'plus', detailRail: false, guest: false, // 线一补丁两个开关 + M 客态
 };
 
 /* ══════════ 小工具 ══════════ */
@@ -190,7 +190,7 @@ function onRoute() {
     if (state.composer.mode === 'modal') state.composer.open = false;
     if (state.composer.mode === 'page' && r.screen !== 'write') state.composer.open = false;
     if (state.composer.mode === 'quick' && r.screen !== 'foryou') closeComposer();
-    state.termFilter = 'all'; state.activityFilter = 'all'; state.agent.tab = 'chat';
+    state.termFilter = 'all'; state.agent.tab = 'chat';
   }
   if (r.screen === 'thesis' && state.chat.mode !== 'build') state.chat.ctx = { type: 'thesis', id: r.param };
   else if (state.chat.ctx?.type === 'thesis' && r.screen !== 'thesis' && r.screen !== 'alva') state.chat.ctx = null;
@@ -210,7 +210,7 @@ function onRoute() {
   if (q.entry && ENTRY_OPTIONS.some(([v]) => v === q.entry)) state.entry = q.entry;
   if (q.quick) state.quickPost = q.quick === '1';
   if (q.cols) state.threeCol = q.cols === '3';
-  if (q.rail) state.detailRail = q.rail === '1'; if (q.gsearch) state.globalSearch = q.gsearch === '1'; if (q.activity) state.activity = q.activity === '1'; if (q.guest) state.guest = q.guest === '1';
+  if (q.rail) state.detailRail = q.rail === '1'; if (q.guest) state.guest = q.guest === '1';
   // E 全页编辑器：直接进 write 也要有一个空 composer
   if (r.screen === 'write' && !state.composer.open) Object.assign(state.composer, { open: true, mode: 'page', kind: 'new', text: q.text || '', tickers: q.text ? detectTickers(q.text) : [], removed: [], media: [], visibility: 'public', thesisId: null, polish: null, alert: false, alertDismissed: false, publishing: false });
   if (q.build === '1') { state.chat.mode = 'idle'; startBuild(q.text || ''); return; } // 深链：直接进 Create with Alva
@@ -258,7 +258,7 @@ function renderStrip() {
   const isOv = state.screen === 'overview'; const d = DIRS[state.dir];
   const states = [['default', '状态：默认'], ['first', '状态：首次进入'], ['empty', '状态：空列表'], ['error', '状态：加载失败']];
   // 顶部条只留一行：方案切换 · 竞品补丁开关和方案自己的下拉 · Demo index（对话框 / 说明 / 客态三个按钮已去掉，深链 ?chat=1 / ?notes=1 / ?guest=1 仍可用）
-  const patches = isOv ? '' : `<div class="strip-patches"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button><button class="strip-btn ${state.globalSearch ? 'on' : ''}" data-action="toggle-gsearch">全局搜索 ${state.globalSearch ? '开' : '关'}</button><button class="strip-btn ${state.activity ? 'on' : ''}" data-action="toggle-activity">Activity ${state.activity ? '开' : '关'}</button>` : state.dir === 'e' ? `<button class="strip-btn ${state.quickPost ? 'on' : ''}" data-action="toggle-quickpost">顶部快速发表 ${state.quickPost ? '开' : '关'}</button><button class="strip-btn ${state.threeCol ? 'on' : ''}" data-action="toggle-threecol">三列布局 ${state.threeCol ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${d.shell ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Markets：分开</option></select>` : ''}</div>`;
+  const patches = isOv ? '' : `<div class="strip-patches"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button>` : state.dir === 'e' ? `<button class="strip-btn ${state.quickPost ? 'on' : ''}" data-action="toggle-quickpost">顶部快速发表 ${state.quickPost ? '开' : '关'}</button><button class="strip-btn ${state.threeCol ? 'on' : ''}" data-action="toggle-threecol">三列布局 ${state.threeCol ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${d.shell ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Markets：分开</option></select>` : ''}</div>`;
   return `<div class="strip-row1"><div class="strip-seg">${['a', 'b', 'e'].map((k) => `<button class="${!isOv && state.dir === k ? 'on' : ''}" data-action="dir" data-dir="${k}"><b>${DIRS[k].short}</b>${DIRS[k].name}</button>`).join('')}<button class="${isOv ? 'on' : ''}" data-go="overview">总览</button></div>${patches}<div class="strip-right"><a class="strip-link" href="/demo/">Demo index</a></div></div>`;
 }
 
@@ -298,7 +298,6 @@ function renderSidebar() {
   else if (d.cta === 'chat') cta = `<div class="sb-cta"><button data-action="noop-newchat">${PLUS}<span>New Chat</span></button></div>`;
   else cta = `<div class="sb-cta"><button data-action="compose-home">${PLUS}<span>New thesis</span></button></div>`;
   if (state.entry === 'cta2' && PATCH_DIRS.includes(D)) cta = `<div class="sb-cta dual"><button data-action="noop-newchat">${PLUS}<span>New Chat</span></button><button class="sec" data-action="menu-fixed" data-menu="new-thesis">${icon('edit-l1', 14)}<span>New thesis</span></button></div>`; // 补丁：双 CTA
-  const searchRow = state.globalSearch && PATCH_DIRS.includes(D) ? `<button class="tl-search sb-search" data-action="search-open">${icon('search-l', 14)}<span>Search</span></button>` : ''; // 补丁：全局搜索行（照五家顶栏搜索）
   let nav = '';
   if (D === 'a') nav = it('Explore', 'sidebar-discover-normal', `${D}/explore/theses`, s === 'explore') + it('Portfolio', 'sidebar-portfolio-normal', null, false, 'noop-portfolio') + it('Markets', 'sidebar-k-normal', null, s === 'company', 'search-open');
   if (D === 'b') nav = it('For You', 'star-l', `${D}/foryou`, s === 'foryou') + it('Explore', 'sidebar-discover-normal', `${D}/explore${state.mergeMarkets ? '/theses' : ''}`, s === 'explore' || (state.mergeMarkets && s === 'company')) + (state.mergeMarkets ? '' : it('Markets', 'sidebar-k-normal', `${D}/company/NVDA`, s === 'company')) + it('Portfolio', 'sidebar-portfolio-normal', null, false, 'noop-portfolio');
@@ -306,12 +305,11 @@ function renderSidebar() {
   if (D === 'e') nav = it('For You', 'star-l', 'e/foryou', s === 'foryou') + it('Explore', 'sidebar-discover-normal', 'e/explore/theses', s === 'explore') + it('Markets', 'sidebar-k-normal', 'e/markets', s === 'markets' || s === 'company') + it('Portfolio', 'sidebar-portfolio-normal', null, false, 'noop-portfolio');
   if (PATCH_DIRS.includes(D)) {
     if (state.entry === 'nav') { const item = `<div class="sb-item sb-entry" data-action="menu-fixed" data-menu="new-thesis">${icon('edit-l1', 16)}<span>New thesis</span></div>`; nav = D === 'a' ? item + nav : nav.replace('</div>', '</div>' + item); } // 补丁：导航项入口（For You 之后）
-    if (state.activity) { const n = activityCount(); nav += it('Activity', 'notification-l', `${D}/activity`, s === 'activity').replace('</div>', `${n ? `<span class="sb-badge">${n}</span>` : ''}</div>`); } // 补丁：Activity 一级项
   }
   const groups = sbGroupsHTML(D, s, p, sbVariant());
   return `<aside class="sidebar">
     <div class="sb-logo"><img src="${ROOT}logo-alva.svg" alt="Alva"></div>
-    ${cta}${searchRow}
+    ${cta}
     <div class="sb-group">${nav}</div>
     ${groups}
     <div class="sb-spacer"></div>
@@ -327,7 +325,6 @@ function renderMain() {
     case 'thesis': return renderThesis();
     case 'profile': return renderProfile();
     case 'company': return renderCompany();
-    case 'activity': return renderActivity();
     case 'alva': return renderAlvaPage();
     case 'write': return renderWrite();
     case 'markets': return renderMarkets();
@@ -695,10 +692,10 @@ function renderProfile() {
       ${links ? `<div class="pf-links">${links}</div>` : ''}
       ${a.member === false ? `<div class="pf-note">${icon('bot-l', 14)}Compiled from public information. Not affiliated with Alva.</div>` : ''}
     </div>
-    <div class="pf-actions">${owner ? `<button class="btn pri" data-action="compose-new">${PLUS}New thesis</button><button class="act h32" title="Edit profile">${icon('edit-l1', 16)}</button><button class="act h32" title="Share">${icon('share-l', 16)}</button><button class="act h32" title="Settings">${icon('settings-l', 16)}</button>` : `${followBtn(a)}<button class="act h32" title="Share">${icon('share-l', 16)}</button>`}</div></div>`;
+    <div class="pf-actions">${owner ? `<button class="act" title="Settings" data-action="noop-settings-page">${icon('settings-l', 20)}</button>` : `${followBtn(a)}<button class="act h32" title="Share">${icon('share-l', 16)}</button>`}</div></div>`;
   const tabsHTML = `<div class="pf-tabs"><div class="tabs lg">${tabs.map((k) => `<button class="${tab === k ? 'on' : ''}" data-action="ptab" data-tab="${k}">${TAB_LABEL[k]}${k === 'theses' ? ` <span class="cnt">${mine.filter((t) => t.status === 'active').length}</span>` : ''}</button>`).join('')}</div>${tab === 'theses' ? `<div class="seg">${[['active', 'Active'], ['archived', 'Archived']].map(([k, l]) => `<button class="${state.profileFilter === k ? 'on' : ''}" data-action="pfilter" data-val="${k}">${l}</button>`).join('')}</div>` : ''}</div>`;
   let body;
-  if (tab === 'theses') body = shown.length ? (owner && d.manage === 'table' ? manageTableHTML(shown) : `<div class="pf-list">${shown.map((t) => (owner ? manageCard(t) : thesisCard(t, 'feed'))).join('')}</div>`) : emptyState('search-l', state.profileFilter === 'archived' ? 'No archived thesis' : 'No active thesis', owner && state.profileFilter === 'active' ? 'Write your first thesis from the button above.' : '');
+  if (tab === 'theses') body = shown.length ? (owner && d.manage === 'table' ? manageTableHTML(shown) : `<div class="pf-list lines">${shown.map((t) => (owner ? manageCard(t) : thesisCard(t, 'feed'))).join('')}</div>`) : emptyState('search-l', state.profileFilter === 'archived' ? 'No archived thesis' : 'No active thesis', owner && state.profileFilter === 'active' ? (state.dir === 'e' ? 'Write your first thesis from New Thesis at the top.' : 'Write your first thesis from the + next to Theses in the sidebar.') : '');
   else if (tab === 'playbooks') { const ids = { YGGYLL: ['attribution-analysis-price-trends', 'nvda-trading-research-dashboard'], 'Gavin Baker': ['nvda-triggered-tsm'], 'Space Investor': ['us-crypto-dat-monitor'] }[a.name] || []; const list = ids.map((id) => ({ ...PLAYBOOKS.find((pb) => pb.id === id), creator: a.name })); body = list.length ? playbookGrid(list, { fixed: true }) : emptyState('search-l', 'No playbooks yet'); }
   else if (tab === 'starred') body = owner ? playbookGrid(['btc-ultimate-ai-trader', 'mag7-equal-weight-monthly-rebalance', 'short-squeeze-risk-map'].map((id) => PLAYBOOKS.find((pb) => pb.id === id)), { fixed: true }) : emptyState('search-l', 'No starred playbooks yet');
   else body = emptyState('search-l', 'No purchased playbooks yet');
@@ -725,19 +722,18 @@ function renderCompany() {
 
 /* ══════════ Search 弹窗 ══════════ */
 function searchDialog() {
-  const d = DIRS[state.dir]; const q = state.search.q.trim().toLowerCase(); const all = d.search === 'all' || (state.globalSearch && PATCH_DIRS.includes(state.dir)) || state.guest;
-  const m = q && all ? exploreMatch(q) : null; // 补丁：全局搜索一次查四类（theses / playbooks 段来自 Explore 的匹配）
+  const d = DIRS[state.dir]; const q = state.search.q.trim().toLowerCase(); const all = d.search === 'all' || state.guest;
+  const m = q && state.guest ? exploreMatch(q) : null; // 客态搜索多一段 Theses（来自 Explore 的匹配）
   const thesisRows = m ? m.theses.slice(0, 4).map((t) => { const a = A(t.authorId); return `<div class="srow" data-go="${state.dir}/thesis/${t.id}">${avatar(a, 32)}<span class="col grow"><span class="name">${esc(a.name)} <span class="n5" style="font-weight:400">· ${esc(t.time)}</span></span><span class="sub trunc">${esc(t.versions[0].paragraphs[0])}</span></span></div>`; }).join('') : '';
-  const pbRows = m && !state.guest ? m.playbooks.slice(0, 3).map((pb) => `<div class="srow" data-action="noop-playbook">${creatorAvatar(pb.creator, 32)}<span class="col grow"><span class="name">${esc(pb.title)}</span><span class="sub trunc">${esc(pb.creator)} · ${plural(pb.remixes, 'remix').replace('remixs', 'remixes')}</span></span></div>`).join('') : '';
   const tks = Object.entries(TICKERS).filter(([s, m]) => !q || (s + ' ' + m.name).toLowerCase().includes(q)).slice(0, q ? 6 : 5);
   const ppl = all ? Object.values(AUTHORS).filter((a) => !a.me && a.member !== undefined && !a.org && (!q || (a.name + ' ' + (a.handle || '') + ' ' + a.role).toLowerCase().includes(q))).slice(0, q ? 6 : 5) : [];
   const tickerRows = tks.map(([s, m]) => `<div class="srow" data-go="${state.dir}/company/${s}">${logoImg(s, 32)}<span class="col grow"><span class="name">${s} <span class="n5" style="font-weight:400">${esc(m.name)}</span></span><span class="sub">${esc(m.venue)} · ${esc(m.industry)}</span></span><span class="q" data-quote="${s}"></span>${watchStar(s)}</div>`).join('');
   const peopleRows = ppl.map((a) => `<div class="srow" data-go="${state.dir}/profile/${a.id}">${avatar(a, 32)}<span class="col grow"><span class="name">${esc(a.name)}${a.member === false ? botBadge() : ''}</span><span class="sub trunc">${esc(a.role)}</span></span>${followBtn(a, 'sm')}</div>`).join('');
   const recent = !q && state.search.recent.length ? `<div class="dlg-sec"><div class="dlg-title"><span>Recent</span><button class="n5" data-action="recent-clear">Clear</button></div><div class="fchips">${state.search.recent.map((r) => `<span class="fchip">${esc(r)}<button class="act" style="padding:0 0 0 2px" data-action="recent-remove" data-val="${esc(r)}">${icon('close-l1', 10)}</button></span>`).join('')}</div></div>` : '';
-  const empty = q && !tks.length && !ppl.length && !thesisRows && !pbRows ? emptyState('search-l', 'No results found') : '';
+  const empty = q && !tks.length && !ppl.length && !thesisRows ? emptyState('search-l', 'No results found') : '';
   return `<div class="scrim light" data-action="search-close"><div class="dlg" data-stop>
-    <div class="dlg-input">${icon('search-l', 18)}<input data-input="search" placeholder="${all ? (state.globalSearch || state.guest ? 'Search theses, playbooks, people, tickers' : 'Search tickers or people') : 'Search companies'}" value="${esc(state.search.q)}">${q ? `<button class="act" data-action="search-clear">${icon('close-l1', 14)}</button>` : ''}</div>
-    <div class="dlg-body">${recent}${tks.length ? `<div class="dlg-sec"><div class="dlg-title"><span>${q ? 'Tickers' : 'Trending tickers'}</span></div>${tickerRows}</div>` : ''}${ppl.length ? `<div class="dlg-sec"><div class="dlg-title"><span>${q ? 'People' : 'People to follow'}</span></div>${peopleRows}</div>` : ''}${thesisRows ? `<div class="dlg-sec"><div class="dlg-title"><span>Theses</span></div>${thesisRows}</div>` : ''}${pbRows ? `<div class="dlg-sec"><div class="dlg-title"><span>Playbooks</span></div>${pbRows}</div>` : ''}${empty}</div>
+    <div class="dlg-input">${icon('search-l', 18)}<input data-input="search" placeholder="${all ? (state.guest ? 'Search theses, people, tickers' : 'Search tickers or people') : 'Search companies'}" value="${esc(state.search.q)}">${q ? `<button class="act" data-action="search-clear">${icon('close-l1', 14)}</button>` : ''}</div>
+    <div class="dlg-body">${recent}${tks.length ? `<div class="dlg-sec"><div class="dlg-title"><span>${q ? 'Tickers' : 'Trending tickers'}</span></div>${tickerRows}</div>` : ''}${ppl.length ? `<div class="dlg-sec"><div class="dlg-title"><span>${q ? 'People' : 'People to follow'}</span></div>${peopleRows}</div>` : ''}${thesisRows ? `<div class="dlg-sec"><div class="dlg-title"><span>Theses</span></div>${thesisRows}</div>` : ''}${empty}</div>
   </div></div>`;
 }
 
@@ -824,15 +820,6 @@ function draftFromIndex(i) { const m = state.chat.msgs[Number(i)]; return m?.dra
 
 /* ══════════ E · 顶栏内容站（F 的 Read / Work 切换并在这里） ══════════ */
 const LOGO_DARK = ROOT + 'logo-alva-green-black.svg'; // 白底顶栏用绿黑版；深色侧栏仍用 logo-alva.svg
-function userMenu() {
-  if (state.menu !== 'user') return '';
-  return menuHTML([
-    { ic: 'user-profile-l', label: 'Profile', action: 'go-profile' },
-    { ic: 'edit-l1', label: 'My theses', sub: 'Active · Archived · Private', action: 'go-mine' },
-    { ic: 'sidebar-agent-normal', label: 'Alva Agent', sub: 'Channels · Chats · Agent', action: 'go-alva' },
-    { ic: 'settings-l', label: 'Settings', action: 'noop-settings' },
-  ]);
-}
 function renderTopShell() {
   const D = state.dir; const s = state.screen; const key = `${D}/${s}/${state.param}`;
   const items = [['For You', `${D}/foryou`, s === 'foryou'], ['Explore', `${D}/explore/theses`, s === 'explore'], ['Markets', `${D}/markets`, s === 'markets' || s === 'company'], ['Portfolio', null, false], ['Alva Agent', `${D}/alva`, s === 'alva']]
@@ -846,7 +833,7 @@ function renderTopShell() {
     <div class="tn-right">
       <button class="tn-search" data-action="search-open">${icon('search-l', 16)}<span>Search</span></button>
       <button class="btn pri" data-action="write">${icon('edit-l1', 14)}New Thesis</button>
-      <span class="menu-anchor"><button class="tn-user" data-action="menu" data-menu="user">${avatar(A('yggyll'), 32)}</button>${userMenu()}</span>
+      <button class="tn-user" data-go="${D}/profile/yggyll" title="Profile">${avatar(A('yggyll'), 32)}</button>
     </div>
   </header>
   <div class="main"><div class="main-scroll" data-key="${key}">${renderMain()}</div>${fab}</div>${drawer}`;
@@ -861,7 +848,7 @@ function threeColNav() {
     <div class="tc-items">${items}</div>
     <button class="btn pri tc-new" data-action="write">${icon('edit-l1', 16)}New Thesis</button>
     <span class="grow"></span>
-    <span class="menu-anchor tc-user"><button class="tc-account" data-action="menu" data-menu="user">${avatar(me, 40)}<span class="col grow"><span class="t14 med trunc">${esc(me.name)}</span><span class="t12 n5 trunc">${esc(me.handle || '')}</span></span>${icon('more-l1', 16, 'n5')}</button>${userMenu()}</span>
+    <div class="tc-account"><span class="tc-me" data-go="${D}/profile/yggyll" title="Profile">${avatar(me, 40)}<span class="col grow"><span class="t14 med trunc">${esc(me.name)}</span><span class="t12 n5 trunc">${esc(me.handle || '')}</span></span></span></div>
   </nav>`;
 }
 // E · For You：阅读版式——一列 720 的大卡（首段放大成导语），右栏沿用 People to follow / Trending
@@ -985,7 +972,7 @@ function hydrateTimeline() {
   });
 }
 
-/* ══════════ 线一补丁（详情右栏 / 全局搜索 / Activity / 新建入口）· 线二 H 公司页优先 · M 公开页壳 ══════════ */
+/* ══════════ 线一补丁（详情右栏 / 新建入口）· M 公开页壳 ══════════ */
 // 右栏规则：对话框关闭时右栏放上下文（Related / Relevant people / Tickers），打开就收起退回 tabs；C 本来就是两栏，E 是文章版式，不套
 const railOn = () => state.detailRail && !state.chat.open && !state.guest && PATCH_DIRS.includes(state.dir);
 function compactThesisRow(t) { const a = A(t.authorId); return `<div class="rrow" data-go="${state.dir}/thesis/${t.id}">${avatar(a, 24)}<span class="col grow"><span class="t12 trunc"><span class="med">${esc(a.name)}</span><span class="n5"> · ${esc(t.time)}</span></span><span class="t12 n7 clamp2">${esc(t.versions[0].paragraphs[0])}</span></span></div>`; }
@@ -1002,24 +989,6 @@ function detailRail(t) {
 function signalsSection(t) {
   const sigs = signalsFor(t);
   return `<div class="sig-sec"><h3 class="t16 med" style="margin:0">Signals <span class="n5" style="font-weight:400">(${t.signalsPending ? '…' : sigs.length})</span></h3>${t.signalsPending ? `<div class="gen">${squares()}<div>Reviewing signals from the past 7 days.<br>This may take a few minutes…</div></div>` : sigs.map(signalCard).join('')}</div>`;
-}
-// Activity：收藏 thesis 的新 signal · 关注的人的 thesis 更新 · 我的 thesis 被收藏（照 Substack 的 Activity 一级项）
-function activityItems() {
-  const items = [];
-  for (const t of THESES) {
-    const a = A(t.authorId); if (t.status !== 'active') continue; const sub = t.versions[0].paragraphs[0]; const date = lastDate(t);
-    if (t.newSignals && (t.saved || a.me)) items.push({ kind: 'signals', t, a, text: `${plural(t.newSignals, 'new signal')} on ${a.me ? 'your thesis' : a.name + '’s thesis'}`, sub, time: t.time, date });
-    if (!a.me && state.followed.has(t.authorId) && t.visibility !== 'private') items.push({ kind: 'updates', t, a, text: `${a.name} ${t.kind === 'update' ? `updated a thesis · ${plural(t.versions.length, 'version')}` : 'published a new thesis'}`, sub, time: t.time, date });
-    if (a.me && t.saves) items.push({ kind: 'mine', t, a, text: `${plural(t.saves, 'person').replace('persons', 'people')} saved your thesis`, sub, time: t.time, date });
-  }
-  return items.sort((x, y) => (y.date > x.date ? 1 : y.date < x.date ? -1 : 0));
-}
-const activityCount = () => activityItems().filter((i) => i.kind !== 'mine').length;
-function renderActivity() {
-  const f = state.activityFilter || 'all'; const all = activityItems(); const list = f === 'all' ? all : all.filter((i) => i.kind === f);
-  const chips = [['all', `All · ${all.length}`], ['signals', 'Signals'], ['updates', 'Updates'], ['mine', 'On my theses']];
-  const rows = list.map((i) => `<div class="act-row" data-go="${state.dir}/thesis/${i.t.id}">${avatar(i.a, 32)}<span class="col grow"><span class="med trunc">${esc(i.text)}</span><span class="t12 n5 trunc">${esc(i.sub)}</span></span><span class="t12 n5" style="white-space:nowrap">${esc(i.time)}</span></div>`).join('');
-  return `<div class="page"><div class="rd-col" style="max-width:880px"><div class="page-head"><h1 class="title">Activity</h1></div><div class="fchips" style="margin-bottom:12px">${chips.map(([k, l]) => `<button class="fchip ${f === k ? 'on' : ''}" data-action="afilter" data-val="${k}">${l}</button>`).join('')}</div>${rows || emptyState('notification-l', 'Nothing new', 'Signals on saved theses and updates from people you follow show up here.')}</div></div>`;
 }
 // 结果追踪表：H 的 Profile › Theses 主态使用
 function manageTableHTML(list) {
@@ -1126,7 +1095,7 @@ function notesHTML() {
   if (scr === 'overview') push('三个方案共用的 web 规则', NOTES.common);
   else {
     push(`${DIRS[d].short} · ${SCREEN_LABEL[scr]}`, NOTES[d]?.[scr]);
-    if (PATCH_DIRS.includes(d)) { if (state.entry !== 'plus') push('补丁 · 新建入口', NOTES.patches?.entry); if (state.detailRail && (scr === 'thesis' || scr === 'company')) push('补丁 · 详情右栏', NOTES.patches?.rail); if (state.globalSearch) push('补丁 · 全局搜索', NOTES.patches?.search); if (state.activity) push('补丁 · Activity', NOTES.patches?.activity); }
+    if (PATCH_DIRS.includes(d)) { if (state.entry !== 'plus') push('补丁 · 新建入口', NOTES.patches?.entry); if (state.detailRail && (scr === 'thesis' || scr === 'company')) push('补丁 · 详情右栏', NOTES.patches?.rail); }
     if (state.guest) push('M · 客态公开页壳', NOTES.patches?.guest);
     if (d === 'e' && state.quickPost) push('补丁 · 顶部快速发表', NOTES.patches?.quick);
     if (d === 'e' && state.threeCol) push('补丁 · 三列布局', NOTES.patches?.threecol);
@@ -1215,23 +1184,17 @@ function act(name, el) {
     case 'toggle-threecol': state.threeCol = !state.threeCol; state.menu = null; break;
     case 'toggle-quickpost': state.quickPost = !state.quickPost; if (c.mode === 'quick') closeComposer(); break;
     /* C · Alva 页 */
-    case 'go-alva': state.menu = null; go(`${state.dir}/alva`); return;
     case 'agent-ch': state.agent.channel = val; state.agent.chatIdx = 0; state.agent.tab = 'chat'; Object.assign(state.chat, { msgs: [], typing: false, mode: 'idle', ctx: null }); state.focus = 'chat'; break;
     case 'agent-tab': state.agent.tab = el.dataset.tab; break;
     case 'agent-new': state.agent.chatIdx = 0; state.agent.tab = 'chat'; Object.assign(state.chat, { msgs: [], typing: false, mode: 'idle', ctx: null }); state.focus = 'chat'; break;
     case 'agent-chat': { const i = Number(val); state.agent.chatIdx = i; state.agent.tab = 'chat'; state.menu = null; const q = SIDEBAR.chats[i - 1]; Object.assign(state.chat, { msgs: [{ type: 'user', text: q }, { type: 'alva', text: cannedReply(q) }], typing: false, mode: 'idle', ctx: null }); break; }
     /* 线一补丁 / M 客态 */
     case 'toggle-rail': state.detailRail = !state.detailRail; break;
-    case 'toggle-gsearch': state.globalSearch = !state.globalSearch; break;
-    case 'toggle-activity': state.activity = !state.activity; if (!state.activity && state.screen === 'activity') { go(homePath(state.dir)); return; } break;
     case 'toggle-guest': { state.guest = !state.guest; state.menu = null; if (state.guest) { state.chat.open = false; if (!['thesis', 'profile', 'company'].includes(state.screen)) { go(`${state.dir}/thesis/gavin-ai-flow`); return; } } break; }
     case 'guest-signin': toast('Sign in to continue', 'locked-l'); return;
-    case 'afilter': state.activityFilter = val; break;
     /* E / G 新增 */
     case 'write': openComposer(); return; // E：顶栏 Write → 全页编辑器
     case 'write-cancel': { const back = c.kind === 'update' && c.thesisId ? `${state.dir}/thesis/${c.thesisId}` : `${state.dir}/foryou`; closeComposer(); go(back); return; }
-    case 'go-profile': state.menu = null; go(`${state.dir}/profile/yggyll`); return;
-    case 'go-mine': state.menu = null; go(`${state.dir}/profile/yggyll?ptab=theses`); return;
     case 'tfilter': state.termFilter = val; break;
     /* composer */
     case 'compose-open': if (!(c.open && c.mode === 'inline')) openComposer(); return;
@@ -1269,6 +1232,7 @@ function act(name, el) {
     case 'noop-portfolio': toast('Portfolio 沿用现有页面，不在本 demo 范围', 'explain-l'); return;
     case 'noop-playbook': toast('Playbook 页沿用现有页面，不在本 demo 范围', 'explain-l'); return;
     case 'noop-channel': toast('Channel 沿用现有，不在本 demo 范围', 'explain-l'); return;
+    case 'noop-settings-page': toast('Settings 沿用现有页面，不在本 demo 范围', 'explain-l'); return;
     case 'noop-newchat': toast('New Chat 沿用现有，不在本 demo 范围', 'explain-l'); return; // Sidebar 的 New Chat 在生产里是 /new_chat 页，不是右侧面板
     case 'subscribe': { if (state.subscribed.has(id)) state.subscribed.delete(id); else state.subscribed.add(id); break; }
     case 'noop-subscribe': toast('Subscribed', 'check-l1'); return;

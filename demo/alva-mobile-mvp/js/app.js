@@ -1,7 +1,7 @@
 /* ========== app.js — router & boot ========== */
-import { store, closeSheet } from './state.js?v=local-muexa3';
-import { renderRoute, TAB_ROUTES } from './screens.js?v=local-muexa3';
-import { ACTIONS } from './actions.js?v=local-muexa3';
+import { store, closeSheet } from './state.js?v=local-mueycn';
+import { renderRoute, TAB_ROUTES } from './screens.js?v=local-mueycn';
+import { ACTIONS } from './actions.js?v=local-mueycn';
 
 const pagesEl = document.getElementById('pages');
 const tabbar = document.getElementById('tabbar');
