@@ -418,6 +418,7 @@ export const NOTES = {
     profile: [
       'Profile 加 Theses tab，放在 Playbooks 之后；Active / Archived 用右侧分段控件切换，Private 在 Active 里带标。',
       '行级 ··· 菜单承担管理：Update / Archive thesis / Make private，与详情头部的菜单是同一套。',
+      '主态 Theses 列表不用卡片，一行一条用分割线隔开；头部右侧只留设置齿轮，新建走 Sidebar Theses 组的 +，编辑 / 分享去掉（三个方案一致）。',
       'app 的 Portfolio 卡、Usage 卡不搬进 web profile，web 有 /portfolio 和 /records。',
       '客态 Profile：已入驻显示 Follow + Pro；未入驻显示 Following 描边钮、bot 角标和「Compiled from public information」提示。',
     ],
@@ -456,6 +457,7 @@ export const NOTES = {
     profile: [
       'Profile › Theses 是管理面：Active / Archived 切换，行级 ··· 做 Update / Archive / Make private。',
       'Theses tab 放在 Playbooks 之后，B 不改 playbook 的主次。',
+      '主态列表和头部同 A：分割线一行一条，头部只留设置齿轮。',
     ],
     company: [
       'Company 页加 Theses tab，与 A 相同；ticker chip 点击直接进公司页。',
@@ -471,7 +473,7 @@ export const NOTES = {
   },
   e: {
     foryou: [
-      '没有左侧栏：一级导航挪到顶栏（For You · Explore · Markets · Portfolio），Channels / Chats / Agent 收在顶栏「Alva Agent」一页里；头像菜单的 Alva Agent 也进这一页。',
+      '没有左侧栏：一级导航挪到顶栏（For You · Explore · Markets · Portfolio），Channels / Chats / Agent 收在顶栏「Alva Agent」一页里；右上角点头像直接进 Profile，设置在 Profile 头部的齿轮里，不再有头像菜单。',
       'For You 是阅读版式：一列 720 宽的大卡，首段放大成导语，图表和图片放大到 352 宽；右栏 People to follow / Trending tickers 不变。',
       '页顶没有 composer：写东西走顶栏 New Thesis 进全屏编辑器，阅读页只管读。',
       'Alva 收成右下角悬浮按钮，点开是盖在页面右侧的抽屉，不占常驻宽度；卡片上的 Ask Alva 也开这个抽屉并挂上下文。',
@@ -496,7 +498,8 @@ export const NOTES = {
     ],
     profile: [
       'Profile 变成个人主页：Theses 第一 tab，Playbooks 第二，Starred 第三；主态管理列表（Active / Archived / 行级 ···）沿用。',
-      '头像菜单里的 My theses 直接落到这里的 Theses tab。',
+      '主态 Theses 列表去掉卡片外框，一行一条用分割线隔开；头部右侧只留设置齿轮（New Thesis 在顶栏，编辑 / 分享去掉）。',
+      '右上角点头像直接进这里，Theses 是第一个 tab（原来头像菜单里的 My theses 和 Alva Agent 两项去掉了，一个在这里、一个在顶栏）。',
     ],
     alva: [
       '参考 X 的 Grok：右下角圆角方形气泡，点开后气泡留在原地、卡片浮在它正上方，盖在右栏上不挤正文；头部只有一排图标：历史 / 展开成整页 / 新对话 / 收起；底部输入框带附件、@、模型选择（默认 GPT-5.6 Sol，照 global-chat spec）。',
@@ -522,7 +525,7 @@ export const NOTES = {
   patches: {
     threecol: [
       '来源：X 和微博的三列——左边导航、中间内容、右边推荐。',
-      '顶栏拆掉，导航改成左侧竖排一列：logo → For You · Explore · Markets · Portfolio · Alva Agent → New Thesis 主按钮 → 底部账号（点开是原来的头像菜单，向上弹）。',
+      '顶栏拆掉，导航改成左侧竖排一列：logo → For You · Explore · Markets · Portfolio · Alva Agent → New Thesis 主按钮 → 底部账号（点进 Profile，设置在 Profile 头部）。',
       '搜索挪到 For You 右栏顶部，跟着右栏吸顶；Explore 和 Markets 页自带搜索框。',
       '左列右边一条竖线贯通到底，For You 的卡片横线从这条线拉到正文列右边的竖线，两头都接上。',
       '三列作为一组居中（240 + 752 + 352），宽屏两侧留白；其他页面是左列 + 页面本身。',
@@ -543,16 +546,6 @@ export const NOTES = {
       '规则：对话框关闭时右栏放上下文（Related theses / Relevant people / Tickers），Signals 留在正文下；对话框打开右栏收起，退回 Signals | Related tabs。',
       '两栏详情（正文 + 右栏证据）原本是「以人为中心」那版的做法，这里作为 A / B 的开关保留。',
     ],
-    search: [
-      '来源：知乎、Medium、Reddit、微博、小红书都把搜索钉在顶部，每一页都有；我们原来只在 Explore 头部和 Markets 弹窗有。',
-      'Sidebar 结构没有顶栏，就放在 CTA 下面一条常驻搜索行；点开是居中弹窗，一次查 theses / playbooks / people / tickers。',
-      'Explore 头部搜索保留，只是不再是唯一入口；详情页、个人页因此也有搜索。',
-    ],
-    activity: [
-      '来源：Substack 的 Activity 一级项。',
-      '把散在 Theses 组行尾红点里的东西给一个页面：收藏 thesis 的新 signal、关注的人的 thesis 更新、我的 thesis 被收藏，按时间一列，可按类型筛。',
-      '和 spec 的 Feed Alert 口径要再对：这里先按「thesis 相关动态」做，导航项上的数字 = 新 signal + 关注更新条数。',
-    ],
     guest: [
       '来源：Reddit / 知乎 / 微博 / Substack 未登录能读，且都换成精简壳（无个人导航，右栏变登录卡）；Medium 作者页、X 客态单帖页是两页的原型。',
       '只做三页：thesis 分享页（文章版式 + 作者卡 + Relevant people + Related）、作者公开主页（Medium 作者页结构）、ticker 公开页（价格 + theses + About）。',
@@ -572,7 +565,7 @@ export const OVERVIEW = {
   dirs: [
     { key: 'a', name: 'A · 挂进现有骨架', tagline: 'thesis 是 playbook 家族的一种内容，不加一级入口，改动最小。', rows: [['Sidebar', 'Channels 之下加一组 Theses（我的 + 收藏，+ 新建）'], ['浏览', 'Explore 加 Theses tab，与 playbook 共用筛选'], ['关注人', 'Explore › People tab'], ['详情', '独立页，单列 960'], ['创建', 'Sidebar Theses 组的 + → 弹层编辑器'], ['管理', 'Profile › Theses（Playbooks 之后）'], ['Search', '沿用公司搜索，只搜 ticker'], ['代价', 'For You 这条「关注的人在说什么」的流没有家']] },
     { key: 'b', name: 'B · For You 一级入口', tagline: 'For You 负责个性化消费与创建，Explore 统一承接四类主动发现；管理放 Profile。', rows: [['Sidebar', 'For You 放第一位，Explore 收进 Markets；不放 Search 项；Channels 下加 Theses 组（+ 新建）'], ['浏览', 'For You = 个性化 feed；Explore = Theses / Playbooks / People / Tickers'], ['详情', '独立页，单列 960'], ['创建', 'For You 顶部常驻 composer；Create with Alva 走对话面板'], ['管理', 'Profile › Theses'], ['Search', 'Explore 头部跨 Theses / Playbooks / People / Tickers 搜索'], ['代价', '多一个一级项；Follow 人与 Subscribe playbook 两套关系要讲清']] },
-    { key: 'e', short: 'C', name: 'C · 内容站 · 顶栏', tagline: 'thesis 是内容。去掉 Sidebar 和常驻对话面板，用内容站的壳读和写。', rows: [['导航', '顶栏 For You · Explore · Markets · Portfolio · Alva Agent；Channels / Chats 在 Alva Agent 页左栏'], ['浏览', 'For You 大卡阅读流 + 右栏；Explore 三 tab；Markets 落地页'], ['详情', '文章版式 720 一列，无 sticky 头'], ['创建', '顶栏 New Thesis → 全屏编辑器；Create with Alva 是编辑器右侧抽屉'], ['管理', '头像菜单 › My theses（Profile 主态列表）'], ['Alva', '照 X Grok：圆角气泡（打开后留着）→ 上方浮出卡片（历史 / 展开 / 新对话 / 收起），可展开到 Alva Agent 整页（Chat · Tasks · Memory · Alerts · Files），同一会话']] },
+    { key: 'e', short: 'C', name: 'C · 内容站 · 顶栏', tagline: 'thesis 是内容。去掉 Sidebar 和常驻对话面板，用内容站的壳读和写。', rows: [['导航', '顶栏 For You · Explore · Markets · Portfolio · Alva Agent；Channels / Chats 在 Alva Agent 页左栏'], ['浏览', 'For You 大卡阅读流 + 右栏；Explore 三 tab；Markets 落地页'], ['详情', '文章版式 720 一列，无 sticky 头'], ['创建', '顶栏 New Thesis → 全屏编辑器；Create with Alva 是编辑器右侧抽屉'], ['管理', '点头像进 Profile › Theses（主态列表）；设置在 Profile 头部'], ['Alva', '照 X Grok：圆角气泡（打开后留着）→ 上方浮出卡片（历史 / 展开 / 新对话 / 收起），可展开到 Alva Agent 整页（Chat · Tasks · Memory · Alerts · Files），同一会话']] },
   ],
   questions: [
     { h: '追加 · 左侧订阅区放 playbook、thesis，还是都放', body: [
@@ -587,13 +580,11 @@ export const OVERVIEW = {
     ] },
   ],
   // 模块清单：对象 × 动作矩阵 + 按入口分组（用户 2026-09-23 要「整体考虑」用）
-  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的四个结构，做成 A / B 的开关，在顶部条上切；C 另有「顶部快速发表」「三列布局」两个开关；客态公开页用深链 ?guest=1 看。',
+  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的两个结构，做成 A / B 的开关，在顶部条上切；C 另有「顶部快速发表」「三列布局」两个开关；客态公开页用深链 ?guest=1 看。',
   patches: [
     ['补丁', '来源', '做法', '默认'],
     ['新建入口升一级', '小红书「发布」一级项 · Substack Create · Medium 顶栏 Write', '四档：小标题 + / 导航项 / 组内首行 / 双 CTA', '小标题 +（现状），下拉切'],
     ['详情右栏承接「相关」', 'Reddit Related posts · 知乎相关问题 · X Relevant people', '对话框关闭时右栏放 Related / Relevant people / Tickers，打开退回 tabs', '关，开关切'],
-    ['全局搜索项', '五家都把搜索钉在顶栏', 'Sidebar CTA 下一条搜索行 → 居中弹窗查四类', '关，开关切'],
-    ['Activity 一级项', 'Substack Activity', '新 signal / 关注的人更新 / 我的被收藏，一列可筛', '关，开关切'],
     ['顶部快速发表（C）', 'X 首页顶部的发帖框', 'For You 筛选条下常驻一个发帖框：头像 + 正文 + 识别出的 ticker + app 编辑器同款工具 + Public ▾ + Publish；发完留在当前页，新 thesis 出现在最上面', '关，开关切'],
     ['三列布局（C）', 'X / 微博：左侧导航列 + 中间内容 + 右栏', '顶栏导航改成左侧竖排一列（logo · For You · Explore · Markets · Portfolio · Alva Agent · New Thesis · 底部账号），搜索挪到 For You 右栏顶部；中间列两侧竖线贯通，卡片横线两头都接上', '关，开关切'],
     ['客态公开页壳（M）', 'Medium 作者页 · X 客态单帖 · Reddit / 知乎公开态', 'thesis / 作者 / ticker 三页精简顶栏壳，其余登录门', '关，深链 ?guest=1'],
@@ -634,7 +625,7 @@ export const OVERVIEW = {
     ['Create with Alva', 'New Chat → 对话面板', 'composer ✨ → 对话面板', '编辑器右侧抽屉'],
     ['详情 + 底栏三动作', '独立页；收藏 / 分享在头部，Ask Alva 在对话面板', '同 A', '文章版式；收藏 / 分享在作者行，Ask Alva 走悬浮按钮'],
     ['All updates 二级页', '上一版露一截 + View all 弹窗', '同', '上一版露一截 + View all 弹窗'],
-    ['Me › Thesis', 'Profile › Theses（第二 tab）', 'Profile › Theses（第二 tab）', '头像菜单 › My theses（Profile 第一 tab）'],
+    ['Me › Thesis', 'Profile › Theses（第二 tab）', 'Profile › Theses（第二 tab）', '点头像进 Profile › Theses（第一 tab）'],
     ['··· Archive / Private', '详情头部 ··· + Profile 行级 ···', '同', '详情作者行 ··· + Profile 行级 ···'],
     ['Search tab', '公司搜索弹窗（只 ticker）', '搜索弹窗 Tickers / People', '顶栏 Search → 居中弹窗（ticker + people）'],
     ['Markets 入口', 'Sidebar Markets → 公司搜索（现状）', '合并态：Explore › Tickers；Search 弹窗直达', '顶栏 Markets 落地页'],

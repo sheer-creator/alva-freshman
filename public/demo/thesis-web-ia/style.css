@@ -582,7 +582,6 @@ table.mine td.act-cell { text-align: right; padding-right: 0; }
 .sb-cta.dual button { width: 100%; }
 .sb-cta.dual button.sec { background: rgba(255,255,255,.08); color: rgba(255,255,255,.88); }
 .sb-cta.dual button.sec:hover { background: rgba(255,255,255,.12); }
-.sb-search { margin-top: 2px; }
 .sb-item.sb-entry { color: rgba(255,255,255,.7); }
 .sb-item.sb-entry:hover { color: #fff; }
 .th-body.ctx { display: flex; gap: 40px; align-items: flex-start; max-width: 1240px; margin: 0 auto; padding: 0 28px 96px; }
@@ -597,8 +596,6 @@ table.mine td.act-cell { text-align: right; padding-right: 0; }
 .clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sig-sec { display: flex; flex-direction: column; }
 .sig-sec h3 { padding-bottom: 8px; border-bottom: .5px solid var(--line-l12); }
-.act-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: .5px solid var(--line-l12); }
-.act-row:hover { background: var(--b-r02); }
 @container main (max-width: 1099px) { .th-body.ctx, .co-body.ctx { display: block; } .th-rail { width: auto; position: static; padding-top: 8px; } }
 /* ── M · 客态公开页壳 ── */
 #frame.public-shell { flex-direction: column; background: #fff; }
@@ -619,7 +616,6 @@ table.mine td.act-cell { text-align: right; padding-right: 0; }
 .tl-row { display: block; }
 .tl-row .card { flex: none; }
 
-.sb-search span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* C：右栏就在当前位置吸顶（页面上 padding 32），不要先滑 32 再吸 */
 #frame.topnav-shell .rail, #frame.public-shell .pub-rail { top: 32px; }
@@ -691,10 +687,9 @@ table.mine td.act-cell { text-align: right; padding-right: 0; }
 .tc-item.on { color: var(--text-n9); font-weight: 500; background: var(--b-r05); }
 .tc-item .ic { width: 22px; height: 22px; }
 .tc-new { width: 100%; height: 44px; font-size: 14px; margin-top: 16px; }
-.tc-user { width: 100%; }
-.tc-account { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 12px; border-radius: 8px; text-align: left; }
-.tc-account:hover { background: var(--b-r03); }
-.tc-user .menu { top: auto; bottom: calc(100% + 6px); left: 0; right: auto; }
+.tc-account { display: flex; align-items: center; gap: 4px; width: 100%; }
+.tc-me { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.tc-me:hover { background: var(--b-r03); }
 .tc-page { flex: 1; min-width: 0; }
 .three-col .page.reading { padding: 0; }
 .three-col .page.reading .rd-wrap { max-width: none; }
@@ -704,3 +699,7 @@ table.mine td.act-cell { text-align: right; padding-right: 0; }
 .three-col .ag-wrap { min-height: calc(100vh - var(--strip-h)); }
 .three-col .ed-alva { height: calc(100vh - var(--strip-h) - 48px); }
 #frame.topnav-shell.three-col .chat-drawer { top: calc(var(--strip-h) + 16px); }
+
+/* C · Profile 主态列表：去掉卡片外框，一行一条，行间分割线 */
+.pf-list.lines { gap: 0; padding-top: 0; }
+.pf-list.lines .card.manage { border: 0; border-radius: 0; border-bottom: .5px solid var(--line-l12); padding: 20px 0; }
