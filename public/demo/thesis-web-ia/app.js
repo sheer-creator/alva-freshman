@@ -1,5 +1,5 @@
 // Thesis · Web IA demo — 五方案共用一套渲染，DIRS 决定入口 / 导航 / 布局差异（E 另有自己的外壳）。无框架、无构建。
-import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925q';
+import { AUTHORS, THESES, TICKERS, COMPANY_NAMES, PLAYBOOKS, PLAYBOOK_NAV_ITEMS, CREATOR_AVATARS, AVATAR_COLOR_PALETTE, BRAND, SIDEBAR, PEOPLE_TO_FOLLOW, FOLLOWING, TRENDING, WATCHLIST, MERGED_FOLLOWING, SIGNALS, SIGNAL_POOL, ABOUT, NOTES, OVERVIEW, ROOT, TD, SNAPSHOT_URL, ICON_CDN, tickerLogo } from './data.js?v=20260925r';
 
 /* ══════════ 方案配置 ══════════ */
 const DIRS = {
@@ -31,6 +31,7 @@ const state = {
   mode: 'read', termFilter: 'all', // E 的 Read / Work；G 终端页的 All / Following / Mine
   agent: { channel: 'agent', tab: 'chat', chatIdx: 0 }, // C 的 Alva 页：当前频道 / tab / 选中的历史 chat
   quickPost: false, // C 的补丁：For You 顶部快速发表（照 X）
+  threeCol: false, // C 的补丁：三列布局（照 X / 微博）
   entry: 'plus', detailRail: false, globalSearch: false, activity: false, activityFilter: 'all', guest: false, // 线一补丁四个开关 + M 客态
 };
 
@@ -208,6 +209,7 @@ function onRoute() {
   if (q.compose === '1' && r.screen !== 'overview') { Object.assign(state.composer, { open: true, mode: r.screen === 'write' ? 'page' : r.screen === 'foryou' && DIRS[r.dir].compose === 'inline' ? 'inline' : 'modal', kind: 'new', text: q.text || '', tickers: q.text ? detectTickers(q.text) : [], removed: [], media: [], visibility: 'public', thesisId: null, polish: null, alert: false, alertDismissed: false }); }
   if (q.entry && ENTRY_OPTIONS.some(([v]) => v === q.entry)) state.entry = q.entry;
   if (q.quick) state.quickPost = q.quick === '1';
+  if (q.cols) state.threeCol = q.cols === '3';
   if (q.rail) state.detailRail = q.rail === '1'; if (q.gsearch) state.globalSearch = q.gsearch === '1'; if (q.activity) state.activity = q.activity === '1'; if (q.guest) state.guest = q.guest === '1';
   // E 全页编辑器：直接进 write 也要有一个空 composer
   if (r.screen === 'write' && !state.composer.open) Object.assign(state.composer, { open: true, mode: 'page', kind: 'new', text: q.text || '', tickers: q.text ? detectTickers(q.text) : [], removed: [], media: [], visibility: 'public', thesisId: null, polish: null, alert: false, alertDismissed: false, publishing: false });
@@ -231,7 +233,7 @@ function render() {
   const frame = $('#frame'); const shell = DIRS[state.dir].shell;
   if (state.screen === 'overview') { frame.className = ''; frame.innerHTML = `<div class="main"><div class="main-scroll" data-key="${key}">${renderOverview()}</div></div>`; }
   else if (state.guest) { frame.className = 'topnav-shell public-shell'; frame.innerHTML = renderPublicShell(); } // M：客态公开页壳，对所有方案生效
-  else if (shell === 'topnav') { frame.className = 'topnav-shell' + (state.chat.open && !(state.screen === 'write' && state.chat.mode === 'build') ? ' chat-open' : ''); frame.innerHTML = renderTopShell(); } // 抽屉开着时内容区让出右侧宽度、隐藏右栏
+  else if (shell === 'topnav') { frame.className = 'topnav-shell' + (state.chat.open && !(state.screen === 'write' && state.chat.mode === 'build') ? ' chat-open' : '') + (state.threeCol ? ' three-col' : ''); frame.innerHTML = renderTopShell(); } // 抽屉开着时内容区让出右侧宽度、隐藏右栏
   else { frame.className = ''; frame.innerHTML = renderSidebar() + `<div class="main"><div class="main-scroll" data-key="${key}">${renderMain()}</div>${state.chat.open ? '' : `<button class="fab" data-action="open-chat">${icon('chat-ai-l', 18)}<span>Ask Alva</span></button>`}</div>` + renderChat(); }
   $('#layer').innerHTML = renderLayer();
   const nsc = $('.main-scroll'); if (nsc) nsc.scrollTop = state.scrollTop != null ? state.scrollTop : (prevKey === key ? prevTop : 0);
@@ -256,7 +258,7 @@ function renderStrip() {
   const isOv = state.screen === 'overview'; const d = DIRS[state.dir];
   const states = [['default', '状态：默认'], ['first', '状态：首次进入'], ['empty', '状态：空列表'], ['error', '状态：加载失败']];
   // 顶部条只留一行：方案切换 · 竞品补丁开关和方案自己的下拉 · Demo index（对话框 / 说明 / 客态三个按钮已去掉，深链 ?chat=1 / ?notes=1 / ?guest=1 仍可用）
-  const patches = isOv ? '' : `<div class="strip-patches"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button><button class="strip-btn ${state.globalSearch ? 'on' : ''}" data-action="toggle-gsearch">全局搜索 ${state.globalSearch ? '开' : '关'}</button><button class="strip-btn ${state.activity ? 'on' : ''}" data-action="toggle-activity">Activity ${state.activity ? '开' : '关'}</button>` : state.dir === 'e' ? `<button class="strip-btn ${state.quickPost ? 'on' : ''}" data-action="toggle-quickpost">顶部快速发表 ${state.quickPost ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${d.shell ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Markets：分开</option></select>` : ''}</div>`;
+  const patches = isOv ? '' : `<div class="strip-patches"><span class="strip-lbl">竞品补丁</span>${PATCH_DIRS.includes(state.dir) ? `<select class="strip-sel" data-change="entry">${ENTRY_OPTIONS.map(([v, l]) => `<option value="${v}" ${state.entry === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="strip-btn ${state.detailRail ? 'on' : ''}" data-action="toggle-rail">详情右栏 ${state.detailRail ? '开' : '关'}</button><button class="strip-btn ${state.globalSearch ? 'on' : ''}" data-action="toggle-gsearch">全局搜索 ${state.globalSearch ? '开' : '关'}</button><button class="strip-btn ${state.activity ? 'on' : ''}" data-action="toggle-activity">Activity ${state.activity ? '开' : '关'}</button>` : state.dir === 'e' ? `<button class="strip-btn ${state.quickPost ? 'on' : ''}" data-action="toggle-quickpost">顶部快速发表 ${state.quickPost ? '开' : '关'}</button><button class="strip-btn ${state.threeCol ? 'on' : ''}" data-action="toggle-threecol">三列布局 ${state.threeCol ? '开' : '关'}</button>` : '<span class="strip-note">线一补丁只在 A / B 生效</span>'}${state.screen === 'foryou' ? `<select class="strip-sel" data-change="fystate">${states.map(([v, l]) => `<option value="${v}" ${(state.query.state || 'default') === v ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}${d.shell ? '' : `<select class="strip-sel" data-change="sb">${SB_OPTIONS.map(([v, l]) => `<option value="${v}" ${sbVariant() === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}${state.dir === 'b' ? `<select class="strip-sel" data-change="merge"><option value="1" ${state.mergeMarkets ? 'selected' : ''}>Markets：合并</option><option value="0" ${state.mergeMarkets ? '' : 'selected'}>Markets：分开</option></select>` : ''}</div>`;
   return `<div class="strip-row1"><div class="strip-seg">${['a', 'b', 'e'].map((k) => `<button class="${!isOv && state.dir === k ? 'on' : ''}" data-action="dir" data-dir="${k}"><b>${DIRS[k].short}</b>${DIRS[k].name}</button>`).join('')}<button class="${isOv ? 'on' : ''}" data-go="overview">总览</button></div>${patches}<div class="strip-right"><a class="strip-link" href="/demo/">Demo index</a></div></div>`;
 }
 
@@ -838,6 +840,7 @@ function renderTopShell() {
   const inEditorAlva = s === 'write' && state.chat.mode === 'build';
   const drawer = state.chat.open && !inEditorAlva && s !== 'alva' ? `<div class="chat-drawer">${renderChat()}</div>` : '';
   const fab = s === 'write' || s === 'alva' ? '' : `<button class="fab ${state.chat.open ? 'on' : ''}" data-action="toggle-chat" title="${state.chat.open ? 'Close Alva' : 'Ask Alva'}">${icon('chat-ai-l', 18)}<span>Ask Alva</span></button>`; // 照 X：打开后气泡留着，卡片浮在它上方
+  if (state.threeCol) return `<div class="main"><div class="main-scroll" data-key="${key}"><div class="tc-wrap">${threeColNav()}<div class="tc-page">${renderMain()}</div></div></div>${fab}</div>${drawer}`; // 补丁：三列布局
   return `<header class="topnav">
     <div class="tn-left"><img class="tn-logo" src="${LOGO_DARK}" alt="Alva" data-go="${D}/foryou"><nav class="tn-nav">${items}</nav></div>
     <div class="tn-right">
@@ -847,6 +850,19 @@ function renderTopShell() {
     </div>
   </header>
   <div class="main"><div class="main-scroll" data-key="${key}">${renderMain()}</div>${fab}</div>${drawer}`;
+}
+/* C · 三列布局（竞品补丁，照 X / 微博）：顶栏导航改成左侧竖排一列，中间是页面主体，For You 右栏顶部放搜索 */
+function threeColNav() {
+  const D = state.dir; const s = state.screen; const me = A('yggyll');
+  const items = [['For You', 'star-l', `${D}/foryou`, s === 'foryou'], ['Explore', 'sidebar-discover-normal', `${D}/explore/theses`, s === 'explore'], ['Markets', 'sidebar-k-normal', `${D}/markets`, s === 'markets' || s === 'company'], ['Portfolio', 'sidebar-portfolio-normal', null, false], ['Alva Agent', 'sidebar-agent-normal', `${D}/alva`, s === 'alva']]
+    .map(([l, ic, goTo, on]) => `<span class="tc-item ${on ? 'on' : ''}" ${goTo ? `data-go="${goTo}"` : 'data-action="noop-portfolio"'}>${icon(ic, 22)}<span>${l}</span></span>`).join('');
+  return `<nav class="tc-nav">
+    <img class="tc-logo" src="${LOGO_DARK}" alt="Alva" data-go="${D}/foryou">
+    <div class="tc-items">${items}</div>
+    <button class="btn pri tc-new" data-action="write">${icon('edit-l1', 16)}New Thesis</button>
+    <span class="grow"></span>
+    <span class="menu-anchor tc-user"><button class="tc-account" data-action="menu" data-menu="user">${avatar(me, 40)}<span class="col grow"><span class="t14 med trunc">${esc(me.name)}</span><span class="t12 n5 trunc">${esc(me.handle || '')}</span></span>${icon('more-l1', 16, 'n5')}</button>${userMenu()}</span>
+  </nav>`;
 }
 // E · For You：阅读版式——一列 720 的大卡（首段放大成导语），右栏沿用 People to follow / Trending
 function renderReading() {
@@ -862,7 +878,7 @@ function renderReading() {
   else if (st === 'error') body = emptyState('close-l1', "Couldn't load", 'Try again in a moment.', `<button class="btn pri" data-action="fystate-reset">Retry</button>`);
   else body = (list.length ? list.map((t) => thesisCard(t, 'story')).join('') : emptyState('search-l', 'Nothing new yet')) + `<div class="feed-end t12 n5">You're up to date</div>`;
   const quick = state.quickPost && st !== 'first' ? quickComposerHTML() : '';
-  return `<div class="page reading"><div class="rd-wrap"><div class="rd-main">${head}${quick}${body}</div><aside class="rail">${railPeople()}${railTrending()}</aside></div></div>`;
+  return `<div class="page reading"><div class="rd-wrap"><div class="rd-main">${head}${quick}${body}</div><aside class="rail">${state.threeCol ? `<div class="rail-box rail-search"><button class="tn-search" data-action="search-open">${icon('search-l', 16)}<span>Search</span></button></div>` : ''}${railPeople()}${railTrending()}</aside></div></div>`;
 }
 // E · Markets 落地页：搜索 + watchlist + Trending，卡片进公司页
 function renderMarkets() {
@@ -1113,6 +1129,7 @@ function notesHTML() {
     if (PATCH_DIRS.includes(d)) { if (state.entry !== 'plus') push('补丁 · 新建入口', NOTES.patches?.entry); if (state.detailRail && (scr === 'thesis' || scr === 'company')) push('补丁 · 详情右栏', NOTES.patches?.rail); if (state.globalSearch) push('补丁 · 全局搜索', NOTES.patches?.search); if (state.activity) push('补丁 · Activity', NOTES.patches?.activity); }
     if (state.guest) push('M · 客态公开页壳', NOTES.patches?.guest);
     if (d === 'e' && state.quickPost) push('补丁 · 顶部快速发表', NOTES.patches?.quick);
+    if (d === 'e' && state.threeCol) push('补丁 · 三列布局', NOTES.patches?.threecol);
     if (!DIRS[d].shell) push(`Sidebar ${(SB_OPTIONS.find(([v]) => v === sbVariant()) || [])[1] || ''}`, NOTES.sidebar?.[sbVariant()]);
     if (d === 'b') push(`Explore + Markets · ${state.mergeMarkets ? '合并' : '分开'}`, NOTES.merge?.[state.mergeMarkets ? 'on' : 'off']);
     if (state.composer.open || state.chat.mode === 'build' || scr === 'foryou' || scr === 'write') push('创建', NOTES[d]?.compose);
@@ -1195,6 +1212,7 @@ function act(name, el) {
     case 'import-x': state.xConnected = true; break;
     case 'choose': if (state.chosen.has(id)) state.chosen.delete(id); else state.chosen.add(id); break;
     case 'choose-continue': state.chosen.forEach((x) => state.followed.add(x)); state.chosen.clear(); toast(`Following ${state.followed.size} people`); go(`${state.dir}/foryou`); return;
+    case 'toggle-threecol': state.threeCol = !state.threeCol; state.menu = null; break;
     case 'toggle-quickpost': state.quickPost = !state.quickPost; if (c.mode === 'quick') closeComposer(); break;
     /* C · Alva 页 */
     case 'go-alva': state.menu = null; go(`${state.dir}/alva`); return;
