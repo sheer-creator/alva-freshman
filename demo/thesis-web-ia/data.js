@@ -520,6 +520,13 @@ export const NOTES = {
     ],
   },
   patches: {
+    threecol: [
+      '来源：X 和微博的三列——左边导航、中间内容、右边推荐。',
+      '顶栏拆掉，导航改成左侧竖排一列：logo → For You · Explore · Markets · Portfolio · Alva Agent → New Thesis 主按钮 → 底部账号（点开是原来的头像菜单，向上弹）。',
+      '搜索挪到 For You 右栏顶部，跟着右栏吸顶；Explore 和 Markets 页自带搜索框。',
+      '左列右边一条竖线贯通到底，For You 的卡片横线从这条线拉到正文列右边的竖线，两头都接上。',
+      '三列作为一组居中（240 + 752 + 352），宽屏两侧留白；其他页面是左列 + 页面本身。',
+    ],
     quick: [
       '来源：X 首页顶部的发帖框（What’s happening?），不用离开时间线就能发。',
       'For You 筛选条下面常驻一个发帖框：头像 + 正文（多行自动长高）→ 识别出的 ticker → 图片；工具栏和 app 编辑器一致（图片 / 加粗 / ticker / polish），右边 Public ▾ + Publish。',
@@ -580,7 +587,7 @@ export const OVERVIEW = {
     ] },
   ],
   // 模块清单：对象 × 动作矩阵 + 按入口分组（用户 2026-09-23 要「整体考虑」用）
-  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的四个结构，做成 A / B 的开关，在顶部条上切；C 另有一个「顶部快速发表」开关；客态公开页用深链 ?guest=1 看。',
+  patchesIntro: '竞品参考板（Figma「竞品参考 · 社交产品 Web 页面」）里验证过的四个结构，做成 A / B 的开关，在顶部条上切；C 另有「顶部快速发表」「三列布局」两个开关；客态公开页用深链 ?guest=1 看。',
   patches: [
     ['补丁', '来源', '做法', '默认'],
     ['新建入口升一级', '小红书「发布」一级项 · Substack Create · Medium 顶栏 Write', '四档：小标题 + / 导航项 / 组内首行 / 双 CTA', '小标题 +（现状），下拉切'],
@@ -588,6 +595,7 @@ export const OVERVIEW = {
     ['全局搜索项', '五家都把搜索钉在顶栏', 'Sidebar CTA 下一条搜索行 → 居中弹窗查四类', '关，开关切'],
     ['Activity 一级项', 'Substack Activity', '新 signal / 关注的人更新 / 我的被收藏，一列可筛', '关，开关切'],
     ['顶部快速发表（C）', 'X 首页顶部的发帖框', 'For You 筛选条下常驻一个发帖框：头像 + 正文 + 识别出的 ticker + app 编辑器同款工具 + Public ▾ + Publish；发完留在当前页，新 thesis 出现在最上面', '关，开关切'],
+    ['三列布局（C）', 'X / 微博：左侧导航列 + 中间内容 + 右栏', '顶栏导航改成左侧竖排一列（logo · For You · Explore · Markets · Portfolio · Alva Agent · New Thesis · 底部账号），搜索挪到 For You 右栏顶部；中间列两侧竖线贯通，卡片横线两头都接上', '关，开关切'],
     ['客态公开页壳（M）', 'Medium 作者页 · X 客态单帖 · Reddit / 知乎公开态', 'thesis / 作者 / ticker 三页精简顶栏壳，其余登录门', '关，深链 ?guest=1'],
   ],
   matrix: [

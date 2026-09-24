@@ -680,3 +680,27 @@ table.mine td.act-cell { text-align: right; padding-right: 0; }
 .qpost .menu.left, .qpost .menu { top: calc(100% + 4px); }
 .qpost-top { display: flex; gap: 12px; }
 .qpost-foot .tools { margin-left: -8px; } /* 36 方钮里 20 的图标，左移 8 让图标左缘对齐头像左缘 */
+
+/* C · 三列布局补丁（照 X / 微博）：左侧导航列 + 页面主体（For You 自带正文列 + 右栏），三列一组居中 */
+.tc-wrap { display: flex; max-width: 1344px; margin: 0 auto; min-height: 100%; }
+.tc-nav { width: 240px; flex: none; position: sticky; top: 0; height: calc(100vh - var(--strip-h)); display: flex; flex-direction: column; gap: 4px; padding: 16px 16px 16px 8px; border-right: .5px solid var(--line-l12); background: #fff; z-index: 3; }
+.tc-logo { height: 18px; width: auto; align-self: flex-start; margin: 10px 12px 18px; cursor: pointer; }
+.tc-items { display: flex; flex-direction: column; gap: 2px; }
+.tc-item { display: flex; align-items: center; gap: 14px; height: 48px; padding: 0 12px; border-radius: 8px; font-size: 16px; line-height: 26px; letter-spacing: .16px; color: var(--text-n7); cursor: pointer; white-space: nowrap; }
+.tc-item:hover { background: var(--b-r03); color: var(--text-n9); }
+.tc-item.on { color: var(--text-n9); font-weight: 500; background: var(--b-r05); }
+.tc-item .ic { width: 22px; height: 22px; }
+.tc-new { width: 100%; height: 44px; font-size: 14px; margin-top: 16px; }
+.tc-user { width: 100%; }
+.tc-account { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 12px; border-radius: 8px; text-align: left; }
+.tc-account:hover { background: var(--b-r03); }
+.tc-user .menu { top: auto; bottom: calc(100% + 6px); left: 0; right: auto; }
+.tc-page { flex: 1; min-width: 0; }
+.three-col .page.reading { padding: 0; }
+.three-col .page.reading .rd-wrap { max-width: none; }
+.three-col .page.reading .rd-main > * { padding-left: 32px; }
+.page.reading .rail-box.rail-search { padding-top: 12px; padding-bottom: 4px; border-bottom: 0; }
+.rail-search .tn-search { width: 100%; border-radius: 960px; background: var(--b-r03); border-color: transparent; }
+.three-col .ag-wrap { min-height: calc(100vh - var(--strip-h)); }
+.three-col .ed-alva { height: calc(100vh - var(--strip-h) - 48px); }
+#frame.topnav-shell.three-col .chat-drawer { top: calc(var(--strip-h) + 16px); }
