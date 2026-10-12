@@ -1,16 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="demo-summary" content="Alva Chat header motion study: the idle, running and needs-input states in the Baby mobile surface.">
-  <title>Alva Chat · Header state motion</title>
+  <meta name="demo-summary" content="Alva Chat 顶栏动效研究：Baby 移动端里闲置、运行中、需要输入三种状态的切换。">
+  <title>Alva Chat · 顶栏状态动效</title>
   <style>
     @font-face { font-family: Delight; src: url('m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
     @font-face { font-family: Delight; src: url('m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    /* 中文走本机已装的方正兰亭黑（仓库不带字体文件）：400 → 准黑，500 → 中黑；Delight 没有的汉字自动落到这里 */
+    @font-face { font-family: FZLanTingHei; src: local('FZLanTingHei-M-GBK'), local('方正兰亭准黑_GBK'); font-weight: 400; }
+    @font-face { font-family: FZLanTingHei; src: local('FZLanTingHei-DB-GBK'), local('方正兰亭中黑_GBK'); font-weight: 500; }
 
     :root {
       --b0: #fff;
+      --b5: rgba(255, 255, 255, .5);
       --glass: rgba(255, 255, 255, .52);
       --br05: rgba(0, 0, 0, .05);
       --line: rgba(0, 0, 0, .2);
@@ -23,43 +27,48 @@
       --m5: #e6a91a;
       --shadow: 0 2px 16px rgba(0, 0, 0, .08);
       --ease: cubic-bezier(.2, 0, 0, 1);
-      --slow: 1;
     }
     * { box-sizing: border-box; }
     html { min-height: 100%; background: #f4f6f6; -webkit-font-smoothing: antialiased; }
-    body { min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px 16px 56px; color: var(--n9); font-family: Delight, -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px 16px; color: var(--n9); font-family: Delight, FZLanTingHei, 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif; }
     button { font: inherit; color: inherit; }
     .page { width: min(100%, 920px); }
-    .intro { margin: 0 auto 24px; max-width: 440px; }
+    .intro { margin: 0; }
     .kicker { margin: 0 0 8px; color: var(--m1); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
     h1 { margin: 0; font-size: 24px; line-height: 32px; font-weight: 500; }
     .lede { margin: 8px 0 0; color: var(--n5); font-size: 14px; line-height: 22px; }
-    .stage { display: flex; align-items: center; justify-content: center; gap: 32px; }
+    .stage { display: flex; align-items: flex-start; justify-content: center; gap: 40px; }
+    .side { flex: none; align-self: center; display: flex; flex-direction: column; gap: 28px; width: 320px; }
     .phone-wrap { flex: none; width: 440px; height: 956px; }
     .phone-screen { position: relative; width: 440px; height: 956px; display: flex; flex-direction: column; overflow: hidden; border-radius: 44px; background: var(--b0); box-shadow: 0 0 0 .5px var(--line), 0 18px 50px rgba(0,0,0,.12); transform-origin: top left; }
     .status-bar { flex: none; height: 59px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 72px; font-size: 14px; font-weight: 500; }
     .island { width: 125px; height: 37px; border-radius: 20px; background: #000; }
     .status-icons { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-    .top { flex: none; background: linear-gradient(var(--b0), transparent); backdrop-filter: blur(1px); }
-    .appbar { height: 60px; display: grid; place-items: center; padding: 4px 16px; }
-    .pill { position: relative; flex: none; width: 108px; height: 52px; border-radius: 960px; background: var(--glass); backdrop-filter: blur(15px); box-shadow: inset 0 0 .5px var(--line), var(--shadow); transition: width calc(.42s * var(--slow)) var(--ease); }
+    .top { flex: none; }
+    /* Alva/Header (Feed-Mobile-MVP 10212:64690): 440×60, padding 4/16, pill centred, Inbox button pinned right */
+    .appbar { position: relative; height: 60px; display: grid; place-items: center; padding: 4px 16px; }
+    /* pill: content/b5 fill, line/l2 0.5 inside stroke, App/Bg Blur 30 (= blur 15px), App/Shadow Floating 0 2 16 8% */
+    .pill { position: relative; flex: none; width: 108px; height: 52px; border-radius: 960px; background: var(--b5); backdrop-filter: blur(15px); box-shadow: inset 0 0 0 .5px var(--line), var(--shadow); transition: width .42s var(--ease); }
+    /* Inbox button: 38×38, radius-ct-l 8, same fill / stroke / blur as the pill, inbox-l 20px n9 */
+    .inbox { position: absolute; top: 11px; right: 16px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 8px; background: var(--b5); backdrop-filter: blur(15px); box-shadow: inset 0 0 0 .5px var(--line); }
+    .inbox svg { display: block; width: 20px; height: 20px; }
     .pill.no-motion, .pill.no-motion * { transition: none !important; }
     .avatar { position: absolute; top: 8px; left: 8px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: #2a2a38; }
     .avatar img { width: 19px; height: 19px; }
-    .ring { position: absolute; top: 5px; left: 5px; width: 42px; height: 42px; border-radius: 50%; opacity: 0; transform: scale(.86); pointer-events: none; transition: opacity calc(.2s * var(--slow)) var(--ease), transform calc(.2s * var(--slow)) var(--ease); }
-    .ring-run { background: conic-gradient(rgba(73,163,166,.12), var(--m1)); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); animation: spin calc(1.4s * var(--slow)) linear infinite; }
+    .ring { position: absolute; top: 5px; left: 5px; width: 42px; height: 42px; border-radius: 50%; opacity: 0; transform: scale(.86); pointer-events: none; transition: opacity .2s var(--ease), transform .2s var(--ease); }
+    .ring-run { border: 1.5px solid var(--m1); }
     .ring-wait { border: 1.5px solid var(--m5); }
     .pill[data-state="running"] .ring, .pill[data-state="waiting"] .ring { transform: none; }
-    .pill[data-state="running"] .ring-run, .pill[data-state="waiting"] .ring-wait { opacity: 1; transition: opacity calc(.3s * var(--slow)) var(--ease) calc(.04s * var(--slow)), transform calc(.42s * var(--slow)) var(--ease) calc(.04s * var(--slow)); }
-    @keyframes spin { to { rotate: 360deg; } }
-    .label { position: absolute; top: 0; right: 16px; left: 52px; height: 52px; overflow: hidden; transition: right calc(.42s * var(--slow)) var(--ease); }
+    .pill[data-state="running"] .ring-run, .pill[data-state="waiting"] .ring-wait { opacity: 1; transition: opacity .3s var(--ease) .04s, transform .42s var(--ease) .04s; }
+    .label { position: absolute; top: 0; right: 16px; left: 52px; height: 52px; overflow: hidden; transition: right .42s var(--ease); }
     .pill[data-state="waiting"] .label { right: 32px; }
-    .label > span { position: absolute; top: 0; left: 0; color: var(--n9); font-size: 20px; font-weight: 500; line-height: 52px; white-space: pre; opacity: 0; }
-    .label > span.small { left: 3px; font-size: 16px; }
-    .label > span.in { opacity: 1; transition: opacity calc(.24s * var(--slow)) ease-out calc(.1s * var(--slow)); }
-    .label > span.out { opacity: 0; transition: opacity calc(.12s * var(--slow)) ease-in; }
-    .dot { position: absolute; top: 22px; right: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--m5); opacity: 0; transform: scale(.4); transition: opacity calc(.16s * var(--slow)) ease-in, transform calc(.16s * var(--slow)) ease-in; }
-    .pill[data-state="waiting"] .dot { opacity: 1; transform: none; transition: opacity calc(.2s * var(--slow)) ease-out calc(.12s * var(--slow)), transform calc(.36s * var(--slow)) cubic-bezier(.34,1.56,.64,1) calc(.12s * var(--slow)); }
+    .label > span { position: absolute; top: 0; left: 0; color: var(--n9); font-size: 20px; font-weight: 500; line-height: 52px; letter-spacing: .2px; white-space: pre; opacity: 0; }
+    /* Running (Alva/Header · Running 10212:64700): Medium/16, letter-spacing 1%, text starts 11px after the logo (x=55) instead of 8px */
+    .label > span.small { left: 3px; font-size: 16px; letter-spacing: .16px; }
+    .label > span.in { opacity: 1; transition: opacity .24s ease-out .1s; }
+    .label > span.out { opacity: 0; transition: opacity .12s ease-in; }
+    .dot { position: absolute; top: 22px; right: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--m5); opacity: 0; transform: scale(.4); transition: opacity .16s ease-in, transform .16s ease-in; }
+    .pill[data-state="waiting"] .dot { opacity: 1; transform: none; transition: opacity .2s ease-out .12s, transform .36s cubic-bezier(.34,1.56,.64,1) .12s; }
     .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; overflow: hidden; }
     .time { padding: 2px 0; color: var(--n5); font-size: 12px; line-height: 20px; text-align: center; }
     .row { display: flex; }
@@ -68,11 +77,11 @@
     .bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 22px; }
     .bubble.agent { max-width: 376px; background: var(--br05); }
     .bubble.user { width: 100%; background: var(--m1-10); }
-    .typing { flex: none; height: 46px; display: flex; align-items: center; gap: 4px; padding: 12px 16px; border-radius: 12px; background: var(--br05); opacity: 0; transform: scale(.92); transform-origin: left center; transition: opacity calc(.16s * var(--slow)) ease-in, transform calc(.16s * var(--slow)) ease-in; }
-    .screen[data-state="running"] .typing { opacity: 1; transform: none; transition: opacity calc(.24s * var(--slow)) ease-out calc(.1s * var(--slow)), transform calc(.32s * var(--slow)) var(--ease) calc(.1s * var(--slow)); }
-    .typing i { width: 6px; height: 6px; border-radius: 50%; background: #000; opacity: .1; animation: dotPulse calc(1.2s * var(--slow)) ease-in-out infinite; }
-    .typing i:nth-child(2) { animation-delay: calc(.2s * var(--slow)); }
-    .typing i:nth-child(3) { animation-delay: calc(.4s * var(--slow)); }
+    .typing { flex: none; height: 46px; display: flex; align-items: center; gap: 4px; padding: 12px 16px; border-radius: 12px; background: var(--br05); opacity: 0; transform: scale(.92); transform-origin: left center; transition: opacity .16s ease-in, transform .16s ease-in; }
+    .screen[data-state="running"] .typing { opacity: 1; transform: none; transition: opacity .24s ease-out .1s, transform .32s var(--ease) .1s; }
+    .typing i { width: 6px; height: 6px; border-radius: 50%; background: #000; opacity: .1; animation: dotPulse 1.2s ease-in-out infinite; }
+    .typing i:nth-child(2) { animation-delay: .2s; }
+    .typing i:nth-child(3) { animation-delay: .4s; }
     @keyframes dotPulse { 0%,60%,100% { opacity: .1; } 30% { opacity: .3; } }
     .bottom { flex: none; background: var(--glass); backdrop-filter: blur(15px); }
     .chatbox-frame { padding: 0 16px 12px; }
@@ -85,31 +94,28 @@
     .tab.on { color: var(--n9); font-weight: 500; }
     .indicator { position: relative; height: 34px; }
     .indicator i { position: absolute; top: 21px; left: 50%; width: 144px; height: 5px; margin-left: -72px; border-radius: 100px; background: #000; }
-    .controls { display: flex; flex-direction: column; gap: 16px; min-width: 150px; }
+    .controls { display: flex; flex-direction: column; gap: 16px; }
     .control-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
     .control-group button { min-width: 124px; height: 32px; padding: 0 12px; border: 0; border-radius: 960px; background: #fff; box-shadow: inset 0 0 .5px var(--line); font-size: 14px; line-height: 20px; text-align: left; cursor: pointer; }
     .control-group button[aria-pressed="true"] { background: var(--n9); color: #fff; box-shadow: none; }
-    .caption { max-width: 440px; margin: 18px auto 0; color: var(--n5); font-size: 12px; line-height: 18px; }
+    .caption { margin: 0; color: var(--n5); font-size: 12px; line-height: 18px; }
     @media (max-width: 720px) {
       body { align-items: flex-start; padding-top: 20px; }
-      .stage { flex-direction: column; gap: 20px; }
-      .controls { flex-direction: row; flex-wrap: wrap; justify-content: center; min-width: 0; }
+      .stage { flex-direction: column; align-items: center; gap: 20px; }
+      .side { display: contents; }
+      .intro { order: -1; width: 100%; max-width: 440px; }
+      .controls { flex-direction: row; flex-wrap: wrap; justify-content: center; }
       .control-group { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .caption { width: 100%; max-width: 440px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .pill, .ring, .label, .label > span, .dot, .typing { transition: none !important; }
-      .ring-run, .typing i { animation: none; }
+      .typing i { animation: none; }
     }
   </style>
 </head>
 <body>
   <main class="page">
-    <header class="intro">
-      <p class="kicker">Alva Chat · motion study</p>
-      <h1>Header state motion</h1>
-      <p class="lede">The Chat header expands from a quiet Alva pill into a running task, then signals when it needs your input.</p>
-    </header>
-
     <div class="stage">
       <div class="phone-wrap" id="phoneWrap">
         <section class="phone-screen screen" id="screen" data-state="idle" aria-label="Alva Chat preview">
@@ -123,6 +129,7 @@
                 <span class="label" aria-hidden="true"></span>
                 <span class="dot" aria-hidden="true"></span>
               </div>
+              <span class="inbox" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path transform="translate(1 3)" fill-rule="nonzero" d="M 17 7.5 L 12.817 7.5 C 12.784 7.5 12.754 7.517 12.735 7.544 L 11.392 9.519 C 11.187 9.82 10.847 10 10.482 10 L 7.518 10 C 7.153 10 6.813 9.82 6.608 9.519 L 5.265 7.544 C 5.246 7.517 5.216 7.5 5.183 7.5 L 1 7.5 L 1 11.5 C 1 12.328 1.672 13 2.5 13 L 15.5 13 C 16.328 13 17 12.328 17 11.5 L 17 7.5 Z M 4.598 1 C 4.414 1 4.244 1.101 4.157 1.263 L 1.338 6.5 L 5.183 6.5 C 5.547 6.5 5.887 6.68 6.092 6.981 L 7.435 8.956 C 7.453 8.983 7.484 9 7.518 9 L 10.482 9 C 10.516 9 10.547 8.983 10.565 8.956 L 11.908 6.981 C 12.113 6.68 12.453 6.5 12.817 6.5 L 16.662 6.5 L 13.843 1.263 C 13.756 1.101 13.586 1 13.402 1 L 4.598 1 Z M 18 11.5 C 18 12.881 16.881 14 15.5 14 L 2.5 14 C 1.119 14 0 12.881 0 11.5 L 0 7 C 0 6.917 0.02 6.836 0.06 6.763 L 3.276 0.789 C 3.538 0.303 4.046 0 4.598 0 L 13.402 0 C 13.954 0 14.462 0.303 14.724 0.789 L 17.94 6.763 C 17.98 6.836 18 6.917 18 7 L 18 11.5 Z" fill="black" fill-opacity="0.9"/></svg></span>
             </div>
           </div>
           <div class="body">
@@ -139,43 +146,69 @@
         </section>
       </div>
 
-      <aside class="controls" aria-label="Motion controls">
-        <div class="control-group">
-          <button type="button" data-go="idle" aria-pressed="true">Idle</button>
-          <button type="button" data-go="running" aria-pressed="false">Running</button>
-          <button type="button" data-go="waiting" aria-pressed="false">Needs input</button>
+      <aside class="side" aria-label="Motion study notes and controls">
+        <header class="intro">
+          <p class="kicker">Alva Chat · 动效研究</p>
+          <h1>顶栏状态动效</h1>
+          <p class="lede">Chat 顶栏从安静的 Alva 胶囊展开为运行中的任务，需要你输入时再给出提示。</p>
+        </header>
+        <div class="controls">
+          <div class="control-group">
+            <button type="button" data-go="idle" aria-pressed="true">Idle</button>
+            <button type="button" data-go="running" aria-pressed="false">Running</button>
+            <button type="button" data-go="waiting" aria-pressed="false">Needs input</button>
+          </div>
+          <div class="control-group">
+            <button type="button" id="auto" aria-pressed="true">Auto-play</button>
+          </div>
         </div>
-        <div class="control-group">
-          <button type="button" id="auto" aria-pressed="true">Auto-play</button>
-          <button type="button" id="slow" aria-pressed="false">0.25× speed</button>
-          <button type="button" id="actual" aria-pressed="false">Actual size</button>
-        </div>
+        <p class="caption">同一套状态动效已接入 Baby 移动端原型的 Alva Chat tab。</p>
       </aside>
     </div>
-    <p class="caption">The same state motion is integrated into the Alva Chat tab in the Baby mobile prototype.</p>
   </main>
 
   <script>
     (() => {
-      const root = document.documentElement;
       const wrap = document.getElementById('phoneWrap');
+      const stage = document.querySelector('.stage');
+      const side = document.querySelector('.side');
       const screen = document.getElementById('screen');
       const pill = document.getElementById('pill');
       const label = pill.querySelector('.label');
       const stateButtons = [...document.querySelectorAll('[data-go]')];
       const autoButton = document.getElementById('auto');
-      const slowButton = document.getElementById('slow');
-      const actualButton = document.getElementById('actual');
       const steps = ['Read .alva.json', 'Get user info', 'Run Alva skill version check'];
       const sequence = [['idle', 'Alva', 1400], ['running', steps[0], 1700], ['running', steps[1], 1700], ['waiting', 'Needs input', 2600], ['running', steps[2], 2000]];
-      let state = null, current = null, index = 0, step = 0, timer = 0, auto = true, slow = 1, actual = false;
+      let state = null, current = null, index = 0, step = 0, timer = 0, auto = true, scale = 1;
 
       function fit() {
-        const available = Math.min((window.innerHeight - 120) / 956, (window.innerWidth - 32) / 440);
-        const scale = actual ? 1 : Math.min(1, Math.max(.3, available));
+        // Reserve the real page chrome (body padding) and, beside the phone, the side column — not a guessed 120px.
+        const bodyStyle = getComputedStyle(document.body);
+        const chrome = parseFloat(bodyStyle.paddingTop) + parseFloat(bodyStyle.paddingBottom);
+        const stacked = window.matchMedia('(max-width: 720px)').matches;
+        const beside = stacked ? 0 : side.offsetWidth + parseFloat(getComputedStyle(stage).columnGap || '0');
+        const byWidth = (window.innerWidth - 32 - beside) / 440;
+        const available = stacked ? byWidth : Math.min((window.innerHeight - chrome) / 956, byWidth);
+        scale = Math.min(1, Math.max(.3, available));
         screen.style.transform = scale === 1 ? '' : `scale(${scale})`;
         wrap.style.width = `${440 * scale}px`;
         wrap.style.height = `${956 * scale}px`;
+      }
+
+      // The label is measured on screen, where fit() may have scaled the whole phone down, so convert the
+      // rect back to layout px before sizing the pill — otherwise the pill comes out short and clips the text.
+      function pillWidth(span, forState) {
+        const text = Math.ceil(span.getBoundingClientRect().width / scale);
+        return 52 + (forState === 'idle' ? 0 : 3) + text + (forState === 'waiting' ? 16 : 0) + 16;
+      }
+
+      // Delight swaps in after first paint; re-measure the live label so the pill fits the real glyphs, not the fallback font.
+      function refit() {
+        if (!current) return;
+        pill.classList.add('no-motion');
+        pill.style.width = `${pillWidth(current, state)}px`;
+        void pill.offsetWidth;
+        pill.classList.remove('no-motion');
       }
 
       function setView(nextState, text, instant = false) {
@@ -184,11 +217,10 @@
         next.className = nextState === 'idle' ? '' : 'small';
         next.textContent = text;
         label.appendChild(next);
-        const width = Math.ceil(next.getBoundingClientRect().width);
         if (instant) pill.classList.add('no-motion');
         screen.dataset.state = nextState;
         pill.dataset.state = nextState;
-        pill.style.width = `${52 + (nextState === 'idle' ? 0 : 3) + width + (nextState === 'waiting' ? 16 : 0) + 16}px`;
+        pill.style.width = `${pillWidth(next, nextState)}px`;
         pill.setAttribute('aria-label', `Alva ${text}`);
         void next.offsetWidth;
         next.classList.add('in');
@@ -196,7 +228,7 @@
           const old = current;
           old.classList.remove('in');
           old.classList.add('out');
-          window.setTimeout(() => old.remove(), 800 * slow);
+          window.setTimeout(() => old.remove(), 800);
         }
         current = next;
         state = nextState;
@@ -209,7 +241,7 @@
         if (!auto) return;
         const [nextState, text, hold] = sequence[index];
         setView(nextState, text);
-        timer = window.setTimeout(() => { index = (index + 1) % sequence.length; tick(); }, hold * slow);
+        timer = window.setTimeout(() => { index = (index + 1) % sequence.length; tick(); }, hold);
       }
 
       function go(nextState, instant = false) {
@@ -220,9 +252,9 @@
 
       stateButtons.forEach(button => button.addEventListener('click', () => { auto = false; autoButton.setAttribute('aria-pressed', 'false'); window.clearTimeout(timer); go(button.dataset.go); }));
       autoButton.addEventListener('click', () => { auto = !auto; autoButton.setAttribute('aria-pressed', String(auto)); window.clearTimeout(timer); if (auto) { index = 0; tick(); } });
-      slowButton.addEventListener('click', () => { slow = slow === 1 ? 4 : 1; root.style.setProperty('--slow', String(slow)); slowButton.setAttribute('aria-pressed', String(slow !== 1)); if (auto) tick(); });
-      actualButton.addEventListener('click', () => { actual = !actual; actualButton.setAttribute('aria-pressed', String(actual)); fit(); });
       window.addEventListener('resize', fit);
+      document.fonts.ready.then(refit);
+      document.fonts.addEventListener('loadingdone', refit);
 
       fit();
       setView('idle', 'Alva', true);
