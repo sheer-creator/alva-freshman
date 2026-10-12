@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="demo-summary" content="Alva Chat header motion study: the idle, running and needs-input states in the Baby mobile surface.">
+  <title>Alva Chat · Header state motion</title>
+  <style>
+    @font-face { font-family: Delight; src: url('m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: Delight; src: url('m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+
+    :root {
+      --b0: #fff;
+      --glass: rgba(255, 255, 255, .52);
+      --br05: rgba(0, 0, 0, .05);
+      --line: rgba(0, 0, 0, .2);
+      --n9: rgba(0, 0, 0, .9);
+      --n7: rgba(0, 0, 0, .7);
+      --n5: rgba(0, 0, 0, .5);
+      --n3: rgba(0, 0, 0, .3);
+      --m1: #49a3a6;
+      --m1-10: rgba(73, 163, 166, .1);
+      --m5: #e6a91a;
+      --shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      --ease: cubic-bezier(.2, 0, 0, 1);
+      --slow: 1;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: #f4f6f6; -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px 16px 56px; color: var(--n9); font-family: Delight, -apple-system, BlinkMacSystemFont, sans-serif; }
+    button { font: inherit; color: inherit; }
+    .page { width: min(100%, 920px); }
+    .intro { margin: 0 auto 24px; max-width: 440px; }
+    .kicker { margin: 0 0 8px; color: var(--m1); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: 24px; line-height: 32px; font-weight: 500; }
+    .lede { margin: 8px 0 0; color: var(--n5); font-size: 14px; line-height: 22px; }
+    .stage { display: flex; align-items: center; justify-content: center; gap: 32px; }
+    .phone-wrap { flex: none; width: 440px; height: 956px; }
+    .phone-screen { position: relative; width: 440px; height: 956px; display: flex; flex-direction: column; overflow: hidden; border-radius: 44px; background: var(--b0); box-shadow: 0 0 0 .5px var(--line), 0 18px 50px rgba(0,0,0,.12); transform-origin: top left; }
+    .status-bar { flex: none; height: 59px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 72px; font-size: 14px; font-weight: 500; }
+    .island { width: 125px; height: 37px; border-radius: 20px; background: #000; }
+    .status-icons { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .top { flex: none; background: linear-gradient(var(--b0), transparent); backdrop-filter: blur(1px); }
+    .appbar { height: 60px; display: grid; place-items: center; padding: 4px 16px; }
+    .pill { position: relative; flex: none; width: 108px; height: 52px; border-radius: 960px; background: var(--glass); backdrop-filter: blur(15px); box-shadow: inset 0 0 .5px var(--line), var(--shadow); transition: width calc(.42s * var(--slow)) var(--ease); }
+    .pill.no-motion, .pill.no-motion * { transition: none !important; }
+    .avatar { position: absolute; top: 8px; left: 8px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: #2a2a38; }
+    .avatar img { width: 19px; height: 19px; }
+    .ring { position: absolute; top: 5px; left: 5px; width: 42px; height: 42px; border-radius: 50%; opacity: 0; transform: scale(.86); pointer-events: none; transition: opacity calc(.2s * var(--slow)) var(--ease), transform calc(.2s * var(--slow)) var(--ease); }
+    .ring-run { background: conic-gradient(rgba(73,163,166,.12), var(--m1)); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); animation: spin calc(1.4s * var(--slow)) linear infinite; }
+    .ring-wait { border: 1.5px solid var(--m5); }
+    .pill[data-state="running"] .ring, .pill[data-state="waiting"] .ring { transform: none; }
+    .pill[data-state="running"] .ring-run, .pill[data-state="waiting"] .ring-wait { opacity: 1; transition: opacity calc(.3s * var(--slow)) var(--ease) calc(.04s * var(--slow)), transform calc(.42s * var(--slow)) var(--ease) calc(.04s * var(--slow)); }
+    @keyframes spin { to { rotate: 360deg; } }
+    .label { position: absolute; top: 0; right: 16px; left: 52px; height: 52px; overflow: hidden; transition: right calc(.42s * var(--slow)) var(--ease); }
+    .pill[data-state="waiting"] .label { right: 32px; }
+    .label > span { position: absolute; top: 0; left: 0; color: var(--n9); font-size: 20px; font-weight: 500; line-height: 52px; white-space: pre; opacity: 0; }
+    .label > span.small { left: 3px; font-size: 16px; }
+    .label > span.in { opacity: 1; transition: opacity calc(.24s * var(--slow)) ease-out calc(.1s * var(--slow)); }
+    .label > span.out { opacity: 0; transition: opacity calc(.12s * var(--slow)) ease-in; }
+    .dot { position: absolute; top: 22px; right: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--m5); opacity: 0; transform: scale(.4); transition: opacity calc(.16s * var(--slow)) ease-in, transform calc(.16s * var(--slow)) ease-in; }
+    .pill[data-state="waiting"] .dot { opacity: 1; transform: none; transition: opacity calc(.2s * var(--slow)) ease-out calc(.12s * var(--slow)), transform calc(.36s * var(--slow)) cubic-bezier(.34,1.56,.64,1) calc(.12s * var(--slow)); }
+    .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; overflow: hidden; }
+    .time { padding: 2px 0; color: var(--n5); font-size: 12px; line-height: 20px; text-align: center; }
+    .row { display: flex; }
+    .row.agent { padding-right: 24px; }
+    .row.user { justify-content: flex-end; padding-left: 24px; }
+    .bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 22px; }
+    .bubble.agent { max-width: 376px; background: var(--br05); }
+    .bubble.user { width: 100%; background: var(--m1-10); }
+    .typing { flex: none; height: 46px; display: flex; align-items: center; gap: 4px; padding: 12px 16px; border-radius: 12px; background: var(--br05); opacity: 0; transform: scale(.92); transform-origin: left center; transition: opacity calc(.16s * var(--slow)) ease-in, transform calc(.16s * var(--slow)) ease-in; }
+    .screen[data-state="running"] .typing { opacity: 1; transform: none; transition: opacity calc(.24s * var(--slow)) ease-out calc(.1s * var(--slow)), transform calc(.32s * var(--slow)) var(--ease) calc(.1s * var(--slow)); }
+    .typing i { width: 6px; height: 6px; border-radius: 50%; background: #000; opacity: .1; animation: dotPulse calc(1.2s * var(--slow)) ease-in-out infinite; }
+    .typing i:nth-child(2) { animation-delay: calc(.2s * var(--slow)); }
+    .typing i:nth-child(3) { animation-delay: calc(.4s * var(--slow)); }
+    @keyframes dotPulse { 0%,60%,100% { opacity: .1; } 30% { opacity: .3; } }
+    .bottom { flex: none; background: var(--glass); backdrop-filter: blur(15px); }
+    .chatbox-frame { padding: 0 16px 12px; }
+    .box { height: 52px; display: flex; align-items: center; gap: 2px; padding: 8px; border-radius: 8px; background: var(--glass); box-shadow: inset 0 0 .5px var(--line), var(--shadow); }
+    .ibtn { flex: none; width: 36px; height: 36px; display: grid; place-items: center; font-size: 20px; }
+    .field { flex: 1; min-width: 0; overflow: hidden; padding: 7px 0; color: var(--n3); font-size: 14px; line-height: 22px; text-overflow: ellipsis; white-space: nowrap; }
+    .send { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 6px; background: var(--br05); color: var(--m1); font-size: 18px; }
+    .tabs { display: flex; height: 48px; }
+    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 8px; color: var(--n7); font-size: 10px; line-height: 16px; }
+    .tab.on { color: var(--n9); font-weight: 500; }
+    .indicator { position: relative; height: 34px; }
+    .indicator i { position: absolute; top: 21px; left: 50%; width: 144px; height: 5px; margin-left: -72px; border-radius: 100px; background: #000; }
+    .controls { display: flex; flex-direction: column; gap: 16px; min-width: 150px; }
+    .control-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .control-group button { min-width: 124px; height: 32px; padding: 0 12px; border: 0; border-radius: 960px; background: #fff; box-shadow: inset 0 0 .5px var(--line); font-size: 14px; line-height: 20px; text-align: left; cursor: pointer; }
+    .control-group button[aria-pressed="true"] { background: var(--n9); color: #fff; box-shadow: none; }
+    .caption { max-width: 440px; margin: 18px auto 0; color: var(--n5); font-size: 12px; line-height: 18px; }
+    @media (max-width: 720px) {
+      body { align-items: flex-start; padding-top: 20px; }
+      .stage { flex-direction: column; gap: 20px; }
+      .controls { flex-direction: row; flex-wrap: wrap; justify-content: center; min-width: 0; }
+      .control-group { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .pill, .ring, .label, .label > span, .dot, .typing { transition: none !important; }
+      .ring-run, .typing i { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="intro">
+      <p class="kicker">Alva Chat · motion study</p>
+      <h1>Header state motion</h1>
+      <p class="lede">The Chat header expands from a quiet Alva pill into a running task, then signals when it needs your input.</p>
+    </header>
+
+    <div class="stage">
+      <div class="phone-wrap" id="phoneWrap">
+        <section class="phone-screen screen" id="screen" data-state="idle" aria-label="Alva Chat preview">
+          <div class="status-bar"><span>9:41</span><span class="island" aria-hidden="true"></span><span class="status-icons">▮▮▮ ◔</span></div>
+          <div class="top">
+            <div class="appbar">
+              <div class="pill" id="pill" data-state="idle" aria-live="polite" aria-label="Alva">
+                <span class="ring ring-run" aria-hidden="true"></span>
+                <span class="ring ring-wait" aria-hidden="true"></span>
+                <span class="avatar" aria-hidden="true"><img src="m-baby/assets/logo-portrait.svg" alt=""></span>
+                <span class="label" aria-hidden="true"></span>
+                <span class="dot" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div class="time">11:48 PM</div>
+            <div class="row agent"><div class="bubble agent">Hey, I'm Alva, your AI investing agent.<br>Ask me for market research, or set up live automations to watch your portfolio, tickers, and market voices. Pick what you want me to help with first.</div></div>
+            <div class="row user"><div class="bubble user">Create today's FinTwit Digest from my chosen FinTwit list. Highlight the key market insights and trending discussions in a concise summary.</div></div>
+            <div class="row agent"><div class="typing"><i></i><i></i><i></i></div></div>
+          </div>
+          <div class="bottom">
+            <div class="chatbox-frame"><div class="box"><span class="ibtn" aria-hidden="true">＋</span><span class="field">Ask Alva anything</span><span class="ibtn" aria-hidden="true">⌕</span><span class="send" aria-hidden="true">↑</span></div></div>
+            <nav class="tabs" aria-label="Main tabs"><span class="tab">For You</span><span class="tab on">Alva</span><span class="tab">Market</span><span class="tab">Me</span></nav>
+            <div class="indicator" aria-hidden="true"><i></i></div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="controls" aria-label="Motion controls">
+        <div class="control-group">
+          <button type="button" data-go="idle" aria-pressed="true">Idle</button>
+          <button type="button" data-go="running" aria-pressed="false">Running</button>
+          <button type="button" data-go="waiting" aria-pressed="false">Needs input</button>
+        </div>
+        <div class="control-group">
+          <button type="button" id="auto" aria-pressed="true">Auto-play</button>
+          <button type="button" id="slow" aria-pressed="false">0.25× speed</button>
+          <button type="button" id="actual" aria-pressed="false">Actual size</button>
+        </div>
+      </aside>
+    </div>
+    <p class="caption">The same state motion is integrated into the Alva Chat tab in the Baby mobile prototype.</p>
+  </main>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const wrap = document.getElementById('phoneWrap');
+      const screen = document.getElementById('screen');
+      const pill = document.getElementById('pill');
+      const label = pill.querySelector('.label');
+      const stateButtons = [...document.querySelectorAll('[data-go]')];
+      const autoButton = document.getElementById('auto');
+      const slowButton = document.getElementById('slow');
+      const actualButton = document.getElementById('actual');
+      const steps = ['Read .alva.json', 'Get user info', 'Run Alva skill version check'];
+      const sequence = [['idle', 'Alva', 1400], ['running', steps[0], 1700], ['running', steps[1], 1700], ['waiting', 'Needs input', 2600], ['running', steps[2], 2000]];
+      let state = null, current = null, index = 0, step = 0, timer = 0, auto = true, slow = 1, actual = false;
+
+      function fit() {
+        const available = Math.min((window.innerHeight - 120) / 956, (window.innerWidth - 32) / 440);
+        const scale = actual ? 1 : Math.min(1, Math.max(.3, available));
+        screen.style.transform = scale === 1 ? '' : `scale(${scale})`;
+        wrap.style.width = `${440 * scale}px`;
+        wrap.style.height = `${956 * scale}px`;
+      }
+
+      function setView(nextState, text, instant = false) {
+        if (nextState === state && text === current?.textContent) return;
+        const next = document.createElement('span');
+        next.className = nextState === 'idle' ? '' : 'small';
+        next.textContent = text;
+        label.appendChild(next);
+        const width = Math.ceil(next.getBoundingClientRect().width);
+        if (instant) pill.classList.add('no-motion');
+        screen.dataset.state = nextState;
+        pill.dataset.state = nextState;
+        pill.style.width = `${52 + (nextState === 'idle' ? 0 : 3) + width + (nextState === 'waiting' ? 16 : 0) + 16}px`;
+        pill.setAttribute('aria-label', `Alva ${text}`);
+        void next.offsetWidth;
+        next.classList.add('in');
+        if (current) {
+          const old = current;
+          old.classList.remove('in');
+          old.classList.add('out');
+          window.setTimeout(() => old.remove(), 800 * slow);
+        }
+        current = next;
+        state = nextState;
+        stateButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.go === nextState)));
+        if (instant) { void pill.offsetWidth; pill.classList.remove('no-motion'); }
+      }
+
+      function tick() {
+        window.clearTimeout(timer);
+        if (!auto) return;
+        const [nextState, text, hold] = sequence[index];
+        setView(nextState, text);
+        timer = window.setTimeout(() => { index = (index + 1) % sequence.length; tick(); }, hold * slow);
+      }
+
+      function go(nextState, instant = false) {
+        if (nextState === 'idle') setView('idle', 'Alva', instant);
+        else if (nextState === 'waiting') setView('waiting', 'Needs input', instant);
+        else { if (state === 'running') step = (step + 1) % steps.length; setView('running', steps[step], instant); }
+      }
+
+      stateButtons.forEach(button => button.addEventListener('click', () => { auto = false; autoButton.setAttribute('aria-pressed', 'false'); window.clearTimeout(timer); go(button.dataset.go); }));
+      autoButton.addEventListener('click', () => { auto = !auto; autoButton.setAttribute('aria-pressed', String(auto)); window.clearTimeout(timer); if (auto) { index = 0; tick(); } });
+      slowButton.addEventListener('click', () => { slow = slow === 1 ? 4 : 1; root.style.setProperty('--slow', String(slow)); slowButton.setAttribute('aria-pressed', String(slow !== 1)); if (auto) tick(); });
+      actualButton.addEventListener('click', () => { actual = !actual; actualButton.setAttribute('aria-pressed', String(actual)); fit(); });
+      window.addEventListener('resize', fit);
+
+      fit();
+      setView('idle', 'Alva', true);
+      tick();
+    })();
+  </script>
+    <script src="/demo/_switcher.js" defer></script>
+  </body>
+</html>
