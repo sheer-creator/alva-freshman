@@ -60,22 +60,24 @@
     .indicator { position: relative; height: 34px; }
     .indicator i { position: absolute; top: 21px; left: 50%; width: 144px; height: 5px; margin-left: -72px; border-radius: 100px; background: #000; }
 
-    /* Inbox notification pop — Feed-Mobile-MVP 10378:153511: 408×76, 8px above the tab bar */
-    .pops { position: absolute; left: 16px; right: 16px; bottom: 90px; z-index: 2; height: 76px; pointer-events: none; }
-    .pop { position: absolute; left: 0; right: 0; bottom: 0; height: 76px; display: flex; align-items: flex-start; gap: 8px; padding: 16px; border-radius: 12px; background: var(--b0); box-shadow: inset 0 0 0 .5px var(--l2), var(--shadow-floating); cursor: pointer; pointer-events: auto; opacity: 0; transform: translateY(84px); transform-origin: center bottom; transition: transform .44s var(--ease), opacity .2s ease-out; }
+    /* Inbox notification pop — Feed-Mobile-MVP component Alva/Inbox Notification Pop (10562:37468): 408×100, 8px above the tab bar */
+    .pops { position: absolute; left: 16px; right: 16px; bottom: 90px; z-index: 2; height: 100px; pointer-events: none; }
+    .pop { position: absolute; left: 0; right: 0; bottom: 0; height: 100px; display: flex; align-items: flex-start; gap: 8px; padding: 16px; border-radius: 12px; background: var(--b0); box-shadow: inset 0 0 0 .5px var(--l2), var(--shadow-floating); cursor: pointer; pointer-events: auto; opacity: 0; transform: translateY(108px); transform-origin: center bottom; transition: transform .44s var(--ease), opacity .2s ease-out; }
     .pop.in { opacity: 1; transform: none; }
-    .pop.in[data-pos="1"] { transform: translateY(-9px) scale(.96); }
-    .pop.in[data-pos="2"] { transform: translateY(-18px) scale(.92); }
+    .pop.in[data-pos="1"] { transform: translateY(-6px) scaleX(.96); }
+    .pop.in[data-pos="2"] { transform: translateY(-12px) scaleX(.92); }
     .pop[data-pos="0"] { z-index: 3; }
     .pop[data-pos="1"] { z-index: 2; }
     .pop[data-pos="2"] { z-index: 1; }
-    .pop.out { opacity: 0; transform: translateY(84px); transition: transform .32s ease-in, opacity .16s ease-in .14s; }
+    .pop.out { opacity: 0; transform: translateY(108px); transition: transform .32s ease-in, opacity .16s ease-in .14s; }
     .pop .av { position: relative; flex: none; width: 32px; height: 32px; }
     .pop .av svg { display: block; }
-    .pop .av i { position: absolute; left: 24.3px; top: 24px; width: 8px; height: 8px; border-radius: 50%; background: var(--m1); box-shadow: 0 0 0 1px #fff; }
+    .pop .av i { position: absolute; left: 24px; top: 24px; width: 8px; height: 8px; border-radius: 50%; background: var(--m1); box-shadow: 0 0 0 1px #fff; }
     .pop .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .pop .msg { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--n9); font-size: 14px; line-height: 22px; }
-    .pop .time { color: var(--n5); font-size: 12px; line-height: 20px; }
+    .pop .head { display: flex; align-items: baseline; gap: 8px; }
+    .pop .title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--n9); font-size: 14px; line-height: 22px; font-weight: 500; }
+    .pop .time { flex: none; color: var(--n5); font-size: 12px; line-height: 20px; }
+    .pop .msg { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--n5); font-size: 14px; line-height: 22px; }
     .pop .close { flex: none; width: 16px; height: 16px; display: grid; place-items: center; }
     .pop .close svg { display: block; }
 
@@ -158,7 +160,7 @@
             <button type="button" id="auto" aria-pressed="true">Auto-play</button>
           </div>
         </div>
-        <p class="caption">弹窗与 tab bar 按 Feed-Mobile-MVP · Inbox notification pop（10378:153511）还原：408×76，停在 tab bar 上方 8px，含 Alva 头像与未读绿点、单行预览、时间、关闭。多条消息最新在上，最多叠三张，旧的在上方露出 6px。</p>
+        <p class="caption">弹窗与 tab bar 按 Feed-Mobile-MVP 组件 Alva/Inbox Notification Pop 还原：408×100，停在 tab bar 上方 8px，含 Alva 头像与未读绿点、标题 + 时间、两行预览、关闭。多条消息最新在上，最多叠三张，旧的在上方各露出 6px。</p>
       </aside>
     </div>
   </main>
@@ -166,7 +168,7 @@
   <template id="popTemplate">
     <div class="pop" role="button" tabindex="0">
       <span class="av" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 16C0 7.16344 7.16344 0 16 0C24.8366 0 32 7.16344 32 16C32 24.8366 24.8366 32 16 32C7.16344 32 0 24.8366 0 16Z" fill="#2A2A38"/><path d="M19.1242 7.88104C20.3349 7.70632 21.5649 7.70632 22.7756 7.88104C22.8724 7.89502 22.9699 7.91049 23.1642 7.94159C23.2289 7.95193 23.2612 7.95759 23.2902 7.96405C23.6623 8.04694 23.9533 8.33713 24.0363 8.70916C24.0428 8.73822 24.0474 8.77124 24.0578 8.83612C24.0889 9.03054 24.1044 9.12787 24.1183 9.22479C24.293 10.4354 24.293 11.6646 24.1183 12.8752C24.1044 12.9721 24.0889 13.0695 24.0578 13.2639C24.0474 13.3287 24.0428 13.3617 24.0363 13.3908C23.9533 13.7629 23.6623 14.053 23.2902 14.1359C23.2612 14.1424 23.2289 14.148 23.1642 14.1584C22.9699 14.1895 22.8724 14.205 22.7756 14.2189C22.1704 14.3063 21.5602 14.3488 20.9504 14.3488V14.3508C17.4192 14.3508 14.5353 17.1233 14.3586 20.6105L14.3498 20.9504C14.3498 21.5603 14.3063 22.1704 14.2189 22.7756C14.2049 22.8725 14.1895 22.9698 14.1584 23.1642C14.148 23.2289 14.1424 23.2612 14.1359 23.2902C14.053 23.6623 13.7628 23.9533 13.3908 24.0363C13.3617 24.0428 13.3287 24.0484 13.2638 24.0588C13.0696 24.0899 12.9721 24.1053 12.8752 24.1193C11.6647 24.294 10.4353 24.294 9.22479 24.1193C9.12789 24.1053 9.03046 24.0899 8.83612 24.0588C8.77124 24.0484 8.73822 24.0428 8.70916 24.0363C8.33716 23.9533 8.04694 23.6623 7.96405 23.2902C7.9576 23.2612 7.95193 23.2289 7.94158 23.1642C7.91047 22.9698 7.89502 22.8725 7.88104 22.7756C7.70632 21.5649 7.70632 20.3349 7.88104 19.1242C7.89501 19.0274 7.9105 18.9298 7.94158 18.7355C7.95193 18.6709 7.95758 18.6386 7.96405 18.6096C8.04695 18.2375 8.33713 17.9465 8.70916 17.8635C8.73822 17.857 8.77124 17.8524 8.83612 17.842C9.03053 17.8109 9.12787 17.7954 9.22479 17.7814C9.83007 17.6941 10.44 17.6496 11.05 17.6496C14.6795 17.6495 17.6227 14.7196 17.6476 11.0959L17.6496 11.05C17.6496 10.44 17.6931 9.83003 17.7805 9.22479C17.7944 9.12787 17.8109 9.03054 17.842 8.83612C17.8524 8.77124 17.857 8.73822 17.8635 8.70916C17.9465 8.33713 18.2375 8.04694 18.6096 7.96405C18.6386 7.95759 18.6709 7.95193 18.7355 7.94159C18.9299 7.91049 19.0273 7.89502 19.1242 7.88104Z" fill="#49A3A6"/><path d="M22.7752 17.7814C21.5647 17.6067 20.3354 17.6068 19.1249 17.7814C19.028 17.7954 18.9304 17.8109 18.7362 17.842C18.6713 17.8524 18.6383 17.858 18.6092 17.8644C18.2372 17.9474 17.9461 18.2375 17.8631 18.6096C17.8567 18.6386 17.852 18.6716 17.8417 18.7365C17.8106 18.9309 17.7951 19.0283 17.7811 19.1252C17.6064 20.3357 17.6064 21.565 17.7811 22.7756C17.7951 22.8725 17.8106 22.9699 17.8417 23.1642C17.852 23.2291 17.8567 23.2621 17.8631 23.2912C17.9461 23.6632 18.2372 23.9534 18.6092 24.0363C18.6383 24.0428 18.6713 24.0484 18.7362 24.0588C18.9304 24.0898 19.028 24.1053 19.1249 24.1193C20.3354 24.294 21.5647 24.294 22.7752 24.1193C22.8722 24.1053 22.9694 24.0899 23.1639 24.0588C23.2285 24.0484 23.2609 24.0428 23.2899 24.0363C23.662 23.9534 23.953 23.6632 24.036 23.2912C24.0425 23.2621 24.0481 23.2291 24.0584 23.1642C24.0895 22.9699 24.105 22.8725 24.119 22.7756C24.2937 21.5651 24.2937 20.3357 24.119 19.1252C24.105 19.0283 24.0895 18.9308 24.0584 18.7365C24.0481 18.6716 24.0425 18.6386 24.036 18.6096C23.953 18.2375 23.662 17.9473 23.2899 17.8644C23.2609 17.858 23.2285 17.8523 23.1639 17.842C22.9694 17.8109 22.8722 17.7954 22.7752 17.7814ZM12.8758 7.88104C11.6652 7.70632 10.4351 7.70632 9.22446 7.88104C9.12755 7.89503 9.03025 7.91047 8.83579 7.94159C8.77115 7.95193 8.7388 7.9576 8.70982 7.96405C8.33764 8.04696 8.04664 8.33796 7.96372 8.71014C7.95728 8.73912 7.9516 8.77147 7.94126 8.83612C7.91015 9.03056 7.8947 9.12789 7.88071 9.22479C7.706 10.4354 7.706 11.6655 7.88071 12.8762C7.89469 12.973 7.91017 13.0705 7.94126 13.2648C7.95161 13.3295 7.95726 13.3618 7.96372 13.3908C8.04664 13.763 8.33764 14.054 8.70982 14.1369C8.73877 14.1433 8.77127 14.1481 8.83579 14.1584C9.03018 14.1895 9.12759 14.2049 9.22446 14.2189C10.4351 14.3936 11.6652 14.3936 12.8758 14.2189C12.9726 14.205 13.0703 14.1895 13.2645 14.1584C13.329 14.1481 13.3615 14.1434 13.3905 14.1369C13.7627 14.054 14.0537 13.763 14.1366 13.3908C14.143 13.3618 14.1477 13.3294 14.1581 13.2648C14.1891 13.0706 14.2046 12.973 14.2186 12.8762C14.3933 11.6655 14.3933 10.4354 14.2186 9.22479C14.2046 9.12792 14.1892 9.03049 14.1581 8.83612C14.1477 8.77159 14.143 8.73909 14.1366 8.71014C14.0537 8.33796 13.7627 8.04696 13.3905 7.96405C13.3615 7.95758 13.3292 7.95193 13.2645 7.94159C13.0702 7.9105 12.9726 7.89501 12.8758 7.88104Z" fill="white"/></svg><i></i></span>
-      <span class="txt"><span class="msg"></span><span class="time"></span></span>
+      <span class="txt"><span class="head"><span class="title"></span><span class="time"></span></span><span class="msg"></span></span>
       <span class="close" role="button" aria-label="Dismiss"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5171 2.91696C12.6734 2.76075 12.9266 2.76075 13.0828 2.91696C13.2388 3.07319 13.2389 3.32644 13.0828 3.48259L8.56558 7.99978L13.0828 12.517C13.2388 12.6732 13.2389 12.9264 13.0828 13.0826C12.9266 13.2386 12.6733 13.2386 12.5171 13.0826L7.99995 8.56541L3.48276 13.0826C3.3266 13.2386 3.07331 13.2386 2.91714 13.0826C2.76097 12.9264 2.76107 12.6732 2.91714 12.517L7.43433 7.99978L2.91714 3.48259C2.76097 3.32643 2.76107 3.07318 2.91714 2.91696C3.07335 2.76075 3.32655 2.76075 3.48276 2.91696L7.99995 7.43416L12.5171 2.91696Z" fill="black" fill-opacity="0.9"/></svg></span>
     </div>
   </template>
@@ -183,10 +185,11 @@
       const tabButtons = [...document.querySelectorAll('.tab')];
       const autoButton = document.getElementById('auto');
       const messages = [
-        { text: 'AI chip supply chain — Samsung teases new HBM5 with twice the performance of HBM4E -ambitious data transfer rates could hint at 4,096-bit interface', time: '2 minutes ago' },
-        { text: 'Alibaba Group Holding’s open-weight AI models accumulated more than 3 billion global downloads during the past six months.', time: '1 minute ago' },
-        { text: 'BTC closed the 4H candle at $68,420, above its three-day range high of $67,900 on rising spot volume.', time: 'Just now' }
+        { title: 'AI chip supply chain', time: '15 m ago', text: 'Samsung teases new HBM5 with twice the performance of HBM4E — ambitious data transfer rates could hint at 4,096-bit interface' },
+        { title: 'BTC Breakout Alert 4H', time: '2 h ago', text: 'BTC closed the 4H candle at $68,420, above its three-day range high of $67,900 on rising spot volume.' },
+        { title: 'Fed Minutes Digest', time: '1 d ago', text: 'Fed minutes show most officials still see one more cut this year, while a minority flagged sticky services inflation.' }
       ];
+      const burstOrder = [2, 1, 0]; // 旧的先到，最新一条落在最上面
       const sequence = [['idle', 1200], ['one', 3600], ['dot', 1500], ['burst', 4800], ['dot', 1500], ['opened', 2400]];
       let state = 'idle', index = 0, timer = 0, auto = true;
       let burstTimers = [];
@@ -221,8 +224,9 @@
 
       function makePop(message) {
         const pop = template.content.firstElementChild.cloneNode(true);
-        pop.querySelector('.msg').textContent = message.text;
+        pop.querySelector('.title').textContent = message.title;
         pop.querySelector('.time').textContent = message.time;
+        pop.querySelector('.msg').textContent = message.text;
         pop.setAttribute('aria-label', 'Open the new Alva message');
         pop.addEventListener('click', openFromPop);
         pop.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openFromPop(event); } });
@@ -246,8 +250,8 @@
 
       function showBurst() {
         clearPops(false);
-        messages.forEach((message, i) => {
-          burstTimers.push(window.setTimeout(() => pushMessage(message), i * 650));
+        burstOrder.forEach((m, i) => {
+          burstTimers.push(window.setTimeout(() => pushMessage(messages[m]), i * 650));
         });
       }
 
