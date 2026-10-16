@@ -1,7 +1,7 @@
-import { ASSETS, INTERESTS, FOCUSES, SOURCES, AUTHORS, RELATED_THESES } from './data.js?v=20260907-picker-polish';
-import { STORAGE_KEY, freshState, readState, allTheses, getThesis, toggleFollow, createPersonal, revisePersonal, previewNextUpdate, rankedTheses, thesisChoices, completeOnboarding, feedEntries, thesisUpdates, getUpdate, addReply, threadReplies, discussionPosts, thesisRoot, toggleTicker, setTracking, simulateRun, isResearchQuestion, discussionRelations, authorProfile, feedRefreshBatch, feedDelivery, sourcePreviewType } from './model.js?v=20260907-picker-polish';
-import { mountMarket } from './market.js?v=20260907-picker-polish';
-import { RESEARCH_TABS, RESEARCH, EXTERNAL_PEERS, INVESTOR_AUTHORS, tickerViewPosts } from './research.js?v=20260907-picker-polish';
+import { ASSETS, INTERESTS, FOCUSES, SOURCES, AUTHORS, RELATED_THESES } from './data.js?v=20260908-tracking';
+import { STORAGE_KEY, freshState, readState, allTheses, getThesis, toggleFollow, createPersonal, revisePersonal, previewNextUpdate, rankedTheses, thesisChoices, completeOnboarding, feedEntries, thesisUpdates, getUpdate, addReply, threadReplies, discussionPosts, thesisActivity, thesisRoot, toggleTicker, setTracking, simulateRun, isResearchQuestion, discussionRelations, authorProfile, feedRefreshBatch, feedDelivery, sourcePreviewType } from './model.js?v=20260908-tracking';
+import { mountMarket } from './market.js?v=20260908-tracking';
+import { RESEARCH_TABS, RESEARCH, EXTERNAL_PEERS, INVESTOR_AUTHORS, tickerViewPosts } from './research.js?v=20260908-tracking';
 
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -172,6 +172,7 @@ function thesisHeader(thesis) {
   return thesis.curated || thesis.author === 'You' ? speakerHeader(thesisRoot(state, thesis.id)) : sourceHeader(SOURCES[thesis.originSourceId], ' ');
 }
 function updateCard(thesis, update, thesisIds = [thesis.id], profileContext = false) {
+  if (update.trackingType) return trackingCard(thesis, update);
   const source = update.source;
   const count = threadReplies(state, update).length;
   const showTake = source && update.inlineInsight && update.impact && !profileContext;
@@ -186,10 +187,26 @@ function updateCard(thesis, update, thesisIds = [thesis.id], profileContext = fa
     (showTake ? replyRow('Alva', update.impact, update.takeEvidenceId) : '') +
     '<div class="post-actions card-actions"><button data-action="discussion" data-id="' + thesis.id + '" data-update="' + escape(update.id) + '">' + icon('chat') + (count ? 'Replies · ' + count : 'Reply') + '</button>' + askAlva(thesis.id, update.id) + '</div></article>';
 }
+function trackingBody(update) {
+  return `<div class="tracking-kind">${icon(update.trackingType === 'audit' ? 'thesis' : 'source')}<span>${escape(update.category)}</span><span class="tracking-demo">Demo replay</span></div>
+    <h3 class="tracking-title">${escape(update.title)}</h3>
+    ${update.verdict ? `<p class="tracking-verdict">${escape(update.verdict)}</p>` : ''}
+    <p class="tracking-copy">${escape(update.post)}</p>
+    ${update.gap ? `<details class="tracking-gap"><summary>What’s still unproven</summary><p>${escape(update.gap)}</p></details>` : ''}
+    <div class="tracking-next"><span>Watching next</span><p>${escape(update.next)}</p></div>
+    <div class="tracking-sources">${update.evidenceIds.map(id => {
+      const source = SOURCES[id];
+      return `<a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer" title="${escape(source.title)}">${icon('source')}<span>${escape(source.publisher || AUTHORS[source.authorId]?.publication || source.title)} · ${escape(source.date)}</span>${icon('external')}</a>`;
+    }).join('')}</div>`;
+}
+function trackingCard(thesis, update) {
+  const count = threadReplies(state, update).length;
+  return `<article class="feed-card tracking-card tracking-${update.trackingType}" id="post-${escape(update.id)}" data-update="${escape(update.id)}"><div class="social-post"><div class="post-rail">${avatar({author:'Alva',initials:'a'})}</div><div class="post-main">${speakerHeader(update)}${trackingBody(update)}</div></div><div class="post-actions card-actions"><button data-action="discussion" data-id="${thesis.id}" data-update="${update.id}">${icon('chat')}${count ? 'Replies · ' + count : 'Reply'}</button>${askAlva(thesis.id,update.id)}</div></article>`;
+}
 function showDiscussion(thesis, update) {
   const attachment = sourceAttachment(update.source);
   showSheet('Replies', '<div class="discussion">' +
-    (update.source ? sourceHeader(update.source, ' ') + sourceBody(update.source) : speakerHeader(update) + '<p class="post-body">' + escape(update.post) + '</p>') +
+    (update.trackingType ? speakerHeader(update) + trackingBody(update) : update.source ? sourceHeader(update.source, ' ') + sourceBody(update.source) : speakerHeader(update) + '<p class="post-body">' + escape(update.post) + '</p>') +
     attachment + postTopic(thesis) + evidenceCitation(update) + postFooter(thesis, update.source, undefined, Boolean(attachment) && !update.source.kind.startsWith('X')) + (update.inlineInsight && update.impact ? replyRow('Alva', update.impact, update.takeEvidenceId) : '') +
     '<div class="discussion-replies" aria-live="polite">' + threadReplies(state, update).map(reply => replyRow(reply.speaker || 'You', reply.text) + evidenceCitation(reply)).join('') + '</div>' +
     '<form id="reply-form" data-id="' + thesis.id + '" data-update="' + escape(update.id) + '"><label class="sr-only" for="reply-input">Your reply</label><textarea id="reply-input" rows="3" maxlength="600" placeholder="Add your perspective…"></textarea><p class="error" id="reply-error" role="alert" hidden></p><div class="reply-form-footer"><button type="button" class="text-button" data-action="add-thesis" data-id="' + thesis.id + '">Add thesis</button><button type="submit" class="picker-done">Reply</button></div></form>' +
@@ -293,14 +310,16 @@ function refreshFeed() {
 }
 function detail(thesis) {
   const personal = thesis.author === 'You';
-  const posts = discussionPosts(state, thesis.id).filter(post => personal ? ['human','author-update'].includes(post.kind) : post.sourceId !== thesis.originSourceId);
+  const posts = thesisActivity(state, thesis.id).filter(post => personal ? ['human','author-update'].includes(post.kind) : post.sourceId !== thesis.originSourceId);
+  const hasTracking = posts.some(post => post.trackingType);
   const related = discussionRelations(state, thesis.id).filter(other => other.id !== thesis.origin);
   return `<section class="screen thesis-detail">${header('Thesis', { back: true, right: `<button class="icon-button" data-action="share-thesis" data-id="${thesis.id}" aria-label="Share thesis">${icon('external')}</button>` + followButton(thesis) })}${demoLabel()}
     <article class="thesis-root" id="post-root-${thesis.id}"><div class="social-post">${profileAvatar(thesis)}<div class="post-main">${thesisHeader(thesis)}${personal && getThesis(state, thesis.origin) ? postTopic(getThesis(state, thesis.origin)) : ''}${personal ? '<span class="privacy-note">Private · Only you</span>' : ''}<h1 class="detail-title">${escape(thesisRoot(state,thesis.id).post)}</h1>${postFooter(thesis, SOURCES[thesis.originSourceId], 'Summary')}</div></div>
     <div class="post-actions card-actions"><button data-action="discussion" data-id="${thesis.id}" data-update="root-${thesis.id}">${icon('chat')} Reply</button><button data-action="add-thesis" data-id="${thesis.id}">Add thesis</button>${askAlva(thesis.id)}</div></article>
     ${personal ? trackingPanel(thesis) : ''}
 ${related.length ? `<nav class="related-thesis-list" aria-label="Related theses"><span class="related-heading">Related theses</span>${related.map(other => compactThesis(other)).join('')}</nav>` : ''}
-    <div class="section-heading discussion-heading"><h2>Discussion</h2><button data-action="${personal ? 'edit' : 'sources'}" data-id="${thesis.id}">${personal ? 'Edit thesis' : 'Sources'}</button></div>
+    <div class="section-heading discussion-heading"><h2>${hasTracking ? 'Updates & discussion' : 'Discussion'}</h2><button data-action="${personal ? 'edit' : 'sources'}" data-id="${thesis.id}">${personal ? 'Edit thesis' : 'Sources'}</button></div>
+    ${hasTracking ? '<p class="tracking-disclosure">Historical sources · scripted Alva tracking and audits. No live monitoring.</p>' : ''}
     ${posts.length ? posts.map(post => updateCard(thesis, post)).join('') : '<p class="empty">No new material yet. Add your perspective or ask Alva to explore it.</p>'}
     </section>`;
 }
