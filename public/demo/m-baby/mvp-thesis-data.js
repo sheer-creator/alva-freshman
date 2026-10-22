@@ -92,14 +92,30 @@ const HOME = [
   },
 ];
 
-const TICKER_ASSETS = {
+// Shared reference copy for the navigation prototype. The older social demo
+// deliberately retains P01's Figma-authored history in HOME above.
+export const REFERENCE_THESES = HOME.map(record => record.preserveDetail ? {
+  key: 'P01', name: 'Gavin Baker', role: '@GavinSBaker', age: 'Updated 4 Sept',
+  img: record.img,
+  thesis: 'Nvidia benefits from hardware-model co-design, the financeability of its flexible GPUs, revenue-sharing cloud economics, and the ability to fund American open-weight models, making its full-stack position difficult to displace.',
+  tickers: [['NVDA']],
+  links: ['https://x.com/GavinSBaker/status/2044861680015069571', 'https://x.com/GavinSBaker/status/2057178093463232826',
+    'https://x.com/GavinSBaker/status/2079607708693434850', 'https://x.com/GavinSBaker/status/2095867284434596090'],
+} : record);
+
+export const TICKER_ASSETS = {
   SPY: 'assets/onboarding-spy.svg', NVDA: 'assets/feed-logo-nvda-real.png', MSFT: 'assets/feed-logo-msft-real.svg',
   GOOGL: 'assets/feed-logo-goog.svg', META: 'assets/feed-logo-meta.svg', AMD: 'assets/feed-logo-amd.svg',
   TSLA: 'assets/market-logo-tsla.svg', HOOD: 'assets/filter-logo-hood.svg', QQQ: 'assets/onboarding-qqq.svg',
   USO: 'assets/thesis/reference-logo-uso.png', XYZ: 'assets/thesis/reference-logo-xyz.svg',
 };
 
-const CHART_ASSETS = {
+const TICKER_TRENDS = {
+  SPY: 'bull', NVDA: 'bull', MSFT: 'bull', GOOGL: 'bear', AMZN: 'bull', META: 'bull', AMD: 'bull',
+  USO: 'bull', TSLA: 'bull', XYZ: 'bull', HOOD: 'bull', QQQ: 'bull',
+};
+
+export const CHART_ASSETS = {
   SPY: 'assets/thesis/reference-chart-spy.png',
   NVDA: 'assets/thesis/S02-imgChart1.png',
   MSFT: 'assets/thesis/first-card-imgChart1.png',
@@ -132,7 +148,7 @@ function sourceRecords(record) {
 
 function tickerRecords(record) {
   return record.tickers.map(([sym]) => ({
-    sym, co: sym, stance: 'flat', logo: TICKER_ASSETS[sym], interactive: false,
+    sym, co: sym, stance: TICKER_TRENDS[sym] || 'flat', logo: TICKER_ASSETS[sym], interactive: false,
   }));
 }
 
@@ -146,7 +162,8 @@ export function thesisCards(cards, random = Math.random) {
       const social = { ...card.social, nodeId: card.social.nodeId, generationMode: 'manual', thesisType: 'Thesis update',
         charts: Object.entries(art).filter(([name]) => /^imgChart/.test(name)).map(([, src]) => src),
         paragraphs: ARTICLE.paragraphs };
-      return { ...card, age: social.age, social, sources: [source], blocks: [] };
+      const tickers = card.tickers.map(ticker => ({ ...ticker, stance: TICKER_TRENDS[ticker.sym] || ticker.stance || 'flat' }));
+      return { ...card, age: social.age, social, sources: [source], tickers, blocks: [] };
     }
     const sources = sourceRecords(record);
     const paragraphs = [record.thesis];
