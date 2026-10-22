@@ -7,14 +7,12 @@
 [data-feed-variant="social"] #cards { padding-bottom: 64px; }
 [data-feed-variant="social"] .social-role { color: var(--n5); }
 [data-feed-variant="social"] #screenFeed .topbar { box-shadow: none; }
-[data-feed-variant="social"] #screenFeed .topbar h1 { margin: 12px 0; }
+[data-feed-variant="social"] #screenFeed .topbar h1 { margin: 12px 0; transform: none; }
 .thesis-content { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-xs); padding: var(--space-s) var(--gutter) var(--space-xxxs); min-width: 0; letter-spacing: 0; color: var(--n9); }
 .thesis-content > * { min-width: 0; }
 .thesis-create { position: absolute; z-index: 15; right: var(--gutter); bottom: calc(var(--tab-h) + var(--home-h) + var(--gutter)); display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--m1); color: var(--nr10); box-shadow: var(--shadow-xs); }
 .thesis-create .ic { width: 20px; height: 20px; }
 .thesis-type { align-self: flex-start; height: 22px; padding: 1px 6px; border-radius: var(--radius-btn-s); font-size: 12px; font-weight: 500; line-height: 20px; }
-.thesis-type.is-new { color: var(--m3); background: color-mix(in srgb, var(--m3) 10%, transparent); }
-.thesis-type.is-update { color: var(--m2); background: var(--m2-10); }
 .thesis-type.is-archived { color: var(--n5); background: var(--br05); }
 .thesis-body { display: block; width: 100%; text-align: left; color: var(--n9); font-size: 14px; line-height: 22px; font-weight: 400; overflow-wrap: anywhere; }
 .thesis-body p + p { margin-top: var(--space-s); }
@@ -28,6 +26,10 @@
 .thesis-chart img.is-cover { object-fit: cover; }
 .thesis-tickers { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); margin-top: var(--space-xxs); }
 .thesis-actions { display: flex; align-items: center; justify-content: space-between; min-height: 36px; margin-top: var(--space-xxs); }
+.thesis-content:not(.thesis-full) { gap: var(--space-s); }
+.thesis-content:not(.thesis-full) > .thesis-charts,
+.thesis-content:not(.thesis-full) > .thesis-tickers,
+.thesis-content:not(.thesis-full) > .thesis-actions { margin-top: 0; }
 .thesis-action { display: flex; align-items: center; gap: var(--space-xxs); min-height: 36px; font-size: 12px; line-height: 20px; color: var(--n7); }
 .thesis-action .ic { width: 16px; height: 16px; }
 .thesis-action[aria-pressed="true"] { color: var(--m1); }
@@ -48,10 +50,11 @@
 .thesis-detail .social-page-top .social-name,
 .thesis-detail .social-page-top .social-role { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .thesis-detail .social-page-top .thesis-follow { width: auto; flex: none; padding-inline: var(--space-s); margin-left: 8px; }
-.thesis-owner-update { display: flex; flex: none; align-items: center; justify-content: center; gap: 4px; height: 28px; margin-right: 8px; padding-inline: 12px; color: white; background: var(--m2); border-radius: var(--radius-btn-s); font-size: 12px; line-height: 20px; font-weight: 500; }
+.thesis-owner-update { display: flex; flex: 0 0 84px; align-items: center; justify-content: center; gap: 4px; width: 84px; height: 28px; margin-right: 16px; padding-inline: 12px; color: white; background: var(--m2); border-radius: var(--radius-btn-s); font-size: 12px; line-height: 20px; font-weight: 500; }
 .thesis-owner-update .ic { width: 14px; height: 14px; }
-.thesis-detail-more { flex: 0 0 44px; width: 44px; height: 56px; display: grid; place-items: center; }
-.thesis-detail-more .ic { width: 16px; height: 16px; }
+.thesis-detail-settings { position: relative; flex: 0 0 20px; width: 20px; height: 36px; display: grid; place-items: center; }
+.thesis-detail-settings::before { position: absolute; inset: 0 -8px; content: ''; }
+.thesis-detail-settings .ic { width: 20px; height: 20px; }
 .thesis-menu-dismiss { position: absolute; inset: 0; z-index: 4; }
 .thesis-menu-dismiss[hidden], .thesis-detail-menu[hidden] { display: none; }
 .thesis-detail-menu { position: absolute; top: 60px; right: 16px; z-index: 5; display: flex; flex-direction: column; width: 240px; padding: 4px 0; border-radius: var(--radius-ct-m); background: var(--bg-container); box-shadow: inset 0 0 0 var(--hair) var(--l2), var(--shadow-xs); }
@@ -133,17 +136,24 @@
 @media (prefers-reduced-motion: reduce) {
   .thesis-generating img, .thesis-detail-menu:not([hidden]), .thesis-floating-less:not([hidden]) { animation: none; }
 }
-.thesis-root { --thesis-bar-p: 0; --thesis-bar-h: calc(58px * (1 - var(--thesis-bar-p))); position: absolute; inset: var(--status-h) 0 calc(var(--tab-h) + var(--home-h)); overflow: hidden; background: var(--bg-container); letter-spacing: 0; }
+.thesis-root { --thesis-bar-p: 0; --thesis-bar-h: calc(58px * (1 - var(--thesis-bar-p))); --thesis-title-p: 0; --thesis-profile-p: 0; position: absolute; inset: var(--status-h) 0 calc(var(--tab-h) + var(--home-h)); overflow: hidden; background: var(--bg-container); letter-spacing: 0; }
 .thesis-root-title, .thesis-me-top { position: absolute; z-index: 3; top: 0; right: 0; left: 0; height: var(--thesis-bar-h); overflow: hidden; background: var(--bg-container); }
 .thesis-root-title { display: flex; align-items: flex-start; padding: 0 var(--gutter); }
 .thesis-root-title h1 { margin: 16px 0 8px; font-size: 24px; line-height: 34px; font-weight: 500; opacity: calc(1 - var(--thesis-bar-p) * 2.2); transform: translate3d(0, calc(-10px * var(--thesis-bar-p)), 0); }
+.thesis-search .thesis-root-title h1 { opacity: max(0, calc(1 - var(--thesis-bar-p) * 3.2)); transform: none; }
 .thesis-root-scroll { position: absolute; inset: 0; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; overscroll-behavior-y: contain; }
 .thesis-root-lead { height: 58px; flex: none; }
-.thesis-me-top { display: flex; align-items: flex-start; padding: 0 var(--gutter); gap: var(--space-m); }
-.thesis-me-top > * { opacity: calc(1 - var(--thesis-bar-p) * 2.2); transform: translate3d(0, calc(-10px * var(--thesis-bar-p)), 0); }
+.thesis-me { --thesis-bar-h: 58px; }
+.thesis-me-top { display: flex; align-items: flex-start; height: 58px; padding: 0 var(--gutter); gap: var(--space-m); }
 .thesis-me-top h1 { flex: 1; margin: 16px 0 8px; font-size: 24px; line-height: 34px; font-weight: 500; }
-.thesis-me-top .social-page-tool { flex-basis: 20px; width: 20px; height: 34px; margin-top: 16px; align-items: end; padding-bottom: 4px; }
+.thesis-me-top h1 { opacity: calc(1 - var(--thesis-title-p)); transform: none; }
+.thesis-me-top .social-page-tool { position: relative; flex-basis: 20px; width: 20px; height: 20px; margin-top: 23px; transform: translate3d(0, calc(-4px * var(--thesis-profile-p)), 0); will-change: transform; }
+.thesis-me-top .social-page-tool::before { position: absolute; inset: -8px; content: ''; }
 .thesis-me-top .ic { width: 20px; height: 20px; }
+.thesis-me-collapsed { position: absolute; top: 13px; left: var(--gutter); z-index: 1; display: flex; align-items: center; gap: var(--space-xs); max-width: calc(100% - 160px); color: var(--n9); opacity: var(--thesis-profile-p); transform: translate3d(0, calc(8px * (1 - var(--thesis-profile-p))), 0); pointer-events: none; will-change: opacity, transform; }
+.thesis-me-collapsed .thesis-portrait { width: 32px; height: 32px; }
+.thesis-me-collapsed .thesis-person-name { min-width: 0; }
+.thesis-me-collapsed .thesis-person-name strong { max-width: 170px; font-size: 14px; line-height: 22px; font-weight: 500; }
 .thesis-tabs { display: flex; flex: none; padding: 0 var(--gutter); gap: 24px; height: 28px; overflow-x: auto; scrollbar-width: none; background: var(--bg-container); box-shadow: inset 0 calc(-1 * var(--hair)) var(--l12); }
 .thesis-tabs .thesis-tab { position: relative; flex: none; color: var(--n7); font-size: 14px; line-height: 22px; padding-bottom: 6px; white-space: nowrap; }
 .thesis-tabs .thesis-tab[aria-selected="true"] { color: var(--n9); font-weight: 500; }
@@ -172,6 +182,11 @@
 .thesis-profile-header { display: flex; flex-direction: column; gap: var(--space-s); padding: 0 var(--gutter) 24px; }
 .social-page[data-social-page="profile"] .social-page-top > .thesis-follow { flex: none; width: auto; padding-inline: var(--space-s); margin-inline: var(--space-s); }
 .social-page[data-social-page="profile"] .social-page-back { width: 44px; flex-basis: 44px; }
+.social-page[data-social-page="profile"][data-profile="owner"] .social-page-top { gap: 0; padding-right: 16px; }
+.social-page[data-social-page="profile"][data-profile="owner"] .social-page-tool { position: relative; flex: 0 0 20px; width: 20px; height: 36px; margin-left: 16px; }
+.social-page[data-social-page="profile"][data-profile="owner"] .social-page-top h1 + .social-page-tool { margin-left: 0; }
+.social-page[data-social-page="profile"][data-profile="owner"] .social-page-tool::before { position: absolute; inset: 0 -8px; content: ''; }
+.social-page[data-social-page="profile"][data-profile="owner"] .social-page-tool .ic { width: 20px; height: 20px; }
 .thesis-profile-collapsed { display: flex; align-items: center; gap: var(--space-xs); opacity: 0; transition: opacity 140ms ease-out; }
 .thesis-profile-collapsed.is-visible { opacity: 1; }
 .thesis-profile-identity { display: flex; align-items: center; gap: var(--space-s); min-height: 56px; }
@@ -224,7 +239,8 @@
 .thesis-relations-list .thesis-person-row::after { content: ''; position: absolute; bottom: 0; left: calc(-1 * var(--gutter)); right: calc(-1 * var(--gutter)); height: var(--hair); background: var(--l12); }
 .thesis-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 218px; padding: 48px 20px; text-align: center; color: var(--n5); font-size: 14px; line-height: 22px; }
 .thesis-empty > img { display: block; width: 76.8px; height: 76.8px; margin: 9.6px 9.6px 0; }
-.thesis-search-entry { height: 64px; padding: var(--space-s) var(--gutter); }
+.thesis-search-entry { position: sticky; top: 0; z-index: 2; box-sizing: border-box; height: 58px; padding: 9px var(--gutter); background: var(--bg-container); }
+.thesis-search-entry.is-pinned { box-shadow: inset 0 calc(-1 * var(--hair)) var(--l12); }
 .thesis-search-field { display: flex; align-items: center; height: 40px; gap: var(--space-xs); padding-inline: var(--space-s); box-shadow: inset 0 0 0 var(--hair) var(--l3); border-radius: var(--radius-btn-m); background: var(--module-data-entry); }
 .thesis-search-field:focus-within { box-shadow: inset 0 0 0 1px var(--n9); }
 .thesis-search-field > .ic { flex: none; width: 16px; height: 16px; color: var(--n3); }
