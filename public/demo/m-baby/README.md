@@ -2,7 +2,7 @@
 
 This directory contains the browser-ready runtime imported from
 [`RobertLee8888/m.baby`](https://github.com/RobertLee8888/m.baby) at commit
-`235ee890ad612ae05e2a88f73beeeb037a3eb000` (2026-10-22).
+`8ec658ecb1f638c7e4f95d48f8737ee5c1392a03` (2026-10-22).
 
 Open `/demo/m-baby/#/thesis-motion` for the latest navigation demo, or
 `/demo/m-baby/` for the prototype gallery. Its current entries are Thesis
