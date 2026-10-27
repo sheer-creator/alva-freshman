@@ -79,7 +79,9 @@
 
     /* Feed / Header / Icon pill (7478:16947): title row pt 12 px 16, pill rail, pb 12, bottom 0.5 line/l12 */
     .header { flex: none; display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: .5px solid var(--l12); }
+    .title-row { display: flex; align-items: center; justify-content: space-between; }
     .title { margin: 0; padding: 12px 16px 0; font-size: 24px; line-height: 34px; font-weight: 500; letter-spacing: .24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mobile-scheme { display: none; flex: none; height: 30px; margin: 12px 16px 0 0; padding: 0 8px; border: .5px solid var(--l12); border-radius: 6px; background: var(--b0); color: var(--n7); font: inherit; font-size: 12px; }
     .pill-rail { display: flex; align-items: center; }
     .pill-viewport { position: relative; flex: 1; min-width: 0; }
     .pill-track { display: flex; gap: 8px; padding: 0 12px; overflow-x: auto; scrollbar-width: none; }
@@ -269,6 +271,7 @@
       body { display: block; height: 100vh; height: 100dvh; min-height: 0; padding: 0; overflow: hidden; }
       .page, .stage, .phone-wrap, .phone-screen { width: 100%; height: 100%; min-width: 0; }
       .stage { display: block; }
+      .mobile-scheme { display: block; }
       .side, .status-bar, .indicator, body > .ads-root { display: none !important; }
       .phone-screen { border-radius: 0; box-shadow: none; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
       .card, .feed > img { width: 100%; }
@@ -311,7 +314,10 @@
           <div class="status-bar" aria-hidden="true"><div class="sb-left"><span class="sb-time">9:41</span></div><div class="island"></div><div class="sb-right"><img src="assets/status-icons.svg" alt=""></div></div>
 
           <header class="header">
-            <p class="title">For You</p>
+            <div class="title-row">
+              <p class="title">For You</p>
+              <select class="mobile-scheme" id="mobileScheme" aria-label="切换方案"></select>
+            </div>
             <div class="pill-rail">
               <div class="pill-viewport">
                 <div class="pill-track" id="pillTrack"></div>
@@ -426,6 +432,7 @@
 
       const feed = document.getElementById('feed');
       const schemeBtns = document.getElementById('schemeBtns');
+      const mobileScheme = document.getElementById('mobileScheme');
       const stateBtns = document.getElementById('stateBtns');
       const schemeTitle = document.getElementById('schemeTitle');
       const schemeNote = document.getElementById('schemeNote');
@@ -487,6 +494,7 @@
         stateNote.textContent = `来源 ${d.host} · ${d.age}h ago。命中 ${d.theses.length} 条 thesis：${hits}`;
       }
       function renderButtons() {
+        mobileScheme.value = String(scheme);
         schemeBtns.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.n) === scheme)));
         stateBtns.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === state)));
       }
@@ -563,6 +571,10 @@
       }
 
       SCHEMES.forEach((sc, i) => {
+        const option = document.createElement('option');
+        option.value = String(i + 1);
+        option.textContent = `方案 ${i + 1}${sc.incomplete ? ' · 未完善' : ''}`;
+        mobileScheme.appendChild(option);
         const b = document.createElement('button');
         b.type = 'button';
         b.dataset.n = String(i + 1);
@@ -576,6 +588,12 @@
         }
         b.addEventListener('click', () => { closeReadSheet(false); openFeedbackId = null; scheme = i + 1; render(); });
         schemeBtns.appendChild(b);
+      });
+      mobileScheme.addEventListener('change', () => {
+        closeReadSheet(false);
+        openFeedbackId = null;
+        scheme = Number(mobileScheme.value);
+        render();
       });
       CARDS.forEach((f) => {
         const b = document.createElement('button');
