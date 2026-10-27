@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="demo-status" content="exploration">
+  <meta name="demo-summary" content="For You Signal 卡方案 1：18 张 Signal、3 张 Thesis 和完整的多 thesis 解读；方案 2、3 未完善，仅供版式参考。">
+  <title>For You · Signal 卡方案切换</title>
+  <style>
+    @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: InterSymbols; src: local('Inter-Regular'), local('Inter'); font-weight: 400; unicode-range: U+2192; }
+    /* 中文走本机已装的方正兰亭黑（仓库不带字体文件）：400 → 准黑，500 → 中黑；Delight 没有的汉字自动落到这里 */
+    @font-face { font-family: FZLanTingHei; src: local('FZLanTingHei-M-GBK'), local('方正兰亭准黑_GBK'); font-weight: 400; }
+    @font-face { font-family: FZLanTingHei; src: local('FZLanTingHei-DB-GBK'), local('方正兰亭中黑_GBK'); font-weight: 500; }
+
+    :root {
+      --b0: #fff;
+      --n9: rgba(0, 0, 0, .9);
+      --n7: rgba(0, 0, 0, .7);
+      --n5: rgba(0, 0, 0, .5);
+      --n3: rgba(0, 0, 0, .3);
+      --nr9: rgba(255, 255, 255, .9);
+      --l2: rgba(0, 0, 0, .2);
+      --l12: rgba(0, 0, 0, .12);
+      --br03: rgba(0, 0, 0, .03);
+      --br05: rgba(0, 0, 0, .05);
+      --br07: rgba(0, 0, 0, .07);
+      --br7: rgba(0, 0, 0, .7);
+      /* Shared mobile sheet backdrop: m-baby/mvp.css. */
+      --scrim: rgba(0, 0, 0, .6);
+      --m1: #49a3a6;
+      --m1-10: rgba(73, 163, 166, .1);
+      --m3: #2a9b7d;
+      --m3-10: rgba(42, 155, 125, .1);
+      --m4: #e05357;
+      --m4-10: rgba(224, 83, 87, .1);
+      --m5: #e6a91a;
+      --m5-10: rgba(230, 169, 26, .1);
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: #fff; -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px 16px; color: var(--n9); font-family: Delight, FZLanTingHei, 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif; }
+    button { font: inherit; color: inherit; }
+    img { display: block; }
+    .page { width: min(100%, 1000px); }
+    .stage { display: flex; align-items: flex-start; justify-content: center; gap: 48px; }
+    .side { flex: none; align-self: center; display: flex; flex-direction: column; gap: 28px; width: 380px; }
+    .intro { margin: 0; }
+    .kicker { margin: 0 0 8px; color: var(--m1); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: 24px; line-height: 32px; font-weight: 500; }
+    .lede { margin: 8px 0 0; color: var(--n5); font-size: 14px; line-height: 22px; }
+    .controls { display: flex; flex-direction: column; gap: 20px; }
+    .control-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .control-label { margin: 0 0 -2px 12px; color: var(--n5); font-size: 11px; line-height: 16px; letter-spacing: .08em; text-transform: uppercase; }
+    .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btns button { height: 32px; padding: 0 12px; border: 0; border-radius: 960px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); font-size: 14px; line-height: 20px; text-align: left; white-space: nowrap; cursor: pointer; }
+    .btns button[aria-pressed="true"] { background: var(--n9); color: #fff; box-shadow: none; }
+    #schemeBtns .is-draft { color: var(--n5); box-shadow: inset 0 0 0 .5px var(--l12); }
+    #schemeBtns .is-draft[aria-pressed="true"] { background: var(--br05); color: var(--n7); box-shadow: inset 0 0 0 .5px var(--l2); }
+    .scheme-status { margin-left: 8px; font-size: 11px; line-height: 16px; color: var(--n5); }
+    #stateBtns { max-height: 232px; overflow-y: auto; padding: 1px; scrollbar-width: thin; }
+    .notes { display: flex; flex-direction: column; gap: 12px; }
+    .note { margin: 0; }
+    .note-title { display: block; color: var(--n9); font-size: 14px; line-height: 22px; }
+    .note-body { display: block; color: var(--n5); font-size: 13px; line-height: 20px; word-break: break-word; }
+
+    /* ---------- phone shell ---------- */
+    .phone-wrap { flex: none; width: 440px; height: 956px; }
+    .phone-screen { position: relative; width: 440px; height: 956px; display: flex; flex-direction: column; overflow: hidden; border-radius: 44px; background: var(--b0); box-shadow: 0 0 0 .5px var(--l2), 0 18px 50px rgba(0, 0, 0, .12); transform-origin: top left; }
+    /* iOS/Status Bar (7530:12426): 59 tall; time SF Pro Text Semibold 16 in a 54×21 box, left side pl 10 pb 3; island 125×37 centred; signal/wifi/battery 78.4×13, right side pr 11 */
+    .status-bar { flex: none; height: 59px; display: flex; align-items: flex-end; justify-content: center; }
+    .sb-left, .sb-right { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .sb-left { padding: 0 0 3px 10px; }
+    .sb-right { padding-right: 11px; }
+    .sb-time { width: 54px; height: 21px; font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 21px; font-weight: 600; letter-spacing: -.32px; text-align: center; color: #000; }
+    .island { flex: none; align-self: center; width: 125px; height: 37px; border-radius: 100px; background: #000; }
+    .sb-right img { width: 78.4px; height: 13px; }
+
+    /* Feed / Header / Icon pill (7478:16947): title row pt 12 px 16, pill rail, pb 12, bottom 0.5 line/l12 */
+    .header { flex: none; display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: .5px solid var(--l12); }
+    .title { margin: 0; padding: 12px 16px 0; font-size: 24px; line-height: 34px; font-weight: 500; letter-spacing: .24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pill-rail { display: flex; align-items: center; }
+    .pill-viewport { position: relative; flex: 1; min-width: 0; }
+    .pill-track { display: flex; gap: 8px; padding: 0 12px; overflow-x: auto; scrollbar-width: none; }
+    .pill-track::-webkit-scrollbar { display: none; }
+    .pill { flex: none; padding: 4px 10px; border: 0; border-radius: 960px; background: var(--br03); color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; cursor: pointer; }
+    .pill.on { background: var(--br7); color: var(--nr9); }
+    .pill-fade { position: absolute; top: 0; right: 0; bottom: .5px; width: 24px; background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff); pointer-events: none; }
+    .pill-more { flex: none; display: grid; place-items: center; height: 28px; padding: 0 16px 0 8px; border: 0; background: none; cursor: pointer; }
+    .pill-more img { width: 12px; height: 12px; }
+
+    .feed { position: relative; flex: 1; min-height: 0; padding-bottom: 72px; overflow-y: auto; scroll-padding-bottom: 72px; scrollbar-width: none; }
+    .feed::-webkit-scrollbar { display: none; }
+    .feed > img { width: 440px; height: auto; }
+
+    /* Create / Fixed FAB (7478:16983): 48, b-btn-primary, radius-btn-round, Shadow L (10 20 8), 16 above the tab bar */
+    .fab { position: absolute; right: 16px; bottom: 98px; width: 48px; height: 48px; display: grid; place-items: center; border: 0; border-radius: 96px; background: var(--m1); box-shadow: 0 10px 20px rgba(0, 0, 0, .08); cursor: pointer; }
+    .fab svg { display: block; }
+
+    /* Tab Bar (7530:12462): b0 + Bg Blur 30, top 0.5 line/l12; tab pt 8, icon 22, gap 2, label 10/16 (active Medium n9, rest Regular n7); iOS/Indicator 34 with 144×5 home bar 8 from the bottom */
+    .tabbar { flex: none; height: 82px; background: var(--b0); backdrop-filter: blur(15px); border-top: .5px solid var(--l12); }
+    .tabs { display: flex; }
+    .tab { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 0; border: 0; background: none; color: var(--n7); font-size: 10px; line-height: 16px; letter-spacing: .1px; white-space: nowrap; cursor: pointer; }
+    .tab.on { color: var(--n9); font-weight: 500; }
+    .tab img { width: 22px; height: 22px; }
+    .indicator { position: relative; height: 34px; }
+    .indicator i { position: absolute; bottom: 8px; left: 50%; width: 144px; height: 5px; margin-left: -72px; border-radius: 100px; background: #000; }
+
+    /* ---------- Signal card (Feed Item / V5 container: pad 12/16/2/16, bottom 0.5 line/l12) ---------- */
+    .card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; width: 440px; padding: 12px 16px 2px; background: var(--b0); border-bottom: .5px solid var(--l12); }
+    /* Figma excludes the bottom stroke from auto-layout sizing. */
+    .card.s1 { position: relative; gap: 8px; border-bottom: 0; }
+    .card.s1::after, .card.is-hidden::after { position: absolute; right: 0; bottom: 0; left: 0; border-bottom: .5px solid var(--l12); content: ''; pointer-events: none; }
+    .card p { margin: 0; }
+    .ic { flex: none; }
+    .blk { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+
+    /* Source identity: 42 tall, avatar 32 with 0.5 b0 stroke, name Medium/14 + role Regular/12 n5, time Regular/12 n5 top-aligned */
+    .src { display: flex; align-items: center; gap: 8px; width: 100%; height: 42px; overflow: hidden; }
+    /* 头像用固定尺寸的盒子铺背景图，图片不可能画出框外；0.5 b0 描边用内阴影 */
+    .av { flex: none; display: block; border-radius: 960px; background: center / cover no-repeat; }
+    .av32 { width: 32px; height: 32px; box-shadow: inset 0 0 0 .5px var(--b0); }
+    .av20 { width: 20px; height: 20px; box-shadow: inset 0 0 0 .5px var(--b0); }
+    .av14 { width: 14px; height: 14px; }
+    .av-initials { display: grid; place-items: center; background: var(--br07); color: var(--n7); font-size: 8px; font-weight: 500; }
+    .av-initials.av32 { font-size: 12px; }
+    .av-initials.av20 { font-size: 10px; }
+    .thesis-card { gap: 8px; }
+    .thesis-tickers { display: flex; gap: 4px; }
+    .ticker { padding: 1px 6px; border-radius: 4px; background: var(--br05); color: var(--n7); font-size: 12px; line-height: 20px; }
+    .spk { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 8px; }
+    .who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .name { font-size: 14px; line-height: 22px; font-weight: 500; letter-spacing: .14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .role { color: var(--n5); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .time { flex: none; color: var(--n5); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
+
+    .quote, .analysis { width: 100%; font-size: 14px; line-height: 22px; letter-spacing: .14px; color: var(--n9); word-break: break-word; }
+    a.link:hover { color: var(--m1); }
+    .link { color: var(--n5); text-decoration: underline; text-decoration-color: var(--n3); text-decoration-thickness: 5%; }
+    /* 引文最多 4 行，截断后尾部接「Show more」（m1）就地展开，展开后才出来源链接 */
+    .quote .more { color: var(--m1); cursor: pointer; }
+    .quote button.more { padding: 0; border: 0; background: none; font: inherit; text-align: inherit; }
+    /* Alva 解读最多 3 行，省略号截断，不展开 */
+    .clamp3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .media { display: flex; gap: 8px; width: 100%; }
+    .media img { width: 240px; height: 135px; border: .5px solid var(--l2); border-radius: 8px; object-fit: cover; }
+
+    /* Scheme 1 / Thesis rows: pt 8, gap 8; each full read has gap 4 and max-height 132. */
+    .sig { display: flex; flex-direction: column; gap: 8px; width: 100%; padding-top: 8px; }
+    .thesis-read { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+    .s1 .analysis { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; max-height: 132px; overflow: hidden; }
+    .alva-row { display: flex; align-items: center; gap: 4px; width: 100%; }
+    .tags { flex: none; display: flex; align-items: center; gap: 1px; }
+    .s3 .alva-row .tags { padding: 1px 0; }
+    /* Inline identity / Alva: 22×22, m1-10, left corners radius-ct-s; stance tag hugs its right side */
+    .chip { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 4px 0 0 4px; background: var(--m1-10); }
+    .chip img { width: 10px; height: 10px; }
+    /* Thesis / Stance tag: Medium/12, pad 1/6, Supports m3 / Challenges m4 / Mixed m5 on *-10 */
+    .stance { flex: none; display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 0 4px 4px 0; font-size: 12px; line-height: 20px; font-weight: 500; letter-spacing: .12px; white-space: nowrap; }
+    .stance.sm { height: 20px; padding: 0 6px; border-radius: 4px; font-size: 10px; line-height: 16px; letter-spacing: .1px; }
+    .m3 { background: var(--m3-10); color: var(--m3); }
+    .m4 { background: var(--m4-10); color: var(--m4); }
+    .m5 { background: var(--m5-10); color: var(--m5); }
+    /* Thesis mention: grey chip hugs its text, but shrinks with an ellipsis when the row runs out of room */
+    .mention { display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; }
+    .ident { display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; height: 22px; padding: 0 6px; border-radius: 4px; background: var(--br05); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; overflow: hidden; }
+    .ident .ns { display: flex; min-width: 0; }
+    .ident .nm { flex: none; font-weight: 500; color: var(--n9); }
+    /* scheme 3 的 chip 只装名字，不参与收缩；收缩的是外面的后缀 */
+    .s3 .ident, .rows.s3 .ident { flex: none; }
+    .ident .sfx { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--n7); }
+    .suffix { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
+    .mention .ic, .more-row .ic, .ctx-thesis .ic { width: 12px; height: 12px; }
+    /* folded rows: Alva pair + mention per row; scheme 1 rows gap 8, scheme 3 rows gap 4; read link row at the bottom */
+    .rows { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .rows.s3 { gap: 4px; }
+    .row { display: flex; align-items: center; gap: 4px; width: 100%; }
+    .more-row { display: flex; align-items: center; gap: 4px; width: 100%; padding: 0; border: 0; background: none; color: var(--n5); font-size: 12px; line-height: 20px; letter-spacing: .12px; text-align: left; cursor: pointer; }
+    .s1 .more-row .ic { opacity: calc(.5 / .7); }
+    .s1 .quote .more { font-weight: 500; }
+    .s1 .quote .arrow { font-family: InterSymbols, sans-serif; }
+
+    /* Actions 2: 36 tall, Ask Alva left, like + hide right (gap 16) */
+    .actions { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 36px; }
+    .ask { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; padding: 4px 0; color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
+    .ask .ic, .fb .ic { width: 16px; height: 16px; }
+    .fb { display: flex; align-items: center; gap: 16px; }
+    .like-signal, .hide-signal { display: grid; place-items: center; width: 16px; height: 36px; padding: 0; border: 0; background: none; cursor: pointer; }
+    .like-glyph { position: relative; width: 16px; height: 16px; transform-origin: 50% 70%; transition: transform 100ms ease; }
+    .like-glyph .ic { position: absolute; inset: 0; transition: opacity 140ms ease; }
+    .like-signal .like-filled, .like-signal[aria-pressed="true"] .like-outline { opacity: 0; }
+    .like-signal[aria-pressed="true"] .like-filled { opacity: 1; }
+    .like-signal:active .like-glyph { transform: scale(.86); }
+    .like-signal.is-popping .like-glyph { animation: signal-like-pop 360ms cubic-bezier(.2, .8, .2, 1); }
+    @keyframes signal-like-pop {
+      0%, 100% { transform: scale(1) rotate(0); }
+      28% { transform: translateY(-1px) scale(1.2) rotate(-10deg); }
+      62% { transform: scale(.96) rotate(3deg); }
+    }
+
+    /* 7546:16786: 240 wide, p4, 42px rows, excluded 0.5px stroke. */
+    .feedback-menu { position: absolute; right: 16px; bottom: 36px; z-index: 3; display: flex; flex-direction: column; width: 240px; padding: 4px; border-radius: 6px; background: var(--b0); box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0, 0, 0, .08); }
+    .feedback-item { width: 100%; min-height: 42px; padding: 10px 12px; border: 0; border-radius: 4px; background: none; color: var(--n9); font-size: 14px; line-height: 22px; letter-spacing: .14px; text-align: left; cursor: pointer; }
+    /* 7428:1614: the card remains in place as a 46px row with Undo. */
+    .card.is-hidden { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 0; }
+    .hidden-message { flex: 1; min-width: 0; overflow: hidden; color: var(--n5); font-size: 14px; line-height: 22px; letter-spacing: .14px; white-space: nowrap; text-overflow: ellipsis; }
+    .undo-signal { flex: none; padding: 0; border: 0; background: none; color: var(--m1); font-size: 14px; line-height: 22px; font-weight: 500; letter-spacing: .14px; cursor: pointer; }
+
+    /* 7522:10697: grabber 12 + top bar 56 + scrolling list + home area 34. */
+    .read-sheet-layer { position: absolute; inset: 0; z-index: 10; }
+    .read-sheet-layer[hidden] { display: none; }
+    .read-sheet-backdrop { position: absolute; inset: 0; background: var(--scrim); opacity: 0; transition: opacity 200ms ease; }
+    .read-sheet { position: absolute; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; max-height: calc(100% - 99px); overflow: hidden; border-radius: 12px 12px 0 0; background: var(--b0); transform: translate3d(0, 100%, 0); transition: transform 260ms cubic-bezier(.4, 0, 1, 1); }
+    /* Match the mobile demo's sheet easing: fast travel, then a soft settle. */
+    .read-sheet-layer.is-open .read-sheet { transform: translate3d(0, 0, 0); transition-duration: 400ms; transition-timing-function: cubic-bezier(.32, .72, 0, 1); }
+    .read-sheet-layer.is-open .read-sheet-backdrop { opacity: 1; transition-duration: 240ms; }
+    .read-sheet-layer.is-closing .read-sheet { pointer-events: none; }
+    .read-sheet p { margin: 0; }
+    .read-sheet-grabber { position: relative; flex: none; height: 12px; }
+    .read-sheet-grabber span { position: absolute; bottom: 0; left: calc(50% + .5px); width: 36px; height: 4px; border-radius: 4px; background: var(--br07); transform: translateX(-50%); }
+    .read-sheet-top { flex: none; display: flex; align-items: center; height: 56px; padding: 0 16px 0 4px; }
+    .read-sheet-close { flex: none; display: grid; place-items: center; width: 44px; height: 56px; padding: 0 12px; border: 0; background: none; cursor: pointer; }
+    .read-sheet-close img { width: 20px; height: 20px; }
+    .read-sheet-title { flex: 1; min-width: 0; margin: 0; overflow: hidden; font-size: 16px; line-height: 26px; font-weight: 400; letter-spacing: .16px; white-space: nowrap; text-overflow: ellipsis; }
+    .read-sheet-content { flex: 0 1 auto; min-height: 0; padding-bottom: 8px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+    .read-sheet-content::-webkit-scrollbar { display: none; }
+    .read-sheet-list { padding: 0 16px 8px; }
+    .read-sheet-entry { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 0; }
+    .read-sheet-entry + .read-sheet-entry::before { position: absolute; top: 0; right: 0; left: 0; border-top: .5px solid var(--l12); content: ''; }
+    .read-sheet-head { display: flex; align-items: center; gap: 4px; min-width: 0; }
+    .read-sheet-headline, .read-sheet-explanation { font-size: 14px; line-height: 22px; letter-spacing: .14px; overflow-wrap: break-word; }
+    .read-sheet-headline { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .read-sheet .indicator { flex: none; }
+    .phone-screen.sheet-open .feed { overflow: hidden; }
+    @media (prefers-reduced-motion: reduce) {
+      .read-sheet, .read-sheet-backdrop { transition: none; }
+      .like-glyph, .like-glyph .ic { transition: none; }
+      .like-signal:active .like-glyph { transform: none; }
+      .like-signal.is-popping .like-glyph { animation: none; }
+    }
+
+    /* scheme 2: thesis context row (space-between, tag Medium/10 h20), quote block br03 r8 p12, Alva paragraph n9 with 20 chip */
+    .ctx { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
+    .ctx-thesis { display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; }
+    .ctx-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 12px; line-height: 20px; font-weight: 500; letter-spacing: .12px; white-space: nowrap; }
+    .ctx-list { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+    .qblock { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 12px; border-radius: 8px; background: var(--br03); }
+    .alva-p { width: 100%; color: var(--n9); font-size: 14px; line-height: 22px; letter-spacing: .14px; word-break: break-word; }
+    .chip20 { display: inline-grid; place-items: center; width: 20px; height: 20px; margin: 1px 8px 0 0; border-radius: 4px; background: var(--m1-10); vertical-align: top; }
+    .chip20 img { width: 10px; height: 10px; }
+
+    /* scheme 3: Why tag (br05, Medium/12 n7) leads the explanation line */
+    .why { width: 100%; font-size: 14px; line-height: 22px; letter-spacing: .14px; color: var(--n9); word-break: break-word; }
+    .why-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 6px; margin-right: 8px; border-radius: 4px; background: var(--br05); color: var(--n7); font-size: 12px; line-height: 20px; font-weight: 500; letter-spacing: .12px; vertical-align: top; }
+
+    @media (max-width: 900px) {
+      body { align-items: flex-start; padding-top: 20px; }
+      .stage { flex-direction: column; align-items: center; gap: 20px; }
+      .side { width: 100%; max-width: 440px; }
+    }
+    @media (min-width: 901px) and (max-height: 850px) {
+      .side { gap: 16px; }
+      #stateBtns { max-height: 156px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="stage">
+      <aside class="side">
+        <div class="intro">
+          <p class="kicker">For You · Signal 卡</p>
+          <h1>方案切换</h1>
+          <p class="lede">方案 1 已填充 18 张 Signal + 3 张 thesis，包含长短引文、三种立场和 2 / 4 / 5 条关联解读。方案 2、3 未完善，仅供版式参考。按数字键 1–3 切换。</p>
+          <p class="lede" style="font-size: 12px; line-height: 20px">样例快照 · 2026-10-26 · <a class="link" href="https://claude.ai/artifact/Wa8snwTvrHTp87Uec1V2No" target="_blank" rel="noopener noreferrer">Signal × Thesis 混排参考稿 ↗</a></p>
+        </div>
+        <div class="controls">
+          <div class="control-group">
+            <p class="control-label">方案</p>
+            <div class="btns" id="schemeBtns"></div>
+          </div>
+          <div class="control-group">
+            <p class="control-label">案例 · 点了滚到那张卡</p>
+            <div class="btns" id="stateBtns"></div>
+          </div>
+        </div>
+        <div class="notes">
+          <p class="note"><span class="note-title" id="schemeTitle"></span><span class="note-body" id="schemeNote"></span></p>
+          <p class="note"><span class="note-title" id="stateTitle"></span><span class="note-body" id="stateNote"></span></p>
+        </div>
+      </aside>
+
+      <div class="phone-wrap" id="phoneWrap">
+        <section class="phone-screen" id="screen" aria-label="For You preview">
+          <div class="status-bar" aria-hidden="true"><div class="sb-left"><span class="sb-time">9:41</span></div><div class="island"></div><div class="sb-right"><img src="assets/status-icons.svg" alt=""></div></div>
+
+          <header class="header">
+            <p class="title">For You</p>
+            <div class="pill-rail">
+              <div class="pill-viewport">
+                <div class="pill-track" id="pillTrack"></div>
+                <div class="pill-fade" aria-hidden="true"></div>
+              </div>
+              <button type="button" class="pill-more" aria-label="Browse all categories"><img src="assets/arrow-down-l2.svg" alt=""></button>
+            </div>
+          </header>
+
+          <div class="feed" id="feed"></div>
+
+          <button type="button" class="fab" aria-label="Create">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C10.2761 2 10.5 2.22386 10.5 2.5V9.5H17.5C17.7761 9.5 18 9.72386 18 10C18 10.2761 17.7761 10.5 17.5 10.5H10.5V17.5C10.5 17.7761 10.2761 18 10 18C9.72386 18 9.5 17.7761 9.5 17.5V10.5H2.5C2.22386 10.5 2 10.2761 2 10C2 9.72386 2.22386 9.5 2.5 9.5H9.5V2.5C9.5 2.22386 9.72386 2 10 2Z" fill="white" fill-opacity="0.9"/></svg>
+          </button>
+
+          <nav class="tabbar" aria-label="Main tabs">
+            <div class="tabs">
+              <button type="button" class="tab on"><img src="assets/tab-for-you-f.svg" alt=""><span>For You</span></button>
+              <button type="button" class="tab"><img src="assets/tab-alva-l.svg" alt=""><span>Alva</span></button>
+              <button type="button" class="tab"><img src="assets/tab-search-l1.svg" alt=""><span>Search</span></button>
+              <button type="button" class="tab"><img src="assets/tab-me-l.svg" alt=""><span>Me</span></button>
+            </div>
+            <div class="indicator" aria-hidden="true"><i></i></div>
+          </nav>
+
+          <div class="read-sheet-layer" id="readSheetLayer" hidden>
+            <div class="read-sheet-backdrop" data-close-read-sheet aria-hidden="true"></div>
+            <section class="read-sheet" id="readSheetDialog" role="dialog" aria-modal="true" aria-labelledby="readSheetTitle">
+              <div class="read-sheet-grabber" aria-hidden="true"><span></span></div>
+              <div class="read-sheet-top">
+                <button type="button" class="read-sheet-close" data-close-read-sheet aria-label="Close explanations"><img src="assets/read-sheet-close.svg" alt=""></button>
+                <h2 class="read-sheet-title" id="readSheetTitle">Alva’s explanations</h2>
+              </div>
+              <div class="read-sheet-content" id="readSheetContent" tabindex="0" role="region" aria-label="Thesis explanations">
+                <div class="read-sheet-list" id="readSheetList" role="list"></div>
+              </div>
+              <div class="indicator" aria-hidden="true"><i></i></div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="mock-data.js"></script>
+  <script>
+    (() => {
+      const A = 'assets/';
+      const { people: PEOPLE, heads: HEADS, signals: CARDS, feed: SIGNALS } = window.SIGNAL_CARD_MOCK;
+      const STANCE = { supports: ['Supports', 'm3'], refutes: ['Challenges', 'm4'], mixed: ['Mixed', 'm5'] };
+      const EXPLANATIONS = Object.fromEntries(CARDS.map(d => [d.id, d.theses.map(([stance, person, thesis], i) => ({
+        stance, person, headline: HEADS[thesis],
+        explanation: window.SIGNAL_CARD_MOCK.explanations[d.id]?.[i] || d.note,
+      }))]));
+      const SCHEMES = [
+        { title: '来源在上 → 引文 → Alva 行 → 解读', note: '来源 → 引文 → 作者与 Alva 解读，解读最多 6 行。多 thesis 卡保留首条完整解读，再展示最多 2 条紧凑行；点击 See all explanations 查看全部。每 5 张 Signal 插入 1 张参考稿 thesis。' },
+        { title: 'Thesis 置顶 → 引文块 → Alva 段', incomplete: true, note: '未完善，仅供版式参考。暂定为 thesis 置顶、灰底引文块和独立 Alva 解读段；内容呈现与交互细节仍待完善。' },
+        { title: '判断置顶 → 原文 → Why 解读', incomplete: true, note: '未完善，仅供版式参考。暂定为判断置顶、原文居中，再以 Why 引出解读；内容呈现与交互细节仍待完善。' },
+      ];
+      const PILLS = ['All', 'Chips', 'Memory', 'Hyperscaler', 'Neocloud', 'Enterprise AI', 'Agent Infra', 'Consumer AI', 'Space', 'Interconnect', 'Power', 'Crypto', 'Financials', 'Healthcare', 'Energy & Materials', 'Consumer', 'Industrials', 'Macro'];
+
+      const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+      const quoteText = (s) => scheme === 1 ? esc(s).replace(/→/g, '<span class="arrow">→</span>') : esc(s);
+      const icon = (n) => `<img class="ic" src="${A}${n}.svg" alt="">`;
+      const av = (file, cls, name = '') => file ? `<span class="av ${cls}" style="background-image: url('${A}${file}')"></span>` : `<span class="av av-initials ${cls}" aria-hidden="true">${esc(name.slice(0, 2))}</span>`;
+      const identity = (d) => `<div class="src">${av(d.av, 'av32', d.name)}<div class="spk"><div class="who"><p class="name">${esc(d.name)}</p><p class="role">${esc(d.role)}</p></div><p class="time">${d.age}h ago</p></div></div>`;
+      const sourceLink = (d) => `<a class="link" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" aria-label="Open original source on ${esc(d.host)}">${esc(d.host)} ↗</a>`;
+      // Long quotes expand in place; every source opens its original post.
+      const quote = (d) => EXPANDED.has(d.id)
+        ? `<p class="quote">${quoteText(d.quote)} ${sourceLink(d)}</p>`
+        : `<p class="quote clamp" data-id="${d.id}" data-full="${esc(d.quote)}">${quoteText(d.quote)} ${sourceLink(d)}</p>`;
+      const chip = () => `<span class="chip"><img src="${A}alva-inline-logo.svg" alt=""></span>`;
+      const tag = (st, cls) => `<span class="stance ${STANCE[st][1]}${cls ? ' ' + cls : ''}">${STANCE[st][0]}</span>`;
+      const pair = (st) => `<span class="tags">${chip()}${tag(st)}</span>`;
+      const person = (p) => PEOPLE[p][0];
+      // scheme 1：名字和后缀都在灰 chip 里；scheme 3：chip 只装名字，后缀在外面
+      const scheme1Avatar = (p) => p === 'harryz' ? 'avatar-harryz-figma.png' : PEOPLE[p][1];
+      const mention1 = (p, sfx) => `<span class="mention"><span class="ident">${av(scheme1Avatar(p), 'av14', person(p))}<span class="ns"><span class="nm">${person(p)}</span><span class="sfx">${esc(sfx)}</span></span>${icon('arrow-right-l2')}</span></span>`;
+      const compactRow1 = (r) => `<div class="row">${pair(r.stance)}${mention1(r.person, '’s thesis')}</div>`;
+      const mention3 = (p, sfx) => `<span class="mention"><span class="ident">${av(PEOPLE[p][1], 'av14', person(p))}<span class="nm">${person(p)}</span></span><span class="suffix">${esc(sfx)}</span>${icon('arrow-right-l2')}</span>`;
+      const readRow = (d) => `<button type="button" class="more-row" data-read-sheet="${d.id}" aria-haspopup="dialog" aria-expanded="${openReadSheetId === d.id}" aria-controls="readSheetDialog">See all ${d.theses.length} explanations${icon('arrow-right-l2')}</button>`;
+      const rows = (d, mention, cls) => `<div class="rows${cls ? ' ' + cls : ''}">${d.theses.slice(0, 3).map(([st, p, pb]) => `<div class="row">${pair(st)}${mention(p, ' · ' + HEADS[pb])}</div>`).join('')}${readRow(d)}</div>`;
+      const ctxRow = (p, text, st) => `<div class="ctx"><span class="ctx-thesis">${av(PEOPLE[p][1], 'av20', person(p))}<span class="ctx-name">${esc(text)}</span>${icon('arrow-right-l2')}</span>${tag(st, 'sm')}</div>`;
+      const ctxList = (d) => `<div class="ctx-list">${d.theses.slice(0, 3).map(([st, p, pb]) => ctxRow(p, `${person(p)} · ${HEADS[pb]}`, st)).join('')}${readRow(d)}</div>`;
+      const feedbackMenu = (d) => openFeedbackId === d.id ? `<div class="feedback-menu" id="feedback-${d.id}" role="menu" aria-label="Not interested"><button type="button" class="feedback-item" role="menuitem" data-action="hide-source" data-id="${d.id}">Hide signals from ${esc(d.name)}</button><button type="button" class="feedback-item" role="menuitem" data-action="mute-thesis" data-id="${d.id}">Mute signals for this thesis</button><button type="button" class="feedback-item" role="menuitem" data-action="not-relevant" data-id="${d.id}">Not relevant to me</button></div>` : '';
+      const likeLabel = (d, liked) => `${liked ? 'Unlike' : 'Like'} signal from ${d.name}`;
+      const actions = (d) => `<div class="actions"><span class="ask">${icon('chat-ai-l')}Ask Alva</span><span class="fb"><button type="button" class="like-signal" data-id="${d.id}" aria-label="${esc(likeLabel(d, LIKED.has(d.id)))}" aria-pressed="${LIKED.has(d.id)}"><span class="like-glyph"><img class="ic like-outline" src="${A}like-l.svg" alt=""><img class="ic like-filled" src="${A}like-f.svg" alt=""></span></button><button type="button" class="hide-signal" data-id="${d.id}" aria-label="Not interested in signal from ${esc(d.name)}" aria-haspopup="menu" aria-expanded="${openFeedbackId === d.id}" aria-controls="feedback-${d.id}">${icon('close-l1')}</button></span></div>${feedbackMenu(d)}`;
+      const folded = (d) => d.theses.length > 1;
+      const single = (d) => d.theses[0];
+
+      const RENDER = {
+        1: (d) => {
+          const [st, p] = single(d);
+          const entries = EXPLANATIONS[d.id];
+          const body = `<div class="thesis-read"><div class="alva-row">${pair(st)}${mention1(p, '’s thesis')}</div><p class="analysis">${esc(entries[0].explanation)}</p></div>`;
+          const rest = folded(d) ? entries.slice(1, 3).map(compactRow1).join('') + readRow(d) : '';
+          return `<div class="blk">${identity(d)}${quote(d)}</div><div class="sig">${body}${rest}</div>${actions(d)}`;
+        },
+        2: (d) => {
+          const [st, p] = single(d);
+          const top = folded(d) ? ctxList(d) : ctxRow(p, `${person(p)}’s thesis`, st);
+          const para = folded(d) ? '' : `<p class="alva-p clamp3"><span class="chip20"><img src="${A}alva-inline-logo.svg" alt=""></span>${esc(d.note)}</p>`;
+          return `${top}<div class="qblock">${identity(d)}${quote(d)}</div>${para}${actions(d)}`;
+        },
+        3: (d) => {
+          const [st, p] = single(d);
+          const top = folded(d) ? rows(d, mention3, 's3') : `<div class="alva-row">${pair(st)}${mention3(p, '’s thesis')}</div>`;
+          const why = folded(d) ? '' : `<p class="why clamp3"><span class="why-tag">Why</span>${esc(d.note)}</p>`;
+          return `${top}<div class="blk">${identity(d)}${quote(d)}</div>${why}${actions(d)}`;
+        },
+      };
+
+      const feed = document.getElementById('feed');
+      const schemeBtns = document.getElementById('schemeBtns');
+      const stateBtns = document.getElementById('stateBtns');
+      const schemeTitle = document.getElementById('schemeTitle');
+      const schemeNote = document.getElementById('schemeNote');
+      const stateTitle = document.getElementById('stateTitle');
+      const stateNote = document.getElementById('stateNote');
+      const EXPANDED = new Set();
+      const FEEDBACK = new Map();
+      const LIKED = new Set();
+      const readSheetLayer = document.getElementById('readSheetLayer');
+      const readSheetDialog = document.getElementById('readSheetDialog');
+      const readSheetContent = document.getElementById('readSheetContent');
+      const readSheetList = document.getElementById('readSheetList');
+      let openFeedbackId = null;
+      let openReadSheetId = null;
+      let readSheetClosing = false;
+      let readSheetCloseTimer = 0;
+      let restoreReadSheetFocus = true;
+      let scheme = 1;
+      let state = 'firstsquawk';
+      const itemOf = (id) => CARDS.find((f) => f.id === id);
+
+      // 引文超过 4 行（88px）时截断，尾部接「… Show more」；逐字二分找最长能放下的前缀，再退到词边界
+      function clampQuotes() {
+        feed.querySelectorAll('.quote.clamp').forEach((p) => {
+          if (p.offsetHeight <= 88) return;
+          const full = p.dataset.full;
+          const text = document.createTextNode('');
+          const more = document.createElement('button');
+          more.type = 'button';
+          more.setAttribute('aria-expanded', 'false');
+          more.className = 'more';
+          more.dataset.id = p.dataset.id;
+          more.textContent = 'Show more';
+          p.textContent = '';
+          p.append(text, more);
+          const fits = (n) => { text.textContent = full.slice(0, n).replace(/\s+$/, '') + '… '; return p.offsetHeight <= 88; };
+          let lo = 0;
+          let hi = full.length;
+          while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (fits(mid)) lo = mid; else hi = mid - 1; }
+          const cut = full.lastIndexOf(' ', lo);
+          fits(cut > 0 ? cut : lo);
+        });
+      }
+      function renderFeed() {
+        feed.innerHTML = SIGNALS.map((f) => {
+          if (f.kind === 'thesis') return `<article class="card thesis-card">${identity({ ...f, role: 'Thesis' })}<div class="thesis-tickers">${f.tickers.map(t => `<span class="ticker">${esc(t)}</span>`).join('')}</div><p class="quote">${esc(f.quote)} ${sourceLink({ ...f, host: 'x.com' })}</p><div class="actions"><span class="ask">${icon('chat-ai-l')}Ask Alva</span></div></article>`;
+          if (FEEDBACK.has(f.id)) return `<article class="card s${scheme} is-hidden" data-id="${f.id}"><p class="hidden-message" role="status">${esc(FEEDBACK.get(f.id))}</p><button type="button" class="undo-signal" data-id="${f.id}">Undo</button></article>`;
+          return `<article class="card s${scheme}" data-id="${f.id}">${RENDER[scheme](f)}</article>`;
+        }).join('');
+        clampQuotes();
+      }
+      function renderNotes() {
+        const d = itemOf(state);
+        const sc = SCHEMES[scheme - 1];
+        schemeTitle.textContent = `方案 ${scheme}${sc.incomplete ? ' · 未完善' : ''} · ${sc.title}`;
+        schemeNote.textContent = sc.note;
+        stateTitle.textContent = d.label;
+        const hits = [...new Set(d.theses.map(([st, p]) => `${STANCE[st][0]} · ${person(p)}`))].join('；');
+        stateNote.textContent = `来源 ${d.host} · ${d.age}h ago。命中 ${d.theses.length} 条 thesis：${hits}`;
+      }
+      function renderButtons() {
+        schemeBtns.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.n) === scheme)));
+        stateBtns.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === state)));
+      }
+      function scrollToCard(behavior) {
+        const el = feed.querySelector(`[data-id="${state}"]`);
+        if (el) feed.scrollTo({ top: el.offsetTop, behavior });
+      }
+      function render(scrollBehavior) {
+        const top = feed.scrollTop;
+        renderFeed();
+        renderButtons();
+        renderNotes();
+        history.replaceState(null, '', `#${scheme}/${state}`);
+        if (scrollBehavior) scrollToCard(scrollBehavior); else feed.scrollTop = top;
+      }
+      function applyHash() {
+        const m = /^#([1-3])(?:\/([a-z0-9]+))?$/.exec(location.hash);
+        if (!m) return false;
+        scheme = Number(m[1]);
+        if (m[2] && itemOf(m[2])) state = m[2];
+        return true;
+      }
+      function closeFeedback(restoreFocus = false) {
+        if (!openFeedbackId) return;
+        const id = openFeedbackId;
+        openFeedbackId = null;
+        render();
+        if (restoreFocus) feed.querySelector(`.hide-signal[data-id="${id}"]`)?.focus({ preventScroll: true });
+      }
+      function openReadSheet(id) {
+        closeFeedback();
+        clearTimeout(readSheetCloseTimer);
+        readSheetClosing = false;
+        readSheetLayer.classList.remove('is-closing');
+        if (openReadSheetId) feed.querySelector(`[data-read-sheet="${openReadSheetId}"]`)?.setAttribute('aria-expanded', 'false');
+        const d = itemOf(id);
+        const entries = EXPLANATIONS[d.id];
+        openReadSheetId = id;
+        readSheetList.innerHTML = entries.map(entry => `<article class="read-sheet-entry" role="listitem"><div class="read-sheet-head">${pair(entry.stance)}${mention1(entry.person, '’s thesis')}</div><p class="read-sheet-headline">${esc(entry.headline)}</p><p class="read-sheet-explanation">${esc(entry.explanation)}</p></article>`).join('');
+        feed.querySelector(`[data-read-sheet="${id}"]`)?.setAttribute('aria-expanded', 'true');
+        screen.classList.add('sheet-open');
+        [...screen.children].filter(child => child !== readSheetLayer).forEach(child => { child.inert = true; });
+        readSheetLayer.hidden = false;
+        readSheetContent.scrollTop = 0;
+        // Commit the off-screen position before starting the entrance transition.
+        void readSheetDialog.offsetHeight;
+        readSheetLayer.classList.add('is-open');
+        readSheetLayer.querySelector('.read-sheet-close').focus({ preventScroll: true });
+      }
+      function finishReadSheetClose() {
+        if (!readSheetClosing) return;
+        clearTimeout(readSheetCloseTimer);
+        const id = openReadSheetId;
+        openReadSheetId = null;
+        readSheetClosing = false;
+        readSheetLayer.classList.remove('is-open', 'is-closing');
+        readSheetLayer.hidden = true;
+        screen.classList.remove('sheet-open');
+        [...screen.children].filter(child => child !== readSheetLayer).forEach(child => { child.inert = false; });
+        const trigger = feed.querySelector(`[data-read-sheet="${id}"]`);
+        trigger?.setAttribute('aria-expanded', 'false');
+        if (restoreReadSheetFocus) trigger?.focus({ preventScroll: true });
+      }
+      function closeReadSheet(restoreFocus = true) {
+        if (!openReadSheetId) return;
+        if (readSheetClosing) { restoreReadSheetFocus = restoreReadSheetFocus && restoreFocus; return; }
+        restoreReadSheetFocus = restoreFocus;
+        readSheetClosing = true;
+        readSheetLayer.classList.remove('is-open');
+        readSheetLayer.classList.add('is-closing');
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) finishReadSheetClose();
+        // Also finish if a very quick close cancels the transition before it starts.
+        else readSheetCloseTimer = setTimeout(finishReadSheetClose, 320);
+      }
+
+      SCHEMES.forEach((sc, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.n = String(i + 1);
+        b.textContent = `${i + 1} · ${sc.title}`;
+        if (sc.incomplete) {
+          b.classList.add('is-draft');
+          const status = document.createElement('span');
+          status.className = 'scheme-status';
+          status.textContent = '未完善';
+          b.appendChild(status);
+        }
+        b.addEventListener('click', () => { closeReadSheet(false); openFeedbackId = null; scheme = i + 1; render(); });
+        schemeBtns.appendChild(b);
+      });
+      CARDS.forEach((f) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.id = f.id;
+        b.textContent = f.label;
+        b.addEventListener('click', () => { closeReadSheet(false); closeFeedback(); state = f.id; renderButtons(); renderNotes(); history.replaceState(null, '', `#${scheme}/${state}`); scrollToCard('smooth'); });
+        stateBtns.appendChild(b);
+      });
+      const track = document.getElementById('pillTrack');
+      PILLS.forEach((p, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `pill${i === 0 ? ' on' : ''}`;
+        b.textContent = p;
+        track.appendChild(b);
+      });
+      // Local demo feedback: choose a reason, keep a collapsed row, and allow Undo.
+      feed.addEventListener('click', (e) => {
+        const like = e.target.closest('.like-signal');
+        if (like) {
+          const id = like.dataset.id;
+          const liked = !LIKED.has(id);
+          if (liked) LIKED.add(id); else LIKED.delete(id);
+          like.setAttribute('aria-pressed', String(liked));
+          like.setAttribute('aria-label', likeLabel(itemOf(id), liked));
+          like.classList.remove('is-popping');
+          if (liked && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            void like.offsetWidth;
+            like.classList.add('is-popping');
+          }
+          return;
+        }
+        const read = e.target.closest('[data-read-sheet]');
+        if (read) { openReadSheet(read.dataset.readSheet); return; }
+        const hide = e.target.closest('.hide-signal');
+        if (hide) {
+          const id = hide.dataset.id;
+          openFeedbackId = openFeedbackId === id ? null : id;
+          render();
+          const target = openFeedbackId && e.detail === 0
+            ? feed.querySelector(`#feedback-${id} [role="menuitem"]`)
+            : feed.querySelector(`.hide-signal[data-id="${id}"]`);
+          target?.focus({ preventScroll: true });
+          return;
+        }
+        const option = e.target.closest('.feedback-item');
+        if (option) {
+          const d = itemOf(option.dataset.id);
+          const author = single(d)[1];
+          const messages = {
+            'hide-source': `${d.name} hidden from your For You.`,
+            'mute-thesis': `Signals for ${person(author)}’s thesis muted.`,
+            'not-relevant': 'Signal hidden. You’ll see fewer like this.',
+          };
+          FEEDBACK.set(d.id, messages[option.dataset.action]);
+          openFeedbackId = null;
+          render();
+          feed.querySelector(`.undo-signal[data-id="${d.id}"]`)?.focus({ preventScroll: true });
+          return;
+        }
+        const undo = e.target.closest('.undo-signal');
+        if (undo) {
+          const id = undo.dataset.id;
+          FEEDBACK.delete(id);
+          render();
+          feed.querySelector(`.hide-signal[data-id="${id}"]`)?.focus({ preventScroll: true });
+          return;
+        }
+        // 「Show more」就地展开整段引文，展开后才出来源链接。
+        const more = e.target.closest('.more');
+        if (!more) return;
+        openFeedbackId = null;
+        EXPANDED.add(more.dataset.id);
+        render();
+      });
+      feed.addEventListener('animationend', (e) => {
+        if (e.animationName === 'signal-like-pop') e.target.closest('.like-signal')?.classList.remove('is-popping');
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.feedback-menu, .hide-signal')) closeFeedback();
+      });
+      readSheetLayer.addEventListener('click', (e) => {
+        if (e.target.closest('[data-close-read-sheet]')) closeReadSheet();
+      });
+      readSheetDialog.addEventListener('transitionend', (e) => {
+        if (e.target === readSheetDialog && e.propertyName === 'transform' && readSheetClosing) finishReadSheetClose();
+      });
+      readSheetLayer.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const focusable = [...readSheetLayer.querySelectorAll('button, [tabindex="0"]')];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+      for (const type of ['wheel', 'touchmove']) readSheetLayer.addEventListener(type, (e) => {
+        if (!e.target.closest('.read-sheet-content')) e.preventDefault();
+      }, { passive: false });
+      feed.addEventListener('keydown', (e) => {
+        const menu = e.target.closest('.feedback-menu');
+        if (!menu || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+        e.preventDefault();
+        const items = [...menu.querySelectorAll('[role="menuitem"]')];
+        const current = items.indexOf(document.activeElement);
+        const next = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : (current + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items[next].focus({ preventScroll: true });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (openReadSheetId) { if (e.key === 'Escape') { e.preventDefault(); closeReadSheet(); } return; }
+        if (e.key === 'Escape' && openFeedbackId) { e.preventDefault(); closeFeedback(true); return; }
+        if (e.target.closest('.feedback-menu')) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const n = Number(e.key);
+        if (n >= 1 && n <= 3) { openFeedbackId = null; scheme = n; render(); }
+      });
+      window.addEventListener('hashchange', () => { closeReadSheet(false); openFeedbackId = null; if (applyHash()) render('smooth'); });
+
+      const wrap = document.getElementById('phoneWrap');
+      const screen = document.getElementById('screen');
+      function fit() {
+        const s = Math.min(1, Math.max(.3, (window.innerHeight - 48) / 956));
+        screen.style.transform = s === 1 ? '' : `scale(${s})`;
+        wrap.style.width = `${440 * s}px`;
+        wrap.style.height = `${956 * s}px`;
+      }
+      window.addEventListener('resize', fit);
+      fit();
+      const fromHash = applyHash();
+      render(fromHash ? 'auto' : undefined);
+      // Delight 加载完成后行数会变，重新截一次
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => render());
+    })();
+  </script>
+    <script src="/demo/_switcher.js" defer></script>
+  </body>
+</html>
