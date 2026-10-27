@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="demo-status" content="exploration">
   <meta name="demo-summary" content="For You Signal 卡方案 1：18 张 Signal、3 张 Thesis 和完整的多 thesis 解读；方案 2、3 未完善，仅供版式参考。">
   <title>For You · Signal 卡方案切换</title>
@@ -262,6 +262,21 @@
     @media (min-width: 901px) and (max-height: 850px) {
       .side { gap: 16px; }
       #stateBtns { max-height: 156px; }
+    }
+    /* Real phones use their browser viewport and native system chrome. */
+    @media (max-width: 600px), (max-width: 900px) and (pointer: coarse) {
+      html { height: 100%; overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; min-height: 0; padding: 0; overflow: hidden; }
+      .page, .stage, .phone-wrap, .phone-screen { width: 100%; height: 100%; min-width: 0; }
+      .stage { display: block; }
+      .side, .status-bar, .indicator, body > .ads-root { display: none !important; }
+      .phone-screen { border-radius: 0; box-shadow: none; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
+      .card, .feed > img { width: 100%; }
+      .feed { overscroll-behavior-y: contain; }
+      .tabbar { height: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .tabs { min-height: 48px; }
+      .fab { right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+      .read-sheet { max-height: calc(100% - 16px - env(safe-area-inset-top, 0px)); padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
     }
   </style>
 </head>
@@ -681,13 +696,27 @@
 
       const wrap = document.getElementById('phoneWrap');
       const screen = document.getElementById('screen');
+      const mobilePreview = window.matchMedia('(max-width: 600px), (max-width: 900px) and (pointer: coarse)');
+      let fittedWidth = 0;
       function fit() {
-        const s = Math.min(1, Math.max(.3, (window.innerHeight - 48) / 956));
-        screen.style.transform = s === 1 ? '' : `scale(${s})`;
-        wrap.style.width = `${440 * s}px`;
-        wrap.style.height = `${956 * s}px`;
+        if (mobilePreview.matches) {
+          screen.style.transform = '';
+          wrap.style.width = '';
+          wrap.style.height = '';
+        } else {
+          const s = Math.min(1, Math.max(.3, (window.innerHeight - 48) / 956));
+          screen.style.transform = s === 1 ? '' : `scale(${s})`;
+          wrap.style.width = `${440 * s}px`;
+          wrap.style.height = `${956 * s}px`;
+        }
+        // Re-clamp for a new content width, while browser toolbar height changes
+        // leave the live feed and its scroll position alone.
+        const width = screen.clientWidth;
+        if (fittedWidth && fittedWidth !== width) render();
+        fittedWidth = width;
       }
       window.addEventListener('resize', fit);
+      mobilePreview.addEventListener('change', fit);
       fit();
       const fromHash = applyHash();
       render(fromHash ? 'auto' : undefined);
