@@ -421,5 +421,63 @@
   "bookmarkCopy": {
     "title": "Bookmark theses.\nTrack what changes.",
     "description": "Choose the views you want Alva to track for new signals."
+  },
+  "notificationPreview": {
+    "figmaNode": "12684:225220",
+    "theses": [
+      {
+        "id": "12684:261588",
+        "author": "Gavin Baker",
+        "body": "Cheaper models would increase the return on AI spending and drive more token demand, redistributing margin dollars toward AI infrastructure providers.",
+        "avatar": "I12552:205644;5794:126759;5794:107140"
+      },
+      {
+        "id": "12684:261624",
+        "author": "Satya Nadella",
+        "body": "Azure surpassed $75 billion in annual revenue, up 34%. Microsoft added more than two gigawatts of datacenter capacity over the previous 12 months and now had over 400 datacenters across 70 regions.",
+        "avatar": "I12552:202166;5794:126879;5794:107140"
+      }
+    ],
+    "signals": [
+      {
+        "id": "12616:149037",
+        "source": "Riot Platforms",
+        "avatar": "I12807:285451;11490:128096",
+        "summary": "Riot Platforms announced a $9.1 billion compute supply deal; a source identified the customer as Anthropic.",
+        "analysis": "The deal signals compute demand, but does not establish that cheaper models caused it.",
+        "stance": "Supports",
+        "sourceNode": "11494:75550",
+        "role": "Digital infrastructure company",
+        "time": "11 Aug, 23:00",
+        "url": "https://www.tradingview.com/news/DJN_DN20260811005150:0/",
+        "sourceThesisId": "12552:205644"
+      },
+      {
+        "id": "12608:109265",
+        "source": "SemiAnalysis",
+        "avatar": "I12807:285494;11490:128166",
+        "summary": "SemiAnalysis reports TPUv8i is in internal software bring-up, with work beginning on the public software stack.",
+        "analysis": "TPU commercialization could support the infrastructure thesis; adoption and returns remain unproven.",
+        "stance": "Mixed",
+        "sourceNode": "11494:75482",
+        "role": "Semiconductor & AI research",
+        "time": "12 Aug, 07:00",
+        "url": "https://x.com/SemiAnalysis_/status/2087298210066829389",
+        "sourceThesisId": "12552:205644"
+      },
+      {
+        "id": "12608:109341",
+        "source": "Matt Bryson",
+        "avatar": "I12807:285537;11490:128166",
+        "summary": "Matt Bryson, Wedbush analyst, sees an opportunity for Marvell and TSMC as Microsoft prepares Maia 300.",
+        "analysis": "Custom accelerators may lower compute costs; an unveiling is not evidence of deployment or returns.",
+        "stance": "Mixed",
+        "sourceNode": "11494:75516",
+        "role": "Managing Director, Equity Research · Wedbush",
+        "time": "12 Aug, 03:00",
+        "url": "https://www.tradingview.com/news/gurufocus:248b9d963094b:0-marvell-could-be-next-winner-in-microsoft-ai-bet/",
+        "sourceThesisId": "12552:205644"
+      }
+    ]
   }
 }

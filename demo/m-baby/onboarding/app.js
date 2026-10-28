@@ -1,5 +1,5 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=10';
+import { renderSetupPage } from './setup.js?v=11';
 import { renderIntroPage } from './intro.js?v=10';
 import { renderBookmarkPage } from './cards.js?v=6';
 import { node, escapeHTML } from './ui.js';
@@ -42,7 +42,7 @@ const initialPage = steps.includes(requested) ? requested : steps.includes(state
 const splash = document.querySelector('#startupSplash');
 // The static splash covers data/font loading; resumed steps skip its reveal.
 if (initialPage !== 'login') { splash.remove(); app.inert = false; }
-const [manifest, data] = await Promise.all(['assets/manifest.json?v=3', 'content.json?v=3'].map(async url => {
+const [manifest, data] = await Promise.all(['assets/manifest.json?v=4', 'content.json?v=4'].map(async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`Could not load ${url}`);
   return response.json();

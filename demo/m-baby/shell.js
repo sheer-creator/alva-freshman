@@ -39,7 +39,7 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=9',
+      href: 'onboarding/index.html?v=10',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
