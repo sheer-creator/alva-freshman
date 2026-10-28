@@ -3,6 +3,7 @@ import { renderSetupPage } from './setup.js';
 import { renderIntroPage } from './intro.js';
 import { renderBookmarkPage } from './cards.js';
 import { node, escapeHTML } from './ui.js';
+import { transitionPages } from './transitions.js';
 import { readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
@@ -54,7 +55,7 @@ const [manifest, data] = await Promise.all(['assets/manifest.json', 'content.jso
   throw error;
 });
 await document.fonts.ready;
-let page, routeGeneration = 0, routeAnimations = [], toastTimer;
+let page, routeGeneration = 0, routeTransition, toastTimer;
 const persist = () => persistOnboardingState(state);
 const api = { data, state, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
 
@@ -154,7 +155,7 @@ async function go(name, options = {}) {
   if (name === 'feed') { openExistingFeed(); return; }
   if (!steps.includes(name)) return;
   const token = ++routeGeneration, previous = state.page;
-  routeAnimations.forEach(animation => animation.stop()); routeAnimations = [];
+  routeTransition?.cancel(); routeTransition = null;
   page?.cleanup?.(); const old = page;
   for (const child of [...app.children]) if (child !== old) child.remove();
   overlays.replaceChildren(); state.page = name; persist();
@@ -162,17 +163,25 @@ async function go(name, options = {}) {
   page.dataset.page = name; page.classList.add('route-page'); page.style.zIndex = '2'; app.append(page); old?.setAttribute('inert', '');
   const url = new URL(location.href); url.hash = name; history.replaceState(null, '', url);
   if (old && !api.reduced() && !options.instant) {
-    const direction = steps.indexOf(name) >= steps.indexOf(previous) ? 1 : -1;
-    routeAnimations.push(animate(old, { x: -direction * app.clientWidth * .22, opacity: .5 }, { duration: .36, ease: [.22, 1, .36, 1] }));
-    const incoming = animate(page, { x: [direction * app.clientWidth, 0] }, { type: 'spring', duration: .38, bounce: 0 });
-    routeAnimations.push(incoming); await incoming;
+    routeTransition = transitionPages({ outgoing: old, incoming: page, from: previous, to: name, backward: steps.indexOf(name) < steps.indexOf(previous) });
+    await routeTransition.finished;
   }
   if (token !== routeGeneration) return;
+  routeTransition = null;
   old?.remove(); page.style.transform = 'none'; page.start?.();
 }
 
-reducedMotion.addEventListener('change', () => { if (api.reduced() && state.page === 'intro') page?.finish?.(); });
+reducedMotion.addEventListener('change', () => {
+  if (!api.reduced()) return;
+  routeTransition?.finish();
+  if (state.page === 'intro') page?.finish?.();
+});
 document.addEventListener('click', () => queueMicrotask(persist));
-addEventListener('pagehide', () => { persist(); page?.cleanup?.(); });
+addEventListener('message', event => {
+  if (event.source === parent && event.origin === location.origin && event.data?.type === 'alva:handoff-failed' && event.data.slug === 'thesis-motion') {
+    toast('For You could not load. Try again.');
+  }
+});
+addEventListener('pagehide', () => { routeTransition?.finish(); persist(); page?.cleanup?.(); });
 await go(initialPage, { instant: true });
 if (initialPage === 'login') startSplash();

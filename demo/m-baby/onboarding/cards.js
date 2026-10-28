@@ -29,24 +29,60 @@ export function renderBookmarkPage(api) {
   const next=node('button','card-arrow next',image(api.data.icons['arrow-left-l1'],api));next.setAttribute('aria-label','Next thesis');
   const controls=node('nav','bookmark-controls');controls.setAttribute('aria-label','Browse theses');controls.append(prev,next);root.append(deck,controls);
   const footer=node('footer','page-footer');const continueButton=node('button','btn btn-primary','Next');footer.append(continueButton);root.append(footer);
-  let current=api.state.thesisIndex||0, generation=0, activeMotion=null;
+  let current=api.state.thesisIndex||0, generation=0, alive=true, cancelTransition=null, finishTransition=null;
   const available=()=>api.data.theses.filter(t=>!api.state.bookmarked.has(t.id));
   function updateNext(){continueButton.disabled=api.state.bookmarked.size===0;}
+  function resetMotion(){front.style.opacity='1';front.style.transform='none';}
+  function savedState(button,saved){
+    button.disabled=saved;
+    button.setAttribute('aria-pressed',String(saved));
+    button.setAttribute('aria-disabled',String(saved));
+    button.querySelector('span').textContent=saved?'Bookmarked':'Bookmark';
+  }
   function paint(){
-    const list=available();current=Math.max(0,Math.min(current,list.length-1));const item=list[current]||api.data.theses.at(-1);
+    const list=available();current=Math.max(0,Math.min(current,list.length-1));const item=list[current]||api.data.theses.find(thesis=>thesis.id===front.dataset.thesis)||api.data.theses.at(-1);
     front.replaceChildren();const read=node('div','card-reading');read.append(renderThesisContent(item,api));front.append(read);
     const foot=node('div','card-save-footer');const saved=api.state.bookmarked.has(item.id);
-    const save=node('button','bookmark-button',`${image(api.data.icons['Bookmark icon']||api.data.icons['bookmark-l'],api)}<span>${saved?'Bookmarked':'Bookmark'}</span>`);save.disabled=saved;
-    save.onclick=()=>{if(api.state.bookmarked.has(item.id))return;api.state.bookmarked.add(item.id);api.persist();updateNext();change(1,true);};foot.append(save);front.append(foot);
-    front.setAttribute('aria-label',`${item.author} thesis`);prev.disabled=next.disabled=list.length<2;api.state.thesisIndex=current;updateNext();
+    const save=node('button','bookmark-button',`${image(api.data.icons['Bookmark icon']||api.data.icons['bookmark-l'],api)}<span aria-live="polite"></span>`);savedState(save,saved);
+    save.onclick=()=>{if(!alive||api.state.bookmarked.has(item.id))return;api.state.bookmarked.add(item.id);savedState(save,true);api.persist();updateNext();change(1,true);};foot.append(save);front.append(foot);
+    front.dataset.thesis=item.id;front.setAttribute('aria-label',`${item.author} thesis`);prev.disabled=next.disabled=list.length<2;api.state.thesisIndex=current;updateNext();
   }
   async function change(dir,saved=false){
-    const token=++generation;activeMotion?.stop();
-    if(api.reduced()){if(!saved&&available().length)current=(current+dir+available().length)%available().length;paint();front.style.opacity="1";front.style.transform="none";return;}
-    activeMotion=animate(front,{x:saved?-70:dir*-52,opacity:0,scale:.985},{duration:.14,ease:'easeOut'});await activeMotion;
-    if(token!==generation||!root.isConnected)return;
-    if(!saved&&available().length)current=(current+dir+available().length)%available().length;
-    paint();activeMotion=animate(front,{x:[saved?16:dir*42,0],opacity:[0,1],scale:[.985,1]},{type:'spring',duration:.36,bounce:0});
+    if(!alive)return;
+    const token=++generation;cancelTransition?.();resetMotion();
+    const list=available(),outgoingSaved=api.state.bookmarked.has(front.dataset.thesis);
+    let target=Math.max(0,Math.min(current,list.length-1));
+    if(!saved&&list.length){
+      // A saved card has already left the candidate list. Next during its
+      // confirmation should reveal the next candidate, without skipping one.
+      target=(current+(outgoingSaved&&dir>0?0:dir)+list.length)%list.length;
+    }
+    const settle=()=>{current=target;paint();resetMotion();};
+    if(api.reduced()||!list.length){cancelTransition=null;finishTransition=null;settle();return;}
+    let motion=null,timer=null,resolveCancellation;
+    const cancelled=new Promise(resolve=>{resolveCancellation=resolve;});
+    cancelTransition=()=>{clearTimeout(timer);motion?.stop();resolveCancellation();};
+    finishTransition=settle;
+    const valid=()=>alive&&token===generation&&root.isConnected;
+    const play=async(values,duration)=>{
+      motion=animate(front,values,{duration,ease:'easeOut'});
+      await Promise.race([motion,cancelled]);
+    };
+    if(saved){
+      // Keep the persisted Bookmarked state readable before the card recedes.
+      await Promise.race([new Promise(resolve=>{timer=setTimeout(resolve,120);}),cancelled]);
+      if(!valid())return;
+    }
+    await play(saved
+      ? {x:0,y:[0,8],opacity:[1,0],scale:[1,.96]}
+      : {x:[0,dir*-24],y:0,opacity:[1,0],scale:1},.16);
+    if(!valid())return;
+    current=target;paint();
+    await play(saved
+      ? {x:0,y:[8,0],opacity:[0,1],scale:[.96,1]}
+      : {x:[dir*24,0],y:0,opacity:[0,1],scale:1},.24);
+    if(!valid())return;
+    resetMotion();cancelTransition=null;finishTransition=null;
   }
   prev.onclick=()=>change(-1);next.onclick=()=>change(1);
   continueButton.onclick=()=>{if(api.state.bookmarked.size)api.go('portfolio');};
@@ -54,5 +90,11 @@ export function renderBookmarkPage(api) {
   front.addEventListener('pointerup',e=>{if(!gesture)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;gesture=null;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5&&available().length>1)change(dx<0?1:-1);});
   front.addEventListener('pointercancel',()=>gesture=null);
   root.addEventListener('keydown',e=>{if(e.key==='ArrowRight'&&!next.disabled)next.click();if(e.key==='ArrowLeft'&&!prev.disabled)prev.click();});
-  root.cleanup=()=>{generation++;activeMotion?.stop();};paint();return root;
+  const reducedMotion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+  const onReduced=()=>{
+    if(!api.reduced()||!finishTransition)return;
+    const settle=finishTransition;generation++;cancelTransition?.();cancelTransition=null;finishTransition=null;settle();
+  };
+  reducedMotion?.addEventListener('change',onReduced);
+  root.cleanup=()=>{alive=false;generation++;cancelTransition?.();cancelTransition=null;finishTransition=null;reducedMotion?.removeEventListener('change',onReduced);};paint();return root;
 }
