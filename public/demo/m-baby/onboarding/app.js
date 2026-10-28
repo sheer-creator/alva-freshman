@@ -104,6 +104,40 @@ function openExistingFeed() {
   else location.assign(new URL('../index.html#/thesis-motion', location.href));
 }
 
+function startSplash() {
+  const splash = document.querySelector('#startupSplash');
+  let finished = false, fallback;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    clearTimeout(fallback);
+    splash.removeEventListener('animationend', onEnd);
+    reducedMotion.removeEventListener('change', onMotionChange);
+    removeEventListener('pagehide', finish);
+    splash.remove();
+    app.inert = false;
+  };
+  const onEnd = event => {
+    if (event.target === splash && event.animationName === 'alva-splash-reveal') finish();
+  };
+  const onMotionChange = () => { if (reducedMotion.matches) finish(); };
+  if (reducedMotion.matches) { finish(); return; }
+  splash.addEventListener('animationend', onEnd);
+  reducedMotion.addEventListener('change', onMotionChange);
+  addEventListener('pagehide', finish, { once: true });
+  // A stalled logo must not block entry. Asset loading has its own deadline.
+  fallback = setTimeout(finish, 1900);
+  Promise.all([...splash.querySelectorAll('img')].map(image => image.decode().catch(() => {}))).then(() => {
+    if (finished) return;
+    clearTimeout(fallback);
+    // Give the original 1s hold + 350ms reveal its full window after decoding.
+    fallback = setTimeout(finish, 1900);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (!finished) splash.classList.add('is-revealing');
+    }));
+  });
+}
+
 async function go(name, options = {}) {
   if (name === 'feed') { openExistingFeed(); return; }
   if (!steps.includes(name)) return;
@@ -129,4 +163,9 @@ reducedMotion.addEventListener('change', () => { if (api.reduced() && state.page
 document.addEventListener('click', () => queueMicrotask(persist));
 addEventListener('pagehide', () => { persist(); page?.cleanup?.(); });
 const requested = location.hash.slice(1);
-go(steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : 'login', { instant: true });
+const initialPage = steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : 'login';
+const splash = document.querySelector('#startupSplash');
+if (initialPage === 'login') { splash.hidden = false; app.inert = true; }
+else splash.remove();
+await go(initialPage, { instant: true });
+if (initialPage === 'login') startSplash();

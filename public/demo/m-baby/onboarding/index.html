@@ -15,13 +15,20 @@
   <link rel="preload" href="../assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="../mvp.css">
   <link rel="stylesheet" href="../device-chrome.css">
-  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="../splash.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=2">
   <link rel="stylesheet" href="setup.css?v=1">
   <link rel="stylesheet" href="motion.css?v=1">
 </head>
 <body>
   <div id="onboardingApp" class="onboarding-app">
     <main id="app" class="page-slot" aria-label="Thesis onboarding"></main>
+    <div id="startupSplash" class="logo-splash" role="status" aria-label="Loading Alva" hidden>
+      <div class="logo-splash-mark" aria-hidden="true">
+        <img src="../assets/wordmark-symbol.svg" alt="">
+        <img src="../assets/wordmark-text.svg" alt="">
+      </div>
+    </div>
     <div class="system-bar" aria-hidden="true">
       <div class="system-side system-left">9:41</div>
       <div class="system-side system-right">
@@ -35,6 +42,6 @@
     <div class="overlay-slot" id="overlays"></div>
     <div class="toast" id="toast" role="status"></div>
   </div>
-  <script type="module" src="app.js?v=1"></script>
+  <script type="module" src="app.js?v=2"></script>
 </body>
 </html>
