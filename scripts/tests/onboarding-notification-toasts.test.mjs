@@ -103,7 +103,8 @@ function fixture({ scale = 1, trackWidth = 361, preference = 'default', reduced 
   const travel = () => layout.trackWidth - 48 - 8;
   const begin = () => handle.emit('pointerdown', pointer(restX() + distance() * layout.scale));
   const drag = fraction => handle.emit('pointermove', pointer(restX() + travel() * fraction * layout.scale));
-  return { root, handle, track, view, layout, observers, state, sheets, routes, handoffs, cleanup, pointer, begin, drag, travel, distance, progress, restX };
+  const release = fraction => handle.emit('pointerup', pointer(restX() + travel() * fraction * layout.scale));
+  return { root, handle, track, view, layout, observers, state, sheets, routes, handoffs, cleanup, pointer, begin, drag, release, travel, distance, progress, restX };
 }
 
 test('horizontal drag follows the physical track at narrow, standard and wide Gallery scales', () => {
@@ -121,7 +122,7 @@ test('horizontal drag follows the physical track at narrow, standard and wide Ga
       assert(handle.right <= track.right - 4 * scale + 1e-8);
       assert.equal(f.sheets.length, 0);
     }
-    f.handle.emit('pointerup', f.pointer(f.restX() + f.travel()));
+    f.release(.91);
     assert.equal(f.distance(), 0); assert.equal(f.progress(), 0); assert.equal(f.handle.captured.size, 0);
     assert(f.root.classList.contains('is-toast-settling'));
     f.cleanup();
@@ -132,6 +133,7 @@ test('vertical intent stays locked out, while leftward and foreign-pointer input
   let f = fixture(); f.begin();
   f.handle.emit('pointermove', f.pointer(f.restX(), 600));
   f.drag(.99);
+  f.release(1);
   assert.equal(f.distance(), 0); assert.equal(f.sheets.length, 0); f.cleanup();
   f = fixture(); f.begin();
   f.handle.emit('pointermove', f.pointer(f.restX() - 100));
@@ -147,25 +149,52 @@ test('vertical intent stays locked out, while leftward and foreign-pointer input
   }
 });
 
-test('below-threshold release resets; crossing 92% opens one sheet and dismissal permits a new gesture', async () => {
-  const f = fixture(); f.begin(); f.drag(.919);
-  assert.equal(f.sheets.length, 0);
-  f.handle.emit('pointerup', f.pointer(f.restX() + .919 * f.travel()));
-  assert.equal(f.progress(), 0);
-  f.begin(); f.drag(.921); f.drag(1); f.handle.emit('keydown', { key: 'Enter' }); await Promise.resolve();
+test('only release at the physical end confirms; holding at 100% keeps the preview clear without opening a sheet', async () => {
+  const f = fixture({ scale: .64 });
+  for (const fraction of [.919, .92, .95, .999]) {
+    f.begin(); f.drag(fraction);
+    assert.equal(f.sheets.length, 0);
+    f.release(fraction);
+    assert.equal(f.progress(), 0); assert.equal(f.sheets.length, 0);
+  }
+  f.begin(); f.drag(1); await Promise.resolve();
+  assert.equal(f.progress(), 1); assert.equal(f.sheets.length, 0);
+  assert.equal(f.handle.getAttribute('aria-disabled'), 'false');
+  assert.equal(f.handle.captured.has(1), true);
+  f.drag(1.1); assert.equal(f.progress(), 1); assert.equal(f.sheets.length, 0);
+  f.release(1); f.release(1); await Promise.resolve();
   assert.equal(f.sheets.length, 1); assert.equal(f.progress(), 1);
   assert.equal(f.handle.getAttribute('aria-disabled'), 'true');
   f.sheets[0].dismiss(); await Promise.resolve();
   assert.equal(f.progress(), 0); assert.equal(f.handle.getAttribute('aria-disabled'), 'false');
-  f.begin(); f.drag(.95); assert.equal(f.sheets.length, 2); f.cleanup();
+  f.begin(); f.drag(1); assert.equal(f.sheets.length, 1);
+  f.release(1); assert.equal(f.sheets.length, 2); f.cleanup();
 });
 
-test('cancel, capture loss, focus loss and window blur all reset an incomplete horizontal drag', () => {
+test('reversing from the end or releasing a different pointer cannot confirm, and release uses its latest position', () => {
+  const f = fixture(); f.begin(); f.drag(1);
+  f.handle.emit('pointerup', f.pointer(f.restX() + f.travel(), 720, 2));
+  assert.equal(f.sheets.length, 0); assert.equal(f.handle.captured.has(1), true); assert.equal(f.progress(), 1);
+  f.drag(.9); f.release(.9);
+  assert.equal(f.sheets.length, 0); assert.equal(f.progress(), 0);
+
+  f.begin(); f.drag(1); f.release(.75);
+  assert.equal(f.sheets.length, 0); assert.equal(f.progress(), 0, 'a newer release position can cancel an apparent completed drag');
+
+  f.begin(); f.drag(.75); f.release(1);
+  assert.equal(f.sheets.length, 1); assert.equal(f.progress(), 1, 'the final release coordinate can reach the endpoint');
+  f.cleanup();
+});
+
+test('cancel, capture loss, focus loss and window blur reset partial or complete held drags without confirming', () => {
   for (const event of ['pointercancel', 'lostpointercapture', 'blur', 'window-blur']) {
-    const f = fixture(); f.begin(); f.drag(.5);
-    if (event === 'window-blur') f.view.emit('blur'); else f.handle.emit(event, { pointerId: 1 });
-    assert.equal(f.distance(), 0, event); assert.equal(f.progress(), 0, event);
-    assert.equal(f.handle.captured.size, 0, event); assert.equal(f.sheets.length, 0, event); f.cleanup();
+    for (const fraction of [.5, 1]) {
+      const f = fixture(); f.begin(); f.drag(fraction);
+      if (event === 'window-blur') f.view.emit('blur'); else f.handle.emit(event, { pointerId: 1 });
+      f.release(1);
+      assert.equal(f.distance(), 0, event); assert.equal(f.progress(), 0, event);
+      assert.equal(f.handle.captured.size, 0, event); assert.equal(f.sheets.length, 0, event); f.cleanup();
+    }
   }
 });
 
@@ -179,7 +208,14 @@ test('keyboard uses the horizontal axis and reduced motion avoids settling trans
   f.handle.emit('keydown', { key: 'ArrowLeft' }); assert.equal(f.handle.getAttribute('aria-valuenow'), '10');
   assert(!f.root.classList.contains('is-toast-settling'));
   f.handle.emit('keydown', { key: 'Home' }); assert.equal(f.progress(), 0);
-  f.handle.emit('keydown', { key: 'End' }); await Promise.resolve(); assert.equal(f.sheets.length, 1); f.cleanup();
+  f.handle.emit('keydown', { key: 'End' }); await Promise.resolve();
+  assert.equal(f.progress(), 1); assert.equal(f.sheets.length, 0);
+  f.handle.emit('keydown', { key: 'ArrowLeft' }); assert.equal(f.handle.getAttribute('aria-valuenow'), '90');
+  f.handle.emit('keydown', { key: 'ArrowRight' }); assert.equal(f.handle.getAttribute('aria-valuenow'), '100');
+  assert.equal(f.sheets.length, 0);
+  f.handle.emit('keydown', { key: 'Escape' }); assert.equal(f.progress(), 0);
+  f.handle.emit('keydown', { key: 'End' }); assert.equal(f.sheets.length, 0);
+  f.handle.emit('keydown', { key: ' ' }); await Promise.resolve(); assert.equal(f.sheets.length, 1); f.cleanup();
 });
 
 test('Allow and already-allowed handoffs remain retryable if the destination fails to leave the page', async () => {

@@ -3,7 +3,7 @@
  */
 import { signalCard } from './intro.js?v=11';
 import { bindNotificationReveal } from './notification-reveal.js';
-import { renderNotificationToastsPage } from './notification-toasts.js?v=1';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=2';
 
 const ASSETS = {
   logo: '12552:200754',
