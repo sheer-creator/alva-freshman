@@ -52,16 +52,8 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     reveal('.intro-heading');
     reveal('.bookmark-deck', { lift: 8, depth: true, time: duration.stage });
   } else if (to === 'track') {
-    // The bookmarked card stays where the deck left it; only the heading changes.
+    // The bookmarked card stays where the deck left it; the Track page runs its own entrance.
     relationship = 'open-content';
-    reveal('.intro-heading');
-  } else if (to === 'more') {
-    relationship = 'choose-theses';
-    reveal('.track-shelf', { time: duration.feedback });
-    reveal('.intro-heading', { delay: 40 });
-    reveal('.track-progress', { delay: 40, time: duration.feedback });
-    reveal('.bookmark-deck', { delay: 80, lift: 8, depth: true, time: duration.stage });
-    reveal('.page-footer', { delay: 80, time: duration.feedback });
   } else if (to === 'login') {
     reveal('.setup-login-heading');
     reveal('.setup-login-main', { delay: 40, lift: 8 });
