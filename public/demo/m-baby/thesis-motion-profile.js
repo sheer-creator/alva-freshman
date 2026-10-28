@@ -2,10 +2,17 @@ import { POSTS } from './thesis-motion-data.js?v=4';
 import { PROFILE_DETAILS } from './thesis-motion-profile-data.js?v=1';
 
 // An author has one identity across all their theses and entry points.
-export const PEOPLE = new Map(POSTS.map(post => [post.authorId, {
-  id: post.authorId, name: post.name, role: post.role, avatar: post.avatar,
-  bot: true, followers: 0, ...PROFILE_DETAILS[post.authorId],
-}]));
+export const PEOPLE = new Map();
+export function refreshPeople() {
+  const previous = new Map(PEOPLE);
+  PEOPLE.clear();
+  for (const post of POSTS) PEOPLE.set(post.authorId, {
+    bot: true, followers: 0, ...previous.get(post.authorId),
+    id: post.authorId, name: post.name, role: post.role, avatar: post.avatar,
+    ...PROFILE_DETAILS[post.authorId],
+  });
+}
+refreshPeople();
 
 export function postsFor(person) { return POSTS.filter(post => post.authorId === person.id); }
 export function postFor(id) { return POSTS.find(post => post.id === id); }

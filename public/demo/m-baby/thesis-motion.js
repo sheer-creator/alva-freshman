@@ -3,9 +3,9 @@ import { CardTransition } from './thesis-card-transition.js?v=11';
 import { ProfileTransition } from './thesis-profile-transition.js?v=7';
 import { TickerTransition } from './thesis-ticker-transition.js?v=7';
 import { PageTransition } from './thesis-page-transition.js?v=2';
-import { TICKERS, renderTicker } from './thesis-motion-ticker.js?v=3';
+import { TICKERS, renderTicker, refreshTickers } from './thesis-motion-ticker.js?v=4';
 import { MotionNavigation } from './thesis-motion-navigation.js?v=2';
-import { PEOPLE, personFor, postFor, renderProfile } from './thesis-motion-profile.js?v=4';
+import { PEOPLE, personFor, postFor, renderProfile, refreshPeople } from './thesis-motion-profile.js?v=5';
 import { versionsFor, versionFor, renderUpdates } from './thesis-motion-versions.js?v=1';
 import { readDemoState, persistDemoSelections } from './thesis-demo-state.js';
 
@@ -21,7 +21,8 @@ const cards = new Map();
 const initialDemoState = readDemoState();
 const saved = initialDemoState.bookmarks;
 const followed = initialDemoState.followed;
-const persistSelections = () => persistDemoSelections(saved, followed);
+let runtimeOnboarding = false;
+const persistSelections = () => { if (!runtimeOnboarding) persistDemoSelections(saved, followed); };
 let topic = 'All';
 let toastTimer;
 let pageSequence = 0;
@@ -483,11 +484,45 @@ function applyAppearance(value) {
   const dark = appearance === 'dark' || (appearance === 'system' && systemTheme.matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
 }
+function applyRuntimeOnboarding(payload) {
+  const strings = value => Array.isArray(value) && value.every(item => typeof item === 'string');
+  const sourceUrl = value => {
+    if (typeof value !== 'string') return false;
+    try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; }
+  };
+  // Validate the complete payload before touching the live feed. A rejected
+  // handoff keeps the outgoing onboarding available for a retry.
+  if (!payload || payload.version !== 1 || !Array.isArray(payload.posts) || !payload.posts.length || !strings(payload.following)) return false;
+  if (new Set(payload.posts.map(post => post?.id)).size !== payload.posts.length) return false;
+  for (const post of payload.posts) {
+    if (!post || typeof post.id !== 'string' || !/^onboarding-[\w-]+$/.test(post.id) ||
+      typeof post.authorId !== 'string' || !/^[\w-]+$/.test(post.authorId) ||
+      typeof post.name !== 'string' || typeof post.text !== 'string' || typeof post.avatar !== 'string' ||
+      !strings(post.topics) || !strings(post.charts) || !strings(post.sources) || !post.sources.every(sourceUrl) ||
+      !Array.isArray(post.tickers) || !post.tickers.every(ticker => ticker && typeof ticker.symbol === 'string' && ticker.symbol && typeof ticker.logo === 'string') ||
+      !Array.isArray(post.signals) || !post.signals.every(signal => signal && typeof signal.name === 'string' && typeof signal.text === 'string' && typeof signal.analysis === 'string' && sourceUrl(signal.url))) return false;
+  }
+  runtimeOnboarding = true;
+  POSTS.splice(0, POSTS.length, ...payload.posts.map(post => ({ ...post, fromOnboarding: true })), ...POSTS.filter(post => !post.fromOnboarding));
+  refreshPeople(); refreshTickers();
+  saved.clear(); payload.posts.forEach(post => saved.add(post.id));
+  followed.clear(); payload.following.forEach(id => followed.add(id));
+  topic = 'All';
+  return true;
+}
 async function prepareOnboardingHandoff(request) {
   if (typeof request.token !== 'string' || handoffToken === request.token) return;
   handoffToken = request.token;
   applyAppearance(request.appearance);
   await feedReady;
+  if (handoffToken !== request.token) return;
+  if (Object.hasOwn(request, 'onboarding')) {
+    if (!applyRuntimeOnboarding(request.onboarding)) {
+      parent.postMessage({ type: 'alva:content-failed', slug: 'thesis-motion', token: request.token }, location.origin);
+      return;
+    }
+    renderFeed(); updateTopics();
+  }
   resize();
   // Decode only images visible at entry; this is real readiness, not a delay.
   const visibleImages = [...feed.querySelectorAll('img')].filter(picture => {
