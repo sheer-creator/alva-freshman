@@ -509,6 +509,21 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 }
 .phone-screen iframe.ready { opacity: 1; }
 
+/* Only onboarding completion keeps two documents mounted during handoff. */
+.phone-screen iframe.handoff-outgoing {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  transition: none;
+}
+.phone-screen iframe.handoff-incoming {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  transition: none;
+}
+
 /* Empty stage — only reachable if the list is empty */
 .stage-empty {
   position: absolute;

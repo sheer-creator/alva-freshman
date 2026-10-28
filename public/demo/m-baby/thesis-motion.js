@@ -475,15 +475,37 @@ function resize() {
 window.addEventListener('resize', resize);
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 let appearance = 'light';
+let handoffToken = null;
+let resolveFeedReady;
+const feedReady = new Promise(resolve => { resolveFeedReady = resolve; });
 function applyAppearance(value) {
   appearance = ['light', 'dark', 'system'].includes(value) ? value : 'light';
   const dark = appearance === 'dark' || (appearance === 'system' && systemTheme.matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
 }
+async function prepareOnboardingHandoff(request) {
+  if (typeof request.token !== 'string' || handoffToken === request.token) return;
+  handoffToken = request.token;
+  applyAppearance(request.appearance);
+  await feedReady;
+  resize();
+  // Decode only images visible at entry; this is real readiness, not a delay.
+  const visibleImages = [...feed.querySelectorAll('img')].filter(picture => {
+    const rect = picture.getBoundingClientRect();
+    return rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth;
+  });
+  await Promise.allSettled(visibleImages.map(picture => picture.decode()));
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  if (handoffToken !== request.token) return;
+  parent.postMessage({ type: 'alva:content-ready', slug: 'thesis-motion', token: request.token }, location.origin);
+}
 window.addEventListener('message', event => {
-  if (event.source === parent && event.origin === location.origin && event.data?.type === 'alva:set-appearance') applyAppearance(event.data.appearance);
+  if (event.source !== parent || event.origin !== location.origin) return;
+  if (event.data?.type === 'alva:set-appearance') applyAppearance(event.data.appearance);
+  if (event.data?.type === 'alva:prepare-handoff') prepareOnboardingHandoff(event.data);
 });
 systemTheme.addEventListener('change', () => applyAppearance(appearance));
 renderFeed(); updateTopics(); resize();
 await document.fonts.ready;
 navigation.start();
+resolveFeedReady();
