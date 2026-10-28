@@ -1,6 +1,6 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=8';
-import { renderIntroPage } from './intro.js?v=8';
+import { renderSetupPage } from './setup.js?v=9';
+import { renderIntroPage } from './intro.js?v=9';
 import { renderBookmarkPage } from './cards.js?v=6';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=6';
