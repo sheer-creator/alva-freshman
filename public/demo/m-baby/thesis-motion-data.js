@@ -1,5 +1,6 @@
 import { REFERENCE_THESES, TICKER_ASSETS, CHART_ASSETS } from './mvp-thesis-data.js?v=2';
 import { SIGNALS } from './thesis-motion-signals.js?v=1';
+import { onboardingPosts } from './thesis-demo-state.js';
 
 // Copy, identities, links and version counts verified in the supplied mobile
 // reference on 2026-10-22. Layout and chart components remain Figma-owned.
@@ -17,7 +18,7 @@ const entries = {
   P01: ['gavin-nvda', 'gavin', '4 Sept 2026, 21:31', 4, ['Chips', 'Memory']],
 };
 
-export const POSTS = REFERENCE_THESES.map(record => {
+export const POSTS = [...onboardingPosts(), ...REFERENCE_THESES.map(record => {
   const [id, authorId, date, updateCount, topics = []] = entries[record.key];
   return {
     id, authorId, name: record.name, role: record.role, avatar: record.img,
@@ -31,6 +32,6 @@ export const POSTS = REFERENCE_THESES.map(record => {
       ? 'Approved signals appear here as the backfill progresses. 63 of 720 time windows reviewed.'
       : 'Signal monitoring hasn\u2019t been run for this thesis yet.',
   };
-});
+})];
 
 export const TOPICS = ['All', 'Chips', 'Memory', 'Hyperscaler', 'Neocloud'];

@@ -35,11 +35,24 @@
 
   const PROTOTYPES = [
     {
+      title: 'Thesis onboarding',
+      subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
+      edited: '2026-10-28',
+      slug: 'thesis-onboarding',
+      href: 'onboarding/index.html?v=1',
+      resetOnRestart: true,
+      meta: 'Mobile · Complete onboarding flow',
+      figma: {
+        label: 'Thesis MVP · Onboarding',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=12552-199268',
+      },
+    },
+    {
       title: 'Thesis · Navigation motion',
       subtitle: 'For You, thesis detail and history, profile and ticker.',
       edited: '2026-10-22',
       slug: 'thesis-motion',
-      href: 'thesis-motion.html?v=20',
+      href: 'thesis-motion.html?v=21',
       meta: 'Mobile · 5 screens',
       figma: {
         label: 'Feed Mobile MVP · For You / V5',
@@ -330,7 +343,11 @@
       frame.classList.add('ready');
       if (focusOnMount) { focusOnMount = false; try { frame.contentWindow.focus(); } catch (e) {} }
     });
-    frame.src = p.href;
+    if (force && p.resetOnRestart) {
+      const restart = new URL(p.href, location.href);
+      restart.searchParams.set('restart', String(Date.now()));
+      frame.src = restart.href;
+    } else frame.src = p.href;
 
     screenEl.replaceChildren(frame);
     mounted = p.slug;
@@ -351,6 +368,15 @@
   window.addEventListener('message', e => {
     const frame = screenEl.firstElementChild;
     if (!frame || e.source !== frame.contentWindow || e.origin !== window.location.origin) return;
+    if (e.data?.type === 'alva:prototype-ready') {
+      pushMetrics(frame);
+      pushAppearance(frame);
+      return;
+    }
+    if (e.data?.type === 'alva:open-prototype' && e.data.slug === 'thesis-motion' && bySlug.has(e.data.slug)) {
+      window.location.hash = '#/' + e.data.slug;
+      return;
+    }
     if (!e.data || e.data.type !== 'alva:appearance-change') return;
     applyAppearance(e.data.appearance, false, false);
   });

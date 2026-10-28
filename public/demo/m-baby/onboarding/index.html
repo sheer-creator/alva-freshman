@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="demo-index" content="hidden">
+  <meta name="demo-switcher" content="off">
+  <title>Thesis onboarding</title>
+  <script>
+    if(window.self!==window.top)document.documentElement.classList.add('embedded');
+    try{var preference=localStorage.getItem('alva-mvp-appearance');var dark=preference==='dark'||(preference!=='light'&&(preference==='system'?matchMedia('(prefers-color-scheme: dark)').matches:localStorage.getItem('alva-mvp-theme')==='dark'||matchMedia('(prefers-color-scheme: dark)').matches));document.documentElement.dataset.theme=dark?'dark':'light';}catch{}
+  </script>
+  <link rel="preload" href="../assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="../assets/fonts/Delight-Medium.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="../mvp.css">
+  <link rel="stylesheet" href="../device-chrome.css">
+  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="setup.css?v=1">
+  <link rel="stylesheet" href="motion.css?v=1">
+</head>
+<body>
+  <div id="onboardingApp" class="onboarding-app">
+    <main id="app" class="page-slot" aria-label="Thesis onboarding"></main>
+    <div class="system-bar" aria-hidden="true">
+      <div class="system-side system-left">9:41</div>
+      <div class="system-side system-right">
+        <span class="ic sb-signal" style="--ic:url(../assets/status-signal.svg)"></span>
+        <span class="ic sb-wifi" style="--ic:url(../assets/status-wifi.svg)"></span>
+        <span class="battery"><span class="ic battery-outline" style="--ic:url(../assets/battery-outline.svg)"></span><span class="ic battery-fill" style="--ic:url(../assets/battery-fill.svg)"></span><span class="ic battery-end" style="--ic:url(../assets/battery-end.svg)"></span></span>
+      </div>
+    </div>
+    <div class="dynamic-island" aria-hidden="true"></div>
+    <div class="home-indicator" aria-hidden="true"><span></span></div>
+    <div class="overlay-slot" id="overlays"></div>
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+  <script type="module" src="app.js?v=1"></script>
+</body>
+</html>

@@ -1,12 +1,13 @@
-import { POSTS, TOPICS } from './thesis-motion-data.js?v=3';
+import { POSTS, TOPICS } from './thesis-motion-data.js?v=4';
 import { CardTransition } from './thesis-card-transition.js?v=11';
 import { ProfileTransition } from './thesis-profile-transition.js?v=7';
 import { TickerTransition } from './thesis-ticker-transition.js?v=7';
 import { PageTransition } from './thesis-page-transition.js?v=2';
-import { TICKERS, renderTicker } from './thesis-motion-ticker.js?v=2';
+import { TICKERS, renderTicker } from './thesis-motion-ticker.js?v=3';
 import { MotionNavigation } from './thesis-motion-navigation.js?v=2';
-import { PEOPLE, personFor, postFor, renderProfile } from './thesis-motion-profile.js?v=3';
+import { PEOPLE, personFor, postFor, renderProfile } from './thesis-motion-profile.js?v=4';
 import { versionsFor, versionFor, renderUpdates } from './thesis-motion-versions.js?v=1';
+import { readDemoState, persistDemoSelections } from './thesis-demo-state.js';
 
 const app = document.querySelector('#motionApp');
 const feed = document.querySelector('#feed');
@@ -17,8 +18,10 @@ const detail = document.querySelector('#detail');
 const pageChrome = document.querySelector('#motionPageChrome');
 mountPageContent(feed);
 const cards = new Map();
-const saved = new Set();
-const followed = new Set();
+const initialDemoState = readDemoState();
+const saved = initialDemoState.bookmarks;
+const followed = initialDemoState.followed;
+const persistSelections = () => persistDemoSelections(saved, followed);
 let topic = 'All';
 let toastTimer;
 let pageSequence = 0;
@@ -64,6 +67,7 @@ function followButton(post, withPlus = false) {
   post = personFor(post) || post;
   const node = button('motion-follow', 'Follow ' + post.name, () => {
     followed.has(post.id) ? followed.delete(post.id) : followed.add(post.id);
+    persistSelections();
     document.querySelectorAll(`[data-follow="${post.id}"]`).forEach(render);
     document.querySelectorAll(`[data-followers="${post.id}"]`).forEach(target => target.textContent = followerTotal(post));
   });
@@ -107,7 +111,9 @@ function tickers(post) {
     }), 'ticker-' + index);
     chip.dataset.ticker = ticker.symbol;
     const trend = el('span', 'motion-trend ' + ticker.stance);
-    trend.append(image('assets/social-stance-arrow.svg'));
+    if (ticker.directionImage) {
+      trend.classList.add('from-asset'); trend.append(image(ticker.directionImage));
+    } else trend.append(image('assets/social-stance-arrow.svg'));
     chip.append(image(ticker.logo, 'motion-ticker-logo'), el('span', 'motion-ticker-symbol', ticker.symbol), trend); row.append(chip);
   });
   return row;
@@ -119,7 +125,7 @@ function body(post) {
     if (paragraphIndex) node.append(el('br'));
     node.append(document.createTextNode(paragraph));
   });
-  if (post.sources?.length) node.append(' ', el('span', 'motion-citation', post.sources.map((_, i) => '[' + (i + 1) + ']').join(' ')));
+  if (!post.hideCitations && post.sources?.length) node.append(' ', el('span', 'motion-citation', post.sources.map((_, i) => '[' + (i + 1) + ']').join(' ')));
   return node;
 }
 
@@ -140,6 +146,7 @@ function actions(post, withShare = false) {
   ask.append(icon('thesis/first-card-imgChatAiL.svg'), el('span', '', 'Ask Alva'));
   const save = button('motion-action motion-save', 'Bookmark', () => {
     saved.has(post.id) ? saved.delete(post.id) : saved.add(post.id);
+    persistSelections();
     document.querySelectorAll(`[data-save="${post.id}"]`).forEach(updateSave);
   });
   save.dataset.save = post.id;
