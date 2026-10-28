@@ -10,7 +10,7 @@
 .intro-page .intro-heading{height:118px;flex-basis:118px;flex-shrink:0}
 .preview-charts{display:flex;gap:8px;margin-top:12px;overflow:hidden;height:135px;pointer-events:none}
 .preview-chart{flex:none;width:240px;height:135px;object-fit:cover;border:.5px solid var(--line);border-radius:6px}
-.signal-card{padding:16px;font-size:12px;line-height:20px;overflow:visible}
+.signal-card{padding:12px;font-size:12px;line-height:20px;overflow:visible}
 .signal-source{min-width:0}
 .signal-author{display:flex;gap:8px;align-items:flex-start;height:auto;min-height:34px;margin-bottom:8px}
 .signal-author .signal-avatar{width:28px;height:28px;flex:none;margin-top:2px}
