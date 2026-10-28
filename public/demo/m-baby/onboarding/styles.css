@@ -5,6 +5,10 @@ html,body{width:100%;height:100%;overflow:hidden;margin:0;background:var(--bg-co
 .onboarding-app{position:relative;width:100%;height:100%;overflow:hidden;background:var(--bg-container);isolation:isolate;letter-spacing:.01em}
 .page-slot{position:absolute;inset:var(--status-h) 0 var(--home-h);overflow:hidden}
 .onboarding-app>.logo-splash{position:absolute;inset:0;z-index:70;overflow:hidden}
+/* Keep the existing splash choreography and the source logo's actual colors. */
+.onboarding-app>.logo-splash::before,.onboarding-app>.logo-splash::after{background:var(--white)}
+.onboarding-app>.logo-splash::before{-webkit-mask-image:linear-gradient(#000,#000),url(assets/alva-source-12646-154584.svg),url(../assets/wordmark-text.svg);mask-image:linear-gradient(#000,#000),url(assets/alva-source-12646-154584.svg),url(../assets/wordmark-text.svg)}
+.onboarding-app .logo-splash-mark img{filter:none}
 .page-slot>.page,.page-slot>.setup-page{position:absolute;inset:0;width:100%;height:100%;background:var(--bg-container);overflow:hidden}
 .page{display:flex;flex-direction:column}.page-slot [inert]{pointer-events:none}
 .onboarding-app>.system-bar,.onboarding-app>.home-indicator,.onboarding-app>.dynamic-island{display:none;pointer-events:none}
