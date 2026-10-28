@@ -4,7 +4,7 @@ import { renderIntroPage } from './intro.js?v=11';
 import { renderGuidedIntroPage } from './intro-guided.js?v=2';
 import { renderBookmarkPage } from './cards.js?v=6';
 import { node, escapeHTML } from './ui.js';
-import { transitionPages } from './transitions.js?v=7';
+import { transitionPages } from './transitions.js?v=8';
 import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js?v=2';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
