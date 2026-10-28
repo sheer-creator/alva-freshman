@@ -1,40 +1,34 @@
 /* The thesis stays put; Alva attaches below it and emits signals into the space below. */
 .intro-page .focus-stack{position:relative;top:0;left:auto;right:auto;padding:12px 16px 24px;gap:12px;will-change:auto}
 .intro-page .intro-stage.results .focus-stack{position:relative;top:0;margin:0;transform:none}
-.analysis-pair{display:flex;flex-direction:column;flex:none;width:100%;isolation:isolate}
+.analysis-pair{display:flex;flex-direction:column;flex:none;width:100%;gap:0;isolation:isolate}
 .analysis-pair>.preview-card{width:100%;flex:none;position:relative;z-index:2;transition:border-radius 200ms ease-out}
 .analysis-pair>.analysis-card{position:relative;z-index:1;transition:border-radius 200ms ease-out}
 .analysis-pair.attached>.preview-card{border-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:none}
-.analysis-pair.attached>.analysis-card{border-top-left-radius:0;border-top-right-radius:0;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--m3) 20%,transparent)}
-.analysis-card{height:auto;min-height:108px;padding:12px 16px;background:var(--m3-10);border:.5px solid color-mix(in srgb,var(--m3) 20%,transparent)}
+.analysis-pair.attached>.analysis-card{border-top-left-radius:0;border-top-right-radius:0}
+.analysis-card{height:112px;min-height:112px;padding:16px 16px 12px;background:var(--m3-10);border:0}
 .analysis-card::before{content:"";position:absolute;inset:-24px -70%;background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--m3) 16%,transparent) 41%,color-mix(in srgb,var(--white) 80%,transparent) 49%,color-mix(in srgb,var(--m3) 10%,transparent) 57%,transparent 68%);transform:translateX(-60%);pointer-events:none;opacity:0}
 .analysis-card.is-analyzing::before{opacity:1;animation:analysis-scan 1.4s ease-in-out infinite}
 .analysis-skeleton,.analysis-status{position:relative;z-index:1}
-.analysis-card .skeleton-lines{animation:none}
+.analysis-skeleton{height:34px}
+.analysis-logo{width:34px;height:34px;flex:none;padding:0;border-radius:0;background:transparent}
+.analysis-card .skeleton-lines{flex:1;gap:8px;animation:none}
 .analysis-card .skeleton-lines i,.analysis-card .analysis-bone{background:color-mix(in srgb,var(--m3) 24%,transparent)}
-.analysis-card.is-analyzing .skeleton-lines i{background:linear-gradient(100deg,color-mix(in srgb,var(--m3) 18%,transparent),color-mix(in srgb,var(--m3) 44%,transparent),color-mix(in srgb,var(--m3) 18%,transparent));background-size:220% 100%;animation:analysis-bars 1.4s ease-in-out infinite}
+.analysis-card.is-analyzing .skeleton-lines i,.analysis-card.is-analyzing .analysis-bone{background:linear-gradient(100deg,color-mix(in srgb,var(--m3) 18%,transparent),color-mix(in srgb,var(--m3) 44%,transparent),color-mix(in srgb,var(--m3) 18%,transparent));background-size:220% 100%;animation:analysis-bars 1.4s ease-in-out infinite}
 .analysis-card.is-analyzing .skeleton-lines i:last-child{animation-delay:160ms}
-.analysis-status>div{justify-content:space-between}
-.analysis-status .analysis-task{display:block;min-height:20px;font-size:12px;line-height:20px;overflow-wrap:break-word}
-.analysis-status .analysis-dots{display:flex;gap:4px;align-items:center;padding-right:4px}
-.analysis-dots i{width:4px;height:4px;border-radius:50%;background:var(--m3);opacity:.55}
-.is-analyzing .analysis-dots i{animation:analysis-dot 1.4s ease-in-out infinite}
-.is-analyzing .analysis-dots i:nth-child(2){animation-delay:160ms}.is-analyzing .analysis-dots i:nth-child(3){animation-delay:280ms}
+.analysis-status{height:42px}
+.analysis-status>div,.analysis-status>div:last-child{justify-content:flex-start;gap:12px}
+.analysis-status strong,.analysis-status .analysis-task{letter-spacing:.01em}
+.analysis-status .analysis-task{display:block;min-height:20px;font-size:12px;line-height:20px;white-space:nowrap}
+.analysis-card .analysis-status>div:last-child .analysis-bone{display:block}
 .signal-output,.signal-stream{display:flex;flex-direction:column;gap:12px;position:relative}
 .signal-stream{isolation:isolate;overflow-anchor:none}
 .signal-stream>.signal-card{position:relative;transform-origin:top center}
 .intro-stage.results{overflow-anchor:none;scrollbar-width:none;mask-image:linear-gradient(to bottom,#000 calc(100% - 20px),transparent);-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 20px),transparent)}
-.stream-paused .analysis-card::before,.stream-paused .analysis-dots i,.stream-paused .analysis-card .skeleton-lines i,.stream-paused .analysis-card .analysis-bone{animation-play-state:paused}
+.stream-paused .analysis-card::before,.stream-paused .analysis-card .skeleton-lines i,.stream-paused .analysis-card .analysis-bone{animation-play-state:paused}
 @keyframes analysis-scan{0%{transform:translateX(-60%)}85%,100%{transform:translateX(60%)}}
 @keyframes analysis-bars{0%{background-position:100% 0}100%{background-position:-120% 0}}
-@keyframes analysis-dot{0%,65%,100%{opacity:.4}30%{opacity:1}}
 /* This mark is a dual-colour brand asset. Never flatten or invert its internal colours. */
 html[data-theme] .analysis-logo,html[data-theme] .signal-alva-mark img{filter:none}
 html[data-theme="dark"] .analysis-card::before{background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--m3) 20%,transparent) 41%,color-mix(in srgb,var(--white) 24%,transparent) 49%,color-mix(in srgb,var(--m3) 12%,transparent) 57%,transparent 68%)}
-@media(prefers-reduced-motion:reduce){.analysis-card::before{display:none}.analysis-card.is-analyzing .skeleton-lines i,.analysis-dots i,.analysis-card .analysis-bone{animation:none!important}.analysis-pair>*{transition:none}}
-
-/* The analysis/result headings hug their copy; the first marquee keeps its original rhythm. */
-.intro-page:not([data-phase="theses"]) .intro-heading{height:auto;flex-basis:auto}
-.intro-page:not([data-phase="theses"]) .intro-stage{margin-top:12px}
-.analysis-logo{padding:4px;border-radius:6px;background:var(--m3)}
-.signal-stance .signal-alva-mark{background:var(--m1)}
+@media(prefers-reduced-motion:reduce){.analysis-card::before{display:none}.analysis-card.is-analyzing .skeleton-lines i,.analysis-card .analysis-bone{animation:none!important}.analysis-pair>*{transition:none}}

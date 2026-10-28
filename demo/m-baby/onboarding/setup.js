@@ -1,6 +1,8 @@
 /* Setup screens reproduce the current Figma onboarding frames.
  * Real authentication, broker access and OS permission requests are simulated.
  */
+import { signalCard } from './intro.js?v=7';
+
 const ASSETS = {
   logo: '12552:200754',
   monochromeLogo: 'Alva / Black & White',
@@ -193,26 +195,27 @@ function trackingCard(thesis, api) {
     <div class="setup-tracking-status">${brandImage(api, 'setup-tracking-logo')}<span>Tracking signals</span></div>
   </article>`;
 }
-function signalPreviewCard(signal, thesis, isBookmarked, api) {
-  const kind = isBookmarked ? 'Signal' : 'Signal preview';
-  const context = `For ${thesis.author}’s thesis`;
-  return `<article class="setup-tracked-thesis setup-signal-preview" data-card-kind="signal" data-signal-id="${escape(signal.id)}" data-thesis-id="${escape(thesis.id)}" aria-label="${escape(`${kind} from ${signal.source}. ${context}`)}">
-    <div class="setup-tracked-author">${image(api, signal.avatar, 'setup-tracked-avatar', signal.source)}<strong>${escape(signal.source)}</strong><span class="setup-signal-kind">${kind}</span></div>
-    <p class="setup-tracked-body">${escape(signal.summary)}</p>
-    <div class="setup-signal-context">${image(api, thesis.avatar, 'setup-signal-thesis-avatar', thesis.author)}<span>${escape(context)}</span></div>
-  </article>`;
+function trackedSignalCard(signal, thesis, api) {
+  const card = signalCard(signal, api);
+  card.classList.add('setup-tracked-signal');
+  card.dataset.cardKind = 'signal';
+  card.dataset.signalId = signal.id;
+  card.dataset.thesisId = thesis.id;
+  card.setAttribute('aria-label', `Signal from ${signal.source} for ${thesis.author}’s thesis`);
+  return card.outerHTML;
 }
 function notificationCards(selected, api) {
   // This is the same exact source relationship used by thesis-demo-state.js.
   // Other Gallery signals use different thesis IDs, even for the same author.
-  const signalThesis = api.data?.theses?.find(thesis => thesis.id === '12552:205644');
-  const signalThesisSelected = selected.some(thesis => thesis.id === signalThesis?.id);
+  const signalThesis = selected.find(thesis => thesis.id === '12552:205644');
   const signals = signalThesis ? (api.data?.signals || []).filter(signal => signal.id && signal.source && signal.summary && signal.url) : [];
+  const ordered = signalThesis ? [signalThesis, ...selected.filter(thesis => thesis.id !== signalThesis.id)] : selected;
   const cards = [];
-  for (let index = 0; index < Math.max(selected.length, signals.length); index++) {
-    if (selected[index]) cards.push(trackingCard(selected[index], api));
-    if (signals[index]) cards.push(signalPreviewCard(signals[index], signalThesis, signalThesisSelected, api));
+  for (const [index, thesis] of ordered.entries()) {
+    cards.push(trackingCard(thesis, api));
+    if (index === 0 && signals[0]) cards.push(trackedSignalCard(signals[0], signalThesis, api));
   }
+  for (const signal of signals.slice(1)) cards.push(trackedSignalCard(signal, signalThesis, api));
   return cards.join('');
 }
 function renderNotifications(api) {
@@ -229,13 +232,12 @@ function renderNotifications(api) {
   root.innerHTML = `${topbar(api, 'portfolio', 'feed')}
     <div class="setup-notifications-body">
       ${heading('Don’t miss the next signal.', description)}
-      <div class="setup-notification-stream" tabindex="0" role="region" aria-label="${hasSelection ? 'Your bookmarked theses and signal previews' : 'Signal previews'}">
+      <div class="setup-notification-stream" tabindex="0" role="region" aria-label="Bookmarked theses and their signals">
         <div class="setup-tracked-theses">${notificationCards(selected, api)}</div>
       </div>
     </div>
     <footer class="setup-notification-dock">${hasSelection ? `
       <div class="setup-unlock" role="slider" tabindex="0" aria-label="Turn on notifications" aria-describedby="setupUnlockHint" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Slide right to turn on notifications">
-        <span class="setup-unlock-fill" aria-hidden="true"></span>
         <span class="setup-unlock-label" aria-hidden="true">Turn on notifications</span>
         <span class="setup-unlock-thumb" aria-hidden="true">${image(api, ASSETS.back, 'setup-unlock-arrow')}</span>
       </div>
