@@ -1,5 +1,5 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=12';
+import { renderSetupPage } from './setup.js?v=13';
 import { renderIntroPage } from './intro.js?v=11';
 import { renderGuidedIntroPage } from './intro-guided.js?v=1';
 import { renderBookmarkPage } from './cards.js?v=6';
@@ -63,7 +63,7 @@ const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content
 await document.fonts.ready;
 let page, routeGeneration = 0, routeTransition, toastTimer;
 const persist = () => persistOnboardingState(state, stateKey);
-const api = { data, state, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
+const api = { data, state, variant: guided ? 'guided' : 'original', asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
 
 function toast(message) {
   persist();

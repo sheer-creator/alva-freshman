@@ -1,0 +1,24 @@
+/* Guided variant only. Original onboarding keeps its upward reveal intact. */
+.notification-toasts-page{--notification-toast-progress:0;--notification-toast-drag:0px}
+.notification-toasts-page .notification-toasts-body{display:flex;flex:1;min-height:0;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.notification-toasts-page .notification-toasts-body::-webkit-scrollbar{display:none}
+.notification-toasts-page .setup-heading{flex:0 0 auto;padding:8px 16px 0;text-align:left}
+.notification-toasts-page .notification-toasts-stage{position:relative;flex:1 0 424px;min-height:424px;margin:24px 16px;isolation:isolate}
+.notification-toasts-page .notification-toast{position:absolute;top:50%;left:0;width:100%;height:100px;padding:12px;border:.5px solid var(--l12);border-radius:12px;background:var(--bg-b0);transform-origin:top center;transform:translateY(calc(var(--toast-start-y) + var(--toast-travel-y) * var(--notification-toast-progress))) scale(calc(var(--toast-start-scale) + (1 - var(--toast-start-scale)) * var(--notification-toast-progress)));will-change:transform}
+.notification-toasts-page .notification-toast-content{display:flex;flex-direction:column;gap:8px;filter:blur(calc(6px * (1 - var(--notification-toast-progress))));will-change:filter}
+.notification-toasts-page .notification-toast-header{display:flex;align-items:center;gap:8px;height:20px;flex:0 0 20px}
+.notification-toasts-page .notification-toast-logo{width:20px;height:20px;object-fit:contain}
+.notification-toasts-page .notification-toast-header strong{font-size:14px;font-weight:500;line-height:20px;color:var(--setup-ink)}
+.notification-toasts-page .notification-toast-header span{margin-left:auto;font-size:12px;font-weight:400;line-height:20px;color:var(--setup-muted)}
+.notification-toasts-page .notification-toast-content>p{height:44px;min-height:44px;font-size:14px;line-height:22px;font-weight:400;color:var(--setup-ink)}
+.notification-toasts-page .notification-toasts-dock{flex:0 0 auto;padding:0 16px 16px;background:var(--bg-container)}
+.notification-toasts-page .notification-toasts-track{position:relative;height:56px;padding:4px;border-radius:6px;background:var(--bg-b0)}
+.notification-toasts-page .notification-toasts-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 48px;color:var(--setup-secondary);font-size:14px;line-height:22px;font-weight:500;white-space:nowrap;pointer-events:none;user-select:none;opacity:calc(1 - var(--notification-toast-progress) * 2)}
+.notification-toasts-page .notification-toasts-handle{position:relative;z-index:1;display:grid;place-items:center;width:48px;height:48px;padding:14px;border:0;border-radius:4px;background:var(--btn-primary);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transform:translateX(var(--notification-toast-drag));transition:none}
+.notification-toasts-page .notification-toasts-handle:active:not(:disabled){cursor:grabbing;transform:translateX(var(--notification-toast-drag))}
+.notification-toasts-page .notification-toasts-handle[aria-disabled="true"]{cursor:default}
+.notification-toasts-page .notification-toasts-handle img{width:20px;height:20px;transform:rotate(180deg);filter:brightness(0) invert(1)}
+.notification-toasts-page.is-toast-settling .notification-toast{transition:transform 200ms ease-out}
+.notification-toasts-page.is-toast-settling .notification-toast-content{transition:filter 200ms ease-out}
+.notification-toasts-page.is-toast-settling .notification-toasts-handle{transition:transform 200ms ease-out}
+@media(prefers-reduced-motion:reduce){.notification-toasts-page.is-toast-settling .notification-toast,.notification-toasts-page.is-toast-settling .notification-toast-content,.notification-toasts-page.is-toast-settling .notification-toasts-handle{transition:none}}
