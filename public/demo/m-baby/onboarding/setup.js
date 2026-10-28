@@ -1,11 +1,11 @@
 /* Setup screens reproduce the current Figma onboarding frames.
  * Real authentication, broker access and OS permission requests are simulated.
  */
-import { signalCard } from './intro.js?v=7';
+import { signalCard } from './intro.js?v=8';
 
 const ASSETS = {
   logo: '12552:200754',
-  monochromeLogo: 'Alva / Black & White',
+  brandLogo: 'Alva / Onboarding source',
   google: 'I12552:200758;23386:4239;23391:4519',
   apple: 'I12552:200759;23386:4239;23391:4519',
   discord: 'I12552:200761;23386:4239;23391:4519',
@@ -35,7 +35,7 @@ function image(api, id, className = '', alt = '') {
   return `<img class="${className}" src="${escape(api.asset(id))}" alt="${escape(alt)}" draggable="false">`;
 }
 function brandImage(api, className = '', alt = 'Alva') {
-  const source = api.asset(ASSETS.monochromeLogo) || new URL('./assets/alva-black-white.svg', import.meta.url).href;
+  const source = api.asset(ASSETS.brandLogo) || new URL('./assets/alva-source-12646-154584.svg', import.meta.url).href;
   return `<img class="${className}" src="${escape(source)}" alt="${escape(alt)}" draggable="false">`;
 }
 function topbar(api, back, next) {
@@ -229,16 +229,20 @@ function renderNotifications(api) {
   const description = hasSelection
     ? 'Alva is now tracking signals for the theses you bookmarked. Turn on notifications so you don’t miss new opportunities.'
     : 'Bookmark theses to start tracking signals.';
+  const cards = notificationCards(selected, api);
   root.innerHTML = `${topbar(api, 'portfolio', 'feed')}
     <div class="setup-notifications-body">
       ${heading('Don’t miss the next signal.', description)}
       <div class="setup-notification-stream" tabindex="0" role="region" aria-label="Bookmarked theses and their signals">
-        <div class="setup-tracked-theses">${notificationCards(selected, api)}</div>
+        <div class="setup-notification-layers">
+          <div class="setup-tracked-theses setup-notification-canonical">${cards}</div>
+          ${hasSelection ? `<div class="setup-notification-curtain" aria-hidden="true" inert><div class="setup-tracked-theses">${cards}</div></div>` : ''}
+        </div>
       </div>
     </div>
     <footer class="setup-notification-dock">${hasSelection ? `
       <div class="setup-unlock" role="slider" tabindex="0" aria-label="Turn on notifications" aria-describedby="setupUnlockHint" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Slide right to turn on notifications">
-        <span class="setup-unlock-label" aria-hidden="true">Turn on notifications</span>
+        <span class="setup-unlock-label" aria-hidden="true">Slide to turn on notifications</span>
         <span class="setup-unlock-thumb" aria-hidden="true">${image(api, ASSETS.back, 'setup-unlock-arrow')}</span>
       </div>
       <span class="setup-sr-only" id="setupUnlockHint">Drag right, use the arrow keys, or press Enter to continue.</span>
@@ -261,13 +265,28 @@ function renderNotifications(api) {
 
   const slider = root.querySelector('.setup-unlock');
   const thumb = root.querySelector('.setup-unlock-thumb');
+  const layers = root.querySelector('.setup-notification-layers');
   let progress = 0, pointerId = null, pointerStart = 0, dragStart = 0, permissionOpen = false;
   const threshold = .92;
+  function syncCurtain() {
+    if (disposed) return;
+    let reveal = progress;
+    if (progress > 0 && progress < 1) {
+      const track = slider.getBoundingClientRect(), content = layers.getBoundingClientRect();
+      const scale = slider.clientWidth ? track.width / slider.clientWidth : 0;
+      if (scale > 0 && content.width > 0) {
+        const center = track.left + (4 + thumb.offsetWidth / 2 + progress * (slider.clientWidth - thumb.offsetWidth - 8)) * scale;
+        reveal = Math.min(1, Math.max(0, (center - content.left) / content.width));
+      }
+    }
+    // Both visual layers share one scroll owner. Only this clip boundary moves;
+    // the clear canonical content stays the sole accessible, interactive layer.
+    root.style.setProperty('--notification-curtain', `${reveal * 100}%`);
+  }
   function paint(value, settling = false) {
     progress = Math.min(1, Math.max(0, value));
     root.classList.toggle('is-unlock-settling', settling && !api.reduced?.());
-    root.style.setProperty('--notification-blur', `${(1 - progress) * 4}px`);
-    root.style.setProperty('--notification-reveal', String(progress));
+    syncCurtain();
     slider.style.setProperty('--unlock-progress', String(progress));
     slider.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
     slider.setAttribute('aria-valuetext', progress === 1 ? 'Opening notification permission' : `${Math.round(progress * 100)}%. Slide right to turn on notifications`);
@@ -280,6 +299,7 @@ function renderNotifications(api) {
   function finish(preference) {
     if (disposed) return;
     permissionOpen = false;
+    slider.setAttribute('aria-disabled', 'false');
     api.state.notifications = preference;
     api.persist?.();
     api.go('feed');
@@ -292,7 +312,7 @@ function renderNotifications(api) {
     permissionOpen = true;
     slider.setAttribute('aria-disabled', 'true');
     paint(1, true);
-    if (api.state.notifications === 'allowed') { api.go('feed'); return; }
+    if (api.state.notifications === 'allowed') { finish('allowed'); return; }
     api.sheet({title: '“Alva” Would Like to Send You Notifications', body: 'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.', actions: [
       {label: 'Don’t Allow', onClick() {finish('denied');}},
       {label: 'Allow', primary: true, onClick() {finish('allowed');}},
@@ -346,7 +366,10 @@ function renderNotifications(api) {
   slider.addEventListener('blur', () => {
     if (!disposed && !permissionOpen) { releasePointer(); paint(0, true); }
   });
-  root.cleanup = () => { disposed = true; releasePointer(); };
+  const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(syncCurtain) : null;
+  resizeObserver?.observe(slider);
+  resizeObserver?.observe(layers);
+  root.cleanup = () => { disposed = true; resizeObserver?.disconnect(); releasePointer(); };
   return root;
 }
 

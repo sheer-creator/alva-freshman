@@ -1,5 +1,6 @@
 import { node, image, escapeHTML, heading, topbar } from './ui.js';
 import { previewCard, tickerRow } from './cards.js?v=6';
+import { SpatialCards, springSamples } from './spatial-cards.js';
 
 const FALLBACK_COPY = {
   theses: {title:'New theses,\nevery day.',description:'Explore a daily stream of market perspectives.'},
@@ -17,7 +18,7 @@ const ANALYSIS_TASKS = [
 ];
 
 function analyzingCard(api) {
-  return node('div','analysis-card is-analyzing',`<div class="analysis-skeleton">${image(api.data.icons['Alva / Black & White'],api,'analysis-logo','Alva')}<div class="skeleton-lines" aria-hidden="true"><i></i><i></i></div><i class="analysis-bone analysis-corner-bone" aria-hidden="true"></i></div><div class="analysis-status"><div><strong>Alva Analyzing</strong><i class="analysis-bone" aria-hidden="true"></i></div><div><span class="analysis-task">${ANALYSIS_TASKS[0]}</span><i class="analysis-bone" aria-hidden="true"></i></div></div>`);
+  return node('div','analysis-card is-analyzing',`<div class="analysis-skeleton">${image(api.data.icons['Alva / Onboarding source'],api,'analysis-logo','Alva')}<div class="skeleton-lines" aria-hidden="true"><i></i><i></i></div><i class="analysis-bone analysis-corner-bone" aria-hidden="true"></i></div><div class="analysis-status"><div><strong>Alva Analyzing</strong><i class="analysis-bone" aria-hidden="true"></i></div><div><span class="analysis-task">${ANALYSIS_TASKS[0]}</span><i class="analysis-bone" aria-hidden="true"></i></div></div>`);
 }
 
 export function signalCard(item, api) {
@@ -34,7 +35,7 @@ export function signalCard(item, api) {
   }
   source.append(summary);
   const analysis=node('div','signal-analysis-block');
-  analysis.append(node('div','signal-stance',`<span class="signal-alva-mark">${image(api.data.icons['Alva / Black & White'],api,'','Alva')}</span><span class="signal-verdict">${escapeHTML(stance)}</span>`));
+  analysis.append(node('div','signal-stance',`<span class="signal-alva-mark">${image(api.data.icons['Alva / Onboarding source'],api,'','Alva')}</span><span class="signal-verdict">${escapeHTML(stance)}</span>`));
   analysis.append(node('p','signal-analysis',escapeHTML(item.analysis)));
   n.append(source,analysis);return n;
 }
@@ -43,8 +44,7 @@ export function renderIntroPage(api) {
   const copy=api.data.introCopy||FALLBACK_COPY;
   const root=node('section','page intro-page');root.setAttribute('aria-label','Explore theses and signals');root.dataset.phase='theses';
   root.append(topbar(api),heading(copy.theses.title,copy.theses.description));
-  const message=root.querySelector('.intro-heading');
-  const stage=node('div','intro-stage');root.append(stage);
+  const message=root.querySelector('.intro-heading'),stage=node('div','intro-stage');root.append(stage);
   const marquee=node('div','marquee');stage.append(marquee);
   const tracks=[],starts=[16,-148,-226],laneOrders=[[0,1,2,0,1,2],[1,2,0,1,0,2],[0,1,2,0,1,2]];
   laneOrders.forEach((order,i)=>{
@@ -52,138 +52,205 @@ export function renderIntroPage(api) {
     order.forEach(k=>{const slot=node('div','preview-slot');slot.append(previewCard(api.data.previews[k],api));track.append(slot);});
     track.style.transform=`translateX(${starts[i]}px)`;lane.append(track);marquee.append(lane);tracks.push(track);
   });
-  const footer=node('footer','page-footer'),got=node('button','btn btn-primary','Got it');got.type='button';got.onclick=()=>api.go('people');footer.append(got);root.append(footer);
-  let alive=true,epoch=0,stack=null,pair=null,analysis=null,output=null,stream=null,emitted=0,taskIndex=0;
-  const animations=new Set(),timers=new Set(),hiddenAnimations=new Set();
+  const footer=node('footer','page-footer'),got=node('button','btn btn-primary','Got it');got.type='button';got.disabled=true;got.onclick=()=>api.go('people');footer.append(got);root.append(footer);
+  let alive=true,started=false,epoch=0,stack=null,pair=null,analysis=null,reveal=null,output=null,stream=null;
+  let solver=null,frame=0,lastFrame=0,emitted=0,taskIndex=0,pairDepth=1,readingUntil=0,holding=false;
+  let stageWidth=0,stageHeight=0;
+  const animations=new Set(),hiddenAnimations=new Set(),timers=new Set(),cards=new Map();
   const valid=token=>alive&&root.isConnected&&token===epoch;
+  const now=()=>performance.now();
+  const jitter=(minimum,range)=>minimum+Math.random()*range;
+  const unit=()=>root.getBoundingClientRect().width/root.clientWidth||1;
+  const fit=height=>Math.min(1,Math.max(1,stage.clientHeight-24)/height);
+  const rememberStage=()=>{stageWidth=stage.clientWidth;stageHeight=stage.clientHeight;};
   const play=(element,keyframes,duration=240,options={})=>{
-    const animation=element.animate(keyframes,{duration,easing:'cubic-bezier(0.4, 0, 0.2, 1)',...options});
+    const animation=element.animate(keyframes,{duration,easing:'cubic-bezier(.4,0,.2,1)',...options});
     animations.add(animation);
     if(document.hidden){hiddenAnimations.add(animation);animation.pause();}
     return animation.finished.catch(()=>{}).finally(()=>{animation.cancel();animations.delete(animation);hiddenAnimations.delete(animation);});
   };
-  const wait=ms=>new Promise(resolve=>{const entry={resolve};entry.timer=setTimeout(()=>{timers.delete(entry);resolve();},ms);timers.add(entry);});
+  const spring=(element,values,duration=560,config={})=>play(element,springSamples(duration,config).map(({offset,value})=>({offset,...values(value)})),duration,{easing:'linear'});
+  function schedule(entry){
+    if(document.hidden)return;
+    entry.started=now();entry.timer=setTimeout(()=>{timers.delete(entry);entry.resolve();},entry.remaining);
+  }
+  const wait=milliseconds=>new Promise(resolve=>{const entry={resolve,remaining:milliseconds,started:null,timer:null};timers.add(entry);schedule(entry);});
   function stop(){
     epoch++;
     animations.forEach(animation=>animation.cancel());animations.clear();hiddenAnimations.clear();
     timers.forEach(entry=>{clearTimeout(entry.timer);entry.resolve();});timers.clear();
-  }
-  const scale=()=>root.getBoundingClientRect().width/root.clientWidth||1;
-  const jitter=(minimum,range)=>minimum+Math.random()*range;
-  async function visible(token){
-    while(valid(token)&&document.hidden)await wait(600);
-    return valid(token);
+    cancelAnimationFrame(frame);frame=0;lastFrame=0;solver=null;
   }
   function setHeading(key){const text=copy[key]||FALLBACK_COPY[key];message.innerHTML=`<h1>${escapeHTML(text.title).replace(/\n/g,'<br>')}</h1><p>${escapeHTML(text.description)}</p>`;}
-  function buildStack(chosen=previewCard(api.data.previews[0],api)){
-    stack=node('div','focus-stack');pair=node('div','analysis-pair');
-    pair.append(chosen);stack.append(pair);stage.append(stack);
-    chosen.style.width='100%';chosen.style.transform='none';
-    return chosen;
+  function buildPair(chosen=previewCard(api.data.previews[0],api)){
+    stack=node('div','focus-stack');pair=node('div','analysis-pair');pair.append(chosen);stack.append(pair);stage.append(stack);
+    chosen.style.width='100%';chosen.style.transform='none';pairDepth=1;pair.style.transform=`scale(${fit(240)})`;return chosen;
   }
-  function addAnalysis(){analysis=analyzingCard(api);pair.append(analysis);}
-  function addOutput(){
-    output=node('div','signal-output');
-    output.append(tickerRow(api.data.theses[0].tickers.slice(0,3),api,true));
-    stream=node('div','signal-stream');stream.setAttribute('aria-label','Signals for this thesis');
-    output.append(stream);stack.append(output);stage.classList.add('results');
+  function addAnalysis(){
+    analysis=analyzingCard(api);reveal=node('div','analysis-reveal');reveal.append(analysis);pair.append(reveal);pair.classList.add('attached');reveal.style.height='112px';
   }
-  function allowContinue(){
-    const first=!root.classList.contains('complete');
-    root.classList.add('complete');root.dataset.phase='signals';
+  function addOutput(spatial=true){
+    output=node('div',`signal-output${spatial?' is-spatial':''}`);stream=node('div','signal-stream');stream.setAttribute('aria-label','Signals for this thesis');output.append(stream);stage.append(output);stage.classList.add('results');
+    if(spatial)solver=new SpatialCards(stage.clientWidth,stage.clientHeight);
+  }
+  function allowContinue(instant=false){
+    const first=!root.classList.contains('complete');root.classList.add('complete');root.dataset.phase='signals';got.disabled=false;
     api.state.introComplete=true;api.persist();
-    if(first&&!api.reduced())play(footer,[{opacity:0},{opacity:1}],160);
+    if(first&&!instant&&!api.reduced())play(got,[{opacity:0},{opacity:1}],160);
+  }
+  function cardSize(card){
+    card.style.width=`${Math.min(361,stage.clientWidth-32)}px`;
+    if(card.classList.contains('signal-card'))card.style.maxHeight=`${Math.max(48,stage.clientHeight-24)}px`;
+    return {width:card.offsetWidth,height:card.offsetHeight};
+  }
+  function renderPhysics(){
+    if(!solver)return;
+    for(const body of solver.snapshot()){
+      const card=cards.get(body.id);if(!card)continue;
+      card.style.transform=`translate(${body.x-body.width/2}px,${body.y-body.height/2}px) rotate(${body.rotation}deg) scale(${body.scale})`;
+      card.style.opacity=body.active?String(Math.min(1,Math.max(0,(body.scale-.78)/.18))):'1';
+      card.style.zIndex=String(body.order);card.classList.toggle('is-current',body.active);
+      card.dataset.spatialX=body.x.toFixed(3);card.dataset.spatialY=body.y.toFixed(3);card.dataset.spatialRotation=body.rotation.toFixed(3);
+      card.setAttribute('aria-hidden',String(!body.active));card.tabIndex=body.active&&card.classList.contains('signal-card')?0:-1;
+      card.querySelectorAll('a').forEach(link=>{link.tabIndex=body.active?0:-1;});
+    }
+  }
+  function wake(){
+    if(frame||!solver||!alive||document.hidden||root.classList.contains('is-readable'))return;
+    cards.forEach(card=>{card.style.willChange='transform';});
+    frame=requestAnimationFrame(tick);
+  }
+  function tick(time){
+    frame=0;if(!alive||!solver||document.hidden)return;
+    const moving=solver.step(lastFrame?(time-lastFrame)/1000:1/60);lastFrame=time;renderPhysics();
+    if(moving)frame=requestAnimationFrame(tick);
+    else{lastFrame=0;cards.forEach(card=>{card.style.willChange='auto';});}
+  }
+  function prepareCard(id,item){
+    if(cards.has(id))return cards.get(id);
+    const card=id==='tickers'?tickerRow(api.data.theses[0].tickers.slice(0,3),api,true):signalCard(item,api);
+    card.classList.add('spatial-card');card.dataset.spatialId=id;
+    if(item)card.dataset.signalId=item.id;
+    cards.set(id,card);stream.append(card);return card;
+  }
+  function promote(id,item,{instant=false,resetScroll=true}={}){
+    const card=prepareCard(id,item),size=cardSize(card);
+    if(resetScroll)card.scrollTop=0;
+    solver.promote(id,size.width,size.height,{instant});renderPhysics();
+    if(!instant)wake();return card;
+  }
+  function sendPairBack(animated=true){
+    if(pairDepth===.92)return;
+    const before=fit(352)*pairDepth;pairDepth=.92;const after=fit(352)*pairDepth;
+    pair.style.transform=`scale(${after})`;
+    if(animated)spring(pair,p=>({transform:`scale(${before+(after-before)*p})`}),520,{stiffness:260,damping:24});
   }
   async function updateTasks(token){
     while(valid(token)&&!api.reduced()){
-      await wait(jitter(2100,1300));if(!await visible(token))return;
+      await wait(jitter(2600,1400));if(!valid(token))return;
       const label=analysis.querySelector('.analysis-task');
-      await play(label,[{opacity:1},{opacity:0}],120);if(!await visible(token))return;
+      await play(label,[{opacity:1},{opacity:0}],120);if(!valid(token))return;
       taskIndex=(taskIndex+1)%ANALYSIS_TASKS.length;label.textContent=ANALYSIS_TASKS[taskIndex];
-      play(label,[{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],160);
+      play(label,[{opacity:0},{opacity:1}],160);
     }
   }
-  async function emitSignal(item,token,animated=true){
-    if(!valid(token))return;
-    const previous=new Map([...stream.children].map(card=>[card,card.getBoundingClientRect().top]));
-    // The sample contains three source-backed signals: recycle their actual cards,
-    // never fabricate a new source or keep appending duplicate records.
-    let card=[...stream.children].find(child=>child.dataset.signalId===item.id);
-    if(!card){card=signalCard(item,api);card.dataset.signalId=item.id;}
-    stream.prepend(card);emitted++;stream.dataset.emissions=String(emitted);
-    if(animated&&!api.reduced()){
-      const ratio=scale();
-      for(const child of stream.children){
-        if(child===card)continue;
-        const old=previous.get(child);
-        if(old!==undefined){const dy=(old-child.getBoundingClientRect().top)/ratio;
-          if(dy)play(child,[{transform:`translateY(${dy}px)`},{transform:'none'}],280);
-        }
-      }
-      await play(card,[{opacity:0,transform:'translateY(-8px)',clipPath:'inset(0 0 100% 0)'},{opacity:1,transform:'none',clipPath:'inset(0 0 0 0)'}],280);
-    }
+  function isReading(){
+    const current=solver&&cards.get(solver.active);
+    return holding||now()<readingUntil||(current?.scrollTop||0)>2||stage.contains(document.activeElement);
   }
-  async function continueStream(token){
+  async function continueSignals(token){
     while(valid(token)&&!api.reduced()){
-      // A mix of longer reads and shorter arrivals, never a uniform ticker cadence.
-      const delay=emitted%3===1?jitter(4200,2800):jitter(2800,2200);
-      await wait(delay);if(!await visible(token))return;
-      // Deliberately reading the history pauses reordering; Got it never stops the stream.
-      if(stage.scrollTop>24||stage.contains(document.activeElement)||root.matches(':active'))continue;
+      await wait(jitter(4800,2400));if(!valid(token))return;
+      while(valid(token)&&isReading()){await wait(1000);}
+      if(!valid(token))return;
       const item=api.data.signals[emitted%api.data.signals.length];
-      if(item)await emitSignal(item,token);
+      if(item){promote(item.id,item);emitted++;stream.dataset.emissions=String(emitted);}
     }
   }
   function readyState(run=false){
-    stop();const token=epoch;marquee.remove();stack?.remove();setHeading('signals');
-    buildStack();addAnalysis();pair.classList.add('attached');addOutput();
-    for(const item of api.data.signals){const card=signalCard(item,api);card.dataset.signalId=item.id;stream.prepend(card);}
-    emitted=api.data.signals.length;stream.dataset.emissions=String(emitted);allowContinue();
-    if(run){updateTasks(token);continueStream(token);}
-    else{analysis.classList.remove('is-analyzing');analysis.querySelector('.analysis-task').textContent='Following signals for this thesis.';}
+    stop();const token=epoch;marquee.remove();stack?.remove();output?.remove();cards.clear();
+    root.classList.toggle('is-readable',!run);root.dataset.phase='signals';setHeading('signals');rememberStage();buildPair();addAnalysis();addOutput(run);
+    if(run){
+      pair.style.transform=`scale(${fit(352)})`;sendPairBack(false);promote('tickers',null,{instant:true});
+      for(const item of api.data.signals){promote(item.id,item,{instant:true});for(let i=0;i<720;i++)if(!solver.step(1/120))break;}
+      renderPhysics();updateTasks(token);continueSignals(token);
+    }else{
+      pair.style.transform='none';stream.append(tickerRow(api.data.theses[0].tickers.slice(0,3),api,true));
+      for(const item of api.data.signals){const card=signalCard(item,api);card.dataset.signalId=item.id;stream.append(card);}
+      analysis.classList.remove('is-analyzing');analysis.querySelector('.analysis-task').textContent='Following signals for this thesis.';
+    }
+    emitted=api.data.signals.length;stream.dataset.emissions=String(emitted);allowContinue(true);
   }
   root.finish=()=>{if(alive&&root.isConnected)readyState(false);};
   root.start=async()=>{
+    if(started||!alive)return;started=true;
     if(api.reduced()||api.state.introComplete){readyState(!api.reduced());return;}
-    const token=epoch;
-    tracks.forEach((track,i)=>play(track,[{transform:`translateX(${starts[i]}px)`},{transform:`translateX(${starts[i]+(i===1?1:-1)*130}px)`}],4000,{easing:'linear',fill:'forwards'}));
+    const token=epoch;rememberStage();
+    tracks.forEach((track,i)=>play(track,[{transform:`translateX(${starts[i]}px)`},{transform:`translateX(${starts[i]+(i===1?1:-1)*312}px)`}],19500,{easing:'linear',iterations:Infinity}));
     const rails=[...animations];
-    await wait(2200);if(!await visible(token))return;
+    await wait(6600);if(!valid(token))return;
     rails.forEach(animation=>{animation.pause();hiddenAnimations.delete(animation);});
     const chosen=tracks[0].querySelector('.preview-card'),first=chosen.getBoundingClientRect();
-    buildStack(chosen);
-    const last=chosen.getBoundingClientRect(),ratio=first.width/last.width,unit=scale();
-    root.dataset.phase='focusing';
-    // The existing card is the same object throughout the move into analysis.
-    play(marquee,[{opacity:1},{opacity:0}],160);
-    setHeading('analyzing');play(message,[{opacity:0},{opacity:1}],240);
-    await play(chosen,[{transform:`translate(${(first.x-last.x)/unit}px,${(first.y-last.y)/unit}px) scale(${ratio})`},{transform:'none'}],280);
-    if(!valid(token))return;marquee.remove();rails.forEach(animation=>animation.cancel());root.dataset.phase='analyzing';
-    addAnalysis();
-    // First show two distinct pieces, then close the seam as Alva takes the thesis.
-    await play(analysis,[{opacity:0,transform:'translateY(32px)'},{opacity:1,transform:'translateY(16px)'}],240,{fill:'forwards'});
-    if(!valid(token))return;
-    pair.classList.add('attached');
-    await play(analysis,[{transform:'translateY(16px)'},{transform:'none'}],280);
+    root.dataset.phase='focusing';rememberStage();buildPair(chosen);
+    const last=chosen.getBoundingClientRect(),ratio=first.width/last.width,scale=unit()*fit(240);
+    setHeading('analyzing');play(message,[{opacity:0},{opacity:1}],240);marquee.style.opacity='0';play(marquee,[{opacity:1},{opacity:0}],160);
+    await spring(chosen,p=>({transform:`translate(${(first.x-last.x)/scale*(1-p)}px,${(first.y-last.y)/scale*(1-p)}px) scale(${ratio+(1-ratio)*p})`}),560);
+    if(!valid(token))return;marquee.remove();rails.forEach(animation=>animation.cancel());
+    await wait(800);if(!valid(token))return;
+    root.dataset.phase='analyzing';const before=fit(240),after=fit(352);addAnalysis();pair.style.transform=`scale(${after})`;
+    // The reveal changes the pair's intrinsic height, so its grid centre stays
+    // fixed while the analysis grows directly from the thesis's bottom seam.
+    await Promise.all([
+      spring(reveal,p=>({height:`${Math.max(0,112*p)}px`}),620,{stiffness:250,damping:20}),
+      spring(pair,p=>({transform:`scale(${before+(after-before)*p})`}),620,{stiffness:250,damping:20})
+    ]);
     if(!valid(token))return;updateTasks(token);
-    await wait(1000);if(!await visible(token))return;
-    addOutput();root.dataset.phase='tickers';
-    await play(output.firstElementChild,[{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'none'}],240);
-    await wait(jitter(1500,700));if(!await visible(token))return;
+    await wait(1000);if(!valid(token))return;
+    addOutput();root.dataset.phase='tickers';sendPairBack();promote('tickers');
+    await wait(2000);if(!valid(token))return;
     setHeading('signals');play(message,[{opacity:0},{opacity:1}],240);
-    if(api.data.signals[0])await emitSignal(api.data.signals[0],token);
-    if(!valid(token))return;allowContinue();continueStream(token);
+    if(api.data.signals[0]){promote(api.data.signals[0].id,api.data.signals[0]);emitted=1;stream.dataset.emissions='1';}
+    allowContinue();continueSignals(token);
   };
-  const onVisibility=()=>{
+  function onPointerDown(event){if(output?.contains(event.target)){holding=true;readingUntil=now()+8000;}}
+  function releasePointer(){holding=false;}
+  function onCardClick(event){
+    const card=event.target.closest('.spatial-card');if(!solver||!card||card.dataset.spatialId===solver.active)return;
+    event.preventDefault();event.stopPropagation();readingUntil=now()+8000;
+    promote(card.dataset.spatialId,api.data.signals.find(item=>item.id===card.dataset.spatialId),{resetScroll:false});
+  }
+  function onRead(){readingUntil=now()+8000;}
+  stage.addEventListener('pointerdown',onPointerDown);stage.addEventListener('click',onCardClick,true);stage.addEventListener('scroll',onRead,true);stage.addEventListener('focusin',onRead);
+  window.addEventListener('pointerup',releasePointer);window.addEventListener('pointercancel',releasePointer);
+  function onVisibility(){
     root.classList.toggle('stream-paused',document.hidden);
     if(document.hidden){
+      const time=now();
+      for(const entry of timers){clearTimeout(entry.timer);if(entry.started!==null)entry.remaining=Math.max(0,entry.remaining-(time-entry.started));entry.timer=null;entry.started=null;}
       for(const animation of animations)if(animation.playState==='running'){hiddenAnimations.add(animation);animation.pause();}
+      cancelAnimationFrame(frame);frame=0;lastFrame=0;holding=false;
     }else{
-      for(const animation of hiddenAnimations)if(animations.has(animation))animation.play();
-      hiddenAnimations.clear();
+      for(const entry of timers)if(entry.timer===null)schedule(entry);
+      for(const animation of hiddenAnimations)if(animations.has(animation))animation.play();hiddenAnimations.clear();wake();
     }
-  };
+  }
+  function onResize(){
+    if(!alive||!root.isConnected||root.classList.contains('is-readable'))return;
+    // Switching A's full-height field to B/C's reserved footer is already
+    // included in the FLIP measurement. Only an external resize settles motion.
+    if(stage.clientWidth===stageWidth&&stage.clientHeight===stageHeight)return;
+    rememberStage();
+    if(pair){
+      for(const animation of animations)if(animation.effect?.target===pair||animation.effect?.target===reveal||animation.effect?.target===pair.firstElementChild){try{animation.finish();}catch{}}
+      pair.style.transform=`scale(${fit(reveal?352:240)*pairDepth})`;
+    }
+    if(solver){solver.resize(stage.clientWidth,stage.clientHeight);for(const [id,card] of cards){const size=cardSize(card);solver.measure(id,size.width,size.height);}wake();}
+  }
+  const resizeObserver=new ResizeObserver(onResize);resizeObserver.observe(stage);
   document.addEventListener('visibilitychange',onVisibility);onVisibility();
-  root.cleanup=()=>{alive=false;stop();document.removeEventListener('visibilitychange',onVisibility);};
+  root.cleanup=()=>{
+    alive=false;stop();resizeObserver.disconnect();document.removeEventListener('visibilitychange',onVisibility);
+    window.removeEventListener('pointerup',releasePointer);window.removeEventListener('pointercancel',releasePointer);
+  };
   return root;
 }

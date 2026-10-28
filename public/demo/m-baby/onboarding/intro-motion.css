@@ -1,10 +1,12 @@
-/* The thesis stays put; Alva attaches below it and emits signals into the space below. */
-.intro-page .focus-stack{position:relative;top:0;left:auto;right:auto;padding:12px 16px 24px;gap:12px;will-change:auto}
-.intro-page .intro-stage.results .focus-stack{position:relative;top:0;margin:0;transform:none}
-.analysis-pair{display:flex;flex-direction:column;flex:none;width:100%;gap:0;isolation:isolate}
-.analysis-pair>.preview-card{width:100%;flex:none;position:relative;z-index:2;transition:border-radius 200ms ease-out}
-.analysis-pair>.analysis-card{position:relative;z-index:1;transition:border-radius 200ms ease-out}
+/* One physical thesis becomes the centred analysis pair; results occupy a separate foreground. */
+.intro-page .focus-stack{position:absolute;inset:0;padding:0 16px;display:grid;place-items:center;gap:0;transform:none;will-change:auto;pointer-events:none}
+.intro-page .intro-stage.results .focus-stack{position:absolute;inset:0;margin:0;transform:none}
+.analysis-pair{display:flex;flex-direction:column;flex:none;width:100%;max-width:361px;gap:0;isolation:isolate;transform-origin:center center}
+.analysis-pair>.preview-card{width:100%;height:240px;flex:none;position:relative;z-index:2}
+.analysis-reveal{height:112px;width:100%;flex:none;overflow:hidden;background:var(--m3-10);border-radius:0 0 12px 12px;position:relative;z-index:1}
 .analysis-pair.attached>.preview-card{border-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:none}
+.analysis-pair.attached .analysis-card{border-top-left-radius:0;border-top-right-radius:0}
+.analysis-card{position:relative;z-index:1;transition:border-radius 200ms ease-out}
 .analysis-pair.attached>.analysis-card{border-top-left-radius:0;border-top-right-radius:0}
 .analysis-card{height:112px;min-height:112px;padding:16px 16px 12px;background:var(--m3-10);border:0}
 .analysis-card::before{content:"";position:absolute;inset:-24px -70%;background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--m3) 16%,transparent) 41%,color-mix(in srgb,var(--white) 80%,transparent) 49%,color-mix(in srgb,var(--m3) 10%,transparent) 57%,transparent 68%);transform:translateX(-60%);pointer-events:none;opacity:0}
@@ -21,14 +23,30 @@
 .analysis-status strong,.analysis-status .analysis-task{letter-spacing:.01em}
 .analysis-status .analysis-task{display:block;min-height:20px;font-size:12px;line-height:20px;white-space:nowrap}
 .analysis-card .analysis-status>div:last-child .analysis-bone{display:block}
-.signal-output,.signal-stream{display:flex;flex-direction:column;gap:12px;position:relative}
-.signal-stream{isolation:isolate;overflow-anchor:none}
-.signal-stream>.signal-card{position:relative;transform-origin:top center}
-.intro-stage.results{overflow-anchor:none;scrollbar-width:none;mask-image:linear-gradient(to bottom,#000 calc(100% - 20px),transparent);-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 20px),transparent)}
+.signal-output.is-spatial,.is-spatial>.signal-stream{position:absolute;inset:0;display:block;pointer-events:none;isolation:isolate}
+.is-spatial .spatial-card{position:absolute;left:0;top:0;transform-origin:center center;pointer-events:auto;overscroll-behavior:contain;scrollbar-width:none}
+.is-spatial .signal-card{overflow-y:auto;overflow-x:hidden;touch-action:pan-y;outline-offset:-2px}
+.is-spatial .signal-card:focus-visible{outline:2px solid var(--m1)}
+.is-spatial .ticker-row{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;touch-action:pan-x}
+.is-spatial .spatial-card:not(.is-current){cursor:pointer}
+.intro-page .intro-stage.results{overflow:hidden;mask-image:none;-webkit-mask-image:none;scrollbar-width:none}
+/* A retains the full three-row field. Focusing reserves B/C's footer before FLIP
+   measures the destination; revealing Got it then causes no stage-height change. */
+.intro-page .page-footer,.intro-page.complete .page-footer{display:block;flex:0 0 80px;height:80px;opacity:1}
+.intro-page[data-phase="theses"] .page-footer{display:none}
+.intro-page .page-footer>.btn{visibility:hidden;pointer-events:none}
+.intro-page.complete .page-footer>.btn{visibility:visible;pointer-events:auto}
+/* Reduced motion is a readable document, with all source and analysis content. */
+.intro-page.is-readable .intro-stage.results{overflow-y:auto;overscroll-behavior:contain}
+.intro-page.is-readable .focus-stack,.intro-page.is-readable .intro-stage.results .focus-stack{position:relative;inset:auto;display:flex;align-items:center;padding:12px 16px 0}
+.intro-page.is-readable .analysis-pair{transform:none!important;pointer-events:auto}
+.intro-page.is-readable .signal-output{position:relative;padding:12px 16px 24px}
+.intro-page.is-readable .signal-stream{display:flex;flex-direction:column;gap:12px;max-width:361px;margin:0 auto}
+.intro-page.is-readable .signal-card{max-height:none;overflow:visible}
 .stream-paused .analysis-card::before,.stream-paused .analysis-card .skeleton-lines i,.stream-paused .analysis-card .analysis-bone{animation-play-state:paused}
 @keyframes analysis-scan{0%{transform:translateX(-60%)}85%,100%{transform:translateX(60%)}}
 @keyframes analysis-bars{0%{background-position:100% 0}100%{background-position:-120% 0}}
-/* This mark is a dual-colour brand asset. Never flatten or invert its internal colours. */
+/* Preserve the exact colours in the user-selected Figma logo. */
 html[data-theme] .analysis-logo,html[data-theme] .signal-alva-mark img{filter:none}
 html[data-theme="dark"] .analysis-card::before{background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--m3) 20%,transparent) 41%,color-mix(in srgb,var(--white) 24%,transparent) 49%,color-mix(in srgb,var(--m3) 12%,transparent) 57%,transparent 68%)}
-@media(prefers-reduced-motion:reduce){.analysis-card::before{display:none}.analysis-card.is-analyzing .skeleton-lines i,.analysis-card .analysis-bone{animation:none!important}.analysis-pair>*{transition:none}}
+@media(prefers-reduced-motion:reduce){.analysis-card::before{display:none}.analysis-card.is-analyzing .skeleton-lines i,.analysis-card .analysis-bone{animation:none!important}}

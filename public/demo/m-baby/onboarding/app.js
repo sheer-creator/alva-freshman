@@ -1,6 +1,6 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=7';
-import { renderIntroPage } from './intro.js?v=7';
+import { renderSetupPage } from './setup.js?v=8';
+import { renderIntroPage } from './intro.js?v=8';
 import { renderBookmarkPage } from './cards.js?v=6';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=6';
@@ -42,7 +42,7 @@ const initialPage = steps.includes(requested) ? requested : steps.includes(state
 const splash = document.querySelector('#startupSplash');
 // The static splash covers data/font loading; resumed steps skip its reveal.
 if (initialPage !== 'login') { splash.remove(); app.inert = false; }
-const [manifest, data] = await Promise.all(['assets/manifest.json?v=2', 'content.json?v=2'].map(async url => {
+const [manifest, data] = await Promise.all(['assets/manifest.json?v=3', 'content.json?v=3'].map(async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`Could not load ${url}`);
   return response.json();
@@ -112,7 +112,8 @@ function openExistingFeed() {
   if (!completeOnboarding(state, data, api.asset, location.href)) {
     toast('Bookmark a thesis to continue.'); go('bookmark'); return;
   }
-  page?.cleanup?.();
+  // The shell keeps this page available if For You fails to load. Clean up on
+  // pagehide after a successful handoff so retry controls remain usable.
   if (window.parent !== window) window.parent.postMessage({ type: 'alva:open-prototype', slug: 'thesis-motion' }, location.origin);
   else location.assign(new URL('../index.html#/thesis-motion', location.href));
 }
