@@ -1,0 +1,424 @@
+{
+  "previews": [
+    {
+      "id": "12608:109189",
+      "author": "Gavin Baker",
+      "role": "Managing Partner & CIO, Atreides",
+      "body": "Cheaper models would increase the return on AI spending and drive more token demand, redistributing margin dollars toward AI infrastructure providers.",
+      "avatar": "12608:109191",
+      "sourceThesisId": "12552:205644",
+      "charts": [
+        "I12552:205644;5794:126759;5794:107149",
+        "I12552:205644;5794:126759;5794:107150",
+        "I12552:205644;5794:126759;5794:107151"
+      ]
+    },
+    {
+      "id": "12608:109196",
+      "author": "Satya Nadella",
+      "role": "Chairman & CEO, Microsoft",
+      "body": "Altman would lead Microsoft's new AI group, drawing on Microsoft's experience giving founders room to build independent teams.",
+      "avatar": "12608:109198",
+      "sourceThesisId": "12552:202178",
+      "charts": [
+        "I12552:202178;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12608:109203",
+      "author": "Sam Altman",
+      "role": "Co-founder, OpenAI",
+      "body": "Broad access to AI depends on abundant, affordable compute, supported by enough energy and chips. Without that infrastructure, AI could become a scarce resource whose benefits concentrate among the wealthy.",
+      "avatar": "12608:109205",
+      "sourceThesisId": "12552:202172",
+      "charts": []
+    }
+  ],
+  "theses": [
+    {
+      "id": "12552:205644",
+      "author": "Gavin Baker",
+      "role": "Managing Partner & CIO, Atreides",
+      "timestamp": "Jul 13",
+      "body": "Cheaper models would increase the return on AI spending and drive more token demand, redistributing margin dollars toward AI infrastructure providers.",
+      "avatar": "I12552:205644;5794:126759;5794:107140",
+      "tickers": [
+        {
+          "symbol": "GOOGL",
+          "logo": "I12552:205644;5794:126759;9368:45488;9366:170291",
+          "direction": "I12552:205644;5794:126759;9368:45488;9366:170293"
+        },
+        {
+          "symbol": "AMZN",
+          "logo": "I12552:205644;5794:126759;9368:45508;9366:170291",
+          "direction": "I12552:205644;5794:126759;9368:45508;9366:170293"
+        },
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:205644;5794:126759;9368:45537;9366:170291",
+          "direction": "I12552:205644;5794:126759;9368:45537;9366:170293"
+        },
+        {
+          "symbol": "NVDA",
+          "logo": "I12552:205644;5794:126759;10042:45621;9366:170291",
+          "direction": "I12552:205644;5794:126759;10042:45621;9366:170293"
+        },
+        {
+          "symbol": "TSM",
+          "logo": "I12552:205644;5794:126759;10042:45640;9366:170291",
+          "direction": "I12552:205644;5794:126759;10042:45640;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:205644;5794:126759;5794:107149",
+        "I12552:205644;5794:126759;5794:107150",
+        "I12552:205644;5794:126759;5794:107151"
+      ]
+    },
+    {
+      "id": "12552:202166",
+      "author": "Satya Nadella",
+      "role": "Chairman & CEO, Microsoft",
+      "timestamp": "1h ago",
+      "body": "Azure surpassed $75 billion in annual revenue, up 34%. Microsoft added more than two gigawatts of datacenter capacity over the previous 12 months and now had over 400 datacenters across 70 regions.",
+      "avatar": "I12552:202166;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202166;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202166;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202166;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202172",
+      "author": "Sam Altman",
+      "role": "Co-founder, OpenAI",
+      "timestamp": "Sep 23, 2024",
+      "body": "Broad access to AI depends on abundant, affordable compute, supported by enough energy and chips. Without that infrastructure, AI could become a scarce resource whose benefits concentrate among the wealthy.",
+      "avatar": "I12552:202172;5794:126999;5794:107140",
+      "tickers": [],
+      "charts": []
+    },
+    {
+      "id": "12552:202176",
+      "author": "Warren Buffett",
+      "role": "Chairman & CEO, Berkshire Hathaway",
+      "timestamp": "1h ago",
+      "body": "He would recommend Greg Abel as Berkshire Hathaway's next CEO, effective at the end of the year.",
+      "avatar": "I12552:202176;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202176;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202176;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202176;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202178",
+      "author": "Satya Nadella",
+      "role": "Chairman & CEO, Microsoft",
+      "timestamp": "1h ago",
+      "body": "Altman would lead Microsoft's new AI group, drawing on Microsoft's experience giving founders room to build independent teams.",
+      "avatar": "I12552:202178;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202178;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202178;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202178;5794:126879;5794:107149"
+      ]
+    }
+  ],
+  "feed": [
+    {
+      "id": "12552:202166",
+      "author": "Satya Nadella",
+      "role": "Chairman & CEO, Microsoft",
+      "timestamp": "1h ago",
+      "body": "Azure surpassed $75 billion in annual revenue, up 34%. Microsoft added more than two gigawatts of datacenter capacity over the previous 12 months and now had over 400 datacenters across 70 regions.",
+      "avatar": "I12552:202166;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202166;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202166;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202166;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202168",
+      "author": "Gavin Baker",
+      "role": "Managing Partner & CIO, Atreides",
+      "timestamp": "Jul 13",
+      "body": "Baker frames this as a possible shift, not an outcome already visible. If lower-priced open or closed models take share from frontier labs with high inference margins, customers could get more intelligence for each dollar and increase their token usage. Under that scenario, part of the profit pool could move from model providers to AI infrastructure. He sees low delivery cost per… Show more",
+      "avatar": "I12552:202168;5794:126759;5794:107140",
+      "tickers": [
+        {
+          "symbol": "GOOGL",
+          "logo": "I12552:202168;5794:126759;9368:45488;9366:170291",
+          "direction": "I12552:202168;5794:126759;9368:45488;9366:170293"
+        },
+        {
+          "symbol": "AMZN",
+          "logo": "I12552:202168;5794:126759;9368:45508;9366:170291",
+          "direction": "I12552:202168;5794:126759;9368:45508;9366:170293"
+        },
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202168;5794:126759;9368:45537;9366:170291",
+          "direction": "I12552:202168;5794:126759;9368:45537;9366:170293"
+        },
+        {
+          "symbol": "NVDA",
+          "logo": "I12552:202168;5794:126759;10042:45621;9366:170291",
+          "direction": "I12552:202168;5794:126759;10042:45621;9366:170293"
+        },
+        {
+          "symbol": "TSM",
+          "logo": "I12552:202168;5794:126759;10042:45640;9366:170291",
+          "direction": "I12552:202168;5794:126759;10042:45640;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202168;5794:126759;5794:107149",
+        "I12552:202168;5794:126759;5794:107150",
+        "I12552:202168;5794:126759;5794:107151"
+      ]
+    },
+    {
+      "id": "12552:202170",
+      "author": "Berkshire Hathaway",
+      "role": "",
+      "timestamp": "1h ago",
+      "body": "Berkshire's board unanimously appointed Greg Abel as President and CEO, effective January 1, 2026. Warren Buffett would remain Chairman of the Board.",
+      "avatar": "I12552:202170;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202170;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202170;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202170;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202172",
+      "author": "Sam Altman",
+      "role": "Co-founder, OpenAI",
+      "timestamp": "Sep 23, 2024",
+      "body": "Broad access to AI depends on abundant, affordable compute, supported by enough energy and chips. Without that infrastructure, AI could become a scarce resource whose benefits concentrate among the wealthy.",
+      "avatar": "I12552:202172;5794:126999;5794:107140",
+      "tickers": [],
+      "charts": []
+    },
+    {
+      "id": "12552:202174",
+      "author": "Reuters",
+      "role": "",
+      "timestamp": "1h ago",
+      "body": "Merck and Moderna said their personalized mRNA therapy met its primary endpoint and a key secondary endpoint in a late-stage melanoma trial, the first positive Phase 3 result for an mRNA cancer vaccine.",
+      "avatar": "I12552:202174;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202174;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202174;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202174;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202176",
+      "author": "Warren Buffett",
+      "role": "Chairman & CEO, Berkshire Hathaway",
+      "timestamp": "1h ago",
+      "body": "He would recommend Greg Abel as Berkshire Hathaway's next CEO, effective at the end of the year.",
+      "avatar": "I12552:202176;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202176;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202176;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202176;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202178",
+      "author": "Satya Nadella",
+      "role": "Chairman & CEO, Microsoft",
+      "timestamp": "1h ago",
+      "body": "Altman would lead Microsoft's new AI group, drawing on Microsoft's experience giving founders room to build independent teams.",
+      "avatar": "I12552:202178;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202178;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202178;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202178;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202179",
+      "author": "Reuters",
+      "role": "",
+      "timestamp": "1h ago",
+      "body": "The S&P 500 and Nasdaq fell as the popularity of DeepSeek's low-cost AI model raised concerns about the outlook for U.S. AI leaders. Nvidia and other chipmakers led the selloff.",
+      "avatar": "I12552:202179;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202179;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202179;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202179;5794:126879;5794:107149"
+      ]
+    },
+    {
+      "id": "12552:202180",
+      "author": "Reuters",
+      "role": "",
+      "timestamp": "1h ago",
+      "body": "Warren Buffett would remain Berkshire Hathaway's chairman after Greg Abel became CEO. Berkshire shares fell following the leadership announcement.",
+      "avatar": "I12552:202180;5794:126879;5794:107140",
+      "tickers": [
+        {
+          "symbol": "MSFT",
+          "logo": "I12552:202180;5794:126879;9368:45488;9366:170291",
+          "direction": "I12552:202180;5794:126879;9368:45488;9366:170293"
+        }
+      ],
+      "charts": [
+        "I12552:202180;5794:126879;5794:107149"
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "id": "12616:149037",
+      "source": "Riot Platforms",
+      "avatar": "I12616:149037;11490:128096",
+      "summary": "Riot Platforms announced a $9.1 billion compute supply deal; a source identified the customer as Anthropic.",
+      "analysis": "The deal signals compute demand, but does not establish that cheaper models caused it.",
+      "stance": "Supports",
+      "sourceNode": "11494:75550",
+      "role": "Digital infrastructure company",
+      "time": "11 Aug, 23:00",
+      "url": "https://www.tradingview.com/news/DJN_DN20260811005150:0/"
+    },
+    {
+      "id": "12608:109265",
+      "source": "SemiAnalysis",
+      "avatar": "I12608:109265;11490:128166",
+      "summary": "SemiAnalysis reports TPUv8i is in internal software bring-up, with work beginning on the public software stack.",
+      "analysis": "TPU commercialization could support the infrastructure thesis; adoption and returns remain unproven.",
+      "stance": "Mixed",
+      "sourceNode": "11494:75482",
+      "role": "Semiconductor & AI research",
+      "time": "12 Aug, 07:00",
+      "url": "https://x.com/SemiAnalysis_/status/2087298210066829389"
+    },
+    {
+      "id": "12608:109341",
+      "source": "Matt Bryson",
+      "avatar": "I12608:109341;11490:128166",
+      "summary": "Matt Bryson, Wedbush analyst, sees an opportunity for Marvell and TSMC as Microsoft prepares Maia 300.",
+      "analysis": "Custom accelerators may lower compute costs; an unveiling is not evidence of deployment or returns.",
+      "stance": "Mixed",
+      "sourceNode": "11494:75516",
+      "role": "Managing Director, Equity Research · Wedbush",
+      "time": "12 Aug, 03:00",
+      "url": "https://www.tradingview.com/news/gurufocus:248b9d963094b:0-marvell-could-be-next-winner-in-microsoft-ai-bet/"
+    }
+  ],
+  "icons": {
+    "_StatusBar-battery": "I12552:199271;24149:4143",
+    "Avatar · 主发言人": "12608:109191",
+    "Logo/Alva": "12552:200754",
+    "Common/Right Info/Icon": "I12552:200758;23386:4239",
+    "Logo/Social": "I12552:200758;23386:4239;23391:4519",
+    "arrow-left-l1": "I12552:200909;3931:33522;12552:200937;4029:31573",
+    "Avatar": "I12552:200925;1437:30822;12552:200980",
+    "Logo/Broker": "I12552:201995;9170:48622",
+    "Tag · Beta": "I12552:201997;9170:48647",
+    "Category pill / All / Selected": "12552:202142",
+    "Category pill / Chips": "12552:202143",
+    "Category pill / Space": "12552:202150",
+    "Category pill / Power": "12552:202152",
+    "Category pill / Crypto": "12552:202153",
+    "Category pill / Macro": "12552:202159",
+    "arrow-down-l2 / Open categories": "12552:202164",
+    "Ticker / Logo": "I12552:202166;5794:126879;9368:45488;9366:170291",
+    "Ticker / Symbol": "I12552:202166;5794:126879;9368:45488;9366:170292",
+    "Ticker / Direction": "I12552:202166;5794:126879;9368:45488;9366:170293",
+    "arrow-up-l1": "I12552:202166;5794:126879;9368:45488;9366:170293;7850:67359",
+    "Chart 1": "I12552:202166;5794:126879;5794:107149",
+    "chat-ai-l": "I12552:202166;5794:126879;5794:107168;5759:100861",
+    "bookmark-l": "I12552:202166;5794:126879;5794:107168;5743:99643",
+    "Close": "I12552:202167;8986:116513;9416:45615",
+    "Bot / Not on Alva": "I12552:202167;8986:116521;8870:47396",
+    "add-l2": "I12552:202167;8986:116521;5525:90712;23386:4207;23391:4525",
+    "Inspiration / bulb-l": "I12552:202167;9448:112028;9448:112019",
+    "image": "I12552:202168;5794:126759;10042:45640;9366:170291;27060:29478",
+    "Chart 2": "I12552:202168;5794:126759;5794:107150",
+    "Chart 3": "I12552:202168;5794:126759;5794:107151",
+    "VenueIcon": "I12552:202169;9369:45646;9369:45608",
+    "mark": "I12552:202169;9369:45646;9369:45608;4299:26451",
+    "Logo/Stock": "I12552:202177;8890:64399;8870:47407",
+    "for-you-f": "I12552:202181;905:18661",
+    "search-l1": "I12552:202181;2486:19513",
+    "me-l": "I12552:202181;905:18700",
+    "Create / Fixed FAB": "12552:202182",
+    "Alva / Green official logo · aligned to both bars": "12646:154609",
+    "Inline identity / Alva": "I12616:149037;12320:261024",
+    "Alva logo": "I12616:149037;12320:261024;5706:114774",
+    "Alva / Inline logo · 12": "I12616:149037;12320:261024;5706:114775",
+    "Stance tag": "I12616:149037;12320:261025",
+    "Bookmark icon": "12608:109599",
+    "notification-l": "12684:225224",
+    "Alva / Monochrome": "Alva / Monochrome"
+  },
+  "introCopy": {
+    "theses": {
+      "title": "New theses,\nevery day.",
+      "description": "Explore a daily stream of market perspectives."
+    },
+    "analyzing": {
+      "title": "Alva analyzes each thesis.",
+      "description": "Alva finds the latest signals for each thesis and analyzes what they mean for its direction."
+    },
+    "signals": {
+      "title": "Track what matters.",
+      "description": "Follow the signals that support or challenge each thesis as the story develops."
+    }
+  },
+  "bookmarkCopy": {
+    "title": "Bookmark theses.\nTrack what changes.",
+    "description": "Choose the views you want Alva to track for new signals."
+  }
+}
