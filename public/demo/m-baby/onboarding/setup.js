@@ -1,7 +1,7 @@
 /* Setup screens reproduce the current Figma onboarding frames.
  * Real authentication, broker access and OS permission requests are simulated.
  */
-import { signalCard } from './intro.js?v=10';
+import { signalCard } from './intro.js?v=11';
 import { bindNotificationReveal } from './notification-reveal.js';
 
 const ASSETS = {

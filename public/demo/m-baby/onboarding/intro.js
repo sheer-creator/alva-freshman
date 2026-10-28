@@ -8,7 +8,7 @@ const FALLBACK_COPY = {
   signals: {title:'Track what matters.',description:'Follow the signals that support or challenge each thesis as the story develops.'},
 };
 // These describe the work already shown by this demo, not invented progress percentages.
-const ANALYSIS_TASKS = [
+export const ANALYSIS_TASKS = [
   'Finding signals relevant to this thesis.',
   'Reading the latest sources.',
   'Connecting signals to this thesis.',
@@ -17,7 +17,7 @@ const ANALYSIS_TASKS = [
   'Watching for new signals.',
 ];
 
-function analyzingCard(api) {
+export function analyzingCard(api) {
   return node('div','analysis-card is-analyzing',`<div class="analysis-skeleton">${image(api.data.icons['Alva / Onboarding source'],api,'analysis-logo','Alva')}<div class="skeleton-lines" aria-hidden="true"><i></i><i></i></div><i class="analysis-bone analysis-corner-bone" aria-hidden="true"></i></div><div class="analysis-status"><div><strong>Alva Analyzing</strong><i class="analysis-bone" aria-hidden="true"></i></div><div><span class="analysis-task">${ANALYSIS_TASKS[0]}</span><i class="analysis-bone" aria-hidden="true"></i></div></div>`);
 }
 
