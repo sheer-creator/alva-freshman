@@ -39,7 +39,7 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=3',
+      href: 'onboarding/index.html?v=4',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
@@ -52,7 +52,7 @@
       subtitle: 'For You, thesis detail and history, profile and ticker.',
       edited: '2026-10-22',
       slug: 'thesis-motion',
-      href: 'thesis-motion.html?v=21',
+      href: 'thesis-motion.html?v=22',
       meta: 'Mobile · 5 screens',
       figma: {
         label: 'Feed Mobile MVP · For You / V5',
@@ -286,6 +286,98 @@
   let mounted = null;        // slug currently in the iframe
   let focusOnMount = false;
   let appearance = readAppearance();
+  let onboardingHandoff = null;
+  let handoffSequence = 0;
+  const handoffMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const HANDOFF_FADE_MS = 160;
+  const HANDOFF_TIMEOUT_MS = 15000;
+
+  function cancelOnboardingHandoff(notifyFailure = false) {
+    const handoff = onboardingHandoff;
+    if (!handoff) return;
+    onboardingHandoff = null;
+    clearTimeout(handoff.timeout);
+    handoff.events.abort();
+    handoff.animation?.cancel();
+    handoff.incoming.remove();
+    handoff.outgoing.classList.remove('handoff-outgoing');
+    handoff.outgoing.inert = false;
+    screenEl.removeAttribute('aria-busy');
+    if (notifyFailure && handoff.outgoing.isConnected) {
+      handoff.outgoing.contentWindow.postMessage({ type: 'alva:handoff-failed', slug: 'thesis-motion' }, location.origin);
+      try { handoff.outgoing.contentWindow.focus(); } catch (e) {}
+    }
+  }
+
+  function completeOnboardingHandoff(handoff) {
+    if (onboardingHandoff !== handoff) return;
+    if (slugFromHash() !== 'thesis-onboarding') { cancelOnboardingHandoff(); return; }
+    onboardingHandoff = null;
+    clearTimeout(handoff.timeout);
+    handoff.events.abort();
+    handoff.animation?.cancel();
+    handoff.outgoing.remove();
+    handoff.incoming.classList.remove('handoff-incoming');
+    handoff.incoming.inert = false;
+    handoff.incoming.removeAttribute('aria-hidden');
+    attachFrameLoad(handoff.incoming);
+    screenEl.removeAttribute('aria-busy');
+    mounted = 'thesis-motion';
+    focusOnMount = false;
+    window.location.hash = '#/thesis-motion';
+    try { handoff.incoming.contentWindow.focus(); } catch (e) {}
+  }
+
+  function revealOnboardingHandoff(handoff) {
+    if (onboardingHandoff !== handoff || handoff.revealing) return;
+    if (slugFromHash() !== 'thesis-onboarding') { cancelOnboardingHandoff(); return; }
+    handoff.revealing = true;
+    clearTimeout(handoff.timeout);
+    // The new Feed is opaque underneath the old page; only the old page fades.
+    // This never exposes the empty phone background between the two documents.
+    handoff.incoming.classList.add('ready');
+    if (handoffMotion.matches) { completeOnboardingHandoff(handoff); return; }
+    handoff.animation = handoff.outgoing.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: HANDOFF_FADE_MS, easing: 'ease-out', fill: 'forwards',
+    });
+    handoff.animation.finished.then(() => completeOnboardingHandoff(handoff), () => {});
+  }
+
+  function beginOnboardingHandoff(outgoing) {
+    if (onboardingHandoff || mounted !== 'thesis-onboarding' || slugFromHash() !== 'thesis-onboarding') return;
+    const incoming = document.createElement('iframe');
+    incoming.title = bySlug.get('thesis-motion').title;
+    incoming.setAttribute('scrolling', 'no');
+    incoming.setAttribute('aria-hidden', 'true');
+    incoming.classList.add('handoff-incoming');
+    incoming.inert = true;
+    const handoff = { outgoing, incoming, token: String(++handoffSequence), events: new AbortController() };
+    onboardingHandoff = handoff;
+    incoming.addEventListener('load', () => {
+      if (onboardingHandoff !== handoff) return;
+      pushMetrics(incoming);
+      // The Feed acknowledges after applying this theme, fonts and initial DOM.
+      incoming.contentWindow.postMessage({
+        type: 'alva:prepare-handoff', token: handoff.token, appearance,
+      }, location.origin);
+    }, { once: true, signal: handoff.events.signal });
+    incoming.addEventListener('error', () => {
+      if (onboardingHandoff === handoff) cancelOnboardingHandoff(true);
+    }, { once: true, signal: handoff.events.signal });
+    incoming.src = bySlug.get('thesis-motion').href;
+    outgoing.classList.add('handoff-outgoing');
+    outgoing.inert = true;
+    screenEl.setAttribute('aria-busy', 'true');
+    // Keep the old iframe in place: detaching/reinserting it reloads its document.
+    screenEl.append(incoming);
+    handoff.timeout = setTimeout(() => {
+      if (onboardingHandoff === handoff) cancelOnboardingHandoff(true);
+    }, HANDOFF_TIMEOUT_MS);
+  }
+
+  handoffMotion.addEventListener('change', () => {
+    if (handoffMotion.matches && onboardingHandoff?.revealing) completeOnboardingHandoff(onboardingHandoff);
+  });
 
   function readAppearance() {
     let value = '';
@@ -310,6 +402,16 @@
     } catch (e) {}
   }
 
+  function attachFrameLoad(frame) {
+    frame.addEventListener('load', function () {
+      if (!frame.isConnected) return;
+      pushMetrics(frame);
+      pushAppearance(frame);
+      frame.classList.add('ready');
+      if (focusOnMount) { focusOnMount = false; try { frame.contentWindow.focus(); } catch (e) {} }
+    });
+  }
+
   function applyAppearance(preference, persist, notifyFrame) {
     appearance = preference === 'light' || preference === 'dark' ? preference : 'system';
     const mode = resolvedTheme(appearance);
@@ -323,10 +425,12 @@
     if (notifyFrame !== false) {
       const frame = screenEl.firstElementChild;
       if (frame) pushAppearance(frame);
+      if (onboardingHandoff) pushAppearance(onboardingHandoff.incoming);
     }
   }
 
   function mount(p, force) {
+    if (onboardingHandoff && (force || mounted !== p.slug)) cancelOnboardingHandoff();
     if (!force && mounted === p.slug) return;
 
     /* A fresh element rather than a reassigned src: setting src on a
@@ -337,12 +441,7 @@
     const frame = document.createElement('iframe');
     frame.title = p.title;
     frame.setAttribute('scrolling', 'no');
-    frame.addEventListener('load', function () {
-      pushMetrics(frame);
-      pushAppearance(frame);
-      frame.classList.add('ready');
-      if (focusOnMount) { focusOnMount = false; try { frame.contentWindow.focus(); } catch (e) {} }
-    });
+    attachFrameLoad(frame);
     if (force && p.resetOnRestart) {
       const restart = new URL(p.href, location.href);
       restart.searchParams.set('restart', String(Date.now()));
@@ -357,6 +456,7 @@
     /* prototypes run timers and animation loops; leaving one alive
        behind the list would also mean coming back to a half-finished
        flow rather than a fresh one */
+    cancelOnboardingHandoff();
     screenEl.replaceChildren();
     mounted = null;
   }
@@ -366,14 +466,21 @@
   });
 
   window.addEventListener('message', e => {
+    if (e.origin !== window.location.origin) return;
+    const handoff = onboardingHandoff;
+    if (handoff && e.source === handoff.incoming.contentWindow) {
+      if (e.data?.type === 'alva:content-ready' && e.data.slug === 'thesis-motion' && e.data.token === handoff.token) revealOnboardingHandoff(handoff);
+      return;
+    }
     const frame = screenEl.firstElementChild;
-    if (!frame || e.source !== frame.contentWindow || e.origin !== window.location.origin) return;
+    if (!frame || e.source !== frame.contentWindow) return;
     if (e.data?.type === 'alva:prototype-ready') {
       pushMetrics(frame);
       pushAppearance(frame);
       return;
     }
     if (e.data?.type === 'alva:open-prototype' && e.data.slug === 'thesis-motion' && bySlug.has(e.data.slug)) {
+      if (mounted === 'thesis-onboarding') { beginOnboardingHandoff(frame); return; }
       window.location.hash = '#/' + e.data.slug;
       return;
     }
@@ -483,6 +590,7 @@
 
     const frame = screenEl.firstElementChild;
     if (frame) pushMetrics(frame);
+    if (onboardingHandoff) pushMetrics(onboardingHandoff.incoming);
 
     fit();
   }
@@ -712,6 +820,7 @@
     simulating = wide.matches;
     const frame = screenEl.firstElementChild;
     if (frame) pushMetrics(frame);
+    if (onboardingHandoff) pushMetrics(onboardingHandoff.incoming);
   }
 
   function fit() {
