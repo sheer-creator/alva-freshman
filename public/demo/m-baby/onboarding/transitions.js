@@ -1,4 +1,4 @@
-// Page motion follows the task relationship; horizontal movement belongs to card browsing.
+// Page motion follows the task relationship; Intro owns its three heading transitions.
 // Durations follow docs/motion-spec.md: micro 120, presence 160/240, major transform 280.
 const duration = { exit: 120, feedback: 160, content: 240, stage: 280 };
 const easing = 'cubic-bezier(0.4, 0, 0.2, 1)';
@@ -39,7 +39,6 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     relationship = 'revisit';
   } else if (from === 'login' && to === 'intro') {
     relationship = 'open-content';
-    reveal('.intro-heading');
     incoming.querySelectorAll('.marquee-lane').forEach((lane, index) => {
       play(lane, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], duration.content, index * 40);
     });

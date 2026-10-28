@@ -1,6 +1,6 @@
 import { node, image, escapeHTML, heading, topbar } from './ui.js';
-import { previewCard, tickerRow } from './cards.js?v=6';
-import { SpatialCards, springSamples } from './spatial-cards.js';
+import { previewCard } from './cards.js?v=6';
+import { SpatialCards, springSamples } from './spatial-cards.js?v=2';
 
 const FALLBACK_COPY = {
   theses: {title:'New theses,\nevery day.',description:'Explore a daily stream of market perspectives.'},
@@ -45,6 +45,7 @@ export function renderIntroPage(api) {
   const root=node('section','page intro-page');root.setAttribute('aria-label','Explore theses and signals');root.dataset.phase='theses';
   root.append(topbar(api),heading(copy.theses.title,copy.theses.description));
   const message=root.querySelector('.intro-heading'),stage=node('div','intro-stage');root.append(stage);
+  message.style.visibility='hidden';
   const marquee=node('div','marquee');stage.append(marquee);
   const tracks=[],starts=[16,-148,-226],laneOrders=[[0,1,2,0,1,2],[1,2,0,1,0,2],[0,1,2,0,1,2]];
   laneOrders.forEach((order,i)=>{
@@ -81,7 +82,15 @@ export function renderIntroPage(api) {
     timers.forEach(entry=>{clearTimeout(entry.timer);entry.resolve();});timers.clear();
     cancelAnimationFrame(frame);frame=0;lastFrame=0;solver=null;
   }
-  function setHeading(key){const text=copy[key]||FALLBACK_COPY[key];message.innerHTML=`<h1>${escapeHTML(text.title).replace(/\n/g,'<br>')}</h1><p>${escapeHTML(text.description)}</p>`;}
+  function setHeading(key,moving=false){
+    const text=copy[key]||FALLBACK_COPY[key],previous=message.querySelector('.intro-heading-copy');
+    const next=node('div','intro-heading-copy',`<h1>${escapeHTML(text.title).replace(/\n/g,'<br>')}</h1><p>${escapeHTML(text.description)}</p>`);
+    message.style.visibility='visible';message.replaceChildren(next);
+    if(!moving||api.reduced())return;
+    const distance=message.clientWidth;
+    if(previous){previous.classList.add('is-outgoing');previous.setAttribute('aria-hidden','true');message.prepend(previous);play(previous,[{transform:'translateX(0)'},{transform:`translateX(${-distance}px)`}],420).then(()=>previous.remove());}
+    play(next,[{transform:`translateX(${distance}px)`},{transform:'translateX(0)'}],420);
+  }
   function buildPair(chosen=previewCard(api.data.previews[0],api)){
     stack=node('div','focus-stack');pair=node('div','analysis-pair');pair.append(chosen);stack.append(pair);stage.append(stack);
     chosen.style.width='100%';chosen.style.transform='none';pairDepth=1;pair.style.transform=`scale(${fit(240)})`;return chosen;
@@ -108,8 +117,7 @@ export function renderIntroPage(api) {
     for(const body of solver.snapshot()){
       const card=cards.get(body.id);if(!card)continue;
       card.style.transform=`translate(${body.x-body.width/2}px,${body.y-body.height/2}px) rotate(${body.rotation}deg) scale(${body.scale})`;
-      card.style.opacity=body.active?String(Math.min(1,Math.max(0,(body.scale-.78)/.18))):'1';
-      card.style.zIndex=String(body.order);card.classList.toggle('is-current',body.active);
+      card.style.opacity='1';card.style.zIndex='1';card.classList.toggle('is-current',body.active);
       card.dataset.spatialX=body.x.toFixed(3);card.dataset.spatialY=body.y.toFixed(3);card.dataset.spatialRotation=body.rotation.toFixed(3);
       card.setAttribute('aria-hidden',String(!body.active));card.tabIndex=body.active&&card.classList.contains('signal-card')?0:-1;
       card.querySelectorAll('a').forEach(link=>{link.tabIndex=body.active?0:-1;});
@@ -128,7 +136,7 @@ export function renderIntroPage(api) {
   }
   function prepareCard(id,item){
     if(cards.has(id))return cards.get(id);
-    const card=id==='tickers'?tickerRow(api.data.theses[0].tickers.slice(0,3),api,true):signalCard(item,api);
+    const card=signalCard(item,api);
     card.classList.add('spatial-card');card.dataset.spatialId=id;
     if(item)card.dataset.signalId=item.id;
     cards.set(id,card);stream.append(card);return card;
@@ -173,7 +181,7 @@ export function renderIntroPage(api) {
   }
   async function continueSignals(token){
     while(valid(token)&&!api.reduced()){
-      await wait(jitter(4800,2400));if(!valid(token))return;
+      await wait(jitter(1700,900));if(!valid(token))return;
       while(valid(token)&&isReading()){await wait(1000);}
       if(!valid(token))return;
       const item=api.data.signals[emitted%api.data.signals.length];
@@ -184,11 +192,11 @@ export function renderIntroPage(api) {
     stop();const token=epoch;marquee.remove();stack?.remove();output?.remove();cards.clear();
     root.classList.toggle('is-readable',!run);root.dataset.phase='signals';setHeading('signals');rememberStage();buildPair();addAnalysis();addOutput(run);
     if(run){
-      pair.style.transform=`scale(${fit(352)})`;sendPairBack(false);promote('tickers',null,{instant:true});
+      pair.style.transform=`scale(${fit(352)})`;sendPairBack(false);
       for(const item of api.data.signals){promote(item.id,item,{instant:true});for(let i=0;i<720;i++)if(!solver.step(1/120))break;}
       renderPhysics();updateTasks(token);continueSignals(token);
     }else{
-      pair.style.transform='none';stream.append(tickerRow(api.data.theses[0].tickers.slice(0,3),api,true));
+      pair.style.transform='none';
       for(const item of api.data.signals){const card=signalCard(item,api);card.dataset.signalId=item.id;stream.append(card);}
       analysis.classList.remove('is-analyzing');analysis.querySelector('.analysis-task').textContent='Following signals for this thesis.';
     }
@@ -198,18 +206,18 @@ export function renderIntroPage(api) {
   root.start=async()=>{
     if(started||!alive)return;started=true;
     if(api.reduced()||api.state.introComplete){readyState(!api.reduced());return;}
-    const token=epoch;rememberStage();
-    tracks.forEach((track,i)=>play(track,[{transform:`translateX(${starts[i]}px)`},{transform:`translateX(${starts[i]+(i===1?1:-1)*312}px)`}],19500,{easing:'linear',iterations:Infinity}));
-    const rails=[...animations];
+    const token=epoch;rememberStage();setHeading('theses',true);
+    tracks.forEach((track,i)=>play(track,[{transform:`translateX(${starts[i]}px)`},{transform:`translateX(${starts[i]+(i===1?1:-1)*312}px)`}],9750,{easing:'linear',iterations:Infinity}));
+    const rails=[...animations].filter(animation=>tracks.includes(animation.effect?.target));
     await wait(6600);if(!valid(token))return;
     rails.forEach(animation=>{animation.pause();hiddenAnimations.delete(animation);});
     const chosen=tracks[0].querySelector('.preview-card'),first=chosen.getBoundingClientRect();
     root.dataset.phase='focusing';rememberStage();buildPair(chosen);
     const last=chosen.getBoundingClientRect(),ratio=first.width/last.width,scale=unit()*fit(240);
-    setHeading('analyzing');play(message,[{opacity:0},{opacity:1}],240);marquee.style.opacity='0';play(marquee,[{opacity:1},{opacity:0}],160);
+    setHeading('analyzing',true);marquee.style.opacity='0';play(marquee,[{opacity:1},{opacity:0}],160);
     await spring(chosen,p=>({transform:`translate(${(first.x-last.x)/scale*(1-p)}px,${(first.y-last.y)/scale*(1-p)}px) scale(${ratio+(1-ratio)*p})`}),560);
     if(!valid(token))return;marquee.remove();rails.forEach(animation=>animation.cancel());
-    await wait(800);if(!valid(token))return;
+    await wait(1600);if(!valid(token))return;
     root.dataset.phase='analyzing';const before=fit(240),after=fit(352);addAnalysis();pair.style.transform=`scale(${after})`;
     // The reveal changes the pair's intrinsic height, so its grid centre stays
     // fixed while the analysis grows directly from the thesis's bottom seam.
@@ -218,10 +226,8 @@ export function renderIntroPage(api) {
       spring(pair,p=>({transform:`scale(${before+(after-before)*p})`}),620,{stiffness:250,damping:20})
     ]);
     if(!valid(token))return;updateTasks(token);
-    await wait(1000);if(!valid(token))return;
-    addOutput();root.dataset.phase='tickers';sendPairBack();promote('tickers');
-    await wait(2000);if(!valid(token))return;
-    setHeading('signals');play(message,[{opacity:0},{opacity:1}],240);
+    await wait(800);if(!valid(token))return;
+    addOutput();sendPairBack();setHeading('signals',true);
     if(api.data.signals[0]){promote(api.data.signals[0].id,api.data.signals[0]);emitted=1;stream.dataset.emissions='1';}
     allowContinue();continueSignals(token);
   };
