@@ -18,3 +18,4 @@
 @media(prefers-reduced-motion:reduce){
   .bookmark-deck>.deck-card{will-change:auto}
 }
+.bookmark-button .bookmark-icon{display:block;width:20px;height:20px;flex:none;background:currentColor;-webkit-mask:var(--icon) center/contain no-repeat;mask:var(--icon) center/contain no-repeat}

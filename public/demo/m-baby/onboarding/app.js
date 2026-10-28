@@ -1,12 +1,12 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=17';
-import { renderIntroPage } from './intro.js?v=11';
-import { renderGuidedIntroPage } from './intro-guided.js?v=2';
-import { renderBookmarkPage } from './cards.js?v=7';
-import { renderPickPage, renderTrackPage, renderMorePage } from './intro-track.js?v=1';
+import { renderSetupPage } from './setup.js?v=18';
+import { renderIntroPage } from './intro.js?v=12';
+import { renderGuidedIntroPage } from './intro-guided.js?v=3';
+import { renderBookmarkPage } from './cards.js?v=9';
+import { renderPickPage, renderTrackPage } from './intro-track.js?v=11';
 import { node, escapeHTML } from './ui.js';
-import { transitionPages } from './transitions.js?v=9';
-import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=4';
+import { transitionPages } from './transitions.js?v=10';
+import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=5';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
 for (const icon of document.querySelectorAll('.system-bar .ic')) {
@@ -35,19 +35,17 @@ if (parent !== window) parent.postMessage({ type: 'alva:prototype-ready' }, loca
 const search = new URLSearchParams(location.search);
 const guided = search.get('intro') === 'guided';
 const trackVariant = search.get('intro') === 'track';
-const loginFirst = trackVariant && search.get('order') === 'login-first';
-// Track variant: bookmark one thesis from the deck, watch Alva analyze it, then
-// the remaining setup. Order A puts login after the selections; order B keeps
-// login first and ends with portfolio and notifications.
-const steps = !trackVariant ? ['login', 'intro', 'people', 'bookmark', 'portfolio', 'notifications']
-  : loginFirst ? ['login', 'pick', 'track', 'more', 'people', 'portfolio', 'notifications']
-  : ['pick', 'track', 'notifications', 'more', 'people', 'login', 'portfolio'];
+// Track variant: log in, follow people, bookmark theses from the people you
+// follow, then the last bookmarked card stays and Alva analyzes it in place;
+// portfolio and notifications close the flow.
+const steps = trackVariant ? ['login', 'people', 'pick', 'track', 'portfolio', 'notifications']
+  : ['login', 'intro', 'people', 'bookmark', 'portfolio', 'notifications'];
 const flow = {
   steps,
   prev: name => { const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null; },
   next: name => { const index = steps.indexOf(name); return index >= 0 && index < steps.length - 1 ? steps[index + 1] : 'feed'; },
 };
-const stateKey = trackVariant ? (loginFirst ? TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY : TRACK_ONBOARDING_STATE_KEY) : guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
+const stateKey = trackVariant ? TRACK_ONBOARDING_STATE_KEY : guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
 const renderIntro = guided ? renderGuidedIntroPage : renderIntroPage;
 // Each signal presentation owns only its current in-memory choices.
 if (!trackVariant) clearLegacyOnboardingState(stateKey);
@@ -58,18 +56,17 @@ if (trackVariant && restartToken && state.restartToken !== restartToken) {
   state = readOnboardingState(stateKey);
 }
 if (guided) document.title = 'onboarding-signal · Guided';
-if (trackVariant) document.title = loginFirst ? 'onboarding-signal · Track · Login first' : 'onboarding-signal · Track';
+if (trackVariant) document.title = 'onboarding-signal · Track';
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const requested = location.hash.slice(1);
-const resumable = steps.includes(state.page) && !(trackVariant && !loginFirst && state.page === 'login' && !state.bookmarked.size);
-const initialPage = !trackVariant ? 'login' : steps.includes(requested) ? requested : resumable ? state.page : steps[0];
+const initialPage = !trackVariant ? 'login' : steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : steps[0];
 const splash = document.querySelector('#startupSplash');
 // Original and Guided retain their Splash on every entry. Track keeps its
 // existing resume policy and only reveals Splash at the start of its order.
 if (initialPage !== steps[0]) { splash.remove(); app.inert = false; }
-const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content.json?v=4'].map(async url => {
+const [manifest, data] = await Promise.all(['assets/manifest.json?v=6', 'content.json?v=4'].map(async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`Could not load ${url}`);
   return response.json();
@@ -190,7 +187,7 @@ async function go(name, options = {}) {
   for (const child of [...app.children]) if (child !== old) child.remove();
   overlays.replaceChildren(); state.page = name; persist();
   page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api)
-    : name === 'pick' ? renderPickPage(api) : name === 'track' ? renderTrackPage(api) : name === 'more' ? renderMorePage(api)
+    : name === 'pick' ? renderPickPage(api) : name === 'track' ? renderTrackPage(api)
     : renderSetupPage(name, api);
   page.dataset.page = name; page.classList.add('route-page'); page.style.zIndex = '2'; app.append(page); old?.setAttribute('inert', '');
   const url = new URL(location.href); url.hash = name; history.replaceState(null, '', url);

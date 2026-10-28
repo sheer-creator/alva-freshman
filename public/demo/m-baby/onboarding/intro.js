@@ -1,5 +1,5 @@
 import { node, image, escapeHTML, heading, topbar } from './ui.js';
-import { previewCard } from './cards.js?v=6';
+import { previewCard } from './cards.js?v=9';
 import { SpatialCards, springSamples } from './spatial-cards.js?v=2';
 
 const FALLBACK_COPY = {

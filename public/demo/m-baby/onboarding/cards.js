@@ -64,12 +64,13 @@ export function renderBookmarkPage(api, options={}) {
     ghost.animate([{transform:'none'},{transform:`translate(${b.left-a.left}px,${b.top-a.top}px) scale(${b.width/a.width})`}],{duration:280,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'}).finished.catch(()=>{}).finally(()=>{ghost.remove();dest.style.visibility='';});
   }
   const cards=new Map();
-  const available=()=>api.data.theses.filter(t=>!api.state.bookmarked.has(t.id));
+  const pool=options.candidates||api.data.theses;
+  const available=()=>pool.filter(t=>!api.state.bookmarked.has(t.id));
   const modulo=(index,length)=>((index%length)+length)%length;
   const initial=available();
   let cursor=Math.max(0,Math.min(Number(api.state.thesisIndex)||0,initial.length-1));
   const lastSaved=[...api.state.bookmarked].reverse().map(id=>api.data.theses.find(item=>item.id===id)).find(Boolean);
-  let frontId=(initial[cursor]||lastSaved||api.data.theses.at(-1))?.id;
+  let frontId=(initial[cursor]||lastSaved||pool.at(-1))?.id;
   let alive=true, promotion=null, saveTimer=null, gesture=null, savedFocus=null;
 
   function saveButtonState(button,saved){
@@ -87,7 +88,7 @@ export function renderBookmarkPage(api, options={}) {
     const read=node('div','card-reading');read.append(renderThesisContent(item,api));card.append(read);
     const controls=node('nav','bookmark-controls card-save-footer');controls.setAttribute('aria-label','Browse and bookmark theses');
     const prev=node('button','card-arrow previous',image(api.data.icons['arrow-left-l1'],api));prev.type='button';prev.dataset.action='previous';prev.setAttribute('aria-label','Previous thesis');
-    const save=node('button','bookmark-button',`${image(api.data.icons['Bookmark icon']||api.data.icons['bookmark-l'],api)}<span aria-live="polite"></span>`);save.type='button';save.dataset.action='bookmark';
+    const save=node('button','bookmark-button',`<i class="bookmark-icon" style="--icon:url(&quot;${escapeHTML(api.asset(api.data.icons['Bookmark icon']||api.data.icons['bookmark-l']))}&quot;)" aria-hidden="true"></i><span aria-live="polite"></span>`);save.type='button';save.dataset.action='bookmark';
     const next=node('button','card-arrow next',image(api.data.icons['arrow-left-l1'],api));next.type='button';next.dataset.action='next';next.setAttribute('aria-label','Next thesis');
     prev.onclick=()=>{if(id===frontId)change(-1);};next.onclick=()=>{if(id===frontId)change(1);};save.onclick=()=>bookmark(id);
     controls.append(prev,save,next);card.append(controls);
@@ -192,7 +193,29 @@ export function renderBookmarkPage(api, options={}) {
     saveTimer=setTimeout(()=>{saveTimer=null;if(alive)change(1);},120);
   }
 
-  continueButton.onclick=()=>{if(options.allowEmpty||api.state.bookmarked.size)api.go(options.next||'portfolio');};
+  continueButton.onclick=async()=>{
+    if(!(options.allowEmpty||api.state.bookmarked.size))return;
+    continueButton.disabled=true;
+    await options.onNext?.();
+    if(alive)api.go(options.next||'portfolio');
+  };
+  // Brings a saved card back to the front (it slides back from where saved cards
+  // leave), so the next page can continue from that exact card.
+  root.bringToFront=id=>{
+    clearSaveTimer();finishPromotion();
+    if(!alive||id===frontId)return Promise.resolve();
+    const card=cardFor(id);if(!card)return Promise.resolve();
+    const previous=cards.get(frontId);
+    frontId=id;
+    if(previous)position(previous,'next');
+    position(card,'front');if(card.parentNode!==deck)deck.append(card);
+    saveButtonState(card.querySelector('.bookmark-button'),api.state.bookmarked.has(id));
+    if(api.reduced()||typeof card.animate!=='function')return Promise.resolve();
+    return card.animate([
+      {transform:'translate(-32px, 12px) rotate(-4deg) scale(.97)',opacity:0},
+      {transform:'none',opacity:1}
+    ],{duration:420,easing:'cubic-bezier(.22,1,.36,1)'}).finished.catch(()=>{});
+  };
   deck.addEventListener('pointerdown',e=>{
     const card=e.target.closest('.front-card');
     if(!card||e.isPrimary===false||e.target.closest('button,.thesis-charts'))return;
