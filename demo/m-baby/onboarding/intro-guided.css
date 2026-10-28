@@ -6,13 +6,14 @@
 .guided-intro .guide-heading .guide-title-outgoing{position:absolute;top:8px;left:16px;right:16px}
 .guided-intro .guide-viewport{position:absolute;inset:0;padding:0 16px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;scroll-behavior:auto}
 .guided-intro .guide-viewport::-webkit-scrollbar{display:none}
-.guided-intro .guide-track{width:100%;max-width:361px;min-height:100%;margin:0 auto;display:flex;flex-direction:column;justify-content:center;gap:12px;transform-origin:center center}
+.guided-intro .guide-viewport.guide-top-fade{-webkit-mask-image:linear-gradient(to bottom,transparent,#000 32px);mask-image:linear-gradient(to bottom,transparent,#000 32px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.guided-intro .guide-track{width:100%;max-width:361px;min-height:0;margin:0 auto;display:flex;flex-direction:column;justify-content:flex-start;gap:12px;transform-origin:center center}
 .guided-intro .guide-pair{display:flex;flex-direction:column;flex:none;width:100%;transform-origin:center center}
 .guided-intro .guide-thesis{flex:none;width:100%;padding:16px;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);overflow:hidden}
 .guided-intro .guide-thesis .thesis-body{display:block;max-height:none;overflow:visible;-webkit-line-clamp:unset}
 .guided-intro .guide-thesis .thesis-chart{flex:none}
 .guided-intro .guide-pair.guide-has-analysis{gap:12px}
-.guided-intro .guide-analysis-reveal{height:112px;flex:none;width:100%;overflow:hidden;background:var(--m3-10);border-radius:12px}
+.guided-intro .guide-analysis-reveal{height:112px;flex:none;width:100%;overflow:hidden;background:var(--m3-10);border-radius:12px;transform-origin:center bottom}
 .guided-intro .analysis-card{border-radius:12px;transition:none}
 .guided-intro .analysis-task{height:20px;min-height:20px;flex:none;max-width:100%;overflow:hidden}
 .guided-intro[data-step="3"] .guide-track{gap:8px}
