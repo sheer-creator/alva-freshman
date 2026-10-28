@@ -1,0 +1,44 @@
+/* Track variant. Pick and Track-more reuse the Bookmark deck; Track reuses the deck card,
+   the analysis card and the signal cards. Only the pinned-anchor layout is new. */
+.bookmark-page[data-mode="pick"] .bookmark-deck,.bookmark-page[data-mode="more"] .bookmark-deck{margin-top:16px}
+.bookmark-page[data-mode="pick"] .page-footer[hidden]{display:none}
+.bookmark-page[data-mode="pick"] .bookmark-deck>.deck-card{height:calc(100% - 44px)}
+.bookmark-page[data-mode="pick"] .bookmark-controls .bookmark-button,.bookmark-page[data-mode="more"] .bookmark-controls .bookmark-button{background:var(--m1)}
+.bookmark-page[data-mode="pick"] .bookmark-controls .bookmark-button:disabled,.bookmark-page[data-mode="more"] .bookmark-controls .bookmark-button:disabled{background:var(--m1-10);color:var(--m1)}
+.track-shelf{display:flex;align-items:center;gap:8px;height:28px;margin:0 16px;flex:none;overflow-x:auto;scrollbar-width:none}
+.track-shelf::-webkit-scrollbar{display:none}
+.track-shelf-count{font-size:12px;line-height:20px;color:var(--n5);white-space:nowrap;flex:none}
+.track-shelf-chips{display:flex;gap:8px}
+.track-chip-avatar{border-radius:50%;object-fit:cover}
+.bookmark-page[data-mode="more"] .intro-heading{height:auto;flex-basis:auto;padding-bottom:4px}
+.track-progress{display:flex;align-items:center;gap:12px;margin:8px 16px 0;flex:none;font-size:12px;line-height:20px;color:var(--n7)}
+.track-progress-bar{flex:1;height:4px;border-radius:2px;background:var(--l12);overflow:hidden}
+.track-progress-bar i{display:block;height:100%;width:0;background:var(--m1);transition:width 200ms ease-out}
+.track-flight{z-index:9}
+
+.page.track-page{display:flex;flex-direction:column}
+.track-page .intro-heading{z-index:4}
+.track-viewport{flex:1;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:0 24px 16px}
+.track-viewport::-webkit-scrollbar{display:none}
+.track-stack{display:flex;flex-direction:column;gap:12px}
+/* The anchor starts where the Pick deck's front card stood (28px below the deck top, 24px side margins). */
+.track-anchor{position:sticky;top:0;z-index:3;margin-top:44px;padding:16px 16px 12px;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);box-shadow:0 4px 16px #00000006;transform-origin:top center;will-change:transform}
+.track-anchor.is-pinned{margin-top:12px;box-shadow:0 8px 20px -10px #0000002e}
+.track-anchor.is-pinned .thesis-body{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px}
+.track-anchor.is-pinned.is-open .thesis-body{display:block;-webkit-line-clamp:unset}
+.track-anchor.is-pinned .thesis-charts,.track-anchor.is-pinned .thesis-content>.ticker-row{display:none}
+.track-anchor.is-pinned.is-open .thesis-content>.ticker-row{display:flex}
+.track-anchor .track-status{margin-top:8px}
+.track-anchor .track-expand{display:none;margin-top:6px;font-size:12px;line-height:20px;color:var(--m1);font-weight:500}
+.track-anchor.is-pinned .track-expand{display:block}
+.track-analysis-reveal{flex:none;overflow:hidden;border-radius:12px;transform-origin:center top}
+.track-analysis-reveal .analysis-card{height:auto;min-height:108px}
+.analysis-card.is-settled .skeleton-lines,.analysis-card.is-settled .analysis-bone{display:none}
+.analysis-card.is-settled .analysis-skeleton{height:auto}
+.track-signals{display:flex;flex-direction:column;gap:8px}
+.track-signals:empty{display:none}
+.track-footer{display:none}
+.track-page.track-can-continue .track-footer{display:block}
+@media(prefers-reduced-motion:reduce){.track-anchor{will-change:auto}}
+.track-tickers{flex:none;margin-top:-4px}
+.track-tickers .ticker{transform-origin:center}

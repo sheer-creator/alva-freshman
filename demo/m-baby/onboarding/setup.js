@@ -3,7 +3,8 @@
  */
 import { signalCard } from './intro.js?v=11';
 import { bindNotificationReveal } from './notification-reveal.js';
-import { renderNotificationToastsPage } from './notification-toasts.js?v=2';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=3';
+import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=3';
 
 const ASSETS = {
   logo: '12552:200754',
@@ -46,6 +47,11 @@ function topbar(api, back, next) {
 function heading(title, description) {
   return `<div class="setup-heading"><h1>${title}</h1><p>${description}</p></div>`;
 }
+// The Track variant supplies its own step order through api.flow; the original
+// flows keep their fixed targets.
+const prevOf = (api, name, fallback) => api.flow ? api.flow.prev(name) : fallback;
+const nextOf = (api, name, fallback) => api.flow ? api.flow.next(name) : fallback;
+const track = api => api.variant === 'track';
 function navigation(root, api, back, next) {
   root.querySelector('[data-action="back"]')?.addEventListener('click', () => api.go(back));
   root.querySelector('[data-action="skip"]')?.addEventListener('click', () => api.go(next));
@@ -75,7 +81,7 @@ function renderLogin(api) {
     </div>`;
   root.querySelectorAll('[data-provider]').forEach(button => button.addEventListener('click', () => {
     api.state.provider = button.dataset.provider;
-    api.go('intro');
+    api.go(nextOf(api, 'login', 'intro'));
   }));
   return root;
 }
@@ -85,7 +91,12 @@ function renderPeople(api) {
   const root = document.createElement('section');
   root.className = 'setup-page setup-people';
   root.setAttribute('aria-label', 'Follow people you trust.');
-  root.innerHTML = `${topbar(api, 'intro', 'bookmark')}
+  const peopleBack = prevOf(api, 'people', 'intro'), peopleNext = nextOf(api, 'people', 'bookmark');
+  // Track variant: authors of bookmarked theses come first, with the existing
+  // tracking-status row as the reason. Next is never disabled there (Skip stays).
+  const trackedAuthors = track(api) ? new Set([...(api.state.bookmarked || [])].map(id => SOURCE_AUTHORS[id]).filter(Boolean)) : new Set();
+  const people = [...PEOPLE].sort((a, b) => Number(trackedAuthors.has(b.id)) - Number(trackedAuthors.has(a.id)));
+  root.innerHTML = `${topbar(api, peopleBack, peopleNext)}
     <div class="setup-people-scroll">
       <div class="setup-people-header">
         ${heading('Follow people you trust.', 'Get their next thesis and its latest signals as soon as they share it.')}
@@ -97,9 +108,9 @@ function renderPeople(api) {
       </div>
       <div class="setup-or-divider"><span></span><span>or</span><span></span></div>
       <div class="setup-people-list">
-        ${PEOPLE.map(person => `<div class="setup-person" data-person="${person.id}">
+        ${people.map(person => `<div class="setup-person" data-person="${person.id}">
           ${image(api, person.avatar, 'setup-avatar', person.name)}
-          <div class="setup-person-copy"><strong>${escape(person.name)}</strong><span>${escape(person.role)}</span></div>
+          <div class="setup-person-copy"><strong>${escape(person.name)}</strong><span>${escape(person.role)}</span>${trackedAuthors.has(person.id) ? `<span class="setup-tracking-status">${brandImage(api, 'setup-tracking-logo')}<span>Tracking signals</span></span>` : ''}</div>
           <button class="setup-follow" type="button" data-follow="${person.id}" aria-label="Follow ${escape(person.name)}">Follow</button>
         </div>`).join('')}
       </div>
@@ -116,7 +127,7 @@ function renderPeople(api) {
     });
     const count = api.state.following.size;
     root.querySelector('.setup-selection-count').textContent = `${count} selected`;
-    root.querySelector('[data-action="next"]').disabled = count === 0;
+    root.querySelector('[data-action="next"]').disabled = track(api) ? false : count === 0;
     const connect = root.querySelector('[data-action="import"]');
     connect.textContent = api.state.xImported ? 'Connected' : 'Connect';
     connect.classList.toggle('is-connected', !!api.state.xImported);
@@ -138,7 +149,7 @@ function renderPeople(api) {
       }},
     ]});
   });
-  navigation(root, api, 'intro', 'bookmark');
+  navigation(root, api, peopleBack, peopleNext);
   update();
   return root;
 }
@@ -148,7 +159,8 @@ function renderPortfolio(api) {
   const root = document.createElement('section');
   root.className = 'setup-page setup-portfolio';
   root.setAttribute('aria-label', 'Connect your portfolio');
-  root.innerHTML = `${topbar(api, 'bookmark', 'notifications')}
+  const portfolioBack = prevOf(api, 'portfolio', 'bookmark'), portfolioNext = nextOf(api, 'portfolio', 'notifications');
+  root.innerHTML = `${topbar(api, portfolioBack, portfolioNext)}
     <div class="setup-portfolio-body">
       ${heading('Connect your portfolio', 'See which theses and signals matter to the assets you hold.')}
       <div class="setup-broker-list">
@@ -167,7 +179,7 @@ function renderPortfolio(api) {
       button.classList.toggle('is-connected', connected);
       button.setAttribute('aria-pressed', String(connected));
     });
-    root.querySelector('[data-action="next"]').disabled = api.state.connections.size === 0;
+    root.querySelector('[data-action="next"]').disabled = track(api) ? false : api.state.connections.size === 0;
   };
   root.querySelectorAll('[data-connect]').forEach(button => button.addEventListener('click', () => {
     const broker = BROKERS.find(b => b.id === button.dataset.connect);
@@ -177,7 +189,7 @@ function renderPortfolio(api) {
       {label: 'Connect', primary: true, onClick() {api.state.connections.add(broker.id);update();}},
     ]});
   }));
-  navigation(root, api, 'bookmark', 'notifications');
+  navigation(root, api, portfolioBack, portfolioNext);
   update();
   return root;
 }
@@ -208,6 +220,14 @@ function trackedSignalCard(signal, api) {
   return card.outerHTML;
 }
 function notificationCards(api) {
+  // Track variant: the preview is the user's own bookmarked theses and the signals
+  // already shown on the Track step. Other variants keep the Figma examples.
+  if (track(api)) {
+    const selected = selectedTheses(api);
+    const [first, ...rest] = selected;
+    const signals = (api.data.notificationPreview?.signals || api.data.signals || []);
+    return [first ? trackingCard(first, api) : '', ...signals.map(signal => trackedSignalCard(signal, api)), ...rest.map(thesis => trackingCard(thesis, api))].join('');
+  }
   // The permission background previews the exact Figma notification examples.
   // Preview cards never create a bookmark or assign a signal to another thesis.
   const preview = api.data.notificationPreview;
@@ -231,7 +251,8 @@ function renderNotifications(api) {
     ? 'Alva is now tracking signals for the theses you bookmarked. Get notifications so you don’t miss new opportunities.'
     : 'Bookmark theses to start tracking signals.';
   const cards = hasSelection ? notificationCards(api) : '';
-  root.innerHTML = `${topbar(api, 'portfolio', 'feed')}
+  const notificationsBack = prevOf(api, 'notifications', 'portfolio');
+  root.innerHTML = `${topbar(api, notificationsBack, 'feed')}
     <div class="setup-notifications-body">
       ${heading('Don’t miss the next signal.', description)}
       <div class="setup-notification-stream" tabindex="0" role="region" aria-label="Notification preview: theses and signals">
@@ -248,13 +269,13 @@ function renderNotifications(api) {
       <p class="setup-reveal-label" id="setupRevealHint">Slide up to get notifications</p>
     ` : '<button class="setup-enable" type="button">Bookmark theses</button>'}</footer>`;
   let disposed = false;
-  root.querySelector('[data-action="back"]').addEventListener('click', () => { if (!disposed) api.go('portfolio'); });
+  root.querySelector('[data-action="back"]').addEventListener('click', () => { if (!disposed) api.go(notificationsBack); });
   root.querySelector('[data-action="skip"]').addEventListener('click', () => {
     if (disposed) return;
     if (!hasSelection) { api.go('bookmark'); return; }
     api.state.notifications = 'skipped';
     api.persist?.();
-    api.go('feed');
+    api.go(nextOf(api, 'notifications', 'feed'));
   });
   if (!hasSelection) {
     root.classList.add('is-empty');
@@ -275,7 +296,7 @@ function renderNotifications(api) {
 }
 
 export function renderSetupPage(name, api) {
-  if (name === 'notifications' && api.variant === 'guided') return renderNotificationToastsPage(api);
+  if (name === 'notifications' && (api.variant === 'guided' || api.variant === 'track')) return renderNotificationToastsPage(api);
   const renderer = {login: renderLogin, people: renderPeople, portfolio: renderPortfolio, notifications: renderNotifications}[name];
   if (!renderer) throw new Error(`Unknown setup page: ${name}`);
   return renderer(api);

@@ -92,7 +92,7 @@ export function bindNotificationReveal({ root, handle, curtain, viewport, api })
     api.persist?.();
     // Leave the control enabled if the destination fails to load; both the
     // first Allow and an already-allowed retry can try the handoff again.
-    api.go('feed');
+    api.go(api.flow ? api.flow.next('notifications') : 'feed');
   }
   function openPermission() {
     if (disposed || permissionOpen || geometry.travel <= 0) return;
