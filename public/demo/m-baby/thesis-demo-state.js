@@ -32,15 +32,19 @@ export function persistDemoSelections(bookmarks, followed) {
   }
   write(DEMO_STATE_KEY, { ...shared, bookmarks: stringSet(bookmarks), followed: nextFollowed });
 }
+export function createFreshOnboardingState() {
+  return { page: 'login', introComplete: false, thesisIndex: 0,
+    following: new Set(), connections: new Set(), bookmarked: new Set() };
+}
 export function readOnboardingState(stateKey = ONBOARDING_STATE_KEY) {
   const value = read(stateKey);
-  return { page: 'login', introComplete: false, thesisIndex: 0, ...value,
+  return { ...createFreshOnboardingState(), ...value,
     following: stringSet(value.following), connections: stringSet(value.connections), bookmarked: stringSet(value.bookmarked) };
 }
 export function persistOnboardingState(state, stateKey = ONBOARDING_STATE_KEY) { write(stateKey, state); }
-export function resetOnboardingState(restartToken, stateKey = ONBOARDING_STATE_KEY) {
+function clearOnboardingContribution(stateKey) {
   const shared = readDemoState();
-  // Older handoffs belong to the original flow. Restarting a different variant
+  // Older handoffs belong to the original flow. Clearing a different variant
   // must not remove the active flow's For You selections or its saved progress.
   if (shared.onboarding && (shared.onboarding.stateKey || ONBOARDING_STATE_KEY) === stateKey) {
     for (const post of shared.onboarding.posts || []) shared.bookmarks.delete(post.id);
@@ -48,6 +52,13 @@ export function resetOnboardingState(restartToken, stateKey = ONBOARDING_STATE_K
     shared.onboarding = null;
     write(DEMO_STATE_KEY, shared);
   }
+}
+export function clearLegacyOnboardingState(stateKey = ONBOARDING_STATE_KEY) {
+  clearOnboardingContribution(stateKey);
+  try { storage()?.removeItem(stateKey); } catch { /* Storage may be unavailable in private browsing. */ }
+}
+export function resetOnboardingState(restartToken, stateKey = ONBOARDING_STATE_KEY) {
+  clearOnboardingContribution(stateKey);
   write(stateKey, { restartToken });
 }
 

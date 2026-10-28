@@ -6,6 +6,7 @@ import {
   stringSet, createOnboardingHandoff, completeOnboarding, readDemoState,
   persistDemoSelections, resetOnboardingState, onboardingPosts,
   readOnboardingState, persistOnboardingState, ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, DEMO_STATE_KEY,
+  createFreshOnboardingState, clearLegacyOnboardingState, TRACK_ONBOARDING_STATE_KEY, TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY,
 } from '../../public/demo/m-baby/thesis-demo-state.js';
 
 const root = new URL('../../public/demo/m-baby/onboarding/', import.meta.url);
@@ -14,7 +15,7 @@ const manifest = JSON.parse(fs.readFileSync(new URL('assets/manifest.json', root
 const asset = id => manifest[id] || '';
 const base = 'http://localhost/demo/m-baby/onboarding/index.html';
 const memory = new Map();
-globalThis.localStorage = { getItem: key => memory.get(key) || null, setItem: (key, value) => memory.set(key, value) };
+globalThis.localStorage = { getItem: key => memory.get(key) || null, setItem: (key, value) => memory.set(key, value), removeItem: key => memory.delete(key) };
 const state = preference => ({ bookmarked: new Set(['12552:205644', '12552:202166']), following: new Set(['gavin', 'satya']), connections: new Set(['alpaca']), notifications: preference });
 
 test('older persisted collection shapes recover without losing valid IDs', () => {
@@ -182,4 +183,80 @@ test('preview content cannot satisfy the minimum bookmark or enter For You', () 
   assert.equal(readDemoState().onboarding, null);
   assert.equal(readDemoState().bookmarks.size, 0);
   assert.equal(readOnboardingState(GUIDED_ONBOARDING_STATE_KEY).completed, undefined);
+});
+
+test('fresh onboarding state owns its sets and never accesses storage', () => {
+  const previousStorage = globalThis.localStorage;
+  let accesses = 0;
+  globalThis.localStorage = new Proxy({}, { get() { accesses++; throw new Error('Fresh state must not access storage'); } });
+  try {
+    const first = createFreshOnboardingState(), second = createFreshOnboardingState();
+    assert.equal(first.page, 'login'); assert.equal(first.introComplete, false); assert.equal(first.thesisIndex, 0);
+    for (const key of ['following', 'connections', 'bookmarked']) {
+      assert(first[key] instanceof Set); assert(second[key] instanceof Set);
+      first[key].add('first-only');
+      assert.equal(second[key].size, 0);
+    }
+    first.page = 'notifications'; first.notifications = 'allowed'; first.guidedIntroStep = 3;
+    assert.equal(second.page, 'login'); assert.equal(second.notifications, undefined); assert.equal(second.guidedIntroStep, undefined);
+    assert.equal(accesses, 0);
+  } finally { globalThis.localStorage = previousStorage; }
+});
+
+test('legacy cleanup removes saved progress and choices plus only its own feed contribution', () => {
+  for (const stateKey of [ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY]) {
+    memory.clear();
+    persistDemoSelections(new Set(['tom-lee-spy']), new Set(['gavin', 'tom-lee']));
+    const legacy = { ...state('allowed'), page: 'notifications', introComplete: true,
+      guidedIntroStep: 3, guidedIntroReadyStep: 3, thesisIndex: 4, provider: 'Google', xImported: true };
+    completeOnboarding(legacy, data, asset, base, stateKey);
+    persistOnboardingState({ ...state('denied'), page: 'portfolio' }, TRACK_ONBOARDING_STATE_KEY);
+    memory.set('unrelated-demo', 'keep-me');
+    const shared = JSON.parse(memory.get(DEMO_STATE_KEY)); shared.unrelatedPreference = 'keep-me';
+    memory.set(DEMO_STATE_KEY, JSON.stringify(shared));
+    const trackSaved = memory.get(TRACK_ONBOARDING_STATE_KEY);
+
+    clearLegacyOnboardingState(stateKey);
+    assert.equal(memory.has(stateKey), false, 'remove the key instead of writing an empty state');
+    assert.deepEqual(readOnboardingState(stateKey), createFreshOnboardingState());
+    assert.equal(memory.get(TRACK_ONBOARDING_STATE_KEY), trackSaved);
+    assert.equal(memory.get('unrelated-demo'), 'keep-me');
+    assert.equal(readDemoState().onboarding, null);
+    assert.deepEqual([...readDemoState().bookmarks], ['tom-lee-spy']);
+    assert.deepEqual([...readDemoState().followed], ['gavin', 'tom-lee']);
+    assert.equal(readDemoState().unrelatedPreference, 'keep-me');
+    assert.equal(memory.has(stateKey), false, 'reading defaults must not recreate the removed key');
+  }
+});
+
+test('legacy cleanup preserves another active variant, including persistent Track flows', () => {
+  for (const activeKey of [ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY]) {
+    memory.clear();
+    const clearKey = activeKey === ONBOARDING_STATE_KEY ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
+    completeOnboarding({ ...state('allowed'), page: 'notifications' }, data, asset, base, activeKey);
+    persistOnboardingState({ ...state('allowed'), page: 'notifications' }, clearKey);
+    const activeSaved = memory.get(activeKey), sharedSaved = memory.get(DEMO_STATE_KEY);
+    clearLegacyOnboardingState(clearKey);
+    assert.equal(memory.has(clearKey), false);
+    assert.equal(memory.get(activeKey), activeSaved);
+    assert.equal(memory.get(DEMO_STATE_KEY), sharedSaved);
+    assert.equal(readOnboardingState(activeKey).page, 'notifications');
+    assert.equal(readOnboardingState(activeKey).notifications, 'allowed');
+    resetOnboardingState('persistent-restart', activeKey);
+    assert.equal(readOnboardingState(activeKey).restartToken, 'persistent-restart');
+    assert.equal(readOnboardingState(activeKey).page, 'login');
+    assert.equal(readDemoState().onboarding, null);
+  }
+});
+
+test('legacy cleanup assigns an untagged old handoff only to the original flow', () => {
+  memory.clear();
+  completeOnboarding(state('allowed'), data, asset, base);
+  const shared = JSON.parse(memory.get(DEMO_STATE_KEY)); delete shared.onboarding.stateKey;
+  memory.set(DEMO_STATE_KEY, JSON.stringify(shared));
+  clearLegacyOnboardingState(GUIDED_ONBOARDING_STATE_KEY);
+  assert.equal(onboardingPosts().length, 2);
+  clearLegacyOnboardingState(ONBOARDING_STATE_KEY);
+  assert.equal(onboardingPosts().length, 0);
+  assert.equal(memory.has(ONBOARDING_STATE_KEY), false);
 });
