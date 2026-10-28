@@ -39,7 +39,7 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=15',
+      href: 'onboarding/index.html?v=17',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
@@ -52,7 +52,7 @@
       subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-guided',
-      href: 'onboarding/index.html?intro=guided&v=17',
+      href: 'onboarding/index.html?intro=guided&v=19',
       resetOnRestart: true,
       meta: 'Mobile · Automatic three-step introduction',
       figma: {
@@ -65,7 +65,7 @@
       subtitle: 'Bookmark one thesis from the deck and watch Alva analyze it in place; then notifications, more theses, people, log in, portfolio.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-track',
-      href: 'onboarding/index.html?intro=track&v=1',
+      href: 'onboarding/index.html?intro=track&v=2',
       resetOnRestart: true,
       meta: 'Mobile · Value before login',
       figma: {
@@ -78,7 +78,7 @@
       subtitle: 'Same Track flow with log in first; portfolio and notifications close the flow.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-track-login-first',
-      href: 'onboarding/index.html?intro=track&order=login-first&v=1',
+      href: 'onboarding/index.html?intro=track&order=login-first&v=2',
       resetOnRestart: true,
       meta: 'Mobile · Login first',
       figma: {

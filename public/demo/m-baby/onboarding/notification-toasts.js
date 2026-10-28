@@ -140,7 +140,7 @@ export function bindNotificationToasts({ root, handle, track, api }) {
     permissionOpen = true;
     handle.setAttribute('aria-disabled', 'true');
     paint(geometry.travel, true);
-    if (api.state.notifications === 'allowed') { finish('allowed'); return; }
+    // Replay the simulated system prompt even when a previous run chose Allow.
     api.sheet({
       title: '“Alva” Would Like to Send You Notifications',
       body: 'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.',
