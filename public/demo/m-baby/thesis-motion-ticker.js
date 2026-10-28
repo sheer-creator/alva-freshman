@@ -1,15 +1,16 @@
-import { POSTS } from './thesis-motion-data.js?v=3';
+import { POSTS } from './thesis-motion-data.js?v=4';
 
 const companies = {
   SPY: ['SPDR S&P 500 ETF Trust', 'NYSE Arca'], NVDA: ['NVIDIA Corp', 'NASDAQ'],
   MSFT: ['Microsoft Corporation', 'NASDAQ'], GOOGL: ['Alphabet Inc.', 'NASDAQ'],
   META: ['Meta Platforms, Inc.', 'NASDAQ'], AMD: ['Advanced Micro Devices', 'NASDAQ'],
+  AMZN: ['Amazon.com, Inc.', 'NASDAQ'], TSM: ['Taiwan Semiconductor Manufacturing Company', 'NYSE'],
   USO: ['United States Oil Fund', 'NYSE Arca'], TSLA: ['Tesla, Inc.', 'NASDAQ'],
   XYZ: ['Block, Inc.', 'NYSE'], HOOD: ['Robinhood Markets, Inc.', 'NASDAQ'],
   QQQ: ['Invesco QQQ Trust', 'NASDAQ'],
 };
 export const TICKERS = new Map(POSTS.flatMap(post => post.tickers).map(ticker => [ticker.symbol, {
-  ...ticker, name: companies[ticker.symbol][0], market: companies[ticker.symbol][1],
+  ...ticker, name: companies[ticker.symbol]?.[0] || ticker.symbol, market: companies[ticker.symbol]?.[1] || '',
 }]));
 
 const watched = new Set();
