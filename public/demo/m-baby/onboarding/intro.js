@@ -146,12 +146,25 @@ export function renderIntroPage(api) {
     if(animated)spring(pair,p=>({transform:`scale(${before+(after-before)*p})`}),520,{stiffness:260,damping:24});
   }
   async function updateTasks(token){
+    const label=analysis.querySelector('.analysis-task');
+    // Keep the baseline and adjacent skeleton fixed while characters change.
+    const initialText=label.textContent;
+    const labelWidth=Math.max(...ANALYSIS_TASKS.map(text=>{label.textContent=text;return label.offsetWidth;}));
+    label.textContent=initialText;label.style.width=`${labelWidth}px`;
+    async function typeText(text,removing,duration){
+      const letters=Array.from(text),count=letters.length;
+      for(let step=1;step<=count;step++){
+        await wait(duration/count);if(!valid(token)||api.reduced())return false;
+        label.textContent=letters.slice(0,removing?count-step:step).join('');
+      }
+      return true;
+    }
     while(valid(token)&&!api.reduced()){
       await wait(jitter(2600,1400));if(!valid(token))return;
-      const label=analysis.querySelector('.analysis-task');
-      await play(label,[{opacity:1},{opacity:0}],120);if(!valid(token))return;
-      taskIndex=(taskIndex+1)%ANALYSIS_TASKS.length;label.textContent=ANALYSIS_TASKS[taskIndex];
-      play(label,[{opacity:0},{opacity:1}],160);
+      if(!await typeText(label.textContent,true,220))return;
+      await wait(70);if(!valid(token)||api.reduced())return;
+      taskIndex=(taskIndex+1)%ANALYSIS_TASKS.length;
+      if(!await typeText(ANALYSIS_TASKS[taskIndex],false,340))return;
     }
   }
   function isReading(){
