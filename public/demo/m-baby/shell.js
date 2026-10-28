@@ -39,12 +39,25 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=10',
+      href: 'onboarding/index.html?v=11',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
         label: 'Thesis MVP · Onboarding',
         url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=12552-199268',
+      },
+    },
+    {
+      title: 'Thesis onboarding · Guided',
+      subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
+      edited: '2026-10-28',
+      slug: 'thesis-onboarding-guided',
+      href: 'onboarding/index.html?intro=guided&v=11',
+      resetOnRestart: true,
+      meta: 'Mobile · Automatic three-step introduction',
+      figma: {
+        label: 'Thesis MVP · Onboarding',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=12807-289136',
       },
     },
     {
@@ -291,6 +304,7 @@
   const handoffMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const HANDOFF_FADE_MS = 160;
   const HANDOFF_TIMEOUT_MS = 15000;
+  const ONBOARDING_SLUGS = new Set(['thesis-onboarding', 'thesis-onboarding-guided']);
 
   function cancelOnboardingHandoff(notifyFailure = false) {
     const handoff = onboardingHandoff;
@@ -311,7 +325,7 @@
 
   function completeOnboardingHandoff(handoff) {
     if (onboardingHandoff !== handoff) return;
-    if (slugFromHash() !== 'thesis-onboarding') { cancelOnboardingHandoff(); return; }
+    if (slugFromHash() !== handoff.originSlug) { cancelOnboardingHandoff(); return; }
     onboardingHandoff = null;
     clearTimeout(handoff.timeout);
     handoff.events.abort();
@@ -330,7 +344,7 @@
 
   function revealOnboardingHandoff(handoff) {
     if (onboardingHandoff !== handoff || handoff.revealing) return;
-    if (slugFromHash() !== 'thesis-onboarding') { cancelOnboardingHandoff(); return; }
+    if (slugFromHash() !== handoff.originSlug) { cancelOnboardingHandoff(); return; }
     handoff.revealing = true;
     clearTimeout(handoff.timeout);
     // The new Feed is opaque underneath the old page; only the old page fades.
@@ -344,14 +358,14 @@
   }
 
   function beginOnboardingHandoff(outgoing) {
-    if (onboardingHandoff || mounted !== 'thesis-onboarding' || slugFromHash() !== 'thesis-onboarding') return;
+    if (onboardingHandoff || !ONBOARDING_SLUGS.has(mounted) || slugFromHash() !== mounted) return;
     const incoming = document.createElement('iframe');
     incoming.title = bySlug.get('thesis-motion').title;
     incoming.setAttribute('scrolling', 'no');
     incoming.setAttribute('aria-hidden', 'true');
     incoming.classList.add('handoff-incoming');
     incoming.inert = true;
-    const handoff = { outgoing, incoming, token: String(++handoffSequence), events: new AbortController() };
+    const handoff = { outgoing, incoming, originSlug: mounted, token: String(++handoffSequence), events: new AbortController() };
     onboardingHandoff = handoff;
     incoming.addEventListener('load', () => {
       if (onboardingHandoff !== handoff) return;
@@ -480,7 +494,7 @@
       return;
     }
     if (e.data?.type === 'alva:open-prototype' && e.data.slug === 'thesis-motion' && bySlug.has(e.data.slug)) {
-      if (mounted === 'thesis-onboarding') { beginOnboardingHandoff(frame); return; }
+      if (ONBOARDING_SLUGS.has(mounted)) { beginOnboardingHandoff(frame); return; }
       window.location.hash = '#/' + e.data.slug;
       return;
     }

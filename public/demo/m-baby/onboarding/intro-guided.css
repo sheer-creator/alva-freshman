@@ -1,0 +1,27 @@
+/* Isolated optional introduction. Hidden chrome reserves no content space. */
+.page.guided-intro{display:block;overflow:hidden}
+.guided-intro .guide-heading{position:absolute;z-index:2;top:56px;left:0;right:0;min-height:102px;padding:8px 16px 0;visibility:hidden;pointer-events:none;background:var(--bg-container);overflow:hidden}
+.guided-intro .guide-heading h1{margin:0;font-size:28px;line-height:38px;font-weight:500;letter-spacing:0;white-space:normal}
+.guided-intro .guide-heading p{margin:12px 0 0;font-size:14px;line-height:22px;font-weight:400;color:var(--n7);white-space:pre-line}
+.guided-intro .guide-heading .guide-title-outgoing{position:absolute;top:8px;left:16px;right:16px}
+.guided-intro .guide-viewport{position:absolute;inset:0;padding:0 16px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;scroll-behavior:auto}
+.guided-intro .guide-viewport::-webkit-scrollbar{display:none}
+.guided-intro .guide-track{width:100%;max-width:361px;min-height:100%;margin:0 auto;display:flex;flex-direction:column;justify-content:center;gap:12px;transform-origin:center center}
+.guided-intro .guide-pair{display:flex;flex-direction:column;flex:none;width:100%;transform-origin:center center}
+.guided-intro .guide-thesis{flex:none;width:100%;padding:16px;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);overflow:hidden}
+.guided-intro .guide-thesis .thesis-body{display:block;max-height:none;overflow:visible;-webkit-line-clamp:unset}
+.guided-intro .guide-thesis .thesis-chart{flex:none}
+.guided-intro .guide-pair.guide-has-analysis{gap:12px}
+.guided-intro .guide-analysis-reveal{height:112px;flex:none;width:100%;overflow:hidden;background:var(--m3-10);border-radius:12px}
+.guided-intro .analysis-card{border-radius:12px;transition:none}
+.guided-intro .analysis-task{height:20px;min-height:20px;flex:none;max-width:100%;overflow:hidden}
+.guided-intro[data-step="3"] .guide-track{gap:8px}
+.guided-intro .guide-signals{display:flex;flex-direction:column;flex:none;gap:8px;width:100%;padding-bottom:16px}
+.guided-intro .guide-signals .signal-card{position:relative;flex:none;width:100%;max-height:none;overflow:visible;transform:none}
+.guided-intro .guide-signals .signal-summary,.guided-intro .guide-signals .signal-analysis{max-height:none;overflow:visible;-webkit-line-clamp:unset}
+.guided-intro .guide-footer{position:absolute;z-index:2;bottom:0;left:0;right:0;height:80px;padding:16px;background:var(--bg-container);visibility:hidden;pointer-events:none}
+.guided-intro .guide-footer>.btn{width:100%;height:48px;visibility:hidden;pointer-events:none}
+.guided-intro.guide-explained .guide-heading,.guided-intro.guide-can-continue .guide-footer{visibility:visible}
+.guided-intro.guide-can-continue .guide-footer>.btn{visibility:visible;pointer-events:auto}
+.guided-intro.guide-can-continue .guide-footer>.btn:disabled{background:var(--m1);color:var(--white);border:0}
+@media(prefers-reduced-motion:reduce){.guided-intro .analysis-card::before{display:none}.guided-intro .analysis-card .skeleton-lines i,.guided-intro .analysis-card .analysis-bone{animation:none!important}}

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   stringSet, createOnboardingHandoff, completeOnboarding, readDemoState,
   persistDemoSelections, resetOnboardingState, onboardingPosts,
+  readOnboardingState, persistOnboardingState, ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, DEMO_STATE_KEY,
 } from '../../public/demo/m-baby/thesis-demo-state.js';
 
 const root = new URL('../../public/demo/m-baby/onboarding/', import.meta.url);
@@ -96,4 +97,89 @@ test('an explicit later follow in For You survives an onboarding restart', () =>
   resetOnboardingState('keep-later-action');
   assert.equal(readDemoState().followed.has('gavin'), true);
   assert.equal(readDemoState().followed.has('satya'), false);
+});
+
+test('Guided starts fresh when the original flow has saved progress and selections', () => {
+  memory.clear();
+  const original = { ...state('allowed'), page: 'notifications', introComplete: true, thesisIndex: 3 };
+  persistOnboardingState(original);
+  const guided = readOnboardingState(GUIDED_ONBOARDING_STATE_KEY);
+  assert.equal(guided.page, 'login');
+  assert.equal(guided.introComplete, false);
+  assert.equal(guided.bookmarked.size, 0);
+  assert.equal(guided.following.size, 0);
+  assert.equal(guided.connections.size, 0);
+
+  guided.page = 'intro'; guided.guidedIntroStep = 2; guided.guidedIntroReadyStep = 1;
+  guided.bookmarked.add('12552:202172');
+  persistOnboardingState(guided, GUIDED_ONBOARDING_STATE_KEY);
+  assert.equal(readOnboardingState().page, 'notifications');
+  assert.deepEqual([...readOnboardingState().bookmarked], [...original.bookmarked]);
+  assert.equal(readOnboardingState().guidedIntroStep, undefined);
+  assert.equal(readOnboardingState(GUIDED_ONBOARDING_STATE_KEY).guidedIntroStep, 2);
+  assert.equal(readOnboardingState(GUIDED_ONBOARDING_STATE_KEY).guidedIntroReadyStep, 1);
+  assert.deepEqual([...readOnboardingState(GUIDED_ONBOARDING_STATE_KEY).bookmarked], ['12552:202172']);
+});
+
+test('completing Guided persists only its progress and hands off exact selected theses', () => {
+  memory.clear();
+  persistOnboardingState({ ...state('default'), page: 'people', introComplete: true });
+  const guided = { ...state('denied'), page: 'notifications', bookmarked: new Set(['12552:202172']),
+    previewThesisIds: ['12552:205644', '12552:202166'], guidedIntroStep: 3, guidedIntroReadyStep: 3 };
+  assert.equal(completeOnboarding(guided, data, asset, base, GUIDED_ONBOARDING_STATE_KEY), true);
+  assert.equal(readOnboardingState().completed, undefined);
+  assert.equal(readOnboardingState().page, 'people');
+  assert.equal(readOnboardingState(GUIDED_ONBOARDING_STATE_KEY).completed, true);
+  const shared = readDemoState();
+  assert.equal(shared.onboarding.stateKey, GUIDED_ONBOARDING_STATE_KEY);
+  assert.deepEqual(shared.onboarding.posts.map(post => post.sourceId), ['12552:202172']);
+  assert.deepEqual([...shared.bookmarks], ['onboarding-12552-202172']);
+  assert.deepEqual(shared.onboarding.notification.sourceThesisIds, ['12552:202172']);
+  assert.equal(shared.onboarding.posts[0].signals.length, 0);
+});
+
+test('restarting either variant leaves the other flow and its active handoff intact', () => {
+  for (const [activeKey, otherKey] of [[GUIDED_ONBOARDING_STATE_KEY, ONBOARDING_STATE_KEY], [ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY]]) {
+    memory.clear();
+    persistDemoSelections(new Set(['tom-lee-spy']), new Set(['chamath']));
+    const active = { ...state('skipped'), page: 'notifications', introComplete: true };
+    completeOnboarding(active, data, asset, base, activeKey);
+    persistOnboardingState({ ...state('allowed'), page: 'portfolio' }, otherKey);
+    const activeSaved = memory.get(activeKey), sharedSaved = memory.get(DEMO_STATE_KEY);
+
+    resetOnboardingState('restart-other', otherKey);
+    assert.equal(memory.get(activeKey), activeSaved);
+    assert.equal(memory.get(DEMO_STATE_KEY), sharedSaved);
+    assert.equal(readOnboardingState(otherKey).page, 'login');
+    assert.equal(readOnboardingState(otherKey).restartToken, 'restart-other');
+    assert.equal(readOnboardingState(otherKey).bookmarked.size, 0);
+
+    resetOnboardingState('restart-active', activeKey);
+    assert.equal(readDemoState().onboarding, null);
+    assert.deepEqual([...readDemoState().bookmarks], ['tom-lee-spy']);
+    assert.deepEqual([...readDemoState().followed], ['chamath']);
+    assert.equal(readOnboardingState(otherKey).restartToken, 'restart-other');
+  }
+});
+
+test('a legacy untagged handoff belongs to the original flow on restart', () => {
+  memory.clear();
+  completeOnboarding(state('allowed'), data, asset, base);
+  const legacy = JSON.parse(memory.get(DEMO_STATE_KEY));
+  delete legacy.onboarding.stateKey;
+  memory.set(DEMO_STATE_KEY, JSON.stringify(legacy));
+  resetOnboardingState('guided-only', GUIDED_ONBOARDING_STATE_KEY);
+  assert.equal(onboardingPosts().length, 2);
+  resetOnboardingState('original-only');
+  assert.equal(onboardingPosts().length, 0);
+  assert.equal(readOnboardingState(GUIDED_ONBOARDING_STATE_KEY).restartToken, 'guided-only');
+});
+
+test('preview content cannot satisfy the minimum bookmark or enter For You', () => {
+  memory.clear();
+  const preview = { bookmarked: new Set(), previewThesisIds: data.theses.map(item => item.id), introComplete: true };
+  assert.equal(completeOnboarding(preview, data, asset, base, GUIDED_ONBOARDING_STATE_KEY), false);
+  assert.equal(readDemoState().onboarding, null);
+  assert.equal(readDemoState().bookmarks.size, 0);
+  assert.equal(readOnboardingState(GUIDED_ONBOARDING_STATE_KEY).completed, undefined);
 });
