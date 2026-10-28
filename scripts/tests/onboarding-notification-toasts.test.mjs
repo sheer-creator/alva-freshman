@@ -218,15 +218,26 @@ test('keyboard uses the horizontal axis and reduced motion avoids settling trans
   f.handle.emit('keydown', { key: ' ' }); await Promise.resolve(); assert.equal(f.sheets.length, 1); f.cleanup();
 });
 
-test('Allow and already-allowed handoffs remain retryable if the destination fails to leave the page', async () => {
+test('every complete horizontal release shows permission, including saved Allow and destination retries', async () => {
   for (const preference of ['default', 'allowed']) {
     const f = fixture({ preference });
-    f.handle.emit('keydown', { key: 'Enter' }); await Promise.resolve();
-    if (preference === 'default') { f.sheets[0].choose('Allow'); await Promise.resolve(); }
+    f.begin(); f.drag(1); await Promise.resolve();
+    assert.equal(f.sheets.length, 0); assert.deepEqual(f.routes, []);
+    f.release(1); await Promise.resolve();
+    assert.equal(f.sheets.length, 1); assert.deepEqual(f.routes, []);
+    assert.equal(f.handle.getAttribute('aria-disabled'), 'true');
+    f.sheets[0].choose('Allow'); await Promise.resolve();
     assert.equal(f.state.notifications, 'allowed'); assert.deepEqual(f.routes, ['feed']);
     assert.equal(f.handle.getAttribute('aria-disabled'), 'false');
     f.handle.emit('keydown', { key: 'Enter' }); await Promise.resolve();
-    assert.deepEqual(f.routes, ['feed', 'feed']); assert.equal(f.sheets.length, preference === 'default' ? 1 : 0);
+    assert.equal(f.sheets.length, 2); assert.deepEqual(f.routes, ['feed']);
+    f.sheets[1].dismiss(); await Promise.resolve();
+    assert.equal(f.progress(), 0); assert.deepEqual(f.routes, ['feed']);
+    assert.equal(f.handle.getAttribute('aria-disabled'), 'false');
+    f.begin(); f.drag(1); f.release(1); await Promise.resolve();
+    assert.equal(f.sheets.length, 3); assert.deepEqual(f.routes, ['feed']);
+    f.sheets[2].choose('Don’t Allow'); await Promise.resolve();
+    assert.equal(f.state.notifications, 'denied'); assert.deepEqual(f.routes, ['feed', 'feed']);
     assert.equal(f.progress(), 1); assert.deepEqual([...f.state.bookmarked], ['12552:205644', '12552:202166']); f.cleanup();
   }
 });

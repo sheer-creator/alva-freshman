@@ -1,5 +1,5 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=14';
+import { renderSetupPage } from './setup.js?v=15';
 import { renderIntroPage } from './intro.js?v=11';
 import { renderGuidedIntroPage } from './intro-guided.js?v=2';
 import { renderBookmarkPage } from './cards.js?v=6';
@@ -36,18 +36,18 @@ const search = new URLSearchParams(location.search);
 const guided = search.get('intro') === 'guided';
 const stateKey = guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
 const renderIntro = guided ? renderGuidedIntroPage : renderIntroPage;
-let state = readOnboardingState(stateKey);
+// Every newly opened demo is a fresh presentation. Progress is kept while
+// navigating this run, but a later visit must not inherit its page or choices.
 const restartToken = search.get('restart');
-if (restartToken && state.restartToken !== restartToken) { resetOnboardingState(restartToken, stateKey); state = readOnboardingState(stateKey); }
+if (restartToken) resetOnboardingState(restartToken, stateKey);
+else persistOnboardingState({}, stateKey);
+const state = readOnboardingState(stateKey);
 if (guided) document.title = 'onboarding-signal · Guided';
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const requested = location.hash.slice(1);
-const initialPage = steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : 'login';
 const splash = document.querySelector('#startupSplash');
-// The static splash covers data/font loading; resumed steps skip its reveal.
-if (initialPage !== 'login') { splash.remove(); app.inert = false; }
+// Keep the existing splash over data/font loading on every entry.
 const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content.json?v=4'].map(async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`Could not load ${url}`);
@@ -190,5 +190,8 @@ addEventListener('message', event => {
   }
 });
 addEventListener('pagehide', () => { routeTransition?.finish(); persist(); page?.cleanup?.(); });
-await go(initialPage, { instant: true });
-if (initialPage === 'login') startSplash();
+// A browser Back restore reuses a cleaned-up document rather than rerunning
+// this module; start a new presentation there too.
+addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
+await go('login', { instant: true });
+startSplash();

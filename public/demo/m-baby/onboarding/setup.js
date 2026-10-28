@@ -2,8 +2,8 @@
  * Real authentication, broker access and OS permission requests are simulated.
  */
 import { signalCard } from './intro.js?v=11';
-import { bindNotificationReveal } from './notification-reveal.js';
-import { renderNotificationToastsPage } from './notification-toasts.js?v=2';
+import { bindNotificationReveal } from './notification-reveal.js?v=2';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=3';
 
 const ASSETS = {
   logo: '12552:200754',

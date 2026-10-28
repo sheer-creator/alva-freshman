@@ -181,17 +181,26 @@ test('keyboard follows the vertical axis and supports reduced motion', async () 
   f.cleanup();
 });
 
-test('first Allow and previously allowed handoffs remain retryable after destination failure', async () => {
+test('every completed upward gesture shows permission, including saved Allow and destination retries', async () => {
   for (const preference of ['default', 'allowed']) {
     const f = fixture({ preference });
-    f.handle.emit('keydown', { key: 'Enter' }); await Promise.resolve();
-    if (preference === 'default') { f.sheets[0].choose('Allow'); await Promise.resolve(); }
+    f.begin(); f.drag(.95); await Promise.resolve();
+    assert.equal(f.sheets.length, 1); assert.deepEqual(f.routes, []);
+    assert.equal(f.handle.getAttribute('aria-disabled'), 'true');
+    f.sheets[0].choose('Allow'); await Promise.resolve();
     assert.equal(f.state.notifications, 'allowed');
     assert.equal(f.routes.length, 1);
     assert.equal(f.handle.getAttribute('aria-disabled'), 'false');
     f.handle.emit('keydown', { key: 'Enter' }); await Promise.resolve();
+    assert.equal(f.sheets.length, 2); assert.equal(f.routes.length, 1);
+    f.sheets[1].dismiss(); await Promise.resolve();
+    assert.equal(f.distance(), 0); assert.equal(f.routes.length, 1);
+    assert.equal(f.handle.getAttribute('aria-disabled'), 'false');
+    f.begin(); f.drag(.95); await Promise.resolve();
+    assert.equal(f.sheets.length, 3); assert.equal(f.routes.length, 1);
+    f.sheets[2].choose('Don’t Allow'); await Promise.resolve();
+    assert.equal(f.state.notifications, 'denied');
     assert.equal(f.routes.length, 2);
-    assert.equal(f.sheets.length, preference === 'default' ? 1 : 0);
     assert.equal(f.curtain.style.clipPath, 'inset(0 0 100% 0)');
     assert.deepEqual([...f.state.bookmarked], ['12552:205644', '12552:202166']);
     f.cleanup();
