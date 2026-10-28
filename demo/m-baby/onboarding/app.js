@@ -1,10 +1,11 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=11';
-import { renderIntroPage } from './intro.js?v=10';
+import { renderSetupPage } from './setup.js?v=12';
+import { renderIntroPage } from './intro.js?v=11';
+import { renderGuidedIntroPage } from './intro-guided.js?v=1';
 import { renderBookmarkPage } from './cards.js?v=6';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=7';
-import { readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js';
+import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js?v=2';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
 for (const icon of document.querySelectorAll('.system-bar .ic')) {
@@ -31,9 +32,14 @@ systemTheme.addEventListener('change', () => applyAppearance(appearance));
 if (parent !== window) parent.postMessage({ type: 'alva:prototype-ready' }, location.origin);
 
 const steps = ['login', 'intro', 'people', 'bookmark', 'portfolio', 'notifications'];
-let state = readOnboardingState();
-const restartToken = new URLSearchParams(location.search).get('restart');
-if (restartToken && state.restartToken !== restartToken) { resetOnboardingState(restartToken); state = readOnboardingState(); }
+const search = new URLSearchParams(location.search);
+const guided = search.get('intro') === 'guided';
+const stateKey = guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
+const renderIntro = guided ? renderGuidedIntroPage : renderIntroPage;
+let state = readOnboardingState(stateKey);
+const restartToken = search.get('restart');
+if (restartToken && state.restartToken !== restartToken) { resetOnboardingState(restartToken, stateKey); state = readOnboardingState(stateKey); }
+if (guided) document.title = 'Thesis onboarding · Guided';
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -42,7 +48,7 @@ const initialPage = steps.includes(requested) ? requested : steps.includes(state
 const splash = document.querySelector('#startupSplash');
 // The static splash covers data/font loading; resumed steps skip its reveal.
 if (initialPage !== 'login') { splash.remove(); app.inert = false; }
-const [manifest, data] = await Promise.all(['assets/manifest.json?v=4', 'content.json?v=4'].map(async url => {
+const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content.json?v=4'].map(async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`Could not load ${url}`);
   return response.json();
@@ -56,7 +62,7 @@ const [manifest, data] = await Promise.all(['assets/manifest.json?v=4', 'content
 });
 await document.fonts.ready;
 let page, routeGeneration = 0, routeTransition, toastTimer;
-const persist = () => persistOnboardingState(state);
+const persist = () => persistOnboardingState(state, stateKey);
 const api = { data, state, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
 
 function toast(message) {
@@ -109,7 +115,7 @@ function sheet(config, content) {
 }
 
 function openExistingFeed() {
-  if (!completeOnboarding(state, data, api.asset, location.href)) {
+  if (!completeOnboarding(state, data, api.asset, location.href, stateKey)) {
     toast('Bookmark a thesis to continue.'); go('bookmark'); return;
   }
   // The shell keeps this page available if For You fails to load. Clean up on
@@ -160,7 +166,7 @@ async function go(name, options = {}) {
   page?.cleanup?.(); const old = page;
   for (const child of [...app.children]) if (child !== old) child.remove();
   overlays.replaceChildren(); state.page = name; persist();
-  page = name === 'intro' ? renderIntroPage(api) : name === 'bookmark' ? renderBookmarkPage(api) : renderSetupPage(name, api);
+  page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api) : renderSetupPage(name, api);
   page.dataset.page = name; page.classList.add('route-page'); page.style.zIndex = '2'; app.append(page); old?.setAttribute('inert', '');
   const url = new URL(location.href); url.hash = name; history.replaceState(null, '', url);
   if (old && !api.reduced() && !options.instant) {

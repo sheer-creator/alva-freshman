@@ -1,6 +1,7 @@
 // Shared local demo state. No account, broker or operating-system permission is changed.
 export const DEMO_STATE_KEY = 'alva.m-baby.thesis-demo.v1';
 export const ONBOARDING_STATE_KEY = 'alva.m-baby.thesis-onboarding.v1';
+export const GUIDED_ONBOARDING_STATE_KEY = 'alva.m-baby.thesis-onboarding-guided.v1';
 
 export function stringSet(value) {
   if (value instanceof Set) return new Set([...value].filter(item => typeof item === 'string'));
@@ -29,19 +30,23 @@ export function persistDemoSelections(bookmarks, followed) {
   }
   write(DEMO_STATE_KEY, { ...shared, bookmarks: stringSet(bookmarks), followed: nextFollowed });
 }
-export function readOnboardingState() {
-  const value = read(ONBOARDING_STATE_KEY);
+export function readOnboardingState(stateKey = ONBOARDING_STATE_KEY) {
+  const value = read(stateKey);
   return { page: 'login', introComplete: false, thesisIndex: 0, ...value,
     following: stringSet(value.following), connections: stringSet(value.connections), bookmarked: stringSet(value.bookmarked) };
 }
-export function persistOnboardingState(state) { write(ONBOARDING_STATE_KEY, state); }
-export function resetOnboardingState(restartToken) {
+export function persistOnboardingState(state, stateKey = ONBOARDING_STATE_KEY) { write(stateKey, state); }
+export function resetOnboardingState(restartToken, stateKey = ONBOARDING_STATE_KEY) {
   const shared = readDemoState();
-  for (const post of shared.onboarding?.posts || []) shared.bookmarks.delete(post.id);
-  for (const personId of stringSet(shared.onboarding?.addedFollowing)) shared.followed.delete(personId);
-  shared.onboarding = null;
-  write(DEMO_STATE_KEY, shared);
-  write(ONBOARDING_STATE_KEY, { restartToken });
+  // Older handoffs belong to the original flow. Restarting a different variant
+  // must not remove the active flow's For You selections or its saved progress.
+  if (shared.onboarding && (shared.onboarding.stateKey || ONBOARDING_STATE_KEY) === stateKey) {
+    for (const post of shared.onboarding.posts || []) shared.bookmarks.delete(post.id);
+    for (const personId of stringSet(shared.onboarding.addedFollowing)) shared.followed.delete(personId);
+    shared.onboarding = null;
+    write(DEMO_STATE_KEY, shared);
+  }
+  write(stateKey, { restartToken });
 }
 
 // Explicit source IDs identify individual theses. An author's different theses
@@ -79,9 +84,10 @@ export function createOnboardingHandoff(state, data, asset, baseUrl) {
     notification: { simulated: true, preference, thesisIds: posts.map(post => post.id), sourceThesisIds: posts.map(post => post.sourceId) } };
 }
 
-export function completeOnboarding(state, data, asset, baseUrl) {
+export function completeOnboarding(state, data, asset, baseUrl, stateKey = ONBOARDING_STATE_KEY) {
   const handoff = createOnboardingHandoff(state, data, asset, baseUrl);
   if (!handoff.posts.length) return false;
+  handoff.stateKey = stateKey;
   const shared = readDemoState();
   for (const post of shared.onboarding?.posts || []) shared.bookmarks.delete(post.id);
   for (const personId of stringSet(shared.onboarding?.addedFollowing)) shared.followed.delete(personId);
@@ -91,7 +97,7 @@ export function completeOnboarding(state, data, asset, baseUrl) {
   shared.onboarding = handoff;
   write(DEMO_STATE_KEY, shared);
   state.completed = true;
-  persistOnboardingState(state);
+  persistOnboardingState(state, stateKey);
   return true;
 }
 
