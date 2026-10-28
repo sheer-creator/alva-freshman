@@ -1,10 +1,10 @@
 /* Setup screens reproduce the current Figma onboarding frames.
  * Real authentication, broker access and OS permission requests are simulated.
  */
-import { signalCard } from './intro.js?v=11';
+import { signalCard } from './intro.js?v=12';
 import { bindNotificationReveal } from './notification-reveal.js?v=2';
 import { renderNotificationToastsPage } from './notification-toasts.js?v=4';
-import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=3';
+import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=5';
 
 const ASSETS = {
   logo: '12552:200754',
