@@ -22,6 +22,10 @@ export function renderNotificationToastsPage(api) {
   const description = hasSelection
     ? 'Alva is now tracking signals for the theses you bookmarked. Get notifications so you don’t miss new opportunities.'
     : 'Bookmark theses to start tracking signals.';
+  // Track variant: the blurred stack previews system notifications for the thesis
+  // the user just bookmarked, in the order its signals arrived on the Track step.
+  const trackOrder = ['12616:149037', '12608:109265', '12608:109341', '12684:261624'];
+  const toasts = api.variant === 'track' ? trackOrder.map(id => TOASTS.find(toast => toast.sourceId === id)).filter(Boolean) : TOASTS;
   const logo = api.asset('Alva / Onboarding source') || new URL('./assets/alva-source-12646-154584.svg', import.meta.url).href;
   const arrow = api.asset(api.data.icons?.['arrow-left-l1'] || BACK_ASSET);
   root.innerHTML = `<header class="setup-topbar">
@@ -31,7 +35,7 @@ export function renderNotificationToastsPage(api) {
     <div class="notification-toasts-body">
       <div class="setup-heading"><h1>Don’t miss the next signal.</h1><p>${escapeHTML(description)}</p></div>
       ${hasSelection ? `<div class="notification-toasts-stage" role="region" aria-label="Notification previews" data-preview="true">
-        ${TOASTS.map((toast, index) => `<article class="notification-toast" data-source-id="${toast.sourceId}" style="--toast-start-y:${-62 + index * 12}px;--toast-travel-y:${-150 + index * 96}px;--toast-start-scale:${1 - index * .04};z-index:${TOASTS.length - index}">
+        ${toasts.map((toast, index) => `<article class="notification-toast" data-source-id="${toast.sourceId}" style="--toast-start-y:${-62 + index * 12}px;--toast-travel-y:${-150 + index * 96}px;--toast-start-scale:${1 - index * .04};z-index:${toasts.length - index}">
           <div class="notification-toast-content">
             <div class="notification-toast-header"><img class="notification-toast-logo" src="${escapeHTML(logo)}" alt="" draggable="false"><strong>Alva</strong><span>now</span></div>
             <p>${escapeHTML(toast.text)}</p>
@@ -54,14 +58,14 @@ export function renderNotificationToastsPage(api) {
     element.addEventListener('click', listener);
     listeners.push(() => element.removeEventListener('click', listener));
   };
-  on('[data-action="back"]', () => api.go('portfolio'));
+  on('[data-action="back"]', () => api.go(api.flow ? api.flow.prev('notifications') : 'portfolio'));
   on('[data-action="skip"]', () => {
     if (!hasSelection) { api.go('bookmark'); return; }
     api.state.notifications = 'skipped';
     api.persist?.();
-    api.go('feed');
+    api.go(api.flow ? api.flow.next('notifications') : 'feed');
   });
-  on('[data-action="bookmark"]', () => api.go('bookmark'));
+  on('[data-action="bookmark"]', () => api.go(api.variant === 'track' ? 'pick' : 'bookmark'));
   const cleanupGesture = hasSelection ? bindNotificationToasts({ root,
     handle: root.querySelector('.notification-toasts-handle'),
     track: root.querySelector('.notification-toasts-track'), api }) : () => {};
@@ -127,7 +131,7 @@ export function bindNotificationToasts({ root, handle, track, api }) {
     api.state.notifications = preference;
     api.persist?.();
     // The outgoing page stays usable if the Gallery cannot load For You.
-    api.go('feed');
+    api.go(api.flow ? api.flow.next('notifications') : 'feed');
   }
   function openPermission() {
     if (disposed || permissionOpen || geometry.travel <= 0) return;

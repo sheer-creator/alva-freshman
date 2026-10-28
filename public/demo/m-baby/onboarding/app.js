@@ -1,11 +1,12 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=15';
+import { renderSetupPage } from './setup.js?v=17';
 import { renderIntroPage } from './intro.js?v=11';
 import { renderGuidedIntroPage } from './intro-guided.js?v=2';
-import { renderBookmarkPage } from './cards.js?v=6';
+import { renderBookmarkPage } from './cards.js?v=7';
+import { renderPickPage, renderTrackPage, renderMorePage } from './intro-track.js?v=1';
 import { node, escapeHTML } from './ui.js';
-import { transitionPages } from './transitions.js?v=8';
-import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js?v=2';
+import { transitionPages } from './transitions.js?v=9';
+import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY, readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js?v=3';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
 for (const icon of document.querySelectorAll('.system-bar .ic')) {
@@ -31,23 +32,47 @@ applyAppearance(appearance);
 systemTheme.addEventListener('change', () => applyAppearance(appearance));
 if (parent !== window) parent.postMessage({ type: 'alva:prototype-ready' }, location.origin);
 
-const steps = ['login', 'intro', 'people', 'bookmark', 'portfolio', 'notifications'];
 const search = new URLSearchParams(location.search);
 const guided = search.get('intro') === 'guided';
-const stateKey = guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
+const trackVariant = search.get('intro') === 'track';
+const loginFirst = trackVariant && search.get('order') === 'login-first';
+// Track variant: bookmark one thesis from the deck, watch Alva analyze it, then
+// the remaining setup. Order A puts login after the selections; order B keeps
+// login first and ends with portfolio and notifications.
+const steps = !trackVariant ? ['login', 'intro', 'people', 'bookmark', 'portfolio', 'notifications']
+  : loginFirst ? ['login', 'pick', 'track', 'more', 'people', 'portfolio', 'notifications']
+  : ['pick', 'track', 'notifications', 'more', 'people', 'login', 'portfolio'];
+const flow = {
+  steps,
+  prev: name => { const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null; },
+  next: name => { const index = steps.indexOf(name); return index >= 0 && index < steps.length - 1 ? steps[index + 1] : 'feed'; },
+};
+const stateKey = trackVariant ? (loginFirst ? TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY : TRACK_ONBOARDING_STATE_KEY) : guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
 const renderIntro = guided ? renderGuidedIntroPage : renderIntroPage;
-// Every newly opened demo is a fresh presentation. Progress is kept while
-// navigating this run, but a later visit must not inherit its page or choices.
+// These two signal demos always open as a fresh presentation. Keep Track's
+// independent entry/resume policy and preserve For You until a new handoff.
+let state = readOnboardingState(stateKey);
 const restartToken = search.get('restart');
-if (restartToken) resetOnboardingState(restartToken, stateKey);
-else persistOnboardingState({}, stateKey);
-const state = readOnboardingState(stateKey);
+if (restartToken && state.restartToken !== restartToken) {
+  resetOnboardingState(restartToken, stateKey);
+  state = readOnboardingState(stateKey);
+}
+if (!trackVariant) {
+  persistOnboardingState({ restartToken }, stateKey);
+  state = readOnboardingState(stateKey);
+}
 if (guided) document.title = 'onboarding-signal · Guided';
+if (trackVariant) document.title = loginFirst ? 'onboarding-signal · Track · Login first' : 'onboarding-signal · Track';
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const requested = location.hash.slice(1);
+const resumable = steps.includes(state.page) && !(trackVariant && !loginFirst && state.page === 'login' && !state.bookmarked.size);
+const initialPage = !trackVariant ? 'login' : steps.includes(requested) ? requested : resumable ? state.page : steps[0];
 const splash = document.querySelector('#startupSplash');
-// Keep the existing splash over data/font loading on every entry.
+// Original and Guided retain their Splash on every entry. Track keeps its
+// existing resume policy and only reveals Splash at the start of its order.
+if (initialPage !== steps[0]) { splash.remove(); app.inert = false; }
 const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content.json?v=4'].map(async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`Could not load ${url}`);
@@ -63,7 +88,7 @@ const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content
 await document.fonts.ready;
 let page, routeGeneration = 0, routeTransition, toastTimer;
 const persist = () => persistOnboardingState(state, stateKey);
-const api = { data, state, variant: guided ? 'guided' : 'original', asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
+const api = { data, state, variant: trackVariant ? 'track' : guided ? 'guided' : 'original', flow: trackVariant ? flow : null, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
 
 function toast(message) {
   persist();
@@ -116,7 +141,7 @@ function sheet(config, content) {
 
 function openExistingFeed() {
   if (!completeOnboarding(state, data, api.asset, location.href, stateKey)) {
-    toast('Bookmark a thesis to continue.'); go('bookmark'); return;
+    toast('Bookmark a thesis to continue.'); go(trackVariant ? 'pick' : 'bookmark'); return;
   }
   // The shell keeps this page available if For You fails to load. Clean up on
   // pagehide after a successful handoff so retry controls remain usable.
@@ -166,7 +191,9 @@ async function go(name, options = {}) {
   page?.cleanup?.(); const old = page;
   for (const child of [...app.children]) if (child !== old) child.remove();
   overlays.replaceChildren(); state.page = name; persist();
-  page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api) : renderSetupPage(name, api);
+  page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api)
+    : name === 'pick' ? renderPickPage(api) : name === 'track' ? renderTrackPage(api) : name === 'more' ? renderMorePage(api)
+    : renderSetupPage(name, api);
   page.dataset.page = name; page.classList.add('route-page'); page.style.zIndex = '2'; app.append(page); old?.setAttribute('inert', '');
   const url = new URL(location.href); url.hash = name; history.replaceState(null, '', url);
   if (old && !api.reduced() && !options.instant) {
@@ -181,7 +208,7 @@ async function go(name, options = {}) {
 reducedMotion.addEventListener('change', () => {
   if (!api.reduced()) return;
   routeTransition?.finish();
-  if (state.page === 'intro') page?.finish?.();
+  if (state.page === 'intro' || state.page === 'track') page?.finish?.();
 });
 document.addEventListener('click', () => queueMicrotask(persist));
 addEventListener('message', event => {
@@ -190,8 +217,7 @@ addEventListener('message', event => {
   }
 });
 addEventListener('pagehide', () => { routeTransition?.finish(); persist(); page?.cleanup?.(); });
-// A browser Back restore reuses a cleaned-up document rather than rerunning
-// this module; start a new presentation there too.
-addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
-await go('login', { instant: true });
-startSplash();
+// A browser Back restore reuses a cleaned-up document; reopen these demos.
+addEventListener('pageshow', event => { if (event.persisted && !trackVariant) location.reload(); });
+await go(initialPage, { instant: true });
+if (initialPage === steps[0]) startSplash();

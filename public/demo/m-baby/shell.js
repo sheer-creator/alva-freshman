@@ -39,7 +39,7 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=16',
+      href: 'onboarding/index.html?v=17',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
@@ -52,12 +52,38 @@
       subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-guided',
-      href: 'onboarding/index.html?intro=guided&v=18',
+      href: 'onboarding/index.html?intro=guided&v=19',
       resetOnRestart: true,
       meta: 'Mobile · Automatic three-step introduction',
       figma: {
         label: 'Thesis MVP · Onboarding',
         url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=12807-289136',
+      },
+    },
+    {
+      title: 'onboarding-signal · Track',
+      subtitle: 'Bookmark one thesis from the deck and watch Alva analyze it in place; then notifications, more theses, people, log in, portfolio.',
+      edited: '2026-10-28',
+      slug: 'thesis-onboarding-track',
+      href: 'onboarding/index.html?intro=track&v=2',
+      resetOnRestart: true,
+      meta: 'Mobile · Value before login',
+      figma: {
+        label: 'Thesis MVP · Onboarding v3',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=13018-97468',
+      },
+    },
+    {
+      title: 'onboarding-signal · Track · Login first',
+      subtitle: 'Same Track flow with log in first; portfolio and notifications close the flow.',
+      edited: '2026-10-28',
+      slug: 'thesis-onboarding-track-login-first',
+      href: 'onboarding/index.html?intro=track&order=login-first&v=2',
+      resetOnRestart: true,
+      meta: 'Mobile · Login first',
+      figma: {
+        label: 'Thesis MVP · Onboarding v3',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=13018-97468',
       },
     },
     {
@@ -304,7 +330,7 @@
   const handoffMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const HANDOFF_FADE_MS = 160;
   const HANDOFF_TIMEOUT_MS = 15000;
-  const ONBOARDING_SLUGS = new Set(['thesis-onboarding', 'thesis-onboarding-guided']);
+  const ONBOARDING_SLUGS = new Set(['thesis-onboarding', 'thesis-onboarding-guided', 'thesis-onboarding-track', 'thesis-onboarding-track-login-first']);
 
   function cancelOnboardingHandoff(notifyFailure = false) {
     const handoff = onboardingHandoff;
