@@ -39,7 +39,7 @@ const renderIntro = guided ? renderGuidedIntroPage : renderIntroPage;
 let state = readOnboardingState(stateKey);
 const restartToken = search.get('restart');
 if (restartToken && state.restartToken !== restartToken) { resetOnboardingState(restartToken, stateKey); state = readOnboardingState(stateKey); }
-if (guided) document.title = 'Thesis onboarding · Guided';
+if (guided) document.title = 'onboarding-signal · Guided';
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
