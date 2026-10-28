@@ -2,6 +2,7 @@
  * Real authentication, broker access and OS permission requests are simulated.
  */
 import { signalCard } from './intro.js?v=10';
+import { bindNotificationReveal } from './notification-reveal.js';
 
 const ASSETS = {
   logo: '12552:200754',
@@ -195,57 +196,55 @@ function trackingCard(thesis, api) {
     <div class="setup-tracking-status">${brandImage(api, 'setup-tracking-logo')}<span>Tracking signals</span></div>
   </article>`;
 }
-function trackedSignalCard(signal, thesis, api) {
+function trackedSignalCard(signal, api) {
   const card = signalCard(signal, api);
   card.classList.add('setup-tracked-signal');
   card.dataset.cardKind = 'signal';
   card.dataset.signalId = signal.id;
-  card.dataset.thesisId = thesis.id;
-  card.setAttribute('aria-label', `Signal from ${signal.source} for ${thesis.author}’s thesis`);
+  card.dataset.preview = 'true';
+  card.dataset.sourceThesisId = signal.sourceThesisId;
+  card.setAttribute('aria-label', `Notification preview from ${signal.source}`);
   return card.outerHTML;
 }
-function notificationCards(selected, api) {
-  // This is the same exact source relationship used by thesis-demo-state.js.
-  // Other Gallery signals use different thesis IDs, even for the same author.
-  const signalThesis = selected.find(thesis => thesis.id === '12552:205644');
-  const signals = signalThesis ? (api.data?.signals || []).filter(signal => signal.id && signal.source && signal.summary && signal.url) : [];
-  const ordered = signalThesis ? [signalThesis, ...selected.filter(thesis => thesis.id !== signalThesis.id)] : selected;
-  const cards = [];
-  for (const [index, thesis] of ordered.entries()) {
-    cards.push(trackingCard(thesis, api));
-    if (index === 0 && signals[0]) cards.push(trackedSignalCard(signals[0], signalThesis, api));
-  }
-  for (const signal of signals.slice(1)) cards.push(trackedSignalCard(signal, signalThesis, api));
-  return cards.join('');
+function notificationCards(api) {
+  // The permission background previews the exact Figma notification examples.
+  // Preview cards never create a bookmark or assign a signal to another thesis.
+  const preview = api.data.notificationPreview;
+  if (!preview) return '';
+  const [first, ...rest] = preview.theses;
+  return [
+    first ? trackingCard(first, api) : '',
+    ...preview.signals.map(signal => trackedSignalCard(signal, api)),
+    ...rest.map(thesis => trackingCard(thesis, api)),
+  ].join('');
 }
 function renderNotifications(api) {
   const root = document.createElement('section');
   root.className = 'setup-page setup-notifications';
-  root.setAttribute('aria-label', 'Turn on notifications');
+  root.setAttribute('aria-label', 'Get notifications');
   const selected = selectedTheses(api);
   const hasSelection = selected.length > 0;
   api.state.notificationThesisIds = selected.map(thesis => thesis.id);
   api.persist?.();
   const description = hasSelection
-    ? 'Alva is now tracking signals for the theses you bookmarked. Turn on notifications so you don’t miss new opportunities.'
+    ? 'Alva is now tracking signals for the theses you bookmarked. Get notifications so you don’t miss new opportunities.'
     : 'Bookmark theses to start tracking signals.';
-  const cards = notificationCards(selected, api);
+  const cards = hasSelection ? notificationCards(api) : '';
   root.innerHTML = `${topbar(api, 'portfolio', 'feed')}
     <div class="setup-notifications-body">
       ${heading('Don’t miss the next signal.', description)}
-      <div class="setup-notification-stream" tabindex="0" role="region" aria-label="Bookmarked theses and their signals">
+      <div class="setup-notification-stream" tabindex="0" role="region" aria-label="Notification preview: theses and signals">
         <div class="setup-notification-layers">
-          <div class="setup-tracked-theses setup-notification-canonical">${cards}</div>
+          <div class="setup-tracked-theses setup-notification-canonical" data-preview="true">${cards}</div>
           ${hasSelection ? `<div class="setup-notification-curtain" aria-hidden="true" inert><div class="setup-tracked-theses">${cards}</div></div>` : ''}
         </div>
       </div>
     </div>
     <footer class="setup-notification-dock">${hasSelection ? `
-      <div class="setup-unlock" role="slider" tabindex="0" aria-label="Turn on notifications" aria-describedby="setupUnlockHint" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Slide right to turn on notifications">
-        <span class="setup-unlock-label" aria-hidden="true">Slide to turn on notifications</span>
-        <span class="setup-unlock-thumb" aria-hidden="true">${image(api, ASSETS.back, 'setup-unlock-arrow')}</span>
-      </div>
-      <span class="setup-sr-only" id="setupUnlockHint">Drag right, use the arrow keys, or press Enter to continue.</span>
+      <button class="setup-reveal-handle" type="button" aria-label="Slide up to get notifications" aria-describedby="setupRevealHint">
+        ${image(api, ASSETS.back, 'setup-reveal-arrow')}
+      </button>
+      <p class="setup-reveal-label" id="setupRevealHint">Slide up to get notifications</p>
     ` : '<button class="setup-enable" type="button">Bookmark theses</button>'}</footer>`;
   let disposed = false;
   root.querySelector('[data-action="back"]').addEventListener('click', () => { if (!disposed) api.go('portfolio'); });
@@ -263,113 +262,14 @@ function renderNotifications(api) {
     return root;
   }
 
-  const slider = root.querySelector('.setup-unlock');
-  const thumb = root.querySelector('.setup-unlock-thumb');
-  const layers = root.querySelector('.setup-notification-layers');
-  let progress = 0, pointerId = null, pointerStart = 0, dragStart = 0, permissionOpen = false;
-  const threshold = .92;
-  function syncCurtain() {
-    if (disposed) return;
-    let reveal = progress;
-    if (progress > 0 && progress < 1) {
-      const track = slider.getBoundingClientRect(), content = layers.getBoundingClientRect();
-      const scale = slider.clientWidth ? track.width / slider.clientWidth : 0;
-      if (scale > 0 && content.width > 0) {
-        const center = track.left + (4 + thumb.offsetWidth / 2 + progress * (slider.clientWidth - thumb.offsetWidth - 8)) * scale;
-        reveal = Math.min(1, Math.max(0, (center - content.left) / content.width));
-      }
-    }
-    // Both visual layers share one scroll owner. Only this clip boundary moves;
-    // the clear canonical content stays the sole accessible, interactive layer.
-    root.style.setProperty('--notification-curtain', `${reveal * 100}%`);
-  }
-  function paint(value, settling = false) {
-    progress = Math.min(1, Math.max(0, value));
-    root.classList.toggle('is-unlock-settling', settling && !api.reduced?.());
-    syncCurtain();
-    slider.style.setProperty('--unlock-progress', String(progress));
-    slider.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
-    slider.setAttribute('aria-valuetext', progress === 1 ? 'Opening notification permission' : `${Math.round(progress * 100)}%. Slide right to turn on notifications`);
-  }
-  function releasePointer() {
-    const captured = pointerId;
-    pointerId = null;
-    if (captured !== null && slider.hasPointerCapture?.(captured)) slider.releasePointerCapture(captured);
-  }
-  function finish(preference) {
-    if (disposed) return;
-    permissionOpen = false;
-    slider.setAttribute('aria-disabled', 'false');
-    api.state.notifications = preference;
-    api.persist?.();
-    api.go('feed');
-  }
-  function openPermission() {
-    if (disposed || permissionOpen) return;
-    releasePointer();
-    // sheet() returns focus to its invoker on every close path, including Escape.
-    slider.focus({ preventScroll: true });
-    permissionOpen = true;
-    slider.setAttribute('aria-disabled', 'true');
-    paint(1, true);
-    if (api.state.notifications === 'allowed') { finish('allowed'); return; }
-    api.sheet({title: '“Alva” Would Like to Send You Notifications', body: 'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.', actions: [
-      {label: 'Don’t Allow', onClick() {finish('denied');}},
-      {label: 'Allow', primary: true, onClick() {finish('allowed');}},
-    ]});
-  }
-  slider.addEventListener('focus', () => {
-    // sheet() restores focus before running Allow / Don't Allow. Wait for that
-    // action so completion keeps the revealed cards; dismissal alone resets.
-    queueMicrotask(() => {
-      if (disposed || !permissionOpen || document.activeElement !== slider) return;
-      permissionOpen = false;
-      slider.setAttribute('aria-disabled', 'false');
-      paint(0, true);
-    });
+  const cleanupReveal = bindNotificationReveal({
+    root,
+    handle: root.querySelector('.setup-reveal-handle'),
+    curtain: root.querySelector('.setup-notification-curtain'),
+    viewport: root.querySelector('.setup-notification-stream'),
+    api,
   });
-  slider.addEventListener('pointerdown', event => {
-    if (disposed || permissionOpen || pointerId !== null || !event.isPrimary || event.button !== 0) return;
-    event.preventDefault();
-    slider.focus({ preventScroll: true });
-    pointerId = event.pointerId;
-    pointerStart = event.clientX;
-    dragStart = progress;
-    paint(progress);
-    slider.setPointerCapture(pointerId);
-  });
-  slider.addEventListener('pointermove', event => {
-    if (disposed || event.pointerId !== pointerId) return;
-    // clientX is in screen pixels; Gallery can scale the whole phone with CSS.
-    const scale = slider.clientWidth ? slider.getBoundingClientRect().width / slider.clientWidth : 0;
-    const travel = (slider.clientWidth - thumb.offsetWidth - 8) * scale;
-    if (travel <= 0) return;
-    paint(dragStart + (event.clientX - pointerStart) / travel);
-    if (progress >= threshold) openPermission();
-  });
-  const endDrag = event => {
-    if (event.pointerId !== pointerId) return;
-    releasePointer();
-    if (!disposed && !permissionOpen) paint(0, true);
-  };
-  slider.addEventListener('pointerup', endDrag);
-  slider.addEventListener('pointercancel', endDrag);
-  slider.addEventListener('lostpointercapture', endDrag);
-  slider.addEventListener('keydown', event => {
-    if (disposed || permissionOpen) return;
-    const values = { ArrowRight: progress + .1, ArrowUp: progress + .1, ArrowLeft: progress - .1, ArrowDown: progress - .1, PageUp: progress + .25, PageDown: progress - .25, Home: 0, End: 1, Enter: 1, ' ': 1 };
-    if (!(event.key in values)) return;
-    event.preventDefault();
-    paint(values[event.key], true);
-    if (progress >= threshold) openPermission();
-  });
-  slider.addEventListener('blur', () => {
-    if (!disposed && !permissionOpen) { releasePointer(); paint(0, true); }
-  });
-  const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(syncCurtain) : null;
-  resizeObserver?.observe(slider);
-  resizeObserver?.observe(layers);
-  root.cleanup = () => { disposed = true; resizeObserver?.disconnect(); releasePointer(); };
+  root.cleanup = () => { disposed = true; cleanupReveal(); };
   return root;
 }
 
