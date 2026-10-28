@@ -20,3 +20,10 @@ html[data-device-platform] .onboarding-app>.dynamic-island{display:block;z-index
 .permission-scrim{align-items:center;justify-content:center;background:#0005}.permission-card{color:#111;width:270px;padding:20px 0 0;background:rgba(248,248,248,.96);backdrop-filter:blur(24px);border-radius:14px;text-align:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:0}.permission-card h2{font-size:17px;line-height:22px;font-weight:600;padding:0 20px;margin-bottom:6px}.permission-card .sheet-body{font-size:13px;line-height:17px;color:#111;padding:0 16px;margin-bottom:20px}.permission-card .sheet-close{display:none}.permission-card .sheet-actions{flex-direction:row;gap:0;border-top:.5px solid #0003}.permission-card .btn{height:44px;border:0;border-radius:0;background:transparent;color:#007aff;font-size:17px;font-weight:400;font-family:inherit}.permission-card .btn-primary{border-left:.5px solid #0003;font-weight:600}
 
 html[data-theme="dark"] .page .back-button img{filter:invert(1)}
+
+/* Preserve the Figma logo's teal path; only its black path becomes white. */
+html[data-theme="dark"] .setup-login-logo{content:url("./assets/alva-login-dark.svg")}
+html[data-theme="dark"] .analysis-logo,
+html[data-theme="dark"] .signal-alva-mark img,
+html[data-theme="dark"] .setup-tracking-logo,
+html[data-theme="dark"] .notification-toast-logo{content:url("./assets/alva-source-12646-154584-dark.svg")}
