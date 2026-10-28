@@ -52,7 +52,7 @@
       subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-guided',
-      href: 'onboarding/index.html?intro=guided&v=11',
+      href: 'onboarding/index.html?intro=guided&v=12',
       resetOnRestart: true,
       meta: 'Mobile · Automatic three-step introduction',
       figma: {
