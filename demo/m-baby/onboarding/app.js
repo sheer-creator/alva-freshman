@@ -1,5 +1,5 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=16';
+import { renderSetupPage } from './setup.js?v=17';
 import { renderIntroPage } from './intro.js?v=11';
 import { renderGuidedIntroPage } from './intro-guided.js?v=2';
 import { renderBookmarkPage } from './cards.js?v=7';
@@ -49,21 +49,29 @@ const flow = {
 };
 const stateKey = trackVariant ? (loginFirst ? TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY : TRACK_ONBOARDING_STATE_KEY) : guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
 const renderIntro = guided ? renderGuidedIntroPage : renderIntroPage;
+// These two signal demos always open as a fresh presentation. Keep Track's
+// independent entry/resume policy and preserve For You until a new handoff.
 let state = readOnboardingState(stateKey);
 const restartToken = search.get('restart');
-if (restartToken && state.restartToken !== restartToken) { resetOnboardingState(restartToken, stateKey); state = readOnboardingState(stateKey); }
+if (restartToken && state.restartToken !== restartToken) {
+  resetOnboardingState(restartToken, stateKey);
+  state = readOnboardingState(stateKey);
+}
+if (!trackVariant) {
+  persistOnboardingState({ restartToken }, stateKey);
+  state = readOnboardingState(stateKey);
+}
 if (guided) document.title = 'onboarding-signal · Guided';
 if (trackVariant) document.title = loginFirst ? 'onboarding-signal · Track · Login first' : 'onboarding-signal · Track';
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const requested = location.hash.slice(1);
-// Stored state defaults to the login page; in order A that is a late step, so a
-// fresh state (nothing bookmarked yet) starts at the deck instead.
 const resumable = steps.includes(state.page) && !(trackVariant && !loginFirst && state.page === 'login' && !state.bookmarked.size);
-const initialPage = steps.includes(requested) ? requested : resumable ? state.page : steps[0];
+const initialPage = !trackVariant ? 'login' : steps.includes(requested) ? requested : resumable ? state.page : steps[0];
 const splash = document.querySelector('#startupSplash');
-// The static splash covers data/font loading; resumed steps skip its reveal.
+// Original and Guided retain their Splash on every entry. Track keeps its
+// existing resume policy and only reveals Splash at the start of its order.
 if (initialPage !== steps[0]) { splash.remove(); app.inert = false; }
 const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content.json?v=4'].map(async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
@@ -209,5 +217,7 @@ addEventListener('message', event => {
   }
 });
 addEventListener('pagehide', () => { routeTransition?.finish(); persist(); page?.cleanup?.(); });
+// A browser Back restore reuses a cleaned-up document; reopen these demos.
+addEventListener('pageshow', event => { if (event.persisted && !trackVariant) location.reload(); });
 await go(initialPage, { instant: true });
 if (initialPage === steps[0]) startSplash();
