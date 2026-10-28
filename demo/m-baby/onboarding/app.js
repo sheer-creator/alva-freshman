@@ -1,9 +1,9 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=9';
-import { renderIntroPage } from './intro.js?v=9';
+import { renderSetupPage } from './setup.js?v=10';
+import { renderIntroPage } from './intro.js?v=10';
 import { renderBookmarkPage } from './cards.js?v=6';
 import { node, escapeHTML } from './ui.js';
-import { transitionPages } from './transitions.js?v=6';
+import { transitionPages } from './transitions.js?v=7';
 import { readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
