@@ -32,6 +32,16 @@ selected thesis IDs are stored locally; no system permission is requested.
 The imported runtime is plain HTML, CSS and JavaScript. Update it from a tested
 `m.baby` release rather than from an uncommitted working tree, then run
 `npm run demo:index`, `npm run typecheck` and `npm run build`.
+Two Track variants reuse the same pages with a different order:
+`#/thesis-onboarding-track` (bookmark one thesis from the deck, watch Alva analyze
+it in place, notifications, more theses, people, log in, portfolio) and
+`#/thesis-onboarding-track-login-first` (log in first; portfolio and notifications
+close the flow). Both are `onboarding/index.html?intro=track[&order=login-first]`
+and keep independent saved progress (`thesis-demo-state.js` keys). The Track step
+(`onboarding/intro-track.js`) pins the bookmarked card and streams the demo's
+three signals beneath it; picks other than the Gavin Baker thesis reuse those
+signals with placeholder analyses marked in the copy.
+
 The onboarding extension is kept in `onboarding/` and `thesis-demo-state.js`.
 Its state and resource checks run with
 `node --test scripts/tests/thesis-onboarding-state.test.mjs` from the Freshman root.

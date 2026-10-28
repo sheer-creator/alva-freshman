@@ -2,6 +2,8 @@
 export const DEMO_STATE_KEY = 'alva.m-baby.thesis-demo.v1';
 export const ONBOARDING_STATE_KEY = 'alva.m-baby.thesis-onboarding.v1';
 export const GUIDED_ONBOARDING_STATE_KEY = 'alva.m-baby.thesis-onboarding-guided.v1';
+export const TRACK_ONBOARDING_STATE_KEY = 'alva.m-baby.thesis-onboarding-track.v1';
+export const TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY = 'alva.m-baby.thesis-onboarding-track-login-first.v1';
 
 export function stringSet(value) {
   if (value instanceof Set) return new Set([...value].filter(item => typeof item === 'string'));
@@ -51,7 +53,7 @@ export function resetOnboardingState(restartToken, stateKey = ONBOARDING_STATE_K
 
 // Explicit source IDs identify individual theses. An author's different theses
 // never share a bookmark merely because their displayed names happen to match.
-const SOURCE_AUTHORS = {
+export const SOURCE_AUTHORS = {
   '12552:205644': 'gavin',
   '12552:202166': 'satya',
   '12552:202172': 'sam',
