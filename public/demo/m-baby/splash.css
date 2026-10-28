@@ -62,7 +62,7 @@
   animation: alva-splash-reveal var(--splash-duration) linear var(--splash-hold) both;
 }
 .mvp-app:has(> .logo-splash.is-leaving) > .screens,
-.onboarding-app:has(> .logo-splash.is-revealing) > .welcome-screen {
+.onboarding-app:has(> .logo-splash.is-revealing) > :is(.welcome-screen, .page-slot) {
   --splash-progress: 0;
   --splash-settle: clamp(0, calc((var(--splash-progress) - .16) / .84), 1);
   scale: calc(1 + .08 * (1 - var(--splash-settle)) * (1 - var(--splash-settle)) * (1 - var(--splash-settle)));
@@ -80,5 +80,5 @@
 @media (prefers-reduced-motion: reduce) {
   .logo-splash:is(.is-leaving, .is-revealing),
   .mvp-app:has(> .logo-splash.is-leaving) > .screens,
-  .onboarding-app:has(> .logo-splash.is-revealing) > .welcome-screen { animation: none; scale: none; }
+  .onboarding-app:has(> .logo-splash.is-revealing) > :is(.welcome-screen, .page-slot) { animation: none; scale: none; }
 }

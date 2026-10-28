@@ -4,6 +4,7 @@ html,body{width:100%;height:100%;overflow:hidden;margin:0;background:var(--bg-co
 *{box-sizing:border-box}button,input{font:inherit;letter-spacing:inherit}button{cursor:pointer;color:inherit;border:0;background:none;padding:0;-webkit-tap-highlight-color:transparent}button:disabled{cursor:default}button:focus-visible,a:focus-visible{outline:2px solid var(--m1);outline-offset:3px}button:active:not(:disabled){filter:brightness(.97)}img{display:block;object-fit:contain}h1,h2,h3,p{margin:0}a{color:inherit}[hidden]{display:none!important}
 .onboarding-app{position:relative;width:100%;height:100%;overflow:hidden;background:var(--bg-container);isolation:isolate;letter-spacing:.01em}
 .page-slot{position:absolute;inset:var(--status-h) 0 var(--home-h);overflow:hidden}
+.onboarding-app>.logo-splash{position:absolute;inset:0;z-index:70;overflow:hidden}
 .page-slot>.page,.page-slot>.setup-page{position:absolute;inset:0;width:100%;height:100%;background:var(--bg-container);overflow:hidden}
 .page{display:flex;flex-direction:column}.page-slot [inert]{pointer-events:none}
 .onboarding-app>.system-bar,.onboarding-app>.home-indicator,.onboarding-app>.dynamic-island{display:none;pointer-events:none}
