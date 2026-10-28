@@ -35,11 +35,11 @@
 
   const PROTOTYPES = [
     {
-      title: 'Thesis onboarding',
+      title: 'onboarding-signal',
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=14',
+      href: 'onboarding/index.html?v=15',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
@@ -48,11 +48,11 @@
       },
     },
     {
-      title: 'Thesis onboarding · Guided',
+      title: 'onboarding-signal · Guided',
       subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-guided',
-      href: 'onboarding/index.html?intro=guided&v=16',
+      href: 'onboarding/index.html?intro=guided&v=17',
       resetOnRestart: true,
       meta: 'Mobile · Automatic three-step introduction',
       figma: {
