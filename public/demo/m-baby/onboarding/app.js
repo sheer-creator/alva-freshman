@@ -42,10 +42,17 @@ const splash = document.querySelector('#startupSplash');
 // The static splash covers data/font loading; resumed steps skip its reveal.
 if (initialPage !== 'login') { splash.remove(); app.inert = false; }
 const [manifest, data] = await Promise.all(['assets/manifest.json', 'content.json'].map(async url => {
-  const response = await fetch(url);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`Could not load ${url}`);
   return response.json();
-}));
+})).catch(error => {
+  splash.remove(); app.inert = false;
+  const failure = node('section', 'onboarding-load-error', '<p>Unable to load this demo.</p>');
+  const retry = node('button', 'btn btn-secondary', 'Try again');
+  retry.type = 'button'; retry.onclick = () => location.reload();
+  failure.append(retry); app.replaceChildren(failure);
+  throw error;
+});
 await document.fonts.ready;
 let page, routeGeneration = 0, routeAnimations = [], toastTimer;
 const persist = () => persistOnboardingState(state);
