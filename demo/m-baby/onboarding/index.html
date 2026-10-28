@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="demo-index" content="hidden">
   <meta name="demo-switcher" content="off">
-  <title>Thesis onboarding</title>
+  <title>onboarding-signal</title>
   <script>
     if(window.self!==window.top)document.documentElement.classList.add('embedded');
     try{var preference=localStorage.getItem('alva-mvp-appearance');var dark=preference==='dark'||(preference!=='light'&&(preference==='system'?matchMedia('(prefers-color-scheme: dark)').matches:localStorage.getItem('alva-mvp-theme')==='dark'||matchMedia('(prefers-color-scheme: dark)').matches));document.documentElement.dataset.theme=dark?'dark':'light';}catch{}
@@ -26,7 +26,7 @@
 </head>
 <body>
   <div id="onboardingApp" class="onboarding-app">
-    <main id="app" class="page-slot" aria-label="Thesis onboarding" inert></main>
+    <main id="app" class="page-slot" aria-label="onboarding-signal" inert></main>
     <div id="startupSplash" class="logo-splash" role="status" aria-label="Loading Alva">
       <div class="logo-splash-mark" aria-hidden="true">
         <img src="../assets/wordmark-symbol.svg" alt="">
@@ -46,6 +46,6 @@
     <div class="overlay-slot" id="overlays"></div>
     <div class="toast" id="toast" role="status"></div>
   </div>
-  <script type="module" src="app.js?v=16"></script>
+  <script type="module" src="app.js?v=17"></script>
 </body>
 </html>
