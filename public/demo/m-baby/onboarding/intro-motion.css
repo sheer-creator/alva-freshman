@@ -1,4 +1,7 @@
-/* One physical thesis becomes the centred analysis pair; results occupy a separate foreground. */
+/* One thesis becomes the centred analysis pair; signals share one contact plane. */
+.intro-page .intro-heading{overflow:hidden}
+.intro-heading-copy{width:100%}
+.intro-heading-copy.is-outgoing{position:absolute;top:8px;left:16px;right:16px;width:auto}
 .intro-page .focus-stack{position:absolute;inset:0;padding:0 16px;display:grid;place-items:center;gap:0;transform:none;will-change:auto;pointer-events:none}
 .intro-page .intro-stage.results .focus-stack{position:absolute;inset:0;margin:0;transform:none}
 .analysis-pair{display:flex;flex-direction:column;flex:none;width:100%;max-width:361px;gap:0;isolation:isolate;transform-origin:center center}
@@ -25,9 +28,8 @@
 .analysis-card .analysis-status>div:last-child .analysis-bone{display:block}
 .signal-output.is-spatial,.is-spatial>.signal-stream{position:absolute;inset:0;display:block;pointer-events:none;isolation:isolate}
 .is-spatial .spatial-card{position:absolute;left:0;top:0;transform-origin:center center;pointer-events:auto;overscroll-behavior:contain;scrollbar-width:none}
-.is-spatial .signal-card{overflow-y:auto;overflow-x:hidden;touch-action:pan-y;outline-offset:-2px}
+.is-spatial .signal-card{overflow-y:auto;overflow-x:hidden;touch-action:pan-y;outline-offset:-2px;box-shadow:inset 0 0 0 .5px var(--line)}
 .is-spatial .signal-card:focus-visible{outline:2px solid var(--m1)}
-.is-spatial .ticker-row{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;touch-action:pan-x}
 .is-spatial .spatial-card:not(.is-current){cursor:pointer}
 .intro-page .intro-stage.results{overflow:hidden;mask-image:none;-webkit-mask-image:none;scrollbar-width:none}
 /* A retains the full three-row field. Focusing reserves B/C's footer before FLIP
