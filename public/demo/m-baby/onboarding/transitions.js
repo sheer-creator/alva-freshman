@@ -7,9 +7,9 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
   const animations = [];
   let settled = false, resolve;
   const finished = new Promise(done => { resolve = done; });
-  const play = (element, keyframes, time = duration.content, delay = 0) => {
+  const play = (element, keyframes, time = duration.content, delay = 0, ease = easing) => {
     if (!element) return;
-    animations.push(element.animate(keyframes, { duration: time, delay, easing, fill: 'both' }));
+    animations.push(element.animate(keyframes, { duration: time, delay, easing: ease, fill: 'both' }));
   };
   const reveal = (selector, { delay = 0, time = duration.content, lift = 0, depth = false } = {}) => {
     const element = incoming.querySelector(selector);
@@ -46,7 +46,6 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     reveal('.setup-heading');
     reveal('.setup-import', { delay: 40, lift: 8 });
     reveal('.setup-or-divider', { delay: 40, time: duration.feedback });
-    reveal('.setup-people-list', { delay: 80, lift: 8 });
     reveal('.setup-dock', { delay: 80, time: duration.feedback });
   } else if (to === 'bookmark') {
     relationship = 'choose-theses';
@@ -58,7 +57,6 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     relationship = 'add-asset-context';
     // The visible candidate may be unsaved. Do not turn it into a saved thesis or a broker.
     reveal('.setup-heading');
-    reveal('.setup-broker-list', { delay: 80, lift: 8 });
     reveal('.setup-dock', { delay: 80, time: duration.feedback });
   } else if (to === 'notifications') {
     relationship = 'confirm-tracking';
@@ -67,6 +65,15 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     reveal('.setup-notification-stream', { delay: 40, lift: 8 });
     reveal('.setup-notification-dock', { delay: 80, time: duration.feedback });
   }
+  // Rows arrive in reading order, including revisits. Animate each row once,
+  // without also moving its list container or changing any selection state.
+  const rowSelector = to === 'people' ? '.setup-person' : to === 'portfolio' ? '.setup-broker' : null;
+  if (rowSelector) incoming.querySelectorAll(rowSelector).forEach((row, index) => {
+    play(row, [
+      { opacity: 0, transform: 'translateY(8px)' },
+      { opacity: 1, transform: 'none' },
+    ], duration.feedback, 80 + index * 60, 'ease-out');
+  });
   incoming.dataset.entering = relationship;
   // A deliberate tap or keyboard focus settles immediately; motion never queues the next action.
   incoming.addEventListener('pointerdown', finish, true);
