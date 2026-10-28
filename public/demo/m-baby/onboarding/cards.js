@@ -17,13 +17,52 @@ export function previewCard(item,api) {
   if(item.charts?.length)c.append(node('div','preview-charts',item.charts.map(id=>image(id,api,'preview-chart','Market chart from this thesis')).join('')));
   return c;
 }
-export function renderBookmarkPage(api) {
-  const root=node('section','page bookmark-page');root.setAttribute('aria-label','Bookmark theses');
-  const copy=api.data.bookmarkCopy||{title:'Bookmark theses.\nTrack what changes.',description:'Choose the views you want Alva to track for new signals.'};
-  root.append(topbar(api,()=>api.go('people')),heading(copy.title,copy.description));
+// options (Track variant): copy, back/next targets, the save label, a shelf of
+// already-tracked theses above the deck, a target count, and an onSave hook that
+// replaces the deck's own advance (the Pick step hands the card to Track).
+export function renderBookmarkPage(api, options={}) {
+  const root=node('section','page bookmark-page');root.setAttribute('aria-label',options.ariaLabel||'Bookmark theses');
+  if(options.mode)root.dataset.mode=options.mode;
+  const copy=options.copy||api.data.bookmarkCopy||{title:'Bookmark theses.\nTrack what changes.',description:'Choose the views you want Alva to track for new signals.'};
+  root.append(topbar(api,options.back===null?null:()=>api.go(options.back||'people')),heading(copy.title,copy.description));
+  let shelf=null,shelfCount=null,shelfChips=null,progress=null;
+  if(options.shelf){
+    shelf=node('div','track-shelf');shelf.setAttribute('aria-live','polite');
+    shelfCount=node('span','track-shelf-count');shelfChips=node('div','track-shelf-chips');
+    shelf.append(shelfCount,shelfChips);
+    progress=node('div','track-progress',`<span class="track-progress-label"></span><span class="track-progress-bar"><i></i></span>`);
+    root.querySelector('.intro-heading').before(shelf);root.querySelector('.intro-heading').after(progress);
+  }
   const deck=node('div','bookmark-deck');
   root.append(deck);
-  const footer=node('footer','page-footer');const continueButton=node('button','btn btn-primary','Next');footer.append(continueButton);root.append(footer);
+  const footer=node('footer','page-footer');const continueButton=node('button','btn btn-primary',options.nextLabel||'Next');footer.append(continueButton);root.append(footer);
+  if(options.footer===false)footer.hidden=true;
+  const target=options.target||0;
+  function renderShelf(){
+    if(!shelf)return;
+    const tracked=[...api.state.bookmarked].map(id=>api.data.theses.find(t=>t.id===id)).filter(Boolean);
+    shelfCount.textContent=`${tracked.length} selected`;
+    for(const item of tracked){
+      if(shelfChips.querySelector(`[data-thesis="${CSS.escape(item.id)}"]`))continue;
+      const chip=node('span','ticker track-chip',`${image(item.avatar,api,'ticker-logo track-chip-avatar',item.author)}<span>${escapeHTML(item.author.split(' ')[0])}</span>`);
+      chip.dataset.thesis=item.id;shelfChips.append(chip);
+    }
+    const count=api.state.bookmarked.size;
+    progress.querySelector('.track-progress-label').textContent=`${Math.min(count,target)} of ${target}`;
+    progress.querySelector('.track-progress-bar i').style.width=`${Math.min(100,count/target*100)}%`;
+    continueButton.textContent='Next';
+    continueButton.classList.toggle('btn-primary',count>=target);continueButton.classList.toggle('btn-secondary',count<target);
+  }
+  function flyToShelf(card){
+    if(!shelf||api.reduced()||typeof card.animate!=='function')return;
+    const chip=shelfChips.lastElementChild;if(!chip)return;
+    const avatar=card.querySelector('.author-avatar'),dest=chip.querySelector('.track-chip-avatar');if(!avatar||!dest)return;
+    const a=avatar.getBoundingClientRect(),b=dest.getBoundingClientRect(),base=root.getBoundingClientRect();
+    const ghost=avatar.cloneNode(true);ghost.className='track-flight';
+    ghost.style.cssText=`position:absolute;left:${a.left-base.left}px;top:${a.top-base.top}px;width:${a.width}px;height:${a.height}px;border-radius:50%;z-index:9;pointer-events:none;object-fit:cover`;
+    root.append(ghost);dest.style.visibility='hidden';
+    ghost.animate([{transform:'none'},{transform:`translate(${b.left-a.left}px,${b.top-a.top}px) scale(${b.width/a.width})`}],{duration:280,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'}).finished.catch(()=>{}).finally(()=>{ghost.remove();dest.style.visibility='';});
+  }
   const cards=new Map();
   const available=()=>api.data.theses.filter(t=>!api.state.bookmarked.has(t.id));
   const modulo=(index,length)=>((index%length)+length)%length;
@@ -37,7 +76,7 @@ export function renderBookmarkPage(api) {
     button.disabled=saved;
     button.setAttribute('aria-pressed',String(saved));
     button.setAttribute('aria-disabled',String(saved));
-    button.querySelector('span').textContent=saved?'Bookmarked':'Bookmark';
+    button.querySelector('span').textContent=saved?(options.savedLabel||'Bookmarked'):(options.saveLabel||'Bookmark');
   }
 
   function cardFor(id){
@@ -95,7 +134,8 @@ export function renderBookmarkPage(api) {
       card.querySelector('.next').disabled=!canBrowse;
       saveButtonState(card.querySelector('.bookmark-button'),api.state.bookmarked.has(card.dataset.thesis));
     }
-    continueButton.disabled=api.state.bookmarked.size===0;
+    continueButton.disabled=options.allowEmpty?false:api.state.bookmarked.size===0;
+    renderShelf();
   }
 
   function clearSaveTimer(){clearTimeout(saveTimer);saveTimer=null;}
@@ -142,7 +182,9 @@ export function renderBookmarkPage(api) {
     cursor=Math.max(0,available().findIndex(item=>item.id===id));
     api.state.bookmarked.add(id);
     api.state.thesisIndex=available().length?cursor%available().length:0;
-    api.persist();arrange();
+    api.persist();
+    if(options.onSave){options.onSave(id,cards.get(id));return;}
+    arrange();flyToShelf(cards.get(id));
     if(!available().length){if(savedFocus)continueButton.focus({preventScroll:true});savedFocus=null;return;}
     if(api.reduced()){change(1);return;}
     // The saved state is real and persisted before its brief confirmation.
@@ -150,7 +192,7 @@ export function renderBookmarkPage(api) {
     saveTimer=setTimeout(()=>{saveTimer=null;if(alive)change(1);},120);
   }
 
-  continueButton.onclick=()=>{if(api.state.bookmarked.size)api.go('portfolio');};
+  continueButton.onclick=()=>{if(options.allowEmpty||api.state.bookmarked.size)api.go(options.next||'portfolio');};
   deck.addEventListener('pointerdown',e=>{
     const card=e.target.closest('.front-card');
     if(!card||e.isPrimary===false||e.target.closest('button,.thesis-charts'))return;
