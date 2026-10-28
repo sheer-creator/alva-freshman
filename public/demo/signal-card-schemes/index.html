@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="demo-status" content="exploration">
-  <meta name="demo-summary" content="For You Signal 卡方案 1：18 张 Signal、3 张 Thesis 和完整的多 thesis 解读；方案 2、3 未完善，仅供版式参考。">
+  <meta name="demo-summary" content="For You Signal 卡：18 张 Signal、3 张 Thesis 和完整的多 thesis 解读；方案 1、2 按最新稿完成，方案 3 未完善，仅供版式参考。">
   <title>For You · Signal 卡方案切换</title>
   <style>
     @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
@@ -113,7 +113,8 @@
     .card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; width: 440px; padding: 12px 16px 2px; background: var(--b0); border-bottom: .5px solid var(--l12); }
     /* Figma excludes the bottom stroke from auto-layout sizing. */
     .card.s1 { position: relative; gap: 8px; border-bottom: 0; }
-    .card.s1::after, .card.is-hidden::after { position: absolute; right: 0; bottom: 0; left: 0; border-bottom: .5px solid var(--l12); content: ''; pointer-events: none; }
+    .card.s2 { border-bottom: 0; }
+    .card.s1::after, .card.s2::after, .card.is-hidden::after { position: absolute; right: 0; bottom: 0; left: 0; border-bottom: .5px solid var(--l12); content: ''; pointer-events: none; }
     .card p { margin: 0; }
     .ic { flex: none; }
     .blk { display: flex; flex-direction: column; gap: 8px; width: 100%; }
@@ -160,7 +161,6 @@
     .chip img { width: 10px; height: 10px; }
     /* Thesis / Stance tag: Medium/12, pad 1/6, Supports m3 / Challenges m4 / Mixed m5 on *-10 */
     .stance { flex: none; display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 0 4px 4px 0; font-size: 12px; line-height: 20px; font-weight: 500; letter-spacing: .12px; white-space: nowrap; }
-    .stance.sm { height: 20px; padding: 0 6px; border-radius: 4px; font-size: 10px; line-height: 16px; letter-spacing: .1px; }
     .m3 { background: var(--m3-10); color: var(--m3); }
     .m4 { background: var(--m4-10); color: var(--m4); }
     .m5 { background: var(--m5-10); color: var(--m5); }
@@ -173,7 +173,7 @@
     .s3 .ident, .rows.s3 .ident { flex: none; }
     .ident .sfx { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--n7); }
     .suffix { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
-    .mention .ic, .more-row .ic, .ctx-thesis .ic { width: 12px; height: 12px; }
+    .mention .ic, .more-row .ic { width: 12px; height: 12px; }
     /* folded rows: Alva pair + mention per row; scheme 1 rows gap 8, scheme 3 rows gap 4; read link row at the bottom */
     .rows { display: flex; flex-direction: column; gap: 8px; width: 100%; }
     .rows.s3 { gap: 4px; }
@@ -181,7 +181,7 @@
     .more-row { display: flex; align-items: center; gap: 4px; width: 100%; padding: 0; border: 0; background: none; color: var(--n5); font-size: 12px; line-height: 20px; letter-spacing: .12px; text-align: left; cursor: pointer; }
     .s1 .more-row .ic { opacity: calc(.5 / .7); }
     .s1 .quote .more { font-weight: 500; }
-    .s1 .quote .arrow { font-family: InterSymbols, sans-serif; }
+    .s1 .quote .arrow, .s2 .quote .arrow { font-family: InterSymbols, sans-serif; }
 
     /* Actions 2: 36 tall, Ask Alva left, like + hide right (gap 16) */
     .actions { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 36px; }
@@ -242,15 +242,27 @@
       .like-signal.is-popping .like-glyph { animation: none; }
     }
 
-    /* scheme 2: thesis context row (space-between, tag Medium/10 h20), quote block br03 r8 p12, Alva paragraph n9 with 20 chip */
-    .ctx { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
-    .ctx-thesis { display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; }
-    .ctx-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 12px; line-height: 20px; font-weight: 500; letter-spacing: .12px; white-space: nowrap; }
-    .ctx-list { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+    /* Scheme 2B (Thesis-MVP 12639:78948): card gap 12, pad 12/16/2/16. */
+    /* Thesis header: avatar 20 + owner (max 220) · thesis title, Medium/12 n9, gap 4, arrow 12; the title truncates first. */
+    .th-head { display: flex; align-items: center; gap: 4px; width: 100%; min-width: 0; font-size: 12px; line-height: 20px; font-weight: 500; letter-spacing: .12px; white-space: nowrap; }
+    .th-owner { flex: none; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+    .th-dot { flex: none; }
+    .th-title { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .th-head .ic, .fold-row .ic { width: 12px; height: 12px; }
+    /* Quote block: br03, radius-ct-l 8, p12, gap 8. */
     .qblock { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 12px; border-radius: 8px; background: var(--br03); }
+    /* Alva paragraph: Alva chip + stance tag lead the explanation, Regular/14 n9, 3 lines max. */
     .alva-p { width: 100%; color: var(--n9); font-size: 14px; line-height: 22px; letter-spacing: .14px; word-break: break-word; }
-    .chip20 { display: inline-grid; place-items: center; width: 20px; height: 20px; margin: 1px 8px 0 0; border-radius: 4px; background: var(--m1-10); vertical-align: top; }
-    .chip20 img { width: 10px; height: 10px; }
+    .alva-p .tags { display: inline-flex; margin-right: 8px; vertical-align: top; }
+    /* Related theses · fold row: p8, gap 8, radius-ct-l 8, 0.5 line/l12 outside the 36 height; owner avatars 20 overlap by 8; Regular/12 n7. */
+    .fold-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; border: 0; border-radius: 8px; background: none; box-shadow: inset 0 0 0 .5px var(--l12); color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; text-align: left; cursor: pointer; }
+    .fold-sum { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+    .av-stack { flex: none; display: flex; }
+    .av-stack .av + .av { margin-left: -8px; }
+    .fold-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* 12639:79936 places the fold row under the actions and pads the card bottom 16. */
+    .card.s2:has(> .fold-row:last-child) { padding-bottom: 16px; }
+    .card.s2:has(> .fold-row:last-child) .feedback-menu { bottom: 98px; }
 
     /* scheme 3: Why tag (br05, Medium/12 n7) leads the explanation line */
     .why { width: 100%; font-size: 14px; line-height: 22px; letter-spacing: .14px; color: var(--n9); word-break: break-word; }
@@ -290,7 +302,7 @@
         <div class="intro">
           <p class="kicker">For You · Signal 卡</p>
           <h1>方案切换</h1>
-          <p class="lede">方案 1 已填充 18 张 Signal + 3 张 thesis，包含长短引文、三种立场和 2 / 4 / 5 条关联解读。方案 2、3 未完善，仅供版式参考。按数字键 1–3 切换。</p>
+          <p class="lede">已填充 18 张 Signal + 3 张 thesis，包含长短引文、三种立场和 2 / 4 / 5 条关联解读。方案 1、2 按最新稿完成；方案 3 未完善，仅供版式参考。按数字键 1–3 切换。</p>
           <p class="lede" style="font-size: 12px; line-height: 20px">样例快照 · 2026-10-26 · <a class="link" href="https://claude.ai/artifact/Wa8snwTvrHTp87Uec1V2No" target="_blank" rel="noopener noreferrer">Signal × Thesis 混排参考稿 ↗</a></p>
         </div>
         <div class="controls">
@@ -374,13 +386,13 @@
       }))]));
       const SCHEMES = [
         { title: '来源在上 → 引文 → Alva 行 → 解读', note: '来源 → 引文 → 作者与 Alva 解读，解读最多 6 行。多 thesis 卡保留首条完整解读，再展示最多 2 条紧凑行；点击 See all explanations 查看全部。每 5 张 Signal 插入 1 张参考稿 thesis。' },
-        { title: 'Thesis 置顶 → 引文块 → Alva 段', incomplete: true, note: '未完善，仅供版式参考。暂定为 thesis 置顶、灰底引文块和独立 Alva 解读段；内容呈现与交互细节仍待完善。' },
+        { title: '作者置顶 → 引文块 → Alva 立场 + 解读', note: '顶部一行「thesis 作者 · thesis 标题」，原文放进灰底引文块，Alva chip + 立场 tag 领着解读，解读最多 3 行。命中多条 thesis 时加一条折叠行：其余作者头像叠放、还有几条、各立场计数，点开看全部解读。Silicon Data 这张按稿里第 5 张的版本，折叠行放在操作栏下面。' },
         { title: '判断置顶 → 原文 → Why 解读', incomplete: true, note: '未完善，仅供版式参考。暂定为判断置顶、原文居中，再以 Why 引出解读；内容呈现与交互细节仍待完善。' },
       ];
       const PILLS = ['All', 'Chips', 'Memory', 'Hyperscaler', 'Neocloud', 'Enterprise AI', 'Agent Infra', 'Consumer AI', 'Space', 'Interconnect', 'Power', 'Crypto', 'Financials', 'Healthcare', 'Energy & Materials', 'Consumer', 'Industrials', 'Macro'];
 
       const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-      const quoteText = (s) => scheme === 1 ? esc(s).replace(/→/g, '<span class="arrow">→</span>') : esc(s);
+      const quoteText = (s) => scheme !== 3 ? esc(s).replace(/→/g, '<span class="arrow">→</span>') : esc(s);
       const icon = (n) => `<img class="ic" src="${A}${n}.svg" alt="">`;
       const av = (file, cls, name = '') => file ? `<span class="av ${cls}" style="background-image: url('${A}${file}')"></span>` : `<span class="av av-initials ${cls}" aria-hidden="true">${esc(name.slice(0, 2))}</span>`;
       const identity = (d) => `<div class="src">${av(d.av, 'av32', d.name)}<div class="spk"><div class="who"><p class="name">${esc(d.name)}</p><p class="role">${esc(d.role)}</p></div><p class="time">${d.age}h ago</p></div></div>`;
@@ -400,8 +412,18 @@
       const mention3 = (p, sfx) => `<span class="mention"><span class="ident">${av(PEOPLE[p][1], 'av14', person(p))}<span class="nm">${person(p)}</span></span><span class="suffix">${esc(sfx)}</span>${icon('arrow-right-l2')}</span>`;
       const readRow = (d) => `<button type="button" class="more-row" data-read-sheet="${d.id}" aria-haspopup="dialog" aria-expanded="${openReadSheetId === d.id}" aria-controls="readSheetDialog">See all ${d.theses.length} explanations${icon('arrow-right-l2')}</button>`;
       const rows = (d, mention, cls) => `<div class="rows${cls ? ' ' + cls : ''}">${d.theses.slice(0, 3).map(([st, p, pb]) => `<div class="row">${pair(st)}${mention(p, ' · ' + HEADS[pb])}</div>`).join('')}${readRow(d)}</div>`;
-      const ctxRow = (p, text, st) => `<div class="ctx"><span class="ctx-thesis">${av(PEOPLE[p][1], 'av20', person(p))}<span class="ctx-name">${esc(text)}</span>${icon('arrow-right-l2')}</span>${tag(st, 'sm')}</div>`;
-      const ctxList = (d) => `<div class="ctx-list">${d.theses.slice(0, 3).map(([st, p, pb]) => ctxRow(p, `${person(p)} · ${HEADS[pb]}`, st)).join('')}${readRow(d)}</div>`;
+      // Scheme 2B: the first thesis sits on top as "owner · title"; any others fold into one row that opens the explanations sheet.
+      const thesisHead = (p, pb) => `<div class="th-head">${av(scheme1Avatar(p), 'av20', person(p))}<span class="th-owner">${esc(person(p))}</span><span class="th-dot">·</span><span class="th-title">${esc(HEADS[pb])}</span>${icon('arrow-right-l2')}</div>`;
+      // 12639:79936 says "N more similar signals" with the row under the actions; the component instance says "N more theses" above them.
+      const S2_FOLD_BELOW = new Set(['silicondata']);
+      const foldRow = (d) => {
+        const rest = d.theses.slice(1);
+        const owners = [...new Set(rest.map(([, p]) => p))].slice(0, 3);
+        const counts = Object.keys(STANCE).map(k => [k, rest.filter(([st]) => st === k).length]).filter(([, n]) => n).map(([k, n]) => `${n} ${STANCE[k][0]}`);
+        const n = rest.length;
+        const lead = S2_FOLD_BELOW.has(d.id) ? `${n} more similar signal${n > 1 ? 's' : ''}` : `${n} more ${n > 1 ? 'theses' : 'thesis'}`;
+        return `<button type="button" class="fold-row" data-read-sheet="${d.id}" aria-haspopup="dialog" aria-expanded="${openReadSheetId === d.id}" aria-controls="readSheetDialog"><span class="fold-sum"><span class="av-stack">${owners.map(p => av(scheme1Avatar(p), 'av20', person(p))).join('')}</span><span class="fold-text">${[lead, ...counts].join(' · ')}</span></span>${icon('arrow-right-l2')}</button>`;
+      };
       const feedbackMenu = (d) => openFeedbackId === d.id ? `<div class="feedback-menu" id="feedback-${d.id}" role="menu" aria-label="Not interested"><button type="button" class="feedback-item" role="menuitem" data-action="hide-source" data-id="${d.id}">Hide signals from ${esc(d.name)}</button><button type="button" class="feedback-item" role="menuitem" data-action="mute-thesis" data-id="${d.id}">Mute signals for this thesis</button><button type="button" class="feedback-item" role="menuitem" data-action="not-relevant" data-id="${d.id}">Not relevant to me</button></div>` : '';
       const likeLabel = (d, liked) => `${liked ? 'Unlike' : 'Like'} signal from ${d.name}`;
       const actions = (d) => `<div class="actions"><span class="ask">${icon('chat-ai-l')}Ask Alva</span><span class="fb"><button type="button" class="like-signal" data-id="${d.id}" aria-label="${esc(likeLabel(d, LIKED.has(d.id)))}" aria-pressed="${LIKED.has(d.id)}"><span class="like-glyph"><img class="ic like-outline" src="${A}like-l.svg" alt=""><img class="ic like-filled" src="${A}like-f.svg" alt=""></span></button><button type="button" class="hide-signal" data-id="${d.id}" aria-label="Not interested in signal from ${esc(d.name)}" aria-haspopup="menu" aria-expanded="${openFeedbackId === d.id}" aria-controls="feedback-${d.id}">${icon('close-l1')}</button></span></div>${feedbackMenu(d)}`;
@@ -417,10 +439,10 @@
           return `<div class="blk">${identity(d)}${quote(d)}</div><div class="sig">${body}${rest}</div>${actions(d)}`;
         },
         2: (d) => {
-          const [st, p] = single(d);
-          const top = folded(d) ? ctxList(d) : ctxRow(p, `${person(p)}’s thesis`, st);
-          const para = folded(d) ? '' : `<p class="alva-p clamp3"><span class="chip20"><img src="${A}alva-inline-logo.svg" alt=""></span>${esc(d.note)}</p>`;
-          return `${top}<div class="qblock">${identity(d)}${quote(d)}</div>${para}${actions(d)}`;
+          const [st, p, pb] = single(d);
+          const body = `${thesisHead(p, pb)}<div class="qblock">${identity(d)}${quote(d)}</div><p class="alva-p clamp3">${pair(st)}${esc(EXPLANATIONS[d.id][0].explanation)}</p>`;
+          if (!folded(d)) return `${body}${actions(d)}`;
+          return S2_FOLD_BELOW.has(d.id) ? `${body}${actions(d)}${foldRow(d)}` : `${body}${foldRow(d)}${actions(d)}`;
         },
         3: (d) => {
           const [st, p] = single(d);
