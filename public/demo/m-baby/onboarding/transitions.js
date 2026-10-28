@@ -54,9 +54,6 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     reveal('.intro-heading');
     // Present the deck as the next choice. People selections do not filter these candidates.
     reveal('.bookmark-deck', { lift: 8, depth: true, time: duration.stage });
-    play(incoming.querySelector('.back-one'), [{ transform: 'rotate(0deg)' }, { transform: 'rotate(-4deg)' }], duration.stage, 40);
-    play(incoming.querySelector('.back-two'), [{ transform: 'rotate(0deg)' }, { transform: 'rotate(4deg)' }], duration.stage, 40);
-    reveal('.bookmark-controls', { delay: 80, time: duration.feedback });
     reveal('.page-footer', { delay: 80, time: duration.feedback });
   } else if (to === 'portfolio') {
     relationship = 'add-asset-context';
@@ -65,17 +62,11 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     reveal('.setup-broker-list', { delay: 80, lift: 8 });
     reveal('.setup-dock', { delay: 80, time: duration.feedback });
   } else if (to === 'notifications') {
-    const cards = incoming.querySelectorAll('.setup-tracked-thesis');
     relationship = 'confirm-tracking';
-    cards.forEach((card, index) => {
-      play(card, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], duration.content, index * 40);
-      play(card.querySelector('.setup-tracking-status'), [{ opacity: 0 }, { opacity: 1 }], duration.feedback, 120 + index * 40);
-    });
-    // Actual saved content appears first, then its existing tracking status and the permission action.
-    reveal('.setup-notification-icon', { delay: cards.length ? 80 : 0, time: duration.feedback });
-    reveal('.setup-heading', { delay: cards.length ? 80 : 0 });
-    reveal('.setup-tracked-more', { delay: 120, time: duration.feedback });
-    reveal('.setup-notification-dock', { delay: cards.length ? 160 : 80, time: duration.feedback });
+    reveal('.setup-heading');
+    // Reveal the collection as a group: its size must not lengthen navigation.
+    reveal('.setup-notification-stream', { delay: 40, lift: 8 });
+    reveal('.setup-notification-dock', { delay: 80, time: duration.feedback });
   }
   incoming.dataset.entering = relationship;
   // A deliberate tap or keyboard focus settles immediately; motion never queues the next action.

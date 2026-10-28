@@ -1,4 +1,3 @@
-import { animate } from './vendor/motion.js';
 import { node, image, escapeHTML, topbar, heading } from './ui.js';
 
 export function tickerRow(tickers, api, large=false) {
@@ -23,78 +22,159 @@ export function renderBookmarkPage(api) {
   const copy=api.data.bookmarkCopy||{title:'Bookmark theses.\nTrack what changes.',description:'Choose the views you want Alva to track for new signals.'};
   root.append(topbar(api,()=>api.go('people')),heading(copy.title,copy.description));
   const deck=node('div','bookmark-deck');
-  deck.innerHTML='<div class="deck-back back-one"></div><div class="deck-back back-two"></div><div class="front-card"></div>';
-  const front=deck.querySelector('.front-card');
-  const prev=node('button','card-arrow previous',image(api.data.icons['arrow-left-l1'],api));prev.setAttribute('aria-label','Previous thesis');
-  const next=node('button','card-arrow next',image(api.data.icons['arrow-left-l1'],api));next.setAttribute('aria-label','Next thesis');
-  const controls=node('nav','bookmark-controls');controls.setAttribute('aria-label','Browse theses');controls.append(prev,next);root.append(deck,controls);
+  root.append(deck);
   const footer=node('footer','page-footer');const continueButton=node('button','btn btn-primary','Next');footer.append(continueButton);root.append(footer);
-  let current=api.state.thesisIndex||0, generation=0, alive=true, cancelTransition=null, finishTransition=null;
+  const cards=new Map();
   const available=()=>api.data.theses.filter(t=>!api.state.bookmarked.has(t.id));
-  function updateNext(){continueButton.disabled=api.state.bookmarked.size===0;}
-  function resetMotion(){front.style.opacity='1';front.style.transform='none';}
-  function savedState(button,saved){
+  const modulo=(index,length)=>((index%length)+length)%length;
+  const initial=available();
+  let cursor=Math.max(0,Math.min(Number(api.state.thesisIndex)||0,initial.length-1));
+  const lastSaved=[...api.state.bookmarked].reverse().map(id=>api.data.theses.find(item=>item.id===id)).find(Boolean);
+  let frontId=(initial[cursor]||lastSaved||api.data.theses.at(-1))?.id;
+  let alive=true, promotion=null, saveTimer=null, gesture=null, savedFocus=null;
+
+  function saveButtonState(button,saved){
     button.disabled=saved;
     button.setAttribute('aria-pressed',String(saved));
     button.setAttribute('aria-disabled',String(saved));
     button.querySelector('span').textContent=saved?'Bookmarked':'Bookmark';
   }
-  function paint(){
-    const list=available();current=Math.max(0,Math.min(current,list.length-1));const item=list[current]||api.data.theses.find(thesis=>thesis.id===front.dataset.thesis)||api.data.theses.at(-1);
-    front.replaceChildren();const read=node('div','card-reading');read.append(renderThesisContent(item,api));front.append(read);
-    const foot=node('div','card-save-footer');const saved=api.state.bookmarked.has(item.id);
-    const save=node('button','bookmark-button',`${image(api.data.icons['Bookmark icon']||api.data.icons['bookmark-l'],api)}<span aria-live="polite"></span>`);savedState(save,saved);
-    save.onclick=()=>{if(!alive||api.state.bookmarked.has(item.id))return;api.state.bookmarked.add(item.id);savedState(save,true);api.persist();updateNext();change(1,true);};foot.append(save);front.append(foot);
-    front.dataset.thesis=item.id;front.setAttribute('aria-label',`${item.author} thesis`);prev.disabled=next.disabled=list.length<2;api.state.thesisIndex=current;updateNext();
+
+  function cardFor(id){
+    if(cards.has(id))return cards.get(id);
+    const item=api.data.theses.find(thesis=>thesis.id===id);
+    if(!item)return null;
+    const card=node('article','deck-card');card.dataset.thesis=id;card.setAttribute('aria-label',`${item.author} thesis`);
+    const read=node('div','card-reading');read.append(renderThesisContent(item,api));card.append(read);
+    const controls=node('nav','bookmark-controls card-save-footer');controls.setAttribute('aria-label','Browse and bookmark theses');
+    const prev=node('button','card-arrow previous',image(api.data.icons['arrow-left-l1'],api));prev.type='button';prev.dataset.action='previous';prev.setAttribute('aria-label','Previous thesis');
+    const save=node('button','bookmark-button',`${image(api.data.icons['Bookmark icon']||api.data.icons['bookmark-l'],api)}<span aria-live="polite"></span>`);save.type='button';save.dataset.action='bookmark';
+    const next=node('button','card-arrow next',image(api.data.icons['arrow-left-l1'],api));next.type='button';next.dataset.action='next';next.setAttribute('aria-label','Next thesis');
+    prev.onclick=()=>{if(id===frontId)change(-1);};next.onclick=()=>{if(id===frontId)change(1);};save.onclick=()=>bookmark(id);
+    controls.append(prev,save,next);card.append(controls);
+    cards.set(id,card);return card;
   }
-  async function change(dir,saved=false){
+
+  function targetFor(dir){
+    const list=available();if(!list.length)return null;
+    const index=list.findIndex(item=>item.id===frontId);
+    // Bookmark removes the front card immediately. Its former index now
+    // points to the next survivor, including while its confirmation is shown.
+    return list[modulo(index<0?cursor+(dir>0?0:-1):index+dir,list.length)].id;
+  }
+
+  function position(card,slot){
+    card.dataset.deckPosition=slot;
+    card.classList.toggle('front-card',slot==='front');
+    card.classList.toggle('real-back-card',slot!=='front');
+    card.classList.remove('deck-departing');
+    card.inert=slot!=='front';card.setAttribute('aria-hidden',String(slot!=='front'));
+  }
+
+  function arrange(departing=null){
+    const slots=new Map();
+    const previous=targetFor(-1),next=targetFor(1);
+    if(previous&&previous!==frontId&&previous!==next)slots.set(previous,'previous');
+    if(next&&next!==frontId)slots.set(next,'next');
+    if(frontId)slots.set(frontId,'front');
+    for(const [id,slot] of slots){
+      const card=cardFor(id);if(!card||card===departing)continue;
+      position(card,slot);if(card.parentNode!==deck)deck.append(card);
+    }
+    for(const card of cards.values()){
+      if(!slots.has(card.dataset.thesis)&&card!==departing)card.remove();
+    }
+    if(departing){
+      departing.classList.remove('front-card','real-back-card');departing.classList.add('deck-departing');
+      departing.dataset.deckPosition='departing';departing.inert=true;departing.setAttribute('aria-hidden','true');
+    }
+    const list=available();
+    const canBrowse=list.length>1||(list.length===1&&list[0].id!==frontId);
+    for(const card of cards.values()){
+      card.querySelector('.previous').disabled=!canBrowse;
+      card.querySelector('.next').disabled=!canBrowse;
+      saveButtonState(card.querySelector('.bookmark-button'),api.state.bookmarked.has(card.dataset.thesis));
+    }
+    continueButton.disabled=api.state.bookmarked.size===0;
+  }
+
+  function clearSaveTimer(){clearTimeout(saveTimer);saveTimer=null;}
+  function finishPromotion(){
+    const current=promotion;if(!current)return;
+    promotion=null;for(const animation of current.animations)animation.cancel();
+    if(alive)arrange();
+  }
+
+  function change(dir){
     if(!alive)return;
-    const token=++generation;cancelTransition?.();resetMotion();
-    const list=available(),outgoingSaved=api.state.bookmarked.has(front.dataset.thesis);
-    let target=Math.max(0,Math.min(current,list.length-1));
-    if(!saved&&list.length){
-      // A saved card has already left the candidate list. Next during its
-      // confirmation should reveal the next candidate, without skipping one.
-      target=(current+(outgoingSaved&&dir>0?0:dir)+list.length)%list.length;
-    }
-    const settle=()=>{current=target;paint();resetMotion();};
-    if(api.reduced()||!list.length){cancelTransition=null;finishTransition=null;settle();return;}
-    let motion=null,timer=null,resolveCancellation;
-    const cancelled=new Promise(resolve=>{resolveCancellation=resolve;});
-    cancelTransition=()=>{clearTimeout(timer);motion?.stop();resolveCancellation();};
-    finishTransition=settle;
-    const valid=()=>alive&&token===generation&&root.isConnected;
-    const play=async(values,duration)=>{
-      motion=animate(front,values,{duration,ease:'easeOut'});
-      await Promise.race([motion,cancelled]);
-    };
-    if(saved){
-      // Keep the persisted Bookmarked state readable before the card recedes.
-      await Promise.race([new Promise(resolve=>{timer=setTimeout(resolve,120);}),cancelled]);
-      if(!valid())return;
-    }
-    await play(saved
-      ? {x:0,y:[0,8],opacity:[1,0],scale:[1,.96]}
-      : {x:[0,dir*-24],y:0,opacity:[1,0],scale:1},.16);
-    if(!valid())return;
-    current=target;paint();
-    await play(saved
-      ? {x:0,y:[8,0],opacity:[0,1],scale:[.96,1]}
-      : {x:[dir*24,0],y:0,opacity:[0,1],scale:1},.24);
-    if(!valid())return;
-    resetMotion();cancelTransition=null;finishTransition=null;
+    clearSaveTimer();finishPromotion();gesture=null;
+    const target=targetFor(dir);if(!target||target===frontId){arrange();return;}
+    const outgoing=cardFor(frontId),incoming=cardFor(target);
+    const startTransform=getComputedStyle(incoming).transform;
+    const focused=(outgoing?.contains(document.activeElement)?document.activeElement.dataset.action:null)||savedFocus;
+    savedFocus=null;
+    frontId=target;cursor=available().findIndex(item=>item.id===frontId);
+    api.state.thesisIndex=cursor;api.persist();
+    const useMotion=!api.reduced()&&typeof incoming.animate==='function'&&root.isConnected;
+    arrange(useMotion?outgoing:null);
+    if(focused)incoming.querySelector(`[data-action="${focused}"]`)?.focus({preventScroll:true});
+    if(!useMotion)return;
+    const job={animations:[]};promotion=job;
+    // The same real back card becomes the front. WAAPI owns only the temporary
+    // transform, so interruption reveals the correct final layout immediately.
+    job.animations.push(incoming.animate([
+      {transform:startTransform,opacity:1},
+      {transform:'none',opacity:1}
+    ],{duration:280,easing:'cubic-bezier(.4,0,.2,1)'}));
+    if(outgoing)job.animations.push(outgoing.animate([
+      {transform:'none',opacity:1},
+      {transform:`translate(${dir*-32}px, 12px) rotate(${dir*-4}deg) scale(.97)`,opacity:0}
+    ],{duration:240,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'}));
+    Promise.allSettled(job.animations.map(animation=>animation.finished)).then(()=>{
+      if(alive&&promotion===job)finishPromotion();
+    });
   }
-  prev.onclick=()=>change(-1);next.onclick=()=>change(1);
+
+  function bookmark(id){
+    if(!alive||id!==frontId||api.state.bookmarked.has(id))return;
+    clearSaveTimer();finishPromotion();
+    savedFocus=cards.get(id)?.contains(document.activeElement)?document.activeElement.dataset.action:null;
+    cursor=Math.max(0,available().findIndex(item=>item.id===id));
+    api.state.bookmarked.add(id);
+    api.state.thesisIndex=available().length?cursor%available().length:0;
+    api.persist();arrange();
+    if(!available().length){if(savedFocus)continueButton.focus({preventScroll:true});savedFocus=null;return;}
+    if(api.reduced()){change(1);return;}
+    // The saved state is real and persisted before its brief confirmation.
+    // A manual arrow during this hold still reveals the immediate survivor.
+    saveTimer=setTimeout(()=>{saveTimer=null;if(alive)change(1);},120);
+  }
+
   continueButton.onclick=()=>{if(api.state.bookmarked.size)api.go('portfolio');};
-  let gesture=null;front.addEventListener('pointerdown',e=>{if(e.target.closest('button')||e.target.closest('.thesis-charts'))return;gesture={x:e.clientX,y:e.clientY};});
-  front.addEventListener('pointerup',e=>{if(!gesture)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;gesture=null;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5&&available().length>1)change(dx<0?1:-1);});
-  front.addEventListener('pointercancel',()=>gesture=null);
-  root.addEventListener('keydown',e=>{if(e.key==='ArrowRight'&&!next.disabled)next.click();if(e.key==='ArrowLeft'&&!prev.disabled)prev.click();});
+  deck.addEventListener('pointerdown',e=>{
+    const card=e.target.closest('.front-card');
+    if(!card||e.isPrimary===false||e.target.closest('button,.thesis-charts'))return;
+    finishPromotion();gesture={id:frontId,x:e.clientX,y:e.clientY};
+  });
+  deck.addEventListener('pointerup',e=>{
+    if(!gesture)return;const start=gesture;gesture=null;
+    if(start.id!==frontId)return;
+    const dx=e.clientX-start.x,dy=e.clientY-start.y;
+    if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5)change(dx<0?1:-1);
+  });
+  deck.addEventListener('pointercancel',()=>{gesture=null;});
+  root.addEventListener('keydown',e=>{
+    if(e.altKey||e.ctrlKey||e.metaKey||e.target.closest('input,textarea,[contenteditable="true"],.thesis-charts'))return;
+    const action=e.key==='ArrowRight'?'next':e.key==='ArrowLeft'?'previous':null;
+    const button=action&&cards.get(frontId)?.querySelector(`[data-action="${action}"]`);
+    if(button&&!button.disabled){e.preventDefault();button.click();}
+  });
   const reducedMotion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
   const onReduced=()=>{
-    if(!api.reduced()||!finishTransition)return;
-    const settle=finishTransition;generation++;cancelTransition?.();cancelTransition=null;finishTransition=null;settle();
+    if(!api.reduced())return;
+    if(saveTimer!==null){clearSaveTimer();change(1);}else finishPromotion();
   };
   reducedMotion?.addEventListener('change',onReduced);
-  root.cleanup=()=>{alive=false;generation++;cancelTransition?.();cancelTransition=null;finishTransition=null;reducedMotion?.removeEventListener('change',onReduced);};paint();return root;
+  root.cleanup=()=>{clearSaveTimer();finishPromotion();alive=false;gesture=null;savedFocus=null;reducedMotion?.removeEventListener('change',onReduced);};
+  api.state.thesisIndex=cursor;arrange();return root;
 }
