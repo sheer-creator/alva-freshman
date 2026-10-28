@@ -9,9 +9,17 @@ const companies = {
   XYZ: ['Block, Inc.', 'NYSE'], HOOD: ['Robinhood Markets, Inc.', 'NASDAQ'],
   QQQ: ['Invesco QQQ Trust', 'NASDAQ'],
 };
-export const TICKERS = new Map(POSTS.flatMap(post => post.tickers).map(ticker => [ticker.symbol, {
-  ...ticker, name: companies[ticker.symbol]?.[0] || ticker.symbol, market: companies[ticker.symbol]?.[1] || '',
-}]));
+export const TICKERS = new Map();
+export function refreshTickers() {
+  const previous = new Map(TICKERS);
+  TICKERS.clear();
+  for (const ticker of POSTS.flatMap(post => post.tickers)) TICKERS.set(ticker.symbol, {
+    ...previous.get(ticker.symbol), ...ticker,
+    name: companies[ticker.symbol]?.[0] || previous.get(ticker.symbol)?.name || ticker.symbol,
+    market: companies[ticker.symbol]?.[1] || previous.get(ticker.symbol)?.market || '',
+  });
+}
+refreshTickers();
 
 const watched = new Set();
 

@@ -6,7 +6,7 @@ import { renderBookmarkPage } from './cards.js?v=7';
 import { renderPickPage, renderTrackPage, renderMorePage } from './intro-track.js?v=1';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=9';
-import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY, readOnboardingState, persistOnboardingState, resetOnboardingState, completeOnboarding } from '../thesis-demo-state.js?v=3';
+import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=4';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
 for (const icon of document.querySelectorAll('.system-bar .ic')) {
@@ -49,16 +49,12 @@ const flow = {
 };
 const stateKey = trackVariant ? (loginFirst ? TRACK_LOGIN_FIRST_ONBOARDING_STATE_KEY : TRACK_ONBOARDING_STATE_KEY) : guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
 const renderIntro = guided ? renderGuidedIntroPage : renderIntroPage;
-// These two signal demos always open as a fresh presentation. Keep Track's
-// independent entry/resume policy and preserve For You until a new handoff.
-let state = readOnboardingState(stateKey);
+// Each signal presentation owns only its current in-memory choices.
+if (!trackVariant) clearLegacyOnboardingState(stateKey);
+let state = trackVariant ? readOnboardingState(stateKey) : createFreshOnboardingState();
 const restartToken = search.get('restart');
-if (restartToken && state.restartToken !== restartToken) {
+if (trackVariant && restartToken && state.restartToken !== restartToken) {
   resetOnboardingState(restartToken, stateKey);
-  state = readOnboardingState(stateKey);
-}
-if (!trackVariant) {
-  persistOnboardingState({ restartToken }, stateKey);
   state = readOnboardingState(stateKey);
 }
 if (guided) document.title = 'onboarding-signal · Guided';
@@ -87,7 +83,7 @@ const [manifest, data] = await Promise.all(['assets/manifest.json?v=5', 'content
 });
 await document.fonts.ready;
 let page, routeGeneration = 0, routeTransition, toastTimer;
-const persist = () => persistOnboardingState(state, stateKey);
+const persist = () => { if (trackVariant) persistOnboardingState(state, stateKey); };
 const api = { data, state, variant: trackVariant ? 'track' : guided ? 'guided' : 'original', flow: trackVariant ? flow : null, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
 
 function toast(message) {
@@ -140,12 +136,14 @@ function sheet(config, content) {
 }
 
 function openExistingFeed() {
-  if (!completeOnboarding(state, data, api.asset, location.href, stateKey)) {
+  const onboarding = trackVariant ? null : createOnboardingHandoff(state, data, api.asset, location.href);
+  const completed = trackVariant ? completeOnboarding(state, data, api.asset, location.href, stateKey) : onboarding.posts.length > 0;
+  if (!completed) {
     toast('Bookmark a thesis to continue.'); go(trackVariant ? 'pick' : 'bookmark'); return;
   }
   // The shell keeps this page available if For You fails to load. Clean up on
   // pagehide after a successful handoff so retry controls remain usable.
-  if (window.parent !== window) window.parent.postMessage({ type: 'alva:open-prototype', slug: 'thesis-motion' }, location.origin);
+  if (window.parent !== window) window.parent.postMessage({ type: 'alva:open-prototype', slug: 'thesis-motion', ...(onboarding ? { onboarding } : {}) }, location.origin);
   else location.assign(new URL('../index.html#/thesis-motion', location.href));
 }
 

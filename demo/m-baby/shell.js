@@ -39,7 +39,7 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=17',
+      href: 'onboarding/index.html?v=18',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
@@ -52,7 +52,7 @@
       subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-guided',
-      href: 'onboarding/index.html?intro=guided&v=19',
+      href: 'onboarding/index.html?intro=guided&v=20',
       resetOnRestart: true,
       meta: 'Mobile · Automatic three-step introduction',
       figma: {
@@ -91,7 +91,7 @@
       subtitle: 'For You, thesis detail and history, profile and ticker.',
       edited: '2026-10-22',
       slug: 'thesis-motion',
-      href: 'thesis-motion.html?v=22',
+      href: 'thesis-motion.html?v=23',
       meta: 'Mobile · 5 screens',
       figma: {
         label: 'Feed Mobile MVP · For You / V5',
@@ -383,7 +383,7 @@
     handoff.animation.finished.then(() => completeOnboardingHandoff(handoff), () => {});
   }
 
-  function beginOnboardingHandoff(outgoing) {
+  function beginOnboardingHandoff(outgoing, payload) {
     if (onboardingHandoff || !ONBOARDING_SLUGS.has(mounted) || slugFromHash() !== mounted) return;
     const incoming = document.createElement('iframe');
     incoming.title = bySlug.get('thesis-motion').title;
@@ -391,7 +391,7 @@
     incoming.setAttribute('aria-hidden', 'true');
     incoming.classList.add('handoff-incoming');
     incoming.inert = true;
-    const handoff = { outgoing, incoming, originSlug: mounted, token: String(++handoffSequence), events: new AbortController() };
+    const handoff = { outgoing, incoming, onboarding: payload, originSlug: mounted, token: String(++handoffSequence), events: new AbortController() };
     onboardingHandoff = handoff;
     incoming.addEventListener('load', () => {
       if (onboardingHandoff !== handoff) return;
@@ -399,6 +399,7 @@
       // The Feed acknowledges after applying this theme, fonts and initial DOM.
       incoming.contentWindow.postMessage({
         type: 'alva:prepare-handoff', token: handoff.token, appearance,
+        ...(handoff.onboarding === undefined ? {} : { onboarding: handoff.onboarding }),
       }, location.origin);
     }, { once: true, signal: handoff.events.signal });
     incoming.addEventListener('error', () => {
@@ -510,6 +511,7 @@
     const handoff = onboardingHandoff;
     if (handoff && e.source === handoff.incoming.contentWindow) {
       if (e.data?.type === 'alva:content-ready' && e.data.slug === 'thesis-motion' && e.data.token === handoff.token) revealOnboardingHandoff(handoff);
+      if (e.data?.type === 'alva:content-failed' && e.data.slug === 'thesis-motion' && e.data.token === handoff.token) cancelOnboardingHandoff(true);
       return;
     }
     const frame = screenEl.firstElementChild;
@@ -520,7 +522,7 @@
       return;
     }
     if (e.data?.type === 'alva:open-prototype' && e.data.slug === 'thesis-motion' && bySlug.has(e.data.slug)) {
-      if (ONBOARDING_SLUGS.has(mounted)) { beginOnboardingHandoff(frame); return; }
+      if (ONBOARDING_SLUGS.has(mounted)) { beginOnboardingHandoff(frame, e.data.onboarding); return; }
       window.location.hash = '#/' + e.data.slug;
       return;
     }
