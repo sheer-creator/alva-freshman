@@ -17,7 +17,7 @@ const ANALYSIS_TASKS = [
 ];
 
 function analyzingCard(api) {
-  return node('div','analysis-card is-analyzing',`<div class="analysis-skeleton">${image(api.data.icons['Alva / Black & White'],api,'analysis-logo','Alva')}<div class="skeleton-lines" aria-hidden="true"><i></i><i></i></div><i class="analysis-bone analysis-corner-bone" aria-hidden="true"></i></div><div class="analysis-status"><div><strong>Alva Analyzing</strong><span class="analysis-dots" aria-hidden="true"><i></i><i></i><i></i></span></div><span class="analysis-task">${ANALYSIS_TASKS[0]}</span></div>`);
+  return node('div','analysis-card is-analyzing',`<div class="analysis-skeleton">${image(api.data.icons['Alva / Black & White'],api,'analysis-logo','Alva')}<div class="skeleton-lines" aria-hidden="true"><i></i><i></i></div><i class="analysis-bone analysis-corner-bone" aria-hidden="true"></i></div><div class="analysis-status"><div><strong>Alva Analyzing</strong><i class="analysis-bone" aria-hidden="true"></i></div><div><span class="analysis-task">${ANALYSIS_TASKS[0]}</span><i class="analysis-bone" aria-hidden="true"></i></div></div>`);
 }
 
 export function signalCard(item, api) {
