@@ -3,7 +3,7 @@
  */
 const ASSETS = {
   logo: '12552:200754',
-  monochromeLogo: 'Alva / Monochrome',
+  monochromeLogo: 'Alva / Black & White',
   google: 'I12552:200758;23386:4239;23391:4519',
   apple: 'I12552:200759;23386:4239;23391:4519',
   discord: 'I12552:200761;23386:4239;23391:4519',
@@ -33,7 +33,7 @@ function image(api, id, className = '', alt = '') {
   return `<img class="${className}" src="${escape(api.asset(id))}" alt="${escape(alt)}" draggable="false">`;
 }
 function brandImage(api, className = '', alt = 'Alva') {
-  const source = api.asset(ASSETS.monochromeLogo) || new URL('./assets/alva-monochrome.svg', import.meta.url).href;
+  const source = api.asset(ASSETS.monochromeLogo) || new URL('./assets/alva-black-white.svg', import.meta.url).href;
   return `<img class="${className}" src="${escape(source)}" alt="${escape(alt)}" draggable="false">`;
 }
 function topbar(api, back, next) {
@@ -187,11 +187,33 @@ function selectedTheses(api) {
   return [...(api.state.bookmarked || [])].map(id => byId.get(id)).filter(Boolean);
 }
 function trackingCard(thesis, api) {
-  return `<article class="setup-tracked-thesis" data-thesis-id="${escape(thesis.id)}" aria-label="Tracking ${escape(thesis.author)} thesis">
+  return `<article class="setup-tracked-thesis" data-card-kind="thesis" data-thesis-id="${escape(thesis.id)}" aria-label="Tracking ${escape(thesis.author)} thesis">
     <div class="setup-tracked-author">${image(api, thesis.avatar, 'setup-tracked-avatar', thesis.author)}<strong>${escape(thesis.author)}</strong></div>
     <p class="setup-tracked-body">${escape(thesis.body)}</p>
     <div class="setup-tracking-status">${brandImage(api, 'setup-tracking-logo')}<span>Tracking signals</span></div>
   </article>`;
+}
+function signalPreviewCard(signal, thesis, isBookmarked, api) {
+  const kind = isBookmarked ? 'Signal' : 'Signal preview';
+  const context = `For ${thesis.author}’s thesis`;
+  return `<article class="setup-tracked-thesis setup-signal-preview" data-card-kind="signal" data-signal-id="${escape(signal.id)}" data-thesis-id="${escape(thesis.id)}" aria-label="${escape(`${kind} from ${signal.source}. ${context}`)}">
+    <div class="setup-tracked-author">${image(api, signal.avatar, 'setup-tracked-avatar', signal.source)}<strong>${escape(signal.source)}</strong><span class="setup-signal-kind">${kind}</span></div>
+    <p class="setup-tracked-body">${escape(signal.summary)}</p>
+    <div class="setup-signal-context">${image(api, thesis.avatar, 'setup-signal-thesis-avatar', thesis.author)}<span>${escape(context)}</span></div>
+  </article>`;
+}
+function notificationCards(selected, api) {
+  // This is the same exact source relationship used by thesis-demo-state.js.
+  // Other Gallery signals use different thesis IDs, even for the same author.
+  const signalThesis = api.data?.theses?.find(thesis => thesis.id === '12552:205644');
+  const signalThesisSelected = selected.some(thesis => thesis.id === signalThesis?.id);
+  const signals = signalThesis ? (api.data?.signals || []).filter(signal => signal.id && signal.source && signal.summary && signal.url) : [];
+  const cards = [];
+  for (let index = 0; index < Math.max(selected.length, signals.length); index++) {
+    if (selected[index]) cards.push(trackingCard(selected[index], api));
+    if (signals[index]) cards.push(signalPreviewCard(signals[index], signalThesis, signalThesisSelected, api));
+  }
+  return cards.join('');
 }
 function renderNotifications(api) {
   const root = document.createElement('section');
@@ -204,33 +226,125 @@ function renderNotifications(api) {
   const description = hasSelection
     ? 'Alva is now tracking signals for the theses you bookmarked. Turn on notifications so you don’t miss new opportunities.'
     : 'Bookmark theses to start tracking signals.';
-  const extra = Math.max(0, selected.length - 2);
-  root.innerHTML = `${topbar(api, 'portfolio')}
+  root.innerHTML = `${topbar(api, 'portfolio', 'feed')}
     <div class="setup-notifications-body">
-      <div class="setup-notification-context">
-        ${image(api, ASSETS.notification, 'setup-notification-icon')}
-        ${heading('Don’t miss the next signal.', description)}
-        ${hasSelection ? `<div class="setup-tracked-theses" aria-label="Theses Alva is tracking">
-          ${selected.slice(0, 2).map(thesis => trackingCard(thesis, api)).join('')}
-          ${extra ? `<p class="setup-tracked-more">+${extra} more ${extra === 1 ? 'thesis' : 'theses'}</p>` : ''}
-        </div>` : ''}
+      ${heading('Don’t miss the next signal.', description)}
+      <div class="setup-notification-stream" tabindex="0" role="region" aria-label="${hasSelection ? 'Your bookmarked theses and signal previews' : 'Signal previews'}">
+        <div class="setup-tracked-theses">${notificationCards(selected, api)}</div>
       </div>
     </div>
-    <footer class="setup-notification-dock"><button class="setup-not-now" type="button">Not now</button><button class="setup-enable" type="button">${hasSelection ? 'Turn on notifications' : 'Bookmark theses'}</button></footer>`;
-  navigation(root, api, 'portfolio');
-  root.querySelector('.setup-not-now').addEventListener('click', () => {
+    <footer class="setup-notification-dock">${hasSelection ? `
+      <div class="setup-unlock" role="slider" tabindex="0" aria-label="Turn on notifications" aria-describedby="setupUnlockHint" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Slide right to turn on notifications">
+        <span class="setup-unlock-fill" aria-hidden="true"></span>
+        <span class="setup-unlock-label" aria-hidden="true">Turn on notifications</span>
+        <span class="setup-unlock-thumb" aria-hidden="true">${image(api, ASSETS.back, 'setup-unlock-arrow')}</span>
+      </div>
+      <span class="setup-sr-only" id="setupUnlockHint">Drag right, use the arrow keys, or press Enter to continue.</span>
+    ` : '<button class="setup-enable" type="button">Bookmark theses</button>'}</footer>`;
+  let disposed = false;
+  root.querySelector('[data-action="back"]').addEventListener('click', () => { if (!disposed) api.go('portfolio'); });
+  root.querySelector('[data-action="skip"]').addEventListener('click', () => {
+    if (disposed) return;
+    if (!hasSelection) { api.go('bookmark'); return; }
     api.state.notifications = 'skipped';
     api.persist?.();
     api.go('feed');
   });
-  root.querySelector('.setup-enable').addEventListener('click', () => {
-    if (!hasSelection) { api.go('bookmark'); return; }
+  if (!hasSelection) {
+    root.classList.add('is-empty');
+    root.querySelector('.setup-enable').addEventListener('click', () => { if (!disposed) api.go('bookmark'); });
+    root.cleanup = () => { disposed = true; };
+    return root;
+  }
+
+  const slider = root.querySelector('.setup-unlock');
+  const thumb = root.querySelector('.setup-unlock-thumb');
+  let progress = 0, pointerId = null, pointerStart = 0, dragStart = 0, permissionOpen = false;
+  const threshold = .92;
+  function paint(value, settling = false) {
+    progress = Math.min(1, Math.max(0, value));
+    root.classList.toggle('is-unlock-settling', settling && !api.reduced?.());
+    root.style.setProperty('--notification-blur', `${(1 - progress) * 4}px`);
+    root.style.setProperty('--notification-reveal', String(progress));
+    slider.style.setProperty('--unlock-progress', String(progress));
+    slider.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
+    slider.setAttribute('aria-valuetext', progress === 1 ? 'Opening notification permission' : `${Math.round(progress * 100)}%. Slide right to turn on notifications`);
+  }
+  function releasePointer() {
+    const captured = pointerId;
+    pointerId = null;
+    if (captured !== null && slider.hasPointerCapture?.(captured)) slider.releasePointerCapture(captured);
+  }
+  function finish(preference) {
+    if (disposed) return;
+    permissionOpen = false;
+    api.state.notifications = preference;
+    api.persist?.();
+    api.go('feed');
+  }
+  function openPermission() {
+    if (disposed || permissionOpen) return;
+    releasePointer();
+    // sheet() returns focus to its invoker on every close path, including Escape.
+    slider.focus({ preventScroll: true });
+    permissionOpen = true;
+    slider.setAttribute('aria-disabled', 'true');
+    paint(1, true);
     if (api.state.notifications === 'allowed') { api.go('feed'); return; }
     api.sheet({title: '“Alva” Would Like to Send You Notifications', body: 'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.', actions: [
-      {label: 'Don’t Allow', onClick() {api.state.notifications = 'denied';api.persist?.();api.go('feed');}},
-      {label: 'Allow', primary: true, onClick() {api.state.notifications = 'allowed';api.persist?.();api.go('feed');}},
+      {label: 'Don’t Allow', onClick() {finish('denied');}},
+      {label: 'Allow', primary: true, onClick() {finish('allowed');}},
     ]});
+  }
+  slider.addEventListener('focus', () => {
+    // sheet() restores focus before running Allow / Don't Allow. Wait for that
+    // action so completion keeps the revealed cards; dismissal alone resets.
+    queueMicrotask(() => {
+      if (disposed || !permissionOpen || document.activeElement !== slider) return;
+      permissionOpen = false;
+      slider.setAttribute('aria-disabled', 'false');
+      paint(0, true);
+    });
   });
+  slider.addEventListener('pointerdown', event => {
+    if (disposed || permissionOpen || pointerId !== null || !event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    slider.focus({ preventScroll: true });
+    pointerId = event.pointerId;
+    pointerStart = event.clientX;
+    dragStart = progress;
+    paint(progress);
+    slider.setPointerCapture(pointerId);
+  });
+  slider.addEventListener('pointermove', event => {
+    if (disposed || event.pointerId !== pointerId) return;
+    // clientX is in screen pixels; Gallery can scale the whole phone with CSS.
+    const scale = slider.clientWidth ? slider.getBoundingClientRect().width / slider.clientWidth : 0;
+    const travel = (slider.clientWidth - thumb.offsetWidth - 8) * scale;
+    if (travel <= 0) return;
+    paint(dragStart + (event.clientX - pointerStart) / travel);
+    if (progress >= threshold) openPermission();
+  });
+  const endDrag = event => {
+    if (event.pointerId !== pointerId) return;
+    releasePointer();
+    if (!disposed && !permissionOpen) paint(0, true);
+  };
+  slider.addEventListener('pointerup', endDrag);
+  slider.addEventListener('pointercancel', endDrag);
+  slider.addEventListener('lostpointercapture', endDrag);
+  slider.addEventListener('keydown', event => {
+    if (disposed || permissionOpen) return;
+    const values = { ArrowRight: progress + .1, ArrowUp: progress + .1, ArrowLeft: progress - .1, ArrowDown: progress - .1, PageUp: progress + .25, PageDown: progress - .25, Home: 0, End: 1, Enter: 1, ' ': 1 };
+    if (!(event.key in values)) return;
+    event.preventDefault();
+    paint(values[event.key], true);
+    if (progress >= threshold) openPermission();
+  });
+  slider.addEventListener('blur', () => {
+    if (!disposed && !permissionOpen) { releasePointer(); paint(0, true); }
+  });
+  root.cleanup = () => { disposed = true; releasePointer(); };
   return root;
 }
 
