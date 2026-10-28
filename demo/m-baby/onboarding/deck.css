@@ -1,6 +1,6 @@
 /* Each layer is a complete thesis; navigation promotes that same article. */
 .bookmark-page .bookmark-deck{padding:0;overflow:hidden}
-.bookmark-deck>.deck-card{position:absolute;inset:28px 24px auto;width:auto;height:min(381px,calc(100% - 28px));display:flex;flex-direction:column;overflow:hidden;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);box-shadow:0 4px 16px #00000006;transform-origin:50% 0;touch-action:pan-y;will-change:transform}
+.bookmark-deck>.deck-card{position:absolute;inset:28px 24px auto;width:auto;height:calc(100% - 28px);display:flex;flex-direction:column;overflow:hidden;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);box-shadow:0 4px 16px #00000006;transform-origin:50% 0;touch-action:pan-y;will-change:transform}
 .bookmark-deck>.deck-card[data-deck-position="front"]{z-index:3;transform:none}
 .bookmark-deck>.deck-card[data-deck-position="previous"]{z-index:1;transform:translateY(-8px) rotate(2deg) scale(.95);pointer-events:none}
 .bookmark-deck>.deck-card[data-deck-position="next"]{z-index:2;transform:translateY(-4px) rotate(-2deg) scale(.975);pointer-events:none}
