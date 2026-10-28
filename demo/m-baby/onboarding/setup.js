@@ -3,6 +3,7 @@
  */
 import { signalCard } from './intro.js?v=11';
 import { bindNotificationReveal } from './notification-reveal.js';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=1';
 
 const ASSETS = {
   logo: '12552:200754',
@@ -274,6 +275,7 @@ function renderNotifications(api) {
 }
 
 export function renderSetupPage(name, api) {
+  if (name === 'notifications' && api.variant === 'guided') return renderNotificationToastsPage(api);
   const renderer = {login: renderLogin, people: renderPeople, portfolio: renderPortfolio, notifications: renderNotifications}[name];
   if (!renderer) throw new Error(`Unknown setup page: ${name}`);
   return renderer(api);
