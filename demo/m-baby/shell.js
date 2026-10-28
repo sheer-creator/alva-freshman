@@ -39,7 +39,7 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=12',
+      href: 'onboarding/index.html?v=13',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
@@ -52,7 +52,7 @@
       subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-guided',
-      href: 'onboarding/index.html?intro=guided&v=14',
+      href: 'onboarding/index.html?intro=guided&v=15',
       resetOnRestart: true,
       meta: 'Mobile · Automatic three-step introduction',
       figma: {
