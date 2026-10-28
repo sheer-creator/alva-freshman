@@ -29,12 +29,6 @@ applyAppearance(appearance);
 systemTheme.addEventListener('change', () => applyAppearance(appearance));
 if (parent !== window) parent.postMessage({ type: 'alva:prototype-ready' }, location.origin);
 
-const [manifest, data] = await Promise.all(['assets/manifest.json', 'content.json'].map(async url => {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Could not load ${url}`);
-  return response.json();
-}));
-await document.fonts.ready;
 const steps = ['login', 'intro', 'people', 'bookmark', 'portfolio', 'notifications'];
 let state = readOnboardingState();
 const restartToken = new URLSearchParams(location.search).get('restart');
@@ -42,6 +36,24 @@ if (restartToken && state.restartToken !== restartToken) { resetOnboardingState(
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const requested = location.hash.slice(1);
+const initialPage = steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : 'login';
+const splash = document.querySelector('#startupSplash');
+// The static splash covers data/font loading; resumed steps skip its reveal.
+if (initialPage !== 'login') { splash.remove(); app.inert = false; }
+const [manifest, data] = await Promise.all(['assets/manifest.json', 'content.json'].map(async url => {
+  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!response.ok) throw new Error(`Could not load ${url}`);
+  return response.json();
+})).catch(error => {
+  splash.remove(); app.inert = false;
+  const failure = node('section', 'onboarding-load-error', '<p>Unable to load this demo.</p>');
+  const retry = node('button', 'btn btn-secondary', 'Try again');
+  retry.type = 'button'; retry.onclick = () => location.reload();
+  failure.append(retry); app.replaceChildren(failure);
+  throw error;
+});
+await document.fonts.ready;
 let page, routeGeneration = 0, routeAnimations = [], toastTimer;
 const persist = () => persistOnboardingState(state);
 const api = { data, state, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
@@ -162,10 +174,5 @@ async function go(name, options = {}) {
 reducedMotion.addEventListener('change', () => { if (api.reduced() && state.page === 'intro') page?.finish?.(); });
 document.addEventListener('click', () => queueMicrotask(persist));
 addEventListener('pagehide', () => { persist(); page?.cleanup?.(); });
-const requested = location.hash.slice(1);
-const initialPage = steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : 'login';
-const splash = document.querySelector('#startupSplash');
-if (initialPage === 'login') { splash.hidden = false; app.inert = true; }
-else splash.remove();
 await go(initialPage, { instant: true });
 if (initialPage === 'login') startSplash();
