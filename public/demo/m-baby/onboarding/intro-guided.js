@@ -36,7 +36,7 @@ export function renderGuidedIntroPage(api) {
   let staticMotion = false;
   let analysis, reveal, column, taskIndex = 0, touched = false;
   let measuredWidth = 0, measuredHeight = 0;
-  let signalProgress = 0;
+  let signalProgress = 0, pushingSignals = false;
   const animations = new Set(), pausedAnimations = new Set(), timers = new Set();
   const valid = token => alive && root.isConnected && token === epoch;
   const unit = () => root.getBoundingClientRect().width / root.clientWidth || 1;
@@ -54,6 +54,7 @@ export function renderGuidedIntroPage(api) {
   });
   function stop() {
     epoch++;
+    pushingSignals = false;
     animations.forEach(animation => animation.cancel()); animations.clear(); pausedAnimations.clear();
     timers.forEach(entry => { clearTimeout(entry.timer); entry.resolve(); }); timers.clear();
   }
@@ -79,12 +80,17 @@ export function renderGuidedIntroPage(api) {
     const copy = COPY[step - 1];
     header.innerHTML = `<div class="guide-heading-copy"><h1>${escapeHTML(copy.title)}</h1><p>${escapeHTML(copy.description)}</p></div>`;
   }
+  function updateTopFade() {
+    viewport.classList.toggle('guide-top-fade', step === 2 ||
+      (step === 3 && (signalProgress < 1 || pushingSignals)) || viewport.scrollTop > 0);
+  }
   function alignTrack(progress = signalProgress) {
-    if (step === 1) { track.style.marginTop = '0px'; track.style.minHeight = 'calc(100% - 24px)'; return; }
     track.style.minHeight = '0px';
-    // Match the edited 393px reference: lift the shared visual centre 12px;
-    // smaller devices retain the analysis inside the visible stage.
-    const analysisTop = Math.max(12, Math.min(viewport.clientHeight - 124, (viewport.clientHeight - 112) / 2 + 12.5));
+    updateTopFade();
+    if (step === 1) { track.style.marginTop = '0px'; return; }
+    // The analysis occupies a fixed anchor in the reference viewport. It does
+    // not follow a newly centred pair as the thesis moves out of view.
+    const analysisTop = Math.max(124, Math.min(245, viewport.clientHeight - 112 - 24));
     const analysisOffset = analysisTop - thesis.offsetHeight - 12;
     const signalOffset = -(pair.offsetHeight + 8);
     track.style.marginTop = `${step === 3 ? analysisOffset + (signalOffset - analysisOffset) * progress : analysisOffset}px`;
@@ -198,7 +204,8 @@ export function renderGuidedIntroPage(api) {
     api.state.guidedIntroStep = step; api.state.guidedIntroReadyStep = 0; api.persist();
     root.classList.remove('guide-can-continue'); footer.setAttribute('aria-hidden', 'true'); rememberSize();
     await showTitle(token); if (!valid(token)) return;
-    const before = anchorTop(); positionViewport(true); root.dataset.phase = 'content';
+    const previousThesisTop = thesis.getBoundingClientRect().top / unit();
+    positionViewport(true); root.dataset.phase = 'content';
     if (api.reduced() || staticMotion) {
       completeContent(); thesis.style.visibility = 'visible'; resetAnalysisLabel();
       positionViewport(true);
@@ -208,15 +215,25 @@ export function renderGuidedIntroPage(api) {
       thesis.style.visibility = 'visible';
       await spring(pair, value => ({ transform: `scale(${.96 + .04 * value})`, opacity: Math.min(1, value) }), 560);
     } else if (step === 2) {
-      addAnalysis(); alignTrack(); const layoutMove = moveTrack(before, 620);
-      await Promise.all([layoutMove, spring(reveal, value => ({ height: `${Math.max(0, 112 * value)}px` }), 620, { stiffness: 250, damping: 20 })]);
+      addAnalysis(); alignTrack();
+      const thesisDelta = previousThesisTop - thesis.getBoundingClientRect().top / unit();
+      const samples = springSamples(620, { stiffness: 250, damping: 20 });
+      await Promise.all([
+        play(thesis, samples.map(({ offset, value }) => ({ offset,
+          transform: `translateY(${thesisDelta * (1 - value)}px)`,
+        })), 620, { easing: 'linear' }),
+        play(reveal, samples.map(({ offset, value }) => ({ offset,
+          transform: `scale(${.92 + .08 * value})`, opacity: Math.max(0, Math.min(1, value)),
+        })), 620, { easing: 'linear' }),
+      ]);
     } else {
       addAnalysis();
       for (let index = 0; index < signals.length; index++) {
         const oldTop = anchorTop(), card = addSignal(index);
-        signalProgress = (index + 1) / signals.length; alignTrack();
+        signalProgress = (index + 1) / signals.length; pushingSignals = true; alignTrack();
         await Promise.all([moveTrack(oldTop, 380), play(card, [{ opacity: 0 }, { opacity: 1 }], 200)]);
         if (!valid(token)) return;
+        pushingSignals = false; updateTopFade();
         if (index < signals.length - 1) { await wait(220); if (!valid(token)) return; }
       }
     }
@@ -234,6 +251,7 @@ export function renderGuidedIntroPage(api) {
   viewport.addEventListener('pointerdown', onReading);
   viewport.addEventListener('wheel', onReading, { passive: true });
   viewport.addEventListener('keydown', onReading);
+  viewport.addEventListener('scroll', updateTopFade, { passive: true });
   function onVisibility() {
     root.classList.toggle('stream-paused', document.hidden);
     if (document.hidden) {
@@ -269,6 +287,7 @@ export function renderGuidedIntroPage(api) {
     if (!alive) return; alive = false; stop(); next.onclick = null; observer.disconnect();
     document.removeEventListener('visibilitychange', onVisibility);
     viewport.removeEventListener('pointerdown', onReading); viewport.removeEventListener('wheel', onReading); viewport.removeEventListener('keydown', onReading);
+    viewport.removeEventListener('scroll', updateTopFade);
   };
   thesis.style.visibility = 'hidden'; setTitle(); setChrome(false);
   return root;

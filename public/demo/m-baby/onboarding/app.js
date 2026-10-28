@@ -1,7 +1,7 @@
 import { animate } from './vendor/motion.js';
 import { renderSetupPage } from './setup.js?v=13';
 import { renderIntroPage } from './intro.js?v=11';
-import { renderGuidedIntroPage } from './intro-guided.js?v=1';
+import { renderGuidedIntroPage } from './intro-guided.js?v=2';
 import { renderBookmarkPage } from './cards.js?v=6';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=7';
