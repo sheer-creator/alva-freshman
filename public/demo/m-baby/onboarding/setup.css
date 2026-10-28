@@ -84,7 +84,7 @@
 .setup-notification-dock{position:absolute;left:0;right:0;bottom:16px;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 16px;pointer-events:none}
 .setup-notification-dock::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(to bottom,transparent 45%,var(--bg-container) 80%);opacity:calc(1 - var(--notification-progress) * 2)}
 .setup-page .setup-reveal-handle{display:grid;place-items:center;width:48px;height:48px;flex:none;padding:14px;border:0;border-radius:6px;background:var(--setup-brand);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto;transform:translateY(calc(-1 * var(--notification-reveal)));transition:none}
-.setup-page .setup-reveal-handle:active{cursor:grabbing;transform:translateY(calc(-1 * var(--notification-reveal)))}
+.setup-page .setup-reveal-handle:active:not(:disabled){cursor:grabbing;transform:translateY(calc(-1 * var(--notification-reveal)))}
 .setup-reveal-handle[aria-disabled="true"]{cursor:default}
 .setup-page .setup-reveal-arrow{width:20px;height:20px;transform:rotate(90deg);filter:brightness(0) invert(1)}
 .setup-page .setup-reveal-label{font-size:14px;line-height:22px;font-weight:500;text-align:center;color:var(--setup-ink);opacity:calc(1 - var(--notification-progress) * 2);pointer-events:none}
