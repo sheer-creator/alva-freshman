@@ -80,7 +80,6 @@ export function bindNotificationToasts({ root, handle, track, api }) {
   const doc = root.ownerDocument;
   const view = doc?.defaultView || globalThis;
   const removers = [];
-  const threshold = .92;
   let disposed = false, permissionOpen = false, distance = 0, gesture = null;
   let geometry = { scale: 1, travel: 0 };
   const listen = (target, type, callback, options) => {
@@ -165,7 +164,7 @@ export function bindNotificationToasts({ root, handle, track, api }) {
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, start: distance, axis: null };
     handle.setPointerCapture(event.pointerId);
   });
-  listen(handle, 'pointermove', event => {
+  const updateGesture = event => {
     if (disposed || !gesture || event.pointerId !== gesture.id) return;
     gesture.lastX = event.clientX;
     const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
@@ -173,13 +172,23 @@ export function bindNotificationToasts({ root, handle, track, api }) {
       gesture.axis = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
     }
     if (gesture.axis !== 'horizontal') return;
-    paint(gesture.start + dx / geometry.scale);
-    if (progress() >= threshold) openPermission();
+    // Compare physical coordinates at the end so Gallery scaling does not
+    // leave a mathematically complete drag a fraction short through rounding.
+    const endX = gesture.x + (geometry.travel - gesture.start) * geometry.scale;
+    paint(event.clientX >= endX ? geometry.travel : gesture.start + dx / geometry.scale);
+  };
+  listen(handle, 'pointermove', updateGesture);
+  listen(handle, 'pointerup', event => {
+    if (disposed || !gesture || event.pointerId !== gesture.id) return;
+    // A release can contain a newer pointer position than the last move.
+    // Recheck it so reaching the end and then reversing never confirms early.
+    updateGesture(event);
+    if (gesture.axis === 'horizontal' && geometry.travel > 0 && distance === geometry.travel) openPermission();
+    else reset();
   });
   const endGesture = event => {
     if (gesture && event.pointerId === gesture.id) reset();
   };
-  listen(handle, 'pointerup', endGesture);
   listen(handle, 'pointercancel', endGesture);
   listen(handle, 'lostpointercapture', endGesture);
   listen(handle, 'keydown', event => {
@@ -192,7 +201,7 @@ export function bindNotificationToasts({ root, handle, track, api }) {
     const value = ['Home', 'Escape'].includes(event.key) ? 0
       : ['End', 'Enter', ' '].includes(event.key) ? 1 : progress() + changes[event.key];
     paint(value * geometry.travel, true);
-    if (progress() >= threshold) openPermission();
+    if (['Enter', ' '].includes(event.key)) openPermission();
   });
   listen(handle, 'blur', () => { if (!disposed && !permissionOpen) reset(); });
   listen(view, 'blur', () => { if (!disposed && !permissionOpen) reset(); });
