@@ -29,9 +29,8 @@
 .page-slot>.notification-toasts-page.is-track{inset:calc(-1 * var(--status-h)) 0 calc(-1 * var(--home-h));height:auto}
 .page-slot:has(>.notification-toasts-page.is-track){overflow:visible}
 .onboarding-app:has(.notification-toasts-page.is-track)>:is(.system-bar,.home-indicator){background:transparent}
-.notification-toasts-page.is-track{--page-dim:color-mix(in srgb,#000 6%,var(--bg-container));--phone-body:color-mix(in srgb,#000 3%,var(--bg-container));--phone-tint:color-mix(in srgb,#000 11%,var(--bg-container));--phone-tint-2:color-mix(in srgb,#000 16%,var(--bg-container));--phone-ink:color-mix(in srgb,#000 30%,var(--bg-container))}
-/* This step dims the whole page so the white notifications are the brightest
-   thing on it; the phone is a quiet neutral object. */
+.notification-toasts-page.is-track{--page-dim:var(--bg-container);--phone-body:color-mix(in srgb,#000 3%,var(--bg-container));--phone-tint:color-mix(in srgb,#000 11%,var(--bg-container));--phone-tint-2:color-mix(in srgb,#000 16%,var(--bg-container));--phone-ink:color-mix(in srgb,#000 30%,var(--bg-container))}
+/* Same page background as every other step; the phone is a quiet neutral object. */
 .page-slot>.notification-toasts-page.is-track{background:var(--page-dim)}
 .notification-toasts-page.is-track .setup-topbar{position:relative;z-index:8;margin-top:var(--status-h)}
 .notification-toasts-page.is-track .notification-toasts-body{position:relative;z-index:4;overflow:hidden}
@@ -68,7 +67,7 @@
 .notification-toasts-page.is-track .notification-toast[data-depth="2"]::after{background:color-mix(in srgb,#000 8%,var(--bg-container))}
 .notification-toasts-page.is-track .notification-toast-content{opacity:calc(1 - var(--hide,0) * (1 - var(--notification-toast-progress)));filter:none}
 .notification-toasts-page.is-track .notification-toast-content>p{filter:blur(calc(5px * (1 - var(--notification-toast-progress))))}
-.notification-toasts-page.is-track .notification-toasts-track{background:var(--bg-container)}
+.notification-toasts-page.is-track .notification-toasts-track{background:var(--bg-container);box-shadow:inset 0 0 0 .5px var(--l12,#0000001f)}
 .phone-mock-toasts.is-stacking .notification-toast{transition:transform 460ms cubic-bezier(.22,1,.36,1)}
 .notification-toasts-page.is-track.is-toast-settling .phone-mock-device{transition:transform 200ms ease-out,opacity 200ms ease-out,filter 200ms ease-out}
 /* Track: the permission prompt follows the current iOS alert (left-aligned
@@ -88,14 +87,14 @@
 
 /* Dark mode: the dimmed page goes darker, the phone and the cards are
    lifted with white instead of darkened with black. */
-:root[data-theme="dark"] .notification-toasts-page.is-track{--page-dim:color-mix(in srgb,#000 40%,var(--bg-container));--phone-body:color-mix(in srgb,#fff 14%,var(--bg-container));--phone-tint:color-mix(in srgb,#fff 4%,var(--bg-container));--phone-tint-2:color-mix(in srgb,#fff 7%,var(--bg-container));--phone-ink:color-mix(in srgb,#fff 45%,var(--bg-container))}
+:root[data-theme="dark"] .notification-toasts-page.is-track{--page-dim:var(--bg-container);--phone-body:color-mix(in srgb,#fff 14%,var(--bg-container));--phone-tint:color-mix(in srgb,#fff 4%,var(--bg-container));--phone-tint-2:color-mix(in srgb,#fff 7%,var(--bg-container));--phone-ink:color-mix(in srgb,#fff 45%,var(--bg-container))}
 :root[data-theme="dark"] .phone-mock-device{box-shadow:inset 0 0 0 .5px #ffffff24,0 4px 15px #0000004d}
 :root[data-theme="dark"] .phone-mock-screen{box-shadow:inset 0 0 0 .5px #ffffff1a}
 :root[data-theme="dark"] .phone-mock-status i{background:#ffffff26}
 :root[data-theme="dark"] .notification-toasts-page.is-track .notification-toast{background:color-mix(in srgb,#fff 20%,var(--bg-container));border-color:#ffffff1f}
 :root[data-theme="dark"] .notification-toasts-page.is-track .notification-toast[data-depth="1"]::after{background:color-mix(in srgb,#fff 15%,var(--bg-container))}
 :root[data-theme="dark"] .notification-toasts-page.is-track .notification-toast[data-depth="2"]::after{background:color-mix(in srgb,#fff 11%,var(--bg-container))}
-:root[data-theme="dark"] .notification-toasts-page.is-track .notification-toasts-track{background:color-mix(in srgb,#fff 10%,var(--bg-container))}
+:root[data-theme="dark"] .notification-toasts-page.is-track .notification-toasts-track{background:var(--bg-container)}
 
 /* Track: a wider handle (not square). */
 .notification-toasts-page.is-track .notification-toasts-handle{width:72px}
