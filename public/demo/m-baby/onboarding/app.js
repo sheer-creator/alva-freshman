@@ -1,9 +1,9 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=18';
+import { renderSetupPage } from './setup.js?v=19';
 import { renderIntroPage } from './intro.js?v=12';
 import { renderGuidedIntroPage } from './intro-guided.js?v=3';
 import { renderBookmarkPage } from './cards.js?v=9';
-import { renderPickPage, renderTrackPage } from './intro-track.js?v=11';
+import { renderPickPage, renderTrackPage } from './intro-track.js?v=12';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=10';
 import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=5';

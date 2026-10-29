@@ -149,6 +149,20 @@ function renderPeople(api) {
       }},
     ]});
   });
+  // Track variant: the selected people's avatars travel to the next page, so it
+  // records where they are when Next is pressed.
+  if (track(api)) root.querySelector('[data-action="next"]').addEventListener('click', () => {
+    const base = root.getBoundingClientRect(), unit = base.width / root.clientWidth || 1;
+    api.state.peopleFrom = {};
+    for (const id of api.state.following) {
+      const avatar = root.querySelector(`[data-person="${id}"] .setup-avatar`);
+      if (!avatar) continue;
+      const r = avatar.getBoundingClientRect();
+      if (r.bottom < base.top || r.top > base.bottom) continue;
+      api.state.peopleFrom[id] = { x: (r.left - base.left) / unit, y: (r.top - base.top) / unit, size: r.width / unit };
+    }
+    api.persist();
+  });
   navigation(root, api, peopleBack, peopleNext);
   update();
   return root;
