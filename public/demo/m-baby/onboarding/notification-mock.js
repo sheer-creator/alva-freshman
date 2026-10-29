@@ -148,17 +148,18 @@ export function mountPhoneMock(root, api) {
       const toast = order[arrived];
       setDepth(toast, 0); toast.classList.add('is-arrived');
       toast.animate([{ opacity: 0, translate: '0 -28px' }, { opacity: 1, translate: '0 0' }], { duration: 460, easing: EASE, fill: 'backwards' });
-      await sleep(220 + (arrived === order.length - 1 ? 240 : 0)); if (!alive) return;
+      if (arrived < order.length - 1) { await sleep(220); if (!alive) return; }
     }
-    await sleep(300); if (!alive) return;
-    layer.classList.remove('is-stacking');
-    // N1. The heading and slider arrive; the phone stays where it is.
+    // N1. As the third notification lands, the heading and slider arrive with
+    // it; the phone stays where it is.
+    await sleep(160); if (!alive) return;
     root.dataset.stage = 'ready';
-    // The heading arrives together with the slider.
     root.querySelector('.setup-heading').animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
       { duration: 480, easing: EASE, fill: 'backwards' });
     root.querySelector('.notification-toasts-dock').animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }],
-      { duration: 480, delay: 120, easing: EASE, fill: 'backwards' });
+      { duration: 480, delay: 80, easing: EASE, fill: 'backwards' });
+    await sleep(400); if (!alive) return;
+    layer.classList.remove('is-stacking');
   }
   const resized = () => { if (!geo || root.dataset.stage !== 'ready') return; measure(); stackAll(); };
   addEventListener('resize', resized);
