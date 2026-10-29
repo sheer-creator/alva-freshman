@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="demo-status" content="exploration">
+  <meta name="demo-summary" content="For You 冷启动 · C 原卡连接：顶部引导收藏 thesis，thesis 卡下用分支线挂出关联 signal；9 组 thesis + 18 条 signal，可点赞、不想看与撤销。">
+  <title>For You · 冷启动 · 原卡连接</title>
+  <style>
+    @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+
+    :root {
+      --b0: #fff;
+      --n9: rgba(0, 0, 0, .9);
+      --n7: rgba(0, 0, 0, .7);
+      --n5: rgba(0, 0, 0, .5);
+      --n3: rgba(0, 0, 0, .3);
+      --nr9: rgba(255, 255, 255, .9);
+      --l2: rgba(0, 0, 0, .2);
+      --l12: rgba(0, 0, 0, .12);
+      --br03: rgba(0, 0, 0, .03);
+      --br05: rgba(0, 0, 0, .05);
+      --br07: rgba(0, 0, 0, .07);
+      --br7: rgba(0, 0, 0, .7);
+      --m1: #49a3a6;
+      --m1-10: rgba(73, 163, 166, .1);
+      --m3: #2a9b7d;
+      --m3-10: rgba(42, 155, 125, .1);
+      --m4: #e05357;
+      --m4-10: rgba(224, 83, 87, .1);
+      --m5: #e6a91a;
+      --m5-10: rgba(230, 169, 26, .1);
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: #fff; -webkit-font-smoothing: antialiased; }
+    body { min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px 16px; color: var(--n9); font-family: Delight, 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif; }
+    button { font: inherit; color: inherit; }
+    img { display: block; }
+    p { margin: 0; }
+
+    /* ---------- phone shell ---------- */
+    .phone-wrap { flex: none; width: 440px; height: 956px; }
+    .phone-screen { position: relative; width: 440px; height: 956px; display: flex; flex-direction: column; overflow: hidden; border-radius: 44px; background: var(--b0); box-shadow: 0 0 0 .5px var(--l2), 0 18px 50px rgba(0, 0, 0, .12); transform-origin: top left; }
+    /* iOS/Status Bar: 59 tall; time SF Pro Text Semibold 16 in a 54×21 box, left pl 10 pb 3; island 125×37; icons 78.4×13, right pr 11 */
+    .status-bar { flex: none; height: 59px; display: flex; align-items: flex-end; justify-content: center; }
+    .sb-left, .sb-right { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .sb-left { padding: 0 0 3px 10px; }
+    .sb-right { padding-right: 11px; }
+    .sb-time { width: 54px; height: 21px; font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 21px; font-weight: 600; letter-spacing: -.32px; text-align: center; color: #000; }
+    .island { flex: none; align-self: center; width: 125px; height: 37px; border-radius: 100px; background: #000; }
+    .sb-right img { width: 78.4px; height: 13px; }
+
+    /* Feed / Header / Icon pill (13097:100175): title pt 12 px 16, gap 8, pill rail, pb 16, bottom 0.5 line/l12 outside the 98 height */
+    .header { flex: none; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px; }
+    .title { padding: 12px 16px 0; font-size: 24px; line-height: 34px; font-weight: 500; letter-spacing: .24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pill-rail { display: flex; align-items: center; }
+    .pill-viewport { position: relative; flex: 1; min-width: 0; }
+    .pill-track { display: flex; gap: 8px; padding: 0 12px; overflow-x: auto; scrollbar-width: none; }
+    .pill-track::-webkit-scrollbar { display: none; }
+    .pill { flex: none; padding: 4px 10px; border: 0; border-radius: 960px; background: var(--br03); color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; cursor: pointer; }
+    .pill.on { background: var(--br7); color: var(--nr9); }
+    .pill-fade { position: absolute; top: 0; right: 0; bottom: .5px; width: 24px; background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff); pointer-events: none; }
+    .pill-more { flex: none; display: grid; place-items: center; height: 28px; padding: 0 16px 0 8px; border: 0; background: none; cursor: pointer; }
+    .pill-more img { width: 12px; height: 12px; }
+
+    .feed { position: relative; flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+    .feed::-webkit-scrollbar { display: none; }
+
+    /* Create / Fixed FAB: 48, m1, round, 16 above the tab bar */
+    .fab { position: absolute; right: 16px; bottom: 98px; width: 48px; height: 48px; display: grid; place-items: center; border: 0; border-radius: 96px; background: var(--m1); box-shadow: 0 10px 20px rgba(0, 0, 0, .08); cursor: pointer; }
+    .fab svg { display: block; }
+
+    /* Tab Bar: b0 + blur, top 0.5 line/l12; tab pt 8, icon 22, gap 2, label 10/16; indicator 34 with a 144×5 home bar 8 from the bottom */
+    .tabbar { flex: none; height: 82px; background: var(--b0); backdrop-filter: blur(15px); border-top: .5px solid var(--l12); }
+    .tabs { display: flex; }
+    .tab { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 0; border: 0; background: none; color: var(--n7); font-size: 10px; line-height: 16px; letter-spacing: .1px; white-space: nowrap; cursor: pointer; }
+    .tab.on { color: var(--n9); font-weight: 500; }
+    .tab img { width: 22px; height: 22px; }
+    .indicator { position: relative; height: 34px; }
+    .indicator i { position: absolute; bottom: 8px; left: 50%; width: 144px; height: 5px; margin-left: -72px; border-radius: 100px; background: #000; }
+
+    /* Shared bits */
+    .ic { flex: none; }
+    .ic12 { width: 12px; height: 12px; }
+    .ic16 { width: 16px; height: 16px; }
+    .ic20 { width: 20px; height: 20px; }
+    .av { flex: none; display: block; border-radius: 960px; background: center / cover no-repeat; }
+    .av32 { width: 32px; height: 32px; box-shadow: inset 0 0 0 .5px var(--b0); }
+    .av-initials { display: grid; place-items: center; background: var(--br07); color: var(--n7); font-size: 12px; font-weight: 500; }
+    /* Feed items keep their 0.5 line/l12 divider outside the auto-layout height. */
+    .hairline { position: relative; }
+    .hairline::after { position: absolute; right: 0; bottom: 0; left: 0; border-bottom: .5px solid var(--l12); content: ''; pointer-events: none; }
+
+    /* Feed Item · Special · Portfolio entry (13097:100205): m1 at 8% (raw value in the design), px16 py12, gap 8 */
+    .entry { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: rgba(73, 163, 166, .08); }
+    .entry-text { flex: 1; min-width: 0; overflow: hidden; font-size: 14px; line-height: 22px; font-weight: 500; letter-spacing: .14px; white-space: nowrap; text-overflow: ellipsis; }
+    .entry-close { flex: none; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
+
+    /* Feed Item · Thesis + Signals · Thread (13194:108956): pt16 px16 pb12; thesis row, then signal rows joined by a 0.5 line/l2 rail */
+    .thread { display: flex; flex-direction: column; padding: 16px 16px 12px; background: var(--b0); }
+    .t-row { display: flex; align-items: stretch; gap: 8px; }
+    .rail { flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 32px; }
+    .rail-line { flex: 1; width: .5px; background: var(--l2); }
+
+    /* Feed Card / Base: gap 12; post = author row, tickers, body (gap 8); actions 28 tall (Ask Alva + bookmark) */
+    .base { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+    .post { display: flex; flex-direction: column; gap: 8px; }
+    .post-head { display: flex; align-items: flex-start; gap: 8px; }
+    .post-name { flex: 1; min-width: 0; overflow: hidden; font-size: 14px; line-height: 22px; font-weight: 500; letter-spacing: .14px; white-space: nowrap; text-overflow: ellipsis; }
+    .post-time { flex: none; color: var(--n5); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
+    .tickers { display: flex; gap: 8px; height: 28px; overflow-x: auto; scrollbar-width: none; }
+    .tickers::-webkit-scrollbar { display: none; }
+    /* Ticker chip: br05, radius-ct-m 6, px8, gap 4; logo 16, symbol Regular/12 n9, direction dial 12 */
+    .ticker { flex: none; display: flex; align-items: center; gap: 4px; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--br05); }
+    .ticker-logo { flex: none; width: 16px; height: 16px; border-radius: 960px; object-fit: cover; }
+    .ticker-logo.is-missing { background: var(--br07); }
+    .ticker-sym { font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
+    .dir { flex: none; display: grid; place-items: center; width: 12px; height: 12px; border-radius: 960px; }
+    .dir img { width: 8px; height: 8px; }
+    .dir.up { background: var(--m3); }
+    .dir.down { background: var(--m4); }
+    .dir.down img { transform: rotate(180deg); }
+    .body { font-size: 14px; line-height: 22px; letter-spacing: .14px; word-break: break-word; }
+    .body .more, .body .cite { color: var(--m1); font-weight: 500; }
+    .chart { width: 240px; height: 135px; overflow: hidden; border: .5px solid var(--l2); border-radius: 8px; }
+    .chart img { width: 100%; height: 100%; object-fit: cover; }
+    .actions { display: flex; align-items: center; gap: 12px; }
+    .ask { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; padding: 4px 0; color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
+    .bookmark { flex: none; display: flex; align-items: center; gap: 4px; padding: 4px 0; color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; }
+    .fb { flex: none; display: flex; align-items: center; gap: 16px; }
+    /* Like / Hide icon buttons: same behaviour as the signal-card-schemes demo (like-l ↔ like-f with a short pop). */
+    .like-signal, .hide-signal { display: grid; place-items: center; width: 16px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; }
+    .like-glyph { position: relative; width: 16px; height: 16px; transform-origin: 50% 70%; transition: transform 100ms ease; }
+    .like-glyph .ic { position: absolute; inset: 0; transition: opacity 140ms ease; }
+    .like-signal .like-filled, .like-signal[aria-pressed="true"] .like-outline { opacity: 0; }
+    .like-signal[aria-pressed="true"] .like-filled { opacity: 1; }
+    .like-signal:active .like-glyph { transform: scale(.86); }
+    .like-signal.is-popping .like-glyph { animation: signal-like-pop 360ms cubic-bezier(.2, .8, .2, 1); }
+    @keyframes signal-like-pop {
+      0%, 100% { transform: scale(1) rotate(0); }
+      28% { transform: translateY(-1px) scale(1.2) rotate(-10deg); }
+      62% { transform: scale(.96) rotate(3deg); }
+    }
+    /* Not-interested menu (7546:16786): 240 wide, p4, 42px rows, excluded 0.5px stroke; opens above the actions row. */
+    .feedback-menu { position: absolute; right: 0; bottom: 28px; z-index: 3; display: flex; flex-direction: column; width: 240px; padding: 4px; border-radius: 6px; background: var(--b0); box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0, 0, 0, .08); }
+    .feedback-item { width: 100%; min-height: 42px; padding: 10px 12px; border: 0; border-radius: 4px; background: none; color: var(--n9); font-size: 14px; line-height: 22px; letter-spacing: .14px; text-align: left; cursor: pointer; }
+    /* Hidden signal (7428:1614): a 46px row with Undo; inside a thread it sits on a br03 block centred on the branch end (y 49). */
+    .sig.is-hidden { padding-top: 26px; }
+    .hidden-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border-radius: 8px; background: var(--br03); }
+    .hidden-message { flex: 1; min-width: 0; overflow: hidden; color: var(--n5); font-size: 14px; line-height: 22px; letter-spacing: .14px; white-space: nowrap; text-overflow: ellipsis; }
+    .undo-signal { flex: none; padding: 0; border: 0; background: none; color: var(--m1); font-size: 14px; line-height: 22px; font-weight: 500; letter-spacing: .14px; cursor: pointer; }
+    @media (prefers-reduced-motion: reduce) {
+      .like-glyph, .like-glyph .ic { transition: none; }
+      .like-signal:active .like-glyph { transform: none; }
+      .like-signal.is-popping .like-glyph { animation: none; }
+    }
+
+    /* Signal rows: rail 32 with a branch (vertical 41, radius 8, into the quote block at y 49) and, unless last, a line on to the next row */
+    .s-row { display: flex; align-items: flex-start; gap: 8px; }
+    .s-rail { position: relative; flex: none; align-self: stretch; width: 32px; }
+    .s-rail .branch { position: absolute; top: 0; left: 15.75px; width: 24.25px; height: 49.25px; }
+    .s-rail .rail-line { position: absolute; top: 41px; bottom: 0; left: 15.75px; }
+    /* Signal / For You: pt16, gap 12; quote block br03 r8 p12 gap 8; Alva paragraph pt4 led by Alva chip + stance */
+    .sig { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding-top: 16px; }
+    .qblock { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; background: var(--br03); }
+    .src { display: flex; align-items: center; gap: 8px; }
+    .spk { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 8px; }
+    .who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .name { overflow: hidden; font-size: 14px; line-height: 22px; font-weight: 500; letter-spacing: .14px; white-space: nowrap; text-overflow: ellipsis; }
+    .role { overflow: hidden; color: var(--n5); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; text-overflow: ellipsis; }
+    .quote { font-size: 14px; line-height: 22px; letter-spacing: .14px; word-break: break-word; }
+    .link { color: var(--n5); text-decoration: underline; text-decoration-color: var(--n3); text-decoration-thickness: 5%; }
+    .alva-p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; padding-top: 4px; font-size: 14px; line-height: 22px; letter-spacing: .14px; word-break: break-word; }
+    .tags { display: inline-flex; align-items: center; gap: 1px; margin-right: 8px; vertical-align: top; }
+    .chip { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 4px 0 0 4px; background: var(--m1-10); }
+    .chip img { width: 10px; height: 10px; }
+    .stance { display: inline-flex; align-items: center; height: 22px; padding: 1px 6px; border-radius: 0 4px 4px 0; font-size: 12px; line-height: 20px; font-weight: 500; letter-spacing: .12px; white-space: nowrap; }
+    .m3 { background: var(--m3-10); color: var(--m3); }
+    .m4 { background: var(--m4-10); color: var(--m4); }
+    .m5 { background: var(--m5-10); color: var(--m5); }
+
+    @media (max-width: 900px) {
+      body { align-items: flex-start; padding-top: 20px; }
+    }
+    /* Real phones use their browser viewport and native system chrome. */
+    @media (max-width: 600px), (max-width: 900px) and (pointer: coarse) {
+      html { height: 100%; overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; min-height: 0; padding: 0; overflow: hidden; }
+      .phone-wrap, .phone-screen { width: 100%; height: 100%; min-width: 0; }
+      .status-bar, .indicator, body > .ads-root { display: none !important; }
+      .phone-screen { border-radius: 0; box-shadow: none; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
+      .feed { overscroll-behavior-y: contain; }
+      .tabbar { height: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .tabs { min-height: 48px; }
+      .fab { right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-wrap" id="phoneWrap">
+    <section class="phone-screen" id="screen" aria-label="For You · cold start preview">
+      <div class="status-bar" aria-hidden="true"><div class="sb-left"><span class="sb-time">9:41</span></div><div class="island"></div><div class="sb-right"><img src="assets/status-icons.svg" alt=""></div></div>
+
+      <header class="header hairline">
+        <p class="title">For You</p>
+        <div class="pill-rail">
+          <div class="pill-viewport">
+            <div class="pill-track" id="pillTrack"></div>
+            <div class="pill-fade" aria-hidden="true"></div>
+          </div>
+          <button type="button" class="pill-more" aria-label="Browse all categories"><img src="assets/arrow-down-l2.svg" alt=""></button>
+        </div>
+      </header>
+
+      <div class="feed" id="feed"></div>
+
+      <button type="button" class="fab" aria-label="Create">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C10.2761 2 10.5 2.22386 10.5 2.5V9.5H17.5C17.7761 9.5 18 9.72386 18 10C18 10.2761 17.7761 10.5 17.5 10.5H10.5V17.5C10.5 17.7761 10.2761 18 10 18C9.72386 18 9.5 17.7761 9.5 17.5V10.5H2.5C2.22386 10.5 2 10.2761 2 10C2 9.72386 2.22386 9.5 2.5 9.5H9.5V2.5C9.5 2.22386 9.72386 2 10 2Z" fill="white" fill-opacity="0.9"/></svg>
+      </button>
+
+      <nav class="tabbar" aria-label="Main tabs">
+        <div class="tabs">
+          <button type="button" class="tab on"><img src="assets/tab-for-you-f.svg" alt=""><span>For You</span></button>
+          <button type="button" class="tab"><img src="assets/tab-alva-l.svg" alt=""><span>Alva</span></button>
+          <button type="button" class="tab"><img src="assets/tab-search-l1.svg" alt=""><span>Search</span></button>
+          <button type="button" class="tab"><img src="assets/tab-me-l.svg" alt=""><span>Me</span></button>
+        </div>
+        <div class="indicator" aria-hidden="true"><i></i></div>
+      </nav>
+    </section>
+  </div>
+
+  <script src="mock-data.js"></script>
+  <script>
+    (() => {
+      const A = 'assets/';
+      const { threads: THREADS } = window.COLD_START_MOCK;
+      const STANCE = { supports: ['Supports', 'm3'], refutes: ['Challenges', 'm4'], mixed: ['Mixed', 'm5'] };
+      const PILLS = ['All', 'Chips', 'Memory', 'Hyperscaler', 'Neocloud', 'Enterprise AI', 'Agent Infra', 'Consumer AI', 'Space', 'Interconnect', 'Power', 'Crypto', 'Financials', 'Healthcare', 'Energy & Materials', 'Consumer', 'Industrials', 'Macro'];
+      const SIGNALS = new Map(THREADS.flatMap(t => t.signals.map(s => [s.id, { ...s, thread: t }])));
+
+      const LIKED = new Set();
+      const FEEDBACK = new Map();
+      let openFeedbackId = null;
+      let entryHidden = false;
+
+      const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+      const icon = (n, cls) => `<img class="ic ${cls}" src="${A}${n}.svg" alt="">`;
+      const av = (file, name) => file ? `<span class="av av32" style="background-image: url('${A}${file}')"></span>` : `<span class="av av32 av-initials" aria-hidden="true">${esc(name.slice(0, 2))}</span>`;
+      const ticker = ([sym, logo, dir]) => `<span class="ticker">${logo ? `<img class="ticker-logo" src="${A}${logo}" alt="">` : '<span class="ticker-logo is-missing" aria-hidden="true"></span>'}<span class="ticker-sym">${sym}</span><span class="dir ${dir}" aria-label="${dir === 'up' ? 'Tailwind' : 'Headwind'}"><img src="${A}arrow-up-l1.svg" alt=""></span></span>`;
+      // Feed Card / Base: bodies over 500 characters are cut (to the 8 lines drawn in 13194:108957) and end with "Show more".
+      const isLong = (t) => t.truncated || t.body.length > 500;
+      const body = (t) => isLong(t)
+        ? `<p class="body clamp" data-full="${esc(t.body)}">${esc(t.body)}… <span class="more">Show more</span></p>`
+        : `<p class="body">${esc(t.body)}${t.cites ? ` <span class="cite">${t.cites}</span>` : ''}</p>`;
+      const thesis = (t) => `<div class="t-row"><div class="rail">${av(t.avatar, t.author)}<span class="rail-line" aria-hidden="true"></span></div><div class="base"><div class="post"><div class="post-head"><p class="post-name">${esc(t.author)}</p><p class="post-time">${t.age}</p></div>${t.tickers.length ? `<div class="tickers">${t.tickers.map(ticker).join('')}</div>` : ''}${body(t)}</div>${t.chart ? `<div class="chart"><img src="${A}${t.chart}" alt="AAPL price chart"></div>` : ''}<div class="actions"><span class="ask">${icon('chat-ai-l', 'ic16')}Ask Alva</span><span class="bookmark">${icon('bookmark-l', 'ic16')}0</span></div></div></div>`;
+      const likeLabel = (s, liked) => `${liked ? 'Unlike' : 'Like'} signal from ${s.name}`;
+      const feedbackMenu = (s) => openFeedbackId === s.id ? `<div class="feedback-menu" id="feedback-${s.id}" role="menu" aria-label="Not interested"><button type="button" class="feedback-item" role="menuitem" data-action="hide-source" data-id="${s.id}">Hide signals from ${esc(s.name)}</button><button type="button" class="feedback-item" role="menuitem" data-action="not-relevant" data-id="${s.id}">Not relevant to me</button></div>` : '';
+      const actions = (s) => `<div class="actions"><span class="ask">${icon('chat-ai-l', 'ic16')}Ask Alva</span><span class="fb"><button type="button" class="like-signal" data-id="${s.id}" aria-label="${esc(likeLabel(s, LIKED.has(s.id)))}" aria-pressed="${LIKED.has(s.id)}"><span class="like-glyph"><img class="ic like-outline" src="${A}like-l.svg" alt=""><img class="ic like-filled" src="${A}like-f.svg" alt=""></span></button><button type="button" class="hide-signal" data-id="${s.id}" aria-label="Not interested in signal from ${esc(s.name)}" aria-haspopup="menu" aria-expanded="${openFeedbackId === s.id}" aria-controls="feedback-${s.id}">${icon('close-l1', 'ic16')}</button></span></div>${feedbackMenu(s)}`;
+      const rail = (last) => `<div class="s-rail" aria-hidden="true"><img class="branch" src="${A}branch.svg" alt="">${last ? '' : '<span class="rail-line"></span>'}</div>`;
+      const signal = (s, last) => FEEDBACK.has(s.id)
+        ? `<div class="s-row">${rail(last)}<div class="sig is-hidden"><div class="hidden-row"><p class="hidden-message" role="status">${esc(FEEDBACK.get(s.id))}</p><button type="button" class="undo-signal" data-id="${s.id}">Undo</button></div></div></div>`
+        : `<div class="s-row">${rail(last)}<div class="sig"><div class="qblock"><div class="src">${av(s.avatar, s.name)}<div class="spk"><div class="who"><p class="name">${esc(s.name)}</p><p class="role">${esc(s.role)}</p></div><p class="post-time">${s.age}</p></div></div><p class="quote">${esc(s.quote)} <span class="link">${esc(s.host)}</span></p></div><p class="alva-p"><span class="tags"><span class="chip"><img src="${A}alva-inline-logo.svg" alt=""></span><span class="stance ${STANCE[s.stance][1]}">${STANCE[s.stance][0]}</span></span>${esc(s.read)}</p>${actions(s)}</div></div>`;
+
+      const feed = document.getElementById('feed');
+      function clampBodies() {
+        feed.querySelectorAll('.body.clamp').forEach((p) => {
+          const full = p.dataset.full;
+          const text = document.createTextNode('');
+          const more = document.createElement('span');
+          more.className = 'more';
+          more.textContent = 'Show more';
+          p.textContent = '';
+          p.append(text, more);
+          const fits = (n) => { text.textContent = full.slice(0, n).replace(/\s+$/, '') + '… '; return p.offsetHeight <= 176; };
+          if (fits(full.length)) return;
+          let lo = 0;
+          let hi = full.length;
+          while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (fits(mid)) lo = mid; else hi = mid - 1; }
+          const cut = full.lastIndexOf(' ', lo);
+          fits(cut > 0 ? cut : lo);
+        });
+      }
+      function render() {
+        const top = feed.scrollTop;
+        feed.innerHTML = (entryHidden ? '' : `<div class="entry hairline">${icon('thesis-l', 'ic20')}<p class="entry-text">Bookmark a thesis to customize your feed</p><button type="button" class="entry-close" aria-label="Dismiss">${icon('close-l1', 'ic16')}</button></div>`)
+          + THREADS.map(t => `<article class="thread hairline">${thesis(t)}${t.signals.map((s, i) => signal(s, i === t.signals.length - 1)).join('')}</article>`).join('');
+        clampBodies();
+        feed.scrollTop = top;
+      }
+      function closeFeedback(restoreFocus = false) {
+        if (!openFeedbackId) return;
+        const id = openFeedbackId;
+        openFeedbackId = null;
+        render();
+        if (restoreFocus) feed.querySelector(`.hide-signal[data-id="${id}"]`)?.focus({ preventScroll: true });
+      }
+
+      const track = document.getElementById('pillTrack');
+      track.innerHTML = PILLS.map((p, i) => `<button type="button" class="pill${i === 0 ? ' on' : ''}">${esc(p)}</button>`).join('');
+
+      // Local demo feedback: like toggles in place; ✕ asks why, keeps a collapsed row and allows Undo.
+      feed.addEventListener('click', (e) => {
+        const like = e.target.closest('.like-signal');
+        if (like) {
+          const id = like.dataset.id;
+          const liked = !LIKED.has(id);
+          if (liked) LIKED.add(id); else LIKED.delete(id);
+          like.setAttribute('aria-pressed', String(liked));
+          like.setAttribute('aria-label', likeLabel(SIGNALS.get(id), liked));
+          like.classList.remove('is-popping');
+          if (liked && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            void like.offsetWidth;
+            like.classList.add('is-popping');
+          }
+          return;
+        }
+        if (e.target.closest('.entry-close')) { entryHidden = true; openFeedbackId = null; render(); return; }
+        const hide = e.target.closest('.hide-signal');
+        if (hide) {
+          const id = hide.dataset.id;
+          openFeedbackId = openFeedbackId === id ? null : id;
+          render();
+          const target = openFeedbackId && e.detail === 0
+            ? feed.querySelector(`#feedback-${id} [role="menuitem"]`)
+            : feed.querySelector(`.hide-signal[data-id="${id}"]`);
+          target?.focus({ preventScroll: true });
+          return;
+        }
+        const option = e.target.closest('.feedback-item');
+        if (option) {
+          const s = SIGNALS.get(option.dataset.id);
+          const messages = {
+            'hide-source': `${s.name} hidden from your For You.`,
+            'not-relevant': 'Signal hidden. You’ll see fewer like this.',
+          };
+          FEEDBACK.set(s.id, messages[option.dataset.action]);
+          openFeedbackId = null;
+          render();
+          feed.querySelector(`.undo-signal[data-id="${s.id}"]`)?.focus({ preventScroll: true });
+          return;
+        }
+        const undo = e.target.closest('.undo-signal');
+        if (undo) {
+          const id = undo.dataset.id;
+          FEEDBACK.delete(id);
+          render();
+          feed.querySelector(`.hide-signal[data-id="${id}"]`)?.focus({ preventScroll: true });
+        }
+      });
+      feed.addEventListener('animationend', (e) => {
+        if (e.animationName === 'signal-like-pop') e.target.closest('.like-signal')?.classList.remove('is-popping');
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.feedback-menu, .hide-signal')) closeFeedback();
+      });
+      feed.addEventListener('keydown', (e) => {
+        const menu = e.target.closest('.feedback-menu');
+        if (!menu || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+        e.preventDefault();
+        const items = [...menu.querySelectorAll('[role="menuitem"]')];
+        const current = items.indexOf(document.activeElement);
+        const next = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : (current + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items[next].focus({ preventScroll: true });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && openFeedbackId) { e.preventDefault(); closeFeedback(true); }
+      });
+
+      const wrap = document.getElementById('phoneWrap');
+      const screen = document.getElementById('screen');
+      const mobilePreview = window.matchMedia('(max-width: 600px), (max-width: 900px) and (pointer: coarse)');
+      let fittedWidth = 0;
+      function fit() {
+        if (mobilePreview.matches) {
+          screen.style.transform = '';
+          wrap.style.width = '';
+          wrap.style.height = '';
+        } else {
+          const s = Math.min(1, Math.max(.3, (window.innerHeight - 48) / 956));
+          screen.style.transform = s === 1 ? '' : `scale(${s})`;
+          wrap.style.width = `${440 * s}px`;
+          wrap.style.height = `${956 * s}px`;
+        }
+        // Re-cut long bodies only when the content width changes (browser toolbars resize the height).
+        const width = screen.clientWidth;
+        if (fittedWidth && fittedWidth !== width) render();
+        fittedWidth = width;
+      }
+      window.addEventListener('resize', fit);
+      mobilePreview.addEventListener('change', fit);
+      render();
+      fit();
+      // Delight changes line breaks once it loads, so cut again.
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+    })();
+  </script>
+    <script src="/demo/_switcher.js" defer></script>
+  </body>
+</html>
