@@ -1,4 +1,4 @@
-import { POSTS } from './thesis-motion-data.js?v=4';
+import { POSTS } from './thesis-motion-data.js?v=7';
 
 const companies = {
   SPY: ['SPDR S&P 500 ETF Trust', 'NYSE Arca'], NVDA: ['NVIDIA Corp', 'NASDAQ'],

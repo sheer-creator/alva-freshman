@@ -1,13 +1,13 @@
-import { POSTS, TOPICS } from './thesis-motion-data.js?v=4';
+import { POSTS, TOPICS } from './thesis-motion-data.js?v=7';
 import { CardTransition } from './thesis-card-transition.js?v=11';
 import { ProfileTransition } from './thesis-profile-transition.js?v=7';
 import { TickerTransition } from './thesis-ticker-transition.js?v=7';
 import { PageTransition } from './thesis-page-transition.js?v=2';
-import { TICKERS, renderTicker, refreshTickers } from './thesis-motion-ticker.js?v=4';
+import { TICKERS, renderTicker, refreshTickers } from './thesis-motion-ticker.js?v=7';
 import { MotionNavigation } from './thesis-motion-navigation.js?v=2';
-import { PEOPLE, personFor, postFor, renderProfile, refreshPeople } from './thesis-motion-profile.js?v=5';
+import { PEOPLE, personFor, postFor, renderProfile, refreshPeople } from './thesis-motion-profile.js?v=8';
 import { versionsFor, versionFor, renderUpdates } from './thesis-motion-versions.js?v=1';
-import { readDemoState, persistDemoSelections } from './thesis-demo-state.js';
+import { readDemoState, persistDemoSelections } from './thesis-demo-state.js?v=8';
 
 const app = document.querySelector('#motionApp');
 const feed = document.querySelector('#feed');

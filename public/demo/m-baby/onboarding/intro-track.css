@@ -3,8 +3,8 @@
 .bookmark-page[data-mode="pick"] .bookmark-deck,.bookmark-page[data-mode="more"] .bookmark-deck{margin-top:16px}
 .bookmark-page[data-mode="pick"] .page-footer[hidden]{display:none}
 .bookmark-page[data-mode="pick"] .bookmark-deck>.deck-card{height:calc(100% - 44px)}
-.bookmark-page[data-mode="pick"] .bookmark-controls .bookmark-button,.bookmark-page[data-mode="more"] .bookmark-controls .bookmark-button{background:var(--m1)}
-.bookmark-page[data-mode="pick"] .bookmark-controls .bookmark-button:disabled,.bookmark-page[data-mode="more"] .bookmark-controls .bookmark-button:disabled{background:var(--m1-10);color:var(--m1)}
+.bookmark-page[data-mode="pick"] .bookmark-controls .bookmark-button,.bookmark-page[data-mode="more"] .bookmark-controls .bookmark-button{background:var(--m3)}
+.bookmark-page[data-mode="pick"] .bookmark-controls .bookmark-button:disabled,.bookmark-page[data-mode="more"] .bookmark-controls .bookmark-button:disabled{background:var(--m3-10);color:var(--m3)}
 .track-shelf{display:flex;align-items:center;gap:8px;height:28px;margin:0 16px;flex:none;overflow-x:auto;scrollbar-width:none}
 .track-shelf::-webkit-scrollbar{display:none}
 .track-shelf-count{font-size:12px;line-height:20px;color:var(--n5);white-space:nowrap;flex:none}
@@ -17,32 +17,96 @@
 .track-flight{z-index:9}
 
 /* Pick: the followed people sit above the deck; the deck starts empty and fills with cards they produce. */
-.pick-sources{display:flex;gap:8px;margin:16px 16px 0;flex:none;overflow:visible}
-.pick-source{position:relative;transition:background-color 200ms ease-out}
-.pick-source.is-travelling{background:transparent}
-.pick-source.is-travelling>span{opacity:0}
-.pick-source>span{transition:opacity 240ms ease-out}
-.pick-source-avatar{position:relative;z-index:2;border-radius:50%;object-fit:cover!important;will-change:transform}
-.bookmark-page[data-mode="pick"] .bookmark-deck{margin-top:4px}
+.bookmark-page[data-mode="pick"] .bookmark-deck{margin-top:-12px}
 .bookmark-page.is-loading .bookmark-deck>.deck-card{visibility:hidden}
 .bookmark-page.is-loading .page-footer{opacity:.4}
 
 /* Track: content runs under a transparent top bar; heading and Next sit at the bottom. */
-.page.track-page{display:flex;flex-direction:column;position:relative}
-.track-page>.topbar{position:absolute;top:0;left:0;right:0;z-index:5;background:transparent;pointer-events:none}
+.page.track-page{display:flex;flex-direction:column;position:absolute;inset:calc(-1 * var(--status-h)) 0 0;height:auto}
+/* Track runs under the status bar: no bar background, no top-bar background. */
+.page-slot:has(>.track-page){overflow:visible}
+html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{background:transparent}
+.track-page>.topbar{position:absolute;top:var(--status-h);left:0;right:0;z-index:5;background:transparent;pointer-events:none}
 .track-page>.topbar .back-button{pointer-events:auto}
-.track-viewport{flex:1;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:56px 24px 0}
+/* Content scrolling under the status bar and back button is blurred progressively. */
+.track-fade{position:absolute;inset:0 0 auto;height:calc(var(--status-h) + 88px);z-index:4;pointer-events:none}
+.track-fade i{position:absolute;inset:0}
+.track-fade i:nth-child(1){-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);-webkit-mask-image:linear-gradient(#000 0,#000 55%,transparent 100%);mask-image:linear-gradient(#000 0,#000 55%,transparent 100%)}
+.track-fade i:nth-child(2){-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);-webkit-mask-image:linear-gradient(#000 0,#000 35%,transparent 75%);mask-image:linear-gradient(#000 0,#000 35%,transparent 75%)}
+.track-fade i:nth-child(3){-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);background:linear-gradient(color-mix(in srgb,var(--bg-container) 70%,transparent),color-mix(in srgb,var(--bg-container) 0%,transparent));-webkit-mask-image:linear-gradient(#000 0,#000 20%,transparent 55%);mask-image:linear-gradient(#000 0,#000 20%,transparent 55%)}
+.track-viewport{flex:1;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:calc(56px + var(--status-h)) 24px 0}
 .track-viewport::-webkit-scrollbar{display:none}
 .track-stack{display:flex;flex-direction:column;gap:12px;padding:12px 0 32px}
 .track-card{padding:16px;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);box-shadow:0 4px 16px #00000006;will-change:transform}
 .track-analysis-reveal{flex:none;overflow:hidden;border-radius:12px}
 .track-analysis-reveal .analysis-card{height:auto;min-height:108px}
 .track-signals{display:flex;flex-direction:column;gap:8px}
-.track-signals:empty{display:none}
+.track-signals:not(.has-signals){display:none}
+.track-signals-title{font-size:16px;line-height:26px;font-weight:500;color:var(--n9);margin:4px 0 0}
 .track-panel{position:relative;flex:none;z-index:4;background:var(--bg-container)}
 .track-panel::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:40px;background:linear-gradient(color-mix(in srgb,var(--bg-container) 0%,transparent),var(--bg-container));pointer-events:none}
 .track-panel .intro-heading{height:auto;flex-basis:auto;padding:12px 16px 4px;background:transparent}
-.track-footer{display:block;visibility:hidden}
-.track-page.track-can-continue .track-footer{visibility:visible}
+.track-footer{display:none}
+.track-page.track-can-continue .track-footer{display:block}
 .track-heading-out{position:absolute;left:0;right:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){.track-card{will-change:auto}}
+
+/* Pick: tighter heading, and the selected count above Next (Figma K1–K4). */
+.bookmark-page[data-mode="pick"] .intro-heading{height:auto;flex:0 0 auto;padding:0 16px}
+.bookmark-page[data-mode="pick"] .intro-heading p{margin-top:8px}
+.bookmark-page[data-mode="pick"] .page-footer{display:flex;flex-direction:column;gap:12px;flex:0 0 auto;padding:12px 16px 12px}
+.pick-count{font-size:12px;line-height:20px;color:var(--n5);text-align:center}
+/* Track: signal cards carry Shadow XS. */
+.track-signals .signal-card{overflow:hidden;border-radius:8px;box-shadow:inset 0 0 0 .5px var(--line),0 4px 15px #0000000d}
+
+/* K1 · Collecting (white screen, avatars take turns, then the deck). */
+.pick-collect{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg-container);padding-bottom:40px}
+.pick-collect-avatars{position:relative;width:100%;height:64px}
+.pick-collect-avatars img{position:absolute;top:4px;width:56px;height:56px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px var(--bg-container),0 4px 12px #0000001a;will-change:transform}
+.pick-collect p{font-size:14px;line-height:22px;color:var(--n5);text-align:center;padding:0 32px}
+.bookmark-page.is-collecting .bookmark-deck>.deck-card{visibility:hidden}
+
+/* Swipe deck (Track · Bookmark): Not interested | Bookmark, or drag. */
+.swipe-deck>.deck-card{touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.swipe-deck>.deck-card.is-dragging{cursor:grabbing}
+.swipe-deck>.deck-card.is-leaving{z-index:6!important;pointer-events:none}
+.swipe-deck .swipe-actions{gap:12px}
+.swipe-deck .swipe-actions>button{flex:1 1 0;min-width:0;width:auto;height:48px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:16px;line-height:26px;font-weight:500;transition:transform 160ms ease-out,box-shadow 160ms ease-out}
+.swipe-deck .swipe-actions .swipe-no{padding:0 12px;background:var(--bg-container);border:.5px solid var(--l12,#0000001f);color:var(--n7)}
+.swipe-mask{position:absolute;inset:0;z-index:4;border-radius:inherit;pointer-events:none;opacity:0;display:flex;align-items:flex-start;justify-content:center;padding-top:72px}
+.swipe-mask.is-yes{background:color-mix(in srgb,var(--m3) 16%,transparent)}
+.swipe-mask.is-no{background:color-mix(in srgb,#000 10%,transparent)}
+.swipe-stamp{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:22px;font-size:16px;font-weight:500;line-height:26px;background:var(--bg-container);box-shadow:0 6px 18px #0000001f;transform:scale(.86);opacity:.55;transition:transform 180ms cubic-bezier(.3,1.6,.5,1),opacity 140ms ease-out,background-color 140ms,color 140ms}
+.swipe-mask.is-yes .swipe-stamp{color:var(--m3)}
+.swipe-mask.is-no .swipe-stamp{color:var(--n7)}
+.swipe-stamp .bookmark-icon{width:20px;height:20px}
+/* Past the release point: the stamp locks in and the matching button lights up. */
+.deck-card[data-locked="1"] .is-yes .swipe-stamp{transform:scale(1.06);opacity:1;background:var(--m3);color:#fff}
+.deck-card[data-locked="-1"] .is-no .swipe-stamp{transform:scale(1.06);opacity:1;background:#3a3a3c;color:#fff}
+.deck-card[data-locked="1"] .bookmark-button{transform:scale(1.04);box-shadow:0 0 0 4px color-mix(in srgb,var(--m3) 25%,transparent)}
+.deck-card[data-locked="-1"] .swipe-no{transform:scale(1.04);box-shadow:0 0 0 4px #0000001a}
+/* K1 · trending (nobody followed) */
+.pick-collect-avatars:has(.pick-trend){height:40px}
+.pick-collect-avatars img.pick-trend{top:0;width:40px;height:40px;margin-left:8px;border-radius:0;box-shadow:none;object-fit:contain}
+
+/* Deck card height is computed: the same 16px gap below the subtitle and
+   above the "n selected" counter. */
+.bookmark-page[data-mode="pick"] .swipe-deck>.deck-card{height:calc(100% - 32px)}
+/* Thesis cards follow the Feed Card: tickers and charts run to the card edge
+   (clipped by the card, not short of it); chips br05, charts radius 8. */
+.deck-card .ticker-row,.deck-card .thesis-charts{margin-left:-16px;margin-right:-16px;padding:0 16px;scroll-padding:0 16px}
+.deck-card .ticker{background:color-mix(in srgb,#000 5%,transparent)}
+:root[data-theme="dark"] .deck-card .ticker{background:color-mix(in srgb,#fff 8%,transparent)}
+.deck-card .thesis-chart{border-radius:8px}
+
+/* Ready (after Portfolio): all set + confetti, then For You. */
+.ready-page{display:flex;align-items:center;justify-content:center;background:var(--bg-container)}
+.ready-confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.ready-copy{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 32px 40px}
+.ready-check{width:56px;height:56px;margin-bottom:20px}
+.ready-check circle{fill:var(--m3)}
+.ready-check path{fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:0}
+.ready-copy h1{font-size:28px;line-height:38px;font-weight:500;color:var(--n9)}
+.ready-copy p{margin-top:8px;font-size:14px;line-height:22px;color:var(--n5)}
+
+.ready-page.is-waiting .ready-copy{opacity:0}
