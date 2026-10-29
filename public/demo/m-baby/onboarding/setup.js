@@ -3,7 +3,7 @@
  */
 import { signalCard } from './intro.js?v=13';
 import { bindNotificationReveal } from './notification-reveal.js?v=2';
-import { renderNotificationToastsPage } from './notification-toasts.js?v=11';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=12';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 
 const ASSETS = {

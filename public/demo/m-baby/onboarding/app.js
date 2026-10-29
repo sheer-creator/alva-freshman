@@ -1,10 +1,10 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=30';
+import { renderSetupPage } from './setup.js?v=31';
 import { renderIntroPage } from './intro.js?v=13';
 import { renderGuidedIntroPage } from './intro-guided.js?v=4';
 import { renderBookmarkPage } from './cards.js?v=10';
-import { renderPickPage, renderTrackPage } from './intro-track.js?v=30';
-import { renderReadyPage } from './ready.js?v=3';
+import { renderPickPage, renderTrackPage } from './intro-track.js?v=36';
+import { renderReadyPage } from './ready.js?v=5';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=11';
 import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=8';

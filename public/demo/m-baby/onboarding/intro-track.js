@@ -1,6 +1,6 @@
 import { node, escapeHTML, heading, topbar } from './ui.js';
 import { renderThesisContent } from './cards.js?v=10';
-import { renderSwipePage } from './swipe-deck.js?v=3';
+import { renderSwipePage } from './swipe-deck.js?v=6';
 import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=13';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 
@@ -218,14 +218,20 @@ export function renderTrackPage(api) {
     const apply = () => { h1.innerHTML = escapeHTML(copy.title).replace(/\n/g, '<br>'); p.textContent = copy.description; };
     const reveal = () => { if (withButton) { next.disabled = false; root.classList.add('track-can-continue'); } };
     if (api.reduced()) { apply(); reveal(); return; }
-    // T1/T2 keep no room for the button: the heading sits low. At the change
-    // the old heading lifts away first, then the new heading and Next rise in
-    // together, so the extra height never shows as a jump.
-    await play(header, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-14px)' }], 300, { fill: 'forwards' });
-    if (!alive) return;
+    // The old heading and the new one cross at the same time: a copy of the
+    // old one stays where it was and lifts away while the new heading (and
+    // Next) rise in, so there is no gap between them.
+    const panel = header.parentElement, before = header.getBoundingClientRect();
+    const ghost = header.cloneNode(true); ghost.classList.add('track-heading-out'); ghost.setAttribute('aria-hidden', 'true');
     apply(); reveal();
-    const motions = [play(header, [{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], 560)];
-    if (withButton) motions.push(play(next, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], 560, { delay: 80, fill: 'backwards' }));
+    const base = panel.getBoundingClientRect(), unit = base.width / panel.offsetWidth || 1;
+    Object.assign(ghost.style, { top: `${(before.top - base.top) / unit}px`, width: `${before.width / unit}px`, left: `${(before.left - base.left) / unit}px`, right: 'auto', margin: '0' });
+    panel.append(ghost);
+    const motions = [
+      play(ghost, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-14px)' }], 420, { fill: 'forwards' }).then(() => ghost.remove()),
+      play(header, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 0, offset: .15 }, { opacity: 1, transform: 'none' }], 820, { easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }),
+    ];
+    if (withButton) motions.push(play(next, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], 820, { delay: 120, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
     await Promise.all(motions);
   }
   function addAnalysis() {
@@ -234,9 +240,10 @@ export function renderTrackPage(api) {
     reveal = node('div', 'track-analysis-reveal'); reveal.append(analysis);
     card.after(reveal);
   }
-  function addSignal(index) {
+  function addSignal(index, onTop = false) {
     const signal = signalCard(signals[index], api); signal.dataset.signalId = signals[index].id;
-    column.append(signal); return signal;
+    if (onTop) signalsTitle.after(signal); else column.append(signal);
+    return signal;
   }
   // The card rises until only its lower part shows; the list does not move after that.
   // Only a sliver of the card stays (it carries the previous screen over);
@@ -314,20 +321,23 @@ export function renderTrackPage(api) {
     updateTasks(token);
     await wait(1500); if (!valid(token)) return;
     typing = false;
-    // 3. Signals come out below one by one; nothing above moves.
-    // Each signal is pushed out from under the analysis card in turn: its slot
-    // opens downward while the card slides out of the analysis, so the list
-    // grows one item at a time.
-    for (let index = 0; index < signals.length; index++) {
-      const signal = addSignal(index);
-      if (index === 0) { column.classList.add('has-signals'); play(signalsTitle, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], 240); }
-      const height = signal.offsetHeight;
+    // 3. Signals arrive one by one, newest on top: each slot opens under the
+    // title and pushes the earlier ones down. The list ends in data order.
+    for (let step = 0; step < signals.length; step++) {
+      const index = signals.length - 1 - step;
+      const signal = addSignal(index, true);
+      if (step === 0) { column.classList.add('has-signals'); play(signalsTitle, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], 240); }
+      // The slot opens downward from under the title (height grows from 0)
+      // and the content is squeezed out of its top edge; nothing crosses the title.
+      const height = signal.offsetHeight, cs = getComputedStyle(signal);
       play(signal, [
-        { height: '0px', marginTop: '-8px', opacity: 0, transform: `translateY(-${Math.round(height * .6)}px) scale(.96)` },
-        { opacity: 1, offset: .35 },
-        { height: `${height}px`, marginTop: '0px', opacity: 1, transform: 'none' },
-      ], 380, { easing: 'cubic-bezier(.25,.8,.3,1)' });
-      if (index < signals.length - 1) { await wait(230); if (!valid(token)) return; }
+        { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginBottom: '-8px', opacity: 0 },
+        { opacity: 1, offset: .25 },
+        { height: `${height}px`, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginBottom: '0px', opacity: 1 },
+      ], 480, { easing: 'cubic-bezier(.3,.7,.2,1)' });
+      [...signal.children].forEach(child => play(child, [{ transform: `translateY(-${Math.round(height * .45)}px)` }, { transform: 'none' }], 480, { easing: 'cubic-bezier(.3,.7,.2,1)' }));
+      // Uneven gaps (360–720ms), like signals coming in live.
+      if (step < signals.length - 1) { await wait(360 + Math.round(Math.random() * 360)); if (!valid(token)) return; }
     }
     // 4. The analysis card folds away while the heading changes and Next comes in.
     await wait(360); if (!valid(token)) return;

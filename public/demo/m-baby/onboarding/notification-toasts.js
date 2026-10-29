@@ -1,5 +1,5 @@
 import { escapeHTML } from './ui.js';
-import { mountPhoneMock } from './notification-mock.js?v=10';
+import { mountPhoneMock } from './notification-mock.js?v=11';
 
 // Approved one-sentence versions of the existing notificationPreview records.
 // These are examples, never additions to the user's bookmarked thesis IDs.

@@ -25,17 +25,25 @@ export function renderSwipePage(api, { pool, back, onNext }) {
   const next = node('button', 'btn btn-primary', 'Next'); next.type = 'button';
   footer.append(count, next); root.append(footer);
 
-  // The deck keeps cycling through every thesis that is not bookmarked: a
-  // dismissed card goes to the back of the line and comes round again; there
-  // is never a fresh stack dealt at the end.
-  let order = pool.map(item => item.id);
-  const queue = () => order.filter(id => !api.state.bookmarked.has(id)).map(id => pool.find(item => item.id === id));
+  // Each thesis is shown once. When none are left, an end card says more is
+  // coming and offers Skip (same as the top-right Skip).
+  const dismissed = new Set();
+  const queue = () => pool.filter(item => !api.state.bookmarked.has(item.id) && !dismissed.has(item.id));
+  const END = { id: '__end' };
   const cards = new Map();
   let busy = false, drag = null;
   const icon = name => api.asset(api.data.icons[name]);
 
   function cardFor(item) {
     if (cards.has(item.id)) return cards.get(item.id);
+    if (item === END) {
+      const card = node('article', 'deck-card swipe-end'); card.dataset.thesis = END.id;
+      card.innerHTML = `<div class="swipe-end-copy"><h3>Nothing caught your interest?</h3><p>No problem. We’ll prepare more great content for you.</p></div>`;
+      const skip = node('button', 'btn btn-secondary swipe-end-skip', 'Let’s keep going'); skip.type = 'button';
+      skip.onclick = () => api.go('portfolio');
+      card.append(skip);
+      cards.set(END.id, card); return card;
+    }
     const card = node('article', 'deck-card'); card.dataset.thesis = item.id;
     card.setAttribute('aria-label', `${item.author} thesis`);
     const read = node('div', 'card-reading'); read.append(renderThesisContent(item, api)); card.append(read);
@@ -51,7 +59,8 @@ export function renderSwipePage(api, { pool, back, onNext }) {
   }
 
   function arrange() {
-    const list = queue().slice(0, 3);
+    const open = queue();
+    const list = (open.length < 3 ? [...open, END] : open).slice(0, 3);
     const slots = ['front', 'next', 'previous'];
     const keep = new Set();
     list.forEach((item, index) => {
@@ -84,7 +93,7 @@ export function renderSwipePage(api, { pool, back, onNext }) {
     const card = cards.get(id);
     if (busy || !card || !card.classList.contains('front-card')) return;
     busy = true;
-    if (dir > 0) api.state.bookmarked.add(id); else order = [...order.filter(other => other !== id), id];
+    if (dir > 0) api.state.bookmarked.add(id); else dismissed.add(id);
     api.state.trackedId = dir > 0 ? id : api.state.trackedId;
     api.persist();
     // The card flies out the way it was decided; the mask shows the choice.
@@ -100,14 +109,15 @@ export function renderSwipePage(api, { pool, back, onNext }) {
     card.querySelectorAll('.swipe-mask').forEach(mask => { mask.style.opacity = ''; });
     cards.delete(id);
     busy = false;
-    arrange();                                   // a dismissed card can come round again
+    arrange();
     // Everything bookmarked: go straight on.
-    if (dir > 0 && !queue().length) next.click();
+    if (dir > 0 && !queue().length && !dismissed.size) next.click();
   }
 
   deck.addEventListener('pointerdown', event => {
     const card = event.target.closest('.front-card');
-    if (busy || !card || event.button !== 0 || event.target.closest('button,.thesis-charts')) return;
+    // Anywhere on the card drags, charts included.
+    if (busy || !card || card.classList.contains('swipe-end') || event.button !== 0 || event.target.closest('button')) return;
     drag = { card, id: event.pointerId, x: event.clientX, y: event.clientY, axis: null, scale: root.getBoundingClientRect().width / root.clientWidth || 1 };
   });
   deck.addEventListener('pointermove', event => {
@@ -136,7 +146,7 @@ export function renderSwipePage(api, { pool, back, onNext }) {
   deck.addEventListener('pointercancel', release);
   root.addEventListener('keydown', event => {
     const front = deck.querySelector('.front-card');
-    if (!front || event.target.closest('input,textarea')) return;
+    if (!front || front.classList.contains('swipe-end') || event.target.closest('input,textarea')) return;
     if (event.key === 'ArrowRight') { event.preventDefault(); decide(front.dataset.thesis, 1); }
     if (event.key === 'ArrowLeft') { event.preventDefault(); decide(front.dataset.thesis, -1); }
   });
