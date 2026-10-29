@@ -10,7 +10,8 @@ export function renderReadyPage(api) {
   root.setAttribute('aria-label', 'You’re all set');
   root.innerHTML = `<canvas class="ready-confetti" aria-hidden="true"></canvas>
     <div class="ready-copy" role="status">
-      <svg class="ready-check" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="28"/><path d="M17 28.5l7.5 7.5L39.5 21"/></svg>
+      <div class="ready-badge" aria-hidden="true"><i class="ready-ring"></i><i class="ready-ring"></i>
+        <svg class="ready-check" viewBox="0 0 56 56"><circle cx="28" cy="28" r="28"/><path d="M17 28.5l7.5 7.5L39.5 21"/></svg></div>
       <h1>You’re all set.</h1>
       <p>Getting your feed ready…</p>
     </div>`;
@@ -53,12 +54,18 @@ export function renderReadyPage(api) {
     root.classList.remove('is-waiting');
     if (!api.reduced()) {
       confetti();
-      root.querySelector('.ready-check path').animate([{ strokeDashoffset: 40 }, { strokeDashoffset: 0 }], { duration: 420, delay: 180, easing: 'cubic-bezier(.3,0,.2,1)', fill: 'backwards' });
-    root.querySelector('.ready-check').animate([{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: .6 }, { transform: 'none', opacity: 1 }], { duration: 460, easing: 'cubic-bezier(.3,0,.3,1)', fill: 'backwards' });
-    root.querySelector('.ready-copy').animate([{ opacity: 0, transform: 'translateY(12px) scale(.98)' }, { opacity: 1, transform: 'none' }],
-        { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
+      // The badge pops in with an overshoot, two rings ripple out, then the
+      // tick draws itself and gives a small bounce; the copy follows.
+      const check = root.querySelector('.ready-check'), tick = check.querySelector('path');
+      check.animate([{ transform: 'scale(.1)', opacity: 0 }, { transform: 'scale(1.38)', opacity: 1, offset: .42 }, { transform: 'scale(.86)', offset: .7 }, { transform: 'none', opacity: 1 }],
+        { duration: 760, easing: 'cubic-bezier(.3,0,.3,1)', fill: 'backwards' });
+      root.querySelectorAll('.ready-ring').forEach((ring, index) => ring.animate([{ transform: 'scale(.9)', opacity: .55 }, { transform: 'scale(2.1)', opacity: 0 }],
+        { duration: 900, delay: 280 + index * 220, easing: 'cubic-bezier(.2,.6,.3,1)', fill: 'both' }));
+      tick.animate([{ strokeDashoffset: 40 }, { strokeDashoffset: 0 }], { duration: 460, delay: 380, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'backwards' });
+      [...root.querySelectorAll('.ready-copy h1, .ready-copy p')].forEach((el, index) => el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+        { duration: 520, delay: 420 + index * 90, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
     }
-    timer = setTimeout(() => { if (alive) api.go('feed'); }, 2600);
+    timer = setTimeout(() => { if (alive) api.go('feed'); }, 2900);
   };
   root.cleanup = () => { alive = false; cancelAnimationFrame(frame); clearTimeout(timer); };
   return root;
