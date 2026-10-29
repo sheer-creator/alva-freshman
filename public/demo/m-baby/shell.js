@@ -235,7 +235,14 @@
     /* a plain hash link already navigates; this only records that the
        move came from a click, so focus can be handed to the prototype
        and its own keyboard shortcuts (← / Esc) start working at once */
-    row.addEventListener('click', () => { focusOnMount = true; });
+    /* Choosing a prototype from the list always starts it fresh, like
+       Restart: the next route mounts it forced; clicking the one already
+       showing restarts it in place (no hash change happens then). */
+    row.addEventListener('click', () => {
+      focusOnMount = true;
+      if (mounted === p.slug && slugFromHash() === p.slug) { mount(p, true); return; }
+      restartOnRoute = true;
+    });
 
     rows.set(p.slug, row);
     listEl.appendChild(row);
@@ -457,6 +464,7 @@
     }
   }
 
+  let restartOnRoute = false;
   function mount(p, force) {
     if (onboardingHandoff && (force || mounted !== p.slug)) cancelOnboardingHandoff();
     if (!force && mounted === p.slug) return;
@@ -796,7 +804,8 @@
     }
 
     const p = bySlug.get(slug);
-    mount(p);
+    mount(p, restartOnRoute);
+    restartOnRoute = false;
 
     document.title = `${p.title} · Alva prototypes`;
     if (p.figma) {
