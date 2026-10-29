@@ -1,7 +1,7 @@
 /* ========== app.js — router & boot ========== */
-import { store, closeSheet } from './state.js?v=local-mvs8ex';
-import { renderRoute, TAB_ROUTES } from './screens.js?v=local-mvs8ex';
-import { ACTIONS } from './actions.js?v=local-mvs8ex';
+import { store, closeSheet } from './state.js?v=local-mvt0du';
+import { renderRoute, TAB_ROUTES } from './screens.js?v=local-mvt0du';
+import { ACTIONS } from './actions.js?v=local-mvt0du';
 
 const pagesEl = document.getElementById('pages');
 const tabbar = document.getElementById('tabbar');

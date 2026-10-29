@@ -65,7 +65,7 @@
       subtitle: 'Log in, follow people, bookmark their theses; the last bookmarked card stays while Alva analyzes it, then portfolio and notifications.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-track',
-      href: 'onboarding/index.html?intro=track&v=12',
+      href: 'onboarding/index.html?intro=track&v=13',
       resetOnRestart: true,
       meta: 'Mobile · Bookmark, then analysis in place',
       figma: {

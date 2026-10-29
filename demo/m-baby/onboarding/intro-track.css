@@ -16,21 +16,22 @@
 .track-progress-bar i{display:block;height:100%;width:0;background:var(--m1);transition:width 200ms ease-out}
 .track-flight{z-index:9}
 
-/* Pick: the followed people sit above the deck; cards are dealt out of their avatars. */
-.pick-sources{display:flex;gap:8px;margin:16px 16px 0;flex:none;overflow-x:auto;scrollbar-width:none}
-.pick-sources::-webkit-scrollbar{display:none}
-.pick-source-avatar{border-radius:50%;object-fit:cover!important}
+/* Pick: the followed people sit above the deck; the deck starts empty and fills with cards they produce. */
+.pick-sources{display:flex;gap:8px;margin:16px 16px 0;flex:none;overflow:visible}
+.pick-source{position:relative;transition:background-color 200ms ease-out}
+.pick-source.is-travelling{background:transparent}
+.pick-source.is-travelling>span{opacity:0}
+.pick-source>span{transition:opacity 240ms ease-out}
+.pick-source-avatar{position:relative;z-index:2;border-radius:50%;object-fit:cover!important;will-change:transform}
 .bookmark-page[data-mode="pick"] .bookmark-deck{margin-top:4px}
-.bookmark-page.is-loading .bookmark-deck>.deck-card:not(.pick-skeleton){visibility:hidden}
+.bookmark-page.is-loading .bookmark-deck>.deck-card{visibility:hidden}
 .bookmark-page.is-loading .page-footer{opacity:.4}
-.bookmark-deck>.pick-skeleton{display:flex;flex-direction:column;gap:12px;padding:20px 16px;z-index:3}
-.pick-skeleton i{display:block;height:12px;border-radius:2px;background:var(--br05);animation:breathe 1.4s ease-in-out infinite}
-.pick-skeleton i:nth-child(1){width:46%;height:16px}.pick-skeleton i:nth-child(2){width:28%}.pick-skeleton i:nth-child(3){width:92%;margin-top:8px}.pick-skeleton i:nth-child(4){width:84%}.pick-skeleton i:nth-child(5){width:64%;height:120px;margin-top:8px}
 
-/* Track: content runs under the top bar and fades at the top edge; heading and Next sit at the bottom. */
+/* Track: content runs under a transparent top bar; heading and Next sit at the bottom. */
 .page.track-page{display:flex;flex-direction:column;position:relative}
-.track-page>.topbar{position:absolute;top:0;left:0;right:0;z-index:5}
-.track-viewport{flex:1;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:56px 24px 0;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 72px);mask-image:linear-gradient(to bottom,transparent 0,#000 72px)}
+.track-page>.topbar{position:absolute;top:0;left:0;right:0;z-index:5;background:transparent;pointer-events:none}
+.track-page>.topbar .back-button{pointer-events:auto}
+.track-viewport{flex:1;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:56px 24px 0}
 .track-viewport::-webkit-scrollbar{display:none}
 .track-stack{display:flex;flex-direction:column;gap:12px;padding:12px 0 32px}
 .track-card{padding:16px;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);box-shadow:0 4px 16px #00000006;will-change:transform}
