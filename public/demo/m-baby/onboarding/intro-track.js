@@ -67,46 +67,75 @@ export function renderPickPage(api) {
   const authors = [];
   for (const thesis of pool) if (!authors.some(entry => entry.author === thesis.author)) authors.push(thesis);
   const row = node('div', 'pick-sources');
-  row.innerHTML = authors.map(entry => `<span class="ticker pick-source" data-author="${escapeHTML(entry.author)}"><img class="ticker-logo pick-source-avatar" src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false"><span>${escapeHTML(entry.author.split(' ')[0])}</span></span>`).join('');
+  row.innerHTML = authors.map(entry => `<span class="ticker pick-source" data-author="${escapeHTML(entry.author)}" data-person="${escapeHTML(SOURCE_AUTHORS[entry.id] || '')}"><img class="ticker-logo pick-source-avatar" src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false"><span>${escapeHTML(entry.author.split(' ')[0])}</span></span>`).join('');
   root.querySelector('.intro-heading').after(row);
   const deck = root.querySelector('.bookmark-deck');
   const key = following.slice().sort().join(',') || '*';
   const reveal = api.state.pickRevealedFor !== key && !api.reduced();
-  let skeleton = null;
+  const chips = [...row.children];
+  const unit = () => root.getBoundingClientRect().width / root.clientWidth || 1;
+  // The followed people's avatars arrive from where they were on the People page.
+  // They are put at those positions before the first paint, then travel.
+  const from = reveal ? api.state.peopleFrom || {} : {};
   if (reveal) {
     root.classList.add('is-loading');
-    skeleton = node('div', 'deck-card pick-skeleton', '<i></i><i></i><i></i><i></i><i></i>');
-    skeleton.dataset.deckPosition = 'front';
-    deck.append(skeleton);
+    requestAnimationFrame(() => {
+      if (!root.isConnected) return;
+      const base = root.getBoundingClientRect(), u = unit();
+      for (const chip of chips) {
+        const start = from[chip.dataset.person], img = chip.querySelector('img');
+        if (!start) { chip.style.opacity = '0'; continue; }
+        const r = img.getBoundingClientRect();
+        const dx = start.x + start.size / 2 - ((r.left - base.left) / u + r.width / u / 2);
+        const dy = start.y + start.size / 2 - ((r.top - base.top) / u + r.height / u / 2);
+        img.style.transform = `translate(${dx}px, ${dy}px) scale(${start.size / (r.width / u)})`;
+        chip.classList.add('is-travelling');
+      }
+    });
   }
   root.start = async () => {
     if (!reveal) return;
-    const chips = [...row.children];
-    chips.forEach((chip, index) => chip.animate([{ transform: 'none' }, { transform: 'translateY(-4px) scale(1.08)' }, { transform: 'none' }],
-      { duration: 700, delay: index * 160, iterations: 2, easing: EASE }));
-    await sleep(1400);
+    // 1. Avatars travel into the row; the row's chip surfaces fade in behind them.
+    chips.forEach((chip, index) => {
+      const img = chip.querySelector('img');
+      if (chip.style.opacity === '0') {
+        chip.style.opacity = '';
+        chip.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: index * 40, easing: EASE, fill: 'backwards' });
+        return;
+      }
+      const startTransform = img.style.transform; img.style.transform = '';
+      img.animate([{ transform: startTransform }, { transform: 'none' }], { duration: 620, delay: index * 40, easing: EASE, fill: 'backwards' });
+      setTimeout(() => chip.classList.remove('is-travelling'), 420 + index * 40);
+    });
+    await sleep(700);
     if (!root.isConnected) return;
-    skeleton.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out', fill: 'forwards' });
+    // 2. The deck starts empty. Cards are produced one at a time by a person in
+    //    the row (that person gives a light bounce) and stack up; the front card
+    //    lands last, on top.
     root.classList.remove('is-loading');
-    const unit = root.getBoundingClientRect().width / root.clientWidth || 1;
     const order = { previous: 0, next: 1, front: 2 };
-    const cards = [...deck.querySelectorAll('.deck-card:not(.pick-skeleton)')]
+    const cards = [...deck.querySelectorAll('.deck-card')]
       .sort((a, b) => (order[a.dataset.deckPosition] ?? 0) - (order[b.dataset.deckPosition] ?? 0));
-    cards.forEach((card, index) => {
+    cards.forEach(card => { card.style.visibility = 'hidden'; });
+    for (const card of cards) {
+      if (!root.isConnected) return;
       const thesis = api.data.theses.find(item => item.id === card.dataset.thesis);
       const chip = chips.find(entry => entry.dataset.author === thesis?.author) || chips[0];
-      const from = chip.querySelector('img').getBoundingClientRect(), to = card.getBoundingClientRect();
-      const dx = (from.left + from.width / 2 - (to.left + to.width / 2)) / unit;
-      const dy = (from.top + from.height / 2 - to.top) / unit;
+      const img = chip.querySelector('img');
+      img.animate([{ transform: 'none' }, { transform: 'translateY(-3px) scale(1.18)' }, { transform: 'none' }], { duration: 320, easing: EASE });
+      const a = img.getBoundingClientRect(), b = card.getBoundingClientRect(), u = unit();
+      const dx = (a.left + a.width / 2 - (b.left + b.width / 2)) / u;
+      const dy = (a.top + a.height / 2 - b.top) / u;
       const final = getComputedStyle(card).transform;
+      card.style.visibility = '';
       card.animate([
-        { transform: `translate(${dx}px, ${dy}px) scale(.08)`, opacity: 0 },
-        { opacity: 1, offset: .3 },
+        { transform: `translate(${dx}px, ${dy}px) scale(.06)`, opacity: 0 },
+        { opacity: 1, offset: .25 },
         { transform: final === 'none' ? 'none' : final, opacity: 1 },
-      ], { duration: 680, delay: index * 120, easing: EASE, fill: 'backwards' });
-    });
-    await sleep(680 + cards.length * 120);
-    skeleton.remove();
+      ], { duration: 560, easing: EASE });
+      await sleep(260);
+    }
+    await sleep(300);
     api.state.pickRevealedFor = key; api.persist();
   };
   return root;
@@ -259,12 +288,12 @@ export function renderTrackPage(api) {
     // 3. Signals come out below one by one; nothing above moves.
     for (let index = 0; index < signals.length; index++) {
       const signal = addSignal(index);
-      await play(signal, [{ opacity: 0, transform: 'translateY(40px)' }, { opacity: 1, transform: 'none' }], 560);
-      if (!valid(token)) return;
-      if (index < signals.length - 1) { await wait(420); if (!valid(token)) return; }
+      // Signals stream out quickly, overlapping; nothing above moves.
+      play(signal, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], 360);
+      if (index < signals.length - 1) { await wait(110); if (!valid(token)) return; }
     }
     // 4. The analysis card folds away, then the heading changes with Next.
-    await wait(240); if (!valid(token)) return;
+    await wait(520); if (!valid(token)) return;
     const folded = reveal.offsetHeight;
     await play(reveal, [{ height: `${folded}px`, opacity: 1, marginTop: '0px' }, { height: '0px', opacity: 0, marginTop: '-12px' }], 480);
     if (!valid(token)) return;
