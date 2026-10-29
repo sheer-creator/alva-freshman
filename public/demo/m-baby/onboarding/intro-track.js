@@ -1,7 +1,8 @@
 import { node, escapeHTML, heading, topbar } from './ui.js';
-import { renderThesisContent, renderBookmarkPage } from './cards.js?v=9';
-import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=12';
-import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=5';
+import { renderThesisContent } from './cards.js?v=10';
+import { renderSwipePage } from './swipe-deck.js?v=3';
+import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=13';
+import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 
 // Track variant: after following people, the user bookmarks theses from them
 // on the existing deck; the last bookmarked card then stays on screen while Alva
@@ -47,95 +48,99 @@ export function renderPickPage(api) {
   api.state.bookmarked ||= new Set();
   const flow = api.flow;
   const following = [...(api.state.following || [])].filter(Boolean);
-  const fromFollowed = api.data.theses.filter(thesis => following.includes(SOURCE_AUTHORS[thesis.id]));
-  const pool = fromFollowed.length ? fromFollowed : api.data.theses;
-  let root;
-  root = renderBookmarkPage(api, {
-    mode: 'pick', ariaLabel: 'Bookmark theses', copy: api.data.bookmarkCopy,
-    back: flow.prev('pick'), next: 'track',
-    candidates: fromFollowed.length ? fromFollowed : null,
-    async onNext() {
+  const followed = thesis => following.includes(SOURCE_AUTHORS[thesis.id]);
+  // Followed people's theses first, then the rest, so there are always at
+  // least eight cards. With nobody followed the deck shows trending theses.
+  const mine = api.data.theses.filter(followed), others = api.data.theses.filter(thesis => !followed(thesis));
+  const pool = [...mine, ...others];
+  const root = renderSwipePage(api, {
+    pool, back: flow.prev('pick'),
+    onNext() {
+      // Bookmarked cards have left the deck, so Track brings the last one
+      // back in with its own entrance rather than continuing from the deck.
       api.state.trackedId = [...api.state.bookmarked].at(-1);
-      await root.bringToFront(api.state.trackedId);
-      // Track starts its card where the deck's front card stood.
+      // It re-enters where the deck's front card stands, then rises as usual.
       const front = root.querySelector('.front-card'), base = root.getBoundingClientRect();
       const unit = base.width / root.clientWidth || 1;
-      if (front) api.state.trackFromTop = (front.getBoundingClientRect().top - base.top) / unit;
+      const deckBox = root.querySelector('.bookmark-deck').getBoundingClientRect();
+      api.state.trackFromTop = front ? (deckBox.top - base.top) / unit + front.offsetTop : null;
+      api.state.trackEnter = true;
       api.persist();
     },
   });
-  const authors = [];
-  for (const thesis of pool) if (!authors.some(entry => entry.author === thesis.author)) authors.push(thesis);
-  const row = node('div', 'pick-sources');
-  row.innerHTML = authors.map(entry => `<span class="ticker pick-source" data-author="${escapeHTML(entry.author)}" data-person="${escapeHTML(SOURCE_AUTHORS[entry.id] || '')}"><img class="ticker-logo pick-source-avatar" src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false"><span>${escapeHTML(entry.author.split(' ')[0])}</span></span>`).join('');
-  root.querySelector('.intro-heading').after(row);
   const deck = root.querySelector('.bookmark-deck');
   const key = following.slice().sort().join(',') || '*';
   const reveal = api.state.pickRevealedFor !== key && !api.reduced();
-  const chips = [...row.children];
   const unit = () => root.getBoundingClientRect().width / root.clientWidth || 1;
-  // The followed people's avatars arrive from where they were on the People page.
-  // They are put at those positions before the first paint, then travel.
-  const from = reveal ? api.state.peopleFrom || {} : {};
+  // K1 · Collecting: the screen turns white while the followed people's
+  // avatars fly from the People list to the centre and take turns at the
+  // front, with a line saying their theses are being collected. Then the deck
+  // page shows and its cards gather from both sides into one stack.
+  let collected = Promise.resolve();
   if (reveal) {
-    root.classList.add('is-loading');
-    requestAnimationFrame(() => {
-      if (!root.isConnected) return;
+    const people = [];
+    for (const thesis of following.length ? pool.filter(followed) : pool.slice(0, 3)) if (!people.some(entry => entry.author === thesis.author)) people.push(thesis);
+    const from = api.state.peopleFrom || {};
+    const trending = !following.length;
+    const overlay = node('div', 'pick-collect', trending
+      ? `<div class="pick-collect-avatars"><img class="pick-trend full-loader-mark" src="../assets/logo-loading-light.svg" alt="" aria-hidden="true"></div><p>Collecting trending theses…</p>`
+      : `<div class="pick-collect-avatars">${people.map(entry => `<img src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false" data-person="${escapeHTML(SOURCE_AUTHORS[entry.id] || '')}">`).join('')}</div><p>Collecting theses based on your picks…</p>`);
+    overlay.setAttribute('role', 'status');
+    root.append(overlay); root.classList.add('is-collecting');
+    const avatars = [...overlay.querySelectorAll('img, .pick-trend')];
+    const SIZE = 56, OVERLAP = 12;
+    const span = avatars.length * SIZE - (avatars.length - 1) * OVERLAP;
+    avatars.forEach((img, index) => { img.style.left = `calc(50% - ${span / 2}px + ${index * (SIZE - OVERLAP)}px)`; img.style.zIndex = String(avatars.length - index); });
+    collected = new Promise(resolve => requestAnimationFrame(async () => {
+      if (!root.isConnected) return resolve();
       const base = root.getBoundingClientRect(), u = unit();
-      for (const chip of chips) {
-        const start = from[chip.dataset.person], img = chip.querySelector('img');
-        if (!start) { chip.style.opacity = '0'; continue; }
-        const r = img.getBoundingClientRect();
+      const flights = avatars.map((img, index) => {
+        const start = from[img.dataset.person], r = img.getBoundingClientRect();
+        if (!start) return img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, delay: index * 60, easing: EASE, fill: 'backwards' }).finished;
         const dx = start.x + start.size / 2 - ((r.left - base.left) / u + r.width / u / 2);
         const dy = start.y + start.size / 2 - ((r.top - base.top) / u + r.height / u / 2);
-        img.style.transform = `translate(${dx}px, ${dy}px) scale(${start.size / (r.width / u)})`;
-        chip.classList.add('is-travelling');
+        return img.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${start.size / SIZE})` }, { transform: 'none' }],
+          { duration: 560, delay: index * 40, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'backwards' }).finished;
+      });
+      overlay.querySelector('p').animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: 260, easing: EASE, fill: 'backwards' });
+      await Promise.allSettled(flights);
+      // Take turns at the front.
+      const people = avatars.filter(img => !img.classList.contains('pick-trend'));
+      const turns = people.length ? Math.max(4, people.length * 2) : 5;
+      for (let turn = 0; turn < turns && root.isConnected; turn++) {
+        if (!people.length) { await sleep(280); continue; }
+        const img = people[turn % people.length];
+        avatars.forEach(other => { other.style.zIndex = String(other === img ? avatars.length + 1 : Number(other.style.zIndex) || 1); });
+        img.animate([{ transform: 'none' }, { transform: 'translateY(-4px) scale(1.16)', offset: .45 }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.3,0,.3,1)' });
+        await sleep(280);
       }
-    });
+      if (!root.isConnected) return resolve();
+      overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: 'ease-out', fill: 'forwards' }).finished.then(() => overlay.remove());
+      root.classList.remove('is-collecting');
+      resolve();
+    }));
   }
   root.start = async () => {
     if (!reveal) return;
-    // 1. Avatars travel into the row; the row's chip surfaces fade in behind them.
-    chips.forEach((chip, index) => {
-      const img = chip.querySelector('img');
-      if (chip.style.opacity === '0') {
-        chip.style.opacity = '';
-        chip.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: index * 40, easing: EASE, fill: 'backwards' });
-        return;
-      }
-      const startTransform = img.style.transform; img.style.transform = '';
-      img.animate([{ transform: startTransform }, { transform: 'none' }], { duration: 620, delay: index * 40, easing: EASE, fill: 'backwards' });
-      setTimeout(() => chip.classList.remove('is-travelling'), 420 + index * 40);
-    });
-    await sleep(700);
+    await collected;
     if (!root.isConnected) return;
-    // 2. The deck starts empty. Cards are produced one at a time by a person in
-    //    the row (that person gives a light bounce) and stack up; the front card
-    //    lands last, on top.
-    root.classList.remove('is-loading');
+    // Cards come in alternately from the left and the right and gather into
+    // one stack: fast out, a small overshoot, settle. The front card lands last.
     const order = { previous: 0, next: 1, front: 2 };
     const cards = [...deck.querySelectorAll('.deck-card')]
       .sort((a, b) => (order[a.dataset.deckPosition] ?? 0) - (order[b.dataset.deckPosition] ?? 0));
-    cards.forEach(card => { card.style.visibility = 'hidden'; });
-    for (const card of cards) {
-      if (!root.isConnected) return;
-      const thesis = api.data.theses.find(item => item.id === card.dataset.thesis);
-      const chip = chips.find(entry => entry.dataset.author === thesis?.author) || chips[0];
-      const img = chip.querySelector('img');
-      img.animate([{ transform: 'none' }, { transform: 'translateY(-3px) scale(1.18)' }, { transform: 'none' }], { duration: 320, easing: EASE });
-      const a = img.getBoundingClientRect(), b = card.getBoundingClientRect(), u = unit();
-      const dx = (a.left + a.width / 2 - (b.left + b.width / 2)) / u;
-      const dy = (a.top + a.height / 2 - b.top) / u;
-      const final = getComputedStyle(card).transform;
-      card.style.visibility = '';
+    const width = root.clientWidth;
+    cards.forEach((card, index) => {
+      const side = index % 2 ? 1 : -1;
+      const final = getComputedStyle(card).transform, rest = final === 'none' ? '' : final;
       card.animate([
-        { transform: `translate(${dx}px, ${dy}px) scale(.06)`, opacity: 0 },
-        { opacity: 1, offset: .25 },
-        { transform: final === 'none' ? 'none' : final, opacity: 1 },
-      ], { duration: 560, easing: EASE });
-      await sleep(260);
-    }
-    await sleep(300);
+        { transform: `translateX(${side * width * .62}px) rotate(${side * 12}deg) ${rest}`, opacity: 0, easing: 'cubic-bezier(.2,.75,.3,1)' },
+        { opacity: 1, offset: .3 },
+        { transform: `translateX(${-side * 6}px) rotate(${-side * 1.2}deg) ${rest}`, opacity: 1, offset: .7, easing: 'cubic-bezier(.4,0,.4,1)' },
+        { transform: rest || 'none', opacity: 1 },
+      ], { duration: 520, easing: 'linear', fill: 'backwards' });
+    });
+    await sleep(520);
     api.state.pickRevealedFor = key; api.persist();
   };
   return root;
@@ -155,6 +160,8 @@ export function renderTrackPage(api) {
   const card = node('article', 'track-card deck-card');
   card.append(renderThesisContent(item, api));
   const column = node('div', 'track-signals'); column.setAttribute('aria-label', 'Signals for this thesis');
+  const signalsTitle = node('h2', 'track-signals-title', 'Signals');
+  column.append(signalsTitle);
   stack.append(card, column); viewport.append(stack);
   // First frame: the card sits exactly where the deck's front card was, so the
   // page cross-fade shows one card standing still. (Viewport top padding 56 +
@@ -163,11 +170,19 @@ export function renderTrackPage(api) {
   if (fromTop !== null) card.style.marginTop = `${fromTop - 68}px`;
   const panel = node('div', 'track-panel');
   const header = heading(COPY[0].title, COPY[0].description);
-  if (fromTop !== null) header.style.opacity = '0';
+  // Arriving from the swipe deck the bookmarked card has already left the
+  // screen, so it comes back in on its own (from the right, where bookmarked
+  // cards went) instead of continuing from a deck position.
+  const entering = !!api.state.trackEnter && !api.state.trackReady;
+  if (fromTop !== null || entering) header.style.opacity = '0';
+  if (entering) card.style.opacity = '0';
   const footer = node('footer', 'page-footer track-footer');
   const next = node('button', 'btn btn-primary', 'Next'); next.type = 'button'; next.disabled = true;
   footer.append(next); panel.append(header, footer);
-  root.append(topbar(api, () => api.go(flow.prev('track'))), viewport, panel);
+  // Content passing under the status bar and back button is blurred
+  // progressively (three blur layers with staggered masks), never cut.
+  const fade = node('div', 'track-fade', '<i></i><i></i><i></i>'); fade.setAttribute('aria-hidden', 'true');
+  root.append(topbar(api, () => api.go(flow.prev('track'))), viewport, fade, panel);
 
   let alive = true, started = false, epoch = 0, analysis = null, reveal = null, taskIndex = 0, typing = false;
   const animations = new Set(), timers = new Set(), frames = new Set();
@@ -201,19 +216,16 @@ export function renderTrackPage(api) {
   async function setHeading(copy, withButton) {
     const h1 = header.querySelector('h1'), p = header.querySelector('p');
     const apply = () => { h1.innerHTML = escapeHTML(copy.title).replace(/\n/g, '<br>'); p.textContent = copy.description; };
-    if (withButton) { next.disabled = false; root.classList.add('track-can-continue'); }
-    if (api.reduced()) { apply(); return; }
-    // The outgoing heading lifts away while the new one rises into the same place.
-    const old = header.cloneNode(true);
-    old.classList.add('track-heading-out'); old.setAttribute('aria-hidden', 'true');
-    old.style.top = `${header.offsetTop}px`;
-    panel.append(old);
-    apply();
-    const motions = [
-      play(old, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-14px)' }], 360, { fill: 'forwards' }).then(() => old.remove()),
-      play(header, [{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], 640, { delay: 140, fill: 'backwards' }),
-    ];
-    if (withButton) motions.push(play(next, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], 640, { delay: 240, fill: 'backwards' }));
+    const reveal = () => { if (withButton) { next.disabled = false; root.classList.add('track-can-continue'); } };
+    if (api.reduced()) { apply(); reveal(); return; }
+    // T1/T2 keep no room for the button: the heading sits low. At the change
+    // the old heading lifts away first, then the new heading and Next rise in
+    // together, so the extra height never shows as a jump.
+    await play(header, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-14px)' }], 300, { fill: 'forwards' });
+    if (!alive) return;
+    apply(); reveal();
+    const motions = [play(header, [{ opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }], 560)];
+    if (withButton) motions.push(play(next, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], 560, { delay: 80, fill: 'backwards' }));
     await Promise.all(motions);
   }
   function addAnalysis() {
@@ -227,12 +239,15 @@ export function renderTrackPage(api) {
     column.append(signal); return signal;
   }
   // The card rises until only its lower part shows; the list does not move after that.
-  const parkTarget = () => Math.max(0, card.offsetHeight - 168);
+  // Only a sliver of the card stays (it carries the previous screen over);
+  // the room below belongs to the analysis and the signals.
+  const parkTarget = () => Math.max(0, card.offsetHeight - 64);
   function reserveScroll(target) { stack.style.minHeight = `${viewport.clientHeight + target}px`; }
   function settle() {
     stop(); started = true;
-    card.style.marginTop = ''; header.style.opacity = '';
-    if (!column.children.length) signals.forEach((_, index) => addSignal(index));
+    card.style.marginTop = ''; card.style.opacity = ''; header.style.opacity = '';
+    if (column.children.length <= 1) signals.forEach((_, index) => addSignal(index));
+    column.classList.add('has-signals');
     if (reveal) reveal.remove(); analysis = null; reveal = null;
     const target = parkTarget(); reserveScroll(target); viewport.scrollTop = target;
     const h1 = header.querySelector('h1'), p = header.querySelector('p');
@@ -269,44 +284,89 @@ export function renderTrackPage(api) {
     card.style.marginTop = '';
     const target = parkTarget(); reserveScroll(target); viewport.scrollTop = target;
     const restTop = (card.getBoundingClientRect().top - base.top) / unit();
-    const glide = play(card, [{ transform: `translateY(${startTop - restTop}px)` }, { transform: 'none' }], 820);
+    // Even speed through the middle: no jump at the start, a soft landing.
+    // From the swipe deck the bookmarked card has left the screen: it first
+    // comes back in from the right (where bookmarked cards went) at the deck
+    // position, then rises like the deck card would.
+    if (entering) {
+      card.style.opacity = '';
+      await play(card, [
+        { transform: `translate(115%, ${startTop - restTop}px) rotate(10deg)`, opacity: 0, easing: 'cubic-bezier(.2,.75,.3,1)' },
+        { opacity: 1, offset: .35 },
+        { transform: `translate(-6px, ${startTop - restTop}px) rotate(-.6deg)`, opacity: 1, offset: .72, easing: 'cubic-bezier(.4,0,.4,1)' },
+        { transform: `translateY(${startTop - restTop}px)`, opacity: 1 },
+      ], 560, { easing: 'linear', fill: 'forwards' });
+      if (!valid(token)) return;
+    }
+    const glide = play(card, [{ transform: `translateY(${startTop - restTop}px)` }, { transform: 'none' }], 760, { easing: 'cubic-bezier(.45,0,.2,1)' });
+    if (entering) { api.state.trackEnter = false; api.persist(); }
     const rise = header.style.opacity === '0'
       ? play(header, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], 720, { delay: 320, fill: 'backwards' }).then(() => { header.style.opacity = ''; })
       : Promise.resolve();
     header.style.opacity = '';
-    await Promise.all([glide, rise]);
+    await glide;
     if (!valid(token)) return;
     // 2. The analysis card unfolds beneath it and works for a moment.
-    await wait(120); if (!valid(token)) return;
     addAnalysis();
     const height = reveal.offsetHeight;
     await play(reveal, [{ height: '0px', opacity: 0, marginTop: '-12px' }, { height: `${height}px`, opacity: 1, marginTop: '0px' }], 520);
     if (!valid(token)) return;
     updateTasks(token);
-    await wait(2600); if (!valid(token)) return;
+    await wait(1500); if (!valid(token)) return;
     typing = false;
     // 3. Signals come out below one by one; nothing above moves.
+    // Each signal is pushed out from under the analysis card in turn: its slot
+    // opens downward while the card slides out of the analysis, so the list
+    // grows one item at a time.
     for (let index = 0; index < signals.length; index++) {
       const signal = addSignal(index);
-      // Signals stream out quickly, overlapping; nothing above moves.
-      play(signal, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], 360);
-      if (index < signals.length - 1) { await wait(110); if (!valid(token)) return; }
+      if (index === 0) { column.classList.add('has-signals'); play(signalsTitle, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], 240); }
+      const height = signal.offsetHeight;
+      play(signal, [
+        { height: '0px', marginTop: '-8px', opacity: 0, transform: `translateY(-${Math.round(height * .6)}px) scale(.96)` },
+        { opacity: 1, offset: .35 },
+        { height: `${height}px`, marginTop: '0px', opacity: 1, transform: 'none' },
+      ], 380, { easing: 'cubic-bezier(.25,.8,.3,1)' });
+      if (index < signals.length - 1) { await wait(230); if (!valid(token)) return; }
     }
-    // 4. The analysis card folds away, then the heading changes with Next.
-    await wait(520); if (!valid(token)) return;
+    // 4. The analysis card folds away while the heading changes and Next comes in.
+    await wait(360); if (!valid(token)) return;
     const folded = reveal.offsetHeight;
-    await play(reveal, [{ height: `${folded}px`, opacity: 1, marginTop: '0px' }, { height: '0px', opacity: 0, marginTop: '-12px' }], 480);
+    // Removed the moment the fold ends, so it never shows again for a frame.
+    const folding = reveal;
+    const fold = play(folding, [{ height: `${folded}px`, opacity: 1, marginTop: '0px' }, { height: '0px', opacity: 0, marginTop: '-12px' }], 480)
+      .then(() => { folding.remove(); if (reveal === folding) { analysis = null; reveal = null; } });
+    folding.style.height = '0px'; folding.style.opacity = '0';
+    await Promise.all([fold, setHeading(COPY[2], true)]);
     if (!valid(token)) return;
-    reveal.remove(); analysis = null; reveal = null;
-    await setHeading(COPY[2], true);
     api.state.trackReady = true; api.persist();
   }
-  next.onclick = () => { if (!alive || next.disabled) return; stop(); api.state.introComplete = true; api.persist(); api.go(flow.next('track')); };
+  next.onclick = () => {
+    if (!alive || next.disabled) return;
+    stop(); api.state.introComplete = true; api.persist();
+    // Notifications opens by shrinking this exact screen into a phone, so hand
+    // it a static copy and switch without the usual cross-fade.
+    const target = flow.next('track'), handoff = target === 'notifications' && !api.reduced();
+    if (handoff) {
+      const snapshot = root.cloneNode(true);
+      snapshot.removeAttribute('data-page'); snapshot.classList.remove('route-page'); snapshot.setAttribute('inert', '');
+      const base = root.getBoundingClientRect(), u = unit(), box = panel.getBoundingClientRect();
+      api.handoff = {
+        snapshot, scrollTop: viewport.scrollTop,
+        size: { width: root.clientWidth, height: root.clientHeight },
+        panel: { x: (box.left - base.left) / u, y: (box.top - base.top) / u, width: box.width / u, height: box.height / u },
+      };
+    }
+    api.go(target, { instant: handoff });
+  };
   root.start = () => {
     if (started || !alive) return; started = true;
     if (api.reduced() || api.state.trackReady) { settle(); return; }
     run();
   };
+  // Coming from the deck, the card starts gliding in the first frame, during
+  // the page cross-fade, so there is no pause between the two pages.
+  if ((fromTop !== null || entering) && !api.reduced()) requestAnimationFrame(() => { if (alive && root.isConnected) root.start(); });
   root.finish = settle;
   root.cleanup = () => { alive = false; stop(); next.onclick = null; };
   return root;

@@ -1,4 +1,4 @@
-import { POSTS } from './thesis-motion-data.js?v=4';
+import { POSTS } from './thesis-motion-data.js?v=7';
 import { PROFILE_DETAILS } from './thesis-motion-profile-data.js?v=1';
 
 // An author has one identity across all their theses and entry points.

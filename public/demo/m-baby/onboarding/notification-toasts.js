@@ -1,4 +1,5 @@
 import { escapeHTML } from './ui.js';
+import { mountPhoneMock } from './notification-mock.js?v=10';
 
 // Approved one-sentence versions of the existing notificationPreview records.
 // These are examples, never additions to the user's bookmarked thesis IDs.
@@ -24,7 +25,8 @@ export function renderNotificationToastsPage(api) {
     : 'Bookmark theses to start tracking signals.';
   // Track variant: the blurred stack previews system notifications for the thesis
   // the user just bookmarked, in the order its signals arrived on the Track step.
-  const trackOrder = ['12616:149037', '12608:109265', '12608:109341', '12684:261624'];
+  // Three drop into the phone; the Track step showed the same signals.
+  const trackOrder = ['12616:149037', '12608:109265', '12608:109341'];
   const toasts = api.variant === 'track' ? trackOrder.map(id => TOASTS.find(toast => toast.sourceId === id)).filter(Boolean) : TOASTS;
   const logo = api.asset('Alva / Onboarding source') || new URL('./assets/alva-source-12646-154584.svg', import.meta.url).href;
   const arrow = api.asset(api.data.icons?.['arrow-left-l1'] || BACK_ASSET);
@@ -69,11 +71,14 @@ export function renderNotificationToastsPage(api) {
   const cleanupGesture = hasSelection ? bindNotificationToasts({ root,
     handle: root.querySelector('.notification-toasts-handle'),
     track: root.querySelector('.notification-toasts-track'), api }) : () => {};
+  const phone = api.variant === 'track' && hasSelection ? mountPhoneMock(root, api) : null;
+  if (phone) root.start = phone.start;
   root.cleanup = () => {
     if (disposed) return;
     disposed = true;
     listeners.forEach(remove => remove());
     cleanupGesture();
+    phone?.cleanup();
   };
   return root;
 }

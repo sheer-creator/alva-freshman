@@ -1,12 +1,13 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=19';
-import { renderIntroPage } from './intro.js?v=12';
-import { renderGuidedIntroPage } from './intro-guided.js?v=3';
-import { renderBookmarkPage } from './cards.js?v=9';
-import { renderPickPage, renderTrackPage } from './intro-track.js?v=12';
+import { renderSetupPage } from './setup.js?v=30';
+import { renderIntroPage } from './intro.js?v=13';
+import { renderGuidedIntroPage } from './intro-guided.js?v=4';
+import { renderBookmarkPage } from './cards.js?v=10';
+import { renderPickPage, renderTrackPage } from './intro-track.js?v=30';
+import { renderReadyPage } from './ready.js?v=3';
 import { node, escapeHTML } from './ui.js';
-import { transitionPages } from './transitions.js?v=10';
-import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=5';
+import { transitionPages } from './transitions.js?v=11';
+import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=8';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
 for (const icon of document.querySelectorAll('.system-bar .ic')) {
@@ -37,9 +38,9 @@ const guided = search.get('intro') === 'guided';
 const trackVariant = search.get('intro') === 'track';
 // Track variant: log in, follow people, bookmark theses from the people you
 // follow, then the last bookmarked card stays and Alva analyzes it in place;
-// portfolio and notifications close the flow.
-const steps = trackVariant ? ['login', 'people', 'pick', 'track', 'portfolio', 'notifications']
-  : ['login', 'intro', 'people', 'bookmark', 'portfolio', 'notifications'];
+// notifications, then portfolio, close the flow.
+const steps = trackVariant ? ['login', 'people', 'pick', 'track', 'notifications', 'portfolio', 'ready']
+  : ['login', 'intro', 'people', 'bookmark', 'notifications', 'portfolio'];
 const flow = {
   steps,
   prev: name => { const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null; },
@@ -55,6 +56,7 @@ if (trackVariant && restartToken && state.restartToken !== restartToken) {
   resetOnboardingState(restartToken, stateKey);
   state = readOnboardingState(stateKey);
 }
+if (trackVariant) delete state.sharedQuestion;
 if (guided) document.title = 'onboarding-signal · Guided';
 if (trackVariant) document.title = 'onboarding-signal · Track';
 const app = document.querySelector('#app');
@@ -81,7 +83,10 @@ const [manifest, data] = await Promise.all(['assets/manifest.json?v=6', 'content
 await document.fonts.ready;
 let page, routeGeneration = 0, routeTransition, toastTimer;
 const persist = () => { if (trackVariant) persistOnboardingState(state, stateKey); };
-const api = { data, state, variant: trackVariant ? 'track' : guided ? 'guided' : 'original', flow: trackVariant ? flow : null, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
+// Track: the deck draws from the full thesis pool (theses + feed), so it
+// always has at least eight cards; followed people's theses come first.
+if (trackVariant) for (const item of data.feed || []) if (!data.theses.some(thesis => thesis.id === item.id)) data.theses.push(item);
+const api = { data, state, variant: trackVariant ? 'track' : guided ? 'guided' : 'original', flow, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
 
 function toast(message) {
   persist();
@@ -186,8 +191,8 @@ async function go(name, options = {}) {
   page?.cleanup?.(); const old = page;
   for (const child of [...app.children]) if (child !== old) child.remove();
   overlays.replaceChildren(); state.page = name; persist();
-  page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api)
-    : name === 'pick' ? renderPickPage(api) : name === 'track' ? renderTrackPage(api)
+  page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api, { next: flow.next('bookmark') })
+    : name === 'pick' ? renderPickPage(api) : name === 'track' ? renderTrackPage(api) : name === 'ready' ? renderReadyPage(api)
     : renderSetupPage(name, api);
   page.dataset.page = name; page.classList.add('route-page'); page.style.zIndex = '2'; app.append(page); old?.setAttribute('inert', '');
   const url = new URL(location.href); url.hash = name; history.replaceState(null, '', url);

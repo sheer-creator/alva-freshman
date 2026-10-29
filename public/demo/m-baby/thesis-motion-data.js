@@ -1,6 +1,6 @@
 import { REFERENCE_THESES, TICKER_ASSETS, CHART_ASSETS } from './mvp-thesis-data.js?v=2';
 import { SIGNALS } from './thesis-motion-signals.js?v=1';
-import { onboardingPosts } from './thesis-demo-state.js';
+import { onboardingPosts } from './thesis-demo-state.js?v=8';
 
 // Copy, identities, links and version counts verified in the supplied mobile
 // reference on 2026-10-22. Layout and chart components remain Figma-owned.

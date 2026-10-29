@@ -39,7 +39,7 @@
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding',
-      href: 'onboarding/index.html?v=19',
+      href: 'onboarding/index.html?v=21',
       resetOnRestart: true,
       meta: 'Mobile · Complete onboarding flow',
       figma: {
@@ -52,7 +52,7 @@
       subtitle: 'Three steps play automatically: one thesis, Alva analysis, then a live signal list. Each heading appears before its content.',
       edited: '2026-10-28',
       slug: 'thesis-onboarding-guided',
-      href: 'onboarding/index.html?intro=guided&v=21',
+      href: 'onboarding/index.html?intro=guided&v=23',
       resetOnRestart: true,
       meta: 'Mobile · Automatic three-step introduction',
       figma: {
@@ -62,15 +62,15 @@
     },
     {
       title: 'onboarding-signal · Track',
-      subtitle: 'Log in, follow people, bookmark their theses; the last bookmarked card stays while Alva analyzes it, then portfolio and notifications.',
-      edited: '2026-10-28',
+      subtitle: 'Log in, follow people, bookmark their theses; the last bookmarked card stays while Alva analyzes it, then notifications and portfolio.',
+      edited: '2026-10-29',
       slug: 'thesis-onboarding-track',
-      href: 'onboarding/index.html?intro=track&v=13',
+      href: 'onboarding/index.html?intro=track&v=19',
       resetOnRestart: true,
       meta: 'Mobile · Bookmark, then analysis in place',
       figma: {
-        label: 'Thesis MVP · Onboarding v3',
-        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=13018-97468',
+        label: 'Thesis MVP · Onboarding · Section 18',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=13105-104304',
       },
     },
     {
@@ -78,7 +78,7 @@
       subtitle: 'For You, thesis detail and history, profile and ticker.',
       edited: '2026-10-22',
       slug: 'thesis-motion',
-      href: 'thesis-motion.html?v=23',
+      href: 'thesis-motion.html?v=26',
       meta: 'Mobile · 5 screens',
       figma: {
         label: 'Feed Mobile MVP · For You / V5',
