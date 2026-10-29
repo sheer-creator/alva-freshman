@@ -1,10 +1,10 @@
 /* Setup screens reproduce the current Figma onboarding frames.
  * Real authentication, broker access and OS permission requests are simulated.
  */
-import { signalCard } from './intro.js?v=12';
+import { signalCard } from './intro.js?v=13';
 import { bindNotificationReveal } from './notification-reveal.js?v=2';
-import { renderNotificationToastsPage } from './notification-toasts.js?v=4';
-import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=5';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=11';
+import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 
 const ASSETS = {
   logo: '12552:200754',
@@ -193,7 +193,8 @@ function renderPortfolio(api) {
       button.classList.toggle('is-connected', connected);
       button.setAttribute('aria-pressed', String(connected));
     });
-    root.querySelector('[data-action="next"]').disabled = track(api) ? false : api.state.connections.size === 0;
+    // Next stays disabled until a broker is connected; Skip is always there.
+    root.querySelector('[data-action="next"]').disabled = api.state.connections.size === 0;
   };
   root.querySelectorAll('[data-connect]').forEach(button => button.addEventListener('click', () => {
     const broker = BROKERS.find(b => b.id === button.dataset.connect);

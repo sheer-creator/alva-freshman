@@ -1,6 +1,6 @@
 import { node, escapeHTML } from './ui.js';
-import { renderThesisContent } from './cards.js?v=9';
-import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=12';
+import { renderThesisContent } from './cards.js?v=10';
+import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=13';
 import { springSamples } from './spatial-cards.js?v=2';
 
 const COPY = [

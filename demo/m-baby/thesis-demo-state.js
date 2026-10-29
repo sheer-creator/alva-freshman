@@ -70,6 +70,7 @@ export const SOURCE_AUTHORS = {
   '12552:202172': 'sam',
   '12552:202176': 'warren',
   '12552:202178': 'satya',
+  '12552:202168': 'gavin',
 };
 export const onboardingPostId = sourceId => 'onboarding-' + String(sourceId).replace(/[^a-zA-Z0-9-]/g, '-');
 
@@ -120,3 +121,4 @@ export function onboardingPosts() {
   return posts.filter(post => post && typeof post.id === 'string' && post.id.startsWith('onboarding-') &&
     typeof post.text === 'string' && Array.isArray(post.tickers) && Array.isArray(post.charts));
 }
+

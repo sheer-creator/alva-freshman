@@ -214,7 +214,7 @@ export function renderBookmarkPage(api, options={}) {
     return card.animate([
       {transform:'translate(-32px, 12px) rotate(-4deg) scale(.97)',opacity:0},
       {transform:'none',opacity:1}
-    ],{duration:420,easing:'cubic-bezier(.22,1,.36,1)'}).finished.catch(()=>{});
+    ],{duration:300,easing:'cubic-bezier(.22,1,.36,1)'}).finished.catch(()=>{});
   };
   deck.addEventListener('pointerdown',e=>{
     const card=e.target.closest('.front-card');

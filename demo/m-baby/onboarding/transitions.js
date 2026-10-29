@@ -52,6 +52,8 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     reveal('.intro-heading');
     reveal('.bookmark-deck', { lift: 8, depth: true, time: duration.stage });
   } else if (to === 'track') {
+    // The incoming page draws the same card; only one of them may show.
+    outgoing.querySelectorAll('.bookmark-deck>.deck-card').forEach(card => card.style.setProperty('visibility', 'hidden'));
     // The bookmarked card stays where the deck left it; the Track page runs its own entrance.
     relationship = 'open-content';
   } else if (to === 'login') {
