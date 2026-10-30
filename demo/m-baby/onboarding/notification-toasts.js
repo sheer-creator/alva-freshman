@@ -1,5 +1,5 @@
 import { escapeHTML } from './ui.js';
-import { mountPhoneMock } from './notification-mock.js?v=11';
+import { mountPhoneMock } from './notification-mock.js?v=14';
 
 // Approved one-sentence versions of the existing notificationPreview records.
 // These are examples, never additions to the user's bookmarked thesis IDs.
@@ -28,7 +28,8 @@ export function renderNotificationToastsPage(api) {
   // Three drop into the phone; the Track step showed the same signals.
   const trackOrder = ['12616:149037', '12608:109265', '12608:109341'];
   const toasts = api.variant === 'track' ? trackOrder.map(id => TOASTS.find(toast => toast.sourceId === id)).filter(Boolean) : TOASTS;
-  const logo = api.asset('Alva / Onboarding source') || new URL('./assets/alva-source-12646-154584.svg', import.meta.url).href;
+  // iOS-style notification: the app icon sits large on the left (Figma Mobile 1051:31165).
+  const appIcon = new URL('./assets/alva-app-icon.svg', import.meta.url).href;
   const arrow = api.asset(api.data.icons?.['arrow-left-l1'] || BACK_ASSET);
   root.innerHTML = `<header class="setup-topbar">
       <button type="button" class="setup-back" data-action="back" aria-label="Back"><img src="${escapeHTML(arrow)}" alt="" draggable="false"></button>
@@ -39,8 +40,11 @@ export function renderNotificationToastsPage(api) {
       ${hasSelection ? `<div class="notification-toasts-stage" role="region" aria-label="Notification previews" data-preview="true">
         ${toasts.map((toast, index) => `<article class="notification-toast" data-source-id="${toast.sourceId}" style="--toast-start-y:${-62 + index * 12}px;--toast-travel-y:${-150 + index * 96}px;--toast-start-scale:${1 - index * .04};z-index:${toasts.length - index}">
           <div class="notification-toast-content">
-            <div class="notification-toast-header"><img class="notification-toast-logo" src="${escapeHTML(logo)}" alt="" draggable="false"><strong>Alva</strong><span>now</span></div>
-            <p>${escapeHTML(toast.text)}</p>
+            <img class="notification-toast-icon" src="${escapeHTML(appIcon)}" alt="" draggable="false">
+            <div class="notification-toast-main">
+              <div class="notification-toast-header"><strong>Alva</strong><span>now</span></div>
+              <p>${escapeHTML(toast.text)}</p>
+            </div>
           </div>
         </article>`).join('')}
       </div>` : ''}

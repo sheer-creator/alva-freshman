@@ -1,9 +1,9 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=31';
+import { renderSetupPage } from './setup.js?v=35';
 import { renderIntroPage } from './intro.js?v=13';
 import { renderGuidedIntroPage } from './intro-guided.js?v=4';
 import { renderBookmarkPage } from './cards.js?v=10';
-import { renderPickPage, renderTrackPage } from './intro-track.js?v=36';
+import { renderPickPage, renderTrackPage } from './intro-track.js?v=43';
 import { renderReadyPage } from './ready.js?v=5';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=11';
@@ -183,9 +183,27 @@ function startSplash() {
   });
 }
 
+// Ready (all set) always arrives the same way, whichever button led there:
+// its green floods out from the centre of the screen over the current page,
+// then the page underneath switches without a further transition.
+async function floodInto(name) {
+  const shell = app.closest('.onboarding-app') || document.body;
+  const layer = document.createElement('div'); layer.className = 'ready-flood';
+  shell.append(layer); shell.classList.add('is-flooding');
+  const radius = Math.ceil(Math.hypot(shell.clientWidth, shell.clientHeight) / 2) + 2;
+  const flood = layer.animate([{ clipPath: 'circle(0px at 50% 50%)' }, { clipPath: `circle(${radius}px at 50% 50%)` }],
+    { duration: 720, easing: 'cubic-bezier(.65,0,.3,1)', fill: 'forwards' });
+  // The status bar turns white as the green reaches the top edge.
+  setTimeout(() => shell.classList.add('is-flooded'), 475);
+  await flood.finished.catch(() => {});
+  await go(name, { instant: true, flooded: true });
+  layer.remove(); shell.classList.remove('is-flooding', 'is-flooded');
+}
+
 async function go(name, options = {}) {
   if (name === 'feed') { openExistingFeed(); return; }
   if (!steps.includes(name)) return;
+  if (name === 'ready' && page && !options.flooded && !api.reduced()) { await floodInto(name); return; }
   const token = ++routeGeneration, previous = state.page;
   routeTransition?.cancel(); routeTransition = null;
   page?.cleanup?.(); const old = page;
