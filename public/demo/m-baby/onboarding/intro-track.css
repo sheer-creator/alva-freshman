@@ -85,7 +85,7 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .swipe-deck .swipe-actions .swipe-no{padding:0 12px;background:var(--bg-container);border:.5px solid var(--l12,#0000001f);color:var(--n7)}
 .swipe-mask{position:absolute;inset:0;z-index:4;border-radius:inherit;pointer-events:none;opacity:0;display:flex;align-items:flex-start;justify-content:center;padding-top:72px}
 .swipe-mask.is-yes{background:color-mix(in srgb,var(--m3) 16%,transparent)}
-.swipe-mask.is-no{background:color-mix(in srgb,#000 10%,transparent)}
+.swipe-mask.is-no{background:var(--br1)}
 .swipe-stamp{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:22px;font-size:16px;font-weight:500;line-height:26px;background:var(--bg-container);box-shadow:0 6px 18px #0000001f;transform:scale(.86);opacity:.55;transition:transform 180ms cubic-bezier(.3,1.6,.5,1),opacity 140ms ease-out,background-color 140ms,color 140ms}
 .swipe-mask.is-yes .swipe-stamp{color:var(--m3)}
 .swipe-mask.is-no .swipe-stamp{color:var(--n7)}
