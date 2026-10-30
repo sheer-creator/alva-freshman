@@ -34,7 +34,9 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .track-fade i:nth-child(1){-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);-webkit-mask-image:linear-gradient(#000 0,#000 55%,transparent 100%);mask-image:linear-gradient(#000 0,#000 55%,transparent 100%)}
 .track-fade i:nth-child(2){-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);-webkit-mask-image:linear-gradient(#000 0,#000 35%,transparent 75%);mask-image:linear-gradient(#000 0,#000 35%,transparent 75%)}
 .track-fade i:nth-child(3){-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);background:linear-gradient(color-mix(in srgb,var(--bg-container) 70%,transparent),color-mix(in srgb,var(--bg-container) 0%,transparent));-webkit-mask-image:linear-gradient(#000 0,#000 20%,transparent 55%);mask-image:linear-gradient(#000 0,#000 20%,transparent 55%)}
-.track-viewport{flex:1;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:calc(56px + var(--status-h)) 24px 0}
+/* The list runs the full height behind the bottom panel, so a card coming in
+   from the deck is never cut off at the panel's edge. */
+.track-viewport{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:calc(56px + var(--status-h)) 24px var(--track-panel-h,200px)}
 .track-viewport::-webkit-scrollbar{display:none}
 .track-stack{display:flex;flex-direction:column;gap:12px;padding:12px 0 32px}
 .track-card{padding:16px;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);box-shadow:0 4px 16px #00000006;will-change:transform}
@@ -46,8 +48,10 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .signal-morph-veil .analysis-card{background:transparent;border-radius:0}
 .track-signals:not(.has-signals){display:none}
 .track-signals-title{font-size:16px;line-height:26px;font-weight:500;color:var(--n9);margin:4px 0 0}
-.track-panel{position:relative;flex:none;z-index:4;background:var(--bg-container)}
-.track-panel::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:40px;background:linear-gradient(color-mix(in srgb,var(--bg-container) 0%,transparent),var(--bg-container));pointer-events:none}
+.track-panel{position:absolute;left:0;right:0;bottom:0;z-index:4;background:var(--bg-container);transition:background-color .36s ease}
+.track-page.is-entering .track-panel{background:transparent}
+.track-page.is-entering .track-panel::before{opacity:0}
+.track-panel::before{transition:opacity .36s ease;content:"";position:absolute;left:0;right:0;bottom:100%;height:40px;background:linear-gradient(color-mix(in srgb,var(--bg-container) 0%,transparent),var(--bg-container));pointer-events:none}
 .track-panel .intro-heading{height:auto;flex-basis:auto;padding:16px;background:transparent}
 .track-panel .intro-heading p{margin-top:12px}
 .track-page.track-can-continue .track-panel .intro-heading{padding-bottom:0}
@@ -87,10 +91,10 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .swipe-mask.is-no .swipe-stamp{color:var(--n7)}
 .swipe-stamp .bookmark-icon{display:block;flex:none;width:20px;height:20px;background:currentColor;-webkit-mask:var(--icon) center/contain no-repeat;mask:var(--icon) center/contain no-repeat}
 /* Past the release point: the stamp locks in and the matching button lights up. */
-.deck-card[data-locked="1"] .is-yes .swipe-stamp{transform:scale(1.06);opacity:1;background:var(--m3);color:#fff}
-.deck-card[data-locked="-1"] .is-no .swipe-stamp{transform:scale(1.06);opacity:1;background:#3a3a3c;color:#fff}
+.deck-card[data-locked="1"] .is-yes .swipe-stamp{transform:scale(1.06);opacity:1;background:var(--m3);color:var(--white)}
+.deck-card[data-locked="-1"] .is-no .swipe-stamp{transform:scale(1.06);opacity:1;background:var(--n9);color:var(--nr10)}
 .deck-card[data-locked="1"] .bookmark-button{transform:scale(1.04);box-shadow:0 0 0 4px color-mix(in srgb,var(--m3) 25%,transparent)}
-.deck-card[data-locked="-1"] .swipe-no{transform:scale(1.04);box-shadow:0 0 0 4px #0000001a}
+.deck-card[data-locked="-1"] .swipe-no{transform:scale(1.04);box-shadow:0 0 0 4px var(--br1)}
 /* K1 · trending (nobody followed) */
 .pick-collect-avatars:has(.pick-trend){height:40px}
 .pick-collect-avatars img.pick-trend{top:0;width:40px;height:40px;margin-left:8px;border-radius:0;box-shadow:none;object-fit:contain}
@@ -101,29 +105,35 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 /* Thesis cards follow the Feed Card: tickers and charts run to the card edge
    (clipped by the card, not short of it); chips br05, charts radius 8. */
 .deck-card .ticker-row,.deck-card .thesis-charts{margin-left:-16px;margin-right:-16px;padding:0 16px;scroll-padding:0 16px}
-.deck-card .ticker{background:color-mix(in srgb,#000 5%,transparent)}
-:root[data-theme="dark"] .deck-card .ticker{background:color-mix(in srgb,#fff 8%,transparent)}
+.deck-card .ticker{background:var(--br05)}
 .deck-card .thesis-chart{border-radius:8px}
 
 /* Ready (after Portfolio): all set + confetti, then For You. */
-.ready-page{display:flex;align-items:center;justify-content:center;background:var(--m1)}
-.page-slot>.ready-page{background:var(--m1)}
-.onboarding-app:has(.ready-page){background:var(--m1)}
-html[data-device-platform] .onboarding-app:has(.ready-page)>:is(.system-bar,.home-indicator){background:var(--m1);color:#fff}
-html[data-device-platform] .onboarding-app:has(.ready-page)>.home-indicator span{background:#fff}
-.ready-flood{position:absolute;inset:0;z-index:29;background:var(--m1);pointer-events:none;clip-path:circle(0px at 50% 50%)}
-html[data-device-platform] .onboarding-app.is-flooding>:is(.system-bar,.home-indicator){background:transparent}
-html[data-device-platform] .onboarding-app.is-flooded>:is(.system-bar,.home-indicator){color:#fff}
-html[data-device-platform] .onboarding-app.is-flooded>.home-indicator span{background:#fff}
+.ready-page{display:flex;align-items:center;justify-content:center;background:transparent}
+/* Full screen (under the status bar and home indicator) like the splash. */
+.page-slot>.ready-page{inset:calc(-1 * var(--status-h)) 0 calc(-1 * var(--home-h));width:auto;height:auto;background:transparent}
+.page-slot:has(>.ready-page){overflow:visible}
+html[data-device-platform] .onboarding-app:has(.ready-page)>:is(.system-bar,.home-indicator){background:transparent}
+html[data-device-platform] .onboarding-app.is-ready-dark>.system-bar{color:var(--white)}
+html[data-device-platform] .onboarding-app.is-ready-dark>.home-indicator span{background:var(--white)}
+/* The previous page (in) sits under the green sheet; the sheet has a round
+   hole at the success circle, sized from JS. */
+.ready-under{position:absolute;inset:var(--status-h,0px) 0 var(--home-h,0px);background:var(--white);overflow:hidden}
+.ready-under>.page{position:absolute;inset:0;width:100%;height:100%}
+.ready-iris{position:absolute;inset:0;background:var(--m1)}
+/* Out: the document turns see-through so For You (behind it) shows in the hole. */
+html.is-iris-out,html.is-iris-out body,html.is-iris-out .onboarding-app{background:transparent}
+html.is-iris-out .ready-under{display:none}
+.ready-page.is-opening .ready-check circle{fill:transparent}
 .ready-confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .ready-copy{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 32px 40px}
 .ready-badge{position:relative;width:72px;height:72px;margin-bottom:24px}
 .ready-check{position:relative;display:block;width:72px;height:72px}
-.ready-ring{position:absolute;inset:0;border-radius:50%;border:2px solid #fff;opacity:0}
-.ready-check circle{fill:#fff}
+.ready-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--white);opacity:0}
+.ready-check circle{fill:var(--white)}
 .ready-check path{fill:none;stroke:var(--m1);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:0}
-.ready-copy h1{font-size:28px;line-height:38px;font-weight:500;color:#fff}
-.ready-copy p{margin-top:8px;font-size:14px;line-height:22px;color:rgba(255,255,255,.78)}
+.ready-copy h1{font-size:28px;line-height:38px;font-weight:500;color:var(--white)}
+.ready-copy p{margin-top:8px;font-size:14px;line-height:22px;color:color-mix(in srgb,var(--white) 78%,transparent)}
 
 .ready-page.is-waiting .ready-copy{opacity:0}
 

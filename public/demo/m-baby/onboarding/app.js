@@ -1,10 +1,10 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=35';
+import { renderSetupPage } from './setup.js?v=46';
 import { renderIntroPage } from './intro.js?v=13';
 import { renderGuidedIntroPage } from './intro-guided.js?v=4';
 import { renderBookmarkPage } from './cards.js?v=10';
-import { renderPickPage, renderTrackPage } from './intro-track.js?v=43';
-import { renderReadyPage } from './ready.js?v=5';
+import { renderPickPage, renderTrackPage } from './intro-track.js?v=51';
+import { renderReadyPage } from './ready.js?v=7';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=11';
 import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=8';
@@ -145,7 +145,7 @@ function openExistingFeed() {
   }
   // The shell keeps this page available if For You fails to load. Clean up on
   // pagehide after a successful handoff so retry controls remain usable.
-  if (window.parent !== window) window.parent.postMessage({ type: 'alva:open-prototype', slug: 'thesis-motion', ...(onboarding ? { onboarding } : {}) }, location.origin);
+  if (window.parent !== window) window.parent.postMessage({ type: 'alva:open-prototype', slug: 'thesis-motion', iris: typeof window.__alvaReadyIrisOut === 'function', ...(onboarding ? { onboarding } : {}) }, location.origin);
   else location.assign(new URL('../index.html#/thesis-motion', location.href));
 }
 
@@ -183,27 +183,12 @@ function startSplash() {
   });
 }
 
-// Ready (all set) always arrives the same way, whichever button led there:
-// its green floods out from the centre of the screen over the current page,
-// then the page underneath switches without a further transition.
-async function floodInto(name) {
-  const shell = app.closest('.onboarding-app') || document.body;
-  const layer = document.createElement('div'); layer.className = 'ready-flood';
-  shell.append(layer); shell.classList.add('is-flooding');
-  const radius = Math.ceil(Math.hypot(shell.clientWidth, shell.clientHeight) / 2) + 2;
-  const flood = layer.animate([{ clipPath: 'circle(0px at 50% 50%)' }, { clipPath: `circle(${radius}px at 50% 50%)` }],
-    { duration: 720, easing: 'cubic-bezier(.65,0,.3,1)', fill: 'forwards' });
-  // The status bar turns white as the green reaches the top edge.
-  setTimeout(() => shell.classList.add('is-flooded'), 475);
-  await flood.finished.catch(() => {});
-  await go(name, { instant: true, flooded: true });
-  layer.remove(); shell.classList.remove('is-flooding', 'is-flooded');
-}
-
 async function go(name, options = {}) {
   if (name === 'feed') { openExistingFeed(); return; }
   if (!steps.includes(name)) return;
-  if (name === 'ready' && page && !options.flooded && !api.reduced()) { await floodInto(name); return; }
+  // Ready closes in over the page it replaces (see ready.js): hand it a copy
+  // and switch without the usual cross-fade.
+  if (name === 'ready' && page && !api.reduced()) { api.handoff = { snapshot: page.cloneNode(true) }; options = { ...options, instant: true }; }
   const token = ++routeGeneration, previous = state.page;
   routeTransition?.cancel(); routeTransition = null;
   page?.cleanup?.(); const old = page;
@@ -229,7 +214,13 @@ reducedMotion.addEventListener('change', () => {
   if (state.page === 'intro' || state.page === 'track') page?.finish?.();
 });
 document.addEventListener('click', () => queueMicrotask(persist));
-addEventListener('message', event => {
+addEventListener('message', async event => {
+  // For You is ready behind this document: open the success circle onto it.
+  if (event.source === parent && event.origin === location.origin && event.data?.type === 'alva:handoff-reveal') {
+    await window.__alvaReadyIrisOut?.();
+    parent.postMessage({ type: 'alva:handoff-revealed', token: event.data.token }, location.origin);
+    return;
+  }
   if (event.source === parent && event.origin === location.origin && event.data?.type === 'alva:handoff-failed' && event.data.slug === 'thesis-motion') {
     toast('For You could not load. Try again.');
   }

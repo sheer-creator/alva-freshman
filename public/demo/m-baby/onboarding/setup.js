@@ -3,7 +3,7 @@
  */
 import { signalCard } from './intro.js?v=13';
 import { bindNotificationReveal } from './notification-reveal.js?v=2';
-import { renderNotificationToastsPage } from './notification-toasts.js?v=15';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=25';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 
 const ASSETS = {
@@ -18,7 +18,7 @@ const ASSETS = {
   importX: 'I12552:200915;9170:48523',
   notification: '12684:225224',
 };
-const PEOPLE = [
+export const PEOPLE = [
   { id: 'gavin', name: 'Gavin Baker', role: 'Managing Partner & CIO, Atreides', avatar: 'I12552:200919;1437:30822;12552:200944' },
   { id: 'satya', name: 'Satya Nadella', role: 'Chairman & CEO, Microsoft', avatar: 'I12552:200921;1437:30822;12552:200956' },
   { id: 'sam', name: 'Sam Altman', role: 'Co-founder, OpenAI', avatar: 'I12552:200923;1437:30822;12552:200968' },
