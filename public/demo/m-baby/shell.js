@@ -330,10 +330,11 @@
     const handoff = onboardingHandoff;
     if (!handoff) return;
     onboardingHandoff = null;
-    clearTimeout(handoff.timeout);
+    clearTimeout(handoff.timeout); clearTimeout(handoff.irisTimeout);
     handoff.events.abort();
     handoff.animation?.cancel();
     handoff.incoming.remove();
+    handoff.outgoing.classList.remove('handoff-iris');
     handoff.outgoing.classList.remove('handoff-outgoing');
     handoff.outgoing.inert = false;
     screenEl.removeAttribute('aria-busy');
@@ -347,7 +348,7 @@
     if (onboardingHandoff !== handoff) return;
     if (slugFromHash() !== handoff.originSlug) { cancelOnboardingHandoff(); return; }
     onboardingHandoff = null;
-    clearTimeout(handoff.timeout);
+    clearTimeout(handoff.timeout); clearTimeout(handoff.irisTimeout);
     handoff.events.abort();
     handoff.animation?.cancel();
     handoff.outgoing.remove();
@@ -371,13 +372,26 @@
     // This never exposes the empty phone background between the two documents.
     handoff.incoming.classList.add('ready');
     if (handoffMotion.matches) { completeOnboardingHandoff(handoff); return; }
+    // Track onboarding opens its success circle onto For You itself: its
+    // document turns see-through and reports back when the circle has opened.
+    if (handoff.iris) {
+      handoff.outgoing.classList.add('handoff-iris');
+      handoff.outgoing.contentWindow.postMessage({ type: 'alva:handoff-reveal', token: handoff.token }, location.origin);
+      handoff.irisTimeout = setTimeout(() => fadeOutOnboarding(handoff), 2500);
+      return;
+    }
+    fadeOutOnboarding(handoff);
+  }
+
+  function fadeOutOnboarding(handoff) {
+    if (onboardingHandoff !== handoff || handoff.animation) return;
     handoff.animation = handoff.outgoing.animate([{ opacity: 1 }, { opacity: 0 }], {
       duration: HANDOFF_FADE_MS, easing: 'ease-out', fill: 'forwards',
     });
     handoff.animation.finished.then(() => completeOnboardingHandoff(handoff), () => {});
   }
 
-  function beginOnboardingHandoff(outgoing, payload) {
+  function beginOnboardingHandoff(outgoing, payload, iris = false) {
     if (onboardingHandoff || !ONBOARDING_SLUGS.has(mounted) || slugFromHash() !== mounted) return;
     const incoming = document.createElement('iframe');
     incoming.title = bySlug.get('thesis-motion').title;
@@ -385,7 +399,7 @@
     incoming.setAttribute('aria-hidden', 'true');
     incoming.classList.add('handoff-incoming');
     incoming.inert = true;
-    const handoff = { outgoing, incoming, onboarding: payload, originSlug: mounted, token: String(++handoffSequence), events: new AbortController() };
+    const handoff = { outgoing, incoming, iris, onboarding: payload, originSlug: mounted, token: String(++handoffSequence), events: new AbortController() };
     onboardingHandoff = handoff;
     incoming.addEventListener('load', () => {
       if (onboardingHandoff !== handoff) return;
@@ -509,6 +523,11 @@
       if (e.data?.type === 'alva:content-failed' && e.data.slug === 'thesis-motion' && e.data.token === handoff.token) cancelOnboardingHandoff(true);
       return;
     }
+    if (handoff && e.source === handoff.outgoing.contentWindow && e.data?.type === 'alva:handoff-revealed' && e.data.token === handoff.token) {
+      clearTimeout(handoff.irisTimeout);
+      completeOnboardingHandoff(handoff);
+      return;
+    }
     const frame = screenEl.firstElementChild;
     if (!frame || e.source !== frame.contentWindow) return;
     if (e.data?.type === 'alva:prototype-ready') {
@@ -517,7 +536,7 @@
       return;
     }
     if (e.data?.type === 'alva:open-prototype' && e.data.slug === 'thesis-motion' && bySlug.has(e.data.slug)) {
-      if (ONBOARDING_SLUGS.has(mounted)) { beginOnboardingHandoff(frame, e.data.onboarding); return; }
+      if (ONBOARDING_SLUGS.has(mounted)) { beginOnboardingHandoff(frame, e.data.onboarding, e.data.iris === true); return; }
       window.location.hash = '#/' + e.data.slug;
       return;
     }

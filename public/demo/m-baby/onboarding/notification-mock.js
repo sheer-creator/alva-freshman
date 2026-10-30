@@ -109,21 +109,26 @@ export function mountPhoneMock(root, api) {
     mock.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
   }
 
-  const laidOut = new Promise(resolve => requestAnimationFrame(() => {
-    if (!root.isConnected) return resolve();
+  // First layout. It runs as soon as the page is in the document — from
+  // start(), in the same task as the page switch — so the very first painted
+  // frame already shows the app at full size and scrolled, never a raw frame.
+  let laid = false;
+  function layout() {
+    if (laid || !root.isConnected) return;
+    laid = true;
     measure();
     if (animate) {
       const viewport = handoff.snapshot.querySelector('.track-viewport');
       if (viewport) viewport.scrollTop = handoff.scrollTop;
-      app.style.height = `${handoff.size.height}px`;
+      app.style.height = `${Math.max(handoff.size.height, Math.ceil(geo.screenH * geo.full))}px`;
       app.style.transform = `scale(${1 / geo.full})`;
       cover.style.height = '0px';
       placeMock(0);
     } else stackAll();
-    resolve();
-  }));
-
+  }
+  const laidOut = new Promise(resolve => requestAnimationFrame(() => { layout(); resolve(); }));
   async function start() {
+    layout();
     await laidOut;
     if (!animate || !alive) return;
     // a + a2 together: heading and Next fade out in place, the cards shrink

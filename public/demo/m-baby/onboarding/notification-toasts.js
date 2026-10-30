@@ -1,5 +1,5 @@
 import { escapeHTML } from './ui.js';
-import { mountPhoneMock } from './notification-mock.js?v=14';
+import { mountPhoneMock } from './notification-mock.js?v=24';
 
 // Approved one-sentence versions of the existing notificationPreview records.
 // These are examples, never additions to the user's bookmarked thesis IDs.
@@ -27,7 +27,16 @@ export function renderNotificationToastsPage(api) {
   // the user just bookmarked, in the order its signals arrived on the Track step.
   // Three drop into the phone; the Track step showed the same signals.
   const trackOrder = ['12616:149037', '12608:109265', '12608:109341'];
-  const toasts = api.variant === 'track' ? trackOrder.map(id => TOASTS.find(toast => toast.sourceId === id)).filter(Boolean) : TOASTS;
+  // Track copy varies in length, like real notifications: one short line, one
+  // that runs past two lines, one in between.
+  const TRACK_TEXT = {
+    '12616:149037': 'Riot Platforms signs a $9.1B compute deal.',
+    '12608:109265': 'SemiAnalysis: TPUv8i has entered software bring-up, and work on the public software stack has begun.',
+    '12608:109341': 'Wedbush’s Matt Bryson sees an opening for Marvell and TSMC.',
+  };
+  const toasts = api.variant === 'track'
+    ? trackOrder.map(id => TOASTS.find(toast => toast.sourceId === id)).filter(Boolean).map(toast => ({ ...toast, text: TRACK_TEXT[toast.sourceId] || toast.text }))
+    : TOASTS;
   // iOS-style notification: the app icon sits large on the left (Figma Mobile 1051:31165).
   const appIcon = new URL('./assets/alva-app-icon.svg', import.meta.url).href;
   const arrow = api.asset(api.data.icons?.['arrow-left-l1'] || BACK_ASSET);
