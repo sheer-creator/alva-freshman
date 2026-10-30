@@ -1,7 +1,7 @@
 /* Figma layout values are local to these four setup pages. */
 .setup-page{--setup-ink:var(--n9,rgba(0,0,0,.9));--setup-secondary:var(--n7,rgba(0,0,0,.7));--setup-muted:var(--n5,rgba(0,0,0,.5));--setup-brand:var(--m1,#49a3a6);display:flex;flex-direction:column;width:100%;height:100%;min-height:0;overflow:hidden;background:var(--bg-container,#fff);color:var(--setup-ink);font-family:Delight,sans-serif;letter-spacing:.01em}
 .setup-page *{box-sizing:border-box}
-.setup-page h1,.setup-page p{margin:0}
+.setup-page h1:not(.phone-mock-app *),.setup-page p:not(.phone-mock-app *){margin:0}
 .setup-page button{font-family:inherit;letter-spacing:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color 140ms ease,color 140ms ease,transform 140ms ease;touch-action:manipulation}
 .setup-page button:active:not(:disabled){transform:scale(.98)}
 .setup-page button:focus-visible{outline:2px solid var(--setup-brand);outline-offset:3px}

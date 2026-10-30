@@ -1,8 +1,9 @@
 import { node, escapeHTML, heading, topbar } from './ui.js';
 import { renderThesisContent } from './cards.js?v=10';
-import { renderSwipePage } from './swipe-deck.js?v=10';
+import { renderSwipePage } from './swipe-deck.js?v=11';
 import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=13';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
+import { PEOPLE } from './setup.js?v=46';
 
 // Track variant: after following people, the user bookmarks theses from them
 // on the existing deck; the last bookmarked card then stays on screen while Alva
@@ -73,13 +74,15 @@ export function renderPickPage(api) {
   // page shows and its cards gather from both sides into one stack.
   let collected = Promise.resolve();
   if (reveal) {
-    const people = [];
-    for (const thesis of following.length ? pool.filter(followed) : pool.slice(0, 3)) if (!people.some(entry => entry.author === thesis.author)) people.push(thesis);
+    // In the order they were picked: the first, the second and the last
+    // (at most three).
+    const picked = following.map(person => PEOPLE.find(entry => entry.id === person)).filter(Boolean);
+    const people = picked.length <= 3 ? picked : [picked[0], picked[1], picked.at(-1)];
     const from = api.state.peopleFrom || {};
     const trending = !following.length;
     const overlay = node('div', 'pick-collect', trending
       ? `<div class="pick-collect-avatars"><img class="pick-trend full-loader-mark" src="../assets/logo-loading-light.svg" alt="" aria-hidden="true"></div><p>Collecting trending theses…</p>`
-      : `<div class="pick-collect-avatars">${people.map(entry => `<span class="pick-avatar" data-person="${escapeHTML(SOURCE_AUTHORS[entry.id] || '')}"><img src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false"></span>`).join('')}</div><p>Collecting theses based on your picks…</p>`);
+      : `<div class="pick-collect-avatars">${people.map(entry => `<span class="pick-avatar" data-person="${escapeHTML(entry.id)}"><img src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false"></span>`).join('')}</div><p>Collecting theses based on your picks…</p>`);
     overlay.setAttribute('role', 'status');
     root.append(overlay); root.classList.add('is-collecting');
     const avatars = [...overlay.querySelectorAll('.pick-avatar, .pick-trend')];
@@ -99,11 +102,11 @@ export function renderPickPage(api) {
       });
       overlay.querySelector('p').animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: 260, easing: EASE, fill: 'backwards' });
       await Promise.allSettled(flights);
-      // A soft wave from left to right: each photo dims and comes back in
-      // turn, a beat after its left neighbour. Only the photos change; the
-      // circles, their order and size stay put.
+      // The photos breathe: each dims and comes back, twice. With several
+      // people it runs as a wave from left to right, a beat apart. Only the
+      // photos change; the circles, their order and size stay put.
       const people = avatars.filter(img => !img.classList.contains('pick-trend'));
-      if (people.length > 1) {
+      if (people.length) {
         const STEP = 160, CYCLE = 1000, ROUNDS = 2;
         const waves = people.map((wrap, index) => wrap.querySelector('img').animate(
           [{ opacity: 1 }, { opacity: .4, offset: .45 }, { opacity: 1 }],
@@ -180,6 +183,13 @@ export function renderTrackPage(api) {
   // progressively (three blur layers with staggered masks), never cut.
   const fade = node('div', 'track-fade', '<i></i><i></i><i></i>'); fade.setAttribute('aria-hidden', 'true');
   root.append(topbar(api, () => api.go(flow.prev('track'))), viewport, fade, panel);
+  // The list keeps room for the bottom panel, whatever its height.
+  const sizePanel = () => root.style.setProperty('--track-panel-h', `${panel.offsetHeight}px`);
+  const panelSize = typeof ResizeObserver === 'function' ? new ResizeObserver(sizePanel) : null;
+  panelSize?.observe(panel);
+  // While the card comes in from the deck, the panel is see-through so the
+  // card is never hidden under it.
+  if (fromTop !== null || entering) root.classList.add('is-entering');
 
   let alive = true, started = false, epoch = 0, analysis = null, reveal = null, taskIndex = 0, typing = false;
   const animations = new Set(), timers = new Set(), frames = new Set();
@@ -220,8 +230,11 @@ export function renderTrackPage(api) {
       const before = header.getBoundingClientRect().top;
       reveal();
       const dy = (before - header.getBoundingClientRect().top) / unit();
-      const motions = [play(header, [{ transform: `translateY(${dy}px)` }, { transform: 'none' }], 640, { easing: 'cubic-bezier(.22,1,.36,1)' })];
-      if (withButton) motions.push(play(next, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], 640, { delay: 80, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+      // Heading and Next move as one block: the same distance, timing and curve.
+      // Slow, fast, slow.
+      const lift = { duration: 640, easing: 'cubic-bezier(.65,0,.35,1)' };
+      const motions = [play(header, [{ transform: `translateY(${dy}px)` }, { transform: 'none' }], lift.duration, { easing: lift.easing })];
+      if (withButton) motions.push(play(next, [{ opacity: 0, transform: `translateY(${dy}px)` }, { opacity: 1, offset: .5 }, { opacity: 1, transform: 'none' }], lift.duration, { easing: lift.easing, fill: 'backwards' }));
       await Promise.all(motions);
       return;
     }
@@ -257,7 +270,7 @@ export function renderTrackPage(api) {
   const parkTarget = () => Math.max(0, card.offsetHeight - 64);
   function reserveScroll(target) { stack.style.minHeight = `${viewport.clientHeight + target}px`; }
   function settle() {
-    stop(); started = true;
+    stop(); started = true; root.classList.remove('is-entering');
     card.style.marginTop = ''; card.style.opacity = ''; header.style.opacity = '';
     if (reveal) reveal.remove(); analysis = null; reveal = null;
     column.querySelectorAll('.signal-card').forEach(signal => signal.remove());
@@ -315,9 +328,10 @@ export function renderTrackPage(api) {
     const glide = play(card, [{ transform: `translateY(${startTop - restTop}px)` }, { transform: 'none' }], 760, { easing: 'cubic-bezier(.45,0,.2,1)' });
     if (entering) { api.state.trackEnter = false; api.persist(); }
     const rise = header.style.opacity === '0'
-      ? play(header, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], 720, { delay: 320, fill: 'backwards' }).then(() => { header.style.opacity = ''; })
+      ? play(header, [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], 720, { delay: 440, fill: 'backwards' }).then(() => { header.style.opacity = ''; })
       : Promise.resolve();
     header.style.opacity = '';
+    const solid = setTimeout(() => root.classList.remove('is-entering'), 380); timers.add(solid);
     await glide;
     if (!valid(token)) return;
     // 2. The Signals title and the analysis card under it unfold beneath the
@@ -328,11 +342,14 @@ export function renderTrackPage(api) {
     await play(reveal, [{ height: '0px', opacity: 0, marginTop: '-8px' }, { height: `${height}px`, opacity: 1, marginTop: '0px' }], 520);
     if (!valid(token)) return;
     updateTasks(token);
-    await wait(1500); if (!valid(token)) return;
+    await wait(1100); if (!valid(token)) return;
     // 3. Signals come out from under the analysis card one by one, newest on
     //    top, pushing the earlier ones down. Each one is squeezed out: its slot
     //    grows from 0 while the card stretches and settles (a soft squash).
     const SQUEEZE = 'cubic-bezier(.3,.7,.2,1)';
+    // Signals come out fast and settle slowly (a strong ease-out), unlike the
+    // heading lift that follows, which eases in and out.
+    const POP = 'cubic-bezier(.05,.75,.15,1)';
     for (let step = 0; step < signals.length - 1; step++) {
       const index = signals.length - 1 - step;
       const signal = signalCard(signals[index], api); signal.dataset.signalId = signals[index].id;
@@ -340,13 +357,12 @@ export function renderTrackPage(api) {
       const height = signal.offsetHeight, cs = getComputedStyle(signal);
       play(signal, [
         { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginTop: '-8px', opacity: 0, transform: 'scale(.94, .55)' },
-        { opacity: 1, offset: .3 },
-        { transform: 'scale(1.015, 1.04)', offset: .62 },
+        { opacity: 1, offset: .2 },
         { height: `${height}px`, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginTop: '0px', opacity: 1, transform: 'none' },
-      ], 640, { easing: SQUEEZE });
-      [...signal.children].forEach(child => play(child, [{ transform: `translateY(-${Math.round(height * .45)}px)` }, { transform: 'none' }], 640, { easing: SQUEEZE }));
-      // Uneven gaps (480–960ms), like signals coming in live.
-      await wait(480 + Math.round(Math.random() * 480)); if (!valid(token)) return;
+      ], 460, { easing: POP });
+      [...signal.children].forEach(child => play(child, [{ transform: `translateY(-${Math.round(height * .45)}px)` }, { transform: 'none' }], 460, { easing: POP }));
+      // Uneven gaps (320–640ms), like signals coming in live.
+      await wait(320 + Math.round(Math.random() * 320)); if (!valid(token)) return;
     }
     // 4. The analysis card itself turns into the last (top) signal: it changes
     //    size in place and its content cross-fades, so the list never moves up.
@@ -364,7 +380,7 @@ export function renderTrackPage(api) {
     const veil = node('div', 'signal-morph-veil'); veil.style.background = tint; veil.append(analysis);
     last.classList.add('is-morphing'); last.append(veil);
     reveal.remove(); reveal = null;
-    const EASE_IO = 'cubic-bezier(.45,0,.25,1)', MORPH = 600;
+    const EASE_IO = 'cubic-bezier(.45,0,.25,1)', MORPH = 420;
     const morph = Promise.all([
       play(last, [{ height: `${from}px`, borderRadius: '12px', boxShadow: 'none' }, { height: `${from}px`, borderRadius: '12px', boxShadow: 'none', offset: .12 }, { height: `${to}px`, borderRadius: '8px' }], MORPH, { easing: EASE_IO }),
       // In order, never overlapping: the analysis content fades first, then
@@ -407,6 +423,6 @@ export function renderTrackPage(api) {
   // the page cross-fade, so there is no pause between the two pages.
   if ((fromTop !== null || entering) && !api.reduced()) requestAnimationFrame(() => { if (alive && root.isConnected) root.start(); });
   root.finish = settle;
-  root.cleanup = () => { alive = false; stop(); next.onclick = null; };
+  root.cleanup = () => { alive = false; stop(); next.onclick = null; panelSize?.disconnect(); };
   return root;
 }

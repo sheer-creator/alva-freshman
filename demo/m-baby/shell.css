@@ -516,6 +516,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   pointer-events: none;
   transition: none;
 }
+.phone-screen iframe.handoff-outgoing.handoff-iris { background: transparent; }
 .phone-screen iframe.handoff-incoming {
   position: absolute;
   inset: 0;
