@@ -1,0 +1,138 @@
+/* Thesis detail · signals generating (Figma Thesis MVP 12454:331346).
+   Colours are Library tokens (mvp.css) so Light/Dark switch on their own.
+   The few tokens mvp.css lacks are defined once here, from Library values. */
+:root {
+  --gen-br02: color-mix(in srgb, var(--n10) 2%, transparent);  /* content/br02 */
+  --gen-bone: var(--br05);                                     /* text/n05 */
+  --gen-m5: #e6a91a;                                           /* main/m5 */
+  --gen-m5-10: rgba(230, 169, 26, .1);                          /* main/m5-10 */
+  --gen-m3-10: color-mix(in srgb, var(--m3) 10%, transparent);  /* main/m3-10 */
+  --gen-m4-10: color-mix(in srgb, var(--m4) 10%, transparent);  /* main/m4-10 */
+  --gen-ink-link: #49a3a6;                                      /* citation link */
+  /* The shimmer highlight: lighter than the bone in both modes. */
+  --gen-sheen: rgba(255, 255, 255, .85);
+}
+html[data-theme='dark'] { --gen-sheen: rgba(255, 255, 255, .07); }
+
+html, body { height: 100%; margin: 0; background: var(--bg-container); }
+body.gen-demo { overflow: hidden; font-family: Delight, -apple-system, sans-serif; color: var(--n9); letter-spacing: .01em; -webkit-font-smoothing: antialiased; }
+.gen-demo * { box-sizing: border-box; }
+.gen-demo p { margin: 0; }
+.gen-demo button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+.gen-app { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; overflow: hidden; background: var(--bg-container); }
+
+/* Device chrome: only inside the gallery's device frame. */
+.gen-demo .system-bar, .gen-demo .home-indicator, .gen-cutout { display: none; }
+html[data-device-platform] .gen-demo .system-bar { display: grid; position: relative; flex: none; z-index: 5; }
+html[data-device-platform] .gen-demo .home-indicator { display: block; position: relative; flex: none; }
+html[data-device-platform] .gen-cutout { display: block; z-index: 6; }
+
+.gen-icon { display: block; flex: none; width: 20px; height: 20px; background: currentColor; -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+
+/* Top bar (Topbar/Mweb · 二级页面) */
+.gen-topbar { flex: none; display: flex; align-items: center; height: 56px; padding: 0 4px 0 6px; background: var(--bg-container); }
+.gen-icon-btn { display: grid; place-items: center; width: 40px; height: 56px; color: var(--n9); }
+.gen-identity { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.gen-avatar-32 { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex: none; }
+.gen-identity-copy { min-width: 0; display: flex; flex-direction: column; }
+.gen-identity-copy strong { font-size: 14px; line-height: 22px; font-weight: 500; margin-bottom: -4px; }
+.gen-identity-copy span { font-size: 12px; line-height: 20px; color: var(--n5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gen-demo .gen-update { display: flex; align-items: center; gap: 4px; padding: 4px 12px; margin-right: 4px; border-radius: 4px; background: var(--m2); color: var(--white); font-size: 12px; line-height: 20px; font-weight: 500; }
+.gen-demo .gen-update .gen-icon { width: 14px; height: 14px; }
+
+/* Scroll area */
+.gen-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.gen-scroll > * { flex: none; }
+.gen-scroll::-webkit-scrollbar { display: none; }
+.gen-update-block { display: flex; flex-direction: column; gap: 8px; padding: 0 16px 20px; }
+.gen-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 20px; color: var(--n5); }
+.gen-chip-latest { padding: 0 4px; border-radius: 8px; background: var(--m2); color: var(--nr10); font-size: 10px; line-height: 16px; font-weight: 500; }
+.gen-ticker { align-self: flex-start; display: flex; align-items: center; gap: 4px; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--br05); font-size: 12px; line-height: 20px; }
+.gen-ticker img { width: 16px; height: 16px; }
+.gen-dial { display: grid; place-items: center; width: 12px; height: 12px; border-radius: 50%; background: var(--m3); color: var(--white); }
+.gen-dial .gen-icon { width: 8px; height: 8px; }
+.gen-body { font-size: 14px; line-height: 22px; }
+.gen-body b { font-weight: 500; color: var(--gen-ink-link); }
+.gen-chart { width: 240px; height: 135px; border: .5px solid var(--l2); border-radius: 8px; overflow: hidden; }
+.gen-chart img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* Tabs */
+.gen-tabs { display: flex; gap: 16px; padding: 20px 16px 0; border-bottom: .5px solid var(--l12); font-size: 14px; line-height: 22px; }
+.gen-tabs span { padding-bottom: 6px; color: var(--n7); }
+.gen-tabs .is-active { color: var(--n9); font-weight: 500; box-shadow: inset 0 -2px 0 var(--m1); }
+
+/* Signals list (Signals / Evidence records · generating) */
+/* content/br02 on the list, as in Figma; it runs to the bottom of the page so
+   there is no white band under a short list. */
+.gen-demo .gen-signals { flex: 1 0 auto; display: flex; flex-direction: column; padding-bottom: 72px; background: var(--gen-br02); }
+.gen-divider { display: block; height: .5px; background: var(--l12); }
+
+/* Generating skeleton item */
+.gen-skeleton { display: flex; flex-direction: column; gap: 8px; padding: 16px 16px 12px; }
+.gen-skel-identity { display: flex; align-items: center; gap: 8px; }
+.gen-skel-lines { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.gen-skel-text { display: flex; flex-direction: column; }
+.gen-skel-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.gen-skel-title { flex: none; white-space: nowrap; font-size: 14px; line-height: 22px; font-weight: 500; color: var(--n5); }
+/* The step hugs the letters on screen; the bar beside it fills the rest of
+   the row, so it follows the typing letter by letter. */
+.gen-skel-step { position: relative; flex: none; display: block; height: 20px; white-space: nowrap; font-size: 12px; line-height: 20px; color: var(--n5); }
+.gen-skel-step > span { display: block; width: max-content; min-height: 20px; }
+
+/* Grey blocks with one shared light sweep. Every block takes its slice of the
+   same band (positioned from its own x), so the sweep crosses the item as one. */
+@property --gen-sweep { syntax: '<length>'; inherits: true; initial-value: -200px; }
+.gen-skeleton { --gen-sweep: -200px; animation: gen-sweep 1600ms cubic-bezier(.4, 0, .2, 1) infinite; }
+@keyframes gen-sweep { from { --gen-sweep: -200px; } to { --gen-sweep: calc(var(--gen-item-w, 393px) + 200px); } }
+.gen-bone {
+  display: block; flex: none; border-radius: 2px;
+  background-color: var(--gen-bone);
+  background-image: linear-gradient(90deg, transparent, var(--gen-sheen), transparent);
+  background-repeat: no-repeat;
+  background-size: 160px 100%;
+  background-position: calc(var(--gen-sweep) - var(--x, 0px) - 80px) 0;
+}
+.gen-bone-avatar { width: 28px; height: 28px; border-radius: 50%; }
+.gen-bone-fill { flex: 1 1 0; min-width: 16px; height: 12px; }
+
+/* Signal */
+.gen-signal { display: flex; flex-direction: column; gap: 8px; padding: 16px; }
+.gen-speaker { display: flex; gap: 8px; align-items: flex-start; }
+.gen-speaker img { width: 28px; height: 28px; margin-top: 4px; border-radius: 50%; object-fit: cover; flex: none; }
+.gen-speaker > div { flex: 1; min-width: 0; }
+.gen-speaker-top { display: flex; gap: 8px; align-items: flex-start; margin-bottom: -2px; }
+.gen-speaker-top strong { flex: 1; font-size: 12px; line-height: 20px; font-weight: 500; }
+.gen-speaker-top time, .gen-speaker > div > span { font-size: 10px; line-height: 16px; color: var(--n5); }
+.gen-speaker > div > span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gen-quote { font-size: 12px; line-height: 22px; color: var(--n7); }
+.gen-quote a { color: inherit; text-decoration: underline dotted 1px; text-underline-offset: 3px; }
+.gen-analysis { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+.gen-analysis p { font-size: 12px; line-height: 20px; color: var(--n7); }
+.gen-stance { display: inline-flex; gap: 1px; align-self: flex-start; }
+.gen-stance-alva { display: grid; place-items: center; height: 18px; padding: 0 4px; border-radius: 4px 0 0 4px; background: var(--m1-10); }
+.gen-stance-alva img { width: 10px; height: 10px; }
+.gen-stance-tag { display: flex; align-items: center; height: 18px; padding: 0 6px 1px; border-radius: 0 4px 4px 0; background: var(--gen-m5-10); color: var(--gen-m5); font-size: 10px; line-height: 16px; font-weight: 500; font-style: normal; }
+.gen-feedback { display: flex; justify-content: flex-end; gap: 16px; color: var(--n7); }
+.gen-feedback .gen-icon { width: 16px; height: 16px; }
+
+/* Suggestion row floating over the list, as in Figma 12454:331388: 24 above,
+   0 below (it sits right on the CTA), side 12, gap 8. It is layered above the
+   CTA, so the buttons' shadow spills onto the CTA as in Figma. A b0-container fade from
+   clear to solid at 24px holds the buttons; nothing clips their shadow. */
+.gen-suggest { position: absolute; left: 0; right: 0; bottom: calc(43px + var(--home-h, 0px)); z-index: 5; display: flex; gap: 8px; padding: 24px 12px 0; overflow: visible; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg-container) 0%, transparent) 0, var(--bg-container) 24px, var(--bg-container) 100%); }
+.gen-suggest::-webkit-scrollbar { display: none; }
+.gen-demo .gen-suggest button { flex: none; display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: .5px solid var(--l12); border-radius: 4px; background: var(--bg-container); box-shadow: 0 2px 16px #00000014; font-size: 12px; line-height: 20px; font-weight: 500; color: var(--n9); white-space: nowrap; }
+.gen-suggest .gen-icon { width: 14px; height: 14px; }
+.gen-cta { flex: none; position: relative; z-index: 4; display: flex; align-items: center; justify-content: space-between; height: 43px; padding: 8px 16px 0; background: var(--bg-container); color: var(--n7); font-size: 12px; line-height: 20px; font-weight: 500; }
+.gen-cta-ask, .gen-cta-actions, .gen-cta-actions > span { display: flex; align-items: center; gap: 4px; }
+.gen-cta-actions { gap: 20px; }
+
+@media (prefers-reduced-motion: reduce) { .gen-skeleton { animation: none; } }
+
+.gen-stance-tag.is-supports { background: var(--gen-m3-10); color: var(--m3); }
+.gen-stance-tag.is-challenges { background: var(--gen-m4-10); color: var(--m4); }
+/* Generating item → signal card: one box changes size while the skeleton
+   (kept as a veil on top) fades out and the card's content fades in. */
+.gen-signal.is-morphing { position: relative; overflow: hidden; }
+.gen-veil { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; gap: 8px; padding: 16px 16px 12px; pointer-events: none; }
+.gen-signals > :is(.gen-skeleton, .gen-signal) { overflow: hidden; }
