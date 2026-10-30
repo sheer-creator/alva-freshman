@@ -74,6 +74,18 @@
       },
     },
     {
+      title: 'Thesis · Generating signals',
+      subtitle: 'Detail page right after creating a thesis: the Signals list is still being generated — shimmering placeholders and a step line that keeps changing.',
+      edited: '2026-10-30',
+      slug: 'thesis-generating',
+      href: 'thesis-generating.html?v=10',
+      meta: 'Mobile · Detail · loading state',
+      figma: {
+        label: 'Thesis MVP · Detail · signals generating',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=12454-331346',
+      },
+    },
+    {
       title: 'Thesis · Navigation motion',
       subtitle: 'For You, thesis detail and history, profile and ticker.',
       edited: '2026-10-22',
