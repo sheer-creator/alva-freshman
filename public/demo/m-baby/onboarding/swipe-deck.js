@@ -15,7 +15,8 @@ export function renderSwipePage(api, { pool, back, onNext }) {
   const root = node('section', 'page bookmark-page swipe-page');
   root.dataset.mode = 'pick';
   root.setAttribute('aria-label', 'Bookmark theses');
-  const copy = api.data.bookmarkCopy || { title: 'Bookmark theses.\nTrack what changes.', description: 'Choose the views you want Alva to track for new signals.' };
+  // Track copy (Figma K2–K7).
+  const copy = { title: 'Bookmark Thesis.\nAlva keeps watch.', description: 'Choose your views. Get new voices and data, for or against them.' };
   // Skip (top right) goes straight to Portfolio.
   root.append(topbar(api, back ? () => api.go(back) : null, () => api.go('portfolio')), heading(copy.title, copy.description));
   const deck = node('div', 'bookmark-deck swipe-deck');
@@ -26,25 +27,30 @@ export function renderSwipePage(api, { pool, back, onNext }) {
   footer.append(count, next); root.append(footer);
 
   // Each thesis is shown once. When none are left, an end card says more is
-  // coming and offers Skip (same as the top-right Skip).
+  // coming and offers a way on (same as the top-right Skip) — only if nothing
+  // was bookmarked.
   const dismissed = new Set();
   const queue = () => pool.filter(item => !api.state.bookmarked.has(item.id) && !dismissed.has(item.id));
   const END = { id: '__end' };
   const cards = new Map();
   let busy = false, drag = null;
+  // Each card's own tilt while it waits in the stack; it straightens when it
+  // comes to the front.
+  const TILTS = [-1.6, 1.4, -1.1, 1.9, -1.9, 1.1, -1.3, 1.7];
+  const tiltOf = id => id === END.id ? 1.2 : TILTS[Math.max(0, pool.findIndex(item => item.id === id)) % TILTS.length];
   const icon = name => api.asset(api.data.icons[name]);
 
   function cardFor(item) {
     if (cards.has(item.id)) return cards.get(item.id);
     if (item === END) {
-      const card = node('article', 'deck-card swipe-end'); card.dataset.thesis = END.id;
+      const card = node('article', 'deck-card swipe-end'); card.dataset.thesis = END.id; card.style.setProperty('--tilt', `${tiltOf(END.id)}deg`);
       card.innerHTML = `<div class="swipe-end-copy"><h3>Nothing caught your interest?</h3><p>No problem. We’ll prepare more great content for you.</p></div>`;
       const skip = node('button', 'btn btn-secondary swipe-end-skip', 'Let’s keep going'); skip.type = 'button';
       skip.onclick = () => api.go('portfolio');
       card.append(skip);
       cards.set(END.id, card); return card;
     }
-    const card = node('article', 'deck-card'); card.dataset.thesis = item.id;
+    const card = node('article', 'deck-card'); card.dataset.thesis = item.id; card.style.setProperty('--tilt', `${tiltOf(item.id)}deg`);
     card.setAttribute('aria-label', `${item.author} thesis`);
     const read = node('div', 'card-reading'); read.append(renderThesisContent(item, api)); card.append(read);
     card.append(node('div', 'swipe-mask is-yes', `<span class="swipe-stamp"><i class="bookmark-icon" style="--icon:url(&quot;${escapeHTML(icon('Bookmark icon') || icon('bookmark-l'))}&quot;)"></i>Bookmark</span>`));
@@ -60,7 +66,10 @@ export function renderSwipePage(api, { pool, back, onNext }) {
 
   function arrange() {
     const open = queue();
-    const list = (open.length < 3 ? [...open, END] : open).slice(0, 3);
+    // The end card only when nothing has been bookmarked; otherwise the deck
+    // simply runs out and the user taps Next.
+    const withEnd = open.length < 3 && api.state.bookmarked.size === 0;
+    const list = (withEnd ? [...open, END] : open).slice(0, 3);
     const slots = ['front', 'next', 'previous'];
     const keep = new Set();
     list.forEach((item, index) => {
@@ -70,7 +79,7 @@ export function renderSwipePage(api, { pool, back, onNext }) {
       card.classList.toggle('real-back-card', index > 0);
       card.inert = index > 0; card.setAttribute('aria-hidden', String(index > 0));
       card.style.zIndex = String(3 - index);
-      if (card.parentNode !== deck) deck.prepend(card);
+      if (card.parentNode !== deck) { deck.prepend(card); if (cards.size > 1) card.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); }
     });
     for (const [id, card] of cards) if (!keep.has(id) && !card.classList.contains('is-leaving')) card.remove();
     count.textContent = `${api.state.bookmarked.size} selected`;
@@ -110,8 +119,6 @@ export function renderSwipePage(api, { pool, back, onNext }) {
     cards.delete(id);
     busy = false;
     arrange();
-    // Everything bookmarked: go straight on.
-    if (dir > 0 && !queue().length && !dismissed.size) next.click();
   }
 
   deck.addEventListener('pointerdown', event => {

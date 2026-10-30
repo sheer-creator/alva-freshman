@@ -40,12 +40,17 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .track-card{padding:16px;border:.5px solid var(--line);border-radius:12px;background:var(--bg-container);box-shadow:0 4px 16px #00000006;will-change:transform}
 .track-analysis-reveal{flex:none;overflow:hidden;border-radius:12px}
 .track-analysis-reveal .analysis-card{height:auto;min-height:108px}
-.track-signals{display:flex;flex-direction:column;gap:8px}
+.track-signals{position:relative;display:flex;flex-direction:column;gap:8px}
+.track-signals .signal-card.is-morphing{position:relative}
+.signal-morph-veil{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.signal-morph-veil .analysis-card{background:transparent;border-radius:0}
 .track-signals:not(.has-signals){display:none}
 .track-signals-title{font-size:16px;line-height:26px;font-weight:500;color:var(--n9);margin:4px 0 0}
 .track-panel{position:relative;flex:none;z-index:4;background:var(--bg-container)}
 .track-panel::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:40px;background:linear-gradient(color-mix(in srgb,var(--bg-container) 0%,transparent),var(--bg-container));pointer-events:none}
-.track-panel .intro-heading{height:auto;flex-basis:auto;padding:12px 16px 4px;background:transparent}
+.track-panel .intro-heading{height:auto;flex-basis:auto;padding:16px;background:transparent}
+.track-panel .intro-heading p{margin-top:12px}
+.track-page.track-can-continue .track-panel .intro-heading{padding-bottom:0}
 .track-footer{display:none}
 .track-page.track-can-continue .track-footer{display:block}
 .track-heading-out{position:absolute;left:0;right:0;pointer-events:none}
@@ -62,7 +67,8 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 /* K1 · Collecting (white screen, avatars take turns, then the deck). */
 .pick-collect{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg-container);padding-bottom:40px}
 .pick-collect-avatars{position:relative;width:100%;height:64px}
-.pick-collect-avatars img{position:absolute;top:4px;width:56px;height:56px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px var(--bg-container),0 4px 12px #0000001a;will-change:transform}
+.pick-collect-avatars .pick-avatar,.pick-collect-avatars>img{position:absolute;top:4px;width:56px;height:56px;border-radius:50%;background:var(--bg-container);box-shadow:0 0 0 2px var(--bg-container),0 4px 12px #0000001a;will-change:transform}
+.pick-avatar img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover}
 .pick-collect p{font-size:14px;line-height:22px;color:var(--n5);text-align:center;padding:0 32px}
 .bookmark-page.is-collecting .bookmark-deck>.deck-card{visibility:hidden}
 
@@ -79,7 +85,7 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .swipe-stamp{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:22px;font-size:16px;font-weight:500;line-height:26px;background:var(--bg-container);box-shadow:0 6px 18px #0000001f;transform:scale(.86);opacity:.55;transition:transform 180ms cubic-bezier(.3,1.6,.5,1),opacity 140ms ease-out,background-color 140ms,color 140ms}
 .swipe-mask.is-yes .swipe-stamp{color:var(--m3)}
 .swipe-mask.is-no .swipe-stamp{color:var(--n7)}
-.swipe-stamp .bookmark-icon{width:20px;height:20px}
+.swipe-stamp .bookmark-icon{display:block;flex:none;width:20px;height:20px;background:currentColor;-webkit-mask:var(--icon) center/contain no-repeat;mask:var(--icon) center/contain no-repeat}
 /* Past the release point: the stamp locks in and the matching button lights up. */
 .deck-card[data-locked="1"] .is-yes .swipe-stamp{transform:scale(1.06);opacity:1;background:var(--m3);color:#fff}
 .deck-card[data-locked="-1"] .is-no .swipe-stamp{transform:scale(1.06);opacity:1;background:#3a3a3c;color:#fff}
@@ -100,16 +106,24 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .deck-card .thesis-chart{border-radius:8px}
 
 /* Ready (after Portfolio): all set + confetti, then For You. */
-.ready-page{display:flex;align-items:center;justify-content:center;background:var(--bg-container)}
+.ready-page{display:flex;align-items:center;justify-content:center;background:var(--m1)}
+.page-slot>.ready-page{background:var(--m1)}
+.onboarding-app:has(.ready-page){background:var(--m1)}
+html[data-device-platform] .onboarding-app:has(.ready-page)>:is(.system-bar,.home-indicator){background:var(--m1);color:#fff}
+html[data-device-platform] .onboarding-app:has(.ready-page)>.home-indicator span{background:#fff}
+.ready-flood{position:absolute;inset:0;z-index:29;background:var(--m1);pointer-events:none;clip-path:circle(0px at 50% 50%)}
+html[data-device-platform] .onboarding-app.is-flooding>:is(.system-bar,.home-indicator){background:transparent}
+html[data-device-platform] .onboarding-app.is-flooded>:is(.system-bar,.home-indicator){color:#fff}
+html[data-device-platform] .onboarding-app.is-flooded>.home-indicator span{background:#fff}
 .ready-confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .ready-copy{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 32px 40px}
 .ready-badge{position:relative;width:72px;height:72px;margin-bottom:24px}
 .ready-check{position:relative;display:block;width:72px;height:72px}
-.ready-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--m3);opacity:0}
-.ready-check circle{fill:var(--m3)}
-.ready-check path{fill:none;stroke:#fff;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:0}
-.ready-copy h1{font-size:28px;line-height:38px;font-weight:500;color:var(--n9)}
-.ready-copy p{margin-top:8px;font-size:14px;line-height:22px;color:var(--n5)}
+.ready-ring{position:absolute;inset:0;border-radius:50%;border:2px solid #fff;opacity:0}
+.ready-check circle{fill:#fff}
+.ready-check path{fill:none;stroke:var(--m1);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:0}
+.ready-copy h1{font-size:28px;line-height:38px;font-weight:500;color:#fff}
+.ready-copy p{margin-top:8px;font-size:14px;line-height:22px;color:rgba(255,255,255,.78)}
 
 .ready-page.is-waiting .ready-copy{opacity:0}
 
@@ -122,3 +136,11 @@ html[data-device-platform] .onboarding-app:has(.track-page)>.system-bar{backgrou
 .swipe-end-copy h3{font-size:20px;line-height:30px;font-weight:500;color:var(--n7)}
 .swipe-end-copy p{margin-top:8px;font-size:14px;line-height:22px;color:var(--n5)}
 .swipe-end-skip{width:auto;min-width:160px;white-space:nowrap;border-color:var(--l3,#0000004d);height:48px;padding:0 20px;font-size:16px;line-height:26px;color:var(--n9)}
+
+/* Swipe deck: cards wait in the stack at their own tilt and straighten as
+   they come to the front; every step is a smooth transition. */
+.swipe-deck>.deck-card{transition:transform .42s cubic-bezier(.22,1,.36,1)}
+.swipe-deck>.deck-card[data-deck-position="front"]{transform:none}
+.swipe-deck>.deck-card[data-deck-position="next"]{transform:translateY(-6px) rotate(var(--tilt,0deg)) scale(.975)}
+.swipe-deck>.deck-card[data-deck-position="previous"]{transform:translateY(-12px) rotate(var(--tilt,0deg)) scale(.95)}
+.swipe-deck>.deck-card.is-dragging,.swipe-deck>.deck-card.is-leaving{transition:none}

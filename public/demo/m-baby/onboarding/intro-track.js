@@ -1,6 +1,6 @@
 import { node, escapeHTML, heading, topbar } from './ui.js';
 import { renderThesisContent } from './cards.js?v=10';
-import { renderSwipePage } from './swipe-deck.js?v=6';
+import { renderSwipePage } from './swipe-deck.js?v=10';
 import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=13';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 
@@ -10,15 +10,10 @@ import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 // product UI state feedback).
 // Copy is the demo's existing onboarding copy (content.json introCopy / bookmarkCopy
 // and the Figma guided headings); nothing new is coined for this variant.
-const GUIDED_SIGNALS = { title: 'Signals, in real time.', description: 'Alva continuously delivers the latest signals relevant to each thesis.' };
-const copyFor = api => {
-  const intro = api.data.introCopy || {};
-  return [
-    intro.analyzing || { title: 'Alva analyzes each thesis.', description: 'Alva finds the latest signals for each thesis and analyzes what they mean for its direction.' },
-    intro.signals || { title: 'Track what matters.', description: 'Follow the signals that support or challenge each thesis as the story develops.' },
-    GUIDED_SIGNALS,
-  ];
-};
+// Track keeps one heading for the whole step (Figma T1–T3); Next only
+// arrives under it at the end.
+const TRACK_COPY = { title: 'Hidden alpha, from the people who know.', description: 'Alva tracks the thesis against the world 24/7, and surfaces what matters.' };
+const copyFor = () => [TRACK_COPY, TRACK_COPY, TRACK_COPY];
 // The demo has sourced analyses for the Gavin Baker thesis only. Other picks reuse
 // the same three signals; their one-line analyses are marked as placeholders.
 const PLACEHOLDER_ANALYSIS = {
@@ -84,10 +79,10 @@ export function renderPickPage(api) {
     const trending = !following.length;
     const overlay = node('div', 'pick-collect', trending
       ? `<div class="pick-collect-avatars"><img class="pick-trend full-loader-mark" src="../assets/logo-loading-light.svg" alt="" aria-hidden="true"></div><p>Collecting trending theses…</p>`
-      : `<div class="pick-collect-avatars">${people.map(entry => `<img src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false" data-person="${escapeHTML(SOURCE_AUTHORS[entry.id] || '')}">`).join('')}</div><p>Collecting theses based on your picks…</p>`);
+      : `<div class="pick-collect-avatars">${people.map(entry => `<span class="pick-avatar" data-person="${escapeHTML(SOURCE_AUTHORS[entry.id] || '')}"><img src="${escapeHTML(api.asset(entry.avatar))}" alt="" draggable="false"></span>`).join('')}</div><p>Collecting theses based on your picks…</p>`);
     overlay.setAttribute('role', 'status');
     root.append(overlay); root.classList.add('is-collecting');
-    const avatars = [...overlay.querySelectorAll('img, .pick-trend')];
+    const avatars = [...overlay.querySelectorAll('.pick-avatar, .pick-trend')];
     const SIZE = 56, OVERLAP = 12;
     const span = avatars.length * SIZE - (avatars.length - 1) * OVERLAP;
     avatars.forEach((img, index) => { img.style.left = `calc(50% - ${span / 2}px + ${index * (SIZE - OVERLAP)}px)`; img.style.zIndex = String(avatars.length - index); });
@@ -104,16 +99,18 @@ export function renderPickPage(api) {
       });
       overlay.querySelector('p').animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: 260, easing: EASE, fill: 'backwards' });
       await Promise.allSettled(flights);
-      // Take turns at the front.
+      // A soft wave from left to right: each photo dims and comes back in
+      // turn, a beat after its left neighbour. Only the photos change; the
+      // circles, their order and size stay put.
       const people = avatars.filter(img => !img.classList.contains('pick-trend'));
-      const turns = people.length ? Math.max(4, people.length * 2) : 5;
-      for (let turn = 0; turn < turns && root.isConnected; turn++) {
-        if (!people.length) { await sleep(280); continue; }
-        const img = people[turn % people.length];
-        avatars.forEach(other => { other.style.zIndex = String(other === img ? avatars.length + 1 : Number(other.style.zIndex) || 1); });
-        img.animate([{ transform: 'none' }, { transform: 'translateY(-4px) scale(1.16)', offset: .45 }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.3,0,.3,1)' });
-        await sleep(280);
-      }
+      if (people.length > 1) {
+        const STEP = 160, CYCLE = 1000, ROUNDS = 2;
+        const waves = people.map((wrap, index) => wrap.querySelector('img').animate(
+          [{ opacity: 1 }, { opacity: .4, offset: .45 }, { opacity: 1 }],
+          { duration: CYCLE, delay: index * STEP, iterations: ROUNDS, easing: 'ease-in-out' }).finished.catch(() => {}));
+        await Promise.all(waves);
+        await sleep(160);
+      } else await sleep(1100);
       if (!root.isConnected) return resolve();
       overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: 'ease-out', fill: 'forwards' }).finished.then(() => overlay.remove());
       root.classList.remove('is-collecting');
@@ -218,14 +215,22 @@ export function renderTrackPage(api) {
     const apply = () => { h1.innerHTML = escapeHTML(copy.title).replace(/\n/g, '<br>'); p.textContent = copy.description; };
     const reveal = () => { if (withButton) { next.disabled = false; root.classList.add('track-can-continue'); } };
     if (api.reduced()) { apply(); reveal(); return; }
-    // The old heading and the new one cross at the same time: a copy of the
-    // old one stays where it was and lifts away while the new heading (and
-    // Next) rise in, so there is no gap between them.
+    if (h1.textContent.replace(/\s+/g, ' ') === copy.title.replace(/\s+/g, ' ')) {
+      // Same heading: it stays and only moves up to make room for Next.
+      const before = header.getBoundingClientRect().top;
+      reveal();
+      const dy = (before - header.getBoundingClientRect().top) / unit();
+      const motions = [play(header, [{ transform: `translateY(${dy}px)` }, { transform: 'none' }], 640, { easing: 'cubic-bezier(.22,1,.36,1)' })];
+      if (withButton) motions.push(play(next, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], 640, { delay: 80, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+      await Promise.all(motions);
+      return;
+    }
+    // A new heading: the old one lifts away while the new one rises in.
     const panel = header.parentElement, before = header.getBoundingClientRect();
     const ghost = header.cloneNode(true); ghost.classList.add('track-heading-out'); ghost.setAttribute('aria-hidden', 'true');
     apply(); reveal();
-    const base = panel.getBoundingClientRect(), unit = base.width / panel.offsetWidth || 1;
-    Object.assign(ghost.style, { top: `${(before.top - base.top) / unit}px`, width: `${before.width / unit}px`, left: `${(before.left - base.left) / unit}px`, right: 'auto', margin: '0' });
+    const base = panel.getBoundingClientRect(), scale = base.width / panel.offsetWidth || 1;
+    Object.assign(ghost.style, { top: `${(before.top - base.top) / scale}px`, width: `${before.width / scale}px`, left: `${(before.left - base.left) / scale}px`, right: 'auto', margin: '0' });
     panel.append(ghost);
     const motions = [
       play(ghost, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-14px)' }], 420, { fill: 'forwards' }).then(() => ghost.remove()),
@@ -238,7 +243,8 @@ export function renderTrackPage(api) {
     if (analysis) return;
     analysis = analyzingCard(api);
     reveal = node('div', 'track-analysis-reveal'); reveal.append(analysis);
-    card.after(reveal);
+    // It sits under the Signals title; signals come out beneath it.
+    column.classList.add('has-signals'); signalsTitle.after(reveal);
   }
   function addSignal(index, onTop = false) {
     const signal = signalCard(signals[index], api); signal.dataset.signalId = signals[index].id;
@@ -253,9 +259,10 @@ export function renderTrackPage(api) {
   function settle() {
     stop(); started = true;
     card.style.marginTop = ''; card.style.opacity = ''; header.style.opacity = '';
-    if (column.children.length <= 1) signals.forEach((_, index) => addSignal(index));
-    column.classList.add('has-signals');
     if (reveal) reveal.remove(); analysis = null; reveal = null;
+    column.querySelectorAll('.signal-card').forEach(signal => signal.remove());
+    signals.forEach((_, index) => addSignal(index));
+    column.classList.add('has-signals');
     const target = parkTarget(); reserveScroll(target); viewport.scrollTop = target;
     const h1 = header.querySelector('h1'), p = header.querySelector('p');
     h1.textContent = COPY[2].title; p.textContent = COPY[2].description;
@@ -313,41 +320,63 @@ export function renderTrackPage(api) {
     header.style.opacity = '';
     await glide;
     if (!valid(token)) return;
-    // 2. The analysis card unfolds beneath it and works for a moment.
+    // 2. The Signals title and the analysis card under it unfold beneath the
+    //    thesis; the analysis works for a moment.
     addAnalysis();
     const height = reveal.offsetHeight;
-    await play(reveal, [{ height: '0px', opacity: 0, marginTop: '-12px' }, { height: `${height}px`, opacity: 1, marginTop: '0px' }], 520);
+    play(signalsTitle, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], 320);
+    await play(reveal, [{ height: '0px', opacity: 0, marginTop: '-8px' }, { height: `${height}px`, opacity: 1, marginTop: '0px' }], 520);
     if (!valid(token)) return;
     updateTasks(token);
     await wait(1500); if (!valid(token)) return;
-    typing = false;
-    // 3. Signals arrive one by one, newest on top: each slot opens under the
-    // title and pushes the earlier ones down. The list ends in data order.
-    for (let step = 0; step < signals.length; step++) {
+    // 3. Signals come out from under the analysis card one by one, newest on
+    //    top, pushing the earlier ones down. Each one is squeezed out: its slot
+    //    grows from 0 while the card stretches and settles (a soft squash).
+    const SQUEEZE = 'cubic-bezier(.3,.7,.2,1)';
+    for (let step = 0; step < signals.length - 1; step++) {
       const index = signals.length - 1 - step;
-      const signal = addSignal(index, true);
-      if (step === 0) { column.classList.add('has-signals'); play(signalsTitle, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], 240); }
-      // The slot opens downward from under the title (height grows from 0)
-      // and the content is squeezed out of its top edge; nothing crosses the title.
+      const signal = signalCard(signals[index], api); signal.dataset.signalId = signals[index].id;
+      reveal.after(signal);
       const height = signal.offsetHeight, cs = getComputedStyle(signal);
       play(signal, [
-        { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginBottom: '-8px', opacity: 0 },
-        { opacity: 1, offset: .25 },
-        { height: `${height}px`, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginBottom: '0px', opacity: 1 },
-      ], 480, { easing: 'cubic-bezier(.3,.7,.2,1)' });
-      [...signal.children].forEach(child => play(child, [{ transform: `translateY(-${Math.round(height * .45)}px)` }, { transform: 'none' }], 480, { easing: 'cubic-bezier(.3,.7,.2,1)' }));
-      // Uneven gaps (360–720ms), like signals coming in live.
-      if (step < signals.length - 1) { await wait(360 + Math.round(Math.random() * 360)); if (!valid(token)) return; }
+        { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginTop: '-8px', opacity: 0, transform: 'scale(.94, .55)' },
+        { opacity: 1, offset: .3 },
+        { transform: 'scale(1.015, 1.04)', offset: .62 },
+        { height: `${height}px`, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginTop: '0px', opacity: 1, transform: 'none' },
+      ], 640, { easing: SQUEEZE });
+      [...signal.children].forEach(child => play(child, [{ transform: `translateY(-${Math.round(height * .45)}px)` }, { transform: 'none' }], 640, { easing: SQUEEZE }));
+      // Uneven gaps (480–960ms), like signals coming in live.
+      await wait(480 + Math.round(Math.random() * 480)); if (!valid(token)) return;
     }
-    // 4. The analysis card folds away while the heading changes and Next comes in.
-    await wait(360); if (!valid(token)) return;
-    const folded = reveal.offsetHeight;
-    // Removed the moment the fold ends, so it never shows again for a frame.
-    const folding = reveal;
-    const fold = play(folding, [{ height: `${folded}px`, opacity: 1, marginTop: '0px' }, { height: '0px', opacity: 0, marginTop: '-12px' }], 480)
-      .then(() => { folding.remove(); if (reveal === folding) { analysis = null; reveal = null; } });
-    folding.style.height = '0px'; folding.style.opacity = '0';
-    await Promise.all([fold, setHeading(COPY[2], true)]);
+    // 4. The analysis card itself turns into the last (top) signal: it changes
+    //    size in place and its content cross-fades, so the list never moves up.
+    //    Next arrives under the heading at the same time.
+    typing = false;
+    // One card changes shape: the analyzing card's box becomes the signal card
+    // (it keeps its place, then grows to the signal's size and its tint melts
+    // to the card colour), its own content fades away and the signal's
+    // content appears inside the same box.
+    const last = signalCard(signals[0], api); last.dataset.signalId = signals[0].id;
+    const from = reveal.offsetHeight, tint = getComputedStyle(analysis).backgroundColor;
+    reveal.before(last);
+    const to = last.offsetHeight;
+    const content = [...last.children];
+    const veil = node('div', 'signal-morph-veil'); veil.style.background = tint; veil.append(analysis);
+    last.classList.add('is-morphing'); last.append(veil);
+    reveal.remove(); reveal = null;
+    const EASE_IO = 'cubic-bezier(.45,0,.25,1)', MORPH = 600;
+    const morph = Promise.all([
+      play(last, [{ height: `${from}px`, borderRadius: '12px', boxShadow: 'none' }, { height: `${from}px`, borderRadius: '12px', boxShadow: 'none', offset: .12 }, { height: `${to}px`, borderRadius: '8px' }], MORPH, { easing: EASE_IO }),
+      // In order, never overlapping: the analysis content fades first, then
+      // the tint melts away, then the signal's content comes in.
+      play(analysis, [{ opacity: 1 }, { opacity: 0, offset: .3 }, { opacity: 0 }], MORPH, { easing: 'ease-out', fill: 'forwards' }),
+      play(veil, [{ opacity: 1 }, { opacity: 1, offset: .3 }, { opacity: 0, offset: .78 }, { opacity: 0 }], MORPH, { easing: 'ease-in-out', fill: 'forwards' }),
+      ...content.map(child => play(child, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 0, transform: 'translateY(4px)', offset: .5 }, { opacity: 1, transform: 'none' }], MORPH, { easing: 'ease-out' })),
+    ]).then(() => { veil.remove(); last.classList.remove('is-morphing'); analysis = null; });
+    // Next comes only after the card has settled, as a separate beat.
+    await morph; if (!valid(token)) return;
+    await wait(260); if (!valid(token)) return;
+    await setHeading(COPY[2], true);
     if (!valid(token)) return;
     api.state.trackReady = true; api.persist();
   }

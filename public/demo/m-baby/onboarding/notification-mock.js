@@ -10,6 +10,8 @@
 //     of the phone and spreads them; the phone falls back.
 const EASE = 'cubic-bezier(.22,1,.36,1)';
 const easeInOut = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
+// Slow start, fast middle, slow landing: the shrink reads clearly.
+const easeInOutQuint = t => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2;
 const SIDE = 32, INSET = 6, SCREEN_RADIUS = 38, RATIO = 2.17;
 const SLOT_Y = 178, STACK = [{ s: 1, dy: 0 }, { s: .94, dy: 10 }, { s: .88, dy: 20 }];
 const TOAST_H = 100, SPREAD_TOP = 21.5, SPREAD_STEP = 108;
@@ -129,10 +131,14 @@ export function mountPhoneMock(root, api) {
     // time. The cover lives in the shrinking layer, drawn at screen scale.
     panel?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out', fill: 'forwards' });
     root.dataset.stage = 'shrink';
+    // The heading comes first, while the phone shrinks; the slider waits for
+    // the notifications.
+    root.querySelector('.setup-heading').animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 600, delay: 540, easing: EASE, fill: 'backwards' });
     // The phone shrinks to its place while the lock screen slides down over
     // the app at the same time.
-    const shrink = tween(700, easeInOut, placeMock);
-    const slide = sleep(150).then(() => tween(550, t => 1 - Math.pow(1 - t, 3), k => { cover.style.height = `${geo.screenH * k}px`; }));
+    const shrink = tween(1150, easeInOutQuint, placeMock);
+    const slide = sleep(260).then(() => tween(860, easeInOut, k => { cover.style.height = `${geo.screenH * k}px`; }));
     await Promise.all([shrink, slide]); if (!alive) return;
     panel?.remove(); app.remove(); cover.style.height = '';
     root.dataset.stage = 'cover';
@@ -150,14 +156,12 @@ export function mountPhoneMock(root, api) {
       toast.animate([{ opacity: 0, translate: '0 -28px' }, { opacity: 1, translate: '0 0' }], { duration: 460, easing: EASE, fill: 'backwards' });
       if (arrived < order.length - 1) { await sleep(220); if (!alive) return; }
     }
-    // N1. As the third notification lands, the heading and slider arrive with
-    // it; the phone stays where it is.
+    // N1. As the third notification lands, the slider arrives; the phone
+    // stays where it is.
     await sleep(160); if (!alive) return;
     root.dataset.stage = 'ready';
-    root.querySelector('.setup-heading').animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
-      { duration: 480, easing: EASE, fill: 'backwards' });
     root.querySelector('.notification-toasts-dock').animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }],
-      { duration: 480, delay: 80, easing: EASE, fill: 'backwards' });
+      { duration: 480, easing: EASE, fill: 'backwards' });
     await sleep(400); if (!alive) return;
     layer.classList.remove('is-stacking');
   }

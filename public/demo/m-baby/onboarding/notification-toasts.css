@@ -5,12 +5,14 @@
 .notification-toasts-page .setup-heading{flex:0 0 auto;padding:8px 16px 0;text-align:left}
 .notification-toasts-page .notification-toasts-stage{position:relative;flex:1 0 424px;min-height:424px;margin:24px 16px;isolation:isolate}
 .notification-toasts-page .notification-toast{position:absolute;top:50%;left:0;width:100%;height:100px;padding:12px;border:.5px solid var(--l12);border-radius:12px;background:var(--bg-b0);transform-origin:top center;transform:translateY(calc(var(--toast-start-y) + var(--toast-travel-y) * var(--notification-toast-progress))) scale(calc(var(--toast-start-scale) + (1 - var(--toast-start-scale)) * var(--notification-toast-progress)));will-change:transform}
-.notification-toasts-page .notification-toast-content{display:flex;flex-direction:column;gap:8px;filter:blur(calc(6px * (1 - var(--notification-toast-progress))));will-change:filter}
+.notification-toasts-page .notification-toast-content{display:flex;align-items:center;gap:10px;height:100%;filter:blur(calc(6px * (1 - var(--notification-toast-progress))));will-change:filter}
+.notification-toasts-page .notification-toast-icon{flex:none;width:38px;height:38px;border-radius:9px;object-fit:cover}
+.notification-toasts-page .notification-toast-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .notification-toasts-page .notification-toast-header{display:flex;align-items:center;gap:8px;height:20px;flex:0 0 20px}
 .notification-toasts-page .notification-toast-logo{width:20px;height:20px;object-fit:contain}
 .notification-toasts-page .notification-toast-header strong{font-size:14px;font-weight:500;line-height:20px;color:var(--setup-ink)}
 .notification-toasts-page .notification-toast-header span{margin-left:auto;font-size:12px;font-weight:400;line-height:20px;color:var(--setup-muted)}
-.notification-toasts-page .notification-toast-content>p{height:44px;min-height:44px;font-size:14px;line-height:22px;font-weight:400;color:var(--setup-ink)}
+.notification-toasts-page .notification-toast-main>p{height:44px;min-height:44px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:14px;line-height:22px;font-weight:400;color:var(--setup-ink)}
 .notification-toasts-page .notification-toasts-dock{flex:0 0 auto;padding:0 16px 16px;background:var(--bg-container)}
 .notification-toasts-page .notification-toasts-track{position:relative;height:56px;padding:4px;border-radius:6px;background:var(--bg-b0)}
 .notification-toasts-page .notification-toasts-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 48px;color:var(--setup-secondary);font-size:14px;line-height:22px;font-weight:500;white-space:nowrap;pointer-events:none;user-select:none;opacity:calc(1 - var(--notification-toast-progress) * 2)}
@@ -38,7 +40,7 @@
 .notification-toasts-page.is-track .notification-toasts-dock{position:relative;z-index:7;padding-bottom:calc(16px + var(--home-h));background:transparent}
 .notification-toasts-page.is-track .notification-toasts-dock::before{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(100% + 72px);z-index:-1;pointer-events:none;background:linear-gradient(color-mix(in srgb,var(--page-dim) 0%,transparent),var(--page-dim) 72px)}
 .notification-toasts-page.is-track:not([data-stage="ready"]) .notification-toasts-dock{opacity:0;pointer-events:none}
-.notification-toasts-page.is-track:not([data-stage="ready"]) .setup-heading{opacity:0}
+.notification-toasts-page.is-track[data-stage="enter"] .setup-heading{opacity:0}
 .notification-toasts-page.is-track .notification-toast:not(.is-arrived){opacity:0}
 .phone-mock{position:absolute;left:0;top:0;z-index:1;transform-origin:0 0;pointer-events:none}
 .phone-mock-device{position:relative;border-radius:44px;background:var(--phone-body);box-shadow:inset 0 0 0 .5px #00000014,0 4px 15px #0000000a;transform-origin:50% 0;transform:scale(calc(1 - .08 * var(--notification-toast-progress)));opacity:calc(1 - .55 * var(--notification-toast-progress));filter:blur(calc(2px * var(--notification-toast-progress)))}
@@ -66,7 +68,7 @@
 .notification-toasts-page.is-track .notification-toast[data-depth="1"]::after{background:color-mix(in srgb,#000 4%,var(--bg-container))}
 .notification-toasts-page.is-track .notification-toast[data-depth="2"]::after{background:color-mix(in srgb,#000 8%,var(--bg-container))}
 .notification-toasts-page.is-track .notification-toast-content{opacity:calc(1 - var(--hide,0) * (1 - var(--notification-toast-progress)));filter:none}
-.notification-toasts-page.is-track .notification-toast-content>p{filter:blur(calc(5px * (1 - var(--notification-toast-progress))))}
+.notification-toasts-page.is-track .notification-toast-main>p{filter:blur(calc(5px * (1 - var(--notification-toast-progress))))}
 .notification-toasts-page.is-track .notification-toasts-track{background:var(--bg-container);box-shadow:inset 0 0 0 .5px var(--l12,#0000001f)}
 .phone-mock-toasts.is-stacking .notification-toast{transition:transform 460ms cubic-bezier(.22,1,.36,1)}
 .notification-toasts-page.is-track.is-toast-settling .phone-mock-device{transition:transform 200ms ease-out,opacity 200ms ease-out,filter 200ms ease-out}
