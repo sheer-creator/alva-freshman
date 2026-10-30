@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="demo-index" content="hidden">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Thesis · Generating signals</title>
+  <link rel="preload" href="assets/fonts/Delight-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="mvp.css">
+  <link rel="stylesheet" href="device-chrome.css">
+  <link rel="stylesheet" href="thesis-generating.css?v=7">
+</head>
+<body class="gen-demo">
+  <!-- Figma: Thesis MVP 12454:331346 · S1 · just created · signals generating -->
+  <div class="gen-app">
+    <div class="system-bar" aria-hidden="true">
+      <div class="system-side system-left">9:41</div>
+      <div class="system-side system-right">
+        <span class="ic sb-signal" style="--ic:url(assets/status-signal.svg)"></span>
+        <span class="ic sb-wifi" style="--ic:url(assets/status-wifi.svg)"></span>
+        <span class="battery"><span class="ic battery-outline" style="--ic:url(assets/battery-outline.svg)"></span><span class="ic battery-fill" style="--ic:url(assets/battery-fill.svg)"></span><span class="ic battery-end" style="--ic:url(assets/battery-end.svg)"></span></span>
+      </div>
+    </div>
+
+    <header class="gen-topbar">
+      <button class="gen-icon-btn" type="button" aria-label="Back"><i class="gen-icon" style="--icon:url(assets/onboarding-arrow-left-l1.svg)"></i></button>
+      <div class="gen-identity">
+        <img class="gen-avatar-32" src="assets/feed-source-gavin-baker.png" alt="">
+        <div class="gen-identity-copy">
+          <strong>Traderstewie</strong>
+          <span>Trader · Trade setup</span>
+        </div>
+      </div>
+      <button class="gen-update" type="button"><i class="gen-icon" style="--icon:url(assets/thesis/detail/add.svg)"></i>Update</button>
+      <button class="gen-icon-btn" type="button" aria-label="More"><i class="gen-icon" style="--icon:url(assets/thesis/detail/more.svg)"></i></button>
+    </header>
+
+    <main class="gen-scroll">
+      <section class="gen-update-block">
+        <div class="gen-meta"><span>Just now</span><span class="gen-chip-latest">Latest</span></div>
+        <div class="gen-ticker"><img src="assets/feed-logo-goog.svg" alt=""><span>GOOGL</span><i class="gen-dial"><i class="gen-icon" style="--icon:url(assets/ui-arrow-up-l1.svg)"></i></i></div>
+        <p class="gen-body">AMD is approaching its summer high as more buyers join the advance.<br>The stock has broken higher after its last pullback stopped above the previous low. Rising trading volume makes the recovery more convincing. <b>[1]</b></p>
+        <div class="gen-chart"><img src="assets/feed-real-googl.png" alt="Alphabet · GOOGL chart"></div>
+      </section>
+
+      <nav class="gen-tabs" aria-label="Detail sections">
+        <span class="is-active">Signals</span><span>Related thesis</span>
+      </nav>
+
+      <!-- Filled by thesis-generating.js: a generating item on top; every 5s it
+           turns into a signal card and a new generating item slides in above,
+           five times; then the generating item folds away. -->
+      <section class="gen-signals" aria-label="Signals" aria-live="polite"></section>
+    </main>
+
+    <div class="gen-suggest">
+      <button type="button"><i class="gen-icon" style="--icon:url(assets/social-chat.svg)"></i>Summarize signals</button>
+      <button type="button"><i class="gen-icon" style="--icon:url(assets/social-chat.svg)"></i>What changed today?</button>
+      <button type="button"><i class="gen-icon" style="--icon:url(assets/social-chat.svg)"></i>Bull vs bear</button>
+    </div>
+    <footer class="gen-cta">
+      <span class="gen-cta-ask"><i class="gen-icon" style="--icon:url(assets/ui-chat-ai-l.svg)"></i>Ask Alva</span>
+      <span class="gen-cta-actions"><span><i class="gen-icon" style="--icon:url(assets/thesis/first-card-imgBookmarkL.svg)"></i>68</span><i class="gen-icon" style="--icon:url(assets/social-share.svg)"></i></span>
+    </footer>
+    <div class="home-indicator" aria-hidden="true"><span></span></div>
+    <div class="dynamic-island gen-cutout" aria-hidden="true"></div>
+  </div>
+  <script type="module" src="thesis-generating.js?v=8"></script>
+</body>
+</html>
