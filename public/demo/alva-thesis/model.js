@@ -1,4 +1,5 @@
-import { THESES, FOCUSES, INTERESTS, UPDATES, DISCUSSION_POSTS, RELATED_THESES, AUTHORS } from './data.js?v=20260907-picker-polish';
+import { THESES, FOCUSES, INTERESTS, UPDATES, DISCUSSION_POSTS, RELATED_THESES, AUTHORS } from './data.js?v=20260908-tracking';
+import { ALVA_TRACKING } from './tracking.js?v=20260908-tracking';
 
 export const STORAGE_KEY = 'alva_thesis_demo_v1';
 export const freshState = () => ({ version: 1, onboarded: false, interests: [], followed: [], personal: [], replies: [], theme: 'dark' });
@@ -200,7 +201,14 @@ export function simulateRun(state, id, outcome = 'empty') {
     ? { ...thesis, automation: { status: 'active', lastRun: outcome === 'failed' ? 'Source unavailable. Try again.' : 'No new material. Discussion unchanged.' } } : thesis) };
 }
 
-export const getUpdate = (state, thesisId, updateId) => [...discussionPosts(state, thesisId), thesisRoot(state, thesisId)].find(update => update?.id === updateId);
+// Historical tracking replays belong to the detail view, not the delivery queue.
+export function thesisActivity(state, id) {
+  const thesis = getThesis(state, id);
+  if (!thesis) return [];
+  const tracking = thesis.author === 'You' ? [] : ALVA_TRACKING.filter(post => post.thesisId === id);
+  return [...discussionPosts(state, id), ...tracking].sort((a, b) => b.order - a.order);
+}
+export const getUpdate = (state, thesisId, updateId) => [...thesisActivity(state, thesisId), thesisRoot(state, thesisId)].find(update => update?.id === updateId);
 
 export const replyThread = update => update.sourceId || update.id;
 export const threadReplies = (state, update) => [
