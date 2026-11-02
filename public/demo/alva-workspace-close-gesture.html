@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>Alva Workspace · 关闭手势</title>
+<meta name="demo-status" content="exploration">
+<meta name="demo-switcher" content="off">
+<meta name="demo-summary" content="Alva tab 点胶囊打开的 workspace：按区域划分关闭手势（列表之上下拉 / 右滑、左边缘右滑），对比现状、缩回胶囊、滑出屏幕三种收起动效。">
+<style>
+  @font-face { font-family: Delight; src: url('m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: Delight; src: url('m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+  /* 中文走本机已装的方正兰亭黑（仓库不带字体文件）；Delight 没有的汉字自动落到这里 */
+  @font-face { font-family: FZLanTingHei; src: local('FZLanTingHei-M-GBK'), local('方正兰亭准黑_GBK'); font-weight: 400; }
+  @font-face { font-family: FZLanTingHei; src: local('FZLanTingHei-DB-GBK'), local('方正兰亭中黑_GBK'); font-weight: 500; }
+  :root {
+    --n9: rgba(0, 0, 0, 0.9);
+    --n7: rgba(0, 0, 0, 0.7);
+    --n5: rgba(0, 0, 0, 0.5);
+    --n3: rgba(0, 0, 0, 0.3);
+    --l12: rgba(0, 0, 0, 0.12);
+    --l2: rgba(0, 0, 0, 0.2);
+    --b0: #ffffff;
+    --br05: rgba(0, 0, 0, 0.05);
+    --br07: rgba(0, 0, 0, 0.07);
+    --zone-close: rgba(37, 99, 235, 0.12);
+    --zone-close-line: rgba(37, 99, 235, 0.55);
+    --zone-list: rgba(16, 163, 127, 0.08);
+    --zone-list-line: rgba(16, 163, 127, 0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #ffffff; }
+  body {
+    font-family: Delight, FZLanTingHei, 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    color: var(--n9);
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    display: flex; gap: 40px; padding: 24px 16px; justify-content: center; align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .phone-wrap { position: relative; flex-shrink: 0; }
+  .phone {
+    position: absolute; left: 0; top: 0; width: var(--w, 393px); height: var(--h, 852px); transform-origin: 0 0; -webkit-touch-callout: none;
+    border-radius: 54px; overflow: hidden; background: #d9d9d9; touch-action: none;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); user-select: none; -webkit-user-select: none;
+  }
+
+  /* ---------- chat (behind) ---------- */
+  .chat { position: absolute; inset: 0; background: var(--b0); transform-origin: 50% 50%; overflow: hidden; }
+  .chat-dim { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+  .chat-head {
+    position: absolute; left: 0; right: 0; top: 0; height: calc(var(--top, 59px) + 60px); z-index: 2;
+    background: linear-gradient(#fff, rgba(255, 255, 255, 0));
+    display: flex; justify-content: center; padding-top: calc(var(--top, 59px) + 4px); pointer-events: none;
+  }
+  .capsule {
+    pointer-events: auto; cursor: pointer; height: 52px; display: flex; align-items: center; gap: 8px;
+    padding: 0 16px 0 8px; border-radius: 26px; background: var(--b0); border: 0.5px solid var(--l2);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  }
+  .avatar { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5b6170, #1c1e24 70%); flex-shrink: 0; }
+  .capsule .avatar { width: 36px; height: 36px; }
+  .capsule span { font-size: 18px; line-height: 24px; font-weight: 500; letter-spacing: 0.18px; }
+  .chat-body { position: absolute; left: 0; right: 0; top: calc(var(--top, 59px) + 80px); padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+  .bubble-user {
+    align-self: flex-end; max-width: 78%; background: var(--br05); border-radius: 16px; padding: 10px 14px;
+    font-size: 15px; line-height: 22px;
+  }
+  .agent-text { font-size: 15px; line-height: 23px; color: var(--n9); }
+  .agent-text b { font-weight: 500; }
+  .chat-composer {
+    position: absolute; left: 16px; right: 16px; bottom: calc(var(--bot, 34px) + 61px); height: 44px; border-radius: 22px;
+    border: 0.5px solid var(--l2); background: var(--b0); display: flex; align-items: center; padding: 0 16px;
+    color: var(--n5); font-size: 15px; box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  }
+  .tabbar {
+    position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--bot, 34px) + 49px); background: var(--b0); border-top: 0.5px solid var(--l12);
+    display: flex; justify-content: space-around; padding-top: 7px;
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--n7); font-size: 10px; width: 64px; }
+  .tab.on { color: var(--n9); font-weight: 500; }
+  .tab i { width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid currentColor; display: block; }
+  .tab.on i { background: currentColor; }
+
+  /* ---------- workspace frame ---------- */
+  .frame { position: absolute; overflow: hidden; background: var(--b0); display: none; will-change: left, top, width, height; }
+  .page {
+    position: absolute; left: 0; top: 0; width: var(--w, 393px); height: var(--h, 852px); transform-origin: 0 0; background: var(--b0);
+    display: flex; flex-direction: column; padding-top: var(--top, 59px); padding-bottom: var(--bot, 34px);
+  }
+  .ws-top { height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; flex-shrink: 0; }
+  .icon-btn { width: 44px; height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .icon-btn:active { opacity: 0.6; }
+  .badge { display: flex; align-items: center; margin-right: 12px; }
+  .badge i {
+    width: 24px; height: 24px; border-radius: 50%; background: #e7e9ec; border: 1.5px solid #fff; margin-left: -6px;
+    font-style: normal; font-size: 11px; line-height: 21px; text-align: center; color: var(--n7);
+  }
+  .identity { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0 16px; flex-shrink: 0; }
+  .identity .avatar { width: 56px; height: 56px; }
+  .identity .name { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .identity .t { font-size: 20px; line-height: 28px; font-weight: 500; letter-spacing: 0.2px; }
+  .identity .s { font-size: 14px; line-height: 20px; color: var(--n5); letter-spacing: 0.14px; }
+  .seg { margin: 16px 16px 16px; background: var(--br05); border-radius: 6px; padding: 2px; display: flex; position: relative; flex-shrink: 0; }
+  .seg-thumb { position: absolute; top: 2px; bottom: 2px; border-radius: 4px; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition: left 0.22s ease, width 0.22s ease; }
+  .seg button {
+    all: unset; position: relative; flex: 1; text-align: center; padding: 6px 12px; font-size: 14px; line-height: 20px;
+    color: var(--n5); cursor: pointer; letter-spacing: 0.14px;
+  }
+  .seg button.on { color: var(--n9); }
+  .list-zone { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+  .track { position: absolute; left: 0; top: 0; bottom: 0; display: flex; will-change: transform; }
+  .pg { width: var(--w, 393px); height: 100%; overflow-y: auto; scrollbar-width: none; }
+  .pg::-webkit-scrollbar { display: none; }
+  .row { padding: 12px 16px; display: flex; gap: 12px; align-items: center; border-bottom: 0.5px solid var(--l12); }
+  .row .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--n3); flex-shrink: 0; }
+  .row .tx { min-width: 0; flex: 1; }
+  .row .tt { font-size: 15px; line-height: 22px; }
+  .row .mt { font-size: 12px; line-height: 16px; color: var(--n5); margin-top: 2px; }
+  .spinner {
+    position: absolute; left: 50%; top: 10px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%;
+    border: 2px solid var(--l12); border-top-color: var(--n7); opacity: 0;
+  }
+  .spinner.spin { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* gesture zones */
+  .zone { position: absolute; pointer-events: none; display: none; }
+  .show-zones .zone { display: block; }
+  .zone-top { left: 0; right: 0; top: 0; background: var(--zone-close); border-bottom: 1.5px dashed var(--zone-close-line); }
+  .zone-edge { left: 0; width: 20px; bottom: 0; background: var(--zone-close); border-right: 1.5px dashed var(--zone-close-line); }
+  .zone-list { left: 20px; right: 0; bottom: 0; background: var(--zone-list); }
+  .zone-label {
+    position: absolute; font-size: 11px; line-height: 16px; padding: 2px 8px; border-radius: 10px; white-space: nowrap;
+    background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  }
+  .zone-top .zone-label { right: 12px; top: calc(var(--top, 59px) + 69px); color: #1d4ed8; }
+  .zone-list .zone-label { right: 12px; bottom: 44px; color: #0f7a5f; }
+  .zone-edge .zone-label { left: 2px; top: 40%; color: #1d4ed8; writing-mode: vertical-rl; padding: 8px 0; width: 16px; text-align: center; }
+  .gestures-off .zone-top, .gestures-off .zone-edge { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.2); }
+  .gestures-off .zone-top .zone-label, .gestures-off .zone-edge .zone-label { color: var(--n5); }
+
+  /* system chrome */
+  .statusbar {
+    position: absolute; left: 0; right: 0; top: 0; height: 59px; z-index: 20; pointer-events: none;
+    display: flex; align-items: center; justify-content: space-between; padding: 6px 34px 0 46px; font-size: 16px; font-weight: 500;
+  }
+  .island { position: absolute; left: 50%; top: 11px; width: 125px; height: 37px; margin-left: -62.5px; border-radius: 20px; background: #000; }
+  .batt { width: 26px; height: 12px; border-radius: 4px; border: 1.2px solid var(--n9); position: relative; }
+  .batt::after { content: ''; position: absolute; inset: 1.5px; right: 5px; background: var(--n9); border-radius: 2px; }
+  .home { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: var(--n9); z-index: 20; pointer-events: none; }
+
+  /* ---------- panel ---------- */
+  .panel { width: 400px; max-width: 100%; display: flex; flex-direction: column; gap: 24px; padding-top: 4px; }
+  .panel h1 { font-size: 22px; line-height: 30px; font-weight: 500; }
+  .panel .lead { font-size: 14px; line-height: 22px; color: var(--n7); margin-top: 6px; }
+  .ctl { display: flex; flex-direction: column; gap: 14px; }
+  .ctl-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .ctl-row > span { font-size: 14px; color: var(--n7); }
+  .pills { display: inline-flex; background: var(--br05); border-radius: 8px; padding: 2px; }
+  .pills button {
+    all: unset; cursor: pointer; font-size: 13px; line-height: 18px; padding: 5px 10px; border-radius: 6px; color: var(--n5);
+  }
+  .pills button.on { background: #fff; color: var(--n9); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+  .pills button:disabled { cursor: default; opacity: 0.4; }
+  .open-btn {
+    all: unset; cursor: pointer; align-self: flex-start; font-size: 14px; padding: 8px 16px; border-radius: 8px;
+    background: var(--n9); color: #fff; font-weight: 500;
+  }
+  .card { border: 0.5px solid var(--l2); border-radius: 12px; padding: 16px; }
+  .card h2 { font-size: 15px; line-height: 22px; font-weight: 500; margin-bottom: 8px; }
+  .card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .card li { font-size: 13px; line-height: 20px; color: var(--n7); padding-left: 12px; position: relative; }
+  .card li::before { content: ''; position: absolute; left: 0; top: 8px; width: 4px; height: 4px; border-radius: 50%; background: var(--n3); }
+  .hud { font-size: 12px; line-height: 18px; color: var(--n5); font-variant-numeric: tabular-nums; min-height: 18px; }
+
+  /* ---------- phone full-screen mode ---------- */
+  .device-only { display: none; }
+  body.device { position: fixed; inset: 0; overflow: hidden; }
+  body.device .stage { padding: 0; display: block; }
+  body.device .phone-wrap { position: fixed; inset: 0; width: auto !important; height: auto !important; }
+  body.device .phone { border-radius: 0; box-shadow: none; }
+  body.device .statusbar, body.device .home { display: none; }
+  body.device .device-only { display: flex; }
+  body.device .panel { display: none; }
+  body.device.panel-open .panel {
+    display: flex; position: fixed; inset: 0; z-index: 50; width: auto; background: #fff; overflow-y: auto; touch-action: pan-y;
+    padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 24px);
+  }
+  .gear {
+    position: absolute; left: 16px; top: calc(var(--top, 59px) + 10px); z-index: 3; width: 40px; height: 40px; border-radius: 50%;
+    background: #fff; border: 0.5px solid var(--l2); box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+    align-items: center; justify-content: center; font-size: 12px; color: var(--n7); cursor: pointer;
+  }
+  .qr { display: none; gap: 16px; align-items: center; }
+  .qr.on { display: flex; }
+  .qr .code { width: 120px; height: 120px; flex-shrink: 0; }
+  .qr .code img, .qr .code canvas { width: 120px !important; height: 120px !important; }
+  .qr p { font-size: 13px; line-height: 20px; color: var(--n7); word-break: break-all; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone-wrap" id="wrap">
+    <div class="phone" id="phone">
+      <div class="chat" id="chat">
+        <div class="chat-head">
+          <div class="capsule" id="capsule"><div class="avatar"></div><span>Alva</span></div>
+        </div>
+        <div class="chat-body">
+          <div class="bubble-user">When does NVDA report earnings?</div>
+          <div class="agent-text"><b>NVDA reports Q3 FY27 on Nov 19</b>, after the close. Consensus expects revenue of $54.6B and EPS of $1.25.<br /><br />Data center is still the swing factor: last quarter it was 88% of revenue, and guidance implies another sequential step up.</div>
+          <div class="bubble-user">Set an alert if it moves more than 5% after hours.</div>
+          <div class="agent-text">Done. I'll ping you here and on Telegram if NVDA moves more than 5% in the after-hours session on Nov 19.</div>
+        </div>
+        <div class="chat-composer">Ask Alva…</div>
+        <div class="tabbar">
+          <div class="tab"><i></i>For You</div>
+          <div class="tab on"><i></i>Alva</div>
+          <div class="tab"><i></i>Search</div>
+          <div class="tab"><i></i>Me</div>
+        </div>
+        <div class="gear device-only" id="gearBtn">方案</div>
+        <div class="chat-dim" id="chatDim"></div>
+      </div>
+
+      <div class="frame" id="frame">
+        <div class="page" id="page">
+          <div class="ws-top">
+            <div class="icon-btn" id="closeBtn" aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="rgba(0,0,0,.9)" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </div>
+            <div class="badge"><i>T</i><i>D</i></div>
+          </div>
+          <div class="identity">
+            <div class="avatar"></div>
+            <div class="name"><div class="t">Alva</div><div class="s">Your AI investing agent</div></div>
+          </div>
+          <div class="seg" id="seg"><div class="seg-thumb" id="segThumb"></div></div>
+          <div class="list-zone" id="listZone">
+            <div class="spinner" id="spinner"></div>
+            <div class="track" id="track"></div>
+          </div>
+
+          <div class="zone zone-top" id="zoneTop"><span class="zone-label">下拉 / 右滑 → 关闭</span></div>
+          <div class="zone zone-edge" id="zoneEdge"><span class="zone-label">边缘右滑 → 关闭</span></div>
+          <div class="zone zone-list" id="zoneList"><span class="zone-label">下拉刷新 · 上滑滚动 · 左右切页</span></div>
+        </div>
+      </div>
+
+      <div class="statusbar"><span>9:41</span><div class="island"></div><div class="batt"></div></div>
+      <div class="home"></div>
+    </div>
+  </div>
+
+  <aside class="panel">
+    <button class="open-btn device-only" id="doneBtn">完成</button>
+    <div class="card qr" id="qrCard">
+      <div class="code" id="qrCode"></div>
+      <div><h2>用手机扫码试</h2><p>手机和电脑连同一个 Wi‑Fi，用相机扫码，在 Safari 里打开。</p><p id="qrUrl"></p></div>
+    </div>
+    <div>
+      <h1>Workspace 关闭手势</h1>
+      <p class="lead">点 Alva 胶囊打开，再试着关掉。电脑上用鼠标拖动模拟手指。列表区可以下拉刷新、上下滚动、左右切页。</p>
+    </div>
+    <div class="ctl">
+      <div class="ctl-row"><span>关闭方案</span>
+        <div class="pills" id="variantPills">
+          <button data-v="current">现状</button>
+          <button data-v="capsule" class="on">缩回胶囊</button>
+          <button data-v="down">滑出屏幕</button>
+        </div>
+      </div>
+      <div class="ctl-row"><span>背后对话页退后（Muse 式）</span>
+        <div class="pills" id="recedePills"><button data-v="1" class="on">开</button><button data-v="0">关</button></div>
+      </div>
+      <div class="ctl-row"><span>显示手势分区</span>
+        <div class="pills" id="zonePills"><button data-v="1" class="on">开</button><button data-v="0">关</button></div>
+      </div>
+      <div class="ctl-row"><span>慢放 ×4</span>
+        <div class="pills" id="slowPills"><button data-v="1">开</button><button data-v="0" class="on">关</button></div>
+      </div>
+      <button class="open-btn" id="openBtn">打开 workspace</button>
+      <div class="hud" id="hud"></div>
+    </div>
+
+    <div class="card">
+      <h2>手势分区</h2>
+      <ul>
+        <li>列表之上（关闭行、头像、分段 tab）：下拉、右滑都是关闭</li>
+        <li>屏幕左边缘 20pt 窄带：右滑关闭，在列表区也有效</li>
+        <li>列表区：下拉刷新、上滑滚动、左右滑切页，和现在一样</li>
+        <li>拉过 100pt，或者快速一甩，就关闭；不够就弹回</li>
+        <li>轻点 X 和分段 tab 仍然是点击，手指移动超过 8pt 才算拖动</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Muse 截图实测（收起过程中的一帧）</h2>
+      <ul>
+        <li>卡片宽缩到 87%，里面的内容同比例缩小，不是被裁掉</li>
+        <li>卡片高缩到 74%，比宽缩得多，底部被裁掉一截</li>
+        <li>四角圆角约 54pt，接近手机屏幕圆角</li>
+        <li>卡片往左偏了约 11pt，说明它左右也跟着手指走</li>
+        <li>背后对话页缩到 92%，四周露出浅灰底，页面压暗约两成</li>
+        <li>卡片四周有一圈柔和阴影</li>
+        <li>松手后最终收到哪里，一帧看不出来</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>三个方案的动效</h2>
+      <ul>
+        <li>现状：只有 X 能关，原路缩回胶囊 0.36 秒，内容 0.24 秒先淡出</li>
+        <li>缩回胶囊：拖动时卡片跟手缩小、变圆角；松手后继续缩回胶囊 0.38 秒。X 也走这条路</li>
+        <li>滑出屏幕：卡片整张跟手平移，松手后往下或往右滑出，不缩小</li>
+        <li>三个方案打开都一样：从胶囊长到全屏 0.48 秒</li>
+      </ul>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(() => {
+  let W = 393, H = 852;
+  const device = matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600;
+  if (device) document.body.classList.add('device');
+  const TASKS = [
+    ['NVDA earnings watch', 'Every day · 09:00'], ['Daily market brief', 'Every day · 07:30'],
+    ['BTC funding rate alert', 'Every hour'], ['Weekly portfolio review', 'Mondays · 08:00'],
+    ['TSLA delivery tracker', 'Every day · 18:00'], ['Fed minutes summary', 'When released'],
+    ['AI infra basket rebalance', 'Fridays · 15:30'], ['Morning movers digest', 'Weekdays · 09:15'],
+    ['ETH staking yield check', 'Every 6 hours'], ['Semis sector scan', 'Every day · 16:10'],
+    ['Gold vs real yields', 'Weekly'], ['Earnings calendar sync', 'Sundays · 20:00'],
+  ];
+  const PAGES = [
+    ['Tasks', TASKS],
+    ['Alerts', [['NVDA moved +5.2% after hours', '2h ago'], ['BTC funding flipped negative', '5h ago'], ['TSLA hit 52-week high', 'Yesterday'], ['10Y yield above 4.6%', 'Yesterday'], ['AMD unusual options volume', 'Oct 30'], ['ETH gas spike', 'Oct 29'], ['SPY broke 50-day MA', 'Oct 28']]],
+    ['Memory', [['Prefers concise morning briefs', 'Learned Oct 12'], ['Holds NVDA, TSLA, BTC', 'Learned Oct 03'], ['Avoids leveraged ETFs', 'Learned Sep 28'], ['Timezone: UTC+8', 'Learned Sep 20'], ['Reads alerts on Telegram', 'Learned Sep 20']]],
+    ['Files', [['nvda-q3-preview.md', 'Markdown · 12 KB'], ['portfolio-oct.csv', 'CSV · 48 KB'], ['semis-scan.html', 'HTML · 210 KB'], ['fed-minutes-notes.md', 'Markdown · 8 KB']]],
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const phone = $('phone'), wrap = $('wrap'), chat = $('chat'), chatDim = $('chatDim'), frame = $('frame'), page = $('page');
+  const capsule = $('capsule'), track = $('track'), seg = $('seg'), segThumb = $('segThumb'), spinner = $('spinner'), listZone = $('listZone');
+  const hud = $('hud');
+
+  // ---------- settings ----------
+  let variant = 'capsule', recede = true, slow = 1;
+  const bindPills = (id, onPick) => {
+    const box = $(id);
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b || b.disabled) return;
+      box.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+      onPick(b.dataset.v);
+    });
+  };
+  bindPills('variantPills', (v) => { variant = v; syncRecedeLock(); applyRest(); });
+  bindPills('recedePills', (v) => { recede = v === '1'; applyRest(); });
+  bindPills('zonePills', (v) => phone.classList.toggle('show-zones', v === '1'));
+  bindPills('slowPills', (v) => { slow = v === '1' ? 4 : 1; });
+  phone.classList.add('show-zones');
+  const syncRecedeLock = () => {
+    const off = variant === 'current';
+    $('recedePills').querySelectorAll('button').forEach((b) => (b.disabled = off));
+    phone.classList.toggle('gestures-off', off);
+  };
+  const useRecede = () => recede && variant !== 'current';
+
+  // ---------- fit phone to viewport ----------
+  let scale = 1;
+  const fit = () => {
+    if (device) {
+      // fill the real screen: real width / height and the real safe areas
+      scale = 1; W = innerWidth; H = innerHeight;
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:fixed;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+      document.body.appendChild(probe);
+      const cs = getComputedStyle(probe), top = parseFloat(cs.paddingTop) || 0, bot = parseFloat(cs.paddingBottom) || 0;
+      probe.remove();
+      [['--w', W], ['--h', H], ['--top', top], ['--bot', bot]].forEach(([k, v]) => phone.style.setProperty(k, v + 'px'));
+      phone.style.transform = '';
+      return;
+    }
+    scale = Math.min(1, (window.innerHeight - 48) / H, (window.innerWidth - 32) / W);
+    phone.style.transform = `scale(${scale})`;
+    wrap.style.width = W * scale + 'px';
+    wrap.style.height = H * scale + 'px';
+  };
+  fit();
+  const pt = (e) => { const r = phone.getBoundingClientRect(); return { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale }; };
+
+  // ---------- easing ----------
+  const bezier = (x1, y1, x2, y2) => {
+    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    const sx = (t) => ((ax * t + bx) * t + cx) * t, sy = (t) => ((ay * t + by) * t + cy) * t, dx = (t) => (3 * ax * t + 2 * bx) * t + cx;
+    return (x) => { let t = x; for (let i = 0; i < 8; i++) { const e = sx(t) - x, d = dx(t); if (Math.abs(e) < 1e-5 || !d) break; t -= e / d; } return sy(Math.min(1, Math.max(0, t))); };
+  };
+  const STANDARD = bezier(0.4, 0, 0.2, 1);      // code: open / close of the reveal
+  const DECEL = bezier(0.2, 0, 0, 1);           // continuing a released drag
+  const SETTLE = bezier(0.2, 0.8, 0.2, 1);      // snap back
+  const inOutQuad = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  const run = (() => {
+    const handles = {};
+    return (key, dur, fn, done) => {
+      if (handles[key]) cancelAnimationFrame(handles[key]);
+      const D = Math.max(1, dur * slow), t0 = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - t0) / D); fn(t);
+        if (t < 1) handles[key] = requestAnimationFrame(step); else { handles[key] = null; done && done(); }
+      };
+      handles[key] = requestAnimationFrame(step);
+    };
+  })();
+
+  // ---------- render ----------
+  const RECEDE_SCALE = 0.92, RECEDE_DIM = 0.22, RECEDE_RADIUS = 44;
+  let V = null;
+  const render = (v) => {
+    V = v;
+    if (!v) { frame.style.display = 'none'; chat.style.transform = ''; chat.style.borderRadius = ''; chatDim.style.opacity = 0; return; }
+    frame.style.display = 'block';
+    Object.assign(frame.style, {
+      left: v.fx + 'px', top: v.fy + 'px', width: v.fw + 'px', height: v.fh + 'px',
+      borderRadius: v.fr + 'px', opacity: v.fo,
+      boxShadow: v.sh > 0 ? `0 12px 40px rgba(0,0,0,${0.2 * v.sh})` : 'none',
+    });
+    page.style.transform = `translate(${v.px}px, ${v.py}px) scale(${v.ps})`;
+    page.style.opacity = v.po;
+    chat.style.transform = `scale(${v.bs})`;
+    chat.style.borderRadius = v.br + 'px';
+    chatDim.style.opacity = v.bd;
+  };
+  const restBg = (k) => (useRecede() ? { bs: lerp(1, RECEDE_SCALE, k), bd: RECEDE_DIM * k, br: RECEDE_RADIUS * k } : { bs: 1, bd: 0, br: 0 });
+
+  let cap = null;
+  const measureCapsule = () => {
+    const r = capsule.getBoundingClientRect(), p = phone.getBoundingClientRect();
+    return { x: (r.left - p.left) / scale, y: (r.top - p.top) / scale, w: r.width / scale, h: r.height / scale };
+  };
+  // the code's reveal: frame clips toward the capsule, page stays pinned to the window
+  const revealAt = (p, content) => {
+    const fx = lerp(cap.x, 0, p), fy = lerp(cap.y, 0, p);
+    return { fx, fy, fw: lerp(cap.w, W, p), fh: lerp(cap.h, H, p), fr: lerp(cap.h / 2, 0, p), fo: clamp(p / 0.2),
+      px: -fx, py: -fy, ps: 1, po: content, sh: 0, ...restBg(p) };
+  };
+
+  let mode = 'closed';
+  const setHud = (t) => (hud.textContent = t);
+  const open = () => {
+    if (mode !== 'closed') return;
+    cap = measureCapsule(); mode = 'opening'; resetList();
+    run('card', 480, (t) => {
+      const p = STANDARD(t), c = inOutQuad(clamp((t * 480 - 80) / 400));
+      render(revealAt(p, c));
+    }, () => { mode = 'open'; render(revealAt(1, 1)); });
+  };
+  const applyRest = () => { if (mode === 'open') render(revealAt(1, 1)); };
+  const finishClose = () => { mode = 'closed'; render(null); };
+
+  const closeCurrent = () => {
+    mode = 'closing';
+    run('card', 360, (t) => render(revealAt(1 - STANDARD(t), 1 - inOutQuad(clamp((t * 360) / 240)))), finishClose);
+  };
+  // zoom back into the capsule from wherever the card is now
+  const closeToCapsule = (from) => {
+    mode = 'closing'; const tw = cap.w / W;
+    run('card', 380, (t) => {
+      const q = DECEL(t), ps = lerp(from.ps, tw, q);
+      render({ fx: lerp(from.fx, cap.x, q), fy: lerp(from.fy, cap.y, q), fw: W * ps, fh: lerp(from.fh, cap.h, q),
+        fr: lerp(from.fr, cap.h / 2, q), fo: 1 - clamp((q - 0.75) / 0.25), px: 0, py: 0, ps, po: 1 - clamp(q / 0.45),
+        sh: from.sh * (1 - q), bs: lerp(from.bs, 1, q), bd: lerp(from.bd, 0, q), br: lerp(from.br, 0, q) });
+    }, finishClose);
+  };
+  const slideOut = (from, axis, speed) => {
+    mode = 'closing';
+    const dist = axis === 'right' ? W + 40 - from.fx : H + 40 - from.fy;
+    const dur = clamp(dist / Math.max(speed, 1.6), 200, 340);
+    run('card', dur, (t) => {
+      const q = DECEL(t);
+      render({ ...from, fx: axis === 'right' ? from.fx + dist * q : from.fx, fy: axis === 'right' ? from.fy : from.fy + dist * q,
+        bs: lerp(from.bs, 1, q), bd: lerp(from.bd, 0, q), br: lerp(from.br, 0, q) });
+    }, finishClose);
+  };
+  const closeByButton = () => {
+    if (mode !== 'open') return;
+    if (variant === 'current') closeCurrent();
+    else if (variant === 'capsule') closeToCapsule(revealAt(1, 1));
+    else slideOut({ ...revealAt(1, 1), fr: 0 }, 'down', 0);
+  };
+
+  // ---------- drag visuals ----------
+  const rubber = (v) => (v >= 0 ? v : -Math.sqrt(-v) * 2.5);
+  const dragVisual = (g, axis, dx, dy) => {
+    const a = axis === 'down' ? Math.max(0, dy) : Math.max(0, dx);
+    const ex = axis === 'right' ? rubber(dx) : dx, ey = axis === 'down' ? rubber(dy) : dy;
+    const bg = restBg(1), sh = clamp(a / 30), fr = 48 * clamp(a / 80);
+    if (variant === 'capsule') {
+      const s = 1 - 0.15 * clamp(a / 300);
+      // grabbed point stays under the finger; the card loses height faster than width (Muse: 87% wide, 74% tall)
+      return { a, v: { fx: g.x + ex - g.x * s, fy: g.y + ey - g.y * s, fw: W * s, fh: H * s - 0.5 * Math.min(a, 400),
+        fr, fo: 1, px: 0, py: 0, ps: s, po: 1, sh, ...bg } };
+    }
+    return { a, v: { fx: axis === 'right' ? ex : 0, fy: axis === 'down' ? ey : 0, fw: W, fh: H, fr, fo: 1, px: 0, py: 0, ps: 1, po: 1, sh, ...bg } };
+  };
+
+  // ---------- list: pager + pull to refresh ----------
+  let pageIndex = 0, pull = 0, refreshing = false;
+  PAGES.forEach(([label, rows], i) => {
+    const b = document.createElement('button'); b.textContent = label; b.addEventListener('click', () => goPage(i)); seg.appendChild(b);
+    const pg = document.createElement('div'); pg.className = 'pg';
+    pg.innerHTML = rows.map(([t, m]) => `<div class="row"><span class="dot"></span><div class="tx"><div class="tt">${t}</div><div class="mt">${m}</div></div></div>`).join('');
+    track.appendChild(pg);
+  });
+  const pgs = [...track.children], segBtns = [...seg.querySelectorAll('button')];
+  const syncSeg = () => {
+    segBtns.forEach((b, i) => b.classList.toggle('on', i === pageIndex));
+    const b = segBtns[pageIndex]; segThumb.style.left = b.offsetLeft + 'px'; segThumb.style.width = b.offsetWidth + 'px';
+  };
+  const setTrack = (x, y = pull) => (track.style.transform = `translate(${x}px, ${y}px)`);
+  let trackX = 0;
+  const goPage = (i, fromX = trackX) => {
+    pageIndex = clamp(i, 0, PAGES.length - 1); syncSeg();
+    const to = -pageIndex * W;
+    run('pager', 280, (t) => { trackX = lerp(fromX, to, DECEL(t)); setTrack(trackX); });
+  };
+  const resetList = () => { pageIndex = 0; trackX = 0; pull = 0; setTrack(0, 0); pgs.forEach((p) => (p.scrollTop = 0)); spinner.style.opacity = 0; requestAnimationFrame(syncSeg); };
+  const setPull = (p) => { pull = p; setTrack(trackX, p); spinner.style.opacity = clamp(p / 56); spinner.style.transform = `rotate(${p * 4}deg)`; };
+  const releasePull = () => {
+    if (pull > 56 && !refreshing) {
+      refreshing = true; spinner.classList.add('spin'); spinner.style.transform = '';
+      const from = pull; run('pull', 200, (t) => setPull(lerp(from, 48, DECEL(t))));
+      setTimeout(() => { const f = pull; run('pull', 260, (t) => setPull(lerp(f, 0, DECEL(t))), () => { refreshing = false; spinner.classList.remove('spin'); }); }, 1000 * slow);
+    } else { const from = pull; run('pull', 240, (t) => setPull(lerp(from, 0, DECEL(t)))); }
+  };
+
+  // ---------- pointer routing ----------
+  const zoneTop = $('zoneTop'), zoneEdge = $('zoneEdge'), zoneList = $('zoneList');
+  const layoutZones = () => { const top = listZone.offsetTop; zoneTop.style.height = top + 'px'; zoneEdge.style.top = top + 'px'; zoneList.style.top = top + 'px'; };
+  let g = null, suppressClick = false;
+  phone.addEventListener('pointerdown', (e) => {
+    if (mode !== 'open' || !frame.contains(e.target)) return;
+    const p = pt(e), listTop = listZone.offsetTop;
+    g = { x: p.x, y: p.y, zone: p.y < listTop ? 'top' : p.x < 20 ? 'edge' : 'list', kind: null, samples: [{ t: e.timeStamp, x: p.x, y: p.y }], lastY: p.y };
+  });
+  addEventListener('pointermove', (e) => {
+    if (!g) return;
+    const p = pt(e), dx = p.x - g.x, dy = p.y - g.y;
+    g.samples.push({ t: e.timeStamp, x: p.x, y: p.y }); while (g.samples.length > 2 && e.timeStamp - g.samples[0].t > 80) g.samples.shift();
+    if (!g.kind) {
+      if (Math.hypot(dx, dy) < 8) return;
+      const vertical = Math.abs(dy) >= Math.abs(dx);
+      const gestures = variant !== 'current';
+      if (gestures && g.zone === 'top' && vertical && dy > 0) g.kind = 'close-down';
+      else if (gestures && (g.zone === 'top' || g.zone === 'edge') && !vertical && dx > 0) g.kind = 'close-right';
+      else if (g.zone === 'list' || g.zone === 'edge') g.kind = vertical ? 'list-y' : 'list-x';
+      else { g = null; return; }
+      suppressClick = true;
+      if (g.kind.startsWith('close')) mode = 'dragging';
+    }
+    if (g.kind === 'close-down' || g.kind === 'close-right') {
+      const axis = g.kind === 'close-down' ? 'down' : 'right';
+      const { a, v } = dragVisual(g, axis, dx, dy);
+      g.last = { axis, dx, dy }; render(v);
+      setHud(`${axis === 'down' ? '下拉' : '右滑'} ${Math.round(a)}pt / 阈值 100pt${a >= 100 ? ' · 松手关闭' : ''}`);
+    } else if (g.kind === 'list-y') {
+      const delta = p.y - g.lastY; g.lastY = p.y; const pg = pgs[pageIndex];
+      if (refreshing) return;
+      if (pull > 0 || (pg.scrollTop <= 0 && delta > 0)) setPull(Math.max(0, pull + delta * 0.5));
+      else pg.scrollTop -= delta;
+      setHud(pull > 0 ? `下拉刷新 ${Math.round(pull)} / 56` : '列表滚动');
+    } else if (g.kind === 'list-x') {
+      const edge = (pageIndex === 0 && dx > 0) || (pageIndex === PAGES.length - 1 && dx < 0);
+      trackX = -pageIndex * W + (edge ? Math.sign(dx) * Math.sqrt(Math.abs(dx)) * 2.5 : dx);
+      setTrack(trackX); setHud(edge ? '已经是第一 / 最后一页' : '左右切页');
+    }
+  });
+  addEventListener('pointerup', (e) => {
+    if (!g) return;
+    const s = g.samples, first = s[0], last = s[s.length - 1], dt = Math.max(1, last.t - first.t);
+    const vx = (last.x - first.x) / dt, vy = (last.y - first.y) / dt;
+    if ((g.kind === 'close-down' || g.kind === 'close-right') && g.last) {
+      const { axis, dx, dy } = g.last, { a, v } = dragVisual(g, axis, dx, dy);
+      const speed = axis === 'down' ? vy : vx;
+      if (a >= 100 || speed > 0.5) {
+        setHud(speed > 0.5 && a < 100 ? '快速一甩 → 关闭' : '过阈值 → 关闭');
+        variant === 'capsule' ? closeToCapsule(v) : slideOut(v, axis, speed);
+      } else {
+        setHud('没过阈值 → 弹回'); const gg = g;
+        run('card', 300, (t) => { const k = 1 - SETTLE(t); render(dragVisual(gg, axis, dx * k, dy * k).v); }, () => { mode = 'open'; render(revealAt(1, 1)); });
+      }
+    } else if (g.kind === 'list-y') releasePull();
+    else if (g.kind === 'list-x') {
+      const dx = last.x - g.x;
+      goPage(dx < -60 || vx < -0.4 ? pageIndex + 1 : dx > 60 || vx > 0.4 ? pageIndex - 1 : pageIndex);
+    }
+    g = null;
+  });
+  addEventListener('pointercancel', () => (g = null));
+  phone.addEventListener('click', (e) => { if (suppressClick) { e.stopPropagation(); e.preventDefault(); suppressClick = false; } }, true);
+  phone.addEventListener('pointerdown', () => (suppressClick = false), true);
+
+  capsule.addEventListener('click', open);
+  $('openBtn').addEventListener('click', () => { document.body.classList.remove('panel-open'); open(); });
+  $('gearBtn').addEventListener('click', () => document.body.classList.add('panel-open'));
+  $('doneBtn').addEventListener('click', () => document.body.classList.remove('panel-open'));
+  const relayout = () => {
+    fit(); const shown = frame.style.display; frame.style.display = 'block';
+    layoutZones(); syncSeg(); trackX = -pageIndex * W; setTrack(trackX);
+    frame.style.display = shown; if (mode === 'open') render(revealAt(1, 1));
+  };
+  addEventListener('resize', relayout);
+  // desktop served over the LAN: show a QR code of this page for the phone
+  if (!device && location.protocol.startsWith('http') && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+    $('qrCard').classList.add('on'); $('qrUrl').textContent = location.href;
+    if (window.QRCode) new QRCode($('qrCode'), { text: location.href, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+  }
+  $('closeBtn').addEventListener('click', closeByButton);
+
+  frame.style.display = 'block'; layoutZones(); syncSeg(); frame.style.display = 'none';
+})();
+</script>
+</body>
+</html>
