@@ -1053,7 +1053,7 @@
     POP = !!(pop && v);
     phone.querySelectorAll(`[data-vslot="${key}"]`).forEach((slot) => { slot.innerHTML = voteRow(key, v); });
     if (phone.querySelector('[data-cslot]')) {
-      if (DECK7[S.ci] === key) renderChatCard(phone);
+      if (DECK7[S.ci] === key && !S.cbusy) renderChatCard(phone); // not mid-move: the deck redraws itself after the swap
       syncSummary(phone, instant);
     }
     POP = false;
@@ -1180,7 +1180,8 @@
   // where each scheme's back plate lands: the pose of the peek card (C1 k2: top 6 / 242 tall / -3deg → the peek's
   // 8px top and 2.5deg tilt; C2 bk3: 24px inset at top 0 → the peek's 12px inset at top 8)
   const PLATE_STEP = { c1: () => 'translate(-5.3px, 1.9px) rotate(2.5deg)', c2: (W) => `translateY(8px) scaleX(${((W - 24) / (W - 48)).toFixed(4)})` };
-  function moveChat(phone, next, kind) {
+  // dir: where a vote sends the front card, 1 = right (Agree) / -1 = left (Disagree), as in the Review
+  function moveChat(phone, next, kind, dir = -1) {
     const S = phone._S, card = phone._scheme.opts.card, { ms, ease } = MOVE[kind];
     const fr = phone.querySelector('[data-cswipe]');
     const deck = fr.parentElement;
@@ -1188,7 +1189,7 @@
     S.cbusy = true;
     if (kind === 'vote') {
       fr.style.transition = `transform ${ms}ms ${ease}, opacity ${ms}ms ease-in`;
-      fr.style.transform = 'translateX(-112%) rotate(-5deg)';
+      fr.style.transform = `translateX(${dir * 112}%) rotate(${dir * 5}deg)`;
       fr.style.opacity = '0';
     }
     if (PLATE_STEP[card]) deck.querySelectorAll(':scope > .back, :scope > .bk3').forEach((b) => {
@@ -1225,9 +1226,9 @@
 
   // After an Agree / Disagree the chat card moves on by itself: a beat for the vote icon's pop to play out, then the
   // calm vote move to the next card. Un-voting or the last card stays put.
-  function advanceChat(phone) {
+  function advanceChat(phone, dir) {
     phone._S.cbusy = true;
-    setTimeout(() => moveChat(phone, phone._S.ci + 1, 'vote'), 320);
+    setTimeout(() => moveChat(phone, phone._S.ci + 1, 'vote', dir), 320);
   }
 
   function bindChatSwipe(phone) {
@@ -1235,16 +1236,19 @@
     phone._rebindChat = () => {
       const S = phone._S, card = phone._scheme.opts.card, front = phone.querySelector('[data-cswipe]');
       const slot = phone._chatSlot = peekSlot(front, GEO[card]);
-      // left shows the next card underneath, right the previous one
-      const fill = (d) => { const j = S.ci + (d > 0 ? -1 : 1); slot.set(j >= 0 && j < DECK7.length ? cardOf(chatBlock(card, j, S.votes[DECK7[j]])) : ''); };
-      fill(0);
+      // as in the full-screen Review, both directions vote and move on, so the card behind is always the next thesis
+      const j = S.ci + 1;
+      slot.set(j < DECK7.length ? cardOf(chatBlock(card, j, S.votes[DECK7[j]])) : '');
+      // right = Agree, left = Disagree (same as the Review)
       swipeable(front, (dir) => {
         if (S.cbusy) return false;
-        const next = S.ci + (dir < 0 ? 1 : -1);
-        if (next < 0 || next >= DECK7.length) return false;
-        moveChat(phone, next, 'swipe');
-        return true;
-      }, { onDir: fill });
+        S.cbusy = true; // keeps setVote from redrawing the card that is being thrown
+        setVote(phone, DECK7[S.ci], dir > 0 ? 'agree' : 'disagree');
+        if (j < DECK7.length) { moveChat(phone, j, 'swipe'); return true; }
+        // the last card has nowhere to go: it springs back, then shows the vote
+        setTimeout(() => { S.cbusy = false; renderChatCard(phone); }, 300);
+        return false;
+      });
     };
     phone._rebindChat();
   }
@@ -1295,7 +1299,7 @@
       const k = DECK7[S.ci]; const v = act === 'c-agree' ? 'agree' : 'disagree';
       const nv = S.votes[k] === v ? '' : v;
       setVote(phone, k, nv, false, true);
-      if (nv && S.ci + 1 < DECK7.length) advanceChat(phone);
+      if (nv && S.ci + 1 < DECK7.length) advanceChat(phone, nv === 'agree' ? 1 : -1);
       return;
     }
     if (act === 'review') {
