@@ -822,6 +822,8 @@
   };
 
   const srcs = (list, cls = 'srcs', extra = '') => (list.length ? `<span class="${cls}"${extra}>${list.map((s) => (s ? img(s) : '<i class="ph"></i>')).join('')}</span>` : '');
+  // every source stack (A cards, B1 fronts, the Review, detail timelines) opens Similar signals
+  const SIM = ' data-act="similar" role="button" aria-label="Similar signals"';
   const marker = (dir, mode) => {
     if (mode !== 'arrow') return '<span class="bu t14">•</span>';
     return `<span class="mkr"><span>${img(dir === 'down' ? 'arrow-up-l1-m4.svg' : 'arrow-up-l1-m3.svg', '', `style="transform:rotate(${dir === 'down' ? 135 : 45}deg)"`)}</span></span>`;
@@ -835,7 +837,7 @@
 
   const statusCard = (key, mode, v) => {
     const t = TH[key];
-    return `<section class="card">${thesisHead(t)}${changePanel(t)}<p class="t14 md n9">${esc(t.head)}</p><div class="pts">${t.pts.map((p) => `<div class="pt">${marker(p[1], mode)}<p class="t14 n9 grow">${esc(p[0])}</p>${srcs(p[2])}</div>`).join('')}</div><div data-vslot="${key}">${voteRow(key, v)}</div></section>`;
+    return `<section class="card">${thesisHead(t)}${changePanel(t)}<p class="t14 md n9">${esc(t.head)}</p><div class="pts">${t.pts.map((p) => `<div class="pt">${marker(p[1], mode)}<p class="t14 n9 grow">${esc(p[0])}</p>${srcs(p[2], 'srcs tap', SIM)}</div>`).join('')}</div><div data-vslot="${key}">${voteRow(key, v)}</div></section>`;
   };
 
   // Signal / For You. For You passes a SIGNALS key (on the META thesis); Similar signals passes the signal and its own thesis row.
@@ -928,7 +930,7 @@
       <div class="pch"><span class="t14 md n9 nw">${esc(t.perf.tk)}</span>${statsOf(t, 'col')}</div>${promptOf(t)}</div>`;
     const b = t.pts ? t.pts[0] : [plain(t.rv[0][0]), '', t.rv[0][1]];
     // 有 Status B1: the status band and summary, then the same ticker + stats card and prompt as 无 Status
-    return `<div class="rcard${shadow ? ' sh' : ''}" data-cswipe>${band(t, 'Nov 4 · 8:00 PM ET')}<div class="sum">${thesisHead(t)}<div class="s2"><p class="t18 md n9">${esc(t.head)}</p><div class="bul"><span class="bu t14">•</span><div class="cn"><p class="t14 n9">${esc(b[0])}</p>${srcs(b[2], 'srcs below')}</div></div></div></div><div class="rext"><div class="pch"><span class="t14 md n9 nw">${esc(t.perf.tk)}</span>${statsOf(t, 'col')}</div>${promptOf(t)}</div></div>`;
+    return `<div class="rcard${shadow ? ' sh' : ''}" data-cswipe>${band(t, 'Nov 4 · 8:00 PM ET')}<div class="sum">${thesisHead(t)}<div class="s2"><p class="t18 md n9">${esc(t.head)}</p><div class="bul"><span class="bu t14">•</span><div class="cn"><p class="t14 n9">${esc(b[0])}</p>${srcs(b[2], 'srcs below tap', SIM)}</div></div></div></div><div class="rext"><div class="pch"><span class="t14 md n9 nw">${esc(t.perf.tk)}</span>${statsOf(t, 'col')}</div>${promptOf(t)}</div></div>`;
   };
   // only the second card back stays a band; the one right behind the front is the real next card (peekSlot).
   // 无 Status: that back is a plain white card instead (no band to show).
@@ -1018,7 +1020,7 @@
       <div class="scroll" data-chat><div class="cbody"><div class="tdiv t12">8:00 PM</div>${agentBubble(noStatus ? 'Today’s read on your 7 theses is in.' : 'Today’s read on your 7 theses is in. 3 changed status and the other 4 held.')}<div data-cslot>${chatBlock(o.card, 0, S.votes[DECK7[0]])}</div></div></div>
       <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`);
 
-  const rvBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc')}</p></div>`;
+  const rvBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc tap', SIM)}</p></div>`;
   const reviewFront = (t) => `<div class="rfront" data-front><div class="sm">${thesisHead(t, true)}${noStatus ? '' : changePanel(t)}<div class="s3"><p class="t20 md n9">${esc(t.head)}</p>${t.rv.map(rvBullet).join('')}</div></div>
     <div class="pcard"><div class="h t14 md"><span class="n9">${esc(t.perf.tk)}</span></div><div class="chart">${chartOf(t)}</div>${statsOf(t, 'row')}</div>${promptOf(t)}</div>`;
 
@@ -1065,7 +1067,7 @@
   // the toggle then reads "Show less" at the end of what it opened.
   const MORE = window.TSE_MORE || {};
   // a timeline bullet on the detail page: its source stack opens Similar signals
-  const dayBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc tap', ' data-act="similar" role="button" aria-label="Similar signals"')}</p></div>`;
+  const dayBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc tap', SIM)}</p></div>`;
   const dayBlock = (d, tail) => `<div class="day"><div class="dh"><span class="t12 n5">${d.date}</span><p class="t14 md n9">${esc(d.head)}</p></div>${d.bul.map(dayBullet).join('')}${tail}</div>`;
   const timeline = (thesis, open) => DETAIL[thesis].tl.map((g, i) => {
     const extra = g.more ? ((MORE[thesis] || {})[g.st] || []) : [];
