@@ -405,7 +405,9 @@
   .rv .hd { position: relative; flex-shrink: 0; padding: 12px 24px 0; }
   .prog { display: flex; gap: 4px; }
   .prog i { flex: 1; height: 2px; border-radius: 960px; background: var(--line-l12); }
-  .rv .bd { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; justify-content: safe center; padding: 12px 24px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+  /* the deck centres in the space left; 20 (spacing-l) above and below is the least it keeps from the progress and the buttons
+     on short screens — equal on both sides, so the centred spot is the same as Figma's 12 + free space */
+  .rv .bd { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; justify-content: safe center; padding: 20px 24px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
   .rv .bd::-webkit-scrollbar { display: none; }
   .rv .rdeck { flex-shrink: 0; }
   .rdeck { position: relative; padding-top: 16px; }
