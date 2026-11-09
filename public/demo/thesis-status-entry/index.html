@@ -107,6 +107,8 @@
   .opt.on { background: var(--content-br05); color: var(--text-n9); }
   .opt .k { font-weight: 500; color: var(--text-n9); width: 26px; flex-shrink: 0; }
   .opt.state .k { color: var(--text-n5); }
+  /* the 有 / 无 Status switch sits under the title */
+  .intro { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
   .ctl { display: flex; flex-direction: column; gap: 12px; }
   .ctl-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--text-n7); }
   .seg-ctl { display: inline-flex; background: var(--content-br05); border-radius: 8px; padding: 2px; flex-shrink: 0; }
@@ -292,6 +294,10 @@
   .chrow { display: flex; align-items: center; gap: 4px; }
   .b3-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; box-shadow: inset 0 -0.5px 0 var(--line-l12); background: var(--background-b0); }
   .b3-row .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
+  /* 无 Status · A3 entry row (Entry row · Low): 16 padding, scroll icon 28, title over count, Review button */
+  .b3-row.ns { padding: 16px; }
+  .b3-row.ns .tx { gap: 0; }
+  .b3-row .ic28 { width: 28px; height: 28px; flex-shrink: 0; }
   .sdots { display: flex; gap: 4px; }
   .sdots i { width: 8px; height: 8px; border-radius: 50%; background: var(--sc); }
   .sdots i.f, .sbar i.f { opacity: 0.25; }
@@ -312,15 +318,36 @@
   .tdiv { text-align: center; padding: 2px 0; color: var(--text-n5); }
   .ab { padding-right: 28px; }
   .ab .bub { background: var(--grey-g02); border-radius: 12px; padding: 12px 16px; }
-  .ab .bub.sum { display: flex; flex-direction: column; gap: 10px; }
-  .sum .chips { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-  .sum .qchip { max-width: 100%; }
-  .sum .qchip span.ell { max-width: none; min-width: 0; }
-  .qchip { align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 6px; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 4px; }
-  .qchip .im { width: 20px; height: 20px; border-radius: 2px; background: var(--main-m1); display: flex; align-items: center; justify-content: center; }
-  .qchip .im img { width: 16px; height: 16px; }
-  .qchip span { max-width: 184px; }
   .cbf { flex-shrink: 0; padding: 0 16px 12px; }
+  /* B4 · Today's review 置底: the thread runs under a fading header (status bar + capsule) and under the pinned card */
+  .chat.pin .pinwrap { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; }
+  .chat.pin .pintop { position: absolute; left: 0; right: 0; top: 0; z-index: 3; background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0) 100%); }
+  .chat.pin .pinbody { padding: calc(var(--sbh) + 80px) 16px 108px; min-height: 0; }
+  .chat.pin .pinned { position: absolute; left: 16px; right: 16px; bottom: 8px; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #fff; border-radius: 8px; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)); }
+  .chat.pin .pinned .ic28 { width: 28px; height: 28px; flex-shrink: 0; }
+  .chat.pin .pinned .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .ub { padding-left: 24px; }
+  .ub .bub { background: var(--main-m1-10); border-radius: 12px; padding: 12px 16px; }
+  .ub.long .bub { padding: 12px 16px 0; display: flex; flex-direction: column; gap: 4px; }
+  .ub.long .clip { max-height: 440px; overflow: hidden; }
+  .ub.long .smore { align-self: stretch; text-align: center; padding: 4px 16px 12px; }
+  .ab .bub.col { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .ab .bub.col > div { align-self: stretch; }
+  .ab .auto { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 5px; border-radius: 960px; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; }
+  .ab .auto .dot { width: 14px; height: 14px; }
+  .ab .auto .ar { width: 12px; height: 12px; }
+  .ab .mu { padding-top: 2px; }
+  .btn-s.wbg { background: #fff; }
+  .ab .lrow { display: flex; align-items: center; gap: 4px; }
+  .ab .lrow .lg { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; }
+  .ab .lrow .dl { text-decoration: underline dotted rgba(0, 0, 0, 0.5); text-decoration-thickness: 8%; }
+  .fcard { width: 320px; max-width: 100%; padding: 4px; border-radius: 12px; background: var(--grey-g02); flex-shrink: 0; }
+  .fcard .pv { width: 100%; aspect-ratio: 312 / 176; border-radius: 8px; object-fit: cover; }
+  .fcard .info { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 8px; }
+  .fcard .info .ic { width: 36px; height: 36px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .fcard .info .ic img { width: 20px; height: 20px; }
+  .fcard .info .m { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .fcard .info .mo { width: 16px; height: 16px; }
   .cbx { display: flex; align-items: flex-end; gap: 2px; padding: 8px; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 8px; background: #fff; box-shadow: var(--shadow-floating); }
   .cbx .b36 { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px; flex-shrink: 0; }
   .cbx .b36 img { width: 16px; height: 16px; }
@@ -332,6 +359,36 @@
   .rb .deck { position: relative; padding: 20px 0 4px; }
   .rb .back { position: absolute; left: 0; right: 0; height: 242px; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 12px; overflow: hidden; }
   .rb .back.k2 { top: 6px; transform: rotate(-3deg); }
+  /* 无 Status · B1 review block: 16 side padding, the deck 8 in from it, a plain white back card, Review all 7 as a text link */
+  .rb.ns { padding: 12px 16px; }
+  .rb.ns .tt2 { gap: 0; }
+  .rb.ns .deck { padding: 20px 8px 4px; }
+  /* the card after next (Figma Back · BTC shaky): 364 wide, 14 taller than the front, centred 1.4 right, top 8, -2.5deg */
+  .rb.ns .back.k2 { left: 50%; right: auto; width: 364px; height: auto; top: 8px; bottom: 2px; margin-left: -180.6px; transform: rotate(-2.5deg); }
+  /* 无 Status · B1 front (Figma Front · Nebius): the Review card's frame, a one-bullet summary, ticker + stats, a suggested prompt */
+  .nsfront { position: relative; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; padding: 20px 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; box-shadow: var(--shadow-s); cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+  .nsfront .sm { align-self: stretch; display: flex; flex-direction: column; gap: 16px; }
+  .nsfront .s3 { display: flex; flex-direction: column; gap: 12px; }
+  .pch { align-self: stretch; display: flex; align-items: flex-start; gap: 8px; padding: 12px; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 8px; }
+  /* 无 Status stats: Today / Since <date>, each value + "pts vs <benchmark>" */
+  .pstats { display: flex; white-space: nowrap; }
+  .pstats .st { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .pstats.col { flex: 1; min-width: 0; gap: 16px; justify-content: flex-end; }
+  .pstats.col .st { align-items: flex-end; }
+  .pstats.row { gap: 16px; }
+  .pcard .pstats.row { gap: 24px; }
+  .pstats.row .st { gap: 2px; align-items: flex-start; }
+  .pstats.row .val { display: flex; align-items: baseline; gap: 4px; }
+  .sprompt { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 6px 12px; max-width: 100%; border-radius: 4px; outline: 0.5px solid var(--line-l3); outline-offset: -0.5px; }
+  .sprompt img { width: 14px; height: 14px; flex-shrink: 0; }
+  .rfront > .sprompt { align-self: flex-start; }
+  .pact { display: flex; align-items: center; gap: 16px; }
+  .pact .cvs { flex: 1; min-width: 0; display: flex; justify-content: flex-end; gap: 8px; }
+  .cv { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cv.dis { background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; color: var(--text-n9); }
+  .cv.agr { background: var(--main-m1); color: #fff; }
+  .rb .act .ra { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; }
+  .rb .act .ra img { width: 12px; height: 12px; }
   .band { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; --sc: var(--main-m5); }
   .band::before { content: ''; position: absolute; inset: 0; background: var(--sc); opacity: 0.06; }
   .band > * { position: relative; }
@@ -339,6 +396,8 @@
   .rcard { position: relative; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 12px; overflow: hidden; padding-bottom: 16px; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
   .rcard.sh { box-shadow: var(--shadow-xs); }
   .rcard .sum { padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 12px; }
+  /* under the summary: ticker + stats card and the suggested prompt, 16 apart (the summary's 12 bottom + 4) */
+  .rcard .rext { padding: 4px 16px 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
   .s2 { display: flex; flex-direction: column; gap: 8px; }
   .bul { display: flex; gap: 8px; align-items: flex-start; }
   .bul .cn { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
@@ -361,7 +420,6 @@
   .perf .h, .pcard .h { display: flex; align-items: center; justify-content: space-between; white-space: nowrap; }
   .perf .chart, .pcard .chart { height: 56px; width: 100%; }
   .chart img, .chart svg { width: 100%; height: 56px; display: block; }
-  .acts2 { display: flex; gap: 12px; align-items: center; }
   .btn-m { flex: 1; min-width: 0; height: 40px; border-radius: 6px; padding: 9px 20px; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
   .btn-m.sec { outline: 0.5px solid var(--line-l3); outline-offset: -0.5px; color: var(--text-n9); }
   .btn-m.pri { background: var(--main-m1); color: #fff; }
@@ -451,6 +509,11 @@
   .rv.r2 .vb .dis.armed .c { background: #fff; outline-color: transparent; color: var(--main-m1); }
 
   /* ───────── Thesis detail ───────── */
+  /* Similar signals · secondary page top bar (Topbar/Mweb · 二级页面): back 40×56, title Regular/16 over a Regular/10 count */
+  .stb { height: 56px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px 0 6px; background: var(--background-b0); }
+  .stb .bk { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .stb .bk img { width: 20px; height: 20px; }
+  .stb .ttl { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   .dtb { height: 56px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px 0 6px; background: #fff; }
   .dtb .bk { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .dtb .bk img { width: 20px; height: 20px; }
@@ -485,6 +548,20 @@
   .srow { display: flex; align-items: center; gap: 8px; }
   .stag { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
   .wsec { display: flex; flex-direction: column; gap: 8px; }
+  /* 无 Status detail (Figma Thesis-MVP 14812:65214): Overview tab, an m1-tinted overall card with the think mark (60) at the
+     top right, What supports titled in m1, and a day-by-day timeline of the last four days, each with its bullets */
+  .overall.ns { position: relative; }
+  .overall.ns > * { position: relative; }
+  .overall.ns > .think { position: absolute; top: 15.5px; right: 15.5px; width: 60px; height: 60px; pointer-events: none; }
+  .wsec .sup { color: var(--main-m1); }
+  .dl { display: flex; flex-direction: column; }
+  .dl .dy { display: flex; gap: 12px; }
+  .dl .rl { width: 14px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 6px; }
+  .dl .dot { width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px var(--text-n5); }
+  .dl .line { flex: 1; width: 0; border-left: 0.5px solid var(--line-l2); }
+  .dl .cn { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px; }
+  .dl .end .cn { padding-bottom: 0; }
+  .dl .dh { display: flex; flex-direction: column; gap: 4px; }
   .tl { display: flex; flex-direction: column; }
   .tseg { display: flex; gap: 12px; align-items: stretch; }
   .tseg .rl { width: 16px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 3px; }
@@ -527,6 +604,7 @@
   <aside class="panel" id="panel">
     <div class="intro">
       <h1>Thesis Status · 入口方案</h1>
+      <div class="seg-ctl" id="stSeg"><button data-v="on" class="on">有 Status</button><button data-v="off">无 Status</button></div>
     </div>
     <div id="groups"></div>
     <div class="ctl">
@@ -683,12 +761,36 @@
   const DECK7 = ['nebius', 'labs', 'btc', 'meta', 'aisec', 'skh', 'capex'];
   const CHANGED = ['nebius', 'labs', 'btc'];
 
+  // 无 Status (Figma Thesis-MVP · Thesis Status · 入口方案 · 无Status, 14812:63036): the same flow with the thesis status left
+  // out — no status bands or change panels, no status wash or status-coloured progress. Drawn for A3, B1, B2 and the Review;
+  // the panel switch flips every screen that has it, the rest keep their status version.
+  let noStatus = false;
+  const NS_OK = new Set(['a3', 'b1', 'b2', 'b4', 'r1', 'r2', 'd1', 'd2']); // drawn without status
+  const NS_ONLY = new Set(['b4']); // drawn only without status
+  // the panel lists only what the chosen mode has a design for
+  const shown = (id) => (noStatus ? NS_OK.has(id) : !NS_ONLY.has(id));
+
   // For You signal cards: three real signals on the Meta thesis from 4 Nov (PRD demo), two Supports and one Mixed
   const SIGNALS = {
     s1: { av: 'prd-av-14.jpg', name: 'First Squawk', role: 'Financial Audio News Service', time: '3h ago', quote: 'Qualcomm CEO says ... the Dragonfly C1000 CPU remains on track to ship to Meta as scheduled', link: 'x.com', stance: 'Supports', alva: "The supplier's on-schedule shipment update supports execution of Meta's planned Qualcomm CPU deployment and diversification of its compute supply." },
     s2: { av: 'prd-av-13.jpg', name: 'Reuters', role: 'Global News Agency', time: '11h ago', quote: 'Meta Platforms received a record €53 billion ($59.52 billion) in investor orders for its debut euro-denominated bond sale, Bloomberg News reported on Wednesday, citing data compiled by the news agency.', link: 'tradingview.com', stance: 'Supports', alva: "The reported record order book supports Meta's ability to attract debt financing for its AI buildout despite concerns about leverage and cash-flow deficits." },
     s3: { av: 'prd-av-19.jpg', name: 'Dow Jones', role: 'Real-Time Financial News Wire', time: '5h ago', quote: '"The continuing trend towards data center pushback reinforces our concern that there will be insufficient data center capacity in the U.S. by 2028," Byrd wrote.', link: 'tradingview.com', stance: 'Mixed', alva: 'The forecast of insufficient US capacity by 2028 raises the risk of constrained expansion for Meta, while supporting the scarcity value of compute it already controls.' },
   };
+
+  // Similar signals · secondary page (Figma Thesis-MVP 14771:92797), opened from a source stack on a detail page:
+  // Silicon Data's GPU rental note as three theses read it. Copy as in the Figma frame.
+  const SILICON = { av: 'avatar-silicon-data.jpg', name: 'Silicon Data', role: 'Compute-Market Data & Analytics', time: '6h ago', more: 'Show more' };
+  const SIMILAR = [
+    { ownerAv: 'avatar-herman-jin.jpg', owner: 'Herman Jin', thesis: 'Memory-rich GPUs set the floor for rental prices', stance: 'Supports',
+      quote: 'In this week’s Reference Price newsletter we flagged an interesting “generational slope” in on-demand GPU rental rates. Over the past week the increases were ordered by chip generation: B300 +8.6% → B200 +4.7%…',
+      alva: 'Silicon Data finds the sharpest rental increases in the newest, memory-rich GPUs, indicating that capacity scarcity is concentrated where AI workloads need the most high-bandwidth memory and supporting stronger pricing for capable cloud infrastructure.' },
+    { ownerAv: 'avatar-harryz.png', owner: 'harryz', thesis: 'The AI trade, especially semiconductors, may face near-term multiple compression despite strong backlogs, revenue, guidance, and uncut CapEx', stance: 'Mixed',
+      quote: 'Over the past week the increases were ordered by chip generation: B300 +8.6% → B200 +4.7% → H200 +4.2% → H100 +2.5% → A100 +2.0%. ... Long-context inference is increasingly memory-bound, which favors the…',
+      alva: 'Silicon Data finds weekly rental gains steepest for B300 GPUs at 8.6% versus 2% for A100s, suggesting memory-heavy inference demand is concentrating scarcity and pricing power in the newest chips while raising inference costs.' },
+    { ownerAv: 'avatar-harryz.png', owner: 'harryz', thesis: '1. Nebius can deploy reliable compute on the plan they’ve laid out — the team is strong.', stance: 'Supports',
+      quote: 'Over the past week the increases were ordered by chip generation: B300 +8.6% → B200 +4.7% → H200 +4.2% → H100 +2.5% → A100 +2.0%. ... To the extent there is a compute shortage, it appears concentrated at…',
+      alva: 'Silicon Data finds the newest GPUs gained rental pricing fastest over the week, with B300 up 8.6% versus H100 up 2.5%, making Nebius’s hardware mix more important to realized revenue.' },
+  ];
 
   /* ═════════ building blocks ═════════ */
   const img = (src, cls = '', extra = '') => `<img class="${cls}" src="${A}${src}" alt="" ${extra}>`;
@@ -716,7 +818,7 @@
     return `<div class="chg no${flat ? ' flat' : ''}" style="--sc:${s.c}">${mark(t.cur[0])}<span class="t14 md n9 nw">${s.label}</span><span class="t12 n5 grow">${t.cur[1]}</span><span class="rt t12 nw">Unchanged</span></div>`;
   };
 
-  const srcs = (list, cls = 'srcs') => (list.length ? `<span class="${cls}">${list.map((s) => (s ? img(s) : '<i class="ph"></i>')).join('')}</span>` : '');
+  const srcs = (list, cls = 'srcs', extra = '') => (list.length ? `<span class="${cls}"${extra}>${list.map((s) => (s ? img(s) : '<i class="ph"></i>')).join('')}</span>` : '');
   const marker = (dir, mode) => {
     if (mode !== 'arrow') return '<span class="bu t14">•</span>';
     return `<span class="mkr"><span>${img(dir === 'down' ? 'arrow-up-l1-m4.svg' : 'arrow-up-l1-m3.svg', '', `style="transform:rotate(${dir === 'down' ? 135 : 45}deg)"`)}</span></span>`;
@@ -733,16 +835,23 @@
     return `<section class="card">${thesisHead(t)}${changePanel(t)}<p class="t14 md n9">${esc(t.head)}</p><div class="pts">${t.pts.map((p) => `<div class="pt">${marker(p[1], mode)}<p class="t14 n9 grow">${esc(p[0])}</p>${srcs(p[2])}</div>`).join('')}</div><div data-vslot="${key}">${voteRow(key, v)}</div></section>`;
   };
 
-  const signalCard = (key) => {
-    const s = SIGNALS[key];
+  // Signal / For You. For You passes a SIGNALS key (on the META thesis); Similar signals passes the signal and its own thesis row.
+  const signalCard = (key, s = SIGNALS[key], head = thesisHead(TH.meta)) => {
     const tail = s.link ? `<span class="lnk">${s.link}</span>` : `<span class="more-l">${s.more}</span>`;
-    return `<section class="card">${thesisHead(TH.meta)}
-      <div class="quote"><div class="sid">${img(s.av, 'av32')}<div class="who"><div class="c"><span class="t14 md n9 ell">${s.name}</span><span class="t12 n5 ell">${s.role}</span></div><span class="t12 n5 nw">${s.time}</span></div></div><p class="t14 n9">${esc(s.quote)} ${tail}</p></div>
+    return `<section class="card">${head}
+      <div class="quote"><div class="sid">${img(s.av, 'av32')}<div class="who"><div class="c"><span class="t14 md n9 ell">${s.name}</span><span class="t12 n5 ell">${esc(s.role)}</span></div><span class="t12 n5 nw">${s.time}</span></div></div><p class="t14 n9">${esc(s.quote)} ${tail}</p></div>
       <div class="alva"><p class="t14 n9"><span class="stance${s.stance === 'Mixed' ? ' mixed' : ''}"><i>${img('alva-inline-logo.svg')}</i><em class="t12 md">${s.stance}</em></span>${esc(s.alva)}</p></div>
       <div class="vote" style="gap:12px"><div class="ask">${img('chat-ai-l.svg')}<span class="t12 ell">Ask Alva</span></div><div class="fb"><button class="lk" data-act="like" aria-label="Like">${img('like-l.svg')}</button>${img('close-l1.svg')}</div></div></section>`;
   };
 
-  const satyaCard = () => `<section class="card"><div class="srcpost"><div class="sid">${img('avatar-satya.png', 'av32')}<div class="who"><div class="c"><span class="t14 md n9 ell">Satya Nadella</span><span class="t12 n5 ell">Chairman &amp; CEO, Microsoft</span></div><span class="t12 n5 nw">1h ago</span></div></div>
+  // the thesis row of a similar signal: another owner's thesis, which has no page in this demo, so it is not a link
+  const ownerHead = (x) => `<div class="th">${img(x.ownerAv, 'av')}<div class="tg t12"><span class="nm md ell">${esc(x.owner)}</span><span class="md">·</span><span class="tt ell">${esc(x.thesis)}</span></div>${img('arrow-right-l2.svg', 'ar')}</div>`;
+  // Similar signals · secondary page: back arrow, title with the count under it, then the signal list
+  const similarScreen = () => `<div class="scr sim">${statusBar()}
+      <div class="stb"><button class="bk" data-act="back" aria-label="Back">${img('d-arrow-left-l1.svg')}</button><div class="ttl"><p class="t16 n9 ell">Similar signals</p><p class="t10 n5 ell">${SIMILAR.length} signals</p></div></div>
+      <div class="scroll">${SIMILAR.map((x) => signalCard(null, { ...SILICON, ...x }, ownerHead(x))).join('')}</div>${home()}</div>`;
+
+  const satyaCard = () =>`<section class="card"><div class="srcpost"><div class="sid">${img('avatar-satya.png', 'av32')}<div class="who"><div class="c"><span class="t14 md n9 ell">Satya Nadella</span><span class="t12 n5 ell">Chairman &amp; CEO, Microsoft</span></div><span class="t12 n5 nw">1h ago</span></div></div>
     <div class="tickers"><span class="tk t12">${img('logo-msft.svg', 'lg')}MSFT<span class="dial bear">${img('arrow-up-l1-white.svg')}</span></span></div>
     <p class="t14 n9">Azure surpassed $75 billion in annual revenue, up 34%. Microsoft added more than two gigawatts of datacenter capacity over the previous 12 months and now had over 400 datacenters across 70 regions. <span class="more-l">[1]</span></p></div>
     ${img('chart-msft.png', 'chart240')}
@@ -767,7 +876,10 @@
     b1: () => `<div class="eb"><div class="b1-stack tap" data-act="review" data-deck="4"><i class="edge e2"></i><i class="edge e1"></i><div class="b1-card"><div class="rhead"><div class="tt2"><span class="t14 md n9">Today’s review</span><span class="t12 n5">4 theses updated · 1 status change</span></div><button class="btn-xs t12 md" data-act="review" data-deck="4">Review</button></div>${thesisHead(TH.nebius)}${changePanel(TH.nebius)}</div></div></div>`,
     b2: () => `<div class="eb b2"><div class="b2-card"><div class="hd"><div class="tx"><span class="t12 md k">Today’s review · 8:00 PM ET</span><span class="t18 md">3 of 7 theses changed status</span></div><button class="btn-rev t12 md" data-act="review" data-deck="7" data-from="b2">Review</button></div>
       <div class="b2-deck" data-b2deck><i class="bk bk1"></i>${b2Front(0)}</div></div></div>`,
-    b3: () => `<div class="b3-row tap" data-act="review" data-deck="7"><div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5">3 of 7 theses changed status</span></div><div class="sdots">${DOTS.map(([c, f]) => `<i class="${f ? 'f' : ''}" style="--sc:var(--${c})"></i>`).join('')}</div>${img('arrow-right-l2.svg', '', 'style="width:12px;height:12px"')}</div>`,
+    b3: () => (noStatus
+      // 无 Status · Entry row · Low: scroll icon, title + count, a Review button (the review holds today's 4 updates)
+      ? `<div class="b3-row ns">${img('scroll-l.svg', 'ic28')}<div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5">4 theses updated</span></div><button class="btn-xs t12 md" data-act="review" data-deck="4">Review</button></div>`
+      : `<div class="b3-row tap" data-act="review" data-deck="7"><div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5">3 of 7 theses changed status</span></div><div class="sdots">${DOTS.map(([c, f]) => `<i class="${f ? 'f' : ''}" style="--sc:var(--${c})"></i>`).join('')}</div>${img('arrow-right-l2.svg', '', 'style="width:12px;height:12px"')}</div>`),
     b4: () => `<div class="eb"><div class="b4-card"><div class="rhead"><div class="tt2"><span class="t14 md n9">Today’s review</span><span class="t12 n5">3 of 7 theses changed status</span></div><button class="btn-xs t12 md" data-act="review" data-deck="7">Review</button></div>
       <div class="sbar">${DOTS.map(([c, f]) => `<i class="${f ? 'f' : ''}" style="--sc:var(--${c})"></i>`).join('')}</div>
       <div class="b4-ch">${CHANGED.map((k, i) => { const t = TH[k]; return `<div class="r" data-act="review" data-deck="7" data-at="${i}" style="--sc:${ST[t.chg[1]].c}"><span class="t12 n9 ell grow">${esc(k === 'btc' ? t.title : t.short)}</span><span class="t12 n5 strike nw">${ST[t.chg[0]].label}</span><span class="t12 n5">→</span>${mark(t.chg[1])}<span class="t12 md to nw">${ST[t.chg[1]].label}</span></div>`; }).join('')}</div></div></div>`,
@@ -775,45 +887,70 @@
 
   /* ── chat pieces ── */
   const agentBubble = (t, extra = '') => `<div class="ab"${extra}><div class="bub t14 n9">${esc(t)}</div></div>`;
-  const chipText = (t) => (t.chg ? `${t.short} · ${ST[t.chg[0]].label} → ${ST[t.chg[1]].label}` : `${t.short} · ${ST[t.cur[0]].label}`);
-  const qchip = (t) => `<div class="qchip"><span class="im">${img('sidebar-thread-normal.svg')}</span><span class="t12 n9 ell">${esc(chipText(t))}</span></div>`;
-  // Alva's one message after the deck: the theses you disagreed with as quote chips and a single ask
-  const summaryBubble = (ths) => (ths.length
-    ? `<div class="ab" data-follow><div class="bub sum t14 n9"><p>You disagreed with ${ths.length} of today’s 7 calls.</p><div class="chips">${ths.map(qchip).join('')}</div><p>What did I miss? Tell me and I’ll re-check ${ths.length === 1 ? 'it' : 'them'}.</p></div></div>`
-    : agentBubble('All 7 calls confirmed. I’ll keep tracking them and flag the next change.', ' data-follow'));
 
   const band = (t, date) => (t.chg
     ? `<div class="band" style="--sc:${ST[t.chg[1]].c}"><span class="chrow">${tag(t.chg[0])}<span class="t12 n5">→</span>${tag(t.chg[1])}</span><span class="t12 n5 nw">${date}</span></div>`
     : `<div class="band" style="--sc:${ST[t.cur[0]].c}">${tag(t.cur[0])}<span class="t12 n5 nw">${date}</span></div>`);
 
   const c1Votes = (v) => `<button class="btn-s ${v === 'disagree' ? 'pri' : 'sec'} t12 md w96" data-act="c-disagree">${voteIcon('disagree', v === 'disagree', 14, 'dis14')}Disagree</button><button class="btn-s ${v === 'disagree' ? 'sec' : 'pri'} t12 md w96" data-act="c-agree">${voteIcon('agree', v === 'agree', 14, 'check14')}Agree</button>`;
-  const bigVotes = (v) => `<button class="btn-m ${v === 'disagree' ? 'pri' : 'sec'} t14 md" data-act="c-disagree">${voteIcon('disagree', v === 'disagree', 18, 'dis20')}Disagree</button><button class="btn-m ${v === 'disagree' ? 'sec' : 'pri'} t14 md" data-act="c-agree">${voteIcon('agree', v === 'agree', 18, 'check18')}Agree</button>`;
+
+  // Performance stats (Figma 14812:63036 · Performance card · Stats, used in both modes): today's move and the move since publication, each
+  // against the thesis' benchmark. Both come from the PRD price series the chart is drawn from, so the numbers and the line
+  // agree; today = the last two daily closes. The suggested prompt asks about today's move.
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const pct = (v) => `${v < 0 ? '−' : '+'}${+Math.abs(v).toFixed(1)}`;
+  const moves = (t) => {
+    const s = SERIES[t.perf.gen];
+    const close = {}; s.pts.split(' ').forEach((p) => { const [d, v] = p.split(':').map(Number); close[d] = v; });
+    const n = s.days.length - 1, chg = (a, b) => ((1 + a / 100) / (1 + b / 100) - 1) * 100;
+    const today = chg(close[n], close[n - 1]), bench = chg(s.bench[n], s.bench[n - 1]);
+    const [m, d] = s.days[0].split('-').map(Number);
+    return { today, todayVs: `${pct(today - bench)} pts ${t.perf.vs.replace(/^.* pts /, '')}`, since: `Since ${MON[m - 1]} ${d}` };
+  };
+  // col: label / value / vs stacked and right-aligned (B1); row: label over value + vs on one line (B2, Review)
+  const stat = (label, v, dir, vs, kind) => `<div class="st"><span class="t12 n5">${label}</span>${kind === 'col'
+    ? `<span class="t16 md ${dir}">${v}</span><span class="t12 n5">${vs}</span>`
+    : `<span class="val"><span class="t16 md ${dir}">${v}</span><span class="t12 n5">${vs}</span></span>`}</div>`;
+  const statsOf = (t, kind) => {
+    const m = moves(t);
+    return `<div class="pstats ${kind}">${stat('Today', `${pct(m.today)}%`, m.today < 0 ? 'down' : 'up', m.todayVs, kind)}${stat(m.since, t.perf.v, t.perf.dir, t.perf.vs, kind)}</div>`;
+  };
+  const promptOf = (t) => `<span class="sprompt t12 md n9">${img('d-chat-l1.svg')}<span class="ell">Why did ${t.perf.tk === 'Basket' ? 'the basket' : t.perf.tk} ${moves(t).today < 0 ? 'fall' : 'rise'} today?</span></span>`;
+  // B2 / B3: Disagree / Agree as two 36 round icon buttons (white with close-l1, m1 with check-l1)
+  const circleVotes = (v) => `<button class="cv dis" data-act="c-disagree" aria-label="Disagree">${v === 'disagree' ? popIcon(icon('close24', 16), POP) : icon('close24', 16)}</button><button class="cv agr" data-act="c-agree" aria-label="Agree">${v === 'agree' ? popIcon(icon('check24', 16), POP) : icon('check24', 16)}</button>`;
 
   const c1Front = (t, shadow) => {
+    // 无 Status B1 front (Figma Front · Nebius): the Review card's frame, a one-bullet summary, ticker + stats, a prompt
+    if (noStatus) return `<div class="nsfront" data-cswipe><div class="sm">${thesisHead(t, true)}<div class="s3"><p class="t18 md n9">${esc(t.head)}</p>${rvBullet(t.rv[0])}</div></div>
+      <div class="pch"><span class="t14 md n9 nw">${esc(t.perf.tk)}</span>${statsOf(t, 'col')}</div>${promptOf(t)}</div>`;
     const b = t.pts ? t.pts[0] : [plain(t.rv[0][0]), '', t.rv[0][1]];
-    return `<div class="rcard${shadow ? ' sh' : ''}" data-cswipe>${band(t, 'Nov 4 · 8:00 PM ET')}<div class="sum">${thesisHead(t)}<div class="s2"><p class="t18 md n9">${esc(t.head)}</p><div class="bul"><span class="bu t14">•</span><div class="cn"><p class="t14 n9">${esc(b[0])}</p>${srcs(b[2], 'srcs below')}</div></div></div></div></div>`;
+    // 有 Status B1: the status band and summary, then the same ticker + stats card and prompt as 无 Status
+    return `<div class="rcard${shadow ? ' sh' : ''}" data-cswipe>${band(t, 'Nov 4 · 8:00 PM ET')}<div class="sum">${thesisHead(t)}<div class="s2"><p class="t18 md n9">${esc(t.head)}</p><div class="bul"><span class="bu t14">•</span><div class="cn"><p class="t14 n9">${esc(b[0])}</p>${srcs(b[2], 'srcs below')}</div></div></div></div><div class="rext"><div class="pch"><span class="t14 md n9 nw">${esc(t.perf.tk)}</span>${statsOf(t, 'col')}</div>${promptOf(t)}</div></div>`;
   };
-  // only the second card back stays a band; the one right behind the front is the real next card (peekSlot)
-  const backBands = (i) => (DECK7[i + 2] ? `<div class="back k2"><div class="band" style="--sc:${ST[TH[DECK7[i + 2]].st].c}">${tag(TH[DECK7[i + 2]].st)}</div></div>` : '');
-  const c1Block = (i, v) => `<div class="rb"><div class="hd"><div class="tt2"><span class="t14 md n9">Today’s review</span><span class="t12 n5">7 theses updated · 3 status changes</span></div><span class="t12 n5">${i + 1} / 7</span></div>
+  // only the second card back stays a band; the one right behind the front is the real next card (peekSlot).
+  // 无 Status: that back is a plain white card instead (no band to show).
+  const backBands = (i) => (DECK7[i + 2] ? (noStatus ? '<div class="back k2"></div>' : `<div class="back k2"><div class="band" style="--sc:${ST[TH[DECK7[i + 2]].st].c}">${tag(TH[DECK7[i + 2]].st)}</div></div>`) : '');
+  const c1Block = (i, v) => `<div class="rb${noStatus ? ' ns' : ''}"><div class="hd"><div class="tt2"><span class="t14 md n9">Today’s review</span><span class="t12 n5">${noStatus ? '7 theses updated' : '7 theses updated · 3 status changes'}</span></div><span class="t12 n5">${i + 1} / 7</span></div>
     <div class="deck">${backBands(i)}${c1Front(TH[DECK7[i]], v === 'disagree')}</div>
-    <div class="act"><button class="btn-s sec t12 md" data-act="review" data-deck="7" data-from="c">Review all 7</button><div class="vgrp">${c1Votes(v)}</div></div></div>`;
+    <div class="act">${noStatus ? `<button class="ra t12 n9" data-act="review" data-deck="7" data-from="c">Review all 7${img('arrow-right-l2.svg')}</button>` : '<button class="btn-s sec t12 md" data-act="review" data-deck="7" data-from="c">Review all 7</button>'}<div class="vgrp">${c1Votes(v)}</div></div></div>`;
 
   const footer = (i, l12) => `<div class="foot${l12 ? ' l12' : ''}"><span class="t12 n5">${i + 1} / 7</span><button class="ra t12 md n9" data-act="review" data-deck="7" data-from="c">Review all 7${img('arrow-right-l2.svg')}</button></div>`;
   const chartOf = (t) => (t.perf.img ? img(t.perf.img) : genChart(t.perf.gen));
   const c2Block = (i, v) => {
     const t = TH[DECK7[i]];
-    return `<div class="cr2">${i + 2 < 7 ? '<i class="bk3"></i>' : ''}<div class="ccard" data-cswipe>${changePanel(t, true)}
+    // the performance block shows the ticker, chart and today / since stats; a prompt and the two round vote buttons share a
+    // row above the footer. 有 Status keeps the change panel on top, 无 Status drops it.
+    return `<div class="cr2">${i + 2 < 7 ? '<i class="bk3"></i>' : ''}<div class="ccard" data-cswipe>${noStatus ? '' : changePanel(t, true)}
       <div class="body"><div class="s2">${thesisHead(t)}<p class="t18 md n9">${esc(t.head)}</p></div>
-        <div class="perf"><div class="h t14 md"><span class="n9">${esc(t.perf.tk)}</span><span class="${t.perf.dir}">${t.perf.v}</span></div><div class="chart">${chartOf(t)}</div><p class="t12 n5">${t.perf.vs}</p></div>
-        <div class="acts2">${bigVotes(v)}</div></div>${footer(i, false)}</div></div>`;
+        <div class="perf"><div class="h t14 md"><span class="n9">${esc(t.perf.tk)}</span></div><div class="chart">${chartOf(t)}</div>${statsOf(t, 'row')}</div>
+        <div class="pact">${promptOf(t)}<div class="cvs">${circleVotes(v)}</div></div></div>${footer(i, false)}</div></div>`;
   };
   const c3Block = (i, v) => {
     const t = TH[DECK7[i]];
     const s = ST[t.st];
     const line = t.chg ? `Today · ${ST[t.chg[0]].label} →` : `Unchanged · ${t.cur[1]}`;
     return `<div class="ccard" data-cswipe><div class="hero" style="--sc:${s.hex}">${thesisHead(t)}<div class="st"><span class="t12 n5">${line}</span><span class="t24 md" style="color:${s.c}">${s.label}</span></div></div>
-      <div class="c3body"><p class="t16 md n9">${esc(t.head)}</p><div class="acts2">${bigVotes(v)}</div></div>${footer(i, true)}</div>`;
+      <div class="c3body"><p class="t16 md n9">${esc(t.head)}</p><div class="pact">${promptOf(t)}<div class="cvs">${circleVotes(v)}</div></div></div>${footer(i, true)}</div>`;
   };
 
   /* ── charts generated from PRD prices (same vocabulary as the NBIS chart in Figma) ── */
@@ -848,15 +985,42 @@
   };
 
   const chatBlock = (card, i, v) => (card === 'c1' ? c1Block(i, v) : card === 'c2' ? c2Block(i, v) : c3Block(i, v));
-  const chatScreen = (o, S) => `<div class="scr chat">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div>
-      <div class="scroll" data-chat><div class="cbody${o.card === 'c1' ? ' end' : ''}" data-cbody><div class="tdiv t12">8:00 PM</div>${agentBubble('Today’s read on your 7 theses is in. 3 changed status and the other 4 held.')}<div data-cslot>${chatBlock(o.card, 0, S.votes[DECK7[0]])}</div></div></div>
+  // B4 · Today's review 置底 (无 Status · Figma Thesis-MVP 14817:87080): an ordinary conversation, with today's review pinned
+  // just above the composer instead of arriving as a message. The thread scrolls under the fading header and the pinned card.
+  const STRATEGY = ['# Buy the Dip Strategy v2 (LLM Reference)', 'Mean-reversion strategy on BTC/USDT 6h bars using RSI(14) and Bollinger Bands(20).', '## Parameters', '- StartDate: 2025-01-01T00:00:00.000Z', '- EndDate: current time (Date.now())', '- Symbol: BINANCE_SPOT_BTC_USDT', '- Interval: 6h (tick = 6 hours)', '- RSI period: 14', '- Bollinger Bands period: 20, multiplier: 2', '- rsiLowerBound: 32 (arms buy signal)', '- rsiFloor: 30 (confirms recovery)', '- maxWaitTicksForBottom: 5', '- STOP_LOSS_PCT: 2%', '- FREEZE_TICKS: 4', '- SELL_WATCH_TICKS: 4', '- TRAIL_TIMEOUT_TICKS: 4', '- Fees: 0.1%, Slippage: 0.05%', '## State', 'Buy state: readyToBuy (bool), bottomPrice (float|null), waitBottomFromTick (timestamp|null)', 'Position state: entryPrice (float|null), freezeUntilTick (timestamp|null)'];
+  const pinnedChat = () => `<div class="scr chat pin">
+      <div class="pinwrap"><div class="scroll" data-chat><div class="cbody pinbody">
+        <div class="tdiv t12">Sep 3, 11:40 PM</div>
+        <div class="ab"><div class="bub t14 n9"><p>Hey, I'm Alva, your AI investing agent.</p><p>Ask me for market research, or set up live automations to watch your portfolio, tickers, and market voices. Pick what you want me to help with first.</p></div></div>
+        <div class="ub"><div class="bub t14 n9">Create today's FinTwit Digest from my chosen FinTwit list. Highlight the key market insights and trending discussions in a concise summary.</div></div>
+        <div class="ab"><div class="bub col t14 n9">
+          <span class="auto t12 n9">${img('b4-dot-green.svg', 'dot')}nvda-macd-hft-notify${img('arrow-right-l2.svg', 'ar')}</span>
+          <p class="t16 md mu">$MU</p>
+          <div><p><b>Bullish</b>: </p><p>9 FinTwit accounts (analysisop, aggresivevalue, among others); Bullish sentiment centers on improving memory economics and near-term semiconductor catalysts.</p></div>
+          <div><p><b>The point:</b></p><p>Zephyr: HBM contract pricing is expected to reach at least $30 per GB next year, supporting a more constructive memory-economics setup</p><p>Futurum Equities: Upcoming earnings and related semiconductor read-throughs are being framed as active catalysts for memory and AI-hardware names</p></div>
+          <div><p><b>Risk:</b></p><p>Jason's Chips: Near-term risk-off pressure in semiconductors could overpower bullish memory-pricing views if crowded AI-hardware exposure continues to be repriced before earnings</p></div>
+          <span class="btn-s sec wbg t12 md">Connect Social Account</span></div></div>
+        <div class="tdiv t12">Sep 4, 8:02 AM</div>
+        <div class="ub long"><div class="bub"><div class="clip t14 n9">${STRATEGY.map((l) => `<p>${esc(l)}</p>`).join('')}</div><span class="smore t12 n5">Show more</span></div></div>
+        <div class="tdiv t12">Sep 4, 8:05 AM</div>
+        <div class="ab"><div class="bub col t14 n9"><div><p>On it. I'll read today's posts from your 8 selected FinTwit accounts and condense them into one digest — top calls, ticker mentions, and sentiment shifts.</p><p>Want me to deliver this automatically each morning?</p></div>
+          <span class="lrow">${img('b4-logo-podcast.png', 'lg')}<span class="t14 n7 dl">BTC Ultimate AI Trader</span></span></div></div>
+        <div class="fcard">${img('b4-file-preview.png', 'pv')}<div class="info"><span class="ic">${img('b4-file-l.svg')}</span><div class="m"><span class="t14 n9 ell">fintwit-digest</span><span class="t12 n5">MD</span></div>${img('b4-more-l1.svg', 'mo')}</div></div>
+      </div></div>
+      <div class="pinned">${img('scroll-l.svg', 'ic28')}<div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5">7 theses updated</span></div><button class="btn-xs t12 md" data-act="review" data-deck="7">Review</button></div></div>
+      <div class="pintop">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div></div>
       <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`;
 
-  const rvBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc')}</p></div>`;
-  const reviewFront = (t) => `<div class="rfront" data-front><div class="sm">${thesisHead(t, true)}${changePanel(t)}<div class="s3"><p class="t20 md n9">${esc(t.head)}</p>${t.rv.map(rvBullet).join('')}</div></div>
-    <div class="pcard"><div class="h t14 md"><span class="n9">${esc(t.perf.tk)}</span><span class="${t.perf.dir}">${t.perf.v}</span></div><div class="chart">${chartOf(t)}</div><p class="t12 n5">${t.perf.vs}</p></div></div>`;
+  const chatScreen = (o, S) => (o.card === 'pin' ? pinnedChat() : `<div class="scr chat">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div>
+      <div class="scroll" data-chat><div class="cbody${o.card === 'c1' ? ' end' : ''}" data-cbody><div class="tdiv t12">8:00 PM</div>${agentBubble(noStatus ? 'Today’s read on your 7 theses is in.' : 'Today’s read on your 7 theses is in. 3 changed status and the other 4 held.')}<div data-cslot>${chatBlock(o.card, 0, S.votes[DECK7[0]])}</div></div></div>
+      <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`);
 
-  const reviewScreen = (style, n) => `<div class="scr rv ${style}">${style === 'r1' ? '<i class="wash"></i>' : ''}${statusBar(style === 'r2')}
+  const rvBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc')}</p></div>`;
+  const reviewFront = (t) => `<div class="rfront" data-front><div class="sm">${thesisHead(t, true)}${noStatus ? '' : changePanel(t)}<div class="s3"><p class="t20 md n9">${esc(t.head)}</p>${t.rv.map(rvBullet).join('')}</div></div>
+    <div class="pcard"><div class="h t14 md"><span class="n9">${esc(t.perf.tk)}</span></div><div class="chart">${chartOf(t)}</div>${statsOf(t, 'row')}</div>${promptOf(t)}</div>`;
+
+  // 无 Status: R1 is a plain white page (no status wash) and the progress is n9 rather than each thesis' status colour
+  const reviewScreen = (style, n) => `<div class="scr rv ${style}">${style === 'r1' && !noStatus ? '<i class="wash"></i>' : ''}${statusBar(style === 'r2')}
     <div class="tb"><button class="x" data-act="rv-close" aria-label="Close">${icon('close20', 20)}</button><p class="t16 ttl grow ell">Today’s review</p><span class="t12 cnt nw" data-cnt>1 / ${n}</span></div>
     <div class="hd"><div class="prog" data-prog>${'<i></i>'.repeat(n)}</div></div>
     <div class="bd"><div class="rdeck" data-deck></div></div>
@@ -897,7 +1061,9 @@
   // Status timeline. "Show N more" unfolds the other days of that segment (one segment open at a time, like feed-app);
   // the toggle then reads "Show less" at the end of what it opened.
   const MORE = window.TSE_MORE || {};
-  const dayBlock = (d, tail) => `<div class="day"><div class="dh"><span class="t12 n5">${d.date}</span><p class="t14 md n9">${esc(d.head)}</p></div>${d.bul.map(rvBullet).join('')}${tail}</div>`;
+  // a timeline bullet on the detail page: its source stack opens Similar signals
+  const dayBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc tap', ' data-act="similar" role="button" aria-label="Similar signals"')}</p></div>`;
+  const dayBlock = (d, tail) => `<div class="day"><div class="dh"><span class="t12 n5">${d.date}</span><p class="t14 md n9">${esc(d.head)}</p></div>${d.bul.map(dayBullet).join('')}${tail}</div>`;
   const timeline = (thesis, open) => DETAIL[thesis].tl.map((g, i) => {
     const extra = g.more ? ((MORE[thesis] || {})[g.st] || []) : [];
     const isOpen = open === i && extra.length > 0;
@@ -906,6 +1072,19 @@
     return `<div class="tseg" data-seg="${i}"><div class="rl">${mark(g.st)}${g.last ? '' : '<i class="line"></i>'}</div><div class="cn"><div class="sh"><span class="t14 md n9 nw">${ST[g.st].label}</span><span class="t12 n5 grow">${g.range}</span></div>
       ${days.map((d, k) => dayBlock(d, g.inDay && k === days.length - 1 ? tog : '')).join('')}${g.inDay ? '' : tog}</div></div>`;
   }).join('');
+
+  // 无 Status timeline (Figma 14812:65214 · Timeline / Days): one line of days, newest first — today and the three days
+  // before it, each with date, headline and bullets. The days are the status timeline's days in order (each segment's own
+  // day, then the days its "Show N more" holds), without the status segments.
+  const NS_DAYS = 4;
+  const dayline = (thesis) => {
+    const days = DETAIL[thesis].tl.flatMap((g) => [{ date: g.date, head: g.head, bul: g.bul }, ...((MORE[thesis] || {})[g.st] || [])]).slice(0, NS_DAYS);
+    return `<div class="dl">${days.map((d, k) => {
+      const last = k === days.length - 1;
+      return `<div class="dy${last ? ' end' : ''}"><div class="rl"><i class="dot"></i>${last ? '' : '<i class="line"></i>'}</div><div class="cn"><div class="dh"><span class="t12 ${d.date === 'Today' ? 'n9' : 'n5'}">${d.date}</span><p class="t14 md n9">${esc(d.head)}</p></div>${d.bul.map(dayBullet).join('')}</div></div>`;
+    }).join('')}</div>`;
+  };
+  const THINK = img('think-l.svg', 'think');
 
   // Floating "Show less" (feed-app rule): the open segment is taller than the viewport, fills at least 80% of it,
   // and its own Show less is still below the fold.
@@ -940,11 +1119,16 @@
           <div class="rtk">${d.tickers.map(([lg, tk]) => `<span class="tk t12">${img(lg, 'lg')}${tk}<span class="dial">${img('arrow-up-l1-white.svg')}</span></span>`).join('')}</div>
           <div>${body}</div><div class="prow">${d.perf.map(perfCard).join('')}</div></div></div>
         ${d.rail ? `<div class="upd"><div class="rail" style="padding-bottom:3px"><i class="line"></i>${img('d-rail-dot.svg')}</div><div class="viewall t12">View all 12 updates${img('arrow-right-l2.svg')}</div></div>` : ''}
-        <div style="padding-top:16px"><div class="dtabs"><span class="dtab on t14">Status</span><span class="dtab t14">${img('d-live-l.svg')}Signals</span><span class="dtab t14">Related thesis</span></div>
-          <div class="ov"><div class="overall" style="--ow:${s.ow}"><div class="srow"><span class="stag">${mark(d.status)}<span class="t14 md n9">${s.label}</span></span>${img(d.explain, '', `style="width:${d.explainSize}px;height:${d.explainSize}px"`)}<span class="t12 n5 grow" style="text-align:right">Updated 4 Nov, 8:00 PM ET</span></div>
+        <div style="padding-top:16px"><div class="dtabs"><span class="dtab on t14">${noStatus ? 'Overview' : 'Status'}</span><span class="dtab t14">${img('d-live-l.svg')}Signals</span><span class="dtab t14">Related thesis</span></div>
+          <div class="ov">${noStatus
+            ? `<div class="overall ns" style="--ow:rgba(73,163,166,.06)">${THINK}<div class="srow"><span class="t12 n5">Updated 4 Nov, 8:00 PM ET</span></div>
+            <div class="wsec"><p class="t14 md sup">What supports</p>${d.supports.map(plainBullet).join('')}</div>
+            <div class="wsec"><p class="t14 md n9">What challenges</p>${d.challenges.map(plainBullet).join('')}</div></div>
+            <div class="tl">${dayline(o.thesis)}</div>`
+            : `<div class="overall" style="--ow:${s.ow}"><div class="srow"><span class="stag">${mark(d.status)}<span class="t14 md n9">${s.label}</span></span>${img(d.explain, '', `style="width:${d.explainSize}px;height:${d.explainSize}px"`)}<span class="t12 n5 grow" style="text-align:right">Updated 4 Nov, 8:00 PM ET</span></div>
             <div class="wsec"><p class="t14 md n9">What supports</p>${d.supports.map(plainBullet).join('')}</div>
             <div class="wsec"><p class="t14 md n9">What challenges</p>${d.challenges.map(plainBullet).join('')}</div></div>
-            <div class="tl" data-tl>${timeline(o.thesis, -1)}</div></div></div>
+            <div class="tl" data-tl>${timeline(o.thesis, -1)}</div>`}</div></div>
       </div>
       <div class="sugg">${['Summarize signals', 'What changed today?', 'Bull vs bear'].map((t) => `<span class="sbtn t12 md">${img('d-chat-l1.svg')}${t}</span>`).join('')}</div>
       <button class="fless t14 md" data-act="seg-collapse">Show less<svg class="ic" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path transform="rotate(180 6 6)" fill="currentColor" d="M1.96963 4.06638L6.00013 8.09689L10.0306 4.06638C10.1478 3.94923 10.3377 3.94923 10.4549 4.06638C10.5721 4.18354 10.5721 4.37349 10.4549 4.49065L6.21227 8.73329C6.09511 8.85045 5.90516 8.85045 5.788 8.73329L1.54536 4.49065C1.4282 4.37349 1.4282 4.18354 1.54536 4.06638C1.66252 3.94923 1.85247 3.94923 1.96963 4.06638Z"/></svg></button></div>
@@ -967,7 +1151,7 @@
       { id: 'b1', k: 'B1', label: 'Alva 每天 20:00 发一条状态消息', screen: 'chat', opts: { card: 'c1' } },
       { id: 'b2', k: 'B2', label: '白卡 · 牌堆 + 走势', screen: 'chat', opts: { card: 'c2' } },
       { id: 'b3', k: 'B3', label: '白卡 · 状态色卡头', screen: 'chat', opts: { card: 'c3' } },
-      { id: 'b-reply', k: '→', label: '7 张看完后，Alva 统一问不同意的原因（B1–B3 共用）', screen: 'chat', opts: { card: 'c1' }, state: 'reply' },
+      { id: 'b4', k: 'B4', label: 'Today’s review 置底', screen: 'chat', opts: { card: 'pin' } },
     ] },
     { id: 'C', title: '卡上直接表态', items: [
       { id: 'c1', k: 'C1', label: '要点用圆点，来源靠右', screen: 'feed', opts: { marker: 'dot' } },
@@ -975,7 +1159,7 @@
       { id: 'c-sheet', k: '→', label: '点不同意后弹出原因面板（C1、C2 共用）', screen: 'feed', opts: { marker: 'dot' }, state: 'sheet' },
     ] },
     { id: 'R', title: '整页 Review', items: [
-      { id: 'r1', k: 'R1', label: '状态色沉浸', screen: 'review', opts: { style: 'r1' } },
+      { id: 'r1', k: 'R1', label: '状态色沉浸', nsLabel: '白底', screen: 'review', opts: { style: 'r1' } },
       { id: 'r2', k: 'R2', label: '品牌色底', screen: 'review', opts: { style: 'r2' } },
     ] },
     { id: 'D', title: '详情页', items: [
@@ -1012,16 +1196,11 @@
     phone.appendChild(base);
     if (scheme.screen === 'review') initReview(phone, base, null, DECK4, 0);
     if (scheme.screen === 'detail') initDetail(base);
-    if (scheme.screen === 'chat') bindChatSwipe(phone);
+    if (scheme.screen === 'chat' && scheme.opts.card !== 'pin') bindChatSwipe(phone);
+    // B4 opens on the latest messages, like any chat
+    if (scheme.opts.card === 'pin') requestAnimationFrame(() => { const sc = phone.querySelector('[data-chat]'); sc.scrollTop = sc.scrollHeight; });
     if (scheme.opts.entry === 'b2') bindB2(phone);
     if (scheme.state === 'sheet') { setVote(phone, 'nebius', 'disagree'); openSheet(phone, true); }
-    if (scheme.state === 'reply') {
-      // the end of the deck: all 7 voted, Nebius and BTC disagreed, Alva's one question already in
-      DECK7.forEach((k) => { S.votes[k] = k === 'nebius' || k === 'btc' ? 'disagree' : 'agree'; });
-      S.ci = DECK7.length - 1;
-      renderChatCard(phone);
-      syncSummary(phone, true);
-    }
     phone.addEventListener('click', (e) => onClick(e, phone));
     return phone;
   }
@@ -1052,46 +1231,17 @@
   }
 
   /* votes are shared by every surface in a phone: the Alva chat cards (B), the card-stance rows (C) and the Review deck */
-  function setVote(phone, key, v, instant, pop) {
+  function setVote(phone, key, v, pop) {
     const S = phone._S;
     S.votes[key] = v;
     POP = !!(pop && v);
     phone.querySelectorAll(`[data-vslot="${key}"]`).forEach((slot) => { slot.innerHTML = voteRow(key, v); });
     if (phone.querySelector('[data-cslot]')) {
       if (DECK7[S.ci] === key && !S.cbusy) renderChatCard(phone); // not mid-move: the deck redraws itself after the swap
-      syncSummary(phone, instant);
     }
     POP = false;
   }
 
-  // In the chat, Agree and Disagree both just mark the card and move on. Once the last of today's 7 has a vote (from
-  // the chat deck or the Review opened from it), Alva sends one message under the deck about every disagreement;
-  // later vote changes keep that message in step instead of adding new ones.
-  function syncSummary(phone, instant) {
-    const S = phone._S;
-    clearTimeout(S.sumT);
-    if (!S.summed && !S.votes[DECK7[DECK7.length - 1]]) return;
-    const post = () => {
-      const body = phone.querySelector('[data-cbody]');
-      const sc = phone.querySelector('[data-chat]');
-      const html = summaryBubble(DECK7.filter((k) => S.votes[k] === 'disagree').map((k) => TH[k]));
-      const old = body.querySelector('[data-follow]');
-      if (old) {
-        // the message grows or shrinks with the vote; if the chat sat at its end, keep the end in view
-        const atEnd = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 4;
-        old.outerHTML = html;
-        if (atEnd) sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
-        return;
-      }
-      body.insertAdjacentHTML('beforeend', html);
-      body.classList.add('end');
-      S.summed = true;
-      if (instant) requestAnimationFrame(() => { sc.scrollTop = sc.scrollHeight; });
-      else sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
-    };
-    // a reply-like beat after the last vote; later edits land at once
-    if (instant || S.summed) post(); else S.sumT = setTimeout(post, 700);
-  }
 
   function renderChatCard(phone) {
     const S = phone._S;
@@ -1104,7 +1254,9 @@
   // it slides forward into the front's place before the deck re-renders. geo: inset (each side), dy (peek), rot, op.
   function peekSlot(front, geo) {
     const deck = front.parentElement;
-    if (getComputedStyle(deck).position === 'static') deck.style.position = 'relative';
+    // a deck built before the phone is on the page has no computed style yet (B3's deck is the bare chat slot), so
+    // position it then too; the peek card is laid against the deck, not the whole screen
+    if (!deck.isConnected || getComputedStyle(deck).position === 'static') deck.style.position = 'relative';
     let pk = deck.querySelector(':scope > .pk');
     if (!pk) { pk = document.createElement('div'); pk.className = 'pk'; pk.inert = true; }
     deck.insertBefore(pk, front);
@@ -1114,9 +1266,12 @@
     const layout = () => {
       const W = front.offsetWidth;
       if (!W) return;
+      // laid over the front's own box, so a deck with side padding (无 Status B1) still gets a front-sized peek
+      pk.style.left = front.offsetLeft + 'px'; pk.style.right = 'auto'; pk.style.width = W + 'px';
       pk.style.top = front.offsetTop + 'px';
-      pk.style.height = front.offsetHeight + 'px';
-      pk.style.transform = `translateY(${-(geo.dy || 0)}px) scale(${(W - 2 * (geo.inset || 0)) / W}) rotate(${geo.rot || 0}deg)`;
+      pk.style.height = front.offsetHeight + (geo.dh || 0) + 'px';
+      const sx = (W - 2 * (geo.inset || 0)) / W; // geo.sy: a separate height scale when the plate's height is set by dh
+      pk.style.transform = `translate(${geo.dx || 0}px, ${-(geo.dy || 0)}px) scale(${sx}, ${geo.sy ?? sx}) rotate(${geo.rot || 0}deg)`;
     };
     if (deck._peekRO) deck._peekRO.disconnect();
     deck._peekRO = new ResizeObserver(layout);
@@ -1184,7 +1339,17 @@
   };
   // where each scheme's back plate lands: the pose of the peek card (C1 k2: top 6 / 242 tall / -3deg → the peek's
   // 8px top and 2.5deg tilt; C2 bk3: 24px inset at top 0 → the peek's 12px inset at top 8)
-  const PLATE_STEP = { c1: () => 'translate(-5.3px, 1.9px) rotate(2.5deg)', c2: (W) => `translateY(8px) scaleX(${((W - 24) / (W - 48)).toFixed(4)})` };
+  // (无 Status C1 k2: a 364 × 208 white card centred 1.8 left, top 8, -2.5deg → the peek's 364 width, 8px top 6.8 right, 2.5deg)
+  const PLATE_STEP = {
+    // 无 Status: the plate is centred 1.4 right of the deck and turns about its centre (half-height a), so the move that puts
+    // its top-centre on the peek's (6.8 right, top 8, turning about its top-centre) depends on its height
+    c1: (W, H) => {
+      if (!noStatus) return 'translate(-5.3px, 1.9px) rotate(2.5deg)';
+      const a = H / 2, r = (2.5 * Math.PI) / 180;
+      return `translate(${(5.4 - a * Math.sin(r)).toFixed(2)}px, ${(-a * (1 - Math.cos(r))).toFixed(2)}px) rotate(2.5deg)`;
+    },
+    c2: (W) => `translateY(8px) scaleX(${((W - 24) / (W - 48)).toFixed(4)})`,
+  };
   // dir: where a vote sends the front card, 1 = right (Agree) / -1 = left (Disagree), as in the Review
   function moveChat(phone, next, kind, dir = -1) {
     const S = phone._S, card = phone._scheme.opts.card, { ms, ease } = MOVE[kind];
@@ -1200,7 +1365,7 @@
     if (PLATE_STEP[card]) deck.querySelectorAll(':scope > .back, :scope > .bk3').forEach((b) => {
       b.style.transition = `transform ${ms}ms ${ease}, background-color ${ms}ms ease`;
       if (card === 'c2') { b.style.transformOrigin = '50% 0'; b.style.backgroundColor = '#fff'; }
-      b.style.transform = PLATE_STEP[card](deck.offsetWidth);
+      b.style.transform = PLATE_STEP[card](deck.offsetWidth, b.offsetHeight);
     });
     const cnt = phone.querySelector('[data-cslot] .rb .hd > span:last-child');
     if (cnt) cnt.textContent = `${next + 1} / 7`;
@@ -1237,10 +1402,11 @@
   }
 
   function bindChatSwipe(phone) {
-    const GEO = { c1: { dy: 12, rot: 2.5 }, c2: { inset: 12, dy: 8 }, c3: {} };
+    // 无 Status C1 (Figma "Back · AI boosts lab tools"): 364 wide and 14 taller than the front, 6.8 right of centre, 2.5deg
+    const GEO = { c1: { dy: 12, rot: 2.5 }, c1ns: { inset: -2, dx: 6.8, dy: 12, rot: 2.5, dh: 14, sy: 1 }, c2: { inset: 12, dy: 8 }, c3: {} };
     phone._rebindChat = () => {
       const S = phone._S, card = phone._scheme.opts.card, front = phone.querySelector('[data-cswipe]');
-      const slot = phone._chatSlot = peekSlot(front, GEO[card]);
+      const slot = phone._chatSlot = peekSlot(front, GEO[card === 'c1' && noStatus ? 'c1ns' : card]);
       // as in the full-screen Review, both directions vote and move on, so the card behind is always the next thesis
       const j = S.ci + 1;
       slot.set(j < DECK7.length ? cardOf(chatBlock(card, j, S.votes[DECK7[j]])) : '');
@@ -1288,11 +1454,11 @@
     const act = t.dataset.act;
     const S = phone._S;
     if (act === 'pill') { t.parentElement.querySelectorAll('.pill').forEach((p) => p.classList.toggle('on', p === t)); return; }
-    if (act === 'a-agree') { const k = t.dataset.id; setVote(phone, k, S.votes[k] === 'agree' ? '' : 'agree', false, true); return; }
+    if (act === 'a-agree') { const k = t.dataset.id; setVote(phone, k, S.votes[k] === 'agree' ? '' : 'agree', true); return; }
     if (act === 'a-disagree') {
       const k = t.dataset.id;
       if (S.votes[k] === 'disagree') { setVote(phone, k, ''); return; }
-      setVote(phone, k, 'disagree', false, true);
+      setVote(phone, k, 'disagree', true);
       openSheet(phone);
       return;
     }
@@ -1303,7 +1469,7 @@
       if (S.cbusy) return;
       const k = DECK7[S.ci]; const v = act === 'c-agree' ? 'agree' : 'disagree';
       const nv = S.votes[k] === v ? '' : v;
-      setVote(phone, k, nv, false, true);
+      setVote(phone, k, nv, true);
       if (nv && S.ci + 1 < DECK7.length) advanceChat(phone, nv === 'agree' ? 1 : -1);
       return;
     }
@@ -1312,6 +1478,12 @@
       const deck = t.dataset.deck === '4' ? DECK4 : DECK7;
       const at = t.dataset.at != null ? +t.dataset.at : t.dataset.from === 'c' ? S.ci : t.dataset.from === 'b2' ? S.b2 : 0;
       openReview(phone, deck, at);
+      return;
+    }
+    if (act === 'similar') {
+      e.stopPropagation();
+      const node = frag(similarScreen());
+      node._layer = layerIn(phone, node, 'push');
       return;
     }
     if (act === 'detail') {
@@ -1376,7 +1548,7 @@
       // both directions vote and move on, so the card behind is always the next thesis
       slot = null;
       if (st.i + 1 < deck.length) { slot = peekSlot(box.querySelector('[data-front]'), { inset: 12, dy: 8, op: r2 ? 0.6 : 1 }); slot.set(reviewFront(TH[deck[st.i + 1]])); }
-      prog.forEach((p, k) => { p.classList.toggle('on', k <= st.i); if (!r2) p.style.background = k <= st.i ? ST[TH[deck[k]].st].c : ''; });
+      prog.forEach((p, k) => { p.classList.toggle('on', k <= st.i); if (!r2) p.style.background = k <= st.i ? (noStatus ? 'var(--text-n9)' : ST[TH[deck[k]].st].c) : ''; });
       cnt.textContent = `${st.i + 1} / ${deck.length}`;
       swipeable(box.querySelector('[data-front]'), (dir) => { vote(dir > 0 ? 'agree' : 'disagree', true); return true; }, { onMove: lean });
     };
@@ -1416,20 +1588,35 @@
   let lastFeed = byId[current].screen === 'feed' ? current : (byId[store.get('feed')] ? store.get('feed') : 'c1');
   let compare = store.get('cmp') === '1';
   reviewStyle = store.get('rv') === 'r2' ? 'r2' : 'r1';
+  noStatus = qs.has('ns') ? qs.get('ns') !== '0' : store.get('ns') === '1';
+  // a link straight to a scheme the stored mode hides (e.g. #b4 with 有 Status) opens it in the mode that has it
+  const setMode_ns = (v) => { noStatus = v; store.set('ns', v ? '1' : '0'); };
+  if (!shown(current)) setMode_ns(!noStatus);
+  // when the switch hides the scheme on screen, move to the first one left in its group (or the first one shown)
+  const fallback = (id) => (ALL.find((x) => x.group === byId[id].group && shown(x.id)) || ALL.find((x) => shown(x.id))).id;
+  const visible = () => ALL.filter((x) => shown(x.id));
 
   function buildPanel() {
-    const opt = (it) => `<button class="opt${it.state ? ' state' : ''}${it.id === current ? ' on' : ''}" data-id="${it.id}"><span class="k">${it.k}</span><span>${it.label}</span></button>`;
+    const label = (it) => (noStatus && it.nsLabel ? it.nsLabel : it.label);
+    const opt = (it) => `<button class="opt${it.state ? ' state' : ''}${it.id === current ? ' on' : ''}" data-id="${it.id}"><span class="k">${it.k}</span><span>${label(it)}</span></button>`;
     const curGroup = byId[current].group;
-    $('groups').innerHTML = SECTIONS.map((sec) => `<section class="psec"><h2>${sec.title}</h2>${sec.groups.map((id) => {
-      const g = GROUPS.find((x) => x.id === id);
-      if (sec.groups.length === 1) return `<div class="grp">${g.items.map(opt).join('')}</div>`;
-      return `<div class="grp nested${g.id === curGroup ? ' cur' : ''}"><h3><span class="gk">${g.id}</span><span>${g.title}</span></h3>${g.items.map(opt).join('')}</div>`;
-    }).join('')}</section>`).join('');
+    // schemes the chosen mode has no design for are left out, and so is a group or page level left empty
+    const items = (g) => g.items.filter((it) => shown(it.id));
+    $('groups').innerHTML = SECTIONS.map((sec) => {
+      const gs = sec.groups.map((id) => GROUPS.find((x) => x.id === id)).filter((g) => items(g).length);
+      if (!gs.length) return '';
+      return `<section class="psec"><h2>${sec.title}</h2>${gs.map((g) => {
+        if (sec.groups.length === 1) return `<div class="grp">${items(g).map(opt).join('')}</div>`;
+        return `<div class="grp nested${g.id === curGroup ? ' cur' : ''}"><h3><span class="gk">${g.id}</span><span>${g.title}</span></h3>${items(g).map(opt).join('')}</div>`;
+      }).join('')}</section>`;
+    }).join('');
+    document.querySelectorAll('#stSeg button').forEach((b) => b.classList.toggle('on', b.dataset.v === (noStatus ? 'off' : 'on')));
     document.querySelectorAll('#rvSeg button').forEach((b) => b.classList.toggle('on', b.dataset.v === reviewStyle));
+    document.querySelector('#rvSeg [data-v="r1"]').textContent = noStatus ? 'R1 白底' : 'R1 状态色';
     document.querySelectorAll('#cmpSeg button').forEach((b) => b.classList.toggle('on', b.dataset.v === (compare ? '1' : '0')));
     const s = byId[current];
     $('mbarK').textContent = s.k === '→' ? `${s.group} →` : s.k;
-    $('mbarL').textContent = s.label;
+    $('mbarL').textContent = label(s) + (noStatus && NS_OK.has(s.id) ? ' · 无 Status' : '');
   }
 
   let cells = [];
@@ -1437,7 +1624,7 @@
     stage.innerHTML = '';
     cells = [];
     const s = byId[current];
-    const list = compare && !mweb && !solo ? ALL.filter((x) => x.group === s.group) : [s];
+    const list = compare && !mweb && !solo ? ALL.filter((x) => x.group === s.group && shown(x.id)) : [s];
     list.forEach((sc) => {
       const cell = document.createElement('div');
       cell.className = 'cell';
@@ -1475,6 +1662,7 @@
 
   function select(id) {
     if (!byId[id]) return;
+    if (!shown(id)) setMode_ns(!noStatus); // e.g. a hash change to a scheme only the other mode has
     current = id;
     store.set('cur', id);
     if (byId[id].screen === 'feed') { lastFeed = id; store.set('feed', id); }
@@ -1491,6 +1679,11 @@
   });
   $('groups').addEventListener('click', (e) => { const b = e.target.closest('.opt'); if (!b) return; select(b.dataset.id); closePanel(); });
   $('rvSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; reviewStyle = b.dataset.v; store.set('rv', reviewStyle); buildPanel(); });
+  $('stSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    setMode_ns(b.dataset.v === 'off');
+    if (shown(current)) { buildPanel(); renderStage(); } else select(fallback(current));
+  });
   $('cmpSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; compare = b.dataset.v === '1'; store.set('cmp', compare ? '1' : '0'); buildPanel(); renderStage(); });
   $('resetBtn').addEventListener('click', () => { renderStage(); closePanel(); });
   addEventListener('resize', fit);
@@ -1498,9 +1691,9 @@
   addEventListener('hashchange', () => { const id = location.hash.slice(1); if (id !== current && byId[id]) select(id); });
   addEventListener('keydown', (e) => {
     if (mweb || e.target.closest('textarea')) return;
-    const i = ALL.findIndex((x) => x.id === current);
-    if (e.key === 'ArrowDown') { e.preventDefault(); select(ALL[(i + 1) % ALL.length].id); }
-    if (e.key === 'ArrowUp') { e.preventDefault(); select(ALL[(i - 1 + ALL.length) % ALL.length].id); }
+    const V = visible(), i = V.findIndex((x) => x.id === current);
+    if (e.key === 'ArrowDown') { e.preventDefault(); select(V[(i + 1) % V.length].id); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); select(V[(i - 1 + V.length) % V.length].id); }
   });
 
   setMode();
