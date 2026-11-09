@@ -607,23 +607,33 @@ ${renderList(files)}
       (function () {
         var tabs = [].slice.call(document.querySelectorAll('.demo-tab'));
         var rows = [].slice.call(document.querySelectorAll('.demo-row'));
+        // The chosen author tab survives a refresh or a trip into a demo and back.
+        var KEY = 'demo-index.filter';
+        function apply(tab) {
+          var filter = tab.getAttribute('data-filter');
+          tabs.forEach(function (other) {
+            var on = other === tab;
+            other.classList.toggle('is-active', on);
+            other.setAttribute('aria-selected', String(on));
+          });
+          var first = null;
+          rows.forEach(function (row) {
+            row.hidden = filter !== 'all' && row.getAttribute('data-author') !== filter;
+            if (!row.hidden && !first) first = row;
+            row.classList.remove('is-first');
+          });
+          if (first) first.classList.add('is-first');
+        }
         tabs.forEach(function (tab) {
           tab.addEventListener('click', function () {
-            var filter = tab.getAttribute('data-filter');
-            tabs.forEach(function (other) {
-              var on = other === tab;
-              other.classList.toggle('is-active', on);
-              other.setAttribute('aria-selected', String(on));
-            });
-            var first = null;
-            rows.forEach(function (row) {
-              row.hidden = filter !== 'all' && row.getAttribute('data-author') !== filter;
-              if (!row.hidden && !first) first = row;
-              row.classList.remove('is-first');
-            });
-            if (first) first.classList.add('is-first');
+            apply(tab);
+            try { localStorage.setItem(KEY, tab.getAttribute('data-filter')); } catch (e) { /* storage unavailable */ }
           });
         });
+        var saved = null;
+        try { saved = localStorage.getItem(KEY); } catch (e) { /* storage unavailable */ }
+        var savedTab = saved && tabs.filter(function (tab) { return tab.getAttribute('data-filter') === saved; })[0];
+        if (savedTab) apply(savedTab);
       })();
     </script>
     <script src="/demo/_switcher.js" defer></script>
