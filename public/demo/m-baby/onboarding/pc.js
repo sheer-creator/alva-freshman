@@ -445,49 +445,52 @@ async function showTrack(from, { entering = false } = {}) {
   if (!alive) return;
   await p2(card, [{ transform: `translateY(${dy}px)` }, { transform: 'none' }], 760, { easing: 'cubic-bezier(.45,0,.2,1)' });
   if (!alive) return;
-  // 2 · Signals title + the analysis card unfold under the thesis.
+  // 2 · Signals title + an analysis card unfold under the thesis.
+  // 3 · Each analysis card works for a while, then turns into a signal in place (420, EASE_IO).
+  //     After the new signal has settled (+200), a fresh analysis card opens above it.
+  //     Signals arrive C, B, A, so the newest is always on top.
   title.style.opacity = '';
-  const analysis = analyzingCard(api), reveal = node('div', 'track-analysis-reveal'); reveal.append(analysis); title.after(reveal);
-  const h = reveal.offsetHeight;
   p2(title, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], 320);
-  await p2(reveal, [{ height: '0px', opacity: 0, marginTop: '-8px' }, { height: `${h}px`, opacity: 1, marginTop: '0px' }], 520);
-  if (!alive) return;
+  let analysis = null, reveal = null;
+  const openAnalysis = async (first) => {
+    analysis = analyzingCard(api); reveal = node('div', 'track-analysis-reveal'); reveal.append(analysis); title.after(reveal);
+    const h = reveal.offsetHeight;
+    if (first) await p2(reveal, [{ height: '0px', opacity: 0, marginTop: '-8px' }, { height: `${h}px`, opacity: 1, marginTop: '0px' }], 520);
+    else await p2(reveal, [{ height: '0px', opacity: 0, marginTop: '-12px' }, { height: `${h}px`, opacity: 1, marginTop: '0px' }], 400);
+    // typewriter task line on this card
+    const card = analysis, label = card.querySelector('.analysis-task'); typing = true; const mine = card;
+    (async () => {
+      const type = async (text, del, ms) => { const L = [...text]; for (let i = 1; i <= L.length; i++) { await wait(ms / L.length); if (!alive || !typing || analysis !== mine) return false; label.textContent = L.slice(0, del ? L.length - i : i).join(''); } return true; };
+      while (alive && typing && analysis === mine) {
+        await wait(900 + Math.random() * 400); if (!alive || !typing || analysis !== mine) return;
+        if (!await type(label.textContent, true, 160)) return;
+        taskIndex = (taskIndex + 1) % (ANALYSIS_TASKS.length - 1);
+        if (!await type(ANALYSIS_TASKS[taskIndex], false, 240)) return;
+      }
+    })();
+  };
+  const morph = async (signal) => {
+    typing = false;
+    const el = signalCard(signal, api), fromH = reveal.offsetHeight, tint = getComputedStyle(analysis).backgroundColor;
+    reveal.before(el); const toH = el.offsetHeight, content = [...el.children];
+    const veil = node('div', 'signal-morph-veil'); veil.style.background = tint; const a = analysis; veil.append(a);
+    el.classList.add('is-morphing'); el.append(veil); reveal.remove(); reveal = null; analysis = null;
+    await Promise.all([
+      p2(el, [{ height: `${fromH}px`, borderRadius: '12px', boxShadow: 'none' }, { height: `${fromH}px`, borderRadius: '12px', boxShadow: 'none', offset: .12 }, { height: `${toH}px`, borderRadius: '8px' }], 420, { easing: EASE_IO }),
+      p2(a, [{ opacity: 1 }, { opacity: 0, offset: .3 }, { opacity: 0 }], 420, { easing: 'ease-out', fill: 'forwards' }),
+      p2(veil, [{ opacity: 1 }, { opacity: 1, offset: .3 }, { opacity: 0, offset: .78 }, { opacity: 0 }], 420, { easing: 'ease-in-out', fill: 'forwards' }),
+      ...content.map(c => p2(c, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 0, transform: 'translateY(4px)', offset: .5 }, { opacity: 1, transform: 'none' }], 420, { easing: 'ease-out' })),
+    ]);
+    veil.remove(); el.classList.remove('is-morphing');
+  };
+  await openAnalysis(true); if (!alive) return;
   follow();
-  (async () => { // typewriter task line
-    const label = analysis.querySelector('.analysis-task'); typing = true;
-    const type = async (text, del, ms) => { const L = [...text]; for (let i = 1; i <= L.length; i++) { await wait(ms / L.length); if (!alive || !typing) return false; label.textContent = L.slice(0, del ? L.length - i : i).join(''); } return true; };
-    while (alive && typing) {
-      await wait(900 + Math.random() * 400); if (!alive || !typing) return;
-      if (!await type(label.textContent, true, 160)) return;
-      taskIndex = (taskIndex + 1) % (ANALYSIS_TASKS.length - 1);
-      if (!await type(ANALYSIS_TASKS[taskIndex], false, 240)) return;
-    }
-  })();
-  await wait(1100); if (!alive) return;
-  // 3 · Signals come out from under the analysis card (C, then B), pushing earlier ones down.
-  for (let k = 0; k < signals.length - 1; k++) {
-    const s = signals[signals.length - 1 - k], el = signalCard(s, api); reveal.after(el);
-    const height = el.offsetHeight, cs = getComputedStyle(el);
-    p2(el, [{ height: '0px', paddingTop: '0px', paddingBottom: '0px', marginTop: '-8px', opacity: 0, transform: 'scale(.94, .55)' }, { opacity: 1, offset: .2 },
-      { height: `${height}px`, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginTop: '0px', opacity: 1, transform: 'none' }], 460, { easing: POP });
-    [...el.children].forEach(c => p2(c, [{ transform: `translateY(-${Math.round(height * .45)}px)` }, { transform: 'none' }], 460, { easing: POP }));
-    setTimeout(follow, 460);
-    await wait(320 + Math.round(Math.random() * 320)); if (!alive) return;
+  for (let k = 0; k < signals.length; k++) {
+    await wait(k === 0 ? 1100 : 900 + Math.round(Math.random() * 400)); if (!alive) return;
+    await morph(signals[signals.length - 1 - k]); if (!alive) return;
+    follow();
+    if (k < signals.length - 1) { await wait(200); if (!alive) return; await openAnalysis(false); if (!alive) return; }
   }
-  // 4 · The analysis card becomes the first signal in place (420, EASE_IO).
-  typing = false;
-  const last = signalCard(signals[0], api), fromH = reveal.offsetHeight, tint = getComputedStyle(analysis).backgroundColor;
-  reveal.before(last); const toH = last.offsetHeight, content = [...last.children];
-  const veil = node('div', 'signal-morph-veil'); veil.style.background = tint; veil.append(analysis);
-  last.classList.add('is-morphing'); last.append(veil); reveal.remove();
-  await Promise.all([
-    p2(last, [{ height: `${fromH}px`, borderRadius: '12px', boxShadow: 'none' }, { height: `${fromH}px`, borderRadius: '12px', boxShadow: 'none', offset: .12 }, { height: `${toH}px`, borderRadius: '8px' }], 420, { easing: EASE_IO }),
-    p2(analysis, [{ opacity: 1 }, { opacity: 0, offset: .3 }, { opacity: 0 }], 420, { easing: 'ease-out', fill: 'forwards' }),
-    p2(veil, [{ opacity: 1 }, { opacity: 1, offset: .3 }, { opacity: 0, offset: .78 }, { opacity: 0 }], 420, { easing: 'ease-in-out', fill: 'forwards' }),
-    ...content.map(c => p2(c, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 0, transform: 'translateY(4px)', offset: .5 }, { opacity: 1, transform: 'none' }], 420, { easing: 'ease-out' })),
-  ]);
-  veil.remove(); last.classList.remove('is-morphing');
-  if (!alive) return;
   // 5 · 260ms later the rail says what was found and Next becomes available.
   await wait(260); if (!alive) return;
   finish();
@@ -544,20 +547,26 @@ async function showReady() {
     page.querySelector('.ready-check path').animate([{ strokeDashoffset: 40 }, { strokeDashoffset: 0 }], { duration: 420, delay: 80, easing: STD, fill: 'backwards' });
     [...page.querySelectorAll('.ready-copy h1, .ready-copy p')].forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 160 + i * 90, easing: EASE, fill: 'backwards' }));
   }
-  feed.hidden = false; // For You is ready behind (logged in)
   await sleep(R() ? 1000 : 1900); if (!alive) return;
-  if (R()) { await done(layer.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' })); layer.hidden = true; step = 'feed'; return; }
-  // Scrim + modal are one layer: the white circle becomes a hole and opens to the farthest corner.
-  const vb = app.getBoundingClientRect(), sc = vb.width / app.offsetWidth || 1, gx = (mb.left - vb.left) / sc + cx, gy = (mb.top - vb.top) / sc + cy, VW = app.offsetWidth, VH = app.offsetHeight;
-  const vfar = Math.ceil(Math.max(Math.hypot(gx, gy), Math.hypot(VW - gx, gy), Math.hypot(gx, VH - gy), Math.hypot(VW - gx, VH - gy))) + 4;
-  app.classList.add('is-iris-out'); page.classList.add('is-opening');
-  hole(layer, gx, gy, BADGE);
-  const leave = { duration: 340, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' };
-  page.querySelector('.ready-check path').animate([{ opacity: 1 }, { opacity: 0 }], { ...leave, duration: 180 });
-  [...page.querySelectorAll('.ready-copy h1, .ready-copy p')].forEach((el, i) => el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px) scale(.98)' }], { ...leave, delay: i * 50 }));
-  page.querySelector('.ready-confetti').animate([{ opacity: 1 }, { opacity: 0 }], leave);
-  await tween(520, easeInOut3, k => hole(layer, gx, gy, BADGE + (vfar - BADGE) * k));
-  layer.hidden = true; step = 'feed';
+  // The dialog closes (no circle opening): the dialog and its scrim fade out over the
+  // logged-out page, then that page reloads once and comes back logged in.
+  await Promise.all([
+    done(play(modal, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.98)' }], 200, { easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' })),
+    done(play(document.querySelector('#pcScrim'), [{ opacity: 1 }, { opacity: 0 }], 240, { easing: 'ease-out', fill: 'forwards' })),
+  ]);
+  modal.hidden = true; await sleep(R() ? 0 : 160);
+  // Page reload: a top progress bar runs while the page blanks, then For You returns logged in.
+  const bar = node('div', 'pc-reload-bar'); app.append(bar);
+  const blank = node('div', 'pc-reload-blank'); app.append(blank);
+  if (!R()) {
+    bar.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(.7)', offset: .6 }, { transform: 'scaleX(1)' }], { duration: 700, easing: 'ease-out', fill: 'forwards' });
+    await done(blank.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 120, easing: 'ease-out', fill: 'forwards' }));
+    await sleep(460);
+  }
+  feed.hidden = false; layer.hidden = true;
+  if (!R()) await done(blank.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' }));
+  blank.remove(); bar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }).finished.then(() => bar.remove());
+  step = 'feed';
 }
 
 function confetti(root) {
