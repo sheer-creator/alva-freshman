@@ -8,7 +8,7 @@
 <title>Thesis Status · 入口方案</title>
 <meta name="demo-status" content="exploration">
 <meta name="demo-switcher" content="off">
-<meta name="demo-summary" content="Thesis 状态变化的入口方案：卡上直接表态（A）、For You 顶部今日待看（B）、Alva 每日消息（C）、整页 Review（R）和详情页价格卡 P2。桌面可单屏或并排对比，手机打开就是完整页面，顶部固定入口切方案。">
+<meta name="demo-summary" content="Thesis 状态变化的入口方案：For You 顶部今日待看（A）、Alva 每日消息（B）、卡上直接表态（C）、整页 Review（R）和详情页价格卡 P2。桌面可单屏或并排对比，手机打开就是完整页面，顶部固定入口切方案。">
 <style>
   @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
   @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
@@ -528,7 +528,7 @@
     </div>
     <div id="groups"></div>
     <div class="ctl">
-      <div class="ctl-row"><span>B、C 点进 Review 用</span>
+      <div class="ctl-row"><span>A、B 点进 Review 用</span>
         <div class="seg-ctl" id="rvSeg"><button data-v="r1" class="on">R1 状态色</button><button data-v="r2">R2 品牌色</button></div>
       </div>
       <div class="ctl-row desk-only" id="cmpRow"><span>显示</span>
@@ -951,23 +951,26 @@
 
   /* ═════════ schemes ═════════ */
   const ENTRY = { w: 440, h: 956 }, DET = { w: 393, h: 852 };
+  // Scheme order and keys follow the Figma board (Thesis-MVP · Thesis Status · 入口方案): A For You, B Alva Agent,
+  // C card stance. The opts are render variants named before the 2026-11-09 reorder, so they no longer match the
+  // keys: entry b1–b4 draws A1–A4, card c1–c3 draws B1–B3, marker dot / arrow draws C1 / C2.
   const GROUPS = [
-    { id: 'A', title: '卡上直接表态', items: [
-      { id: 'a1', k: 'A1', label: '要点用圆点，来源靠右', screen: 'feed', opts: { marker: 'dot' } },
-      { id: 'a2', k: 'A2', label: '要点用方向箭头（利好 / 利空），来源靠右', screen: 'feed', opts: { marker: 'arrow' } },
-      { id: 'a-sheet', k: '→', label: '点不同意后弹出原因面板（A1、A2 共用）', screen: 'feed', opts: { marker: 'dot' }, state: 'sheet' },
+    { id: 'A', title: 'For You 顶部今日待看', items: [
+      { id: 'a1', k: 'A1', label: '白卡 + 小卡堆', screen: 'feed', opts: { entry: 'b1' } },
+      { id: 'a2', k: 'A2', label: '品牌色 + 小卡堆', screen: 'feed', opts: { entry: 'b2' } },
+      { id: 'a3', k: 'A3', label: '状态条 · 低调', screen: 'feed', opts: { entry: 'b3' } },
+      { id: 'a4', k: 'A4', label: '状态条 · 一般', screen: 'feed', opts: { entry: 'b4' } },
     ] },
-    { id: 'B', title: 'For You 顶部今日待看', items: [
-      { id: 'b1', k: 'B1', label: '白卡 + 小卡堆', screen: 'feed', opts: { entry: 'b1' } },
-      { id: 'b2', k: 'B2', label: '品牌色 + 小卡堆', screen: 'feed', opts: { entry: 'b2' } },
-      { id: 'b3', k: 'B3', label: '状态条 · 低调', screen: 'feed', opts: { entry: 'b3' } },
-      { id: 'b4', k: 'B4', label: '状态条 · 一般', screen: 'feed', opts: { entry: 'b4' } },
+    { id: 'B', title: 'Alva Agent 每日消息', items: [
+      { id: 'b1', k: 'B1', label: 'Alva 每天 20:00 发一条状态消息', screen: 'chat', opts: { card: 'c1' } },
+      { id: 'b2', k: 'B2', label: '白卡 · 牌堆 + 走势', screen: 'chat', opts: { card: 'c2' } },
+      { id: 'b3', k: 'B3', label: '白卡 · 状态色卡头', screen: 'chat', opts: { card: 'c3' } },
+      { id: 'b-reply', k: '→', label: '7 张看完后，Alva 统一问不同意的原因（B1–B3 共用）', screen: 'chat', opts: { card: 'c1' }, state: 'reply' },
     ] },
-    { id: 'C', title: 'Alva Agent 每日消息', items: [
-      { id: 'c1', k: 'C1', label: 'Alva 每天 20:00 发一条状态消息', screen: 'chat', opts: { card: 'c1' } },
-      { id: 'c2', k: 'C2', label: '白卡 · 牌堆 + 走势', screen: 'chat', opts: { card: 'c2' } },
-      { id: 'c3', k: 'C3', label: '白卡 · 状态色卡头', screen: 'chat', opts: { card: 'c3' } },
-      { id: 'c-reply', k: '→', label: '7 张看完后，Alva 统一问不同意的原因（C1–C3 共用）', screen: 'chat', opts: { card: 'c1' }, state: 'reply' },
+    { id: 'C', title: '卡上直接表态', items: [
+      { id: 'c1', k: 'C1', label: '要点用圆点，来源靠右', screen: 'feed', opts: { marker: 'dot' } },
+      { id: 'c2', k: 'C2', label: '要点用方向箭头（利好 / 利空），来源靠右', screen: 'feed', opts: { marker: 'arrow' } },
+      { id: 'c-sheet', k: '→', label: '点不同意后弹出原因面板（C1、C2 共用）', screen: 'feed', opts: { marker: 'dot' }, state: 'sheet' },
     ] },
     { id: 'R', title: '整页 Review', items: [
       { id: 'r1', k: 'R1', label: '状态色沉浸', screen: 'review', opts: { style: 'r1' } },
@@ -1031,9 +1034,9 @@
   };
   const layerOut = (layer) => { if (!layer) return; layer.classList.remove('in'); setTimeout(() => layer.remove(), 380); };
   // A detail page opened straight from the panel has nothing under it: its back arrow lays For You underneath
-  // (the list-page scheme looked at last, A1 by default) and slides the detail off, the same pop as from a push.
+  // (the list-page scheme looked at last, C1 by default) and slides the detail off, the same pop as from a push.
   function backToFeed(phone, scr) {
-    const f = byId[lastFeed] || byId.a1;
+    const f = byId[lastFeed] || byId.c1;
     phone.insertBefore(frag(feedScreen(f.opts, phone._S)), scr);
     if (f.opts.entry === 'b2') bindB2(phone);
     const sc = scr.querySelector('.dwrap .scroll'), y = sc ? sc.scrollTop : 0;
@@ -1046,7 +1049,7 @@
     layerOut(layer);
   }
 
-  /* votes are shared by every surface in a phone: A rows, C cards and the Review deck */
+  /* votes are shared by every surface in a phone: the Alva chat cards (B), the card-stance rows (C) and the Review deck */
   function setVote(phone, key, v, instant, pop) {
     const S = phone._S;
     S.votes[key] = v;
@@ -1407,8 +1410,8 @@
 
   const store = { get(k) { try { return localStorage.getItem('tse.' + k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem('tse.' + k, v); } catch (e) { /* storage unavailable */ } } };
   const fromHash = (location.hash || '').slice(1);
-  let current = byId[fromHash] ? fromHash : (byId[qs.get('s')] ? qs.get('s') : (byId[store.get('cur')] ? store.get('cur') : 'b1'));
-  let lastFeed = byId[current].screen === 'feed' ? current : (byId[store.get('feed')] ? store.get('feed') : 'a1');
+  let current = byId[fromHash] ? fromHash : (byId[qs.get('s')] ? qs.get('s') : (byId[store.get('cur')] ? store.get('cur') : 'a1'));
+  let lastFeed = byId[current].screen === 'feed' ? current : (byId[store.get('feed')] ? store.get('feed') : 'c1');
   let compare = store.get('cmp') === '1';
   reviewStyle = store.get('rv') === 'r2' ? 'r2' : 'r1';
 
