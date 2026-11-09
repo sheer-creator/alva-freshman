@@ -42,16 +42,3 @@ demo's three signals with placeholder analyses marked in the copy.
 The onboarding extension is kept in `onboarding/` and `thesis-demo-state.js`.
 Its state and resource checks run with
 `node --test scripts/tests/thesis-onboarding-state.test.mjs` from the Freshman root.
-
-`#/thesis-onboarding-track-pc` (`onboarding/pc.html`) is the desktop version of
-Track (Figma: Thesis MVP › PC Thesis › Onboarding · PC v3, node 14233:88697).
-One modal for the whole flow — width min(864, viewport − 64), height
-min(640, viewport − 80) — with a fixed 320 left rail (back / skip / heading /
-hint + primary) and a right panel that only carries content. Login → People →
-Collecting → Deck → Analysis / Signals → Portfolio → Ready → For You;
-Notifications are skipped. Leaf components and motion values are the mobile
-ones (`setup.js`, `cards.js`, `intro.js`, `intro-track.js`); the For You pages
-behind and after the flow are static exports (`onboarding/assets/pc-bg.webp`,
-`pc-foryou.webp`). The gallery shows entries with `desktop: { w, h }` in a
-browser-sized frame without the phone switcher. `?step=people|pick|track|portfolio|ready`
-jumps to a step for QA.

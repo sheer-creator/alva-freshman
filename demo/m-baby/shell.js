@@ -61,20 +61,6 @@
       },
     },
     {
-      title: 'onboarding-signal · Track · PC',
-      subtitle: 'Desktop version of Track: one modal with a fixed left rail; follow people, bookmark from the deck, watch Alva analyze, connect a broker, then For You. Notifications are skipped.',
-      edited: '2026-11-09',
-      slug: 'thesis-onboarding-track-pc',
-      href: 'onboarding/pc.html?v=1',
-      resetOnRestart: true,
-      desktop: { w: 1512, h: 860 },
-      meta: 'Desktop · 1512 × 860 · Track without notifications',
-      figma: {
-        label: 'Thesis MVP · Onboarding · PC v3',
-        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=14233-88697',
-      },
-    },
-    {
       title: 'onboarding-signal · Track',
       subtitle: 'Log in, follow people, bookmark their theses; the last bookmarked card stays while Alva analyzes it, then notifications and portfolio.',
       edited: '2026-10-29',
@@ -634,9 +620,8 @@
         [SAFE_TOP_VARS, device.safeTop],
         [SAFE_BOTTOM_VARS, device.safeBottom],
       ];
-      const simulate = wide.matches && !desktopMode;
       vars.forEach(([names, px]) => names.forEach(v => {
-        if (simulate) root.style.setProperty(v, px + 'px');
+        if (wide.matches) root.style.setProperty(v, px + 'px');
         else root.style.removeProperty(v);
       }));
       const data = {
@@ -646,30 +631,22 @@
         deviceId: device.id,
       };
       Object.keys(data).forEach(key => {
-        if (simulate) root.dataset[key] = data[key];
+        if (wide.matches) root.dataset[key] = data[key];
         else delete root.dataset[key];
       });
     } catch (e) {}
   }
 
-  /* A desktop prototype (PROTOTYPES entry with `desktop: {w, h}`) runs in a
-     browser-sized screen with no bezel; the phone switcher does not apply. */
-  let desktopMode = null;
-
   function applyDevice(d) {
     device = d;
 
     const root = document.documentElement;
-    const box = desktopMode
-      ? { w: desktopMode.w, h: desktopMode.h, bezel: 0, phoneRadius: 12, screenRadius: 12, screenStroke: 0 }
-      : { w: d.w, h: d.h, bezel: d.bezel, phoneRadius: d.phoneRadius, screenRadius: d.screenRadius, screenStroke: d.screenStroke };
-    root.dataset.frame = desktopMode ? 'desktop' : 'phone';
-    root.style.setProperty('--screen-w', box.w + 'px');
-    root.style.setProperty('--screen-h', box.h + 'px');
-    root.style.setProperty('--bezel', box.bezel + 'px');
-    root.style.setProperty('--phone-radius', box.phoneRadius + 'px');
-    root.style.setProperty('--screen-radius', box.screenRadius + 'px');
-    root.style.setProperty('--screen-stroke', box.screenStroke + 'px');
+    root.style.setProperty('--screen-w', d.w + 'px');
+    root.style.setProperty('--screen-h', d.h + 'px');
+    root.style.setProperty('--bezel', d.bezel + 'px');
+    root.style.setProperty('--phone-radius', d.phoneRadius + 'px');
+    root.style.setProperty('--screen-radius', d.screenRadius + 'px');
+    root.style.setProperty('--screen-stroke', d.screenStroke + 'px');
     root.dataset.devicePlatform = d.platform;
     root.dataset.deviceCutout = d.cutout;
     root.dataset.deviceNav = d.nav;
@@ -858,8 +835,6 @@
     }
 
     const p = bySlug.get(slug);
-    const nextDesktop = p.desktop || null;
-    if (nextDesktop !== desktopMode) { desktopMode = nextDesktop; applyDevice(device); }
     mount(p, restartOnRoute);
     restartOnRoute = false;
 
@@ -930,11 +905,11 @@
        the switcher looked broken because it had no visible effect. One shared
        scale means the big phone just fits and the smaller ones are visibly
        smaller, which is the whole point of a device switcher. */
-    const refW = desktopMode ? desktopMode.w : Math.max.apply(null, DEVICES.map(d => d.w + 2 * d.bezel));
-    const refH = desktopMode ? desktopMode.h : Math.max.apply(null, DEVICES.map(d => d.h + 2 * d.bezel));
+    const refW = Math.max.apply(null, DEVICES.map(d => d.w + 2 * d.bezel));
+    const refH = Math.max.apply(null, DEVICES.map(d => d.h + 2 * d.bezel));
     if (!refW || !refH) return;
     const s = Math.min(1, w / refW, h / refH);
-    stage.style.setProperty('--fit', Math.max(desktopMode ? 0.2 : 0.4, s).toFixed(4));
+    stage.style.setProperty('--fit', Math.max(0.4, s).toFixed(4));
   }
 
   if ('ResizeObserver' in window) new ResizeObserver(fit).observe(stage);
