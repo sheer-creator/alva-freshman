@@ -314,7 +314,6 @@
   .capsule .lp { width: 32px; height: 32px; border-radius: 50%; background: var(--background-sidebar); display: flex; align-items: center; justify-content: center; }
   .capsule .lp img { width: 15.5px; height: 15.5px; }
   .cbody { display: flex; flex-direction: column; gap: 16px; padding: 16px; min-height: 100%; }
-  .cbody.end > :first-child { margin-top: auto; }
   .tdiv { text-align: center; padding: 2px 0; color: var(--text-n5); }
   .ab { padding-right: 28px; }
   .ab .bub { background: var(--grey-g02); border-radius: 12px; padding: 12px 16px; }
@@ -507,6 +506,10 @@
   .vb .dis.armed .c { background: var(--main-m1); outline-color: transparent; color: #fff; }
   .rv.r2 .vb .v.armed { color: #fff; }
   .rv.r2 .vb .dis.armed .c { background: #fff; outline-color: transparent; color: var(--main-m1); }
+  /* the same feedback on the chat decks: B1's Disagree / Agree under the card, B2 / B3's round buttons on it */
+  .vgrp .btn-s, .cvs .cv { transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.15s ease, color 0.15s ease; }
+  .vgrp.drag .btn-s, .cvs.drag .cv { transition: background-color 0.15s ease, color 0.15s ease; }
+  .vgrp .btn-s.sec.armed, .cvs .cv.dis.armed { background: var(--main-m1); outline-color: transparent; color: #fff; }
 
   /* ───────── Thesis detail ───────── */
   /* Similar signals · secondary page top bar (Topbar/Mweb · 二级页面): back 40×56, title Regular/16 over a Regular/10 count */
@@ -1012,7 +1015,7 @@
       <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`;
 
   const chatScreen = (o, S) => (o.card === 'pin' ? pinnedChat() : `<div class="scr chat">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div>
-      <div class="scroll" data-chat><div class="cbody${o.card === 'c1' ? ' end' : ''}" data-cbody><div class="tdiv t12">8:00 PM</div>${agentBubble(noStatus ? 'Today’s read on your 7 theses is in.' : 'Today’s read on your 7 theses is in. 3 changed status and the other 4 held.')}<div data-cslot>${chatBlock(o.card, 0, S.votes[DECK7[0]])}</div></div></div>
+      <div class="scroll" data-chat><div class="cbody"><div class="tdiv t12">8:00 PM</div>${agentBubble(noStatus ? 'Today’s read on your 7 theses is in.' : 'Today’s read on your 7 theses is in. 3 changed status and the other 4 held.')}<div data-cslot>${chatBlock(o.card, 0, S.votes[DECK7[0]])}</div></div></div>
       <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`);
 
   const rvBullet = ([t, s]) => `<div class="rbul">${img('d-marker.svg', 'mrk')}<p class="t14 n9">${rich(t)}${srcs(s, 'isrc')}</p></div>`;
@@ -1419,9 +1422,23 @@
         // the last card has nowhere to go: it springs back, then shows the vote
         setTimeout(() => { S.cbusy = false; renderChatCard(phone); }, 300);
         return false;
-      });
+      }, { onMove: (dx, min) => leanVotes(phone.querySelector('[data-cslot] .rb .vgrp') || front.querySelector('.cvs'), dx, min) });
     };
     phone._rebindChat();
+  }
+
+  // Drag feedback on the chat decks' Disagree / Agree, the same as the Review's: the button the card heads for grows with
+  // the drag and turns primary once letting go would vote; the other one fades. Left leans to Disagree, right to Agree.
+  function leanVotes(wrap, dx, min) {
+    if (!wrap) return;
+    const t = dx ? Math.min(1, Math.abs(dx) / min) : 0;
+    wrap.classList.toggle('drag', !!dx);
+    [[wrap.querySelector('[data-act="c-disagree"]'), dx < 0], [wrap.querySelector('[data-act="c-agree"]'), dx > 0]].forEach(([b, to]) => {
+      if (!b) return;
+      b.style.transform = to ? `scale(${1 + 0.12 * t})` : '';
+      b.style.opacity = dx && !to ? String(1 - 0.7 * t) : '';
+      b.classList.toggle('armed', to && Math.abs(dx) > min);
+    });
   }
 
   function bindB2(phone) {
