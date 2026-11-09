@@ -1,9 +1,9 @@
 /* ========== actions.js — 全局交互（data-act 派发） ========== */
-import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel, itemSources } from './data.js?v=local-mw8w9e';
-import { store, save, applyTheme, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js?v=local-mw8w9e';
-import { composerContextMenu, entityReference, srcAvatar } from './cards.js?v=local-mw8w9e';
-import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js?v=local-mw8w9e';
-import { setCompanyTab, setCompanyChartRange, setCompanySmartTab, setCompanyEarningsStage } from './company.js?v=local-mw8w9e';
+import { ENTITIES, ITEMS, SOURCES, FEEDS, ONBOARD_ENTITIES, entityChipLabel, itemSources } from './data.js?v=local-mw8xcn';
+import { store, save, applyTheme, toggleIn, toast, openSheet, closeSheet, nav, back, I, resetDemo } from './state.js?v=local-mw8xcn';
+import { composerContextMenu, entityReference, srcAvatar } from './cards.js?v=local-mw8xcn';
+import { getAskContext, setAskCtx, setPendingAsk, setAskTab, setFeedTab, feedBodyHtml, obPickEntity } from './screens.js?v=local-mw8xcn';
+import { setCompanyTab, setCompanyChartRange, setCompanySmartTab, setCompanyEarningsStage } from './company.js?v=local-mw8xcn';
 
 const item = (el) => ITEMS.find((it) => it.id === el.dataset.item);
 const rerender = () => window.__rerender && window.__rerender();

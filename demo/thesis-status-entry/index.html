@@ -287,7 +287,6 @@
   .b2-deck { position: relative; padding-top: 12px; }
   .b2-deck .bk { position: absolute; height: 40px; border-radius: 8px; background: #fff; }
   .b2-deck .bk1 { left: 16px; right: 16px; top: 0; opacity: 0.32; }
-  .b2-deck .bk2 { left: 8px; right: 8px; top: 6px; opacity: 0.6; }
   .b2-deck .fr { position: relative; background: #fff; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 4px; color: var(--text-n9); cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
   .b2-deck .row { display: flex; align-items: center; justify-content: space-between; }
   .chrow { display: flex; align-items: center; gap: 4px; }
@@ -313,8 +312,10 @@
   .tdiv { text-align: center; padding: 2px 0; color: var(--text-n5); }
   .ab { padding-right: 28px; }
   .ab .bub { background: var(--grey-g02); border-radius: 12px; padding: 12px 16px; }
-  .ub { padding-left: 28px; }
-  .ub .bub { background: var(--main-m1-10); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .ab .bub.sum { display: flex; flex-direction: column; gap: 10px; }
+  .sum .chips { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .sum .qchip { max-width: 100%; }
+  .sum .qchip span.ell { max-width: none; min-width: 0; }
   .qchip { align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 6px; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 4px; }
   .qchip .im { width: 20px; height: 20px; border-radius: 2px; background: var(--main-m1); display: flex; align-items: center; justify-content: center; }
   .qchip .im img { width: 16px; height: 16px; }
@@ -330,7 +331,6 @@
   .rb .hd { display: flex; align-items: center; justify-content: space-between; white-space: nowrap; }
   .rb .deck { position: relative; padding: 20px 0 4px; }
   .rb .back { position: absolute; left: 0; right: 0; height: 242px; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 12px; overflow: hidden; }
-  .rb .back.k1 { top: 8px; transform: rotate(2.5deg); }
   .rb .back.k2 { top: 6px; transform: rotate(-3deg); }
   .band { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; --sc: var(--main-m5); }
   .band::before { content: ''; position: absolute; inset: 0; background: var(--sc); opacity: 0.06; }
@@ -355,7 +355,6 @@
   /* C2 / C3 cards */
   .cr2 { position: relative; padding-top: 16px; }
   .cr2 .bk3 { position: absolute; left: 24px; right: 24px; top: 0; height: 80px; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; }
-  .cr2 .bk2 { position: absolute; left: 12px; right: 12px; top: 8px; height: 80px; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; background: #fff; }
   .ccard { position: relative; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; overflow: hidden; max-width: 680px; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
   .ccard .body { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
   .perf { background: var(--grey-g01); border-radius: 12px; padding: 12px 20px; display: flex; flex-direction: column; gap: 8px; }
@@ -409,7 +408,6 @@
   .rv .rdeck { flex-shrink: 0; }
   .rdeck { position: relative; padding-top: 16px; }
   .rdeck .bk { position: absolute; height: 240px; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; }
-  .rdeck .bk.n1 { left: 12px; right: 12px; top: 8px; }
   .rdeck .bk.n2 { left: 24px; right: 24px; top: 0; }
   .rfront { position: relative; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow-s); touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
   .rfront .sm { display: flex; flex-direction: column; gap: 16px; }
@@ -436,13 +434,19 @@
   .rv.r2 .prog i { background: #fff; opacity: 0.3; }
   .rv.r2 .prog i.on { opacity: 1; }
   .rv.r2 .rdeck .bk { outline: 0; }
-  .rv.r2 .rdeck .bk.n1 { background: #fff; opacity: 0.6; }
   .rv.r2 .rdeck .bk.n2 { background: var(--grey-g02); opacity: 0.35; }
   .rv.r2 .rfront { outline: 0; }
   .rv.r2 .acts .tx { color: #fff; opacity: 0.8; }
   .rv.r2 .vb .v { color: #fff; }
   .rv.r2 .vb .dis .c { background: transparent; outline-color: #fff; color: #fff; }
   .rv.r2 .vb .agr .c { background: #fff; color: var(--main-m1); }
+  /* drag feedback: the button the card heads for grows, and turns primary once letting go would vote; the other fades */
+  .vb .v, .vb .c { transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.15s ease, color 0.15s ease; }
+  .vb.drag .v, .vb.drag .c { transition: background-color 0.15s ease, color 0.15s ease; }
+  .vb .v.armed { color: var(--text-n9); }
+  .vb .dis.armed .c { background: var(--main-m1); outline-color: transparent; color: #fff; }
+  .rv.r2 .vb .v.armed { color: #fff; }
+  .rv.r2 .vb .dis.armed .c { background: #fff; outline-color: transparent; color: var(--main-m1); }
 
   /* ───────── Thesis detail ───────── */
   .dtb { height: 56px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px 0 6px; background: #fff; }
@@ -506,6 +510,13 @@
   .layer.cover { opacity: 0; transition: opacity 0.28s ease; }
   .layer.in { transform: none; opacity: 1; }
   .fly { transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease; }
+  /* swipe decks: the card right behind the front is the real neighbouring card, front-sized, drawn where the old plate peeked */
+  .pk { position: absolute; left: 0; right: 0; transform-origin: 50% 0; pointer-events: none; }
+  .pk > * { height: 100%; overflow: hidden; box-shadow: none !important; }
+  .pk.go { transform: none !important; opacity: 1 !important; transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease, height 0.3s cubic-bezier(0.32, 0.72, 0, 1); }
+  /* Alva chat deck move: after the swap a new back plate fades in at the back (the rest of the move is timed inline by moveChat) */
+  .dk-in { animation: dk-in 0.24s ease-out; }
+  @keyframes dk-in { from { opacity: 0; } }
 </style>
 </head>
 <body>
@@ -594,8 +605,6 @@
         ['Debt is running short for non-investment-grade builders, forcing more **equity** per project', ['prd-av-55.jpg', 'prd-av-13.jpg']],
       ],
       perf: { tk: 'NBIS', v: '−19.2%', dir: 'down', vs: '−16.6 pts vs SPY', gen: 'nebius' },
-      user: 'I don’t buy the Nebius downgrade. The moratorium hits new builds, not capacity NBIS already has under contract.',
-      reply: 'Logged your disagreement on Nebius. Today’s call rested on two things: moratorium backers winning in Texas, Georgia and Ohio, and NBIS falling 6.7% while SPY rose 1.6%. Anything else I missed?',
     },
     labs: {
       short: 'AI boosts lab tools', title: 'AI boosts lab tools and data demand', chg: ['intact', 'watch'],
@@ -755,7 +764,7 @@
   const entryB = {
     b1: () => `<div class="eb"><div class="b1-stack tap" data-act="review" data-deck="4"><i class="edge e2"></i><i class="edge e1"></i><div class="b1-card"><div class="rhead"><div class="tt2"><span class="t14 md n9">Today’s review</span><span class="t12 n5">4 theses updated · 1 status change</span></div><button class="btn-xs t12 md" data-act="review" data-deck="4">Review</button></div>${thesisHead(TH.nebius)}${changePanel(TH.nebius)}</div></div></div>`,
     b2: () => `<div class="eb b2"><div class="b2-card"><div class="hd"><div class="tx"><span class="t12 md k">Today’s review · 8:00 PM ET</span><span class="t18 md">3 of 7 theses changed status</span></div><button class="btn-rev t12 md" data-act="review" data-deck="7" data-from="b2">Review</button></div>
-      <div class="b2-deck" data-b2deck><i class="bk bk1"></i><i class="bk bk2"></i>${b2Front(0)}</div></div></div>`,
+      <div class="b2-deck" data-b2deck><i class="bk bk1"></i>${b2Front(0)}</div></div></div>`,
     b3: () => `<div class="b3-row tap" data-act="review" data-deck="7"><div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5">3 of 7 theses changed status</span></div><div class="sdots">${DOTS.map(([c, f]) => `<i class="${f ? 'f' : ''}" style="--sc:var(--${c})"></i>`).join('')}</div>${img('arrow-right-l2.svg', '', 'style="width:12px;height:12px"')}</div>`,
     b4: () => `<div class="eb"><div class="b4-card"><div class="rhead"><div class="tt2"><span class="t14 md n9">Today’s review</span><span class="t12 n5">3 of 7 theses changed status</span></div><button class="btn-xs t12 md" data-act="review" data-deck="7">Review</button></div>
       <div class="sbar">${DOTS.map(([c, f]) => `<i class="${f ? 'f' : ''}" style="--sc:var(--${c})"></i>`).join('')}</div>
@@ -765,8 +774,11 @@
   /* ── chat pieces ── */
   const agentBubble = (t, extra = '') => `<div class="ab"${extra}><div class="bub t14 n9">${esc(t)}</div></div>`;
   const chipText = (t) => (t.chg ? `${t.short} · ${ST[t.chg[0]].label} → ${ST[t.chg[1]].label}` : `${t.short} · ${ST[t.cur[0]].label}`);
-  const userBubble = (t, extra = '') => `<div class="ub"${extra}><div class="bub"><div class="qchip"><span class="im">${img('sidebar-thread-normal.svg')}</span><span class="t12 n9 ell">${esc(chipText(t))}</span></div><p class="t14 n9">${esc(t.user || `I don’t buy today’s call on ${t.short}.`)}</p></div></div>`;
-  const replyText = (t) => t.reply || `Logged your disagreement on ${t.short}. Today’s call rested on this: ${t.head}. Anything else I missed?`;
+  const qchip = (t) => `<div class="qchip"><span class="im">${img('sidebar-thread-normal.svg')}</span><span class="t12 n9 ell">${esc(chipText(t))}</span></div>`;
+  // Alva's one message after the deck: the theses you disagreed with as quote chips and a single ask
+  const summaryBubble = (ths) => (ths.length
+    ? `<div class="ab" data-follow><div class="bub sum t14 n9"><p>You disagreed with ${ths.length} of today’s 7 calls.</p><div class="chips">${ths.map(qchip).join('')}</div><p>What did I miss? Tell me and I’ll re-check ${ths.length === 1 ? 'it' : 'them'}.</p></div></div>`
+    : agentBubble('All 7 calls confirmed. I’ll keep tracking them and flag the next change.', ' data-follow'));
 
   const band = (t, date) => (t.chg
     ? `<div class="band" style="--sc:${ST[t.chg[1]].c}"><span class="chrow">${tag(t.chg[0])}<span class="t12 n5">→</span>${tag(t.chg[1])}</span><span class="t12 n5 nw">${date}</span></div>`
@@ -779,10 +791,8 @@
     const b = t.pts ? t.pts[0] : [plain(t.rv[0][0]), '', t.rv[0][1]];
     return `<div class="rcard${shadow ? ' sh' : ''}" data-cswipe>${band(t, 'Nov 4 · 8:00 PM ET')}<div class="sum">${thesisHead(t)}<div class="s2"><p class="t18 md n9">${esc(t.head)}</p><div class="bul"><span class="bu t14">•</span><div class="cn"><p class="t14 n9">${esc(b[0])}</p>${srcs(b[2], 'srcs below')}</div></div></div></div></div>`;
   };
-  const backBands = (i) => {
-    const nx = [DECK7[i + 1], DECK7[i + 2]].filter(Boolean).map((k) => TH[k]);
-    return nx.map((t, n) => `<div class="back k${n + 1}"><div class="band" style="--sc:${ST[t.st].c}">${tag(t.st)}</div></div>`).join('');
-  };
+  // only the second card back stays a band; the one right behind the front is the real next card (peekSlot)
+  const backBands = (i) => (DECK7[i + 2] ? `<div class="back k2"><div class="band" style="--sc:${ST[TH[DECK7[i + 2]].st].c}">${tag(TH[DECK7[i + 2]].st)}</div></div>` : '');
   const c1Block = (i, v) => `<div class="rb"><div class="hd"><div class="tt2"><span class="t14 md n9">Today’s review</span><span class="t12 n5">7 theses updated · 3 status changes</span></div><span class="t12 n5">${i + 1} / 7</span></div>
     <div class="deck">${backBands(i)}${c1Front(TH[DECK7[i]], v === 'disagree')}</div>
     <div class="act"><button class="btn-s sec t12 md" data-act="review" data-deck="7" data-from="c">Review all 7</button><div class="vgrp">${c1Votes(v)}</div></div></div>`;
@@ -791,7 +801,7 @@
   const chartOf = (t) => (t.perf.img ? img(t.perf.img) : genChart(t.perf.gen));
   const c2Block = (i, v) => {
     const t = TH[DECK7[i]];
-    return `<div class="cr2">${i + 2 < 7 ? '<i class="bk3"></i>' : ''}${i + 1 < 7 ? '<i class="bk2"></i>' : ''}<div class="ccard" data-cswipe>${changePanel(t, true)}
+    return `<div class="cr2">${i + 2 < 7 ? '<i class="bk3"></i>' : ''}<div class="ccard" data-cswipe>${changePanel(t, true)}
       <div class="body"><div class="s2">${thesisHead(t)}<p class="t18 md n9">${esc(t.head)}</p></div>
         <div class="perf"><div class="h t14 md"><span class="n9">${esc(t.perf.tk)}</span><span class="${t.perf.dir}">${t.perf.v}</span></div><div class="chart">${chartOf(t)}</div><p class="t12 n5">${t.perf.vs}</p></div>
         <div class="acts2">${bigVotes(v)}</div></div>${footer(i, false)}</div></div>`;
@@ -957,7 +967,7 @@
       { id: 'c1', k: 'C1', label: 'Alva 每天 20:00 发一条状态消息', screen: 'chat', opts: { card: 'c1' } },
       { id: 'c2', k: 'C2', label: '白卡 · 牌堆 + 走势', screen: 'chat', opts: { card: 'c2' } },
       { id: 'c3', k: 'C3', label: '白卡 · 状态色卡头', screen: 'chat', opts: { card: 'c3' } },
-      { id: 'c-reply', k: '→', label: '在对话里直接说不同意（接在 C1–C3 后面都可以）', screen: 'chat', opts: { card: 'c1' }, state: 'reply' },
+      { id: 'c-reply', k: '→', label: '7 张看完后，Alva 统一问不同意的原因（C1–C3 共用）', screen: 'chat', opts: { card: 'c1' }, state: 'reply' },
     ] },
     { id: 'R', title: '整页 Review', items: [
       { id: 'r1', k: 'R1', label: '状态色沉浸', screen: 'review', opts: { style: 'r1' } },
@@ -1000,7 +1010,13 @@
     if (scheme.screen === 'chat') bindChatSwipe(phone);
     if (scheme.opts.entry === 'b2') bindB2(phone);
     if (scheme.state === 'sheet') { setVote(phone, 'nebius', 'disagree'); openSheet(phone, true); }
-    if (scheme.state === 'reply') setVote(phone, 'nebius', 'disagree', true);
+    if (scheme.state === 'reply') {
+      // the end of the deck: all 7 voted, Nebius and BTC disagreed, Alva's one question already in
+      DECK7.forEach((k) => { S.votes[k] = k === 'nebius' || k === 'btc' ? 'disagree' : 'agree'; });
+      S.ci = DECK7.length - 1;
+      renderChatCard(phone);
+      syncSummary(phone, true);
+    }
     phone.addEventListener('click', (e) => onClick(e, phone));
     return phone;
   }
@@ -1038,21 +1054,38 @@
     phone.querySelectorAll(`[data-vslot="${key}"]`).forEach((slot) => { slot.innerHTML = voteRow(key, v); });
     if (phone.querySelector('[data-cslot]')) {
       if (DECK7[S.ci] === key) renderChatCard(phone);
-      syncFollowUp(phone, key, v, instant);
+      syncSummary(phone, instant);
     }
     POP = false;
   }
 
-  function syncFollowUp(phone, key, v, instant) {
-    const body = phone.querySelector('[data-cbody]');
-    const t = TH[key];
-    body.querySelectorAll(`[data-follow="${key}"]`).forEach((n) => n.remove());
-    if (v !== 'disagree') return;
-    body.insertAdjacentHTML('beforeend', userBubble(t, ` data-follow="${key}"`) + agentBubble(replyText(t), ` data-follow="${key}"`));
-    body.classList.add('end');
-    const sc = phone.querySelector('[data-chat]');
-    if (instant) requestAnimationFrame(() => { sc.scrollTop = sc.scrollHeight; });
-    else sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+  // In the chat, Agree and Disagree both just mark the card and move on. Once the last of today's 7 has a vote (from
+  // the chat deck or the Review opened from it), Alva sends one message under the deck about every disagreement;
+  // later vote changes keep that message in step instead of adding new ones.
+  function syncSummary(phone, instant) {
+    const S = phone._S;
+    clearTimeout(S.sumT);
+    if (!S.summed && !S.votes[DECK7[DECK7.length - 1]]) return;
+    const post = () => {
+      const body = phone.querySelector('[data-cbody]');
+      const sc = phone.querySelector('[data-chat]');
+      const html = summaryBubble(DECK7.filter((k) => S.votes[k] === 'disagree').map((k) => TH[k]));
+      const old = body.querySelector('[data-follow]');
+      if (old) {
+        // the message grows or shrinks with the vote; if the chat sat at its end, keep the end in view
+        const atEnd = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 4;
+        old.outerHTML = html;
+        if (atEnd) sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+        return;
+      }
+      body.insertAdjacentHTML('beforeend', html);
+      body.classList.add('end');
+      S.summed = true;
+      if (instant) requestAnimationFrame(() => { sc.scrollTop = sc.scrollHeight; });
+      else sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+    };
+    // a reply-like beat after the last vote; later edits land at once
+    if (instant || S.summed) post(); else S.sumT = setTimeout(post, 700);
   }
 
   function renderChatCard(phone) {
@@ -1061,14 +1094,45 @@
     if (phone._rebindChat) phone._rebindChat();
   }
 
-  /* horizontal swipe on a card; onSwipe(dir) gets -1 (to the left) / 1 (to the right) */
+  // Swipe decks: the card right behind the front carries the real neighbouring card instead of a blank plate. It is
+  // front-sized and drawn at the plate's peek position, so dragging the front reveals what comes next, and on a swipe
+  // it slides forward into the front's place before the deck re-renders. geo: inset (each side), dy (peek), rot, op.
+  function peekSlot(front, geo) {
+    const deck = front.parentElement;
+    if (getComputedStyle(deck).position === 'static') deck.style.position = 'relative';
+    let pk = deck.querySelector(':scope > .pk');
+    if (!pk) { pk = document.createElement('div'); pk.className = 'pk'; pk.inert = true; }
+    deck.insertBefore(pk, front);
+    pk.classList.remove('go');
+    pk.style.opacity = geo.op == null ? 1 : geo.op;
+    // decks are often built before the phone is on the page, so size the card once the front has a layout
+    const layout = () => {
+      const W = front.offsetWidth;
+      if (!W) return;
+      pk.style.top = front.offsetTop + 'px';
+      pk.style.height = front.offsetHeight + 'px';
+      pk.style.transform = `translateY(${-(geo.dy || 0)}px) scale(${(W - 2 * (geo.inset || 0)) / W}) rotate(${geo.rot || 0}deg)`;
+    };
+    if (deck._peekRO) deck._peekRO.disconnect();
+    deck._peekRO = new ResizeObserver(layout);
+    deck._peekRO.observe(front);
+    layout();
+    return {
+      set(html) { pk.innerHTML = html ? html.replace(/ data-(front|cswipe|b2front)(="")?(?=[\s>])/g, '') : ''; pk.style.visibility = html ? '' : 'hidden'; },
+      promote() { pk.classList.add('go'); },
+    };
+  }
+  const cardOf = (html) => { const n = frag(html); return (n.matches('[data-cswipe]') ? n : n.querySelector('[data-cswipe]')).outerHTML; };
+
+  /* horizontal swipe on a card; onSwipe(dir) gets -1 (to the left) / 1 (to the right); opts.onDir(dir) while dragging (0 = released);
+     opts.onMove(dx, min) with the live drag distance, back to 0 on release (after the fly-out when the swipe counts) */
   function swipeable(el, onSwipe, opts = {}) {
     if (!el || el._swipeBound) return;
     el._swipeBound = true;
-    let sx = 0, sy = 0, dx = 0, drag = false, decided = false, horiz = false, scale = 1;
+    let sx = 0, sy = 0, dx = 0, drag = false, decided = false, horiz = false, scale = 1, side = 0;
     el.addEventListener('pointerdown', (e) => {
       if (e.button) return;
-      drag = true; decided = false; horiz = false; sx = e.clientX; sy = e.clientY; dx = 0;
+      drag = true; decided = false; horiz = false; sx = e.clientX; sy = e.clientY; dx = 0; side = 0;
       scale = el.getBoundingClientRect().width / el.offsetWidth || 1;
       el.classList.remove('fly');
     });
@@ -1078,6 +1142,9 @@
       if (!decided && Math.hypot(mx, my) > 6) { decided = true; horiz = Math.abs(mx) > Math.abs(my); if (horiz) { try { el.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } } }
       if (!horiz) return;
       dx = mx;
+      const d = dx < 0 ? -1 : 1;
+      if (d !== side) { side = d; if (opts.onDir) opts.onDir(d); }
+      if (opts.onMove) opts.onMove(dx, opts.min || 70);
       el.style.transform = `translateX(${dx}px) rotate(${dx / (opts.tilt || 24)}deg)`;
     });
     const up = () => {
@@ -1087,26 +1154,97 @@
       el._swiped = true; setTimeout(() => { el._swiped = false; }, 0);
       if (Math.abs(dx) > (opts.min || 70)) {
         const dir = dx > 0 ? 1 : -1;
-        if (onSwipe(dir) === false) { el.classList.add('fly'); el.style.transform = ''; return; }
+        if (onSwipe(dir) === false) { el.classList.add('fly'); el.style.transform = ''; if (opts.onDir) opts.onDir(0); if (opts.onMove) opts.onMove(0); return; }
+        if (opts.onMove) setTimeout(() => opts.onMove(0), 280);
         el.classList.add('fly');
         el.style.transform = `translateX(${dir * 130}%) rotate(${dir * 12}deg)`;
         el.style.opacity = '0';
-      } else { el.classList.add('fly'); el.style.transform = ''; }
+      } else { el.classList.add('fly'); el.style.transform = ''; if (opts.onDir) opts.onDir(0); if (opts.onMove) opts.onMove(0); }
     };
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', up);
     el.addEventListener('click', (e) => { if (el._swiped) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
   }
 
+  // One move of the Alva chat deck, for a swipe and for the auto-advance after a vote. In one beat the front leaves
+  // (a swipe has already thrown it), the real card behind slides into its place and eases to its own height with the
+  // deck following, and the back plate steps up into the peek spot. C1's counter and vote buttons switch to the
+  // incoming card as it moves. The swap waits for all of that to land and re-draws the same picture, then only the new
+  // back plate fades in — nothing is cut mid-transition and nothing pops.
+  // Two tempos: a swipe keeps the quick 300ms the finger's throw started; after a vote the move is a calm 560ms on an
+  // ease-in-out curve, and the card slides off with a small tilt instead of being thrown.
+  const MOVE = {
+    swipe: { ms: 300, ease: 'cubic-bezier(0.32, 0.72, 0, 1)' },
+    vote: { ms: 560, ease: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+  };
+  // where each scheme's back plate lands: the pose of the peek card (C1 k2: top 6 / 242 tall / -3deg → the peek's
+  // 8px top and 2.5deg tilt; C2 bk3: 24px inset at top 0 → the peek's 12px inset at top 8)
+  const PLATE_STEP = { c1: () => 'translate(-5.3px, 1.9px) rotate(2.5deg)', c2: (W) => `translateY(8px) scaleX(${((W - 24) / (W - 48)).toFixed(4)})` };
+  function moveChat(phone, next, kind) {
+    const S = phone._S, card = phone._scheme.opts.card, { ms, ease } = MOVE[kind];
+    const fr = phone.querySelector('[data-cswipe]');
+    const deck = fr.parentElement;
+    const pk = deck.querySelector(':scope > .pk');
+    S.cbusy = true;
+    if (kind === 'vote') {
+      fr.style.transition = `transform ${ms}ms ${ease}, opacity ${ms}ms ease-in`;
+      fr.style.transform = 'translateX(-112%) rotate(-5deg)';
+      fr.style.opacity = '0';
+    }
+    if (PLATE_STEP[card]) deck.querySelectorAll(':scope > .back, :scope > .bk3').forEach((b) => {
+      b.style.transition = `transform ${ms}ms ${ease}, background-color ${ms}ms ease`;
+      if (card === 'c2') { b.style.transformOrigin = '50% 0'; b.style.backgroundColor = '#fff'; }
+      b.style.transform = PLATE_STEP[card](deck.offsetWidth);
+    });
+    const cnt = phone.querySelector('[data-cslot] .rb .hd > span:last-child');
+    if (cnt) cnt.textContent = `${next + 1} / 7`;
+    const vg = phone.querySelector('[data-cslot] .rb .vgrp');
+    if (vg) vg.innerHTML = c1Votes(S.votes[DECK7[next]]);
+    if (pk && pk.firstElementChild) {
+      const card = pk.firstElementChild;
+      card.style.height = 'auto';
+      const h = card.offsetHeight;
+      card.style.height = '';
+      const h0 = deck.offsetHeight;
+      deck.style.height = h0 + 'px';
+      void deck.offsetHeight; // commit the start height before easing to the new one
+      deck.style.transition = `height ${ms}ms ${ease}`;
+      deck.style.height = h0 - fr.offsetHeight + h + 'px';
+      pk.classList.add('go');
+      pk.style.transition = `transform ${ms}ms ${ease}, opacity ${ms}ms ease, height ${ms}ms ${ease}`;
+      pk.style.height = h + 'px';
+    }
+    setTimeout(() => {
+      deck.style.height = ''; deck.style.transition = '';
+      S.ci = next;
+      renderChatCard(phone);
+      phone.querySelectorAll('[data-cslot] .back, [data-cslot] .bk3').forEach((b) => b.classList.add('dk-in'));
+      S.cbusy = false;
+    }, ms + 20);
+  }
+
+  // After an Agree / Disagree the chat card moves on by itself: a beat for the vote icon's pop to play out, then the
+  // calm vote move to the next card. Un-voting or the last card stays put.
+  function advanceChat(phone) {
+    phone._S.cbusy = true;
+    setTimeout(() => moveChat(phone, phone._S.ci + 1, 'vote'), 320);
+  }
+
   function bindChatSwipe(phone) {
+    const GEO = { c1: { dy: 12, rot: 2.5 }, c2: { inset: 12, dy: 8 }, c3: {} };
     phone._rebindChat = () => {
-      swipeable(phone.querySelector('[data-cswipe]'), (dir) => {
-        const S = phone._S;
+      const S = phone._S, card = phone._scheme.opts.card, front = phone.querySelector('[data-cswipe]');
+      const slot = phone._chatSlot = peekSlot(front, GEO[card]);
+      // left shows the next card underneath, right the previous one
+      const fill = (d) => { const j = S.ci + (d > 0 ? -1 : 1); slot.set(j >= 0 && j < DECK7.length ? cardOf(chatBlock(card, j, S.votes[DECK7[j]])) : ''); };
+      fill(0);
+      swipeable(front, (dir) => {
+        if (S.cbusy) return false;
         const next = S.ci + (dir < 0 ? 1 : -1);
         if (next < 0 || next >= DECK7.length) return false;
-        setTimeout(() => { S.ci = next; renderChatCard(phone); }, 260);
+        moveChat(phone, next, 'swipe');
         return true;
-      });
+      }, { onDir: fill });
     };
     phone._rebindChat();
   }
@@ -1115,11 +1253,16 @@
     const deck = phone.querySelector('[data-b2deck]');
     const bind = () => {
       const fr = deck.querySelector('[data-b2front]');
+      // B2 wraps around: left shows the next change underneath, right the previous one
+      const slot = peekSlot(fr, { inset: 8, dy: 6, op: 0.6 });
+      const fill = (d) => slot.set(b2Front((phone._S.b2 + (d > 0 ? CHANGED.length - 1 : 1)) % CHANGED.length));
+      fill(0);
       swipeable(fr, (dir) => {
         const S = phone._S;
+        slot.promote();
         setTimeout(() => { S.b2 = (S.b2 + (dir < 0 ? 1 : CHANGED.length - 1)) % CHANGED.length; fr.outerHTML = b2Front(S.b2); bind(); }, 260);
         return true;
-      }, { tilt: 30, min: 50 });
+      }, { tilt: 30, min: 50, onDir: fill });
       fr.addEventListener('click', () => { if (!fr._swiped) openReview(phone, DECK7, phone._S.b2); });
     };
     bind();
@@ -1148,8 +1291,11 @@
     if (act === 'like') { const on = !t.classList.contains('on'); t.classList.toggle('on', on); t.innerHTML = on ? popIcon(icon('likeF', 16), true) : img('like-l.svg'); return; }
     if (act === 'sheet-close' || act === 'sheet-skip' || act === 'sheet-send') { closeSheet(phone); return; }
     if (act === 'c-disagree' || act === 'c-agree') {
+      if (S.cbusy) return;
       const k = DECK7[S.ci]; const v = act === 'c-agree' ? 'agree' : 'disagree';
-      setVote(phone, k, S.votes[k] === v ? '' : v, false, true);
+      const nv = S.votes[k] === v ? '' : v;
+      setVote(phone, k, nv, false, true);
+      if (nv && S.ci + 1 < DECK7.length) advanceChat(phone);
       return;
     }
     if (act === 'review') {
@@ -1202,13 +1348,28 @@
     const prog = [...node.querySelectorAll('[data-prog] i')];
     const cnt = node.querySelector('[data-cnt]');
     const r2 = node.classList.contains('r2');
+    let slot = null;
+    // drag feedback on Disagree / Agree: left leans to Disagree, right to Agree
+    const vb = node.querySelector('.vb');
+    const lean = (dx, min) => {
+      const t = dx ? Math.min(1, Math.abs(dx) / min) : 0;
+      vb.classList.toggle('drag', !!dx);
+      [[vb.querySelector('.dis'), dx < 0], [vb.querySelector('.agr'), dx > 0]].forEach(([b, to]) => {
+        b.querySelector('.c').style.transform = to ? `scale(${1 + 0.12 * t})` : '';
+        b.style.opacity = dx && !to ? String(1 - 0.7 * t) : '';
+        b.classList.toggle('armed', to && Math.abs(dx) > min);
+      });
+    };
     const render = () => {
       const t = TH[deck[st.i]];
       node.style.setProperty('--wc', ST[t.st].c10);
-      box.innerHTML = `${st.i + 2 < deck.length ? '<i class="bk n2"></i>' : ''}${st.i + 1 < deck.length ? '<i class="bk n1"></i>' : ''}${reviewFront(t)}`;
+      box.innerHTML = `${st.i + 2 < deck.length ? '<i class="bk n2"></i>' : ''}${reviewFront(t)}`;
+      // both directions vote and move on, so the card behind is always the next thesis
+      slot = null;
+      if (st.i + 1 < deck.length) { slot = peekSlot(box.querySelector('[data-front]'), { inset: 12, dy: 8, op: r2 ? 0.6 : 1 }); slot.set(reviewFront(TH[deck[st.i + 1]])); }
       prog.forEach((p, k) => { p.classList.toggle('on', k <= st.i); if (!r2) p.style.background = k <= st.i ? ST[TH[deck[k]].st].c : ''; });
       cnt.textContent = `${st.i + 1} / ${deck.length}`;
-      swipeable(box.querySelector('[data-front]'), (dir) => { vote(dir > 0 ? 'agree' : 'disagree', true); return true; });
+      swipeable(box.querySelector('[data-front]'), (dir) => { vote(dir > 0 ? 'agree' : 'disagree', true); return true; }, { onMove: lean });
     };
     const finish = () => { if (layer) layerOut(layer); else { st.i = 0; render(); } };
     const next = (delay) => setTimeout(() => { if (st.i + 1 >= deck.length) finish(); else { st.i += 1; render(); } }, delay);
@@ -1216,6 +1377,7 @@
       setVote(phone, deck[st.i], v);
       const f = box.querySelector('[data-front]');
       if (!swiped && f) { f.classList.add('fly'); f.style.transform = `translateX(${v === 'agree' ? 130 : -130}%) rotate(${v === 'agree' ? 12 : -12}deg)`; f.style.opacity = '0'; }
+      if (slot) slot.promote();
       next(280);
     };
     node.addEventListener('click', (e) => {
