@@ -400,6 +400,15 @@ async function showPick(from, { collect = false } = {}) {
 }
 
 /* Analysis / Signals */
+// PC signal card = the mobile signal plus the Web feedback row (Figma: Actions · Feedback · S).
+const LIKE_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M12.625 14.0383C12.7756 14.0382 12.8986 13.9778 12.9781 13.9266C13.0622 13.8724 13.1347 13.8046 13.193 13.7406C13.3053 13.6171 13.4085 13.4582 13.4609 13.3141C13.4663 13.2993 13.4706 13.2841 13.4742 13.2688L14.9117 7.15003C14.9187 7.12012 14.9219 7.08935 14.9219 7.05862C14.9219 6.58367 14.5386 6.19785 14.0625 6.19769H11.1398C11.2836 5.63357 11.3706 4.94927 11.375 4.30317C11.378 3.8629 11.3427 3.42312 11.2539 3.03755C11.1673 2.66152 11.0188 2.2878 10.757 2.03208C10.3376 1.62179 9.82203 1.35087 9.33281 1.52896C8.83312 1.71095 8.64386 2.25371 8.62422 2.7938C8.59265 3.66232 8.25726 4.15111 7.80703 4.88754C7.61585 5.20018 7.28822 5.54559 6.98828 5.82504C6.84172 5.96158 6.7077 6.07622 6.61094 6.15707C6.56265 6.19741 6.52414 6.22955 6.49766 6.25082C6.48442 6.26144 6.4738 6.26903 6.46719 6.27425C6.46392 6.27683 6.46165 6.27933 6.46016 6.2805L6.45859 6.28128C6.36105 6.35706 6.30391 6.47417 6.30391 6.59769V13.1773C6.30396 13.6524 6.68789 14.0383 7.16406 14.0383H12.625ZM7.16406 13.2383C7.13145 13.2383 7.10396 13.2123 7.10391 13.1773V6.78753C7.11037 6.78216 7.11742 6.7768 7.12422 6.77113C7.22935 6.68328 7.37427 6.55863 7.53359 6.41019C7.84559 6.11951 8.23972 5.71384 8.48984 5.30473C8.92218 4.59757 9.3831 3.93367 9.42344 2.82271L9.43516 2.67114C9.47392 2.35569 9.58653 2.28795 9.60625 2.28052C9.63841 2.26881 9.83225 2.24645 10.1977 2.60396V2.60474C10.2987 2.70346 10.4013 2.90091 10.4742 3.21724C10.5449 3.52406 10.5777 3.89797 10.575 4.2977C10.5695 5.10352 10.4219 5.94466 10.2227 6.45082C10.1742 6.57394 10.1904 6.71332 10.2648 6.82269C10.3394 6.93189 10.4631 6.99769 10.5953 6.99769H14.0625C14.0866 6.99781 14.1071 7.01206 14.1164 7.03363L12.7031 13.0492C12.6978 13.061 12.6896 13.0815 12.6734 13.107C12.6525 13.14 12.6269 13.1736 12.6008 13.2023C12.5858 13.2188 12.5717 13.2297 12.5617 13.2383H7.16406ZM4.32422 14.0391C4.80035 14.039 5.18438 13.6531 5.18438 13.1781V7.05941C5.18432 6.58445 4.80032 6.19856 4.32422 6.19847H2.10625C1.63008 6.19847 1.24615 6.5844 1.24609 7.05941C1.24609 7.07345 1.24696 7.08763 1.24844 7.10159L1.89531 13.2203C1.91715 13.6759 2.29104 14.0391 2.75313 14.0391H4.32422ZM2.75313 13.2391C2.72048 13.2391 2.69297 13.2131 2.69297 13.1781C2.69296 13.1642 2.69209 13.1498 2.69063 13.1359L2.04688 7.05159C2.05066 7.0207 2.07613 6.99847 2.10625 6.99847H4.32422C4.35676 6.99855 4.38432 7.02455 4.38438 7.05941V13.1781C4.38438 13.213 4.3568 13.239 4.32422 13.2391H2.75313Z"/></svg>';
+const CLOSE_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M12.5179 2.91794C12.6741 2.76173 12.9273 2.76173 13.0835 2.91794C13.2395 3.07416 13.2397 3.32741 13.0835 3.48356L8.56631 8.00076L13.0835 12.518C13.2395 12.6742 13.2397 12.9274 13.0835 13.0836C12.9273 13.2396 12.6741 13.2396 12.5179 13.0836L8.00069 8.56638L3.48349 13.0836C3.32733 13.2396 3.07404 13.2396 2.91787 13.0836C2.76171 12.9274 2.7618 12.6742 2.91787 12.518L7.43506 8.00076L2.91787 3.48356C2.76171 3.3274 2.7618 3.07416 2.91787 2.91794C3.07408 2.76173 3.32728 2.76173 3.48349 2.91794L8.00069 7.43513L12.5179 2.91794Z"/></svg>';
+function pcSignal(signal) {
+  const el = signalCard({ ...signal, analysis: String(signal.analysis || '').replace(/\s*\(placeholder analysis\)\s*$/, '') }, api);
+  const row = node('div', 'pc-signal-actions', `<button type="button" aria-label="Helpful">${LIKE_SVG}</button><button type="button" aria-label="Not relevant">${CLOSE_SVG}</button>`);
+  el.append(row); return el;
+}
+
 async function showTrack(from, { entering = false } = {}) {
   const item = data.theses.find(t => t.id === state.trackedId) || data.theses[0];
   const signals = trackedSignals(item.id, api);
@@ -419,7 +428,7 @@ async function showTrack(from, { entering = false } = {}) {
   handlers.next = () => go('portfolio');
   const finish = () => { setHint(`${signals.length} signals found`, true); setPrimary({ label: 'Next', disabled: false }); state.trackReady = true; };
   if (state.trackReady || R()) {
-    signals.forEach(s => column.append(signalCard(s, api)));
+    signals.forEach(s => column.append(pcSignal(s)));
     await swapRight(v); v.scrollTop = Math.min(v.scrollHeight - v.clientHeight, title.getBoundingClientRect().top - v.getBoundingClientRect().top - 120); finish(); return;
   }
   const scrollTo = (to, duration) => new Promise(resolve => {
@@ -452,13 +461,8 @@ async function showTrack(from, { entering = false } = {}) {
   title.style.opacity = '';
   p2(title, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], 320);
   let analysis = null, reveal = null;
-  const openAnalysis = async (first) => {
-    analysis = analyzingCard(api); reveal = node('div', 'track-analysis-reveal'); reveal.append(analysis); title.after(reveal);
-    const h = reveal.offsetHeight;
-    if (first) await p2(reveal, [{ height: '0px', opacity: 0, marginTop: '-8px' }, { height: `${h}px`, opacity: 1, marginTop: '0px' }], 520);
-    else await p2(reveal, [{ height: '0px', opacity: 0, marginTop: '-12px' }, { height: `${h}px`, opacity: 1, marginTop: '0px' }], 400);
-    // typewriter task line on this card
-    const card = analysis, label = card.querySelector('.analysis-task'); typing = true; const mine = card;
+  const typewriter = () => {
+    const mine = analysis, label = mine.querySelector('.analysis-task'); typing = true;
     (async () => {
       const type = async (text, del, ms) => { const L = [...text]; for (let i = 1; i <= L.length; i++) { await wait(ms / L.length); if (!alive || !typing || analysis !== mine) return false; label.textContent = L.slice(0, del ? L.length - i : i).join(''); } return true; };
       while (alive && typing && analysis === mine) {
@@ -469,27 +473,48 @@ async function showTrack(from, { entering = false } = {}) {
       }
     })();
   };
-  const morph = async (signal) => {
+  // First analysis card unfolds under the title (nothing below it yet).
+  const openFirst = async () => {
+    analysis = analyzingCard(api); reveal = node('div', 'track-analysis-reveal'); reveal.append(analysis); title.after(reveal);
+    const h = reveal.offsetHeight;
+    await p2(reveal, [{ height: '0px', opacity: 0, marginTop: '-8px' }, { height: `${h}px`, opacity: 1, marginTop: '0px' }], 520);
+    typewriter();
+  };
+  // Later analysis cards: inserted at full height, the signals below are pushed down with a
+  // FLIP (transform only, no per-frame layout), the new card fades/settles in on top.
+  const openNext = () => {
+    const below = [...column.children].filter(c => c !== title);
+    const before = new Map(below.map(c => [c, c.getBoundingClientRect().top]));
+    analysis = analyzingCard(api); reveal = node('div', 'track-analysis-reveal'); reveal.append(analysis); title.after(reveal);
+    below.forEach(c => { const d = before.get(c) - c.getBoundingClientRect().top; if (d) p2(c, [{ transform: `translateY(${d}px)` }, { transform: 'none' }], 480, { easing: EASE, composite: 'add' }); });
+    p2(reveal, [{ opacity: 0, transform: 'translateY(-6px) scale(.985)' }, { opacity: 1, transform: 'none' }], 360, { easing: EASE, delay: 80, fill: 'backwards' });
+    typewriter(); follow();
+  };
+  // The analysis card turns into its signal in place (420, EASE_IO): height eases to the signal's,
+  // the green veil fades out while the signal content rises in.
+  const morph = (signal) => {
     typing = false;
-    const el = signalCard(signal, api), fromH = reveal.offsetHeight, tint = getComputedStyle(analysis).backgroundColor;
+    const el = pcSignal(signal), fromH = reveal.offsetHeight, tint = getComputedStyle(analysis).backgroundColor;
     reveal.before(el); const toH = el.offsetHeight, content = [...el.children];
     const veil = node('div', 'signal-morph-veil'); veil.style.background = tint; const a = analysis; veil.append(a);
     el.classList.add('is-morphing'); el.append(veil); reveal.remove(); reveal = null; analysis = null;
-    await Promise.all([
-      p2(el, [{ height: `${fromH}px`, borderRadius: '12px', boxShadow: 'none' }, { height: `${fromH}px`, borderRadius: '12px', boxShadow: 'none', offset: .12 }, { height: `${toH}px`, borderRadius: '8px' }], 420, { easing: EASE_IO }),
+    return Promise.all([
+      p2(el, [{ height: `${fromH}px`, borderRadius: '12px', boxShadow: 'none' }, { height: `${toH}px`, borderRadius: '8px', boxShadow: getComputedStyle(el).boxShadow }], 420, { easing: EASE_IO }),
       p2(a, [{ opacity: 1 }, { opacity: 0, offset: .3 }, { opacity: 0 }], 420, { easing: 'ease-out', fill: 'forwards' }),
-      p2(veil, [{ opacity: 1 }, { opacity: 1, offset: .3 }, { opacity: 0, offset: .78 }, { opacity: 0 }], 420, { easing: 'ease-in-out', fill: 'forwards' }),
-      ...content.map(c => p2(c, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 0, transform: 'translateY(4px)', offset: .5 }, { opacity: 1, transform: 'none' }], 420, { easing: 'ease-out' })),
-    ]);
-    veil.remove(); el.classList.remove('is-morphing');
+      p2(veil, [{ opacity: 1 }, { opacity: 1, offset: .25 }, { opacity: 0, offset: .75 }, { opacity: 0 }], 420, { easing: 'ease-in-out', fill: 'forwards' }),
+      ...content.map(c => p2(c, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 0, transform: 'translateY(4px)', offset: .4 }, { opacity: 1, transform: 'none' }], 420, { easing: 'ease-out' })),
+    ]).then(() => { veil.remove(); el.classList.remove('is-morphing'); el.style.height = ''; });
   };
-  await openAnalysis(true); if (!alive) return;
+  await openFirst(); if (!alive) return;
   follow();
   for (let k = 0; k < signals.length; k++) {
     await wait(k === 0 ? 1100 : 900 + Math.round(Math.random() * 400)); if (!alive) return;
-    await morph(signals[signals.length - 1 - k]); if (!alive) return;
-    follow();
-    if (k < signals.length - 1) { await wait(200); if (!alive) return; await openAnalysis(false); if (!alive) return; }
+    const done = morph(signals[signals.length - 1 - k]);
+    // Overlap: the next analysis card starts arriving while the morph is finishing,
+    // so the list moves as one continuous beat instead of stop–start.
+    if (k < signals.length - 1) { await wait(300); if (!alive) return; openNext(); }
+    await done; if (!alive) return;
+    if (k === signals.length - 1) follow();
   }
   // 5 · 260ms later the rail says what was found and Next becomes available.
   await wait(260); if (!alive) return;
