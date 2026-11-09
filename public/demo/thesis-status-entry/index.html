@@ -397,10 +397,12 @@
   /* ───────── Review (R1 / R2) ───────── */
   .rv { --wc: var(--main-m4-10); }
   .rv .wash { position: absolute; left: 0; right: 0; top: 0; height: 620px; background: linear-gradient(180deg, var(--wc) 0%, var(--wc) 40%, rgba(255, 255, 255, 0) 100%); pointer-events: none; }
-  .rv .tb { height: 56px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px 0 6px; position: relative; }
-  .rv .tb .x { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; color: var(--text-n9); }
-  .rv .hd { position: relative; flex-shrink: 0; padding: 12px 24px 0; display: flex; flex-direction: column; gap: 20px; }
-  .rv .tr { display: flex; align-items: baseline; gap: 12px; }
+  /* Top Bar per Figma: 6 side padding, close 40×56 · title Regular/16 · counter Regular/12 in a 12-padded, min 40 slot */
+  .rv .tb { height: 56px; flex-shrink: 0; display: flex; align-items: center; padding: 0 6px; position: relative; }
+  .rv .tb .x { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; color: var(--text-n9); flex-shrink: 0; }
+  .rv .tb .ttl { color: var(--text-n9); }
+  .rv .tb .cnt { height: 56px; min-width: 40px; padding: 0 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-n9); }
+  .rv .hd { position: relative; flex-shrink: 0; padding: 12px 24px 0; }
   .prog { display: flex; gap: 4px; }
   .prog i { flex: 1; height: 2px; border-radius: 960px; background: var(--line-l12); }
   .rv .bd { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; justify-content: safe center; padding: 12px 24px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
@@ -428,9 +430,7 @@
   .vb .dis .c { background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; color: var(--text-n9); }
   .vb .agr .c { background: var(--main-m1); color: #fff; }
   .rv.r2 { background: var(--main-m1); }
-  .rv.r2 .tb .x, .rv.r2 .hd .tr { color: #fff; }
-  .rv.r2 .hd { gap: 16px; }
-  .rv.r2 .hd .cnt { color: #fff; opacity: 0.7; }
+  .rv.r2 .tb .x, .rv.r2 .tb .ttl, .rv.r2 .tb .cnt { color: var(--text-nr9); }
   .rv.r2 .prog i { background: #fff; opacity: 0.3; }
   .rv.r2 .prog i.on { opacity: 1; }
   .rv.r2 .rdeck .bk { outline: 0; }
@@ -855,8 +855,8 @@
     <div class="pcard"><div class="h t14 md"><span class="n9">${esc(t.perf.tk)}</span><span class="${t.perf.dir}">${t.perf.v}</span></div><div class="chart">${chartOf(t)}</div><p class="t12 n5">${t.perf.vs}</p></div></div>`;
 
   const reviewScreen = (style, n) => `<div class="scr rv ${style}">${style === 'r1' ? '<i class="wash"></i>' : ''}${statusBar(style === 'r2')}
-    <div class="tb"><button class="x" data-act="rv-close" aria-label="Close">${icon('close20', 20)}</button></div>
-    <div class="hd"><div class="tr"><p class="t24 grow">Today’s review</p><span class="t12 n5 cnt nw" data-cnt>1 / ${n}</span></div><div class="prog" data-prog>${'<i></i>'.repeat(n)}</div></div>
+    <div class="tb"><button class="x" data-act="rv-close" aria-label="Close">${icon('close20', 20)}</button><p class="t16 ttl grow ell">Today’s review</p><span class="t12 cnt nw" data-cnt>1 / ${n}</span></div>
+    <div class="hd"><div class="prog" data-prog>${'<i></i>'.repeat(n)}</div></div>
     <div class="bd"><div class="rdeck" data-deck></div></div>
     <div class="acts"><button class="tx t14" data-act="rv-back">Back</button><div class="vb"><button class="v dis" data-act="rv-disagree"><span class="c">${icon('close24', 24)}</span><span class="t12">Disagree</span></button><button class="v agr" data-act="rv-agree"><span class="c">${icon('check24', 24)}</span><span class="t12">Agree</span></button></div><button class="tx t14" data-act="rv-skip">Skip</button></div>
     ${home(style === 'r2')}</div>`;
