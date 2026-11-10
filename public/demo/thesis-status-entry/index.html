@@ -512,11 +512,11 @@
   .vgrp .btn-s.sec.armed, .cvs .cv.dis.armed { background: var(--main-m1); outline-color: transparent; color: #fff; }
 
   /* ───────── Thesis detail ───────── */
-  /* Similar signals · secondary page top bar (Topbar/Mweb · 二级页面): back 40×56, title Regular/16 over a Regular/10 count */
+  /* Similar signals · secondary page top bar (Topbar/Mweb · 二级页面, Figma 14904:112730): back 40×56, then one Regular/16 n9 title, the signal count */
   .stb { height: 56px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px 0 6px; background: var(--background-b0); }
   .stb .bk { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .stb .bk img { width: 20px; height: 20px; }
-  .stb .ttl { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .stb .ttl { flex: 1; min-width: 0; }
   .dtb { height: 56px; flex-shrink: 0; display: flex; align-items: center; padding: 0 16px 0 6px; background: #fff; }
   .dtb .bk { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .dtb .bk img { width: 20px; height: 20px; }
@@ -854,7 +854,7 @@
   const ownerHead = (x) => `<div class="th">${img(x.ownerAv, 'av')}<div class="tg t12"><span class="nm md ell">${esc(x.owner)}</span><span class="md">·</span><span class="tt ell">${esc(x.thesis)}</span></div>${img('arrow-right-l2.svg', 'ar')}</div>`;
   // Similar signals · secondary page: back arrow, title with the count under it, then the signal list
   const similarScreen = () => `<div class="scr sim">${statusBar()}
-      <div class="stb"><button class="bk" data-act="back" aria-label="Back">${img('d-arrow-left-l1.svg')}</button><div class="ttl"><p class="t16 n9 ell">Similar signals</p><p class="t10 n5 ell">${SIMILAR.length} signals</p></div></div>
+      <div class="stb"><button class="bk" data-act="back" aria-label="Back">${img('d-arrow-left-l1.svg')}</button><p class="ttl t16 n9 ell">${SIMILAR.length} signals</p></div>
       <div class="scroll">${SIMILAR.map((x) => signalCard(null, { ...SILICON, ...x }, ownerHead(x))).join('')}</div>${home()}</div>`;
 
   const satyaCard = () =>`<section class="card"><div class="srcpost"><div class="sid">${img('avatar-satya.png', 'av32')}<div class="who"><div class="c"><span class="t14 md n9 ell">Satya Nadella</span><span class="t12 n5 ell">Chairman &amp; CEO, Microsoft</span></div><span class="t12 n5 nw">1h ago</span></div></div>
