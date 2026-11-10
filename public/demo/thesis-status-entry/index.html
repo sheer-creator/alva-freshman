@@ -551,20 +551,21 @@
   .srow { display: flex; align-items: center; gap: 8px; }
   .stag { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
   .wsec { display: flex; flex-direction: column; gap: 8px; }
-  /* 无 Status detail (Figma Thesis-MVP 14812:65214): Overview tab, an m1-tinted overall card with the think mark (60) at the
-     top right, What supports titled in m1, and a day-by-day timeline of the last four days, each with its bullets */
-  .overall.ns { position: relative; }
+  /* 无 Status detail (Figma Thesis-MVP 14812:65214): Overview tab, a plain white overall card (no tint band) with the
+     think mark (52, br03) at the top right, What supports in m3 and What challenges in m4, and a day-by-day timeline of
+     the last four days, each with its bullets; today's dot is ringed in m1, the earlier ones in n5 */
+  .overall.ns { position: relative; background: #fff; }
   .overall.ns > * { position: relative; }
-  .overall.ns > .think { position: absolute; top: 15.5px; right: 15.5px; width: 60px; height: 60px; pointer-events: none; }
-  .wsec .sup { color: var(--main-m1); }
+  .overall.ns > .think { position: absolute; top: 16px; right: 16px; width: 52px; height: 52px; pointer-events: none; }
   .dl { display: flex; flex-direction: column; }
   .dl .dy { display: flex; gap: 12px; }
   .dl .rl { width: 14px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 6px; }
   .dl .dot { width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px var(--text-n5); }
+  .dl .dot.now { box-shadow: inset 0 0 0 1px var(--main-m1); }
   .dl .line { flex: 1; width: 0; border-left: 0.5px solid var(--line-l2); }
   .dl .cn { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px; }
   .dl .end .cn { padding-bottom: 0; }
-  .dl .dh { display: flex; flex-direction: column; gap: 4px; }
+  .dl .dh { display: flex; flex-direction: column; gap: 8px; } /* date and headline sit 8 apart, like the bullets (Figma Day / Content gap 8) */
   .tl { display: flex; flex-direction: column; }
   .tseg { display: flex; gap: 12px; align-items: stretch; }
   .tseg .rl { width: 16px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 3px; }
@@ -717,7 +718,7 @@
         ['Moratorium backers won in Texas and Georgia; Goldman sees **45%** of planned capacity at risk', ['prd-av-13.jpg', 'prd-av-57.jpg', 'prd-av-19.jpg']],
         ['Uber got **~500** Eats orders and four rides from AI agents; Walmart partners with Muse', ['prd-av-124.jpg', 'prd-av-13.jpg']],
       ],
-      perf: { tk: 'META', v: '−9.4%', dir: 'down', vs: '−8.9 pts vs SPY', gen: 'meta' },
+      perf: { tk: 'META', v: '−9.3%', dir: 'down', vs: '−8.9 pts vs SPY', gen: 'meta' },
     },
     aisec: {
       short: 'AI security', title: 'AI security demand will grow', cur: ['watch', 'since Oct 29'], detail: 'aisec',
@@ -768,7 +769,7 @@
   // out — no status bands or change panels, no status wash or status-coloured progress. Drawn for A3, B1, B2 and the Review;
   // the panel switch flips every screen that has it, the rest keep their status version.
   let noStatus = false;
-  const NS_OK = new Set(['a3', 'b1', 'b2', 'b4', 'r1', 'r2', 'd1', 'd2']); // drawn without status
+  const NS_OK = new Set(['a3', 'b1', 'b2', 'b4', 'r1', 'r2', 'd1', 'd2', 'd3']); // drawn without status
   const NS_ONLY = new Set(['b4']); // drawn only without status
   // the panel lists only what the chosen mode has a design for
   const shown = (id) => (noStatus ? NS_OK.has(id) : !NS_ONLY.has(id));
@@ -959,7 +960,11 @@
   };
 
   /* ── charts generated from PRD prices (same vocabulary as the NBIS chart in Figma) ── */
-  function genChart(key) {
+  // 无 Status (Figma Thesis-MVP 14812:63036 · Performance card charts): no status, so the thesis line is one n9 solid line
+  // and the "now" dot is n9 too; the SPY dashes (n3) and the 0% baseline (l2) stay as they are.
+  // Detail price cards pass the card's direction (o.dir): their 0% baseline is l12 (Figma 14771:93465 / 14812:65214), and
+  // without status the line and the 8px "now" dot (white 1.5 ring) take the price colour, up m3 / down m4.
+  function genChart(key, o = {}) {
     const S = SERIES[key];
     if (!S) return '';
     const W = 336, H = 56, P = 4;
@@ -976,9 +981,12 @@
       const st = stOf(p[0]); const pt = `${x(i).toFixed(1)} ${y(p[1]).toFixed(1)}`;
       if (!cur || cur.st !== st) { if (cur) cur.d += ` L${pt}`; cur = { st, d: `M${pt}` }; segs.push(cur); } else cur.d += ` L${pt}`;
     });
-    const end = pts[pts.length - 1], ex = x(pts.length - 1).toFixed(1), ey = y(end[1]).toFixed(1), ec = ST[stOf(end[0])].hex;
+    const end = pts[pts.length - 1], ex = x(pts.length - 1).toFixed(1), ey = y(end[1]).toFixed(1);
+    const px = noStatus && o.dir ? `var(--main-${o.dir === 'up' ? 'm3' : 'm4'})` : '';
+    const ink = (st) => (px ? `style="stroke:${px}"` : noStatus ? 'style="stroke:var(--text-n9)"' : `stroke="${ST[st].hex}"`);
+    const line = noStatus ? [{ st: '', d: segs.map((g, k) => (k ? g.d.replace(/^M/, 'L') : g.d)).join(' ') }] : segs;
     const ns = 'vector-effect="non-scaling-stroke"';
-    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="M0 ${y(0).toFixed(1)}H${W}" stroke="rgba(0,0,0,.2)" stroke-width=".5" stroke-dasharray="2 2" ${ns}/><path d="${bench}" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" stroke-dasharray="3 2" ${ns}/>${segs.map((s) => `<path d="${s.d}" fill="none" stroke="${ST[s.st].hex}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" ${ns}/>`).join('')}<path d="M${ex} ${ey}h0" stroke="#fff" stroke-width="6" stroke-linecap="round" ${ns}/><path d="M${ex} ${ey}h0" stroke="${ec}" stroke-width="4.5" stroke-linecap="round" ${ns}/></svg>`;
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="M0 ${y(0).toFixed(1)}H${W}" stroke="rgba(0,0,0,${o.dir ? '.12' : '.2'})" stroke-width=".5" stroke-dasharray="2 2" ${ns}/><path d="${bench}" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" stroke-dasharray="3 2" ${ns}/>${line.map((g) => `<path d="${g.d}" fill="none" ${ink(g.st)} stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" ${ns}/>`).join('')}<path d="M${ex} ${ey}h0" stroke="#fff" stroke-width="${px ? 8 : 6}" stroke-linecap="round" ${ns}/><path d="M${ex} ${ey}h0" ${ink(stOf(end[0]))} stroke-width="${px ? 5 : 4.5}" stroke-linecap="round" ${ns}/></svg>`;
   }
 
   /* ═════════ screens ═════════ */
@@ -1035,9 +1043,9 @@
   /* ── detail ── */
   const DETAIL = {
     meta: {
-      date: '20 Oct, 23:12', tickers: [['logo-meta.svg', 'META']], rail: true,
+      date: '21 Oct, 10:32', tickers: [['logo-meta.svg', 'META']], rail: true, nsLine: 'l2',
       body: ['1. Meta is still very cheap.', "2. The value of its AI infrastructure isn't priced in — if anything the market is discounting it right now.", "3. Meta's model capability is catching up with the frontier… "],
-      perf: [['META', '−9.4%', 'down', 'meta', '−8.9 pts vs SPY']],
+      perf: [['META', '−9.3%', 'down', 'meta', '−8.9 pts vs SPY']],
       status: 'challenged', explain: 'd-status-explain.svg', explainSize: 14,
       supports: ['Muse reached 10M+ setups and ~2.9M daily users; Muse Wonder ranks near the top of a leading index', "Ads outgrow Google's with Q3 revenue up 26%, and hyperscalers like Meta trade cheapest since 2012", 'Investors fund Meta readily: its stock sale drew ~5x demand and its euro bond a record €53B'],
       challenges: ['META is down 9% since publication, 9 pts behind SPY and 6 behind Alphabet, Microsoft and Amazon', "S&P turned Meta's outlook negative on $110B of 2026-27 cash burn, now funded with new stock and bonds", 'Muse is costly to serve, its growth is slowing, and agent commerce is tiny, ~500 orders at Uber'],
@@ -1048,9 +1056,9 @@
       ],
     },
     aisec: {
-      date: '16 Oct, 10:24', tickers: [['logo-crwd.png', 'CRWD'], ['logo-panw.png', 'PANW'], ['logo-zs.png', 'ZS']], rail: false,
+      date: '16 Oct, 18:24', tickers: [['logo-crwd.png', 'CRWD'], ['logo-panw.png', 'PANW'], ['logo-zs.png', 'ZS']], rail: false,
       body: ['AI will expand the number of identities, workloads, data flows, and attack paths that organizations must secure. Companies offering indispensable protection for AI agents, cloud workloads, identity, and data should experience durable demand growth… '],
-      perf: [['CRWD', '+2.1%', 'up', 'aisec-CRWD', '+4.9 pts vs SPY'], ['PANW', '−2%', 'down', 'aisec-PANW', '+0.8 pts vs SPY'], ['ZS', '+5%', 'up', 'aisec-ZS', '+7.8 pts vs SPY'], ['FTNT', '−26.3%', 'down', 'aisec-FTNT', '−23.5 pts vs SPY'], ['S', '+4.6%', 'up', 'aisec-S', '+7.4 pts vs SPY'], ['OKTA', '−2.6%', 'down', 'aisec-OKTA', '+0.2 pts vs SPY'], ['NET', '−11.5%', 'down', 'aisec-NET', '−8.7 pts vs SPY']],
+      perf: [['CRWD', '+1.9%', 'up', 'aisec-CRWD', '+5 pts vs SPY'], ['PANW', '−2%', 'down', 'aisec-PANW', '+1.2 pts vs SPY'], ['ZS', '+4.9%', 'up', 'aisec-ZS', '+8.1 pts vs SPY'], ['FTNT', '−26%', 'down', 'aisec-FTNT', '−22.9 pts vs SPY'], ['S', '+4.6%', 'up', 'aisec-S', '+7.7 pts vs SPY'], ['OKTA', '−4.4%', 'down', 'aisec-OKTA', '−1.4 pts vs SPY'], ['NET', '−12.3%', 'down', 'aisec-NET', '−9.1 pts vs SPY']],
       status: 'watch', explain: 'ai-status-explain16.svg', explainSize: 16,
       supports: ['Demand is reaching results: Fortinet lifted its outlook to 20% with FCF +52%; Varonis SaaS ARR rose 42%', 'Attacks are rising and costly: CVEs ~15k a month from ~4k; Ahold and Stryker cut outlooks after hacks', 'Buyers are adding dedicated security: banks spend more; CoreWeave and Anthropic users require CrowdStrike'],
       challenges: ['Good news no longer lifts the stocks: down 13.9% in five sessions and 4.4% below publication', "Conversion is lagging: Fortinet's new deals carry less subscription and Check Point's revenue fell 1%", "Big platforms capture agent security: Microsoft's Agent 365 holds 50M agents; Datadog and SAP bundle controls"],
@@ -1086,7 +1094,7 @@
     const days = DETAIL[thesis].tl.flatMap((g) => [{ date: g.date, head: g.head, bul: g.bul }, ...((MORE[thesis] || {})[g.st] || [])]).slice(0, NS_DAYS);
     return `<div class="dl">${days.map((d, k) => {
       const last = k === days.length - 1;
-      return `<div class="dy${last ? ' end' : ''}"><div class="rl"><i class="dot"></i>${last ? '' : '<i class="line"></i>'}</div><div class="cn"><div class="dh"><span class="t12 ${d.date === 'Today' ? 'n9' : 'n5'}">${d.date}</span><p class="t14 md n9">${esc(d.head)}</p></div>${d.bul.map(dayBullet).join('')}</div></div>`;
+      return `<div class="dy${last ? ' end' : ''}"><div class="rl"><i class="dot${d.date === 'Today' ? ' now' : ''}"></i>${last ? '' : '<i class="line"></i>'}</div><div class="cn"><div class="dh"><span class="t12 ${d.date === 'Today' ? 'n9' : 'n5'}">${d.date}</span><p class="t14 md n9">${esc(d.head)}</p></div>${d.bul.map(dayBullet).join('')}</div></div>`;
     }).join('')}</div>`;
   };
   const THINK = img('think-l.svg', 'think');
@@ -1114,7 +1122,7 @@
   const detailScreen = (o) => {
     const d = DETAIL[o.thesis];
     const s = ST[d.status];
-    const perfCard = ([tk, v, dir, chart, vs]) => `<div class="perf240"><div class="h"><span class="t12 n9">${tk}</span><span class="t14 md ${dir}">${v}</span></div>${/\.(svg|png)$/.test(chart) ? img(chart, 'chart') : `<div class="chart">${genChart(chart)}</div>`}<p class="t12 n5">${vs}</p></div>`;
+    const perfCard = ([tk, v, dir, chart, vs]) => `<div class="perf240"><div class="h"><span class="t12 n9">${tk}</span><span class="t14 md ${dir}">${v}</span></div>${/\.(svg|png)$/.test(chart) ? img(chart, 'chart') : `<div class="chart">${genChart(chart, { dir })}</div>`}<p class="t12 n5">${vs}</p></div>`;
     const body = d.body.map((p, i) => `<p class="t14 n9">${esc(p)}${i === d.body.length - 1 ? '<span class="more-l">Show more</span>' : ''}</p>`).join('');
     return `<div class="scr detail" data-thesis="${o.thesis}">${statusBar()}
       <div class="dtb"><button class="bk" data-act="back">${img('d-arrow-left-l1.svg')}</button><div class="who">${img('avatar-harryz.png')}<span class="t14 md n9">harryz</span></div><span class="btn-xs t12 md">Follow</span></div>
@@ -1126,9 +1134,9 @@
         ${d.rail ? `<div class="upd"><div class="rail" style="padding-bottom:3px"><i class="line"></i>${img('d-rail-dot.svg')}</div><div class="viewall t12">View all 12 updates${img('arrow-right-l2.svg')}</div></div>` : ''}
         <div style="padding-top:16px"><div class="dtabs"><span class="dtab on t14">${noStatus ? 'Overview' : 'Status'}</span><span class="dtab t14">${img('d-live-l.svg')}Signals</span><span class="dtab t14">Related thesis</span></div>
           <div class="ov">${noStatus
-            ? `<div class="overall ns" style="--ow:rgba(73,163,166,.06)">${THINK}<div class="srow"><span class="t12 n5">Updated 4 Nov, 8:00 PM ET</span></div>
-            <div class="wsec"><p class="t14 md sup">What supports</p>${d.supports.map(plainBullet).join('')}</div>
-            <div class="wsec"><p class="t14 md n9">What challenges</p>${d.challenges.map(plainBullet).join('')}</div></div>
+            ? `<div class="overall ns"${d.nsLine ? ` style="outline-color:var(--line-${d.nsLine})"` : ''}>${THINK}<div class="srow"><span class="t12 n5">Updated 4 Nov, 8:00 PM ET</span></div>
+            <div class="wsec"><p class="t14 md up">What supports</p>${d.supports.map(plainBullet).join('')}</div>
+            <div class="wsec"><p class="t14 md down">What challenges</p>${d.challenges.map(plainBullet).join('')}</div></div>
             <div class="tl">${dayline(o.thesis)}</div>`
             : `<div class="overall" style="--ow:${s.ow}"><div class="srow"><span class="stag">${mark(d.status)}<span class="t14 md n9">${s.label}</span></span>${img(d.explain, '', `style="width:${d.explainSize}px;height:${d.explainSize}px"`)}<span class="t12 n5 grow" style="text-align:right">Updated 4 Nov, 8:00 PM ET</span></div>
             <div class="wsec"><p class="t14 md n9">What supports</p>${d.supports.map(plainBullet).join('')}</div>
@@ -1146,6 +1154,11 @@
   // C card stance. The opts are render variants named before the 2026-11-09 reorder, so they no longer match the
   // keys: entry b1–b4 draws A1–A4, card c1–c3 draws B1–B3, marker dot / arrow draws C1 / C2.
   const GROUPS = [
+    { id: 'D', title: '详情页', items: [
+      { id: 'd1', k: 'P2', label: '单 ticker', screen: 'detail', opts: { thesis: 'meta' }, size: DET },
+      { id: 'd2', k: 'P2', label: '多 ticker', screen: 'detail', opts: { thesis: 'aisec' }, size: DET },
+      { id: 'd3', k: '→', label: 'Similar signals（点来源头像进入）', screen: 'similar', opts: {}, size: DET },
+    ] },
     { id: 'A', title: 'For You 顶部今日待看', items: [
       { id: 'a1', k: 'A1', label: '白卡 + 小卡堆', screen: 'feed', opts: { entry: 'b1' } },
       { id: 'a2', k: 'A2', label: '品牌色 + 小卡堆', screen: 'feed', opts: { entry: 'b2' } },
@@ -1167,15 +1180,12 @@
       { id: 'r1', k: 'R1', label: '状态色沉浸', nsLabel: '白底', screen: 'review', opts: { style: 'r1' } },
       { id: 'r2', k: 'R2', label: '品牌色底', screen: 'review', opts: { style: 'r2' } },
     ] },
-    { id: 'D', title: '详情页', items: [
-      { id: 'd1', k: 'P2', label: '单 ticker · META', screen: 'detail', opts: { thesis: 'meta' }, size: DET },
-      { id: 'd2', k: 'P2', label: 'AI 安全 · 看多 7 只 · 分 ticker，一票一张横滑', screen: 'detail', opts: { thesis: 'aisec' }, size: DET },
-    ] },
   ];
+  // the detail page leads the panel and is what the demo opens on
   const SECTIONS = [
+    { title: '详情页', groups: ['D'] },
     { title: '列表页', groups: ['A', 'B', 'C'] },
     { title: '整页 Review', groups: ['R'] },
-    { title: '详情页', groups: ['D'] },
   ];
   const ALL = GROUPS.flatMap((g) => g.items.map((it) => ({ ...it, group: g.id, size: it.size || ENTRY })));
   if (qs.has('solo') && qs.get('h')) ALL.forEach((s) => { s.size = { ...s.size, h: +qs.get('h') }; }); // full-length frames for checking against Figma
@@ -1197,6 +1207,7 @@
     if (scheme.screen === 'feed') base = frag(feedScreen(scheme.opts, S));
     else if (scheme.screen === 'chat') base = frag(chatScreen(scheme.opts, S));
     else if (scheme.screen === 'review') base = frag(reviewScreen(scheme.opts.style, DECK4.length));
+    else if (scheme.screen === 'similar') base = frag(similarScreen());
     else base = frag(detailScreen(scheme.opts));
     phone.appendChild(base);
     if (scheme.screen === 'review') initReview(phone, base, null, DECK4, 0);
@@ -1603,7 +1614,8 @@
 
   const store = { get(k) { try { return localStorage.getItem('tse.' + k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem('tse.' + k, v); } catch (e) { /* storage unavailable */ } } };
   const fromHash = (location.hash || '').slice(1);
-  let current = byId[fromHash] ? fromHash : (byId[qs.get('s')] ? qs.get('s') : (byId[store.get('cur')] ? store.get('cur') : 'a1'));
+  // opens on the 单 ticker detail page unless the link names a scheme (#id or ?s=); the hash keeps the place on refresh
+  let current = byId[fromHash] ? fromHash : (byId[qs.get('s')] ? qs.get('s') : 'd1');
   let lastFeed = byId[current].screen === 'feed' ? current : (byId[store.get('feed')] ? store.get('feed') : 'c1');
   let compare = store.get('cmp') === '1';
   reviewStyle = store.get('rv') === 'r2' ? 'r2' : 'r1';
@@ -1683,7 +1695,6 @@
     if (!byId[id]) return;
     if (!shown(id)) setMode_ns(!noStatus); // e.g. a hash change to a scheme only the other mode has
     current = id;
-    store.set('cur', id);
     if (byId[id].screen === 'feed') { lastFeed = id; store.set('feed', id); }
     history.replaceState(null, '', location.pathname + location.search + '#' + id);
     buildPanel();
