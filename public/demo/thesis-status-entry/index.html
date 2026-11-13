@@ -30,6 +30,9 @@
     --line-lr3: rgba(255, 255, 255, 0.3);
     --background-b0: #ffffff;
     --content-br7: rgba(0, 0, 0, 0.7);
+    --content-br1: rgba(0, 0, 0, 0.1);
+    --content-br2: rgba(0, 0, 0, 0.2);
+    --line-l9: rgba(0, 0, 0, 0.9);
     --content-br07: rgba(0, 0, 0, 0.07);
     --content-br05: rgba(0, 0, 0, 0.05);
     --content-br03: rgba(0, 0, 0, 0.03);
@@ -452,9 +455,9 @@
   .tf textarea::placeholder { color: var(--text-n3); }
   .sheet .btns { display: flex; gap: 12px; padding: 0 16px 8px; }
 
-  /* ───────── Today’s review drawer (Figma Thesis-MVP 14998:118865) ─────────
+  /* ───────── Today’s review drawer (Figma Thesis-MVP 14998:118865 · read / keep-unread flow after Slack’s Catch Up) ─────────
      The What’s off sheet frame (grab 12, top bar 56) over the B4 chat. The m7 dim keeps 106 clear at the top, so the
-     sheet never grows past it; content 12 / 16 padding, 24 between the deck and the actions row. */
+     sheet never grows past it; content 12 / 16 padding, 24 between the deck and the buttons. */
   .sheet-wrap.tr { padding-top: 106px; }
   .sheet.tr { display: flex; flex-direction: column; min-height: 0; max-height: 100%; }
   .sheet.tr .grab, .sheet.tr .tb, .sheet.tr .home { flex-shrink: 0; }
@@ -492,14 +495,30 @@
   .trc .src img { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 4px; vertical-align: top; position: relative; top: 3px; }
   .trc .src .sn { color: var(--text-n7); text-decoration: underline dotted rgba(0, 0, 0, 0.5); text-decoration-thickness: 8%; }
   .trc .pr { position: relative; flex-shrink: 0; margin-top: auto; padding: 16px 16px 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-  /* actions: 32 × 2 progress segments 4 apart (n9 up to the current card, l12 after), 56 round br03 buttons 12 apart */
-  .tr-act { flex-shrink: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-  .tr-prog { display: flex; gap: 4px; }
-  .tr-prog i { width: 32px; height: 2px; border-radius: 960px; background: var(--line-l12); }
-  .tr-prog i.on { background: var(--text-n9); }
-  .tr-nav { display: flex; gap: 12px; }
-  .tr-nav button { width: 56px; height: 56px; border-radius: 50%; background: var(--content-br03); display: flex; align-items: center; justify-content: center; color: var(--text-n9); }
-  .tr-nav button:disabled { color: var(--text-n2); cursor: default; }
+  /* top bar: two-line title (Today’s review / N unread), Undo on the right once a card has been handled */
+  .sheet.tr .tb .ttl2 { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .sheet.tr .tb .undo { flex-shrink: 0; height: 56px; padding: 0 10px; margin-right: -10px; color: var(--text-n9); }
+  .sheet.tr [hidden] { display: none !important; }
+  /* drag feedback: the card tilts with the finger (swipeable) and fills with the colour of the side it is heading to — the
+     buttons' sides: Keep unread (br7) to the left, Mark as read (m1) to the right — with a white stamp (icon + label) on it */
+  .trc .veil { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 2; }
+  .trc .veil.k { background: var(--content-br7); }
+  .trc .veil.r { background: var(--main-m1); }
+  /* the stamp sits in the top corner on the trailing edge, the side that stays on screen: right when the card goes left
+     (Keep unread), left when it goes right (Mark as read) */
+  .trc .stamp { position: absolute; top: 20px; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; white-space: nowrap; color: #fff; opacity: 0; transform: scale(0.8); pointer-events: none; }
+  .trc .stamp.r { left: 20px; transform-origin: left top; }
+  .trc .stamp.k { right: 20px; transform-origin: right top; }
+  /* library icons as they are, both at 48 so their lines match: check-l2 (the check in its own circle) and hide-l */
+  .trc .stamp .ic { display: block; }
+  /* bottom: the Drawer’s two M40 buttons, 24 under the deck; after the last card the deck gives way to the end state and Done */
+  .sheet.tr .btns { flex-shrink: 0; padding: 12px 16px 8px; }
+  /* the library Button states the drag switches to (Alva Library Button · M 40): Primary Hover = btn-primary + br1,
+     Click = btn-primary + br2; Secondary Hover = l9 stroke (its Click looks the same as Normal, so Hover is kept) */
+  .sheet.tr .btns .btn-m.pri.hover { background: linear-gradient(var(--content-br1), var(--content-br1)), var(--main-m1); }
+  .sheet.tr .btns .btn-m.pri.click { background: linear-gradient(var(--content-br2), var(--content-br2)), var(--main-m1); }
+  .sheet.tr .btns .btn-m.sec.hover { outline-color: var(--line-l9); }
+  .tr-end { padding: 64px 16px 48px; display: flex; flex-direction: column; align-items: center; text-align: center; }
 
   /* ───────── Review (R1 / R2) ───────── */
   .rv { --wc: var(--main-m4-10); }
@@ -712,6 +731,12 @@
     dis20: [17.778, 'M17 10C17 6.13401 13.866 3 10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10ZM12.1465 7.14648C12.3417 6.95122 12.6583 6.95122 12.8535 7.14648C13.0488 7.34175 13.0488 7.65825 12.8535 7.85352L10.707 10L12.8535 12.1465C13.0488 12.3417 13.0488 12.6583 12.8535 12.8535C12.6583 13.0488 12.3417 13.0488 12.1465 12.8535L10 10.707L7.85352 12.8535C7.65825 13.0488 7.34175 13.0488 7.14648 12.8535C6.95122 12.6583 6.95122 12.3417 7.14648 12.1465L9.29297 10L7.14648 7.85352C6.95122 7.65825 6.95122 7.34175 7.14648 7.14648C7.34175 6.95122 7.65825 6.95122 7.85352 7.14648L10 9.29297L12.1465 7.14648ZM18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10Z', -1.111], // cropped so the circle is 0.9 of the box, same as the agree icon
   };
   const icon = (name, size) => { const [vb, d, off = 0] = PATHS[name]; return `<svg class="ic" width="${size}" height="${size}" viewBox="${-off} ${-off} ${vb} ${vb}" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`; };
+  // Alva Library check-l2 (Figma 26807:43346) / hide-l / restore-l (alva-ai-static.b-cdn.net/icons), for the Today’s review read / keep-unread stamps
+  Object.assign(PATHS, {
+    checkL2: [20, 'M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1ZM10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2ZM13.3799 7.16406C13.5655 6.95983 13.8816 6.94441 14.0859 7.12988C14.2902 7.31555 14.3056 7.6316 14.1201 7.83594L9.12012 13.3359C9.02284 13.4429 8.88384 13.5031 8.73926 13.5C8.59479 13.4969 8.45879 13.4312 8.36621 13.3203L5.86621 10.3203C5.68951 10.1083 5.71781 9.79304 5.92969 9.61621C6.14173 9.43951 6.45696 9.46781 6.63379 9.67969L8.76562 12.2383L13.3799 7.16406Z'],
+    hide: [20, 'M19.1116 5.58574C19.2852 5.37129 19.6001 5.33815 19.8148 5.51153C20.029 5.68513 20.0623 6.00002 19.889 6.21465C19.3624 6.86668 18.6973 7.57302 17.886 8.24102L19.9329 11.7732C20.071 12.0121 19.99 12.3175 19.7513 12.4559C19.5125 12.5942 19.2062 12.5128 19.0677 12.2742L17.0843 8.85137C16.0013 9.61055 14.7022 10.2683 13.1692 10.6639L13.7913 14.1912C13.8389 14.463 13.6578 14.7234 13.386 14.7713C13.1142 14.8191 12.855 14.6368 12.8069 14.365L12.1917 10.8758C11.5053 10.9936 10.777 11.0594 10.0051 11.0594C9.22887 11.0594 8.4966 10.9929 7.80685 10.8738L7.19356 14.365C7.1456 14.6368 6.88629 14.819 6.61446 14.7713C6.34282 14.7234 6.16171 14.4639 6.20918 14.1922L6.8293 10.6619C5.29853 10.2653 4.00152 9.60646 2.92009 8.84746L0.933745 12.2928C0.795736 12.5317 0.489236 12.6141 0.250145 12.4764C0.011297 12.3385 -0.0708274 12.0328 0.0665502 11.7938L2.11833 8.23614C1.3097 7.56956 0.646568 6.8651 0.121238 6.21465C-0.0521093 5.99999 -0.0188953 5.68511 0.195458 5.51153C0.41018 5.33813 0.725036 5.37122 0.898589 5.58574C2.18752 7.18175 4.32106 9.09431 7.48068 9.78887C7.48388 9.78937 7.48724 9.78928 7.49044 9.78985C7.49913 9.79138 7.50734 9.79472 7.51583 9.79668C8.28436 9.96302 9.11299 10.0594 10.0051 10.0594C12.961 10.0594 15.2236 9.02439 16.889 7.75664C16.9174 7.72919 16.9489 7.70414 16.9847 7.6834L16.9866 7.68145C17.8577 7.00416 18.5619 6.26649 19.1116 5.58574Z'],
+    restore: [20, 'M17.5 11.5C17.5 8.4624 15.0376 5.99996 12 5.99996H4.20703L6.35352 3.85348C6.54878 3.65822 6.54878 3.34171 6.35352 3.14645C6.15825 2.95118 5.84175 2.95118 5.64648 3.14645L2.64648 6.14645C2.45122 6.34171 2.45122 6.65822 2.64648 6.85348L5.64648 9.85348C5.84175 10.0487 6.15825 10.0487 6.35352 9.85348C6.54878 9.65822 6.54878 9.34171 6.35352 9.14645L4.20703 6.99996H12C14.4853 6.99996 16.5 9.01468 16.5 11.5C16.5 13.9852 14.4853 16 12 16H6.5C6.22386 16 6 16.2238 6 16.5C6 16.7761 6.22386 17 6.5 17H12C15.0376 17 17.5 14.5375 17.5 11.5Z'],
+  });
   // Voted icons follow the like button (feed-app IconPopBurst): the outline turns into the filled icon, and only on the tap
   // that votes it pops from half size with an overshoot while six dots in the icon's colour burst out. Un-voting is instant.
   let POP = false; // true only while setVote renders the surfaces of the vote just tapped
@@ -1073,7 +1098,7 @@
           <span class="lrow">${img('b4-logo-podcast.png', 'lg')}<span class="t14 n7 dl">BTC Ultimate AI Trader</span></span></div></div>
         <div class="fcard">${img('b4-file-preview.png', 'pv')}<div class="info"><span class="ic">${img('b4-file-l.svg')}</span><div class="m"><span class="t14 n9 ell">fintwit-digest</span><span class="t12 n5">MD</span></div>${img('b4-more-l1.svg', 'mo')}</div></div>
       </div></div>
-      <div class="pinned">${img('scroll-l.svg', 'ic28')}<div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5">${o.today ? `${TODAY.length} updates` : '7 theses updated'}</span></div><button class="btn-xs t12 md" data-act="${o.today ? 'tr-open' : 'review'}" data-deck="7">Review</button></div></div>
+      <div class="pinned">${img('scroll-l.svg', 'ic28')}<div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5" data-pin-unread>${o.today ? `${TODAY.length} unread` : '7 theses updated'}</span></div><button class="btn-xs t12 md" data-act="${o.today ? 'tr-open' : 'review'}" data-deck="7">Review</button></div></div>
       <div class="pintop">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div></div>
       <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`;
 
@@ -1126,7 +1151,8 @@
     .replace(/\[(x|st)\|([^\]]+)\]/g, (m, k, name) => `<span class="src">${img(TR_SRC[k])}<span class="sn">${name}</span></span>`);
   const trCard = (t) => `<div class="trc"><i class="wash"></i><div class="bd">${img(t.logo, 'lg')}<div class="mdb"><p class="t16 md n9 h2">${esc(t.head)}</p>
       <div class="bl">${t.bul.map((b) => `<div class="li"><i class="d"></i><p class="t14 n9">${trText(b)}</p></div>`).join('')}</div></div></div>
-      <div class="pr">${t.ask.map((q) => `<button class="btn-s sec t12 md">${icon('chat', 14)}<span>${esc(q)}</span></button>`).join('')}</div></div>`;
+      <div class="pr">${t.ask.map((q) => `<button class="btn-s sec t12 md">${icon('chat', 14)}<span>${esc(q)}</span></button>`).join('')}</div>
+      <i class="veil"></i><div class="stamp r">${icon('checkL2', 48)}<span class="t14 md">Mark as read</span></div><div class="stamp k">${icon('hide', 48)}<span class="t14 md">Keep unread</span></div></div>`;
 
   const chatScreen = (o, S) => (o.card === 'pin' ? pinnedChat(o) : `<div class="scr chat">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div>
       <div class="scroll" data-chat><div class="cbody"><div class="tdiv t12">8:00 PM</div>${agentBubble(noStatus ? 'Today’s read on your 7 theses is in.' : 'Today’s read on your 7 theses is in. 3 changed status and the other 4 held.')}<div data-cslot>${chatBlock(o.card, 0, S.votes[DECK7[0]])}</div></div></div>
@@ -1281,7 +1307,7 @@
       { id: 'c-sheet', k: '→', label: '点不同意后弹出原因面板（C1、C2 共用）', screen: 'feed', opts: { marker: 'dot' }, state: 'sheet' },
     ] },
     { id: 'T', title: 'Today’s review 抽屉', items: [
-      { id: 't1', k: 'T1', label: '每日简报逐条翻看', screen: 'chat', opts: { card: 'pin', today: true } },
+      { id: 't1', k: 'T1', label: '每日简报 · 已读 / 保持未读', screen: 'chat', opts: { card: 'pin', today: true } },
     ] },
     { id: 'R', title: '整页 Review', items: [
       { id: 'r1', k: 'R1', label: '状态色沉浸', nsLabel: '白底', screen: 'review', opts: { style: 'r1' } },
@@ -1668,55 +1694,91 @@
     setTimeout(() => wrap.remove(), 320);
   }
 
-  /* Today's review drawer: Next / Previous and a left / right swipe flip the deck; the place is kept when it closes */
+  /* Today's review drawer, after Slack's Catch Up: every card is either marked read or kept unread — with the two buttons, or
+     by throwing it towards the button's side, left (keep unread) / right (read). While it is dragged the card tilts, fills
+     with that side's colour and the action stamps itself on the card in white. The title counts what is still unread, Undo brings the last card back, and once the deck is empty
+     the sheet shows the end state with Done. Marks and the place are kept while the drawer is closed. */
   function openToday(phone, instant) {
     const S = phone._S;
     if (S.tr == null) S.tr = 0;
+    S.trMark = S.trMark || {}; // card index → 'read' | 'keep'
+    S.trHist = S.trHist || []; // card indexes in the order they were handled, for Undo
     const n = TODAY.length;
+    const unread = () => TODAY.filter((_, k) => S.trMark[k] !== 'read').length;
     const wrap = frag(`<div class="sheet-wrap tr"><i class="dim" data-act="tr-close"></i><div class="sheet tr">
-      <div class="grab"></div><div class="tb"><button class="x" data-act="tr-close" aria-label="Close">${icon('close20', 20)}</button><p class="t16 n9 ell grow">Today’s review</p></div>
+      <div class="grab"></div><div class="tb"><button class="x" data-act="tr-close" aria-label="Close">${icon('close20', 20)}</button><div class="ttl2"><p class="t16 n9 ell">Today’s review</p><p class="t12 n5 ell" data-unread></p></div><button class="undo t14" data-act="tr-undo" hidden>Undo</button></div>
       <div class="tr-ct"><div class="tr-dk"><i class="pl p2"></i><i class="pl p1"></i>${TODAY.map(trCard).join('')}</div>
-        <div class="tr-act"><div class="tr-prog">${TODAY.map(() => '<i></i>').join('')}</div><div class="tr-nav"><button data-act="tr-prev" aria-label="Previous">${icon('arrowL', 20)}</button><button data-act="tr-next" aria-label="Next">${icon('arrowR', 20)}</button></div></div></div>
+        <div class="tr-end" hidden><p class="t16 md n9">You’re all caught up.</p></div></div>
+      <div class="btns" data-btns><button class="btn-m sec t14 md" data-act="tr-keep">Keep unread</button><button class="btn-m pri t14 md" data-act="tr-read">Mark as read</button></div>
+      <div class="btns" data-btns-end hidden><button class="btn-m pri t14 md" data-act="tr-close">Done</button></div>
       ${home()}</div></div>`);
-    const cards = [...wrap.querySelectorAll('.trc')], segs = [...wrap.querySelectorAll('.tr-prog i')];
-    const [pv, nx] = wrap.querySelectorAll('.tr-nav button');
+    const cards = [...wrap.querySelectorAll('.trc')];
+    const cnt = wrap.querySelector('[data-unread]'), undoBtn = wrap.querySelector('.undo');
+    const dk = wrap.querySelector('.tr-dk'), end = wrap.querySelector('.tr-end'), btns = wrap.querySelector('[data-btns]'), btnsEnd = wrap.querySelector('[data-btns-end]');
     const p1 = wrap.querySelector('.pl.p1'), p2 = wrap.querySelector('.pl.p2');
-    const OUT = 'translateX(-130%) rotate(-12deg)';
+    const MIN = 70;
     let busy = false;
+    // drag feedback on a card: left (Keep unread's side) fills it br7, right (Mark as read's side) fills it m1, up to 92%;
+    // the matching stamp fades and grows in with the distance
+    const kBtn = btns.querySelector('[data-act="tr-keep"]'), rBtn = btns.querySelector('[data-act="tr-read"]');
+    const feel = (c, dx) => {
+      const t = dx ? Math.min(1, Math.abs(dx) / MIN) : 0;
+      const v = c.querySelector('.veil'); v.className = `veil${dx < 0 ? ' k' : dx > 0 ? ' r' : ''}`; v.style.opacity = t * 0.92;
+      [[c.querySelector('.stamp.k'), dx < 0], [c.querySelector('.stamp.r'), dx > 0]].forEach(([s, to]) => { s.style.opacity = to ? t : 0; s.style.transform = `scale(${0.8 + 0.2 * (to ? t : 0)})`; });
+      if (c.classList.contains('on')) lean(dx, t);
+    };
+    // the buttons follow the drag by state, as if pressed: the button on the side the card heads to goes to Hover while
+    // dragged and to Click once the drag counts; the other button stays Normal
+    const lean = (dx, t) => {
+      kBtn.classList.toggle('hover', dx < 0);
+      rBtn.classList.toggle('hover', dx > 0 && t < 1);
+      rBtn.classList.toggle('click', dx > 0 && t >= 1);
+    };
     const show = () => {
-      const i = S.tr;
-      cards.forEach((c, k) => { c.classList.toggle('on', k === i); c.classList.toggle('nx', k === i + 1); c.classList.remove('fly'); c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; });
-      segs.forEach((g, k) => g.classList.toggle('on', k <= i));
-      pv.disabled = i === 0; nx.disabled = i === n - 1;
+      const i = S.tr, done = i >= n;
+      cards.forEach((c, k) => { c.classList.toggle('on', k === i); c.classList.toggle('nx', k === i + 1); c.classList.remove('fly'); c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; feel(c, 0); });
+      lean(0, 0);
+      cnt.textContent = `${unread()} unread`;
+      undoBtn.hidden = !S.trHist.length;
       // the plates stand for the cards still to come
       p1.hidden = i + 1 >= n; p2.hidden = i + 2 >= n;
+      dk.hidden = done; end.hidden = !done; btns.hidden = done; btnsEnd.hidden = !done;
+      const pin = phone.querySelector('[data-pin-unread]'); if (pin) pin.textContent = `${unread()} unread`;
     };
-    // forward: the front leaves to the left over the next card; back: the card before comes in from the left over the front
-    const go = (d, swiped) => {
-      const j = S.tr + d;
-      if (busy || j < 0 || j >= n) return false;
+    // the front leaves towards its button — left when kept unread, right when read — and the next card takes its place
+    const mark = (action, swiped) => {
+      if (busy || S.tr >= n) return false;
       busy = true;
-      if (d > 0) {
-        const f = cards[S.tr];
-        if (!swiped) { f.classList.add('fly'); f.style.transform = OUT; f.style.opacity = '0'; }
-      } else {
-        const b = cards[j];
-        b.classList.remove('fly'); b.style.transform = OUT; b.style.opacity = '0'; b.style.zIndex = 3;
-        b.classList.add('on');
-        requestAnimationFrame(() => requestAnimationFrame(() => { b.classList.add('fly'); b.style.transform = ''; b.style.opacity = ''; }));
-      }
-      setTimeout(() => { S.tr = j; show(); busy = false; }, 300);
+      const i = S.tr, f = cards[i], dir = action === 'read' ? 1 : -1;
+      S.trMark[i] = action; S.trHist.push(i);
+      if (!swiped) { feel(f, dir * MIN); f.classList.add('fly'); f.style.transform = `translateX(${dir * 130}%) rotate(${dir * 12}deg)`; f.style.opacity = '0'; }
+      setTimeout(() => { S.tr = i + 1; show(); busy = false; }, 300);
       return true;
     };
-    cards.forEach((c) => swipeable(c, (dir) => (dir < 0 ? go(1, true) : (go(-1), false)), { min: 50, allow: (dir) => (dir < 0 ? S.tr < n - 1 : S.tr > 0) }));
+    // the last handled card comes back in from the side it left, and its mark is dropped
+    const undo = () => {
+      if (busy || !S.trHist.length) return;
+      busy = true;
+      const i = S.trHist.pop(), dir = S.trMark[i] === 'read' ? 1 : -1;
+      delete S.trMark[i];
+      S.tr = i;
+      dk.hidden = false; end.hidden = true; btns.hidden = false; btnsEnd.hidden = true;
+      const b = cards[i];
+      b.classList.remove('fly'); b.style.transform = `translateX(${dir * 130}%) rotate(${dir * 12}deg)`; b.style.opacity = '0'; b.style.zIndex = 3;
+      b.classList.add('on');
+      requestAnimationFrame(() => requestAnimationFrame(() => { b.classList.add('fly'); b.style.transform = ''; b.style.opacity = ''; }));
+      setTimeout(() => { show(); busy = false; }, 300);
+    };
+    cards.forEach((c) => swipeable(c, (dir) => mark(dir < 0 ? 'keep' : 'read', true), { min: MIN, onMove: (dx) => feel(c, dx), allow: () => !busy }));
     wrap.addEventListener('click', (e) => {
       const t = e.target.closest('[data-act]');
       if (!t || !t.dataset.act.startsWith('tr-')) return;
       e.stopPropagation();
       const a = t.dataset.act;
       if (a === 'tr-close') closeToday(phone);
-      else if (a === 'tr-next') go(1);
-      else if (a === 'tr-prev') go(-1);
+      else if (a === 'tr-read') mark('read');
+      else if (a === 'tr-keep') mark('keep');
+      else if (a === 'tr-undo') undo();
     });
     show();
     phone.appendChild(wrap);
