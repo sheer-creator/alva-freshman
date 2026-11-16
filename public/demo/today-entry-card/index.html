@@ -78,7 +78,7 @@
   .sp.none { height: 0; } .sp.line { height: 24px; }
   .sp::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: .5px; margin-top: -.25px; background: var(--l12); opacity: 0; transition: opacity var(--dur) var(--ease); }
   .sp.line::after { opacity: 1; }
-  .xp { cursor: grab; touch-action: pan-x; } .xp.drag { cursor: grabbing; }
+  .xp, .cx { cursor: pointer; }
   .lc { display: flex; flex-direction: column; gap: 8px; transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease); }
   .lc .h { font-size: 18px; line-height: 28px; letter-spacing: .18px; font-weight: 500; }
   .th { height: 20px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 20px; letter-spacing: .12px; min-width: 0; }
@@ -191,10 +191,10 @@
       <p class="tml r12">Today 9:02 AM</p>
       <div class="ab"><div class="r14 m">Daily Brief · Nov 12</div><div class="r14">Three things today touch what you follow. <span class="ent">NVDA</span> fell about 8% after hours; Herman keeps it as the short leg, and his read on Microsoft is the part worth borrowing. <span class="ent">CRWV</span> gave a profit timeline while borrowing against its customer contracts. Crypto funding is tightening, which points at your Bitcoin thesis.</div></div>
       <div class="tcard" id="card">
-        <div class="hdr"><img src="assets/alva-symbol-bg.svg" alt=""><span class="t">Today</span><span class="r12 n5 cnt" id="count">3 to read</span></div>
+        <div class="hdr"><img src="assets/alva-symbol-bg.svg" alt=""><span class="t">Today</span><span class="r12 n5 cnt" id="count"></span></div>
         <div class="part"><div>
           <div class="list" id="list"></div>
-          <button class="btn-m" id="open">Start Review</button>
+          <button class="btn-m" id="open">Review 3 updates</button>
         </div></div>
       </div>
     </div>
@@ -217,8 +217,8 @@
   </div>
   <div class="panel">
     <h1>Today 入口卡与卡组</h1>
-    <p>按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。入口卡：条目保持原来的顺序，当前这条在原位展开，其余收成一行。在展开的那条上上下拖（或滚轮、↑↓）切到相邻一条，点任意一行也在原位展开；自动播放每 4 秒切到下一条，鼠标放在卡上、拖动中或卡组打开时暂停。点展开的那条或 Start Review，从这条打开卡组。</p>
-    <p>卡组：左滑或 Keep unread 保持未读，右滑或 Mark as read 标为已读，拖动时露出下一张；滑过之后右上角出现 Undo，撤回上一张。每张看一遍后到「You’re all caught up.」，Done 关掉。标为已读的条目会从入口卡里消失、「N to read」递减，全部读完入口卡收成一条。点卡里 Alva 的建议，按钮变成已发送，下面显示 Reading your thesis。</p>
+    <p>按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。入口卡：右上角是简报日期，条数在底部按钮上。条目保持原来的顺序，当前这条在原位展开，其余收成一行；5 条及以上卡里只列前 4 条，其余在 Review 里看，读掉一条后后面的补上来。平时自动播放，每 4 秒切到下一条，鼠标放在卡上或卡组打开时暂停；点任意一行，那一行在原位展开。点展开的那条或底部的 Review 按钮，从这条打开卡组。</p>
+    <p>卡组：左滑或 Keep unread 保持未读，右滑或 Mark as read 标为已读，拖动时露出下一张；滑过之后右上角出现 Undo，撤回上一张。每张看一遍后到「You’re all caught up.」，Done 关掉。标为已读的条目会从入口卡里消失、按钮上的「Review N updates」递减，全部读完入口卡收成一条、右上角显示 Caught up。点卡里 Alva 的建议，按钮变成已发送，下面显示 Reading your thesis。</p>
     <div class="ctl"><span class="lb">自动播放</span><button data-auto="1" class="on">开</button><button data-auto="0">关</button></div>
     <div class="ctl"><span class="lb">条数</span><button data-n="1">1</button><button data-n="2">2</button><button data-n="3" class="on">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button></div>
     <div class="log" id="log"></div>
@@ -281,7 +281,11 @@
   let n = 3, cur = 0, read = new Set(), busy = false;
   const sent = {}; // reply sent per card: the label
   const unread = () => DECK.slice(0, n).map((_, i) => i).filter((i) => !read.has(i));
-  const nextUnread = (from, dir) => { if (!unread().length) return -1; let i = from; for (let s = 0; s < n; s++) { i = ((i + dir) % n + n) % n; if (!read.has(i)) return i; } return -1; };
+  // 5 or more: the card lists the first 4 unread and the rest wait in the review (the button counts them all)
+  const MAX_SHOWN = 4;
+  const shown = () => unread().slice(0, MAX_SHOWN);
+  // the next shown item from `from` (wrapping); autoplay stays inside what the card shows
+  const nextUnread = (from, dir) => { const v = shown(); if (!v.length) return -1; const k = v.indexOf(from); return k < 0 ? v[0] : v[((k + dir) % v.length + v.length) % v.length]; };
   function build() {
     read = new Set(); cur = 0; card.classList.remove('done');
     list.innerHTML = DECK.slice(0, n).map((d, i) => `<div class="it" data-i="${i}"><i class="sp"></i>
@@ -292,11 +296,14 @@
   // the active item opens where it is and the one before folds back into a row; read items leave the list
   function sync() {
     const u = unread();
-    count.textContent = u.length ? `${u.length} to read` : 'Caught up';
+    // the count lives in the button (Review N updates); the header's grey text is the brief's date, Caught up once everything is read
+    count.textContent = u.length ? 'Nov 12' : 'Caught up';
+    if (u.length) $('open').textContent = `Review ${u.length} update${u.length === 1 ? '' : 's'}`; // keeps its last label while it folds away
     card.classList.toggle('done', !u.length);
+    const vis = shown(); if (vis.length && !vis.includes(cur)) cur = vis[0];
     let prev = -1;
     [...list.children].forEach((it) => {
-      const i = +it.dataset.i, gone = read.has(i), act = !gone && i === cur;
+      const i = +it.dataset.i, gone = !vis.includes(i), act = !gone && i === cur;
       it.querySelector('.cx').classList.toggle('off', gone || act);
       it.querySelector('.xp').classList.toggle('off', !act);
       const mode = gone || prev < 0 ? 'none' : act || prev === cur ? 'line' : '';
@@ -306,40 +313,24 @@
     log.textContent = `Open: ${cur + 1} · unread ${u.length} / ${n}${auto ? ' · auto' : ''}`;
   }
   function go(to) {
-    if (busy || to < 0 || to === cur || read.has(to)) return;
+    if (busy || to < 0 || to === cur || !shown().includes(to)) return;
     busy = true; cur = to; sync(); kick();
     setTimeout(() => { busy = false; }, 340);
   }
   const step = (dir) => { const to = nextUnread(cur, dir); if (to >= 0) go(to); };
-  // autoplay: the next unread item opens every 4s; paused while the pointer is on the card, during a drag and while the deck is open
+  // autoplay: the next shown item opens every 4s; paused while the mouse is on the card and while the deck is open
   const AUTO_MS = 4000;
   let auto = true, hover = false, timer = 0;
   function kick() { clearTimeout(timer); if (auto) timer = setTimeout(tick, AUTO_MS); }
-  function tick() { if (!hover && !drag && !document.hidden && !$('sw').classList.contains('on') && unread().length > 1) step(1); kick(); }
+  function tick() { if (!hover && !document.hidden && !$('sw').classList.contains('on') && unread().length > 1) step(1); kick(); }
   card.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
   card.addEventListener('pointerleave', () => { hover = false; kick(); });
-  // drag on the open item: up opens the next one, down the one before; a tap opens the deck from it
-  let sy = 0, dy = 0, drag = false, moved = false, dragLc = null;
-  list.addEventListener('pointerdown', (e) => {
-    const xp = e.target.closest('.xp'); if (!xp || xp.classList.contains('off') || e.button || busy) return;
-    drag = true; moved = false; sy = e.clientY; dy = 0; dragLc = xp.querySelector('.lc'); xp.classList.add('drag');
-    try { list.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
+  // no gestures on the list: autoplay moves it along, a tap on a row opens that row in place, a tap on the open item opens the deck from it
+  list.addEventListener('click', (e) => {
+    const it = e.target.closest('.it'); if (!it) return;
+    const i = +it.dataset.i;
+    if (e.target.closest('.xp')) openSheet(); else go(i);
   });
-  list.addEventListener('pointermove', (e) => {
-    if (!drag) return; dy = e.clientY - sy; if (Math.abs(dy) > 4) moved = true;
-    dragLc.style.transition = 'none'; dragLc.style.transform = `translateY(${dy * 0.45}px)`; dragLc.style.opacity = String(Math.max(.35, 1 - Math.abs(dy) / 140));
-  });
-  const up = () => {
-    if (!drag) return; drag = false;
-    list.querySelectorAll('.xp.drag').forEach((x) => x.classList.remove('drag'));
-    dragLc.style.transition = ''; dragLc.style.transform = ''; dragLc.style.opacity = '';
-    if (Math.abs(dy) > 45) step(dy < 0 ? 1 : -1); else if (!moved) openSheet(); else kick();
-    dy = 0;
-  };
-  list.addEventListener('pointerup', up); list.addEventListener('pointercancel', up);
-  list.addEventListener('click', (e) => { const cx = e.target.closest('.cx'); if (!cx) return; go(+cx.closest('.it').dataset.i); });
-  let wheelAt = 0;
-  card.addEventListener('wheel', (e) => { e.preventDefault(); const now = Date.now(); if (now - wheelAt < 400 || Math.abs(e.deltaY) < 8) return; wheelAt = now; step(e.deltaY > 0 ? 1 : -1); }, { passive: false });
 
   /* ───── drawer: one pass over the unread cards, starting from the lead ───── */
   const sw = $('sw'), dk = $('dk'), p1 = $('p1'), p2 = $('p2'), end = $('end'), btns = $('btns'), btnsEnd = $('btnsEnd'), undoBtn = $('undo'), tb = $('tb');
@@ -390,7 +381,7 @@
     c.classList.add('fly');
     if (!swiped) { c.style.transform = OUT[action]; c.style.opacity = '0'; }
     hist.push({ i, action });
-    if (action === 'read') { read.add(i); if (i === cur) { const nx = nextUnread(cur, 1); if (nx >= 0) cur = nx; } sync(); }
+    if (action === 'read') { const nx = i === cur ? nextUnread(cur, 1) : -1; read.add(i); if (nx >= 0 && nx !== i) cur = nx; sync(); }
     setTimeout(() => { pi += 1; render(); sbusy = false; }, 300);
   }
   // Undo: the last card comes back from the side it left by, and a read mark is taken back
@@ -435,7 +426,6 @@
   $('keep').addEventListener('click', () => mark('keep')); $('read').addEventListener('click', () => mark('read')); undoBtn.addEventListener('click', undo);
   document.addEventListener('keydown', (e) => {
     if (sw.classList.contains('on')) { if (e.key === 'ArrowRight') mark('read'); if (e.key === 'ArrowLeft') mark('keep'); if (e.key === 'Escape') closeSheet(); return; }
-    if (e.key === 'ArrowDown') { e.preventDefault(); step(1); } if (e.key === 'ArrowUp') { e.preventDefault(); step(-1); }
   });
   document.querySelectorAll('.ctl button[data-n]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button[data-n]').forEach((x) => x.classList.toggle('on', x === b)); n = +b.dataset.n; closeSheet(); build(); }));
   document.querySelectorAll('.ctl button[data-auto]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button[data-auto]').forEach((x) => x.classList.toggle('on', x === b)); auto = b.dataset.auto === '1'; kick(); sync(); }));
