@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="demo-status" content="exploration">
+<meta name="demo-switcher" content="off">
+<meta name="demo-summary" content="Alva 对话里的 Today 入口卡与卡组抽屉：头条槽换条、Start Review 逐张看，左滑保持未读、右滑标为已读、Undo、看完，以及卡里 Alva 建议的回复已发送。按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。">
+<title>Today 入口卡与卡组</title>
+<style>
+  @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: FZ; src: local('FZLanTingHeiS-R-GB'), local('FZLanTingHei-R-GBK'); font-weight: 400; }
+  @font-face { font-family: FZ; src: local('FZLanTingHei-DB-GBK'); font-weight: 500; }
+  :root {
+    --n9: rgba(0,0,0,.9); --n7: rgba(0,0,0,.7); --n5: rgba(0,0,0,.5); --n3: rgba(0,0,0,.3); --n2: rgba(0,0,0,.2);
+    --l2: rgba(0,0,0,.2); --l12: rgba(0,0,0,.12); --l3: rgba(0,0,0,.3); --g02: #f5f5f5; --br7: rgba(0,0,0,.7); --br07: rgba(0,0,0,.07); --br05: rgba(0,0,0,.05);
+    --m1: #49a3a6; --m3: #2a9b7d; --m4: #e05357; --b0-sidebar: #2a2a38; --ease: cubic-bezier(.2,.8,.2,1); --dur: .32s;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ffffff; color: var(--n9); font-family: Delight, FZ, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  p { margin: 0; }
+  .r10 { font-size: 10px; line-height: 16px; letter-spacing: .1px; } .r12 { font-size: 12px; line-height: 20px; letter-spacing: .12px; } .r14 { font-size: 14px; line-height: 22px; letter-spacing: .14px; } .r16 { font-size: 16px; line-height: 26px; letter-spacing: .16px; } .r18 { font-size: 18px; line-height: 28px; letter-spacing: .18px; }
+  .m { font-weight: 500; } .n5 { color: var(--n5); } .n7 { color: var(--n7); } .f1 { flex: 1 1 0; min-width: 0; }
+  .ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ic { display: block; flex: none; }
+  .page { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; display: flex; gap: 48px; align-items: flex-start; flex-wrap: wrap; }
+  .panel { flex: 1 1 320px; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
+  h1 { font: 500 24px/32px Delight, FZ, sans-serif; margin: 0; }
+  .panel p { color: var(--n7); font-size: 14px; line-height: 24px; }
+  .ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ctl .lb { font-size: 12px; color: var(--n5); margin-right: 4px; }
+  .ctl button { height: 32px; min-width: 36px; padding: 0 12px; border-radius: 8px; border: .5px solid var(--l2); background: #fff; font: 500 12px/20px Delight, sans-serif; color: var(--n9); }
+  .ctl button.on { background: var(--m1); border-color: var(--m1); color: #fff; }
+  .log { font-size: 12px; line-height: 20px; color: var(--n5); min-height: 20px; }
+
+  /* phone, 440 like the Figma page (Thesis-MVP 15845:111999) */
+  .screen { position: relative; width: 440px; height: 956px; flex: none; outline: .5px solid var(--l2); border-radius: 24px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+  .sb { height: 59px; flex: none; display: flex; align-items: stretch; }
+  .sb .l { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 0 3px 10px; }
+  .sb .time { width: 54px; text-align: center; font: 600 16px/21px -apple-system, 'SF Pro Text', BlinkMacSystemFont, sans-serif; letter-spacing: -0.32px; color: #000; }
+  .sb .isl { align-self: center; width: 125px; height: 37px; border-radius: 100px; background: #000; }
+  .sb .r { flex: 1; display: flex; align-items: center; justify-content: center; padding-right: 11px; }
+  .sb .r img { width: 78.4px; height: 13px; display: block; }
+  .chd { height: 60px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .cap { display: flex; align-items: center; gap: 8px; height: 48px; padding: 8px 16px 8px 8px; border-radius: 100px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); font: 500 18px/28px Delight, sans-serif; letter-spacing: .18px; }
+  .lp { width: 32px; height: 32px; border-radius: 50%; background: var(--b0-sidebar); display: flex; align-items: center; justify-content: center; flex: none; }
+  .lp img { width: 16.5px; height: 16.5px; display: block; }
+  .chat { flex: 1 1 0; min-height: 0; overflow: hidden; padding: 20px 16px 0; display: flex; flex-direction: column; gap: 16px; }
+  .tml { text-align: center; padding: 2px 0; color: var(--n5); }
+  .ab { background: var(--g02); border-radius: 12px; padding: 12px 16px; margin-right: 28px; display: flex; flex-direction: column; gap: 12px; }
+  .ab .ent { color: var(--m1); font-weight: 500; }
+  .cmp { flex: none; padding: 0 16px 12px; }
+  .box { height: 52px; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); display: flex; align-items: flex-end; padding: 8px; gap: 2px; }
+  .box .sl { width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .box .sl img { width: 16px; height: 16px; display: block; }
+  .box .ph { flex: 1; min-width: 0; padding: 7px 0; color: var(--n3); }
+  .tabbar { flex: none; height: 82px; display: flex; flex-direction: column; background: #fff; }
+  .tabs { display: flex; height: 48px; }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 8px; font-size: 10px; line-height: 16px; letter-spacing: .1px; color: var(--n7); }
+  .tab img { width: 22px; height: 22px; display: block; } .tab.on { color: var(--n9); font-weight: 500; }
+  .home { width: 144px; height: 5px; border-radius: 100px; background: #000; margin: 21px auto 8px; flex: none; }
+
+  /* Today entry card (A1 / E1) */
+  .tcard { background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); padding: 16px; display: flex; flex-direction: column; gap: 12px; user-select: none; -webkit-user-select: none; touch-action: pan-x; }
+  .tcard .hdr { display: flex; align-items: center; gap: 8px; }
+  .tcard .hdr img { width: 16px; height: 16px; }
+  .tcard .hdr .t { font-size: 16px; line-height: 26px; letter-spacing: .16px; font-weight: 500; }
+  .tcard .hdr .cnt { flex: 1; text-align: right; }
+  .lead { position: relative; overflow: hidden; transition: height var(--dur) var(--ease); cursor: grab; }
+  .lead.drag { cursor: grabbing; }
+  .lc { display: flex; flex-direction: column; gap: 8px; transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease); will-change: transform, opacity; }
+  .lc.ghost { position: absolute; left: 0; right: 0; top: 0; }
+  .lc .h { font-size: 18px; line-height: 28px; letter-spacing: .18px; font-weight: 500; }
+  .th { height: 20px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 20px; letter-spacing: .12px; min-width: 0; }
+  .th b { font-weight: 500; white-space: nowrap; } .th .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .av { width: 20px; height: 20px; border-radius: 50%; flex: none; object-fit: cover; display: block; }
+  .av.tp { background: var(--n9); color: #fff; font-size: 12px; line-height: 20px; font-weight: 500; text-align: center; }
+  /* a 0-height Figma line: the 0.5 l12 hairline straddles it and adds no height */
+  .divider { height: 0; position: relative; transition: opacity var(--dur); }
+  .divider::after { content: ''; position: absolute; left: 0; right: 0; top: -.25px; height: .5px; background: var(--l12); }
+  .also { display: flex; flex-direction: column; gap: 4px; }
+  .rw { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--dur) var(--ease), opacity var(--dur) var(--ease), margin var(--dur) var(--ease); }
+  .rw > div { min-height: 0; overflow: hidden; }
+  .rw.cur, .rw.read { grid-template-rows: 0fr; opacity: 0; pointer-events: none; margin-top: -4px; }
+  .r { display: flex; align-items: baseline; gap: 12px; font-size: 14px; line-height: 22px; letter-spacing: .14px; cursor: pointer; }
+  .r .h { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r .k { flex: none; font-size: 12px; line-height: 20px; color: var(--n5); }
+  .btn-m { height: 40px; width: 100%; padding: 9px 20px; border-radius: 6px; background: var(--m1); color: #fff; font: 500 14px/22px Delight, FZ, sans-serif; letter-spacing: .14px; display: flex; align-items: center; justify-content: center; }
+  .btn-m.sec { background: #fff; color: var(--n9); box-shadow: inset 0 0 0 .5px var(--l3); }
+  .part { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--dur) var(--ease), opacity var(--dur) var(--ease), margin var(--dur) var(--ease); }
+  .part > div { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
+  .tcard.done .part { grid-template-rows: 0fr; opacity: 0; margin-top: -12px; pointer-events: none; }
+
+  /* ───── Drawer · Today's review (B1 待读, 15845:112170): the m7 dim keeps 106 at the top ───── */
+  .sw { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+  .sw .dim { position: absolute; inset: 0; background: rgba(0,0,0,.6); opacity: 0; transition: opacity .3s; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 106px; background: #fff; border-radius: 12px 12px 0 0; display: flex; flex-direction: column; transform: translateY(100%); transition: transform .36s var(--ease); }
+  .sw.on { pointer-events: auto; } .sw.on .dim { opacity: 1; } .sw.on .sheet { transform: none; }
+  .grab { height: 12px; flex: none; position: relative; }
+  .grab::after { content: ''; position: absolute; left: 50%; top: 8px; width: 36px; height: 4px; margin-left: -18px; border-radius: 4px; background: var(--br07); }
+  /* top bar: close 40 × 56, two-line title (Regular 16 · Regular 10 n5); Undo (Regular 12, 12 each side) once something was swiped */
+  .tb { height: 56px; flex: none; display: flex; align-items: center; padding: 0 16px 0 6px; }
+  .tb.u { padding-right: 6px; }
+  .tb .x { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; color: var(--n9); flex: none; }
+  .tb .ttl2 { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .tb .undo { height: 56px; padding: 0 12px; color: var(--n9); flex: none; }
+  .sc { flex: 1 1 0; min-height: 0; padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 24px; }
+  /* Deck 408 × 668: two blank plates peek 24 over the front; the next card waits right under the front so a drag uncovers it */
+  .dk { position: relative; flex: 1 1 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr); padding-top: 24px; filter: drop-shadow(0 4px 15px rgba(0,0,0,.05)); }
+  .dk .pl { position: absolute; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); border-radius: 16px; overflow: hidden; }
+  .dk .pl.p2 { left: 8px; right: 12px; top: 4px; height: 383px; transform: rotate(1.1deg); }
+  .dk .pl.p1 { left: 6px; right: 4px; top: 12px; height: 393px; transform: rotate(-1.4deg); }
+  .dk .pl.p1::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 120px; background: linear-gradient(180deg, rgba(73,163,166,.06), rgba(73,163,166,0)); opacity: .6; }
+  /* card: radius 16, l2 0.5, shadow 0 2 16 · 8%, padding 20 / 16, 16 apart; a 160 wash in the thesis direction (m3 6%, m4 10%, else m1 10%) */
+  .dc { grid-area: 1 / 1; min-height: 0; position: relative; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); border-radius: 16px; overflow: hidden; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  .dc:not(.on):not(.nx) { visibility: hidden; pointer-events: none; }
+  .dc.on { z-index: 2; } .dc.nx { z-index: 1; pointer-events: none; box-shadow: inset 0 0 0 .5px var(--l2); }
+  .dc.drag { cursor: grabbing; }
+  .dc.fly { transition: transform .3s var(--ease), opacity .3s var(--ease); }
+  .dc > * { position: relative; }
+  .dc > .wash { position: absolute; left: 0; right: 0; top: 0; height: 160px; background: linear-gradient(180deg, rgba(73,163,166,.1), rgba(73,163,166,0)); pointer-events: none; }
+  .dc > .wash.up { background: linear-gradient(180deg, rgba(42,155,125,.06), rgba(42,155,125,0)); }
+  .dc > .wash.down { background: linear-gradient(180deg, rgba(224,83,87,.1), rgba(224,83,87,0)); }
+  .dc .th .arw { color: var(--n5); }
+  .dc .meta { color: var(--n5); }
+  /* basket: ticker chips (br05, radius 6, 0 / 8, 16 logo · Regular 12 symbol · 12 direction dial) scroll under a 24 right fade; thesis return 72 × 16 + Regular 14 */
+  .bk { height: 28px; display: flex; align-items: center; gap: 12px; flex: none; }
+  .tks { flex: 1 1 0; min-width: 0; position: relative; overflow: hidden; }
+  .tks::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 24px; background: linear-gradient(90deg, rgba(255,255,255,0), #fff); pointer-events: none; }
+  .trk { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; padding-right: 24px; }
+  .trk::-webkit-scrollbar { display: none; }
+  .chip { flex: none; height: 28px; padding: 0 8px; display: flex; align-items: center; gap: 4px; border-radius: 6px; background: var(--br05); }
+  .chip img { width: 16px; height: 16px; border-radius: 50%; display: block; }
+  .dial { width: 12px; height: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; flex: none; }
+  .dial.up { background: var(--m3); } .dial.down { background: var(--m4); } .dial.down .ic { transform: rotate(180deg); }
+  .ret { flex: none; display: flex; align-items: center; gap: 8px; }
+  .ret svg { display: block; }
+  .ret.up { color: var(--m3); } .ret.down { color: var(--m4); } .ret.down svg { transform: scaleY(-1); }
+  /* markdown: H2 Medium 20/30, list 4 apart with a 4 n9 dot in a 20 × 22 slot */
+  .md { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
+  .md .h2 { font-size: 20px; line-height: 30px; letter-spacing: .2px; font-weight: 500; padding-top: 2px; }
+  .bl { display: flex; flex-direction: column; gap: 4px; }
+  .li { display: flex; } .li .d { width: 20px; height: 22px; flex: none; position: relative; }
+  .li .d::after { content: ''; position: absolute; left: 8px; top: 9px; width: 4px; height: 4px; border-radius: 50%; background: var(--n9); }
+  .li p { flex: 1; min-width: 0; }
+  .li u { text-decoration: underline; text-decoration-thickness: .5px; text-underline-offset: 2px; }
+  /* Alva bubble: 380 wide from the card's left padding (as drawn, 4 past the right one), g02, radius 12, 12 / 16, 8 apart;
+     capsule 30 (20 portrait + Medium 14); Secondary S32 replies */
+  .ax { flex: none; margin-right: -4px; background: var(--g02); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .acap { align-self: flex-start; height: 30px; display: flex; align-items: center; gap: 4px; padding: 4px 8px 4px 4px; border-radius: 960px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); }
+  .acap .lp { width: 20px; height: 20px; } .acap .lp img { width: 10.3px; height: 10.3px; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 2px; }
+  .bs { height: 32px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; border-radius: 4px; box-shadow: inset 0 0 0 .5px var(--l3); font-size: 12px; line-height: 20px; letter-spacing: .12px; font-weight: 500; color: var(--n9); white-space: nowrap; }
+  .bs:disabled { cursor: default; } .bs:disabled span { color: var(--n2); }
+  .step { display: flex; align-items: center; gap: 4px; color: var(--n5); }
+  .step .ic { color: var(--n9); animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  /* swipe feedback: left = br7 veil + Keep unread (hide-l 48) at the right, right = m1 veil + Mark as read (check-l2 48) at the left */
+  .veil { position: absolute; inset: 0; border-radius: 16px; opacity: 0; pointer-events: none; z-index: 3; }
+  .veil.k { background: var(--br7); } .veil.rd { background: var(--m1); }
+  .stamp { position: absolute; top: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; opacity: 0; transform: scale(.8); pointer-events: none; font-size: 14px; line-height: 22px; letter-spacing: .14px; font-weight: 500; z-index: 4; white-space: nowrap; }
+  .stamp.k { right: 20px; } .stamp.rd { left: 20px; }
+  /* B4 看完: the 80 illustration and Regular 16, 12 apart, centred in the deck's place */
+  .end { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+  .btns { flex: none; display: flex; gap: 12px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="screen" id="screen">
+    <div class="sb"><div class="l"><span class="time">9:41</span></div><div class="isl"></div><div class="r"><img src="assets/status-icons.svg" alt=""></div></div>
+    <div class="chd"><span class="cap"><span class="lp"><img src="assets/alva-symbol-wg.svg" alt=""></span>Alva</span></div>
+    <div class="chat">
+      <p class="tml r12">Today 9:02 AM</p>
+      <div class="ab"><div class="r14 m">Daily Brief · Nov 12</div><div class="r14">Three things today touch what you follow. <span class="ent">NVDA</span> fell about 8% after hours; Herman keeps it as the short leg, and his read on Microsoft is the part worth borrowing. <span class="ent">CRWV</span> gave a profit timeline while borrowing against its customer contracts. Crypto funding is tightening, which points at your Bitcoin thesis.</div></div>
+      <div class="tcard" id="card">
+        <div class="hdr"><img src="assets/alva-symbol-bg.svg" alt=""><span class="t">Today</span><span class="r12 n5 cnt" id="count">3 to read</span></div>
+        <div class="part"><div>
+          <div class="lead" id="lead"></div>
+          <div class="divider"></div>
+          <div class="also" id="also"></div>
+          <button class="btn-m" id="open">Start Review</button>
+        </div></div>
+      </div>
+    </div>
+    <div class="cmp"><div class="box"><span class="sl"><img src="assets/add-l2.svg" alt=""></span><span class="ph r14">Ask Alva, hold to talk</span><span class="sl"><img src="assets/voice-wave-l.svg" alt=""></span></div></div>
+    <div class="tabbar"><div class="tabs"><div class="tab"><img src="assets/tab-for-you-l.svg" alt="">For You</div><div class="tab on"><img src="assets/tab-alva-f.svg" alt="">Alva</div><div class="tab"><img src="assets/tab-search-l1.svg" alt="">Search</div><div class="tab"><img src="assets/tab-me-l.svg" alt="">Me</div></div><div class="home"></div></div>
+    <div class="sw" id="sw">
+      <div class="dim" id="dim"></div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="tb" id="tb"><button class="x" id="close" aria-label="Close"></button><div class="ttl2"><span class="r16 ell">Today</span><span class="r10 n5 ell" id="sub"></span></div><button class="undo r12" id="undo" hidden>Undo</button></div>
+        <div class="sc">
+          <div class="dk" id="dk"><i class="pl p2" id="p2"></i><i class="pl p1" id="p1"></i></div>
+          <div class="end" id="end" hidden><svg width="80" height="80" viewBox="0 0 80 80" id="ill" aria-hidden="true"></svg><p class="r16">You’re all caught up.</p></div>
+          <div class="btns" id="btns"><button class="btn-m sec" id="keep">Keep unread</button><button class="btn-m" id="read">Mark as read</button></div>
+          <div class="btns" id="btnsEnd" hidden><button class="btn-m" id="done">Done</button></div>
+        </div>
+        <div class="home"></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h1>Today 入口卡与卡组</h1>
+    <p>按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。入口卡：在头条上上下拖（或滚轮、↑↓）把相邻条换进头条槽，点下面任意一行也能换进来；Start Review 从头条那张打开卡组。</p>
+    <p>卡组：左滑或 Keep unread 保持未读，右滑或 Mark as read 标为已读，拖动时露出下一张；滑过之后右上角出现 Undo，撤回上一张。每张看一遍后到「You’re all caught up.」，Done 关掉。标为已读的条目会从入口卡里消失、「N to read」递减，全部读完入口卡收成一条。点卡里 Alva 的建议，按钮变成已发送，下面显示 Reading your thesis。</p>
+    <div class="ctl"><span class="lb">条数</span><button data-n="1">1</button><button data-n="2">2</button><button data-n="3" class="on">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button></div>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+<script>
+(() => {
+  const A = 'assets/';
+  // Alva icons (inline so they take the text colour)
+  const P = {
+    close: 'M15.6464 3.64645C15.8416 3.45118 16.1581 3.45118 16.3534 3.64645C16.5484 3.84173 16.5486 4.15829 16.3534 4.35348L10.7069 9.99997L16.3534 15.6465C16.5484 15.8417 16.5486 16.1583 16.3534 16.3535C16.1582 16.5485 15.8416 16.5485 15.6464 16.3535L9.99988 10.707L4.35339 16.3535C4.15819 16.5485 3.84158 16.5485 3.64636 16.3535C3.45116 16.1583 3.45128 15.8417 3.64636 15.6465L9.29285 9.99997L3.64636 4.35348C3.45116 4.15827 3.45128 3.84173 3.64636 3.64645C3.84163 3.45118 4.15812 3.45118 4.35339 3.64645L9.99988 9.29294L15.6464 3.64645Z',
+    arrowR: 'M6.77731 16.689L13.4948 9.97153L6.77731 3.25402C6.58204 3.05876 6.58204 2.74217 6.77731 2.54691C6.97257 2.35165 7.28915 2.35165 7.48441 2.54691L14.5555 9.61798C14.7507 9.81324 14.7507 10.1298 14.5555 10.3251L7.48441 17.3962C7.28915 17.5914 6.97257 17.5914 6.77731 17.3962C6.58204 17.2009 6.58204 16.8843 6.77731 16.689Z',
+    up: 'M9.64651 2.07615C9.84177 1.88093 10.1584 1.8809 10.3536 2.07615L17.4247 9.14722C17.6198 9.34248 17.6199 9.65911 17.4247 9.85433C17.2295 10.0495 16.9129 10.0495 16.7176 9.85433L10.5 3.63676L10.5 17.5704C10.5 17.8465 10.2762 18.0703 10.0001 18.0703C9.72392 18.0703 9.50012 17.8465 9.50012 17.5704L9.50011 3.63676L3.28255 9.85432C3.08733 10.0495 2.77071 10.0494 2.57544 9.85432C2.38018 9.65906 2.38018 9.34248 2.57544 9.14722L9.64651 2.07615Z',
+    hide: 'M19.1116 5.58574C19.2852 5.37129 19.6001 5.33815 19.8148 5.51153C20.029 5.68513 20.0623 6.00002 19.889 6.21465C19.3624 6.86668 18.6973 7.57302 17.886 8.24102L19.9329 11.7732C20.071 12.0121 19.99 12.3175 19.7513 12.4559C19.5125 12.5942 19.2062 12.5128 19.0677 12.2742L17.0843 8.85137C16.0013 9.61055 14.7022 10.2683 13.1692 10.6639L13.7913 14.1912C13.8389 14.463 13.6578 14.7234 13.386 14.7713C13.1142 14.8191 12.855 14.6368 12.8069 14.365L12.1917 10.8758C11.5053 10.9936 10.777 11.0594 10.0051 11.0594C9.22887 11.0594 8.4966 10.9929 7.80685 10.8738L7.19356 14.365C7.1456 14.6368 6.88629 14.819 6.61446 14.7713C6.34282 14.7234 6.16171 14.4639 6.20918 14.1922L6.8293 10.6619C5.29853 10.2653 4.00152 9.60646 2.92009 8.84746L0.933745 12.2928C0.795736 12.5317 0.489236 12.6141 0.250145 12.4764C0.011297 12.3385 -0.0708274 12.0328 0.0665502 11.7938L2.11833 8.23614C1.3097 7.56956 0.646568 6.8651 0.121238 6.21465C-0.0521093 5.99999 -0.0188953 5.68511 0.195458 5.51153C0.41018 5.33813 0.725036 5.37122 0.898589 5.58574C2.18752 7.18175 4.32106 9.09431 7.48068 9.78887C7.48388 9.78937 7.48724 9.78928 7.49044 9.78985C7.49913 9.79138 7.50734 9.79472 7.51583 9.79668C8.28436 9.96302 9.11299 10.0594 10.0051 10.0594C12.961 10.0594 15.2236 9.02439 16.889 7.75664C16.9174 7.72919 16.9489 7.70414 16.9847 7.6834L16.9866 7.68145C17.8577 7.00416 18.5619 6.26649 19.1116 5.58574Z',
+    checkC: 'M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1ZM10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2ZM13.3799 7.16406C13.5655 6.95983 13.8816 6.94441 14.0859 7.12988C14.2902 7.31555 14.3056 7.6316 14.1201 7.83594L9.12012 13.3359C9.02284 13.4429 8.88384 13.5031 8.73926 13.5C8.59479 13.4969 8.45879 13.4312 8.36621 13.3203L5.86621 10.3203C5.68951 10.1083 5.71781 9.79304 5.92969 9.61621C6.14173 9.43951 6.45696 9.46781 6.63379 9.67969L8.76562 12.2383L13.3799 7.16406Z',
+    check: 'M17.6233 3.67162C17.8045 3.46342 18.12 3.44164 18.3284 3.62279C18.5366 3.80401 18.5583 4.11955 18.3772 4.32787L8.37718 15.8279C8.28401 15.9349 8.14993 15.9975 8.00804 15.9997C7.86593 16.0018 7.72945 15.943 7.63304 15.8386L1.63304 9.33861C1.44578 9.1357 1.45847 8.81984 1.66136 8.63255C1.86427 8.44529 2.18013 8.45798 2.36742 8.66087L7.98851 14.7507L17.6233 3.67162Z',
+    loading: 'M1.8999 10C1.90011 5.5268 5.52631 1.9006 9.99951 1.90039C10.2757 1.90039 10.4995 2.12425 10.4995 2.40039C10.4995 2.67653 10.2757 2.90039 9.99951 2.90039C6.0786 2.9006 2.90011 6.07909 2.8999 10C2.8999 13.9211 6.07847 17.1004 9.99951 17.1006C13.9207 17.1006 17.1001 13.9212 17.1001 10C17.1003 9.72404 17.3241 9.5 17.6001 9.5C17.876 9.50011 18.0999 9.7241 18.1001 10C18.1001 14.4735 14.473 18.1006 9.99951 18.1006C5.52618 18.1004 1.8999 14.4734 1.8999 10Z',
+  };
+  const icon = (k, s, cls = '') => `<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="${P[k]}"/></svg>`;
+  // thesis return sparkline (Thesis return / Chart 72×16); the falling one is the same shape flipped
+  const LINE = 'M0 13.44L.8 13.44L1.6 13.32L2.4 12.99L3.2 12.96L4 12.68L4.8 12.49L5.6 12.19L6.4 12.12L7.2 12.03L8 12.11L8.8 12.2L9.6 12.33L10.4 12.33L11.2 12.31L12 12.65L12.8 12.63L13.6 12.72L14.4 12.64L15.2 12.53L16 12.24L16.8 11.92L17.6 11.47L18.4 11.36L19.2 11.17L20 11.07L20.8 10.8L21.6 10.64L22.4 10.56L23.2 10.45L24 10.44L24.8 10.47L25.6 10.41L26.4 10.17L27.2 9.96L28 9.85L28.8 9.91L29.6 9.37L30.4 9.15L31.2 9L32 8.97L32.8 8.92L33.6 9.04L34.4 9.37L35.2 9.47L36 9.68L36.8 9.85L37.6 9.92L38.4 9.8L39.2 9.81L40 9.55L40.8 9.17L41.6 8.57L42.4 8.52L43.2 8.09L44 8.03L44.8 7.93L45.6 7.72L46.4 7.6L47.2 7.48L48 7.33L48.8 7.33L49.6 7.47L50.4 7.27L51.2 7.01L52 6.79L52.8 6.52L53.6 6.36L54.4 6.17L55.2 5.85L56 5.81L56.8 5.63L57.6 5.45L58.4 5.52L59.2 5.48L60 5.44L60.8 5.49L61.6 5.25L62.4 5.44L63.2 5.29L64 5.13L64.8 4.85L65.6 4.67L66.4 4.33L67.2 3.87L68 3.83L68.8 3.69L69.6 3.77L70.4 3.53L71.2 3.33L72 3.33';
+  let sparkN = 0;
+  const spark = () => { const k = ++sparkN; return `<svg width="72" height="16" viewBox="0 0 72 16" aria-hidden="true"><defs><clipPath id="sc${k}"><rect width="72" height="16" rx="2"/></clipPath><linearGradient id="sg${k}" x1="0" y1="3.33" x2="0" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><g clip-path="url(#sc${k})"><path d="${LINE}L72 16L0 16Z" fill="url(#sg${k})"/><path d="${LINE}" fill="none" stroke="currentColor"/></g></svg>`; };
+  // B4 illustration (Illustration/Empty Test · Success): 13 × 13 cells of 5, radius 1.33, g05 with a black face
+  const FACE = ['', '', '', '', '3,9', '2,4,8,10', '', '', '3,9', '4,5,6,7,8', '', '', ''];
+  document.getElementById('ill').innerHTML = FACE.map((row, y) => { const on = row ? row.split(',').map(Number) : []; return Array.from({ length: 13 }, (_, x) => `<rect x="${1.5 + x * 6}" y="${1.5 + y * 6}" width="5" height="5" rx="1.33" fill="${on.includes(x) ? '#000' : '#eaeaea'}"/>`).join(''); }).join('');
+
+  const img = (f, cls = 'av') => `<img class="${cls}" src="${A}${f}" alt="">`;
+  const TOPIC = '<span class="av tp">#</span>';
+  // the six card scenarios (C1–C6); [text] is an underlined source, {x} an m1 ticker
+  const DECK = [
+    { av: img('avatar-herman.jpg'), owner: 'Herman Jin', title: 'Buy Quality Gradually Into the Selloff', h: 'Nvidia drops 8% after hours while the rest of the basket holds', k: 'NVDA', wash: 'up',
+      tk: [['logo-nvda.svg', 'NVDA', -1], ['logo-amzn.svg', 'AMZN', 1], ['logo-msft.svg', 'MSFT', 1], ['logo-nvda.svg', 'NVDA', 1], ['logo-tsm.png', 'TSM', 1]], ret: ['+31.8%', 1],
+      b: ['[WSJ] reports the board could meet as soon as Wednesday to discuss Jensen Huang’s future, with no decision yet. Shares rose 2.92% in regular trading, then fell 8.63% after hours.', 'Microsoft closed down 2.37% after OpenAI reportedly posted a $10.9B adjusted operating loss in Q3; Amazon and TSMC were little changed.'],
+      alva: ['Herman runs NVDA as the short leg, so today’s drop works for this thesis. His read on Microsoft’s OpenAI exposure is worth borrowing.', ['Use his OpenAI point in my thesis', 'Follow this thesis']] },
+    { av: img('logo-crwv.png'), owner: 'CRWV', title: 'On your watchlist', h: 'CoreWeave sets a profit timeline, trades financing for a new playbook', k: 'CRWV',
+      b: ['Reuters says it expects adjusted profitability in the first half of 2028; shares rose more than 19% intraday on Wednesday.', 'It launched a $4B investment-grade syndicated loan backed by its chips and long-term customer contracts, then gave back 5.7% after hours.'],
+      alva: ['CoreWeave is now borrowing against its customer contracts. The timeline answers only half the question; the rest is the borrowing rate.', ['Write my view on CoreWeave as a thesis']] },
+    { av: img('avatar-you.jpg'), owner: 'Your thesis', title: 'Long Bitcoin, Not the Election Outcome', h: 'Crypto liquidity tightens, pressuring Strategy’s funding', k: 'BTC', wash: 'down',
+      tk: [['logo-btc.svg', 'BTC', -1]], ret: ['−9.3%', -1],
+      b: ['Glassnode says stablecoin supply is shrinking at the fastest pace since June 2022.', 'MSCI is dropping Strategy from its global equity benchmark, which could squeeze the funding behind its Bitcoin buying.'],
+      alva: ['Both point at funding, not the election. Bitcoin is down 9.3% since you published, and the case against your view keeps growing.', ['Add an exit condition to my Bitcoin thesis']] },
+    { av: TOPIC, owner: 'US election', title: 'You brought it up on Nov 3', meta: 'Watching for 9 days · 2 new since Nov 10', h: 'Candidates backing a data-center permitting pause won three governorships', k: 'Topic',
+      b: ['The governors-elect in Texas, Georgia and Ohio all support pausing approvals for new data centers, covering more than 47GW of planned capacity.', 'Versus Nov 10: it was a polling lead then; now it is a confirmed result.'],
+      alva: ['You follow the election from the AI-infrastructure angle. This result hits data-center supply directly, so it is worth turning into a formal view.', ['Write this topic as a thesis']] },
+    { av: img('avatar-you.jpg'), owner: 'Your thesis', title: 'Long Bitcoin, Not the Election Outcome', h: 'Bitcoin ETFs see $1B of outflows as the price breaks $76,000', k: 'BTC', wash: 'down',
+      tk: [['logo-btc.svg', 'BTC', -1]], ret: ['−9.3%', -1],
+      b: ['Bloomberg reports Bitcoin fell as much as 5.8% intraday on Nov 5, breaking below $76,000 to a seven-week low.', 'Spot Bitcoin ETFs saw $1B of outflows, about $900M of it from IBIT.'],
+      alva: ['Your thesis says to exit if ETF outflows persist for a month. This week hit $1B, but the month isn’t over. Does that count?', ['Yes, start exiting', 'No, wait for the month']] },
+    { av: img('logo-msft.svg'), owner: 'MSFT', title: 'In your portfolio', h: 'Microsoft slips 2.4% on OpenAI’s reported Q3 loss', k: 'MSFT',
+      b: ['OpenAI reportedly posted a $10.9B adjusted operating loss in Q3; Microsoft closed down 2.37%.', 'Analysts trimmed next year’s S&P 500 earnings estimates despite strong Q3 results.'] },
+  ];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rich = (s) => esc(s).replace(/\[([^\]]+)\]/g, '<u>$1</u>');
+  const thHTML = (d, arrow) => `<span class="th">${d.av}<b>${esc(d.owner)}</b><b>·</b><span class="tt">${esc(d.title)}</span>${arrow ? icon('arrowR', 12, 'arw') : ''}</span>`;
+
+  /* ───── entry card ───── */
+  const lead = $('lead'), also = $('also'), count = $('count'), log = $('log'), card = $('card');
+  let n = 3, cur = 0, read = new Set(), busy = false;
+  const sent = {}; // reply sent per card: the label
+  const unread = () => DECK.slice(0, n).map((_, i) => i).filter((i) => !read.has(i));
+  const nextUnread = (from, dir) => { if (!unread().length) return -1; let i = from; for (let s = 0; s < n; s++) { i = ((i + dir) % n + n) % n; if (!read.has(i)) return i; } return -1; };
+  const leadHTML = (d) => `<div class="lc">${thHTML(d)}<span class="h">${esc(d.h)}</span></div>`;
+  function build() {
+    read = new Set(); cur = 0; card.classList.remove('done');
+    lead.innerHTML = leadHTML(DECK[cur]); lead.style.height = '';
+    also.innerHTML = DECK.slice(0, n).map((d, i) => `<div class="rw${i === cur ? ' cur' : ''}" data-i="${i}"><div><div class="r"><span class="h">${esc(d.h)}</span><span class="k">${d.k}</span></div></div></div>`).join('');
+    sync();
+  }
+  function sync() {
+    const u = unread();
+    count.textContent = u.length ? `${u.length} to read` : 'Caught up';
+    card.classList.toggle('done', !u.length);
+    [...also.children].forEach((rw) => { const i = +rw.dataset.i; rw.classList.toggle('read', read.has(i)); rw.classList.toggle('cur', i === cur); });
+    log.textContent = `Lead: ${cur + 1} · unread ${u.length} / ${n}`;
+  }
+  // swap the lead slot to item `to`; dir 1 = the new one comes from below
+  function go(to, dir, instant) {
+    if (busy || to < 0 || to === cur) return;
+    if (instant) { cur = to; lead.innerHTML = leadHTML(DECK[cur]); sync(); return; }
+    busy = true;
+    const old = lead.querySelector('.lc'); const h0 = lead.offsetHeight;
+    const inc = document.createElement('div'); inc.innerHTML = leadHTML(DECK[to]); const nw = inc.firstElementChild;
+    nw.classList.add('ghost'); nw.style.transition = 'none'; nw.style.transform = `translateY(${dir * 24}px)`; nw.style.opacity = '0';
+    lead.appendChild(nw); const h1 = nw.offsetHeight;
+    lead.style.height = h0 + 'px'; void lead.offsetHeight;
+    nw.style.transition = ''; old.style.transform = `translateY(${-dir * 24}px)`; old.style.opacity = '0';
+    nw.style.transform = ''; nw.style.opacity = '1'; lead.style.height = h1 + 'px';
+    cur = to; sync();
+    setTimeout(() => { old.remove(); nw.classList.remove('ghost'); nw.style.transform = ''; lead.style.height = ''; busy = false; }, 340);
+  }
+  const step = (dir) => { const to = nextUnread(cur, dir); if (to >= 0) go(to, dir); };
+  let sy = 0, dy = 0, drag = false, moved = false;
+  lead.addEventListener('pointerdown', (e) => { if (e.button || busy) return; drag = true; moved = false; sy = e.clientY; dy = 0; lead.classList.add('drag'); try { lead.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } });
+  lead.addEventListener('pointermove', (e) => { if (!drag) return; dy = e.clientY - sy; if (Math.abs(dy) > 4) moved = true; const lc = lead.querySelector('.lc'); lc.style.transition = 'none'; lc.style.transform = `translateY(${dy * 0.45}px)`; lc.style.opacity = String(Math.max(.35, 1 - Math.abs(dy) / 140)); });
+  const up = () => { if (!drag) return; drag = false; lead.classList.remove('drag'); const lc = lead.querySelector('.lc'); lc.style.transition = ''; lc.style.transform = ''; lc.style.opacity = ''; if (Math.abs(dy) > 45) step(dy < 0 ? 1 : -1); else if (!moved) openSheet(); dy = 0; };
+  lead.addEventListener('pointerup', up); lead.addEventListener('pointercancel', up);
+  also.addEventListener('click', (e) => { const rw = e.target.closest('.rw'); if (!rw) return; const i = +rw.dataset.i; if (read.has(i)) return; go(i, i > cur ? 1 : -1); });
+  let wheelAt = 0;
+  card.addEventListener('wheel', (e) => { e.preventDefault(); const now = Date.now(); if (now - wheelAt < 400 || Math.abs(e.deltaY) < 8) return; wheelAt = now; step(e.deltaY > 0 ? 1 : -1); }, { passive: false });
+
+  /* ───── drawer: one pass over the unread cards, starting from the lead ───── */
+  const sw = $('sw'), dk = $('dk'), p1 = $('p1'), p2 = $('p2'), end = $('end'), btns = $('btns'), btnsEnd = $('btnsEnd'), undoBtn = $('undo'), tb = $('tb');
+  $('close').innerHTML = icon('close', 20);
+  let pass = [], pi = 0, hist = [], sbusy = false, cards = {};
+  const OUT = { keep: 'translateX(-130%) rotate(-12deg)', read: 'translateX(130%) rotate(12deg)' };
+  const cardHTML = (i) => {
+    const d = DECK[i], s = sent[i];
+    const bk = d.tk ? `<div class="bk"><div class="tks"><div class="trk">${d.tk.map(([l, sym, dir]) => `<span class="chip">${img(l, '')}<span class="r12">${sym}</span><span class="dial ${dir > 0 ? 'up' : 'down'}">${icon('up', 8)}</span></span>`).join('')}</div></div>${d.ret ? `<span class="ret ${d.ret[1] > 0 ? 'up' : 'down'}">${spark()}<span class="r14">${d.ret[0]}</span></span>` : ''}</div>` : '';
+    const ax = d.alva ? `<div class="ax"><span class="acap"><span class="lp"><img src="${A}alva-symbol-wg.svg" alt=""></span><span class="r14 m">Alva</span></span><p class="r14">${esc(d.alva[0])}</p>
+      <div class="acts">${d.alva[1].map((t) => (s === t ? `<button class="bs" disabled>${icon('check', 14)}<span>${esc(t)}</span></button>` : `<button class="bs" data-reply="${esc(t)}"><span>${esc(t)}</span></button>`)).join('')}</div>
+      ${s ? `<span class="step r12">${icon('loading', 14)}Reading your thesis</span>` : ''}</div>` : '';
+    return `<i class="wash${d.wash ? ' ' + d.wash : ''}"></i>${thHTML(d, true)}${d.meta ? `<span class="meta r12">${esc(d.meta)}</span>` : ''}${bk}
+      <div class="md"><p class="h2">${esc(d.h)}</p><div class="bl">${d.b.map((t) => `<div class="li"><i class="d"></i><p class="r14">${rich(t)}</p></div>`).join('')}</div></div>${ax}
+      <i class="veil k"></i><i class="veil rd"></i><span class="stamp k">${icon('hide', 48)}Keep unread</span><span class="stamp rd">${icon('checkC', 48)}Mark as read</span>`;
+  };
+  const resetCard = (c) => { c.classList.remove('fly', 'drag'); c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; feel(c, 0, 0); };
+  function render() {
+    const done = pi >= pass.length;
+    Object.entries(cards).forEach(([i, c]) => { const k = pass.indexOf(+i); c.classList.toggle('on', k === pi); c.classList.toggle('nx', k === pi + 1); if (k !== pi) resetCard(c); });
+    const left = pass.length - pi - 1;
+    p1.hidden = left < 1; p2.hidden = left < 2;
+    dk.hidden = done; end.hidden = !done; btns.hidden = done; btnsEnd.hidden = !done;
+    undoBtn.hidden = !hist.length; tb.classList.toggle('u', !!hist.length);
+  }
+  function openSheet() {
+    const u = unread();
+    pass = u.length ? [...u.slice(u.indexOf(cur) < 0 ? 0 : u.indexOf(cur)), ...u.slice(0, u.indexOf(cur) < 0 ? 0 : u.indexOf(cur))] : [];
+    pi = 0; hist = [];
+    $('sub').textContent = `Nov 12 · ${n} updates`;
+    dk.querySelectorAll('.dc').forEach((c) => c.remove()); cards = {};
+    pass.forEach((i) => { const c = document.createElement('div'); c.className = 'dc'; c.dataset.i = i; c.innerHTML = cardHTML(i); dk.appendChild(c); cards[i] = c; bindSwipe(c); });
+    render();
+    sw.classList.add('on');
+  }
+  function closeSheet() { sw.classList.remove('on'); }
+  const feel = (c, t, d) => {
+    c.querySelector('.veil.k').style.opacity = d < 0 ? t * .92 : 0; c.querySelector('.veil.rd').style.opacity = d > 0 ? t * .92 : 0;
+    const sk = c.querySelector('.stamp.k'), sr = c.querySelector('.stamp.rd');
+    sk.style.opacity = d < 0 ? t : 0; sk.style.transform = `scale(${.8 + .2 * (d < 0 ? t : 0)})`;
+    sr.style.opacity = d > 0 ? t : 0; sr.style.transform = `scale(${.8 + .2 * (d > 0 ? t : 0)})`;
+  };
+  // keep = leave it unread, read = mark it read (the entry card updates behind the sheet); either way the next card comes up
+  function mark(action, swiped) {
+    if (sbusy || pi >= pass.length) return; sbusy = true;
+    const i = pass[pi], c = cards[i];
+    feel(c, 1, action === 'read' ? 1 : -1);
+    c.classList.add('fly');
+    if (!swiped) { c.style.transform = OUT[action]; c.style.opacity = '0'; }
+    hist.push({ i, action });
+    if (action === 'read') { read.add(i); if (i === cur) { const nx = nextUnread(cur, 1); if (nx >= 0) go(nx, 1); } sync(); }
+    setTimeout(() => { pi += 1; render(); sbusy = false; }, 300);
+  }
+  // Undo: the last card comes back from the side it left by, and a read mark is taken back
+  function undo() {
+    if (sbusy || !hist.length) return; sbusy = true;
+    const h = hist.pop();
+    if (h.action === 'read') { read.delete(h.i); sync(); }
+    pi -= 1;
+    const c = cards[h.i];
+    resetCard(c); c.style.transform = OUT[h.action]; c.style.opacity = '0';
+    render();
+    c.style.transform = OUT[h.action]; c.style.opacity = '0'; c.style.zIndex = 3;
+    requestAnimationFrame(() => requestAnimationFrame(() => { c.classList.add('fly'); c.style.transform = ''; c.style.opacity = ''; }));
+    setTimeout(() => { resetCard(c); sbusy = false; }, 320);
+  }
+  // horizontal drag on the front card: left = keep unread, right = mark as read (the buttons' sides); the ticker track scrolls on its own
+  function bindSwipe(c) {
+    let sx = 0, sy2 = 0, dx = 0, on = false, horiz = null;
+    c.addEventListener('pointerdown', (e) => { if (e.button || sbusy || !c.classList.contains('on') || e.target.closest('.trk, .bs')) return; on = true; horiz = null; sx = e.clientX; sy2 = e.clientY; dx = 0; });
+    c.addEventListener('pointermove', (e) => {
+      if (!on) return;
+      const mx = e.clientX - sx, my = e.clientY - sy2;
+      if (horiz === null && Math.hypot(mx, my) > 6) { horiz = Math.abs(mx) > Math.abs(my); if (horiz) { c.classList.add('drag'); try { c.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } } }
+      if (!horiz) return;
+      dx = mx; c.style.transform = `translateX(${dx}px) rotate(${dx / 30}deg)`; feel(c, Math.min(1, Math.abs(dx) / 70), dx < 0 ? -1 : 1);
+    });
+    const release = () => {
+      if (!on) return; on = false; c.classList.remove('drag');
+      if (!horiz) return;
+      if (Math.abs(dx) > 70) { c.classList.add('fly'); c.style.transform = OUT[dx > 0 ? 'read' : 'keep']; c.style.opacity = '0'; mark(dx > 0 ? 'read' : 'keep', true); }
+      else { c.classList.add('fly'); c.style.transform = ''; feel(c, 0, 0); setTimeout(() => c.classList.remove('fly'), 300); }
+      dx = 0;
+    };
+    c.addEventListener('pointerup', release); c.addEventListener('pointercancel', release);
+    // D1 · 回复已发送: the tapped reply is disabled with a check, the others step aside, and Alva starts reading the thesis
+    c.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-reply]'); if (!b) return;
+      const i = +c.dataset.i; sent[i] = b.dataset.reply; c.innerHTML = cardHTML(i);
+    });
+  }
+  $('open').addEventListener('click', openSheet); $('close').addEventListener('click', closeSheet); $('dim').addEventListener('click', closeSheet); $('done').addEventListener('click', closeSheet);
+  $('keep').addEventListener('click', () => mark('keep')); $('read').addEventListener('click', () => mark('read')); undoBtn.addEventListener('click', undo);
+  document.addEventListener('keydown', (e) => {
+    if (sw.classList.contains('on')) { if (e.key === 'ArrowRight') mark('read'); if (e.key === 'ArrowLeft') mark('keep'); if (e.key === 'Escape') closeSheet(); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); step(1); } if (e.key === 'ArrowUp') { e.preventDefault(); step(-1); }
+  });
+  document.querySelectorAll('.ctl button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button').forEach((x) => x.classList.toggle('on', x === b)); n = +b.dataset.n; closeSheet(); build(); }));
+  window.__today = { state: () => ({ n, cur, read: [...read], sheet: sw.classList.contains('on'), pass, pi, hist: hist.map((h) => h.action), sent }), mark, undo, openSheet };
+  build();
+})();
+</script>
+</body>
+</html>
