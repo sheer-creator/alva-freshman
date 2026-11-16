@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="demo-status" content="exploration">
 <meta name="demo-switcher" content="off">
 <meta name="demo-summary" content="Alva 对话里的 Today 入口卡与卡组抽屉：头条槽换条、Start Review 逐张看，左滑保持未读、右滑标为已读、Undo、看完，以及卡里 Alva 建议的回复已发送。按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。">
@@ -63,27 +63,28 @@
   .home { width: 144px; height: 5px; border-radius: 100px; background: #000; margin: 21px auto 8px; flex: none; }
 
   /* Today entry card (A1 / E1) */
-  .tcard { background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); padding: 16px; display: flex; flex-direction: column; gap: 12px; user-select: none; -webkit-user-select: none; touch-action: pan-x; }
+  .tcard { background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); padding: 16px; display: flex; flex-direction: column; gap: 12px; user-select: none; -webkit-user-select: none; }
   .tcard .hdr { display: flex; align-items: center; gap: 8px; }
   .tcard .hdr img { width: 16px; height: 16px; }
   .tcard .hdr .t { font-size: 16px; line-height: 26px; letter-spacing: .16px; font-weight: 500; }
   .tcard .hdr .cnt { flex: 1; text-align: right; }
-  .lead { position: relative; overflow: hidden; transition: height var(--dur) var(--ease); cursor: grab; }
-  .lead.drag { cursor: grabbing; }
-  .lc { display: flex; flex-direction: column; gap: 8px; transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease); will-change: transform, opacity; }
-  .lc.ghost { position: absolute; left: 0; right: 0; top: 0; }
+  /* entry list (E1): items keep their order; the active one opens in place (owner line + Medium 18 headline) and the
+     rest stay one-line rows. An open item sits between 12 · 0.5 l12 · 12 hairlines; plain rows are 4 apart. */
+  .list { display: flex; flex-direction: column; }
+  .fold { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--dur) var(--ease), opacity var(--dur) var(--ease); }
+  .fold > div { min-height: 0; overflow: hidden; }
+  .fold.off { grid-template-rows: 0fr; opacity: 0; pointer-events: none; }
+  .sp { display: block; height: 4px; position: relative; transition: height var(--dur) var(--ease); }
+  .sp.none { height: 0; } .sp.line { height: 24px; }
+  .sp::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: .5px; margin-top: -.25px; background: var(--l12); opacity: 0; transition: opacity var(--dur) var(--ease); }
+  .sp.line::after { opacity: 1; }
+  .xp { cursor: grab; touch-action: pan-x; } .xp.drag { cursor: grabbing; }
+  .lc { display: flex; flex-direction: column; gap: 8px; transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease); }
   .lc .h { font-size: 18px; line-height: 28px; letter-spacing: .18px; font-weight: 500; }
   .th { height: 20px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 20px; letter-spacing: .12px; min-width: 0; }
   .th b { font-weight: 500; white-space: nowrap; } .th .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .av { width: 20px; height: 20px; border-radius: 50%; flex: none; object-fit: cover; display: block; }
   .av.tp { background: var(--n9); color: #fff; font-size: 12px; line-height: 20px; font-weight: 500; text-align: center; }
-  /* a 0-height Figma line: the 0.5 l12 hairline straddles it and adds no height */
-  .divider { height: 0; position: relative; transition: opacity var(--dur); }
-  .divider::after { content: ''; position: absolute; left: 0; right: 0; top: -.25px; height: .5px; background: var(--l12); }
-  .also { display: flex; flex-direction: column; gap: 4px; }
-  .rw { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--dur) var(--ease), opacity var(--dur) var(--ease), margin var(--dur) var(--ease); }
-  .rw > div { min-height: 0; overflow: hidden; }
-  .rw.cur, .rw.read { grid-template-rows: 0fr; opacity: 0; pointer-events: none; margin-top: -4px; }
   .r { display: flex; align-items: baseline; gap: 12px; font-size: 14px; line-height: 22px; letter-spacing: .14px; cursor: pointer; }
   .r .h { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .r .k { flex: none; font-size: 12px; line-height: 20px; color: var(--n5); }
@@ -166,6 +167,19 @@
   .end { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
   .btns { flex: none; display: flex; gap: 12px; }
   [hidden] { display: none !important; }
+
+  /* mweb: the app page fills the screen like the real thing. No phone outline, radius or side panel; the device's own
+     status bar and home indicator stand in for the drawn ones, and the chat scrolls when the screen is short. */
+  @media (max-width: 767px) {
+    html, body { height: 100%; overflow: hidden; }
+    .page { display: block; max-width: none; padding: 0; }
+    .panel { display: none; }
+    .screen { position: fixed; inset: 0; width: auto; height: auto; outline: none; border-radius: 0; }
+    .sb { height: env(safe-area-inset-top, 0px); overflow: hidden; visibility: hidden; }
+    .chat { overflow-y: auto; padding-bottom: 16px; scrollbar-width: none; } .chat::-webkit-scrollbar { display: none; }
+    .home { width: auto; height: env(safe-area-inset-bottom, 0px); margin: 0; background: none; }
+    .tabbar { height: auto; }
+  }
 </style>
 </head>
 <body>
@@ -179,9 +193,7 @@
       <div class="tcard" id="card">
         <div class="hdr"><img src="assets/alva-symbol-bg.svg" alt=""><span class="t">Today</span><span class="r12 n5 cnt" id="count">3 to read</span></div>
         <div class="part"><div>
-          <div class="lead" id="lead"></div>
-          <div class="divider"></div>
-          <div class="also" id="also"></div>
+          <div class="list" id="list"></div>
           <button class="btn-m" id="open">Start Review</button>
         </div></div>
       </div>
@@ -205,8 +217,9 @@
   </div>
   <div class="panel">
     <h1>Today 入口卡与卡组</h1>
-    <p>按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。入口卡：在头条上上下拖（或滚轮、↑↓）把相邻条换进头条槽，点下面任意一行也能换进来；Start Review 从头条那张打开卡组。</p>
+    <p>按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。入口卡：条目保持原来的顺序，当前这条在原位展开，其余收成一行。在展开的那条上上下拖（或滚轮、↑↓）切到相邻一条，点任意一行也在原位展开；自动播放每 4 秒切到下一条，鼠标放在卡上、拖动中或卡组打开时暂停。点展开的那条或 Start Review，从这条打开卡组。</p>
     <p>卡组：左滑或 Keep unread 保持未读，右滑或 Mark as read 标为已读，拖动时露出下一张；滑过之后右上角出现 Undo，撤回上一张。每张看一遍后到「You’re all caught up.」，Done 关掉。标为已读的条目会从入口卡里消失、「N to read」递减，全部读完入口卡收成一条。点卡里 Alva 的建议，按钮变成已发送，下面显示 Reading your thesis。</p>
+    <div class="ctl"><span class="lb">自动播放</span><button data-auto="1" class="on">开</button><button data-auto="0">关</button></div>
     <div class="ctl"><span class="lb">条数</span><button data-n="1">1</button><button data-n="2">2</button><button data-n="3" class="on">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button></div>
     <div class="log" id="log"></div>
   </div>
@@ -264,47 +277,67 @@
   const thHTML = (d, arrow) => `<span class="th">${d.av}<b>${esc(d.owner)}</b><b>·</b><span class="tt">${esc(d.title)}</span>${arrow ? icon('arrowR', 12, 'arw') : ''}</span>`;
 
   /* ───── entry card ───── */
-  const lead = $('lead'), also = $('also'), count = $('count'), log = $('log'), card = $('card');
+  const list = $('list'), count = $('count'), log = $('log'), card = $('card');
   let n = 3, cur = 0, read = new Set(), busy = false;
   const sent = {}; // reply sent per card: the label
   const unread = () => DECK.slice(0, n).map((_, i) => i).filter((i) => !read.has(i));
   const nextUnread = (from, dir) => { if (!unread().length) return -1; let i = from; for (let s = 0; s < n; s++) { i = ((i + dir) % n + n) % n; if (!read.has(i)) return i; } return -1; };
-  const leadHTML = (d) => `<div class="lc">${thHTML(d)}<span class="h">${esc(d.h)}</span></div>`;
   function build() {
     read = new Set(); cur = 0; card.classList.remove('done');
-    lead.innerHTML = leadHTML(DECK[cur]); lead.style.height = '';
-    also.innerHTML = DECK.slice(0, n).map((d, i) => `<div class="rw${i === cur ? ' cur' : ''}" data-i="${i}"><div><div class="r"><span class="h">${esc(d.h)}</span><span class="k">${d.k}</span></div></div></div>`).join('');
-    sync();
+    list.innerHTML = DECK.slice(0, n).map((d, i) => `<div class="it" data-i="${i}"><i class="sp"></i>
+      <div class="fold cx"><div><div class="r"><span class="h">${esc(d.h)}</span><span class="k">${d.k}</span></div></div></div>
+      <div class="fold xp"><div><div class="lc">${thHTML(d)}<span class="h">${esc(d.h)}</span></div></div></div></div>`).join('');
+    sync(); kick();
   }
+  // the active item opens where it is and the one before folds back into a row; read items leave the list
   function sync() {
     const u = unread();
     count.textContent = u.length ? `${u.length} to read` : 'Caught up';
     card.classList.toggle('done', !u.length);
-    [...also.children].forEach((rw) => { const i = +rw.dataset.i; rw.classList.toggle('read', read.has(i)); rw.classList.toggle('cur', i === cur); });
-    log.textContent = `Lead: ${cur + 1} · unread ${u.length} / ${n}`;
+    let prev = -1;
+    [...list.children].forEach((it) => {
+      const i = +it.dataset.i, gone = read.has(i), act = !gone && i === cur;
+      it.querySelector('.cx').classList.toggle('off', gone || act);
+      it.querySelector('.xp').classList.toggle('off', !act);
+      const mode = gone || prev < 0 ? 'none' : act || prev === cur ? 'line' : '';
+      it.querySelector('.sp').className = 'sp' + (mode ? ' ' + mode : '');
+      if (!gone) prev = i;
+    });
+    log.textContent = `Open: ${cur + 1} · unread ${u.length} / ${n}${auto ? ' · auto' : ''}`;
   }
-  // swap the lead slot to item `to`; dir 1 = the new one comes from below
-  function go(to, dir, instant) {
-    if (busy || to < 0 || to === cur) return;
-    if (instant) { cur = to; lead.innerHTML = leadHTML(DECK[cur]); sync(); return; }
-    busy = true;
-    const old = lead.querySelector('.lc'); const h0 = lead.offsetHeight;
-    const inc = document.createElement('div'); inc.innerHTML = leadHTML(DECK[to]); const nw = inc.firstElementChild;
-    nw.classList.add('ghost'); nw.style.transition = 'none'; nw.style.transform = `translateY(${dir * 24}px)`; nw.style.opacity = '0';
-    lead.appendChild(nw); const h1 = nw.offsetHeight;
-    lead.style.height = h0 + 'px'; void lead.offsetHeight;
-    nw.style.transition = ''; old.style.transform = `translateY(${-dir * 24}px)`; old.style.opacity = '0';
-    nw.style.transform = ''; nw.style.opacity = '1'; lead.style.height = h1 + 'px';
-    cur = to; sync();
-    setTimeout(() => { old.remove(); nw.classList.remove('ghost'); nw.style.transform = ''; lead.style.height = ''; busy = false; }, 340);
+  function go(to) {
+    if (busy || to < 0 || to === cur || read.has(to)) return;
+    busy = true; cur = to; sync(); kick();
+    setTimeout(() => { busy = false; }, 340);
   }
-  const step = (dir) => { const to = nextUnread(cur, dir); if (to >= 0) go(to, dir); };
-  let sy = 0, dy = 0, drag = false, moved = false;
-  lead.addEventListener('pointerdown', (e) => { if (e.button || busy) return; drag = true; moved = false; sy = e.clientY; dy = 0; lead.classList.add('drag'); try { lead.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } });
-  lead.addEventListener('pointermove', (e) => { if (!drag) return; dy = e.clientY - sy; if (Math.abs(dy) > 4) moved = true; const lc = lead.querySelector('.lc'); lc.style.transition = 'none'; lc.style.transform = `translateY(${dy * 0.45}px)`; lc.style.opacity = String(Math.max(.35, 1 - Math.abs(dy) / 140)); });
-  const up = () => { if (!drag) return; drag = false; lead.classList.remove('drag'); const lc = lead.querySelector('.lc'); lc.style.transition = ''; lc.style.transform = ''; lc.style.opacity = ''; if (Math.abs(dy) > 45) step(dy < 0 ? 1 : -1); else if (!moved) openSheet(); dy = 0; };
-  lead.addEventListener('pointerup', up); lead.addEventListener('pointercancel', up);
-  also.addEventListener('click', (e) => { const rw = e.target.closest('.rw'); if (!rw) return; const i = +rw.dataset.i; if (read.has(i)) return; go(i, i > cur ? 1 : -1); });
+  const step = (dir) => { const to = nextUnread(cur, dir); if (to >= 0) go(to); };
+  // autoplay: the next unread item opens every 4s; paused while the pointer is on the card, during a drag and while the deck is open
+  const AUTO_MS = 4000;
+  let auto = true, hover = false, timer = 0;
+  function kick() { clearTimeout(timer); if (auto) timer = setTimeout(tick, AUTO_MS); }
+  function tick() { if (!hover && !drag && !document.hidden && !$('sw').classList.contains('on') && unread().length > 1) step(1); kick(); }
+  card.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
+  card.addEventListener('pointerleave', () => { hover = false; kick(); });
+  // drag on the open item: up opens the next one, down the one before; a tap opens the deck from it
+  let sy = 0, dy = 0, drag = false, moved = false, dragLc = null;
+  list.addEventListener('pointerdown', (e) => {
+    const xp = e.target.closest('.xp'); if (!xp || xp.classList.contains('off') || e.button || busy) return;
+    drag = true; moved = false; sy = e.clientY; dy = 0; dragLc = xp.querySelector('.lc'); xp.classList.add('drag');
+    try { list.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
+  });
+  list.addEventListener('pointermove', (e) => {
+    if (!drag) return; dy = e.clientY - sy; if (Math.abs(dy) > 4) moved = true;
+    dragLc.style.transition = 'none'; dragLc.style.transform = `translateY(${dy * 0.45}px)`; dragLc.style.opacity = String(Math.max(.35, 1 - Math.abs(dy) / 140));
+  });
+  const up = () => {
+    if (!drag) return; drag = false;
+    list.querySelectorAll('.xp.drag').forEach((x) => x.classList.remove('drag'));
+    dragLc.style.transition = ''; dragLc.style.transform = ''; dragLc.style.opacity = '';
+    if (Math.abs(dy) > 45) step(dy < 0 ? 1 : -1); else if (!moved) openSheet(); else kick();
+    dy = 0;
+  };
+  list.addEventListener('pointerup', up); list.addEventListener('pointercancel', up);
+  list.addEventListener('click', (e) => { const cx = e.target.closest('.cx'); if (!cx) return; go(+cx.closest('.it').dataset.i); });
   let wheelAt = 0;
   card.addEventListener('wheel', (e) => { e.preventDefault(); const now = Date.now(); if (now - wheelAt < 400 || Math.abs(e.deltaY) < 8) return; wheelAt = now; step(e.deltaY > 0 ? 1 : -1); }, { passive: false });
 
@@ -342,7 +375,7 @@
     render();
     sw.classList.add('on');
   }
-  function closeSheet() { sw.classList.remove('on'); }
+  function closeSheet() { sw.classList.remove('on'); kick(); }
   const feel = (c, t, d) => {
     c.querySelector('.veil.k').style.opacity = d < 0 ? t * .92 : 0; c.querySelector('.veil.rd').style.opacity = d > 0 ? t * .92 : 0;
     const sk = c.querySelector('.stamp.k'), sr = c.querySelector('.stamp.rd');
@@ -357,7 +390,7 @@
     c.classList.add('fly');
     if (!swiped) { c.style.transform = OUT[action]; c.style.opacity = '0'; }
     hist.push({ i, action });
-    if (action === 'read') { read.add(i); if (i === cur) { const nx = nextUnread(cur, 1); if (nx >= 0) go(nx, 1); } sync(); }
+    if (action === 'read') { read.add(i); if (i === cur) { const nx = nextUnread(cur, 1); if (nx >= 0) cur = nx; } sync(); }
     setTimeout(() => { pi += 1; render(); sbusy = false; }, 300);
   }
   // Undo: the last card comes back from the side it left by, and a read mark is taken back
@@ -404,8 +437,9 @@
     if (sw.classList.contains('on')) { if (e.key === 'ArrowRight') mark('read'); if (e.key === 'ArrowLeft') mark('keep'); if (e.key === 'Escape') closeSheet(); return; }
     if (e.key === 'ArrowDown') { e.preventDefault(); step(1); } if (e.key === 'ArrowUp') { e.preventDefault(); step(-1); }
   });
-  document.querySelectorAll('.ctl button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button').forEach((x) => x.classList.toggle('on', x === b)); n = +b.dataset.n; closeSheet(); build(); }));
-  window.__today = { state: () => ({ n, cur, read: [...read], sheet: sw.classList.contains('on'), pass, pi, hist: hist.map((h) => h.action), sent }), mark, undo, openSheet };
+  document.querySelectorAll('.ctl button[data-n]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button[data-n]').forEach((x) => x.classList.toggle('on', x === b)); n = +b.dataset.n; closeSheet(); build(); }));
+  document.querySelectorAll('.ctl button[data-auto]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button[data-auto]').forEach((x) => x.classList.toggle('on', x === b)); auto = b.dataset.auto === '1'; kick(); sync(); }));
+  window.__today = { state: () => ({ n, cur, read: [...read], auto, sheet: sw.classList.contains('on'), pass, pi, hist: hist.map((h) => h.action), sent }), mark, undo, openSheet, step };
   build();
 })();
 </script>
