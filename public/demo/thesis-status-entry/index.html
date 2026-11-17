@@ -455,71 +455,6 @@
   .tf textarea::placeholder { color: var(--text-n3); }
   .sheet .btns { display: flex; gap: 12px; padding: 0 16px 8px; }
 
-  /* ───────── Today’s review drawer (Figma Thesis-MVP 14998:118865 · read / keep-unread flow after Slack’s Catch Up) ─────────
-     The What’s off sheet frame (grab 12, top bar 56) over the B4 chat. The m7 dim keeps 106 clear at the top, so the
-     sheet never grows past it; content 12 / 16 padding, 24 between the deck and the buttons. */
-  .sheet-wrap.tr { padding-top: 106px; }
-  .sheet.tr { display: flex; flex-direction: column; min-height: 0; max-height: 100%; }
-  .sheet.tr .grab, .sheet.tr .tb, .sheet.tr .home { flex-shrink: 0; }
-  .tr-ct { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 24px; padding: 12px 16px; }
-  /* Deck: two blank plates peek above the front (24 over its top), and every card shares one grid cell, so the deck is
-     as tall as the longest card and the sheet keeps its height while flipping. Deck shadow 0 4 15 · 5%. */
-  .tr-dk { flex: 0 1 auto; min-height: 0; position: relative; display: grid; grid-template-rows: minmax(0, 1fr); padding-top: 24px; filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.05)); }
-  .tr-dk .pl { position: absolute; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; overflow: hidden; }
-  /* the far plate 388×383 turned 1.1° clockwise, the near one 398×393 turned 1.4° the other way with a half-strength wash */
-  .tr-dk .pl.p2 { left: 8px; right: 12px; top: 4px; height: 383px; transform: rotate(1.1deg); }
-  .tr-dk .pl.p1 { left: 5px; right: 5px; top: 12px; height: 393px; transform: rotate(-1.4deg); }
-  .tr-dk .pl.p1::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 120px; background: linear-gradient(180deg, var(--main-m1-10) 0%, rgba(73, 163, 166, 0) 100%); opacity: 0.5; }
-  /* Front card: radius 16, l2 0.5 inside, shadow 0 6 20 · 4%, padding 20 / 16, 16 between logo, text and prompts; an
-     m1 10% → 0 wash 120 tall at the top. When the deck is capped by the screen, the text scrolls and the prompts stay. */
-  .trc { grid-area: 1 / 1; min-height: 0; position: relative; display: flex; flex-direction: column; background: #fff; outline: 0.5px solid var(--line-l2); outline-offset: -0.5px; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04); touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
-  .trc:not(.on):not(.nx) { visibility: hidden; pointer-events: none; }
-  /* the next card sits right under the front (same box, no shadow of its own), so a drag uncovers its content */
-  .trc.on { z-index: 2; }
-  .trc.nx { z-index: 1; pointer-events: none; box-shadow: none; }
-  .trc .wash { position: absolute; left: 0; right: 0; top: 0; height: 120px; background: linear-gradient(180deg, var(--main-m1-10) 0%, rgba(73, 163, 166, 0) 100%); pointer-events: none; }
-  .trc .bd { position: relative; flex: 0 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 20px 16px 0; display: flex; flex-direction: column; gap: 16px; }
-  .trc .bd::-webkit-scrollbar { display: none; }
-  .trc .lg { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
-  .trc .mdb { display: flex; flex-direction: column; gap: 12px; }
-  .trc .h2 { padding-top: 2px; }
-  /* Markdown list: 4 between items, a 4px n9 dot centred in a 20 × 22 slot */
-  .trc .bl { display: flex; flex-direction: column; gap: 4px; }
-  .trc .li { display: flex; }
-  .trc .li .d { width: 20px; height: 22px; flex-shrink: 0; position: relative; }
-  .trc .li .d::after { content: ''; position: absolute; left: 8px; top: 9px; width: 4px; height: 4px; border-radius: 50%; background: var(--text-n9); }
-  .trc .li p { flex: 1; min-width: 0; }
-  .trc .tkr { color: var(--main-m1); }
-  /* source: a 16 round logo, 4 to the name in n7 with a dotted underline */
-  .trc .src { white-space: nowrap; }
-  .trc .src img { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 4px; vertical-align: top; position: relative; top: 3px; }
-  .trc .src .sn { color: var(--text-n7); text-decoration: underline dotted rgba(0, 0, 0, 0.5); text-decoration-thickness: 8%; }
-  .trc .pr { position: relative; flex-shrink: 0; margin-top: auto; padding: 16px 16px 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-  /* top bar: two-line title (Today’s review / N unread), Undo on the right once a card has been handled */
-  .sheet.tr .tb .ttl2 { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .sheet.tr .tb .undo { flex-shrink: 0; height: 56px; padding: 0 10px; margin-right: -10px; color: var(--text-n9); }
-  .sheet.tr [hidden] { display: none !important; }
-  /* drag feedback: the card tilts with the finger (swipeable) and fills with the colour of the side it is heading to — the
-     buttons' sides: Keep unread (br7) to the left, Mark as read (m1) to the right — with a white stamp (icon + label) on it */
-  .trc .veil { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 2; }
-  .trc .veil.k { background: var(--content-br7); }
-  .trc .veil.r { background: var(--main-m1); }
-  /* the stamp sits in the top corner on the trailing edge, the side that stays on screen: right when the card goes left
-     (Keep unread), left when it goes right (Mark as read) */
-  .trc .stamp { position: absolute; top: 20px; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; white-space: nowrap; color: #fff; opacity: 0; transform: scale(0.8); pointer-events: none; }
-  .trc .stamp.r { left: 20px; transform-origin: left top; }
-  .trc .stamp.k { right: 20px; transform-origin: right top; }
-  /* library icons as they are, both at 48 so their lines match: check-l2 (the check in its own circle) and hide-l */
-  .trc .stamp .ic { display: block; }
-  /* bottom: the Drawer’s two M40 buttons, 24 under the deck; after the last card the deck gives way to the end state and Done */
-  .sheet.tr .btns { flex-shrink: 0; padding: 12px 16px 8px; }
-  /* the library Button states the drag switches to (Alva Library Button · M 40): Primary Hover = btn-primary + br1,
-     Click = btn-primary + br2; Secondary Hover = l9 stroke (its Click looks the same as Normal, so Hover is kept) */
-  .sheet.tr .btns .btn-m.pri.hover { background: linear-gradient(var(--content-br1), var(--content-br1)), var(--main-m1); }
-  .sheet.tr .btns .btn-m.pri.click { background: linear-gradient(var(--content-br2), var(--content-br2)), var(--main-m1); }
-  .sheet.tr .btns .btn-m.sec.hover { outline-color: var(--line-l9); }
-  .tr-end { padding: 64px 16px 48px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-
   /* ───────── Review (R1 / R2) ───────── */
   .rv { --wc: var(--main-m4-10); }
   .rv .wash { position: absolute; left: 0; right: 0; top: 0; height: 620px; background: linear-gradient(180deg, var(--wc) 0%, var(--wc) 40%, rgba(255, 255, 255, 0) 100%); pointer-events: none; }
@@ -725,18 +660,9 @@
     close20: [20, 'M15.6465 3.64648C15.8418 3.45122 16.1583 3.45122 16.3536 3.64648C16.5486 3.84176 16.5488 4.15833 16.3536 4.35352L10.7071 10L16.3536 15.6465C16.5486 15.8418 16.5488 16.1583 16.3536 16.3535C16.1584 16.5485 15.8418 16.5485 15.6465 16.3535L10 10.707L4.35355 16.3535C4.15834 16.5485 3.84173 16.5485 3.64651 16.3535C3.45131 16.1583 3.45143 15.8418 3.64651 15.6465L9.29301 10L3.64651 4.35352C3.45131 4.15831 3.45143 3.84176 3.64651 3.64648C3.84178 3.45122 4.15828 3.45122 4.35355 3.64648L10 9.29298L15.6465 3.64648Z'],
     close24: [24, 'M18.7758 4.37578C19.0102 4.14147 19.39 4.14147 19.6243 4.37578C19.8583 4.61012 19.8585 4.98999 19.6243 5.22422L12.8485 12L19.6243 18.7758C19.8583 19.0101 19.8585 19.39 19.6243 19.6242C19.39 19.8583 19.0101 19.8582 18.7758 19.6242L12 12.8485L5.22426 19.6242C4.99001 19.8583 4.61008 19.8582 4.37582 19.6242C4.14157 19.39 4.14172 19.0101 4.37582 18.7758L11.1516 12L4.37582 5.22422C4.14157 4.98998 4.14172 4.61011 4.37582 4.37578C4.61013 4.14147 4.98994 4.14147 5.22426 4.37578L12 11.1516L18.7758 4.37578Z'],
     dis14: [12.444, 'M11.9 7C11.9 4.2938 9.7062 2.1 7 2.1C4.2938 2.1 2.1 4.2938 2.1 7C2.1 9.7062 4.2938 11.9 7 11.9C9.7062 11.9 11.9 9.7062 11.9 7ZM8.50254 5.00254C8.63922 4.86586 8.86078 4.86586 8.99746 5.00254C9.13414 5.13922 9.13414 5.36078 8.99746 5.49746L7.49492 7L8.99746 8.50254C9.13414 8.63922 9.13414 8.86078 8.99746 8.99746C8.86078 9.13414 8.63922 9.13414 8.50254 8.99746L7 7.49492L5.49746 8.99746C5.36078 9.13414 5.13922 9.13414 5.00254 8.99746C4.86586 8.86078 4.86586 8.63922 5.00254 8.50254L6.50508 7L5.00254 5.49746C4.86586 5.36078 4.86586 5.13922 5.00254 5.00254C5.13922 4.86586 5.36078 4.86586 5.49746 5.00254L7 6.50508L8.50254 5.00254ZM12.6 7C12.6 10.0928 10.0928 12.6 7 12.6C3.90721 12.6 1.4 10.0928 1.4 7C1.4 3.90721 3.90721 1.4 7 1.4C10.0928 1.4 12.6 3.90721 12.6 7Z', -0.778], // cropped so the circle is 0.9 of the box, same as the agree icon
-    arrowL: [20, 'M2.07761 10.1416C1.88239 9.94631 1.88237 9.62972 2.07761 9.43447L9.14869 2.3634C9.34395 2.16829 9.66058 2.16822 9.8558 2.3634C10.051 2.55861 10.0509 2.87523 9.8558 3.07051L3.63822 9.28808L17.5718 9.28807C17.8479 9.28807 18.0717 9.51191 18.0718 9.78802C18.0718 10.0642 17.848 10.288 17.5718 10.288L3.63822 10.288L9.85579 16.5055C10.051 16.7008 10.0509 17.0174 9.85579 17.2126C9.66053 17.4079 9.34394 17.4079 9.14868 17.2126L2.07761 10.1416Z'], // arrow-left-l1
-    arrowR: [20, 'M17.9253 10.1416C18.1205 9.94631 18.1206 9.62972 17.9253 9.43447L10.8542 2.3634C10.659 2.16829 10.3424 2.16822 10.1471 2.3634C9.95192 2.55861 9.95201 2.87523 10.1471 3.07051L16.3647 9.28808L2.43111 9.28807C2.15499 9.28807 1.9312 9.51191 1.93116 9.78802C1.93116 10.0642 2.15497 10.288 2.43111 10.288L16.3647 10.288L10.1471 16.5055C9.95192 16.7008 9.95202 17.0174 10.1471 17.2126C10.3424 17.4079 10.659 17.4079 10.8542 17.2126L17.9253 10.1416Z'], // arrow-right-l1
-    chat: [20, 'M17 13.5V4.5C17 3.67157 16.3284 3 15.5 3H4.5C3.67157 3 3 3.67157 3 4.5V17.2373L3.01367 17.3281C3.07465 17.5244 3.32748 17.6109 3.49707 17.4629L5.8877 15.3711C6.16113 15.1318 6.51264 15 6.87598 15H15.5C16.3284 15 17 14.3284 17 13.5ZM18 13.5C18 14.8807 16.8807 16 15.5 16H6.87598C6.7549 16 6.63801 16.0443 6.54688 16.124L4.15625 18.2158C3.34187 18.9283 2.08161 18.3898 2.00391 17.3398L2 17.2373V4.5C2 3.11929 3.11929 2 4.5 2H15.5C16.8807 2 18 3.11929 18 4.5V13.5Z'], // chat-l1, drawn at 14
     dis20: [17.778, 'M17 10C17 6.13401 13.866 3 10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10ZM12.1465 7.14648C12.3417 6.95122 12.6583 6.95122 12.8535 7.14648C13.0488 7.34175 13.0488 7.65825 12.8535 7.85352L10.707 10L12.8535 12.1465C13.0488 12.3417 13.0488 12.6583 12.8535 12.8535C12.6583 13.0488 12.3417 13.0488 12.1465 12.8535L10 10.707L7.85352 12.8535C7.65825 13.0488 7.34175 13.0488 7.14648 12.8535C6.95122 12.6583 6.95122 12.3417 7.14648 12.1465L9.29297 10L7.14648 7.85352C6.95122 7.65825 6.95122 7.34175 7.14648 7.14648C7.34175 6.95122 7.65825 6.95122 7.85352 7.14648L10 9.29297L12.1465 7.14648ZM18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10Z', -1.111], // cropped so the circle is 0.9 of the box, same as the agree icon
   };
   const icon = (name, size) => { const [vb, d, off = 0] = PATHS[name]; return `<svg class="ic" width="${size}" height="${size}" viewBox="${-off} ${-off} ${vb} ${vb}" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`; };
-  // Alva Library check-l2 (Figma 26807:43346) / hide-l / restore-l (alva-ai-static.b-cdn.net/icons), for the Today’s review read / keep-unread stamps
-  Object.assign(PATHS, {
-    checkL2: [20, 'M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1ZM10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2ZM13.3799 7.16406C13.5655 6.95983 13.8816 6.94441 14.0859 7.12988C14.2902 7.31555 14.3056 7.6316 14.1201 7.83594L9.12012 13.3359C9.02284 13.4429 8.88384 13.5031 8.73926 13.5C8.59479 13.4969 8.45879 13.4312 8.36621 13.3203L5.86621 10.3203C5.68951 10.1083 5.71781 9.79304 5.92969 9.61621C6.14173 9.43951 6.45696 9.46781 6.63379 9.67969L8.76562 12.2383L13.3799 7.16406Z'],
-    hide: [20, 'M19.1116 5.58574C19.2852 5.37129 19.6001 5.33815 19.8148 5.51153C20.029 5.68513 20.0623 6.00002 19.889 6.21465C19.3624 6.86668 18.6973 7.57302 17.886 8.24102L19.9329 11.7732C20.071 12.0121 19.99 12.3175 19.7513 12.4559C19.5125 12.5942 19.2062 12.5128 19.0677 12.2742L17.0843 8.85137C16.0013 9.61055 14.7022 10.2683 13.1692 10.6639L13.7913 14.1912C13.8389 14.463 13.6578 14.7234 13.386 14.7713C13.1142 14.8191 12.855 14.6368 12.8069 14.365L12.1917 10.8758C11.5053 10.9936 10.777 11.0594 10.0051 11.0594C9.22887 11.0594 8.4966 10.9929 7.80685 10.8738L7.19356 14.365C7.1456 14.6368 6.88629 14.819 6.61446 14.7713C6.34282 14.7234 6.16171 14.4639 6.20918 14.1922L6.8293 10.6619C5.29853 10.2653 4.00152 9.60646 2.92009 8.84746L0.933745 12.2928C0.795736 12.5317 0.489236 12.6141 0.250145 12.4764C0.011297 12.3385 -0.0708274 12.0328 0.0665502 11.7938L2.11833 8.23614C1.3097 7.56956 0.646568 6.8651 0.121238 6.21465C-0.0521093 5.99999 -0.0188953 5.68511 0.195458 5.51153C0.41018 5.33813 0.725036 5.37122 0.898589 5.58574C2.18752 7.18175 4.32106 9.09431 7.48068 9.78887C7.48388 9.78937 7.48724 9.78928 7.49044 9.78985C7.49913 9.79138 7.50734 9.79472 7.51583 9.79668C8.28436 9.96302 9.11299 10.0594 10.0051 10.0594C12.961 10.0594 15.2236 9.02439 16.889 7.75664C16.9174 7.72919 16.9489 7.70414 16.9847 7.6834L16.9866 7.68145C17.8577 7.00416 18.5619 6.26649 19.1116 5.58574Z'],
-    restore: [20, 'M17.5 11.5C17.5 8.4624 15.0376 5.99996 12 5.99996H4.20703L6.35352 3.85348C6.54878 3.65822 6.54878 3.34171 6.35352 3.14645C6.15825 2.95118 5.84175 2.95118 5.64648 3.14645L2.64648 6.14645C2.45122 6.34171 2.45122 6.65822 2.64648 6.85348L5.64648 9.85348C5.84175 10.0487 6.15825 10.0487 6.35352 9.85348C6.54878 9.65822 6.54878 9.34171 6.35352 9.14645L4.20703 6.99996H12C14.4853 6.99996 16.5 9.01468 16.5 11.5C16.5 13.9852 14.4853 16 12 16H6.5C6.22386 16 6 16.2238 6 16.5C6 16.7761 6.22386 17 6.5 17H12C15.0376 17 17.5 14.5375 17.5 11.5Z'],
-  });
   // Voted icons follow the like button (feed-app IconPopBurst): the outline turns into the filled icon, and only on the tap
   // that votes it pops from half size with an overshoot while six dots in the icon's colour burst out. Un-voting is instant.
   let POP = false; // true only while setVote renders the surfaces of the vote just tapped
@@ -847,7 +773,7 @@
   // out — no status bands or change panels, no status wash or status-coloured progress. Drawn for A3, B1, B2 and the Review;
   // the panel switch flips every screen that has it, the rest keep their status version.
   let noStatus = false;
-  const NS_OK = new Set(['a3', 'b1', 'b2', 'b4', 'r1', 'r2', 'd1', 'd2', 'd3', 't1']); // drawn without status
+  const NS_OK = new Set(['a3', 'b1', 'b2', 'b4', 'r1', 'r2', 'd1', 'd2', 'd3']); // drawn without status
   const NS_ONLY = new Set(['b4']); // drawn only without status
   // the panel lists only what the chosen mode has a design for
   const shown = (id) => (noStatus ? NS_OK.has(id) : !NS_ONLY.has(id));
@@ -1079,7 +1005,7 @@
   // B4 · Today's review 置底 (无 Status · Figma Thesis-MVP 14817:87080): an ordinary conversation, with today's review pinned
   // just above the composer instead of arriving as a message. The thread scrolls under the fading header and the pinned card.
   const STRATEGY = ['# Buy the Dip Strategy v2 (LLM Reference)', 'Mean-reversion strategy on BTC/USDT 6h bars using RSI(14) and Bollinger Bands(20).', '## Parameters', '- StartDate: 2025-01-01T00:00:00.000Z', '- EndDate: current time (Date.now())', '- Symbol: BINANCE_SPOT_BTC_USDT', '- Interval: 6h (tick = 6 hours)', '- RSI period: 14', '- Bollinger Bands period: 20, multiplier: 2', '- rsiLowerBound: 32 (arms buy signal)', '- rsiFloor: 30 (confirms recovery)', '- maxWaitTicksForBottom: 5', '- STOP_LOSS_PCT: 2%', '- FREEZE_TICKS: 4', '- SELL_WATCH_TICKS: 4', '- TRAIL_TIMEOUT_TICKS: 4', '- Fees: 0.1%, Slippage: 0.05%', '## State', 'Buy state: readyToBuy (bool), bottomPrice (float|null), waitBottomFromTick (timestamp|null)', 'Position state: entryPrice (float|null), freezeUntilTick (timestamp|null)'];
-  const pinnedChat = (o = {}) => `<div class="scr chat pin">
+  const pinnedChat = () => `<div class="scr chat pin">
       <div class="pinwrap"><div class="scroll" data-chat><div class="cbody pinbody">
         <div class="tdiv t12">Sep 3, 11:40 PM</div>
         <div class="ab"><div class="bub t14 n9"><p>Hey, I'm Alva, your AI investing agent.</p><p>Ask me for market research, or set up live automations to watch your portfolio, tickers, and market voices. Pick what you want me to help with first.</p></div></div>
@@ -1098,63 +1024,11 @@
           <span class="lrow">${img('b4-logo-podcast.png', 'lg')}<span class="t14 n7 dl">BTC Ultimate AI Trader</span></span></div></div>
         <div class="fcard">${img('b4-file-preview.png', 'pv')}<div class="info"><span class="ic">${img('b4-file-l.svg')}</span><div class="m"><span class="t14 n9 ell">fintwit-digest</span><span class="t12 n5">MD</span></div>${img('b4-more-l1.svg', 'mo')}</div></div>
       </div></div>
-      <div class="pinned">${img('scroll-l.svg', 'ic28')}<div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5" data-pin-unread>${o.today ? `${TODAY.length} unread` : '7 theses updated'}</span></div><button class="btn-xs t12 md" data-act="${o.today ? 'tr-open' : 'review'}" data-deck="7">Review</button></div></div>
+      <div class="pinned">${img('scroll-l.svg', 'ic28')}<div class="tx"><span class="t14 md n9">Today’s review</span><span class="t12 n5">7 theses updated</span></div><button class="btn-xs t12 md" data-act="review" data-deck="7">Review</button></div></div>
       <div class="pintop">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div></div>
       <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`;
 
-  // T1 · Today’s review drawer (Figma Thesis-MVP 14998:118865): the daily brief one topic per card, opened over the B4
-  // chat. The copy is the 4 Nov and 6 Nov briefs in English; the deck leads with the board's three (Nvidia, Micron,
-  // Interconnect) and the other three topics follow. In the text {TICKER} is an m1 ticker and [x|Name] / [st|Name] a
-  // source (X / Stocktwits) with its logo.
-  const TODAY = [
-    { logo: 'tr-logo-nvda.svg', head: 'Rubin has started shipping; customers taking delivery is still the key condition',
-      bul: [
-        'Your thesis that Rubin lifts revenue per GW ({NVDA}, {AAPL}, {TSLA}) has direct delivery progress: on its Nov 3 earnings call, Supermicro said Vera Rubin NVL-72 racks have started shipping. On the same call, Mark P Long said deliveries are still constrained by customers’ data center readiness and key component supply. Delivery conditions have moved forward; revenue still depends on customers taking the equipment in time.',
-        'Policy could also affect site readiness. Per [x|*Walter Bloomberg], Goldman Sachs estimates that state and local election results could trigger temporary construction pauses touching 45% of planned US data center capacity, though it expects any pause to be brief. That adds a potential variable to delivery timing; the 45% is not capacity that has already paused.',
-      ],
-      ask: ['What’s holding up customer deliveries?', 'How does this affect my Rubin thesis?', 'What should I watch for next?'] },
-    { logo: 'tr-logo-mu.png', head: 'Micron: Price increases continue, and inventory is building too',
-      bul: [
-        '[x|Jukan], relaying TrendForce on Oct 30: Q4 PC DRAM contract prices are up 13–18% QoQ, below Q3’s 18–23%; customer inventory rose from 6–9 weeks at the end of Q3 to 7–10 weeks at the start of Q4.',
-        'Apple’s John Ternus said on the Nov 2 earnings call that memory purchase prices will keep rising after the December quarter, while the benefit of earlier low-cost inventory gradually fades.',
-        'For your {MU} view that hinges on earnings delivery, near-term pricing still has support; rising customer inventory raises the risk to how long price increases can last. When deciding whether to add, weigh volume and profit delivery alongside the size of the price increases.',
-      ],
-      ask: ['How long can DRAM price increases last?', 'How does this affect my MU thesis?', 'What should I watch for next?'] },
-    { logo: 'tr-logo-nok.svg', head: 'Cross–data center networking demand has support; Nokia’s upside still awaits orders',
-      bul: [
-        'The 3X Long Labubu thesis you follow on {NOK}, {CIEN}, {GOOG} and {AMZN} has new demand-side evidence: on its Q3 earnings call, Arista projected that scale-across will make up at least a third of the AI networking mix and could rise further in 2027, supporting the growing importance of interconnect across data centers.',
-        'Indium phosphide sourcing is moving too: [x|Zephyr] says AAOI signed a $194M supply agreement with Yunnan Germanium for 180,000 4-inch InP wafers. This strengthens the demand case for upstream optical networking materials; how many orders Nokia can win still needs company-level evidence.',
-      ],
-      ask: ['Who benefits most from scale-across?', 'How does this affect my 3X Long Labubu thesis?', 'What should I watch for next?'] },
-    { logo: 'tr-logo-amd.svg', head: 'AMD’s competitive evidence has reached customer deployment',
-      bul: [
-        'On AMD’s Q3 earnings call, Lisa Su said volume shipments of MI455X began this quarter, and customers including Anthropic, Meta, Microsoft, OpenAI and Oracle have quickly brought up their first racks. For your Rubin thesis, this means an alternative is already in real service, and future purchase share and pricing face more concrete competitive pressure.',
-      ],
-      ask: ['How does MI455X compare with Rubin?', 'How does this affect my Rubin thesis?', 'What should I watch for next?'] },
-    { logo: 'tr-logo-tsla.svg', head: 'Tesla: Robotaxi adds a city, and production capacity faces a shift',
-      bul: [
-        'According to [st|Stocktwits], {TSLA} has launched unsupervised Robotaxi service in Fort Worth, covering an estimated 143 square miles and making it Tesla’s seventh operating city in the US.',
-        '[x|Sawyer Merritt] relayed Musk’s announcement that Cybertruck production is planned to end in mid-2027; Merritt thinks the freed-up space could be used to build more Cybercabs.',
-        'The expansion is already underway; the production stop is still a plan. Together, the two changes put the execution of the robotaxi business front and center: as operating coverage grows, vehicle rollout and the capacity switch will set the pace of expansion.',
-      ],
-      ask: ['Which city could Robotaxi add next?', 'What does ending Cybertruck mean for Cybercab?', 'What should I watch for next?'] },
-    { logo: 'tr-logo-btc.svg', head: 'Bitcoin: Pressure from ETF demand is more direct now',
-      bul: [
-        '[x|*Walter Bloomberg] said on Nov 5 that {BTC} fell as much as 5.8% intraday, breaking below $76,000 to a seven-week low; spot Bitcoin ETFs saw $1B of outflows, about $900M of it from IBIT.',
-        'This adds weight to your view that demand is weakening and the margin of safety is narrowing: ETF money is pulling out, so the price is falling while losing buying support from that side.',
-      ],
-      ask: ['How big have ETF outflows been this month?', 'How does this affect my BTC thesis?', 'What should I watch for next?'] },
-  ];
-  const TR_SRC = { x: 'tr-src-x.svg', st: 'tr-src-stocktwits.png' };
-  const trText = (s) => esc(s)
-    .replace(/\{([A-Z]+)\}/g, '<span class="tkr md">$1</span>')
-    .replace(/\[(x|st)\|([^\]]+)\]/g, (m, k, name) => `<span class="src">${img(TR_SRC[k])}<span class="sn">${name}</span></span>`);
-  const trCard = (t) => `<div class="trc"><i class="wash"></i><div class="bd">${img(t.logo, 'lg')}<div class="mdb"><p class="t16 md n9 h2">${esc(t.head)}</p>
-      <div class="bl">${t.bul.map((b) => `<div class="li"><i class="d"></i><p class="t14 n9">${trText(b)}</p></div>`).join('')}</div></div></div>
-      <div class="pr">${t.ask.map((q) => `<button class="btn-s sec t12 md">${icon('chat', 14)}<span>${esc(q)}</span></button>`).join('')}</div>
-      <i class="veil"></i><div class="stamp r">${icon('checkL2', 48)}<span class="t14 md">Mark as read</span></div><div class="stamp k">${icon('hide', 48)}<span class="t14 md">Keep unread</span></div></div>`;
-
-  const chatScreen = (o, S) => (o.card === 'pin' ? pinnedChat(o) : `<div class="scr chat">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div>
+  const chatScreen = (o, S) => (o.card === 'pin' ? pinnedChat() : `<div class="scr chat">${statusBar()}<div class="ah"><div class="capsule"><span class="lp">${img('alva-logo-portrait.svg')}</span><span class="t18 md n9">Alva</span></div></div>
       <div class="scroll" data-chat><div class="cbody"><div class="tdiv t12">8:00 PM</div>${agentBubble(noStatus ? 'Today’s read on your 7 theses is in.' : 'Today’s read on your 7 theses is in. 3 changed status and the other 4 held.')}<div data-cslot>${chatBlock(o.card, 0, S.votes[DECK7[0]])}</div></div></div>
       <div class="cbf"><div class="cbx"><span class="b36">${img('add-l2-chat.svg')}</span><span class="fld t14">Ask Alva, hold to talk</span><span class="b36">${img('voice-wave-l.svg')}</span></div></div>${tabBar('alva')}</div>`);
 
@@ -1306,9 +1180,6 @@
       { id: 'c2', k: 'C2', label: '要点用方向箭头（利好 / 利空），来源靠右', screen: 'feed', opts: { marker: 'arrow' } },
       { id: 'c-sheet', k: '→', label: '点不同意后弹出原因面板（C1、C2 共用）', screen: 'feed', opts: { marker: 'dot' }, state: 'sheet' },
     ] },
-    { id: 'T', title: 'Today’s review 抽屉', items: [
-      { id: 't1', k: 'T1', label: '每日简报 · 已读 / 保持未读', screen: 'chat', opts: { card: 'pin', today: true } },
-    ] },
     { id: 'R', title: '整页 Review', items: [
       { id: 'r1', k: 'R1', label: '状态色沉浸', nsLabel: '白底', screen: 'review', opts: { style: 'r1' } },
       { id: 'r2', k: 'R2', label: '品牌色底', screen: 'review', opts: { style: 'r2' } },
@@ -1319,7 +1190,6 @@
     { title: '详情页', groups: ['D'] },
     { title: '列表页', groups: ['A', 'B', 'C'] },
     { title: '整页 Review', groups: ['R'] },
-    { title: 'Today’s review', groups: ['T'] },
   ];
   const ALL = GROUPS.flatMap((g) => g.items.map((it) => ({ ...it, group: g.id, size: it.size || ENTRY })));
   if (qs.has('solo') && qs.get('h')) ALL.forEach((s) => { s.size = { ...s.size, h: +qs.get('h') }; }); // full-length frames for checking against Figma
@@ -1349,14 +1219,8 @@
     if (scheme.screen === 'chat' && scheme.opts.card !== 'pin') bindChatSwipe(phone);
     // B4 opens on the latest messages, like any chat
     if (scheme.opts.card === 'pin') requestAnimationFrame(() => { const sc = phone.querySelector('[data-chat]'); sc.scrollTop = sc.scrollHeight; });
-    // T1 (Figma 14998:118865): the thread is where the board has it, the $MU digest ending 323 down the screen
-    if (scheme.opts.today) requestAnimationFrame(() => requestAnimationFrame(() => {
-      const sc = phone.querySelector('[data-chat]'), mu = sc.querySelector('.ab .mu').closest('.ab'), k = phone.getBoundingClientRect().height / phone.offsetHeight || 1;
-      sc.scrollTop += ((mu.getBoundingClientRect().bottom - phone.getBoundingClientRect().top) / k) - 323;
-    }));
     if (scheme.opts.entry === 'b2') bindB2(phone);
     if (scheme.state === 'sheet') { setVote(phone, 'nebius', 'disagree'); openSheet(phone, true); }
-    if (scheme.opts.today) openToday(phone, true);
     phone.addEventListener('click', (e) => onClick(e, phone));
     return phone;
   }
@@ -1441,8 +1305,7 @@
   const cardOf = (html) => { const n = frag(html); return (n.matches('[data-cswipe]') ? n : n.querySelector('[data-cswipe]')).outerHTML; };
 
   /* horizontal swipe on a card; onSwipe(dir) gets -1 (to the left) / 1 (to the right); opts.onDir(dir) while dragging (0 = released);
-     opts.onMove(dx, min) with the live drag distance, back to 0 on release (after the fly-out when the swipe counts);
-     opts.allow(dir) returning false keeps the card still in that direction */
+     opts.onMove(dx, min) with the live drag distance, back to 0 on release (after the fly-out when the swipe counts); */
   function swipeable(el, onSwipe, opts = {}) {
     if (!el || el._swipeBound) return;
     el._swipeBound = true;
@@ -1458,7 +1321,7 @@
       const mx = (e.clientX - sx) / scale, my = (e.clientY - sy) / scale;
       if (!decided && Math.hypot(mx, my) > 6) { decided = true; horiz = Math.abs(mx) > Math.abs(my); if (horiz) { try { el.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } } }
       if (!horiz) return;
-      dx = opts.allow && !opts.allow(mx < 0 ? -1 : 1) ? 0 : mx;
+      dx = mx;
       const d = dx < 0 ? -1 : 1;
       if (d !== side) { side = d; if (opts.onDir) opts.onDir(d); }
       if (opts.onMove) opts.onMove(dx, opts.min || 70);
@@ -1636,7 +1499,6 @@
     if (act === 'chip') { t.classList.toggle('on'); return; }
     if (act === 'like') { const on = !t.classList.contains('on'); t.classList.toggle('on', on); t.innerHTML = on ? popIcon(icon('likeF', 16), true) : img('like-l.svg'); return; }
     if (act === 'sheet-close' || act === 'sheet-skip' || act === 'sheet-send') { closeSheet(phone); return; }
-    if (act === 'tr-open') { e.stopPropagation(); openToday(phone); return; }
     if (act === 'c-disagree' || act === 'c-agree') {
       if (S.cbusy) return;
       const k = DECK7[S.ci]; const v = act === 'c-agree' ? 'agree' : 'disagree';
@@ -1689,104 +1551,6 @@
   }
   function closeSheet(phone) {
     const wrap = phone.querySelector('.sheet-wrap');
-    if (!wrap) return;
-    wrap.classList.remove('on');
-    setTimeout(() => wrap.remove(), 320);
-  }
-
-  /* Today's review drawer, after Slack's Catch Up: every card is either marked read or kept unread — with the two buttons, or
-     by throwing it towards the button's side, left (keep unread) / right (read). While it is dragged the card tilts, fills
-     with that side's colour and the action stamps itself on the card in white. The title counts what is still unread, Undo brings the last card back, and once the deck is empty
-     the sheet shows the end state with Done. Marks and the place are kept while the drawer is closed. */
-  function openToday(phone, instant) {
-    const S = phone._S;
-    if (S.tr == null) S.tr = 0;
-    S.trMark = S.trMark || {}; // card index → 'read' | 'keep'
-    S.trHist = S.trHist || []; // card indexes in the order they were handled, for Undo
-    const n = TODAY.length;
-    const unread = () => TODAY.filter((_, k) => S.trMark[k] !== 'read').length;
-    const wrap = frag(`<div class="sheet-wrap tr"><i class="dim" data-act="tr-close"></i><div class="sheet tr">
-      <div class="grab"></div><div class="tb"><button class="x" data-act="tr-close" aria-label="Close">${icon('close20', 20)}</button><div class="ttl2"><p class="t16 n9 ell">Today’s review</p><p class="t12 n5 ell" data-unread></p></div><button class="undo t14" data-act="tr-undo" hidden>Undo</button></div>
-      <div class="tr-ct"><div class="tr-dk"><i class="pl p2"></i><i class="pl p1"></i>${TODAY.map(trCard).join('')}</div>
-        <div class="tr-end" hidden><p class="t16 md n9">You’re all caught up.</p></div></div>
-      <div class="btns" data-btns><button class="btn-m sec t14 md" data-act="tr-keep">Keep unread</button><button class="btn-m pri t14 md" data-act="tr-read">Mark as read</button></div>
-      <div class="btns" data-btns-end hidden><button class="btn-m pri t14 md" data-act="tr-close">Done</button></div>
-      ${home()}</div></div>`);
-    const cards = [...wrap.querySelectorAll('.trc')];
-    const cnt = wrap.querySelector('[data-unread]'), undoBtn = wrap.querySelector('.undo');
-    const dk = wrap.querySelector('.tr-dk'), end = wrap.querySelector('.tr-end'), btns = wrap.querySelector('[data-btns]'), btnsEnd = wrap.querySelector('[data-btns-end]');
-    const p1 = wrap.querySelector('.pl.p1'), p2 = wrap.querySelector('.pl.p2');
-    const MIN = 70;
-    let busy = false;
-    // drag feedback on a card: left (Keep unread's side) fills it br7, right (Mark as read's side) fills it m1, up to 92%;
-    // the matching stamp fades and grows in with the distance
-    const kBtn = btns.querySelector('[data-act="tr-keep"]'), rBtn = btns.querySelector('[data-act="tr-read"]');
-    const feel = (c, dx) => {
-      const t = dx ? Math.min(1, Math.abs(dx) / MIN) : 0;
-      const v = c.querySelector('.veil'); v.className = `veil${dx < 0 ? ' k' : dx > 0 ? ' r' : ''}`; v.style.opacity = t * 0.92;
-      [[c.querySelector('.stamp.k'), dx < 0], [c.querySelector('.stamp.r'), dx > 0]].forEach(([s, to]) => { s.style.opacity = to ? t : 0; s.style.transform = `scale(${0.8 + 0.2 * (to ? t : 0)})`; });
-      if (c.classList.contains('on')) lean(dx, t);
-    };
-    // the buttons follow the drag by state, as if pressed: the button on the side the card heads to goes to Hover while
-    // dragged and to Click once the drag counts; the other button stays Normal
-    const lean = (dx, t) => {
-      kBtn.classList.toggle('hover', dx < 0);
-      rBtn.classList.toggle('hover', dx > 0 && t < 1);
-      rBtn.classList.toggle('click', dx > 0 && t >= 1);
-    };
-    const show = () => {
-      const i = S.tr, done = i >= n;
-      cards.forEach((c, k) => { c.classList.toggle('on', k === i); c.classList.toggle('nx', k === i + 1); c.classList.remove('fly'); c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; feel(c, 0); });
-      lean(0, 0);
-      cnt.textContent = `${unread()} unread`;
-      undoBtn.hidden = !S.trHist.length;
-      // the plates stand for the cards still to come
-      p1.hidden = i + 1 >= n; p2.hidden = i + 2 >= n;
-      dk.hidden = done; end.hidden = !done; btns.hidden = done; btnsEnd.hidden = !done;
-      const pin = phone.querySelector('[data-pin-unread]'); if (pin) pin.textContent = `${unread()} unread`;
-    };
-    // the front leaves towards its button — left when kept unread, right when read — and the next card takes its place
-    const mark = (action, swiped) => {
-      if (busy || S.tr >= n) return false;
-      busy = true;
-      const i = S.tr, f = cards[i], dir = action === 'read' ? 1 : -1;
-      S.trMark[i] = action; S.trHist.push(i);
-      if (!swiped) { feel(f, dir * MIN); f.classList.add('fly'); f.style.transform = `translateX(${dir * 130}%) rotate(${dir * 12}deg)`; f.style.opacity = '0'; }
-      setTimeout(() => { S.tr = i + 1; show(); busy = false; }, 300);
-      return true;
-    };
-    // the last handled card comes back in from the side it left, and its mark is dropped
-    const undo = () => {
-      if (busy || !S.trHist.length) return;
-      busy = true;
-      const i = S.trHist.pop(), dir = S.trMark[i] === 'read' ? 1 : -1;
-      delete S.trMark[i];
-      S.tr = i;
-      dk.hidden = false; end.hidden = true; btns.hidden = false; btnsEnd.hidden = true;
-      const b = cards[i];
-      b.classList.remove('fly'); b.style.transform = `translateX(${dir * 130}%) rotate(${dir * 12}deg)`; b.style.opacity = '0'; b.style.zIndex = 3;
-      b.classList.add('on');
-      requestAnimationFrame(() => requestAnimationFrame(() => { b.classList.add('fly'); b.style.transform = ''; b.style.opacity = ''; }));
-      setTimeout(() => { show(); busy = false; }, 300);
-    };
-    cards.forEach((c) => swipeable(c, (dir) => mark(dir < 0 ? 'keep' : 'read', true), { min: MIN, onMove: (dx) => feel(c, dx), allow: () => !busy }));
-    wrap.addEventListener('click', (e) => {
-      const t = e.target.closest('[data-act]');
-      if (!t || !t.dataset.act.startsWith('tr-')) return;
-      e.stopPropagation();
-      const a = t.dataset.act;
-      if (a === 'tr-close') closeToday(phone);
-      else if (a === 'tr-read') mark('read');
-      else if (a === 'tr-keep') mark('keep');
-      else if (a === 'tr-undo') undo();
-    });
-    show();
-    phone.appendChild(wrap);
-    if (instant) wrap.classList.add('on');
-    else requestAnimationFrame(() => requestAnimationFrame(() => wrap.classList.add('on')));
-  }
-  function closeToday(phone) {
-    const wrap = phone.querySelector('.sheet-wrap.tr');
     if (!wrap) return;
     wrap.classList.remove('on');
     setTimeout(() => wrap.remove(), 320);
