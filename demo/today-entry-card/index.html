@@ -5,37 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="demo-status" content="exploration">
 <meta name="demo-switcher" content="off">
-<meta name="demo-summary" content="Alva 对话里的 Today 入口卡与卡组抽屉：头条槽换条、Start Review 逐张看，左滑保持未读、右滑标为已读、Undo、看完，以及卡里 Alva 建议的回复已发送。按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。">
-<title>Today 入口卡与卡组</title>
+<meta name="demo-summary" content="Today’s review 完整交互流程：Alva 对话和 For You 两个入口（进度、看完、无新变化），卡组左滑保持未读 / 右滑标为已读 / Undo / 看完，六种卡片场景，回复 Alva 建议后顶栏计数、任务面板、看完时交给 Alva 的事，以及草稿回到对话。按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」16017:332292。">
+<title>Today’s review</title>
 <style>
   @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
   @font-face { font-family: Delight; src: url('../m-baby/assets/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
   @font-face { font-family: FZ; src: local('FZLanTingHeiS-R-GB'), local('FZLanTingHei-R-GBK'); font-weight: 400; }
   @font-face { font-family: FZ; src: local('FZLanTingHei-DB-GBK'); font-weight: 500; }
   :root {
-    --n9: rgba(0,0,0,.9); --n7: rgba(0,0,0,.7); --n5: rgba(0,0,0,.5); --n3: rgba(0,0,0,.3); --n2: rgba(0,0,0,.2);
-    --l2: rgba(0,0,0,.2); --l12: rgba(0,0,0,.12); --l3: rgba(0,0,0,.3); --g02: #f5f5f5; --br7: rgba(0,0,0,.7); --br07: rgba(0,0,0,.07); --br05: rgba(0,0,0,.05);
-    --m1: #49a3a6; --m3: #2a9b7d; --m4: #e05357; --b0-sidebar: #2a2a38; --ease: cubic-bezier(.2,.8,.2,1); --dur: .32s;
+    --n9: rgba(0,0,0,.9); --n7: rgba(0,0,0,.7); --n5: rgba(0,0,0,.5); --n3: rgba(0,0,0,.3); --n2: rgba(0,0,0,.2); --nr9: rgba(255,255,255,.9);
+    --l2: rgba(0,0,0,.2); --l12: rgba(0,0,0,.12); --l3: rgba(0,0,0,.3); --g02: #f5f5f5; --br7: rgba(0,0,0,.7); --br07: rgba(0,0,0,.07); --br05: rgba(0,0,0,.05); --br03: rgba(0,0,0,.03);
+    --m1: #49a3a6; --m1-10: rgba(73,163,166,.1); --m3: #2a9b7d; --m3-10: rgba(42,155,125,.1); --m4: #e05357; --b0-sidebar: #2a2a38;
+    --ease: cubic-bezier(.2,.8,.2,1); --dur: .32s;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: #ffffff; color: var(--n9); font-family: Delight, FZ, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
-  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
   p { margin: 0; }
   .r10 { font-size: 10px; line-height: 16px; letter-spacing: .1px; } .r12 { font-size: 12px; line-height: 20px; letter-spacing: .12px; } .r14 { font-size: 14px; line-height: 22px; letter-spacing: .14px; } .r16 { font-size: 16px; line-height: 26px; letter-spacing: .16px; } .r18 { font-size: 18px; line-height: 28px; letter-spacing: .18px; }
-  .m { font-weight: 500; } .n5 { color: var(--n5); } .n7 { color: var(--n7); } .f1 { flex: 1 1 0; min-width: 0; }
+  .m { font-weight: 500; } .n5 { color: var(--n5); } .n7 { color: var(--n7); }
   .ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ic { display: block; flex: none; }
+  [hidden] { display: none !important; }
   .page { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; display: flex; gap: 48px; align-items: flex-start; flex-wrap: wrap; }
   .panel { flex: 1 1 320px; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
   h1 { font: 500 24px/32px Delight, FZ, sans-serif; margin: 0; }
   .panel p { color: var(--n7); font-size: 14px; line-height: 24px; }
   .ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .ctl .lb { font-size: 12px; color: var(--n5); margin-right: 4px; }
-  .ctl button { height: 32px; min-width: 36px; padding: 0 12px; border-radius: 8px; border: .5px solid var(--l2); background: #fff; font: 500 12px/20px Delight, sans-serif; color: var(--n9); }
+  .ctl .lb { font-size: 12px; color: var(--n5); margin-right: 4px; min-width: 48px; }
+  .ctl button { height: 32px; min-width: 36px; padding: 0 12px; border-radius: 8px; border: .5px solid var(--l2); background: #fff; font: 500 12px/20px Delight, FZ, sans-serif; color: var(--n9); }
   .ctl button.on { background: var(--m1); border-color: var(--m1); color: #fff; }
-  .log { font-size: 12px; line-height: 20px; color: var(--n5); min-height: 20px; }
 
-  /* phone, 440 like the Figma page (Thesis-MVP 15845:111999) */
+  /* ───── phone 440 × 956 (Figma Thesis-MVP 16017:332292) ───── */
   .screen { position: relative; width: 440px; height: 956px; flex: none; outline: .5px solid var(--l2); border-radius: 24px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
   .sb { height: 59px; flex: none; display: flex; align-items: stretch; }
   .sb .l { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 0 3px 10px; }
@@ -43,19 +44,112 @@
   .sb .isl { align-self: center; width: 125px; height: 37px; border-radius: 100px; background: #000; }
   .sb .r { flex: 1; display: flex; align-items: center; justify-content: center; padding-right: 11px; }
   .sb .r img { width: 78.4px; height: 13px; display: block; }
-  .chd { height: 60px; flex: none; display: flex; align-items: center; justify-content: center; }
-  .cap { display: flex; align-items: center; gap: 8px; height: 48px; padding: 8px 16px 8px 8px; border-radius: 100px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); font: 500 18px/28px Delight, sans-serif; letter-spacing: .18px; }
+  .pages { flex: 1 1 0; min-height: 0; position: relative; }
+  .pg { position: absolute; inset: 0; display: flex; flex-direction: column; background: #fff; }
+  .scroll { overflow-y: auto; scrollbar-width: none; } .scroll::-webkit-scrollbar { display: none; }
   .lp { width: 32px; height: 32px; border-radius: 50%; background: var(--b0-sidebar); display: flex; align-items: center; justify-content: center; flex: none; }
   .lp img { width: 16.5px; height: 16.5px; display: block; }
-  .chat { flex: 1 1 0; min-height: 0; overflow: hidden; padding: 20px 16px 0; display: flex; flex-direction: column; gap: 16px; }
+
+  /* Alva chat (A1–A4, E5) */
+  .chd { height: 60px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .cap { display: flex; align-items: center; gap: 8px; height: 48px; padding: 8px 16px 8px 8px; border-radius: 100px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); font: 500 18px/28px Delight, sans-serif; letter-spacing: .18px; }
+  .chat { flex: 1 1 0; min-height: 0; padding: 20px 16px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .chat > * { flex: none; }
   .tml { text-align: center; padding: 2px 0; color: var(--n5); }
   .ab { background: var(--g02); border-radius: 12px; padding: 12px 16px; margin-right: 28px; display: flex; flex-direction: column; gap: 12px; }
-  .ab .ent { color: var(--m1); font-weight: 500; }
+  .ent { color: var(--m1); font-weight: 500; }
+  .ub { display: flex; justify-content: flex-end; padding-left: 28px; }
+  .ub > div { background: var(--m1-10); border-radius: 12px; padding: 12px 16px; }
   .cmp { flex: none; padding: 0 16px; }
   .box { height: 52px; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); display: flex; align-items: flex-end; padding: 8px; gap: 2px; }
   .box .sl { width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex: none; }
   .box .sl img { width: 16px; height: 16px; display: block; }
   .box .ph { flex: 1; min-width: 0; padding: 7px 0; color: var(--n3); }
+  /* a draft that came back (E5): Chat/Card/Thesis 380, 16 padding, 8 apart; ticker chips g02 */
+  .tcard { margin-right: 28px; background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .tcard .who { display: flex; align-items: flex-start; gap: 8px; }
+  .tcard .who img { width: 36px; height: 36px; border-radius: 50%; margin-top: 4px; box-shadow: 0 0 0 .5px #fff; object-fit: cover; }
+  .tcard .who > div { display: flex; flex-direction: column; gap: 2px; }
+  .tcard .add { color: var(--m3); }
+  .tcard .tks { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tcard .tk { height: 28px; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; background: var(--g02); }
+  .tcard .tk img { width: 16px; height: 16px; border-radius: 50%; display: block; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt { height: 40px; padding: 10px 16px; border-radius: 6px; box-shadow: inset 0 0 0 .5px var(--l3); font-size: 14px; line-height: 20px; letter-spacing: .14px; color: var(--n9); }
+  /* task card (Chat/Card/Task): 76 tall, 16 / 16 / 16 / 12, a 36 br05 icon with a 16 status badge, title Regular 14, step Regular 12 n5 */
+  .task { height: 76px; display: flex; align-items: center; gap: 8px; padding: 16px 16px 16px 12px; background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); }
+  .task .ti { width: 36px; height: 36px; border-radius: 50%; background: var(--br05); display: flex; align-items: center; justify-content: center; position: relative; flex: none; color: var(--n9); }
+  .task .ti .bd { position: absolute; left: 22px; top: 20px; width: 16px; height: 16px; border-radius: 50%; background: #fff; color: var(--m3); }
+  .task .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .task .st { display: flex; align-items: center; gap: 4px; color: var(--n5); min-width: 0; }
+  /* the running step's mark is the library's Lottie loader (logo-loading-light, the four squares), at 12 */
+  .task .st .ld { width: 12px; height: 12px; flex: none; display: block; }
+  .task .st .ld svg { display: block; }
+
+  /* For You (B1–B4): title Medium 24, category pills, the Today block, then signals */
+  .fyh { flex: none; padding-bottom: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: inset 0 -.5px 0 var(--l12); }
+  .fyh .tt { padding: 12px 16px 0; font-size: 24px; line-height: 34px; letter-spacing: .24px; font-weight: 500; }
+  .pills { height: 28px; display: flex; }
+  .pv { flex: 1 1 0; min-width: 0; position: relative; overflow: hidden; }
+  .pv::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 24px; background: linear-gradient(90deg, rgba(255,255,255,0), #fff); pointer-events: none; }
+  .ptrack { display: flex; gap: 8px; padding: 0 24px 0 12px; overflow-x: auto; scrollbar-width: none; } .ptrack::-webkit-scrollbar { display: none; }
+  .pill { flex: none; height: 28px; padding: 4px 10px; border-radius: 960px; background: var(--br03); color: var(--n7); font-size: 12px; line-height: 20px; letter-spacing: .12px; white-space: nowrap; }
+  .pill.on { background: var(--br7); color: var(--nr9); }
+  .pbr { flex: none; width: 36px; height: 28px; padding: 0 16px 0 8px; display: flex; align-items: center; color: var(--n9); }
+  .feed { flex: 1 1 0; min-height: 0; }
+  .ftoday { padding: 20px 16px 8px; }
+  .sig, .post { padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 12px; box-shadow: inset 0 -.5px 0 var(--l12); }
+  .quote { background: var(--br03); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .src { display: flex; align-items: center; gap: 8px; }
+  .src img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex: none; }
+  .src .id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .lnk { color: var(--n5); text-decoration: underline; text-decoration-thickness: .5px; text-underline-offset: 2px; }
+  .stance { display: inline-flex; gap: 1px; vertical-align: top; margin-right: 6px; }
+  .stance i { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; background: var(--m1-10); border-radius: 4px 0 0 4px; }
+  .stance i img { width: 10px; height: 10px; }
+  .stance b { height: 22px; padding: 1px 6px; background: var(--m3-10); color: var(--m3); border-radius: 0 4px 4px 0; font-size: 12px; line-height: 20px; letter-spacing: .12px; font-weight: 500; }
+  .fact { display: flex; align-items: center; gap: 12px; height: 28px; }
+  .fact .ask { flex: 1; display: flex; align-items: center; gap: 4px; color: var(--n7); }
+  .fact .fb { display: flex; gap: 16px; color: var(--n9); }
+  .post .sp { display: flex; flex-direction: column; gap: 8px; }
+  .post .who { display: flex; align-items: center; gap: 8px; }
+  .post .who img { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 0 0 .5px #fff; object-fit: cover; }
+  .post .who b { flex: 1; font-size: 14px; line-height: 22px; letter-spacing: .14px; font-weight: 500; }
+  .chips { display: flex; gap: 8px; }
+  .chip { flex: none; height: 28px; padding: 0 8px; display: flex; align-items: center; gap: 4px; border-radius: 6px; background: var(--br05); }
+  .chip img { width: 16px; height: 16px; border-radius: 50%; display: block; }
+  .post .media { margin: 0 -16px; padding-left: 16px; display: flex; }
+  .post .media img { width: 240px; height: 135px; border-radius: 8px; object-fit: cover; display: block; }
+
+  /* Today entry (Today / Entry): a stacked card with progress, a caught-up bar, or the single no-new card */
+  .edeck { position: relative; padding-top: 16px; }
+  .edeck .pl { position: absolute; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); border-radius: 16px; overflow: hidden; }
+  .edeck .pl.p1 { left: 3.15px; right: 6.85px; top: 9.17px; height: 139.3px; transform: rotate(-1.5deg); }
+  .edeck .pl.p2 { left: 10.2px; right: 9.8px; top: 4.04px; height: 158px; transform: rotate(1.2deg); }
+  .edeck .pl.p1::before, .dk .pl.p1::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 120px; background: linear-gradient(180deg, rgba(73,163,166,.06), rgba(73,163,166,0)); opacity: .6; }
+  .entry { position: relative; background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; cursor: pointer; }
+  .entry > * { position: relative; }
+  .entry > .wash { position: absolute; left: 0; right: 0; top: 0; height: 60px; background: linear-gradient(180deg, rgba(73,163,166,.06), rgba(73,163,166,0)); }
+  .ehd { height: 22px; display: flex; align-items: center; gap: 8px; }
+  .ehd > img { width: 14px; height: 14px; }
+  .ehd .t { flex: 1; min-width: 0; font-size: 14px; line-height: 22px; letter-spacing: .14px; font-weight: 500; }
+  .ring { display: block; flex: none; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 2; }
+  .ring .tr { stroke: var(--l12); } .ring .fl { stroke: var(--m1); transition: stroke-dasharray var(--dur) var(--ease); }
+  .elead { display: flex; flex-direction: column; gap: 8px; }
+  .elead .h { font-size: 18px; line-height: 28px; letter-spacing: .18px; font-weight: 500; }
+  .ebar { height: 48px; padding: 12px 16px; display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); cursor: pointer; }
+  .ebar > img { width: 14px; height: 13px; }
+  .ebar .t { flex: 1; min-width: 0; font-size: 14px; line-height: 22px; letter-spacing: .14px; font-weight: 500; }
+  .ebar .ok { color: var(--m1); }
+  .ebar .x { color: var(--n5); margin-left: 4px; }
+  .th { height: 20px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 20px; letter-spacing: .12px; min-width: 0; }
+  .th b { font-weight: 500; white-space: nowrap; } .th .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .th .arw { color: var(--n5); }
+  .av { width: 20px; height: 20px; border-radius: 50%; flex: none; object-fit: cover; display: block; }
+  .av.tp { background: var(--n9); color: #fff; font-size: 12px; line-height: 20px; font-weight: 500; text-align: center; }
+
+  /* tab bar: the glass pill (84 × 48 tabs, the open one on n1) and the m1 create button */
   .tabbar { flex: none; height: 93px; padding: 16px 16px 0; display: flex; gap: 8px; align-items: flex-start; background: linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,.9) 80%, #fff 100%); }
   .tabs { flex: 1 1 0; min-width: 0; height: 56px; padding: 4px; display: flex; border-radius: 96px; background: rgba(255,255,255,.7); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 0 0 .5px #dbdbdb, 0 8px 15px rgba(0,0,0,.02); }
   .tab { flex: 1 1 0; height: 48px; border-radius: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; line-height: 12px; letter-spacing: .1px; color: var(--n7); }
@@ -63,84 +157,53 @@
   .create { flex: none; width: 56px; height: 56px; border-radius: 96px; display: flex; align-items: center; justify-content: center; color: #fff; background: rgba(73,163,166,.88); box-shadow: 0 0 0 .5px #dbdbdb, 0 8px 15px rgba(0,0,0,.02); }
   .home { width: 144px; height: 5px; border-radius: 100px; background: #000; margin: 21px auto 8px; flex: none; }
 
-  /* Today entry card (A1 / E1) */
-  .tcard { background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 .5px var(--l2); padding: 16px; display: flex; flex-direction: column; gap: 16px; user-select: none; -webkit-user-select: none; }
-  .tcard .hdr { display: flex; align-items: center; gap: 8px; }
-  .tcard .hdr img { width: 16px; height: 16px; }
-  .tcard .hdr .t { font-size: 16px; line-height: 26px; letter-spacing: .16px; font-weight: 500; }
-  .tcard .hdr .cnt { flex: 1; text-align: right; }
-  /* entry list (E1): items keep their order; the active one opens in place (owner line + Medium 18 headline) and the
-     rest stay one-line rows. An open item sits between 16 · 0.5 l12 · 16 hairlines; plain rows are 8 apart (Figma A1). */
-  .list { display: flex; flex-direction: column; }
-  .fold { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--dur) var(--ease), opacity var(--dur) var(--ease); }
-  .fold > div { min-height: 0; overflow: hidden; }
-  .fold.off { grid-template-rows: 0fr; opacity: 0; pointer-events: none; }
-  .sp { display: block; height: 8px; position: relative; transition: height var(--dur) var(--ease); }
-  .sp.none { height: 0; } .sp.line { height: 32px; }
-  .sp::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: .5px; margin-top: -.25px; background: var(--l12); opacity: 0; transition: opacity var(--dur) var(--ease); }
-  .sp.line::after { opacity: 1; }
-  .xp, .cx { cursor: pointer; }
-  .lc { display: flex; flex-direction: column; gap: 8px; transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease); }
-  .lc .h { font-size: 18px; line-height: 28px; letter-spacing: .18px; font-weight: 500; }
-  .th { height: 20px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 20px; letter-spacing: .12px; min-width: 0; }
-  .th b { font-weight: 500; white-space: nowrap; } .th .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-  .av { width: 20px; height: 20px; border-radius: 50%; flex: none; object-fit: cover; display: block; }
-  .av.tp { background: var(--n9); color: #fff; font-size: 12px; line-height: 20px; font-weight: 500; text-align: center; }
-  .r { display: flex; align-items: baseline; gap: 12px; font-size: 14px; line-height: 22px; letter-spacing: .14px; cursor: pointer; }
-  .r .h { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .r .k { flex: none; font-size: 12px; line-height: 20px; color: var(--n5); }
-  .btn-m { height: 40px; width: 100%; padding: 9px 20px; border-radius: 6px; background: var(--m1); color: #fff; font: 500 14px/22px Delight, FZ, sans-serif; letter-spacing: .14px; display: flex; align-items: center; justify-content: center; }
-  .btn-m.sec { background: #fff; color: var(--n9); box-shadow: inset 0 0 0 .5px var(--l3); }
-  .part { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--dur) var(--ease), opacity var(--dur) var(--ease), margin var(--dur) var(--ease); }
-  .part > div { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 16px; }
-  .tcard.done .part { grid-template-rows: 0fr; opacity: 0; margin-top: -16px; pointer-events: none; }
-
-  /* ───── Drawer · Today's review (B1 待读, 15845:112170): the m7 dim keeps 106 at the top ───── */
+  /* ───── Drawer · Today's review (C1–C6, E1–E4) ───── */
   .sw { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
   .sw .dim { position: absolute; inset: 0; background: rgba(0,0,0,.6); opacity: 0; transition: opacity .3s; }
   .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 106px; background: #fff; border-radius: 12px 12px 0 0; display: flex; flex-direction: column; transform: translateY(100%); transition: transform .36s var(--ease); }
   .sw.on { pointer-events: auto; } .sw.on .dim { opacity: 1; } .sw.on .sheet { transform: none; }
   .grab { height: 12px; flex: none; position: relative; }
   .grab::after { content: ''; position: absolute; left: 50%; top: 8px; width: 36px; height: 4px; margin-left: -18px; border-radius: 4px; background: var(--br07); }
-  /* top bar: close 40 × 56, two-line title (Regular 16 · Regular 10 n5); Undo (Regular 12, 12 each side) once something was swiped */
   .tb { height: 56px; flex: none; display: flex; align-items: center; padding: 0 16px 0 6px; }
   .tb.u { padding-right: 6px; }
   .tb .x { width: 40px; height: 56px; display: flex; align-items: center; justify-content: center; color: var(--n9); flex: none; }
   .tb .ttl2 { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .tb .undo { height: 56px; padding: 0 12px; color: var(--n9); flex: none; }
-  .sc { flex: 1 1 0; min-height: 0; padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 24px; }
-  /* Deck 408 × 668: two blank plates peek 24 over the front; the next card waits right under the front so a drag uncovers it */
+  .tb .rs { display: flex; align-items: center; flex: none; }
+  .tb .ctr { height: 56px; padding: 0 12px; display: flex; align-items: center; gap: 4px; color: var(--n5); }
+  .tb .ctr .dn { color: var(--m1); }
+  .tb .vd { width: .5px; height: 16px; background: var(--l2); }
+  .tb .undo { height: 56px; padding: 0 12px; color: var(--n9); }
+  /* the Alva portrait with its activity ring (an m1 sweep, while a task runs) */
+  .lpr { position: relative; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .lpr .lp { width: 16px; height: 16px; } .lpr .lp img { width: 8px; height: 8px; }
+  .act::before { content: ''; position: absolute; inset: 0; border-radius: 50%; padding: 1px; background: conic-gradient(rgba(73,163,166,.12), #49a3a6); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sc { flex: 1 1 0; min-height: 0; padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 24px; position: relative; }
   .dk { position: relative; flex: 1 1 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr); padding-top: 24px; filter: drop-shadow(0 4px 15px rgba(0,0,0,.05)); }
+  .dk.one { padding-top: 12px; }
   .dk .pl { position: absolute; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); border-radius: 16px; overflow: hidden; }
   .dk .pl.p2 { left: 8px; right: 12px; top: 4px; height: 383px; transform: rotate(1.1deg); }
   .dk .pl.p1 { left: 6px; right: 4px; top: 12px; height: 393px; transform: rotate(-1.4deg); }
-  .dk .pl.p1::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 120px; background: linear-gradient(180deg, rgba(73,163,166,.06), rgba(73,163,166,0)); opacity: .6; }
-  /* card: radius 16, l2 0.5, shadow 0 2 16 · 8%, padding 20 / 16, 16 apart; a 160 wash in the thesis direction (m3 6%, m4 10%, else m1 10%) */
-  .dc { grid-area: 1 / 1; min-height: 0; position: relative; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); border-radius: 16px; overflow: hidden; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  .dk .pl.p2 { transition: opacity .2s ease; } .dk.swiping .pl.p2 { opacity: 0; }
+  .dc { grid-area: 1 / 1; min-height: 0; position: relative; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); border-radius: 16px; overflow: hidden; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
   .dc:not(.on):not(.nx) { visibility: hidden; pointer-events: none; }
   .dc.on { z-index: 2; } .dc.nx { z-index: 1; pointer-events: none; box-shadow: inset 0 0 0 .5px var(--l2); }
+  .dc.one { cursor: default; touch-action: auto; }
   .dc.drag { cursor: grabbing; }
   .dc.fly { transition: transform .3s var(--ease), opacity .3s var(--ease); }
   .dc > * { position: relative; }
-  .dc > .wash { position: absolute; left: 0; right: 0; top: 0; height: 160px; background: linear-gradient(180deg, rgba(73,163,166,.1), rgba(73,163,166,0)); pointer-events: none; }
+  .dc > .wash { position: absolute; left: 0; right: 0; top: 0; height: 56px; background: linear-gradient(180deg, rgba(73,163,166,.06), rgba(73,163,166,0)); pointer-events: none; }
   .dc > .wash.up { background: linear-gradient(180deg, rgba(42,155,125,.06), rgba(42,155,125,0)); }
-  .dc > .wash.down { background: linear-gradient(180deg, rgba(224,83,87,.1), rgba(224,83,87,0)); }
-  .dc .th .arw { color: var(--n5); }
+  .dc > .wash.down { background: linear-gradient(180deg, rgba(224,83,87,.06), rgba(224,83,87,0)); }
   .dc .meta { color: var(--n5); }
-  /* basket: ticker chips (br05, radius 6, 0 / 8, 16 logo · Regular 12 symbol · 12 direction dial) scroll under a 24 right fade; thesis return 72 × 16 + Regular 14 */
   .bk { height: 28px; display: flex; align-items: center; gap: 12px; flex: none; }
   .tks { flex: 1 1 0; min-width: 0; position: relative; overflow: hidden; }
-  .tks::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 24px; background: linear-gradient(90deg, rgba(255,255,255,0), #fff); pointer-events: none; }
-  .trk { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; padding-right: 24px; }
-  .trk::-webkit-scrollbar { display: none; }
-  .chip { flex: none; height: 28px; padding: 0 8px; display: flex; align-items: center; gap: 4px; border-radius: 6px; background: var(--br05); }
-  .chip img { width: 16px; height: 16px; border-radius: 50%; display: block; }
+  .tks.ov::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 24px; background: linear-gradient(90deg, rgba(255,255,255,0), #fff); pointer-events: none; }
+  .trk { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; padding-right: 24px; } .trk::-webkit-scrollbar { display: none; }
   .dial { width: 12px; height: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; flex: none; }
   .dial.up { background: var(--m3); } .dial.down { background: var(--m4); } .dial.down .ic { transform: rotate(180deg); }
   .ret { flex: none; display: flex; align-items: center; gap: 8px; }
-  .ret svg { display: block; }
-  .ret.up { color: var(--m3); } .ret.down { color: var(--m4); } .ret.down svg { transform: scaleY(-1); }
-  /* markdown: H2 Medium 20/30, list 4 apart with a 4 n9 dot in a 20 × 22 slot */
+  .ret svg { display: block; } .ret.up { color: var(--m3); } .ret.down { color: var(--m4); } .ret.down svg { transform: scaleY(-1); }
   .md { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
   .md .h2 { font-size: 20px; line-height: 30px; letter-spacing: .2px; font-weight: 500; padding-top: 2px; }
   .bl { display: flex; flex-direction: column; gap: 4px; }
@@ -148,38 +211,70 @@
   .li .d::after { content: ''; position: absolute; left: 8px; top: 9px; width: 4px; height: 4px; border-radius: 50%; background: var(--n9); }
   .li p { flex: 1; min-width: 0; }
   .li u { text-decoration: underline; text-decoration-thickness: .5px; text-underline-offset: 2px; }
-  /* Alva bubble: 380 wide from the card's left padding (as drawn, 4 past the right one), g02, radius 12, 12 / 16, 8 apart;
-     capsule 30 (20 portrait + Medium 14); Secondary S32 replies */
-  .ax { flex: none; margin-right: -4px; background: var(--g02); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
-  .acap { align-self: flex-start; height: 30px; display: flex; align-items: center; gap: 4px; padding: 4px 8px 4px 4px; border-radius: 960px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); }
-  .acap .lp { width: 20px; height: 20px; } .acap .lp img { width: 10.3px; height: 10.3px; }
-  .acts { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 2px; }
+  /* Alva bubble in a card: g02, radius 12, 12 / 16, 8 apart; capsule 28; Secondary S32 replies stacked */
+  .ax { flex: none; background: var(--g02); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .acap { align-self: flex-start; height: 28px; display: flex; align-items: center; gap: 4px; padding: 3px 8px 3px 4px; border-radius: 960px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2); }
+  .acap .lpr { width: 24px; height: 24px; margin: -2px; } .acap .lpr .lp { width: 20px; height: 20px; } .acap .lpr .lp img { width: 10.3px; height: 10.3px; }
+  .acts { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 2px; }
   .bs { height: 32px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; border-radius: 4px; box-shadow: inset 0 0 0 .5px var(--l3); font-size: 12px; line-height: 20px; letter-spacing: .12px; font-weight: 500; color: var(--n9); white-space: nowrap; }
-  .bs:disabled { cursor: default; } .bs:disabled span { color: var(--n2); }
-  .step { display: flex; align-items: center; gap: 4px; color: var(--n5); }
-  .step .ic { color: var(--n9); animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  /* swipe feedback: left = br7 veil + Keep unread (hide-l 48) at the right, right = m1 veil + Mark as read (check-l2 48) at the left */
   .veil { position: absolute; inset: 0; border-radius: 16px; opacity: 0; pointer-events: none; z-index: 3; }
   .veil.k { background: var(--br7); } .veil.rd { background: var(--m1); }
   .stamp { position: absolute; top: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; opacity: 0; transform: scale(.8); pointer-events: none; font-size: 14px; line-height: 22px; letter-spacing: .14px; font-weight: 500; z-index: 4; white-space: nowrap; }
   .stamp.k { right: 20px; } .stamp.rd { left: 20px; }
-  /* B4 看完: the 80 illustration and Regular 16, 12 apart, centred in the deck's place */
-  .end { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+  /* C4 / C5 看完: the 100 illustration and Medium 20; with tasks, what Alva is doing sits below */
+  .end { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 24px; }
+  .end .hero { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .end .hero .tt { font-size: 20px; line-height: 30px; letter-spacing: .2px; font-weight: 500; }
+  .tasks { display: flex; flex-direction: column; gap: 4px; }
+  .tlist { display: flex; flex-direction: column; }
+  .task.row { padding: 16px 0; background: none; border-radius: 0; box-shadow: inset 0 -.5px 0 var(--l12); }
+  .task.row:last-child { box-shadow: none; }
+  .tph { display: flex; align-items: center; gap: 4px; color: var(--n5); }
+  .tph .f { flex: 1; min-width: 0; }
+  .tph button { display: flex; align-items: center; gap: 4px; color: var(--n5); }
+  /* E3 点开计数: the task list drops under the top bar */
+  .tpanel { position: absolute; left: 16px; right: 16px; top: -1px; z-index: 8; border-radius: 12px; padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 4px; }
+  /* the panel's white surface, hairline and shadow sit on ::after so the running glow (::before) can sit behind them */
+  .tpanel::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); pointer-events: none; }
   .btns { flex: none; display: flex; gap: 12px; }
-  [hidden] { display: none !important; }
+  /* E3 · while Alva is running a task the panel is backlit: a soft m1 glow (an angular m1 gradient, 90% → 25% → 5% → 35%,
+     blurred 12, at 55%) drifts round behind it, one lap per 4s; the copy stays still and the step's Lottie loader plays */
+  @property --glow { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  .tpanel.run::before { content: ''; position: absolute; inset: 2px; z-index: -2; border-radius: 12px; pointer-events: none;
+    background: conic-gradient(from var(--glow), rgba(73,163,166,.9), rgba(73,163,166,.25) .25turn, rgba(73,163,166,.05) .5turn, rgba(73,163,166,.35) .75turn, rgba(73,163,166,.9));
+    filter: blur(12px); opacity: .55; animation: glow 4s linear infinite; }
+  @keyframes glow { to { --glow: 360deg; } }
+  /* reply → running, all on transform / opacity (no layout per frame): the reply fades out where it was, a 16 Alva dot grows
+     out of it and glides along a curve to the counter with a short m1 trail, and as it arrives the counter fades in under it */
+  .flyg { position: absolute; z-index: 29; pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 4px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l3); font-size: 12px; line-height: 20px; letter-spacing: .12px; font-weight: 500; color: var(--n9); white-space: nowrap; }
+  .flyd, .flyt { position: absolute; left: 0; top: 0; width: 16px; height: 16px; border-radius: 50%; z-index: 30; pointer-events: none; will-change: transform, opacity; }
+  .flyd { background: var(--b0-sidebar); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(42,42,56,.22); }
+  .flyd img { width: 8px; height: 8px; display: block; }
+  .flyt { background: var(--m1); opacity: 0; }
+  .ctr .lpr, .ctr .lbl2 { transition: opacity .26s ease, transform .36s cubic-bezier(.2,.8,.2,1); }
+  .ctr.arriving .lpr { opacity: 0; transform: scale(.7); }
+  .ctr.arriving .lbl2 { opacity: 0; transform: translateX(-6px); }
+  @keyframes ctrIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .enter { animation: ctrIn .3s ease .12s both; }
+  .btn-m { height: 40px; width: 100%; padding: 9px 20px; border-radius: 6px; background: var(--m1); color: #fff; font: 500 14px/22px Delight, FZ, sans-serif; letter-spacing: .14px; display: flex; align-items: center; justify-content: center; }
+  .btn-m.sec { background: #fff; color: var(--n9); box-shadow: inset 0 0 0 .5px var(--l3); }
+  /* Button M 40 states (Alva library): Primary hover = m1 + br1, click = m1 + br2; Secondary hover = l9 outline, click = l3.
+     While a card is thrown past the threshold its side's button shows the state the board draws: C2 Keep unread · Hover,
+     C3 Mark as read · Click */
+  .btn-m:hover { background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.1)), var(--m1); }
+  .btn-m:active, .btn-m.hl { background: linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)), var(--m1); }
+  .btn-m.sec:hover, .btn-m.sec.hl { background: #fff; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.9); }
+  .btn-m.sec:active { background: #fff; box-shadow: inset 0 0 0 .5px var(--l3); }
 
-  /* mweb: the app page fills the screen like the real thing. No phone outline, radius or side panel; the device's own
-     status bar and home indicator stand in for the drawn ones, and the chat scrolls when the screen is short. */
+  /* mweb: the page is the app (no frame, no panel, the device's own status bar and home area) */
   @media (max-width: 767px) {
     html, body { height: 100%; overflow: hidden; }
     .page { display: block; max-width: none; padding: 0; }
     .panel { display: none; }
     .screen { position: fixed; inset: 0; width: auto; height: auto; outline: none; border-radius: 0; }
     .sb { height: env(safe-area-inset-top, 0px); overflow: hidden; visibility: hidden; }
-    .chat { overflow-y: auto; padding-bottom: 16px; scrollbar-width: none; } .chat::-webkit-scrollbar { display: none; }
-    .home { width: auto; height: env(safe-area-inset-bottom, 0px); margin: 0; background: none; }
     .tabbar { height: auto; padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
+    .sheet .home { width: auto; height: env(safe-area-inset-bottom, 0px); margin: 0; background: none; }
   }
 </style>
 </head>
@@ -187,251 +282,351 @@
 <div class="page">
   <div class="screen" id="screen">
     <div class="sb"><div class="l"><span class="time">9:41</span></div><div class="isl"></div><div class="r"><img src="assets/status-icons.svg" alt=""></div></div>
-    <div class="chd"><span class="cap"><span class="lp"><img src="assets/alva-symbol-wg.svg" alt=""></span>Alva</span></div>
-    <div class="chat">
-      <p class="tml r12">Today 9:02 AM</p>
-      <div class="ab"><div class="r14 m">Daily Brief · Nov 12</div><div class="r14">Three things today touch what you follow. <span class="ent">NVDA</span> fell about 8% after hours; Herman keeps it as the short leg, and his read on Microsoft is the part worth borrowing. <span class="ent">CRWV</span> gave a profit timeline while borrowing against its customer contracts. Crypto funding is tightening, which points at your Bitcoin thesis.</div></div>
-      <div class="tcard" id="card">
-        <div class="hdr"><img src="assets/alva-symbol-bg.svg" alt=""><span class="t">Today</span><span class="r12 n5 cnt" id="count"></span></div>
-        <div class="part"><div>
-          <div class="list" id="list"></div>
-          <button class="btn-m" id="open">Review 3 updates</button>
-        </div></div>
+    <div class="pages">
+      <div class="pg" id="pgAlva">
+        <div class="chd"><span class="cap"><span class="lp"><img src="assets/alva-symbol-wg.svg" alt=""></span>Alva</span></div>
+        <div class="chat scroll" id="chat"></div>
+        <div class="cmp"><div class="box"><span class="sl"><img src="assets/add-l2.svg" alt=""></span><span class="ph r14">Ask Alva, hold to talk</span><span class="sl"><img src="assets/voice-wave-l.svg" alt=""></span></div></div>
+      </div>
+      <div class="pg" id="pgFy" hidden>
+        <div class="fyh"><p class="tt">For You</p><div class="pills"><div class="pv"><div class="ptrack" id="pills"></div></div><button class="pbr" aria-label="All categories" id="pbr"></button></div></div>
+        <div class="feed scroll" id="feed"></div>
       </div>
     </div>
-    <div class="cmp"><div class="box"><span class="sl"><img src="assets/add-l2.svg" alt=""></span><span class="ph r14">Ask Alva, hold to talk</span><span class="sl"><img src="assets/voice-wave-l.svg" alt=""></span></div></div>
-    <div class="tabbar"><div class="tabs"><div class="tab"><img src="assets/tab-for-you-l.svg" alt="">For You</div><div class="tab on"><img src="assets/tab-alva-f.svg" alt="">Alva</div><div class="tab"><img src="assets/tab-search-l1.svg" alt="">Search</div><div class="tab"><img src="assets/tab-me-l.svg" alt="">Me</div></div><span class="create" aria-label="Create"><svg width="28" height="28" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1.6C8.22091 1.6 8.4 1.77909 8.4 2V7.6H14C14.2209 7.6 14.4 7.77909 14.4 8C14.4 8.22091 14.2209 8.4 14 8.4H8.4V14C8.4 14.2209 8.22091 14.4 8 14.4C7.77909 14.4 7.6 14.2209 7.6 14V8.4H2C1.77909 8.4 1.6 8.22091 1.6 8C1.6 7.77909 1.77909 7.6 2 7.6H7.6V2C7.6 1.77909 7.77909 1.6 8 1.6Z"/></svg></span></div>
+    <div class="tabbar"><div class="tabs" id="tabs"></div><span class="create" aria-label="Create" id="create"></span></div>
     <div class="sw" id="sw">
       <div class="dim" id="dim"></div>
       <div class="sheet">
         <div class="grab"></div>
-        <div class="tb" id="tb"><button class="x" id="close" aria-label="Close"></button><div class="ttl2"><span class="r16 ell">Today</span><span class="r10 n5 ell" id="sub"></span></div><button class="undo r12" id="undo" hidden>Undo</button></div>
+        <div class="tb" id="tb"><button class="x" id="close" aria-label="Close"></button><div class="ttl2"><span class="r16 ell">Today</span><span class="r10 n5 ell" id="sub"></span></div>
+          <div class="rs"><button class="ctr r12" id="ctr" hidden></button><i class="vd" id="vd" hidden></i><button class="undo r12" id="undo" hidden>Undo</button></div></div>
         <div class="sc">
           <div class="dk" id="dk"><i class="pl p2" id="p2"></i><i class="pl p1" id="p1"></i></div>
-          <div class="end" id="end" hidden><svg width="80" height="80" viewBox="0 0 80 80" id="ill" aria-hidden="true"></svg><p class="r16">You’re all caught up.</p></div>
+          <div class="end" id="end" hidden></div>
           <div class="btns" id="btns"><button class="btn-m sec" id="keep">Keep unread</button><button class="btn-m" id="read">Mark as read</button></div>
           <div class="btns" id="btnsEnd" hidden><button class="btn-m" id="done">Done</button></div>
+          <div class="tpanel" id="tpanel" hidden></div>
         </div>
         <div class="home"></div>
       </div>
     </div>
   </div>
   <div class="panel">
-    <h1>Today 入口卡与卡组</h1>
-    <p>按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」。入口卡：右上角是简报日期，条数在底部按钮上。条目保持原来的顺序，当前这条在原位展开，其余收成一行；5 条及以上卡里只列前 4 条，其余在 Review 里看，读掉一条后后面的补上来。平时自动播放，每 4 秒切到下一条，鼠标放在卡上或卡组打开时暂停；点任意一行，那一行在原位展开。点展开的那条或底部的 Review 按钮，从这条打开卡组。</p>
-    <p>卡组：左滑或 Keep unread 保持未读，右滑或 Mark as read 标为已读，拖动时露出下一张；滑过之后右上角出现 Undo，撤回上一张。每张看一遍后到「You’re all caught up.」，Done 关掉。标为已读的条目会从入口卡里消失、按钮上的「Review N updates」递减，全部读完入口卡收成一条、右上角显示 Caught up。点卡里 Alva 的建议，按钮变成已发送，下面显示 Reading your thesis。</p>
-    <div class="ctl"><span class="lb">自动播放</span><button data-auto="1" class="on">开</button><button data-auto="0">关</button></div>
-    <div class="ctl"><span class="lb">条数</span><button data-n="1">1</button><button data-n="2">2</button><button data-n="3" class="on">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button></div>
-    <div class="log" id="log"></div>
+    <h1>Today’s review</h1>
+    <p>按 Figma Thesis-MVP「Today 每日卡片 · 状态全集」走完整流程。入口在 Alva 对话里，也在 For You 顶部（底部 Tab 切换），点入口卡打开卡组：左滑或 Keep unread 保持未读，右滑或 Mark as read 标为已读，滑过之后可以 Undo；入口卡显示「N of 3」进度、下一条和后面几条，全部读完收成「Today · Caught up」。</p>
+    <p>点卡里 Alva 的建议，卡上变成「On it…」，顶栏出现「1 running」，点开是 Alva 在做的任务；几秒后任务完成（1 done），看完时这些任务列在「You’re all caught up.」下面。对话里同时出现你的回复和任务卡，Herman 那条完成后草稿回到对话。「无新变化」时入口只有一张卡，打开是单卡和 Done。</p>
+    <div class="ctl"><span class="lb">入口</span><button data-tab="alva" class="on">Alva 对话</button><button data-tab="fy">For You</button></div>
+    <div class="ctl"><span class="lb">今天</span><button data-day="3" class="on">3 条更新</button><button data-day="6">6 种卡片</button><button data-day="0">无新变化</button></div>
+    <div class="ctl"><span class="lb"></span><button id="reset">重置</button></div>
   </div>
 </div>
+<script src="../m-baby/assets/vendor/lottie-light.min.js"></script>
 <script>
 (() => {
   const A = 'assets/';
-  // Alva icons (inline so they take the text colour)
-  const P = {
-    close: 'M15.6464 3.64645C15.8416 3.45118 16.1581 3.45118 16.3534 3.64645C16.5484 3.84173 16.5486 4.15829 16.3534 4.35348L10.7069 9.99997L16.3534 15.6465C16.5484 15.8417 16.5486 16.1583 16.3534 16.3535C16.1582 16.5485 15.8416 16.5485 15.6464 16.3535L9.99988 10.707L4.35339 16.3535C4.15819 16.5485 3.84158 16.5485 3.64636 16.3535C3.45116 16.1583 3.45128 15.8417 3.64636 15.6465L9.29285 9.99997L3.64636 4.35348C3.45116 4.15827 3.45128 3.84173 3.64636 3.64645C3.84163 3.45118 4.15812 3.45118 4.35339 3.64645L9.99988 9.29294L15.6464 3.64645Z',
-    arrowR: 'M6.77731 16.689L13.4948 9.97153L6.77731 3.25402C6.58204 3.05876 6.58204 2.74217 6.77731 2.54691C6.97257 2.35165 7.28915 2.35165 7.48441 2.54691L14.5555 9.61798C14.7507 9.81324 14.7507 10.1298 14.5555 10.3251L7.48441 17.3962C7.28915 17.5914 6.97257 17.5914 6.77731 17.3962C6.58204 17.2009 6.58204 16.8843 6.77731 16.689Z',
-    up: 'M9.64651 2.07615C9.84177 1.88093 10.1584 1.8809 10.3536 2.07615L17.4247 9.14722C17.6198 9.34248 17.6199 9.65911 17.4247 9.85433C17.2295 10.0495 16.9129 10.0495 16.7176 9.85433L10.5 3.63676L10.5 17.5704C10.5 17.8465 10.2762 18.0703 10.0001 18.0703C9.72392 18.0703 9.50012 17.8465 9.50012 17.5704L9.50011 3.63676L3.28255 9.85432C3.08733 10.0495 2.77071 10.0494 2.57544 9.85432C2.38018 9.65906 2.38018 9.34248 2.57544 9.14722L9.64651 2.07615Z',
-    hide: 'M19.1116 5.58574C19.2852 5.37129 19.6001 5.33815 19.8148 5.51153C20.029 5.68513 20.0623 6.00002 19.889 6.21465C19.3624 6.86668 18.6973 7.57302 17.886 8.24102L19.9329 11.7732C20.071 12.0121 19.99 12.3175 19.7513 12.4559C19.5125 12.5942 19.2062 12.5128 19.0677 12.2742L17.0843 8.85137C16.0013 9.61055 14.7022 10.2683 13.1692 10.6639L13.7913 14.1912C13.8389 14.463 13.6578 14.7234 13.386 14.7713C13.1142 14.8191 12.855 14.6368 12.8069 14.365L12.1917 10.8758C11.5053 10.9936 10.777 11.0594 10.0051 11.0594C9.22887 11.0594 8.4966 10.9929 7.80685 10.8738L7.19356 14.365C7.1456 14.6368 6.88629 14.819 6.61446 14.7713C6.34282 14.7234 6.16171 14.4639 6.20918 14.1922L6.8293 10.6619C5.29853 10.2653 4.00152 9.60646 2.92009 8.84746L0.933745 12.2928C0.795736 12.5317 0.489236 12.6141 0.250145 12.4764C0.011297 12.3385 -0.0708274 12.0328 0.0665502 11.7938L2.11833 8.23614C1.3097 7.56956 0.646568 6.8651 0.121238 6.21465C-0.0521093 5.99999 -0.0188953 5.68511 0.195458 5.51153C0.41018 5.33813 0.725036 5.37122 0.898589 5.58574C2.18752 7.18175 4.32106 9.09431 7.48068 9.78887C7.48388 9.78937 7.48724 9.78928 7.49044 9.78985C7.49913 9.79138 7.50734 9.79472 7.51583 9.79668C8.28436 9.96302 9.11299 10.0594 10.0051 10.0594C12.961 10.0594 15.2236 9.02439 16.889 7.75664C16.9174 7.72919 16.9489 7.70414 16.9847 7.6834L16.9866 7.68145C17.8577 7.00416 18.5619 6.26649 19.1116 5.58574Z',
-    checkC: 'M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1ZM10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2ZM13.3799 7.16406C13.5655 6.95983 13.8816 6.94441 14.0859 7.12988C14.2902 7.31555 14.3056 7.6316 14.1201 7.83594L9.12012 13.3359C9.02284 13.4429 8.88384 13.5031 8.73926 13.5C8.59479 13.4969 8.45879 13.4312 8.36621 13.3203L5.86621 10.3203C5.68951 10.1083 5.71781 9.79304 5.92969 9.61621C6.14173 9.43951 6.45696 9.46781 6.63379 9.67969L8.76562 12.2383L13.3799 7.16406Z',
-    check: 'M17.6233 3.67162C17.8045 3.46342 18.12 3.44164 18.3284 3.62279C18.5366 3.80401 18.5583 4.11955 18.3772 4.32787L8.37718 15.8279C8.28401 15.9349 8.14993 15.9975 8.00804 15.9997C7.86593 16.0018 7.72945 15.943 7.63304 15.8386L1.63304 9.33861C1.44578 9.1357 1.45847 8.81984 1.66136 8.63255C1.86427 8.44529 2.18013 8.45798 2.36742 8.66087L7.98851 14.7507L17.6233 3.67162Z',
-    loading: 'M1.8999 10C1.90011 5.5268 5.52631 1.9006 9.99951 1.90039C10.2757 1.90039 10.4995 2.12425 10.4995 2.40039C10.4995 2.67653 10.2757 2.90039 9.99951 2.90039C6.0786 2.9006 2.90011 6.07909 2.8999 10C2.8999 13.9211 6.07847 17.1004 9.99951 17.1006C13.9207 17.1006 17.1001 13.9212 17.1001 10C17.1003 9.72404 17.3241 9.5 17.6001 9.5C17.876 9.50011 18.0999 9.7241 18.1001 10C18.1001 14.4735 14.473 18.1006 9.99951 18.1006C5.52618 18.1004 1.8999 14.4734 1.8999 10Z',
-  };
-  const icon = (k, s, cls = '') => `<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="${P[k]}"/></svg>`;
-  // thesis return sparkline (Thesis return / Chart 72×16); the falling one is the same shape flipped
+  /* the library's Lottie loader, as the product plays it: public/logo-loading-light.json (the same file as the monorepo's
+     logo-loading-light-1.json behind LottieLoadingPlayer), inlined so the page also runs from file:// */
+  const LOADING = {"v":"5.7.4","fr":30,"ip":0,"op":36,"w":20,"h":20,"nm":"logo-loading","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"TL","sr":1,"ao":0,"ip":0,"op":36,"st":0,"bm":0,"ks":{"o":{"a":1,"k":[{"t":0,"s":[100],"e":[50],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":9,"s":[50],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":18,"s":[20],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":27,"s":[20],"e":[100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":36,"s":[100],"h":1}]},"r":{"a":0,"k":0},"p":{"a":0,"k":[4.75,4.75,0]},"a":{"a":0,"k":[0,0,0]},"s":{"a":0,"k":[100,100,100]}},"shapes":[{"ty":"gr","nm":"G","it":[{"ty":"rc","nm":"R","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[7.5,7.5]},"r":{"a":0,"k":2}},{"ty":"fl","nm":"F","r":1,"c":{"a":0,"k":[0.286,0.639,0.651,1]},"o":{"a":0,"k":100}},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}]},{"ddd":0,"ind":2,"ty":4,"nm":"BL","sr":1,"ao":0,"ip":0,"op":36,"st":0,"bm":0,"ks":{"o":{"a":1,"k":[{"t":0,"s":[50],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":9,"s":[20],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":18,"s":[20],"e":[100],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":27,"s":[100],"e":[50],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":36,"s":[50],"h":1}]},"r":{"a":0,"k":0},"p":{"a":0,"k":[4.75,15.25,0]},"a":{"a":0,"k":[0,0,0]},"s":{"a":0,"k":[100,100,100]}},"shapes":[{"ty":"gr","nm":"G","it":[{"ty":"rc","nm":"R","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[7.5,7.5]},"r":{"a":0,"k":2}},{"ty":"fl","nm":"F","r":1,"c":{"a":0,"k":[0.286,0.639,0.651,1]},"o":{"a":0,"k":100}},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}]},{"ddd":0,"ind":3,"ty":4,"nm":"TR","sr":1,"ao":0,"ip":0,"op":36,"st":0,"bm":0,"ks":{"o":{"a":1,"k":[{"t":0,"s":[20],"e":[70],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":9,"s":[70],"e":[50],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":18,"s":[50],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":27,"s":[20],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":36,"s":[20],"h":1}]},"r":{"a":0,"k":0},"p":{"a":0,"k":[15.25,4.75,0]},"a":{"a":0,"k":[0,0,0]},"s":{"a":0,"k":[100,100,100]}},"shapes":[{"ty":"gr","nm":"G","it":[{"ty":"rc","nm":"R","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[7.5,7.5]},"r":{"a":0,"k":2}},{"ty":"fl","nm":"F","r":1,"c":{"a":0,"k":[0,0,0,1]},"o":{"a":0,"k":100}},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}]},{"ddd":0,"ind":4,"ty":4,"nm":"BR","sr":1,"ao":0,"ip":0,"op":36,"st":0,"bm":0,"ks":{"o":{"a":1,"k":[{"t":0,"s":[20],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":9,"s":[20],"e":[70],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":18,"s":[70],"e":[50],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":27,"s":[50],"e":[20],"i":{"x":[0.42],"y":[1]},"o":{"x":[0.58],"y":[0]}},{"t":36,"s":[20],"h":1}]},"r":{"a":0,"k":0},"p":{"a":0,"k":[15.25,15.25,0]},"a":{"a":0,"k":[0,0,0]},"s":{"a":0,"k":[100,100,100]}},"shapes":[{"ty":"gr","nm":"G","it":[{"ty":"rc","nm":"R","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[7.5,7.5]},"r":{"a":0,"k":2}},{"ty":"fl","nm":"F","r":1,"c":{"a":0,"k":[0,0,0,1]},"o":{"a":0,"k":100}},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}]}]};
+  // every .ld that lands in the page starts the loader; one that leaves stops it
+  const mountLd = (root) => root.querySelectorAll?.('.ld:not(.on)').forEach((el) => { el.classList.add('on'); el._ld = window.lottie?.loadAnimation({ container: el, renderer: 'svg', loop: true, autoplay: true, animationData: JSON.parse(JSON.stringify(LOADING)) }); });
+  const dropLd = (root) => { if (root.nodeType !== 1) return; [root, ...root.querySelectorAll('.ld.on')].forEach((el) => { if (el._ld) { el._ld.destroy(); el._ld = null; } }); };
+  new MutationObserver((ms) => ms.forEach((m) => { m.removedNodes.forEach(dropLd); m.addedNodes.forEach((n) => { if (n.nodeType === 1) { if (n.matches('.ld:not(.on)')) mountLd(n.parentNode); else mountLd(n); } }); })).observe(document.body, { childList: true, subtree: true });
+  const P = {"close": "M15.6464 3.64645C15.8416 3.45118 16.1581 3.45118 16.3534 3.64645C16.5484 3.84173 16.5486 4.15829 16.3534 4.35348L10.7069 9.99997L16.3534 15.6465C16.5484 15.8417 16.5486 16.1583 16.3534 16.3535C16.1582 16.5485 15.8416 16.5485 15.6464 16.3535L9.99988 10.707L4.35339 16.3535C4.15819 16.5485 3.84158 16.5485 3.64636 16.3535C3.45116 16.1583 3.45128 15.8417 3.64636 15.6465L9.29285 9.99997L3.64636 4.35348C3.45116 4.15827 3.45128 3.84173 3.64636 3.64645C3.84163 3.45118 4.15812 3.45118 4.35339 3.64645L9.99988 9.29294L15.6464 3.64645Z", "arrowR": "M6.77731 16.689L13.4948 9.97153L6.77731 3.25402C6.58204 3.05876 6.58204 2.74217 6.77731 2.54691C6.97257 2.35165 7.28915 2.35165 7.48441 2.54691L14.5555 9.61798C14.7507 9.81324 14.7507 10.1298 14.5555 10.3251L7.48441 17.3962C7.28915 17.5914 6.97257 17.5914 6.77731 17.3962C6.58204 17.2009 6.58204 16.8843 6.77731 16.689Z", "up": "M9.64651 2.07615C9.84177 1.88093 10.1584 1.8809 10.3536 2.07615L17.4247 9.14722C17.6198 9.34248 17.6199 9.65911 17.4247 9.85433C17.2295 10.0495 16.9129 10.0495 16.7176 9.85433L10.5 3.63676L10.5 17.5704C10.5 17.8465 10.2762 18.0703 10.0001 18.0703C9.72392 18.0703 9.50012 17.8465 9.50012 17.5704L9.50011 3.63676L3.28255 9.85432C3.08733 10.0495 2.77071 10.0494 2.57544 9.85432C2.38018 9.65906 2.38018 9.34248 2.57544 9.14722L9.64651 2.07615Z", "hide": "M19.1116 5.58574C19.2852 5.37129 19.6001 5.33815 19.8148 5.51153C20.029 5.68513 20.0623 6.00002 19.889 6.21465C19.3624 6.86668 18.6973 7.57302 17.886 8.24102L19.9329 11.7732C20.071 12.0121 19.99 12.3175 19.7513 12.4559C19.5125 12.5942 19.2062 12.5128 19.0677 12.2742L17.0843 8.85137C16.0013 9.61055 14.7022 10.2683 13.1692 10.6639L13.7913 14.1912C13.8389 14.463 13.6578 14.7234 13.386 14.7713C13.1142 14.8191 12.855 14.6368 12.8069 14.365L12.1917 10.8758C11.5053 10.9936 10.777 11.0594 10.0051 11.0594C9.22887 11.0594 8.4966 10.9929 7.80685 10.8738L7.19356 14.365C7.1456 14.6368 6.88629 14.819 6.61446 14.7713C6.34282 14.7234 6.16171 14.4639 6.20918 14.1922L6.8293 10.6619C5.29853 10.2653 4.00152 9.60646 2.92009 8.84746L0.933745 12.2928C0.795736 12.5317 0.489236 12.6141 0.250145 12.4764C0.011297 12.3385 -0.0708274 12.0328 0.0665502 11.7938L2.11833 8.23614C1.3097 7.56956 0.646568 6.8651 0.121238 6.21465C-0.0521093 5.99999 -0.0188953 5.68511 0.195458 5.51153C0.41018 5.33813 0.725036 5.37122 0.898589 5.58574C2.18752 7.18175 4.32106 9.09431 7.48068 9.78887C7.48388 9.78937 7.48724 9.78928 7.49044 9.78985C7.49913 9.79138 7.50734 9.79472 7.51583 9.79668C8.28436 9.96302 9.11299 10.0594 10.0051 10.0594C12.961 10.0594 15.2236 9.02439 16.889 7.75664C16.9174 7.72919 16.9489 7.70414 16.9847 7.6834L16.9866 7.68145C17.8577 7.00416 18.5619 6.26649 19.1116 5.58574Z", "checkC": "M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1ZM10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2ZM13.3799 7.16406C13.5655 6.95983 13.8816 6.94441 14.0859 7.12988C14.2902 7.31555 14.3056 7.6316 14.1201 7.83594L9.12012 13.3359C9.02284 13.4429 8.88384 13.5031 8.73926 13.5C8.59479 13.4969 8.45879 13.4312 8.36621 13.3203L5.86621 10.3203C5.68951 10.1083 5.71781 9.79304 5.92969 9.61621C6.14173 9.43951 6.45696 9.46781 6.63379 9.67969L8.76562 12.2383L13.3799 7.16406Z", "check": "M17.6233 3.67162C17.8045 3.46342 18.12 3.44164 18.3284 3.62279C18.5366 3.80401 18.5583 4.11955 18.3772 4.32787L8.37718 15.8279C8.28401 15.9349 8.14993 15.9975 8.00804 15.9997C7.86593 16.0018 7.72945 15.943 7.63304 15.8386L1.63304 9.33861C1.44578 9.1357 1.45847 8.81984 1.66136 8.63255C1.86427 8.44529 2.18013 8.45798 2.36742 8.66087L7.98851 14.7507L17.6233 3.67162Z", "chat": "M17 13.5V4.5C17 3.67157 16.3284 3 15.5 3H4.5C3.67157 3 3 3.67157 3 4.5V17.2373L3.01367 17.3281C3.07465 17.5244 3.32748 17.6109 3.49707 17.4629L5.8877 15.3711C6.16113 15.1318 6.51264 15 6.87598 15H15.5C16.3284 15 17 14.3284 17 13.5ZM18 13.5C18 14.8807 16.8807 16 15.5 16H6.87598C6.7549 16 6.63801 16.0443 6.54688 16.124L4.15625 18.2158C3.34187 18.9283 2.08161 18.3898 2.00391 17.3398L2 17.2373V4.5C2 3.11929 3.11929 2 4.5 2H15.5C16.8807 2 18 3.11929 18 4.5V13.5Z", "like": "M15.7812 17.5469C15.9695 17.5468 16.1232 17.4713 16.2227 17.4072C16.3278 17.3395 16.4184 17.2548 16.4912 17.1748C16.6316 17.0204 16.7606 16.8218 16.8262 16.6416C16.8329 16.6231 16.8383 16.6041 16.8428 16.585L18.6396 8.93656C18.6484 8.89918 18.6523 8.86071 18.6523 8.8223C18.6523 8.22861 18.1732 7.74634 17.5781 7.74614H13.9248C14.1045 7.04099 14.2132 6.18562 14.2188 5.37798C14.2225 4.82765 14.1784 4.27792 14.0674 3.79596C13.9591 3.32593 13.7735 2.85877 13.4463 2.53913C12.9221 2.02626 12.2775 1.68761 11.666 1.91023C11.0414 2.13772 10.8048 2.81616 10.7803 3.49127C10.7408 4.57693 10.3216 5.18791 9.75879 6.10845C9.51981 6.49925 9.11028 6.93101 8.73535 7.28032C8.55215 7.451 8.38462 7.5943 8.26367 7.69536C8.20331 7.74579 8.15517 7.78596 8.12207 7.81254C8.10553 7.82583 8.09226 7.83531 8.08398 7.84184C8.0799 7.84506 8.07707 7.84819 8.0752 7.84965L8.07324 7.85063C7.95131 7.94535 7.87988 8.09174 7.87988 8.24614V16.4707C7.87995 17.0645 8.35986 17.5469 8.95508 17.5469H15.7812ZM8.95508 16.5469C8.91431 16.5469 8.87995 16.5144 8.87988 16.4707V8.48344C8.88796 8.47672 8.89678 8.47003 8.90527 8.46293C9.03669 8.35312 9.21784 8.19731 9.41699 8.01176C9.80698 7.64841 10.2997 7.14132 10.6123 6.62993C11.1527 5.74599 11.7289 4.91611 11.7793 3.52741L11.7939 3.33795C11.8424 2.94363 11.9832 2.85896 12.0078 2.84968C12.048 2.83504 12.2903 2.80708 12.7471 3.25397V3.25495C12.8734 3.37835 13.0017 3.62516 13.0928 4.02057C13.1811 4.4041 13.2222 4.87149 13.2188 5.37115C13.2119 6.37842 13.0274 7.42985 12.7783 8.06254C12.7178 8.21645 12.738 8.39068 12.8311 8.52738C12.9242 8.66389 13.0789 8.74613 13.2441 8.74613H17.5781C17.6082 8.74628 17.6338 8.7641 17.6455 8.79105L15.8789 16.3106C15.8723 16.3252 15.862 16.3509 15.8418 16.3828C15.8157 16.4241 15.7836 16.466 15.751 16.502C15.7322 16.5226 15.7146 16.5361 15.7021 16.5469H8.95508ZM5.40527 17.5479C6.00044 17.5477 6.48047 17.0654 6.48047 16.4717V8.82328C6.4804 8.22958 6.0004 7.74722 5.40527 7.74711H2.63281C2.0376 7.74711 1.55769 8.22952 1.55762 8.82328C1.55762 8.84084 1.5587 8.85855 1.56055 8.87602L2.36914 16.5244C2.39643 17.0939 2.8638 17.5479 3.44141 17.5479H5.40527ZM3.44141 16.5479C3.4006 16.5479 3.36621 16.5154 3.36621 16.4717C3.3662 16.4542 3.36512 16.4363 3.36328 16.419L2.55859 8.81352C2.56332 8.7749 2.59516 8.74711 2.63281 8.74711H5.40527C5.44595 8.74722 5.4804 8.77971 5.48047 8.82328V16.4717C5.48047 16.5153 5.44599 16.5477 5.40527 16.5479H3.44141Z", "chatAi": "M5.37756 2.50987C8.44354 2.097 11.5577 2.09694 14.6236 2.50987C14.869 2.54293 15.1156 2.5799 15.608 2.65342C15.7722 2.67794 15.8547 2.69086 15.9283 2.70616C16.8706 2.9023 17.607 3.58934 17.817 4.46885C17.8333 4.53744 17.8464 4.61463 17.8726 4.76768C17.9514 5.22687 17.9906 5.45672 18.026 5.68564C18.4685 8.54715 18.4685 11.454 18.026 14.3155C17.9906 14.5444 17.9514 14.7743 17.8726 15.2335C17.8464 15.3865 17.8333 15.4637 17.817 15.5323C17.607 16.4118 16.8706 17.0988 15.9283 17.295C15.8547 17.3103 15.7722 17.3232 15.608 17.3477C15.1156 17.4212 14.869 17.4582 14.6236 17.4913C11.5577 17.9042 8.44354 17.9041 5.37756 17.4913C5.30232 17.4811 5.22667 17.4704 5.14416 17.4581C5.00783 17.4377 4.86796 17.4453 4.73498 17.4815L1.84436 18.2706C1.47118 18.3722 1.1293 18.0295 1.23108 17.6563L1.9801 14.9083C2.01811 14.7686 2.02465 14.6223 2.00061 14.4796C1.99106 14.4229 1.98254 14.3692 1.97424 14.3155C1.53174 11.454 1.53174 8.54717 1.97424 5.68564C2.00965 5.45673 2.04884 5.22683 2.12756 4.76768C2.15382 4.61454 2.16783 4.53747 2.1842 4.46885C2.39423 3.5892 3.13029 2.90214 4.07287 2.70616C4.1463 2.69091 4.22847 2.67787 4.39221 2.65342C4.88475 2.57988 5.13206 2.54293 5.37756 2.50987ZM14.4898 3.50108C11.5127 3.10013 8.48857 3.10019 5.51134 3.50108C5.27459 3.53296 5.03494 3.56873 4.53967 3.64268C4.37155 3.66778 4.31708 3.67712 4.276 3.68565C3.68202 3.80933 3.26972 4.22865 3.15686 4.70127C3.14924 4.73327 3.14 4.7786 3.11291 4.93662C3.0338 5.39804 2.99642 5.61977 2.96252 5.83896C2.53578 8.5989 2.53578 11.4022 2.96252 14.1622L2.98694 14.3135C3.03483 14.5979 3.0213 14.8905 2.94494 15.171L2.42541 17.0743L4.47228 16.5167L4.67443 16.4727C4.81007 16.4505 4.94804 16.4422 5.08556 16.4483L5.29162 16.4688L5.51134 16.5001C8.48857 16.9009 11.5127 16.901 14.4898 16.5001C14.7264 16.4682 14.9649 16.4325 15.4605 16.3585C15.6303 16.3331 15.6837 16.3239 15.7242 16.3155C16.3184 16.1918 16.7315 15.7724 16.8443 15.2999C16.8513 15.2706 16.8585 15.2324 16.8873 15.0645C16.9664 14.6031 17.0038 14.3814 17.0377 14.1622C17.4644 11.4023 17.4644 8.59888 17.0377 5.83896L16.8873 4.93662C16.8585 4.76867 16.8513 4.73054 16.8443 4.70127C16.7315 4.22876 16.3184 3.80936 15.7242 3.68565C15.6837 3.67724 15.6303 3.66803 15.4605 3.64268C14.9649 3.56867 14.7264 3.53294 14.4898 3.50108ZM7.31505 8.07821C7.42774 7.97596 7.57239 7.97528 7.68517 8.07723L7.72228 8.11532C7.77804 8.17301 7.80614 8.20219 7.8336 8.23153C8.17717 8.59859 8.48196 9.03464 8.73888 9.52547C8.75938 9.56465 8.77958 9.60505 8.81993 9.68465C8.83334 9.71111 8.84072 9.72484 8.8463 9.73738C8.91785 9.89856 8.91794 10.1046 8.8463 10.2657C8.84072 10.2782 8.83333 10.292 8.81993 10.3184C8.77957 10.3981 8.75941 10.4384 8.73888 10.4776C8.48194 10.9684 8.17717 11.4045 7.8336 11.7716C7.80618 11.8009 7.77802 11.8301 7.72228 11.8878C7.70374 11.9069 7.69395 11.9169 7.68517 11.9249C7.5724 12.0271 7.42782 12.0271 7.31505 11.9249C7.30627 11.9169 7.29648 11.9069 7.27794 11.8878C7.2222 11.8301 7.19404 11.8009 7.16661 11.7716C6.82305 11.4045 6.51827 10.9684 6.26134 10.4776C6.24081 10.4384 6.22065 10.3981 6.18029 10.3184C6.16689 10.292 6.1595 10.2782 6.15392 10.2657C6.08229 10.1046 6.08237 9.89855 6.15392 9.73738C6.1595 9.72484 6.16687 9.71111 6.18029 9.68465C6.22063 9.60506 6.24084 9.56464 6.26134 9.52547C6.51826 9.03465 6.82305 8.59859 7.16661 8.23153C7.19178 8.20465 7.21727 8.17762 7.26427 8.12899L7.31505 8.07821ZM12.315 8.07821C12.4275 7.97612 12.5715 7.97576 12.6842 8.07723L12.7223 8.11532C12.778 8.17301 12.8061 8.20219 12.8336 8.23153C13.1772 8.59859 13.4819 9.03464 13.7389 9.52547C13.7594 9.56465 13.7796 9.60505 13.8199 9.68465C13.8333 9.71111 13.8407 9.72484 13.8463 9.73738C13.9178 9.89856 13.9179 10.1046 13.8463 10.2657C13.8407 10.2782 13.8333 10.292 13.8199 10.3184C13.7796 10.3981 13.7594 10.4384 13.7389 10.4776C13.4819 10.9684 13.1772 11.4045 12.8336 11.7716C12.8062 11.8009 12.778 11.8301 12.7223 11.8878C12.7037 11.9069 12.6939 11.9169 12.6852 11.9249C12.5724 12.0271 12.4278 12.0271 12.315 11.9249C12.3063 11.9169 12.2965 11.9069 12.2779 11.8878C12.2222 11.8301 12.194 11.8009 12.1666 11.7716C11.823 11.4045 11.5183 10.9684 11.2613 10.4776C11.2408 10.4384 11.2206 10.3981 11.1803 10.3184C11.1669 10.292 11.1595 10.2782 11.1539 10.2657C11.0823 10.1046 11.0824 9.89855 11.1539 9.73738C11.1595 9.72484 11.1669 9.71111 11.1803 9.68465C11.2206 9.60506 11.2408 9.56464 11.2613 9.52547C11.5183 9.03465 11.823 8.59859 12.1666 8.23153C12.1918 8.20465 12.2173 8.17762 12.2643 8.12899L12.315 8.07821Z", "arrowDown": "M3.28263 6.77731L10.0001 13.4948L16.7177 6.77731C16.9129 6.58204 17.2295 6.58204 17.4248 6.77731C17.62 6.97257 17.62 7.28915 17.4248 7.48441L10.3537 14.5555C10.1584 14.7507 9.84185 14.7507 9.64659 14.5555L2.57552 7.48441C2.38026 7.28915 2.38026 6.97257 2.57552 6.77731C2.77079 6.58204 3.08737 6.58204 3.28263 6.77731Z", "scroll": "M14.1334 2.02441C14.4666 2.02333 14.797 2.08703 15.1051 2.21387C15.414 2.34108 15.6951 2.52842 15.9313 2.76465C16.1675 3.0009 16.3549 3.28189 16.4821 3.59082C16.6089 3.89898 16.6736 4.22927 16.6725 4.5625V13.5791H17.694L17.7985 13.5898C17.9008 13.6119 17.995 13.6658 18.0661 13.7451C18.3928 14.1105 18.6068 14.5635 18.6823 15.0479C18.7577 15.5321 18.691 16.0282 18.4909 16.4756C18.2907 16.9228 17.9655 17.3029 17.5543 17.5693C17.1945 17.8024 16.7817 17.94 16.3561 17.9707L16.1725 17.9775H6.65591C6.64981 17.9775 6.64339 17.9759 6.63735 17.9756C6.54337 17.9749 6.44893 17.9692 6.35512 17.958C5.94666 17.9092 5.55536 17.7625 5.21645 17.5293C4.87758 17.2961 4.60038 16.9832 4.40883 16.6191C4.24136 16.3007 4.14369 15.9507 4.12173 15.5928L4.11684 15.4385V4.5625C4.11664 4.31325 4.05612 4.06727 3.94009 3.84668C3.82407 3.62625 3.65596 3.4372 3.45083 3.2959C3.24547 3.15458 3.00791 3.06481 2.7604 3.03516C2.51297 3.00562 2.26176 3.03715 2.02895 3.12598C1.79619 3.21486 1.58829 3.35905 1.42348 3.5459C1.25865 3.73298 1.14161 3.95792 1.08266 4.2002C1.02377 4.44251 1.02407 4.69559 1.08462 4.9375C1.14518 5.17941 1.2642 5.40287 1.43032 5.58887C1.61388 5.79469 1.59576 6.11101 1.39028 6.29492C1.18437 6.47883 0.868191 6.46071 0.684226 6.25488C0.410157 5.94801 0.214789 5.57882 0.11489 5.17969C0.0150917 4.78068 0.0138179 4.36353 0.110984 3.96387C0.208209 3.56414 0.400544 3.19343 0.672507 2.88477C0.944478 2.57618 1.28824 2.33814 1.67251 2.19141C1.95896 2.08213 2.2621 2.02582 2.56704 2.02441C2.57056 2.02434 2.57424 2.02344 2.57778 2.02344H14.1334V2.02441ZM9.11977 14.8203C9.21966 15.2194 9.22083 15.6374 9.12368 16.0371C9.04059 16.3788 8.88702 16.699 8.67446 16.9775H16.1725C16.4695 16.9776 16.7611 16.8919 17.0104 16.7305C17.2596 16.569 17.4574 16.3384 17.5788 16.0674C17.7001 15.7962 17.7407 15.4947 17.695 15.2012C17.6601 14.9777 17.5761 14.7654 17.4508 14.5791H9.04458C9.07301 14.6582 9.09925 14.7384 9.11977 14.8203ZM4.59438 3.02344C4.68041 3.1362 4.75841 3.25554 4.82485 3.38184C5.0163 3.74587 5.1166 4.15119 5.11684 4.5625V15.4385C5.11704 15.6877 5.17852 15.9337 5.29458 16.1543C5.41069 16.3748 5.57856 16.5638 5.78383 16.7051C5.98917 16.8463 6.22583 16.9362 6.47329 16.9658C6.72082 16.9953 6.97283 16.9639 7.20571 16.875C7.43836 16.786 7.64648 16.6419 7.81118 16.4551C7.97594 16.268 8.0931 16.043 8.152 15.8008C8.21085 15.5585 8.2096 15.3053 8.14907 15.0635C8.08853 14.8217 7.97034 14.598 7.80434 14.4121C7.67309 14.2652 7.64092 14.0549 7.72133 13.875C7.80193 13.6952 7.98038 13.5791 8.17739 13.5791H15.6725V4.56055C15.6733 4.35861 15.6341 4.15843 15.5573 3.97168C15.4803 3.78483 15.3671 3.61457 15.2243 3.47168C15.0814 3.32881 14.9111 3.21562 14.7243 3.13867C14.5375 3.06184 14.3373 3.02261 14.1354 3.02344H4.59438ZM13.4528 10.1797C13.7289 10.1797 13.9527 10.4036 13.9528 10.6797C13.9528 10.9558 13.7289 11.1797 13.4528 11.1797H8.01528C7.73935 11.1794 7.51528 10.9557 7.51528 10.6797C7.51532 10.4037 7.73938 10.1799 8.01528 10.1797H13.4528ZM13.4528 7.46094C13.7289 7.46094 13.9528 7.68479 13.9528 7.96094C13.9526 8.23696 13.7288 8.46094 13.4528 8.46094H8.01528C7.73944 8.46068 7.51542 8.23681 7.51528 7.96094C7.51528 7.68495 7.73935 7.46119 8.01528 7.46094H13.4528Z", "checkF": "M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1ZM14.0771 6.80957C13.8685 6.62897 13.5529 6.65185 13.3721 6.86035L8.87109 12.0488L6.62793 9.46191C6.44715 9.25346 6.13147 9.23067 5.92285 9.41113C5.71431 9.59207 5.69117 9.9086 5.87207 10.1172L8.49414 13.1396C8.5891 13.249 8.7272 13.3125 8.87207 13.3125C9.01685 13.3124 9.15511 13.249 9.25 13.1396L14.1279 7.51465C14.3085 7.30608 14.2855 6.99042 14.0771 6.80957Z", "paused": "M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1ZM6.50977 9.5C6.23362 9.5 6.00977 9.72386 6.00977 10C6.00977 10.2761 6.23362 10.5 6.50977 10.5H13.4912L13.5918 10.4902C13.8197 10.4437 13.9912 10.2417 13.9912 10C13.9912 9.75833 13.8197 9.55634 13.5918 9.50977L13.4912 9.5H6.50977Z", "add": "M8 1.6C8.22091 1.6 8.4 1.77909 8.4 2V7.6H14C14.2209 7.6 14.4 7.77909 14.4 8C14.4 8.22091 14.2209 8.4 14 8.4H8.4V14C8.4 14.2209 8.22091 14.4 8 14.4C7.77909 14.4 7.6 14.2209 7.6 14V8.4H2C1.77909 8.4 1.6 8.22091 1.6 8C1.6 7.77909 1.77909 7.6 2 7.6H7.6V2C7.6 1.77909 7.77909 1.6 8 1.6Z"};
+  const icon = (k, s, cls = '') => `<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${P[k]}"/></svg>`;
   const LINE = 'M0 13.44L.8 13.44L1.6 13.32L2.4 12.99L3.2 12.96L4 12.68L4.8 12.49L5.6 12.19L6.4 12.12L7.2 12.03L8 12.11L8.8 12.2L9.6 12.33L10.4 12.33L11.2 12.31L12 12.65L12.8 12.63L13.6 12.72L14.4 12.64L15.2 12.53L16 12.24L16.8 11.92L17.6 11.47L18.4 11.36L19.2 11.17L20 11.07L20.8 10.8L21.6 10.64L22.4 10.56L23.2 10.45L24 10.44L24.8 10.47L25.6 10.41L26.4 10.17L27.2 9.96L28 9.85L28.8 9.91L29.6 9.37L30.4 9.15L31.2 9L32 8.97L32.8 8.92L33.6 9.04L34.4 9.37L35.2 9.47L36 9.68L36.8 9.85L37.6 9.92L38.4 9.8L39.2 9.81L40 9.55L40.8 9.17L41.6 8.57L42.4 8.52L43.2 8.09L44 8.03L44.8 7.93L45.6 7.72L46.4 7.6L47.2 7.48L48 7.33L48.8 7.33L49.6 7.47L50.4 7.27L51.2 7.01L52 6.79L52.8 6.52L53.6 6.36L54.4 6.17L55.2 5.85L56 5.81L56.8 5.63L57.6 5.45L58.4 5.52L59.2 5.48L60 5.44L60.8 5.49L61.6 5.25L62.4 5.44L63.2 5.29L64 5.13L64.8 4.85L65.6 4.67L66.4 4.33L67.2 3.87L68 3.83L68.8 3.69L69.6 3.77L70.4 3.53L71.2 3.33L72 3.33';
   let sparkN = 0;
   const spark = () => { const k = ++sparkN; return `<svg width="72" height="16" viewBox="0 0 72 16" aria-hidden="true"><defs><clipPath id="sc${k}"><rect width="72" height="16" rx="2"/></clipPath><linearGradient id="sg${k}" x1="0" y1="3.33" x2="0" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><g clip-path="url(#sc${k})"><path d="${LINE}L72 16L0 16Z" fill="url(#sg${k})"/><path d="${LINE}" fill="none" stroke="currentColor"/></g></svg>`; };
-  // B4 illustration (Illustration/Empty Test · Success): 13 × 13 cells of 5, radius 1.33, g05 with a black face
+  // Illustration/Empty Test · Success: 13 × 13 cells of 5, radius 1.33, g05 with a black face (drawn at 100)
   const FACE = ['', '', '', '', '3,9', '2,4,8,10', '', '', '3,9', '4,5,6,7,8', '', '', ''];
-  document.getElementById('ill').innerHTML = FACE.map((row, y) => { const on = row ? row.split(',').map(Number) : []; return Array.from({ length: 13 }, (_, x) => `<rect x="${1.5 + x * 6}" y="${1.5 + y * 6}" width="5" height="5" rx="1.33" fill="${on.includes(x) ? '#000' : '#eaeaea'}"/>`).join(''); }).join('');
-
+  const ILL = `<svg width="100" height="100" viewBox="0 0 80 80" aria-hidden="true">${FACE.map((row, y) => { const on = row ? row.split(',').map(Number) : []; return Array.from({ length: 13 }, (_, x) => `<rect x="${1.5 + x * 6}" y="${1.5 + y * 6}" width="5" height="5" rx="1.33" fill="${on.includes(x) ? '#000' : '#eaeaea'}"/>`).join(''); }).join('')}</svg>`;
   const img = (f, cls = 'av') => `<img class="${cls}" src="${A}${f}" alt="">`;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rich = (s) => esc(s).replace(/\[([^\]]+)\]/g, '<u>$1</u>');
+  const $ = (id) => document.getElementById(id);
+  const portrait = (act, cls = '') => `<span class="lpr${act ? ' act' : ''} ${cls}"><span class="lp"><img src="${A}alva-symbol-wg.svg" alt=""></span></span>`;
+  const thHTML = (d, arrow) => `<span class="th">${d.av}<b>${esc(d.owner)}</b><b>·</b><span class="tt">${esc(d.title)}</span>${arrow ? icon('arrowR', 12, 'arw') : ''}</span>`;
+
+  /* ───── content: the six card scenarios (D1–D6) and the no-new card ───── */
   const TOPIC = '<span class="av tp">#</span>';
-  // the six card scenarios (C1–C6); [text] is an underlined source, {x} an m1 ticker
   const DECK = [
-    { av: img('avatar-herman.jpg'), owner: 'Herman Jin', title: 'Buy Quality Gradually Into the Selloff', h: 'Nvidia drops 8% after hours while the rest of the basket holds', k: 'NVDA', wash: 'up',
+    { s: 'Nvidia', av: img('avatar-herman.jpg'), owner: 'Herman Jin', title: 'Buy Quality Gradually Into the Selloff', h: 'Nvidia drops 8% after hours while the rest of the basket holds', wash: 'up',
       tk: [['logo-nvda.svg', 'NVDA', -1], ['logo-amzn.svg', 'AMZN', 1], ['logo-msft.svg', 'MSFT', 1], ['logo-nvda.svg', 'NVDA', 1], ['logo-tsm.png', 'TSM', 1]], ret: ['+31.8%', 1],
       b: ['[WSJ] reports the board could meet as soon as Wednesday to discuss Jensen Huang’s future, with no decision yet. Shares rose 2.92% in regular trading, then fell 8.63% after hours.', 'Microsoft closed down 2.37% after OpenAI reportedly posted a $10.9B adjusted operating loss in Q3; Amazon and TSMC were little changed.'],
       alva: ['Herman runs NVDA as the short leg, so today’s drop works for this thesis. His read on Microsoft’s OpenAI exposure is worth borrowing.', ['Use his OpenAI point in my thesis', 'Follow this thesis']] },
-    { av: img('logo-crwv.png'), owner: 'CRWV', title: 'On your watchlist', h: 'CoreWeave sets a profit timeline, trades financing for a new playbook', k: 'CRWV',
-      b: ['Reuters says it expects adjusted profitability in the first half of 2028; shares rose more than 19% intraday on Wednesday.', 'It launched a $4B investment-grade syndicated loan backed by its chips and long-term customer contracts, then gave back 5.7% after hours.'],
+    { s: 'CoreWeave', av: img('logo-crwv.png'), owner: 'CRWV', title: 'On your watchlist', h: 'CoreWeave sets a profit timeline, trades financing for a new playbook',
+      b: ['[Reuters] says it expects adjusted profitability in the first half of 2028; shares rose more than 19% intraday on Wednesday.', 'It launched a $4B investment-grade syndicated loan backed by its chips and long-term customer contracts, then gave back 5.7% after hours.'],
       alva: ['CoreWeave is now borrowing against its customer contracts. The timeline answers only half the question; the rest is the borrowing rate.', ['Write my view on CoreWeave as a thesis']] },
-    { av: img('avatar-you.jpg'), owner: 'Your thesis', title: 'Long Bitcoin, Not the Election Outcome', h: 'Crypto liquidity tightens, pressuring Strategy’s funding', k: 'BTC', wash: 'down',
+    { s: 'Crypto liquidity', av: img('avatar-you.jpg'), owner: 'Your thesis', title: 'Long Bitcoin, Not the Election Outcome', h: 'Crypto liquidity tightens, pressuring Strategy’s funding', wash: 'down',
       tk: [['logo-btc.svg', 'BTC', -1]], ret: ['−9.3%', -1],
-      b: ['Glassnode says stablecoin supply is shrinking at the fastest pace since June 2022.', 'MSCI is dropping Strategy from its global equity benchmark, which could squeeze the funding behind its Bitcoin buying.'],
+      b: ['[Glassnode] says stablecoin supply is shrinking at the fastest pace since June 2022.', 'MSCI is dropping Strategy from its global equity benchmark, which could squeeze the funding behind its Bitcoin buying.'],
       alva: ['Both point at funding, not the election. Bitcoin is down 9.3% since you published, and the case against your view keeps growing.', ['Add an exit condition to my Bitcoin thesis']] },
-    { av: TOPIC, owner: 'US election', title: 'You brought it up on Nov 3', meta: 'Watching for 9 days · 2 new since Nov 10', h: 'Candidates backing a data-center permitting pause won three governorships', k: 'Topic',
+    { s: 'US election', av: TOPIC, owner: 'US election', title: 'You brought it up on Nov 3', meta: 'Watching for 9 days · 2 new since Nov 10', h: 'Candidates backing a data-center permitting pause won three governorships',
       b: ['The governors-elect in Texas, Georgia and Ohio all support pausing approvals for new data centers, covering more than 47GW of planned capacity.', 'Versus Nov 10: it was a polling lead then; now it is a confirmed result.'],
       alva: ['You follow the election from the AI-infrastructure angle. This result hits data-center supply directly, so it is worth turning into a formal view.', ['Write this topic as a thesis']] },
-    { av: img('avatar-you.jpg'), owner: 'Your thesis', title: 'Long Bitcoin, Not the Election Outcome', h: 'Bitcoin ETFs see $1B of outflows as the price breaks $76,000', k: 'BTC', wash: 'down',
+    { s: 'Bitcoin ETFs', av: img('avatar-you.jpg'), owner: 'Your thesis', title: 'Long Bitcoin, Not the Election Outcome', h: 'Bitcoin ETFs see $1B of outflows as the price breaks $76,000', wash: 'down',
       tk: [['logo-btc.svg', 'BTC', -1]], ret: ['−9.3%', -1],
       b: ['Bloomberg reports Bitcoin fell as much as 5.8% intraday on Nov 5, breaking below $76,000 to a seven-week low.', 'Spot Bitcoin ETFs saw $1B of outflows, about $900M of it from IBIT.'],
       alva: ['Your thesis says to exit if ETF outflows persist for a month. This week hit $1B, but the month isn’t over. Does that count?', ['Yes, start exiting', 'No, wait for the month']] },
-    { av: img('logo-msft.svg'), owner: 'MSFT', title: 'In your portfolio', h: 'Microsoft slips 2.4% on OpenAI’s reported Q3 loss', k: 'MSFT',
+    { s: 'Microsoft', av: img('logo-msft.svg'), owner: 'MSFT', title: 'In your portfolio', h: 'Microsoft slips 2.4% on OpenAI’s reported Q3 loss',
       b: ['OpenAI reportedly posted a $10.9B adjusted operating loss in Q3; Microsoft closed down 2.37%.', 'Analysts trimmed next year’s S&P 500 earnings estimates despite strong Q3 results.'] },
   ];
-  const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const rich = (s) => esc(s).replace(/\[([^\]]+)\]/g, '<u>$1</u>');
-  const thHTML = (d, arrow) => `<span class="th">${d.av}<b>${esc(d.owner)}</b><b>·</b><span class="tt">${esc(d.title)}</span>${arrow ? icon('arrowR', 12, 'arw') : ''}</span>`;
+  const QUIET = { s: 'CoreWeave', av: img('logo-crwv.png'), owner: 'CRWV', title: 'On your watchlist', h: 'You follow CoreWeave but haven’t written down your view',
+    b: ['Management says qualified demand through the end of 2027 is 10x its available capacity.', 'Q3 operating cash flow was $2B against $14.5B of capex; it expects adjusted profitability in the first half of 2028.'],
+    alva: ['It has come up in your last two briefs. Once it’s a thesis, I’ll check the evidence for and against it every day.', ['Write my view on CoreWeave as a thesis']] };
+  // the task each reply starts (its title in the task list) and the draft Herman's comes back with (E5)
+  const TASK_TITLE = { 'Use his OpenAI point in my thesis': 'Use Herman’s OpenAI point in my thesis' };
+  const DRAFT = { who: 'Leo', type: 'Thesis update · Draft', text: ['My priority is SPY > MSFT > GOOGL: diversification first, then businesses that can fund AI investment with reliable cash flow. ', 'Microsoft’s own cash flow is not the whole picture: OpenAI’s reported $10.9B adjusted operating loss in Q3 is a funding risk that sits behind Microsoft’s exposure.', ' Alphabet’s spending warrants caution; Nvidia and semiconductor ETFs remain lower priorities as earnings expectations could fall.'],
+    tk: [['logo-spy.svg', 'SPY'], ['logo-msft.svg', 'MSFT'], ['logo-googl.svg', 'GOOGL'], ['logo-nvda.svg', 'NVDA']],
+    msg: 'Here’s the draft update to Buy Quality Gradually Into the Selloff. Your order is SPY > MSFT > GOOGL because cash flow can fund AI spending. I kept the order, added OpenAI’s funding risk under Microsoft, and added one more reason to pause buying. Nothing is published yet.',
+    opts: ['Publish this update', 'Edit it first', 'Not now, keep the draft'] };
 
-  /* ───── entry card ───── */
-  const list = $('list'), count = $('count'), log = $('log'), card = $('card');
-  let n = 3, cur = 0, read = new Set(), busy = false;
-  const sent = {}; // reply sent per card: the label
-  const unread = () => DECK.slice(0, n).map((_, i) => i).filter((i) => !read.has(i));
-  // 5 or more: the card lists the first 4 unread and the rest wait in the review (the button counts them all)
-  const MAX_SHOWN = 4;
-  const shown = () => unread().slice(0, MAX_SHOWN);
-  // the next shown item from `from` (wrapping); autoplay stays inside what the card shows
-  const nextUnread = (from, dir) => { const v = shown(); if (!v.length) return -1; const k = v.indexOf(from); return k < 0 ? v[0] : v[((k + dir) % v.length + v.length) % v.length]; };
-  function build() {
-    read = new Set(); cur = 0; card.classList.remove('done');
-    list.innerHTML = DECK.slice(0, n).map((d, i) => `<div class="it" data-i="${i}"><i class="sp"></i>
-      <div class="fold cx"><div><div class="r"><span class="h">${esc(d.h)}</span><span class="k">${d.k}</span></div></div></div>
-      <div class="fold xp"><div><div class="lc">${thHTML(d)}<span class="h">${esc(d.h)}</span></div></div></div></div>`).join('');
-    sync(); kick();
-  }
-  // the active item opens where it is and the one before folds back into a row; read items leave the list
-  function sync() {
-    const u = unread();
-    // the count lives in the button (Review N updates); the header's grey text is the brief's date, Caught up once everything is read
-    count.textContent = u.length ? 'Nov 12' : 'Caught up';
-    if (u.length) $('open').textContent = `Review ${u.length} update${u.length === 1 ? '' : 's'}`; // keeps its last label while it folds away
-    card.classList.toggle('done', !u.length);
-    const vis = shown(); if (vis.length && !vis.includes(cur)) cur = vis[0];
-    let prev = -1;
-    [...list.children].forEach((it) => {
-      const i = +it.dataset.i, gone = !vis.includes(i), act = !gone && i === cur;
-      it.querySelector('.cx').classList.toggle('off', gone || act);
-      it.querySelector('.xp').classList.toggle('off', !act);
-      const mode = gone || prev < 0 ? 'none' : act || prev === cur ? 'line' : '';
-      it.querySelector('.sp').className = 'sp' + (mode ? ' ' + mode : '');
-      if (!gone) prev = i;
-    });
-    log.textContent = `Open: ${cur + 1} · unread ${u.length} / ${n}${auto ? ' · auto' : ''}`;
-  }
-  function go(to) {
-    if (busy || to < 0 || to === cur || !shown().includes(to)) return;
-    busy = true; cur = to; sync(); kick();
-    setTimeout(() => { busy = false; }, 340);
-  }
-  const step = (dir) => { const to = nextUnread(cur, dir); if (to >= 0) go(to); };
-  // autoplay: the next shown item opens every 4s; paused while the mouse is on the card and while the deck is open
-  const AUTO_MS = 4000;
-  let auto = true, hover = false, timer = 0;
-  function kick() { clearTimeout(timer); if (auto) timer = setTimeout(tick, AUTO_MS); }
-  function tick() { if (!hover && !document.hidden && !$('sw').classList.contains('on') && unread().length > 1) step(1); kick(); }
-  card.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
-  card.addEventListener('pointerleave', () => { hover = false; kick(); });
-  // no gestures on the list: autoplay moves it along, a tap on a row opens that row in place, a tap on the open item opens the deck from it
-  list.addEventListener('click', (e) => {
-    const it = e.target.closest('.it'); if (!it) return;
-    const i = +it.dataset.i;
-    if (e.target.closest('.xp')) openSheet(); else go(i);
-  });
+  /* ───── state ───── */
+  let n = 3, quiet = false, tab = 'alva', read = new Set(), dismissed = false;
+  let tasks = [], sent = {}, chatAdds = [], timeShown = false;
+  const items = () => (quiet ? [QUIET] : DECK.slice(0, n));
+  const unread = () => items().map((_, i) => i).filter((i) => !read.has(i));
 
-  /* ───── drawer: one pass over the unread cards, starting from the lead ───── */
-  const sw = $('sw'), dk = $('dk'), p1 = $('p1'), p2 = $('p2'), end = $('end'), btns = $('btns'), btnsEnd = $('btnsEnd'), undoBtn = $('undo'), tb = $('tb');
+  /* ───── Today entry: stacked card with progress (A1 / A2), caught-up bar (A3), single card (A4) ───── */
+  const ring = (k, N) => { const C = 2 * Math.PI * 7, f = N ? k / N : 0; return `<svg class="ring" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle class="tr" cx="8" cy="8" r="7"/><circle class="fl" cx="8" cy="8" r="7" stroke-dasharray="${(f * C).toFixed(2)} ${C.toFixed(2)}"/></svg>`; };
+  function entryHTML(where) {
+    const it = items(), u = unread();
+    if (quiet) { const d = it[0]; return `<div class="entry" data-open="1"><i class="wash"></i><div class="ehd"><img src="${A}alva-symbol-bg.svg" alt=""><span class="t">Today</span></div><div class="elead">${thHTML(d)}<span class="h">${esc(d.h)}</span></div></div>`; }
+    if (!u.length) return `<div class="ebar" data-open="1"><img src="${A}alva-symbol-bg.svg" alt=""><span class="t ell">Today · Caught up</span><span class="r12 n5">${it.length} updates</span><span class="ok">${icon('checkF', 16)}</span>${where === 'fy' ? `<button class="x" data-dismiss="1" aria-label="Dismiss">${icon('close', 16)}</button>` : ''}</div>`;
+    const d = it[u[0]], then = u.slice(1).map((i) => it[i].s);
+    // more than one card today → the full stack (both plates) stays, whatever is left unread
+    return `<div class="edeck">${it.length > 1 ? '<i class="pl p2"></i><i class="pl p1"></i>' : ''}
+      <div class="entry" data-open="1"><i class="wash"></i><div class="ehd"><img src="${A}alva-symbol-bg.svg" alt=""><span class="t">Today</span><span class="r12 n5">${read.size} of ${it.length}</span>${ring(read.size, it.length)}</div>
+      <div class="elead">${thHTML(d)}<span class="h">${esc(d.h)}</span>${then.length ? `<span class="r12 n5">Then: ${esc(then.join(' · '))}</span>` : ''}</div></div></div>`;
+  }
+
+  /* ───── Alva chat ───── */
+  const BRIEF = { day: 'Daily Brief · Nov 12', body: 'Three things today touch what you follow. <span class="ent">NVDA</span> fell about 8% after hours; Herman keeps it as the short leg, and his read on Microsoft is the part worth borrowing. <span class="ent">CRWV</span> gave a profit timeline while borrowing against its customer contracts. Crypto funding is tightening, which points at your Bitcoin thesis.' };
+  const BRIEF_QUIET = { day: 'Daily Brief · Nov 14', body: 'Nothing new today on your three theses (Buy Quality, Long Bitcoin, TAL Education) or on CoreWeave. Here’s one thing worth a look instead.' };
+  const taskHTML = (t, w) => `<div class="task${w === 'chat' ? '' : ' row'}"><span class="ti">${icon('scroll', 20)}${t.state === 'done' ? `<span class="bd">${icon('checkF', 16)}</span>` : ''}</span><span class="tx"><span class="r14 ell">${esc(w === 'chat' ? t.label : t.title)}</span>
+    <span class="st r12">${t.state === 'done' ? '<span class="ell">Drafted an update · 3 steps</span>' : `<i class="ld"></i><span class="ell">Reading your thesis</span>`}</span></span></div>`;
+  function renderChat() {
+    const b = quiet ? BRIEF_QUIET : BRIEF;
+    const adds = chatAdds.map((a) => {
+      if (a.k === 'time') return `<p class="tml r12">Today 9:43 AM</p>`;
+      if (a.k === 'me') return `<div class="ub"><div class="r14">${esc(a.text)}</div></div>`;
+      if (a.k === 'task') return taskHTML(tasks.find((t) => t.id === a.id), 'chat');
+      if (a.k === 'draft') return `<div class="tcard"><div class="who">${img('avatar-leo.png', '')}<div><span class="r14">${DRAFT.who}</span><span class="r12 n5">${DRAFT.type}</span></div></div>
+        <p class="r14">${esc(DRAFT.text[0])}<span class="add">${esc(DRAFT.text[1])}</span>${esc(DRAFT.text[2])}</p><div class="tks">${DRAFT.tk.map(([l, s]) => `<span class="tk">${img(l, '')}<span class="r12">${s}</span></span>`).join('')}</div></div>`;
+      if (a.k === 'reply') return `<div class="ab"><p class="r14">${esc(DRAFT.msg)}</p><div class="opts">${DRAFT.opts.map((o) => `<button class="opt">${esc(o)}</button>`).join('')}</div></div>`;
+      return '';
+    }).join('');
+    $('chat').innerHTML = `<p class="tml r12">Today 9:02 AM</p><div class="ab"><div class="r14 m">${b.day}</div><div class="r14">${b.body}</div></div>${entryHTML('alva')}${adds}`;
+  }
+
+  /* ───── For You ───── */
+  const PILLS = ['All', 'Chips', 'Memory', 'Hyperscaler', 'Neocloud', 'Enterprise AI', 'Agent Infra', 'Consumer AI', 'Space', 'Interconnect', 'Power', 'Crypto', 'Financials', 'Healthcare', 'Energy & Materials', 'Consumer', 'Industrials', 'Macro'];
+  $('pills').innerHTML = PILLS.map((p, i) => `<button class="pill${i ? '' : ' on'}" data-pill="1">${esc(p)}</button>`).join('');
+  $('pbr').innerHTML = icon('arrowDown', 12);
+  const FEED = `<div class="sig">${thHTML({ av: img('avatar-harryz.jpg'), owner: 'harryz', title: 'Meta is still very cheap' }, true)}
+      <div class="quote"><div class="src">${img('avatar-first-squawk.jpg', '')}<span class="id"><span class="r14 m">First Squawk</span><span class="r12 n5">Financial Audio News Service</span></span><span class="r12 n5" style="align-self:flex-start">6h ago</span></div>
+        <p class="r14">Federal Reserve to Stick With Quarterly Rate Increases After Removing 2025 Insurance Cuts-FT <span class="lnk">x.com</span></p></div>
+      <p class="r14" style="padding-top:4px"><span class="stance"><i><img src="${A}alva-symbol-bg.svg" alt=""></i><b>Supports</b></span>The FT reports an expected path of quarterly Fed rate increases, reducing the prospect that easing rate expectations will relieve pressure on AI and semiconductor valuations.</p>
+      <div class="fact"><span class="ask">${icon('chatAi', 16)}<span class="r12">Ask Alva</span></span><span class="fb">${icon('like', 16)}${icon('close', 16)}</span></div></div>
+    <div class="post"><div class="sp"><div class="who">${img('avatar-yggyll.png', '')}<b>YGGYLL</b><span class="r12 n5">1h ago</span></div>
+      <div class="chips">${[['logo-msft.svg', 'MSFT'], ['logo-amzn.svg', 'AMZN'], ['logo-msft.svg', 'MSFT']].map(([l, s]) => `<span class="chip">${img(l, '')}<span class="r12">${s}</span></span>`).join('')}</div>
+      <p class="r14">Azure surpassed $75 billion in annual revenue, up 34%. Microsoft added more than two gigawatts of datacenter capacity over the previous 12 months and now had over 400 datacenters across 70 regions. <span class="ent" style="font-weight:400">[1]</span></p></div>
+      <div class="media"><img src="${A}feed-azure.jpg" alt=""></div></div>`;
+  function renderFeed() { $('feed').innerHTML = `${dismissed ? '' : `<div class="ftoday">${entryHTML('fy')}</div>`}${FEED}`; }
+
+  /* ───── tab bar ───── */
+  function renderTabs() {
+    const T = [['fy', 'For You', tab === 'fy' ? 'tab-for-you-f.svg' : 'tab-for-you-l.svg'], ['alva', 'Alva', tab === 'alva' ? 'tab-alva-f.svg' : 'tab-alva-l.svg'], ['', 'Search', 'tab-search-l1.svg'], ['', 'Me', 'tab-me-l.svg']];
+    $('tabs').innerHTML = T.map(([k, l, f]) => `<button class="tab${k === tab ? ' on' : ''}"${k ? ` data-tab="${k}"` : ''}>${img(f, '')}${l}</button>`).join('');
+    $('pgAlva').hidden = tab !== 'alva'; $('pgFy').hidden = tab !== 'fy';
+    document.querySelectorAll('.ctl [data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+  }
+  $('create').innerHTML = `<svg width="28" height="28" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="${P.add}"/></svg>`;
+  function renderAll() { renderChat(); renderFeed(); renderTabs(); }
+
+  /* ───── drawer: one pass over the unread cards, from the lead ───── */
+  const sw = $('sw'), dk = $('dk'), p1 = $('p1'), p2 = $('p2'), end = $('end'), btns = $('btns'), btnsEnd = $('btnsEnd'), undoBtn = $('undo'), tb = $('tb'), ctr = $('ctr'), vd = $('vd'), tpanel = $('tpanel');
   $('close').innerHTML = icon('close', 20);
   let pass = [], pi = 0, hist = [], sbusy = false, cards = {};
   const OUT = { keep: 'translateX(-130%) rotate(-12deg)', read: 'translateX(130%) rotate(12deg)' };
   const cardHTML = (i) => {
-    const d = DECK[i], s = sent[i];
+    const d = items()[i], s = sent[d.h];
     const bk = d.tk ? `<div class="bk"><div class="tks"><div class="trk">${d.tk.map(([l, sym, dir]) => `<span class="chip">${img(l, '')}<span class="r12">${sym}</span><span class="dial ${dir > 0 ? 'up' : 'down'}">${icon('up', 8)}</span></span>`).join('')}</div></div>${d.ret ? `<span class="ret ${d.ret[1] > 0 ? 'up' : 'down'}">${spark()}<span class="r14">${d.ret[0]}</span></span>` : ''}</div>` : '';
-    const ax = d.alva ? `<div class="ax"><span class="acap"><span class="lp"><img src="${A}alva-symbol-wg.svg" alt=""></span><span class="r14 m">Alva</span></span><p class="r14">${esc(d.alva[0])}</p>
-      <div class="acts">${d.alva[1].map((t) => (s === t ? `<button class="bs" disabled>${icon('check', 14)}<span>${esc(t)}</span></button>` : `<button class="bs" data-reply="${esc(t)}"><span>${esc(t)}</span></button>`)).join('')}</div>
-      ${s ? `<span class="step r12">${icon('loading', 14)}Reading your thesis</span>` : ''}</div>` : '';
+    const run = s && tasks.some((t) => t.card === d.h && t.state === 'run');
+    const ax = d.alva ? `<div class="ax"><span class="acap">${portrait(run)}<span class="r14 m">Alva</span></span><p class="r14">${esc(d.alva[0])}</p>
+      ${s ? `<p class="r12 n5">On it. Keep swiping, I will finish this.</p>` : `<div class="acts">${d.alva[1].map((t) => `<button class="bs" data-reply="${esc(t)}">${icon('chat', 14)}<span>${esc(t)}</span></button>`).join('')}</div>`}</div>` : '';
     return `<i class="wash${d.wash ? ' ' + d.wash : ''}"></i>${thHTML(d, true)}${d.meta ? `<span class="meta r12">${esc(d.meta)}</span>` : ''}${bk}
       <div class="md"><p class="h2">${esc(d.h)}</p><div class="bl">${d.b.map((t) => `<div class="li"><i class="d"></i><p class="r14">${rich(t)}</p></div>`).join('')}</div></div>${ax}
       <i class="veil k"></i><i class="veil rd"></i><span class="stamp k">${icon('hide', 48)}Keep unread</span><span class="stamp rd">${icon('checkC', 48)}Mark as read</span>`;
   };
-  const resetCard = (c) => { c.classList.remove('fly', 'drag'); c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; feel(c, 0, 0); };
-  function render() {
-    const done = pi >= pass.length;
-    Object.entries(cards).forEach(([i, c]) => { const k = pass.indexOf(+i); c.classList.toggle('on', k === pi); c.classList.toggle('nx', k === pi + 1); if (k !== pi) resetCard(c); });
-    const left = pass.length - pi - 1;
-    p1.hidden = left < 1; p2.hidden = left < 2;
-    dk.hidden = done; end.hidden = !done; btns.hidden = done; btnsEnd.hidden = !done;
-    undoBtn.hidden = !hist.length; tb.classList.toggle('u', !!hist.length);
-  }
-  function openSheet() {
-    const u = unread();
-    pass = u.length ? [...u.slice(u.indexOf(cur) < 0 ? 0 : u.indexOf(cur)), ...u.slice(0, u.indexOf(cur) < 0 ? 0 : u.indexOf(cur))] : [];
-    pi = 0; hist = [];
-    $('sub').textContent = `Nov 12 · ${n} updates`;
-    dk.querySelectorAll('.dc').forEach((c) => c.remove()); cards = {};
-    pass.forEach((i) => { const c = document.createElement('div'); c.className = 'dc'; c.dataset.i = i; c.innerHTML = cardHTML(i); dk.appendChild(c); cards[i] = c; bindSwipe(c); });
-    render();
-    sw.classList.add('on');
-  }
-  function closeSheet() { sw.classList.remove('on'); kick(); }
   const feel = (c, t, d) => {
+    const armed = t >= 1; $('keep').classList.toggle('hl', armed && d < 0); $('read').classList.toggle('hl', armed && d > 0);
     c.querySelector('.veil.k').style.opacity = d < 0 ? t * .92 : 0; c.querySelector('.veil.rd').style.opacity = d > 0 ? t * .92 : 0;
     const sk = c.querySelector('.stamp.k'), sr = c.querySelector('.stamp.rd');
     sk.style.opacity = d < 0 ? t : 0; sk.style.transform = `scale(${.8 + .2 * (d < 0 ? t : 0)})`;
     sr.style.opacity = d > 0 ? t : 0; sr.style.transform = `scale(${.8 + .2 * (d > 0 ? t : 0)})`;
   };
-  // keep = leave it unread, read = mark it read (the entry card updates behind the sheet); either way the next card comes up
+  const markOv = (c) => requestAnimationFrame(() => c.querySelectorAll('.tks').forEach((k) => { const t = k.querySelector('.trk'); k.classList.toggle('ov', t.scrollWidth > t.clientWidth + 1); }));
+  const resetCard = (c) => { c.classList.remove('fly', 'drag'); c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; feel(c, 0, 0); };
+  // top bar: "N running" / "1 done · 1 running" with the Alva portrait, a 0.5 l2 divider, Undo once something was swiped
+  function renderTop() {
+    const run = tasks.filter((t) => t.state === 'run').length, done = tasks.length - run;
+    ctr.hidden = !tasks.length; undoBtn.hidden = !hist.length; vd.hidden = ctr.hidden || undoBtn.hidden;
+    ctr.innerHTML = `${portrait(run > 0)}<span class="lbl2">${done ? `<span class="dn">${done} done</span>${run ? ' · ' : ''}` : ''}${run ? `${run} running` : ''}</span>`;
+    tb.classList.toggle('u', !ctr.hidden || !undoBtn.hidden);
+    if (!tpanel.hidden) tpanel.innerHTML = tasksHTML('panel');
+    tpanel.classList.toggle('run', run > 0);
+  }
+  const tasksHTML = (w = 'end') => `<div class="tph r12"><span class="f ell">Alva is working on ${tasks.length} task${tasks.length === 1 ? '' : 's'}</span><button>View all${icon('arrowR', 12)}</button></div><div class="tlist">${tasks.map((t) => taskHTML(t, w)).join('')}</div>`;
+  function render() {
+    const done = pi >= pass.length;
+    Object.entries(cards).forEach(([i, c]) => { const k = pass.indexOf(+i); c.classList.toggle('on', k === pi); c.classList.toggle('nx', k === pi + 1); if (k !== pi) resetCard(c); });
+    p1.hidden = p2.hidden = items().length < 2 || done; // the full stack whenever there is more than one card
+    dk.classList.remove('swiping');
+    dk.hidden = done; end.hidden = !done; btns.hidden = done || quiet; btnsEnd.hidden = !done && !quiet;
+    if (done) end.innerHTML = `<div class="hero" style="gap:${tasks.length ? 12 : 16}px">${ILL}<p class="tt">You’re all caught up.</p></div>${tasks.length ? `<div class="tasks">${tasksHTML()}</div>` : ''}`;
+    renderTop();
+  }
+  function openSheet() {
+    const u = unread();
+    pass = quiet ? [0] : u; pi = 0; hist = [];
+    $('sub').textContent = quiet ? 'Nov 14 · Nothing new today' : `Nov 12 · ${items().length} updates`;
+    dk.classList.toggle('one', quiet);
+    dk.querySelectorAll('.dc').forEach((c) => c.remove()); cards = {};
+    pass.forEach((i) => { const c = document.createElement('div'); c.className = 'dc' + (quiet ? ' one' : ''); c.dataset.i = i; c.innerHTML = cardHTML(i); dk.appendChild(c); markOv(c); cards[i] = c; if (!quiet) bindSwipe(c); bindReply(c); });
+    tpanel.hidden = true;
+    render();
+    sw.classList.add('on');
+  }
+  function closeSheet() { sw.classList.remove('on'); tpanel.hidden = true; renderAll(); }
   function mark(action, swiped) {
-    if (sbusy || pi >= pass.length) return; sbusy = true;
+    if (quiet || sbusy || pi >= pass.length) return; sbusy = true; tpanel.hidden = true;
     const i = pass[pi], c = cards[i];
     feel(c, 1, action === 'read' ? 1 : -1);
+    dk.classList.add('swiping');
     c.classList.add('fly');
     if (!swiped) { c.style.transform = OUT[action]; c.style.opacity = '0'; }
     hist.push({ i, action });
-    if (action === 'read') { const nx = i === cur ? nextUnread(cur, 1) : -1; read.add(i); if (nx >= 0 && nx !== i) cur = nx; sync(); }
-    setTimeout(() => { pi += 1; render(); sbusy = false; }, 300);
+    if (action === 'read') read.add(i);
+    setTimeout(() => { pi += 1; render(); renderChat(); renderFeed(); sbusy = false; }, 300);
   }
-  // Undo: the last card comes back from the side it left by, and a read mark is taken back
   function undo() {
     if (sbusy || !hist.length) return; sbusy = true;
     const h = hist.pop();
-    if (h.action === 'read') { read.delete(h.i); sync(); }
+    if (h.action === 'read') read.delete(h.i);
     pi -= 1;
     const c = cards[h.i];
-    resetCard(c); c.style.transform = OUT[h.action]; c.style.opacity = '0';
-    render();
-    c.style.transform = OUT[h.action]; c.style.opacity = '0'; c.style.zIndex = 3;
+    render(); renderChat(); renderFeed();
+    resetCard(c); c.style.transform = OUT[h.action]; c.style.opacity = '0'; c.style.zIndex = 3;
     requestAnimationFrame(() => requestAnimationFrame(() => { c.classList.add('fly'); c.style.transform = ''; c.style.opacity = ''; }));
     setTimeout(() => { resetCard(c); sbusy = false; }, 320);
   }
-  // horizontal drag on the front card: left = keep unread, right = mark as read (the buttons' sides); the ticker track scrolls on its own
   function bindSwipe(c) {
-    let sx = 0, sy2 = 0, dx = 0, on = false, horiz = null;
-    c.addEventListener('pointerdown', (e) => { if (e.button || sbusy || !c.classList.contains('on') || e.target.closest('.trk, .bs')) return; on = true; horiz = null; sx = e.clientX; sy2 = e.clientY; dx = 0; });
+    let sx = 0, sy = 0, dx = 0, on = false, horiz = null;
+    c.addEventListener('pointerdown', (e) => { if (e.button || sbusy || !c.classList.contains('on') || e.target.closest('.trk, .bs')) return; on = true; horiz = null; sx = e.clientX; sy = e.clientY; dx = 0; });
     c.addEventListener('pointermove', (e) => {
       if (!on) return;
-      const mx = e.clientX - sx, my = e.clientY - sy2;
-      if (horiz === null && Math.hypot(mx, my) > 6) { horiz = Math.abs(mx) > Math.abs(my); if (horiz) { c.classList.add('drag'); try { c.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } } }
+      const mx = e.clientX - sx, my = e.clientY - sy;
+      if (horiz === null && Math.hypot(mx, my) > 6) { horiz = Math.abs(mx) > Math.abs(my); if (horiz) { c.classList.add('drag'); dk.classList.add('swiping'); try { c.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ } } }
       if (!horiz) return;
       dx = mx; c.style.transform = `translateX(${dx}px) rotate(${dx / 30}deg)`; feel(c, Math.min(1, Math.abs(dx) / 70), dx < 0 ? -1 : 1);
     });
     const release = () => {
-      if (!on) return; on = false; c.classList.remove('drag');
+      if (!on) return; on = false; c.classList.remove('drag'); if (horiz && Math.abs(dx) <= 70) dk.classList.remove('swiping');
       if (!horiz) return;
       if (Math.abs(dx) > 70) { c.classList.add('fly'); c.style.transform = OUT[dx > 0 ? 'read' : 'keep']; c.style.opacity = '0'; mark(dx > 0 ? 'read' : 'keep', true); }
       else { c.classList.add('fly'); c.style.transform = ''; feel(c, 0, 0); setTimeout(() => c.classList.remove('fly'), 300); }
       dx = 0;
     };
     c.addEventListener('pointerup', release); c.addEventListener('pointercancel', release);
-    // D1 · 回复已发送: the tapped reply is disabled with a check, the others step aside, and Alva starts reading the thesis
+  }
+  /* E1–E5: a reply starts a task — the card says On it, the top bar counts it, the chat gets your reply and the task; when
+     it finishes (a few seconds) it is done, and Herman's comes back to the chat as a draft */
+  const TASK_MS = 6000;
+  function bindReply(c) {
     c.addEventListener('click', (e) => {
       const b = e.target.closest('[data-reply]'); if (!b) return;
-      const i = +c.dataset.i; sent[i] = b.dataset.reply; c.innerHTML = cardHTML(i);
+      const i = +c.dataset.i, d = items()[i], label = b.dataset.reply;
+      const from = b.getBoundingClientRect(), chipHTML = b.innerHTML, shown = !ctr.hidden;
+      sent[d.h] = label;
+      const t = { id: tasks.length + 1, card: d.h, label, title: TASK_TITLE[label] || label, state: 'run' };
+      tasks.push(t);
+      if (!timeShown) { chatAdds.push({ k: 'time' }); timeShown = true; }
+      chatAdds.push({ k: 'me', text: label }, { k: 'task', id: t.id });
+      c.innerHTML = cardHTML(i); markOv(c); renderChat();
+      const line = c.querySelector('.ax > p.r12'); if (line) line.classList.add('enter');
+      // the counter takes its new place first (hidden when it is new) so the chip knows where to land
+      if (!shown) { ctr.classList.add('arriving'); renderTop(); }
+      flyToCounter(from, chipHTML, () => {
+        if (!shown) { ctr.classList.remove('arriving'); return; }
+        renderTop();
+        const lp = ctr.querySelector('.lpr'), lb = ctr.querySelector('.lbl2');
+        lp.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.14)', offset: .45 }, { transform: 'scale(1)' }], { duration: 360, easing: 'cubic-bezier(.2,.8,.2,1)' });
+        lb.animate([{ opacity: .2, transform: 'translateX(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'ease-out' });
+      });
+      setTimeout(() => finish(t), TASK_MS);
     });
   }
-  $('open').addEventListener('click', openSheet); $('close').addEventListener('click', closeSheet); $('dim').addEventListener('click', closeSheet); $('done').addEventListener('click', closeSheet);
-  $('keep').addEventListener('click', () => mark('keep')); $('read').addEventListener('click', () => mark('read')); undoBtn.addEventListener('click', undo);
-  document.addEventListener('keydown', (e) => {
-    if (sw.classList.contains('on')) { if (e.key === 'ArrowRight') mark('read'); if (e.key === 'ArrowLeft') mark('keep'); if (e.key === 'Escape') closeSheet(); return; }
+  // rAF drives the dot along a quadratic curve (eased in-out) so the speed changes smoothly; three trail dots follow a little
+  // behind on the same curve and fade; landed() runs as the dot reaches the counter, while it fades out over the portrait
+  function flyToCounter(from, html, landed) {
+    const scr = $('screen'), sr = scr.getBoundingClientRect(), k = sr.width / scr.offsetWidth || 1;
+    const to = ctr.querySelector('.lp').getBoundingClientRect();
+    const sx = (from.left - sr.left + from.width / 2) / k, sy = (from.top - sr.top + from.height / 2) / k;
+    const ex = (to.left - sr.left + to.width / 2) / k, ey = (to.top - sr.top + to.height / 2) / k;
+    const cx = sx + (ex - sx) * 0.18, cy = ey + (sy - ey) * 0.08;
+    const g = document.createElement('div'); g.className = 'flyg'; g.innerHTML = html;
+    g.style.cssText = `left:${(from.left - sr.left) / k}px;top:${(from.top - sr.top) / k}px;width:${from.width / k}px;height:${from.height / k}px`;
+    scr.appendChild(g);
+    g.animate([{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.92)' }], { duration: 240, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).finished.then(() => g.remove());
+    const mk = (cls, inner = '') => { const d = document.createElement('div'); d.className = cls; d.innerHTML = inner; scr.appendChild(d); return d; };
+    const dot = mk('flyd', `<img src="${A}alva-symbol-wg.svg" alt="">`), trail = [mk('flyt'), mk('flyt'), mk('flyt')];
+    const D = 720, R = 8, t0 = performance.now();
+    const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const at = (t) => { const u = 1 - t; return [u * u * sx + 2 * u * t * cx + t * t * ex, u * u * sy + 2 * u * t * cy + t * t * ey]; };
+    let fired = false;
+    const frame = (now) => {
+      const raw = Math.max(0, Math.min(1, (now - t0) / D)), p = ease(raw), [x, y] = at(p);
+      const grow = Math.min(1, raw / .22), sc = .45 + .55 * (1 - Math.pow(1 - grow, 3));
+      dot.style.transform = `translate3d(${x - R}px, ${y - R}px, 0) scale(${sc})`;
+      dot.style.opacity = String(Math.min(1, raw / .1));
+      trail.forEach((d, i) => {
+        const q = ease(Math.max(0, raw - (i + 1) * .05)), [tx, ty] = at(q);
+        d.style.transform = `translate3d(${tx - R}px, ${ty - R}px, 0) scale(${(.62 - i * .14) * sc})`;
+        d.style.opacity = String((.24 - i * .07) * Math.min(1, raw / .15) * (1 - Math.max(0, (raw - .8) / .2)));
+      });
+      if (!fired && raw > .84) { fired = true; landed(); }
+      if (raw < 1) requestAnimationFrame(frame);
+      else { trail.forEach((d) => d.remove()); dot.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-out', fill: 'forwards' }).finished.then(() => dot.remove()); }
+    };
+    requestAnimationFrame(frame);
+  }
+  function finish(t) {
+    t.state = 'done';
+    if (t.label === 'Use his OpenAI point in my thesis') chatAdds.push({ k: 'draft' }, { k: 'reply' });
+    Object.values(cards).forEach((c) => { if (items()[+c.dataset.i] && items()[+c.dataset.i].h === t.card) { c.innerHTML = cardHTML(+c.dataset.i); markOv(c); } });
+    renderTop(); renderChat();
+    if (!end.hidden) render();
+    const ch = $('chat'); ch.scrollTop = ch.scrollHeight;
+  }
+
+  /* ───── events ───── */
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t.closest('[data-dismiss]')) { dismissed = true; renderFeed(); return; }
+    if (t.closest('[data-open]') && !t.closest('.panel')) { openSheet(); return; }
+    const tbn = t.closest('#tabs [data-tab], .ctl [data-tab]'); if (tbn) { tab = tbn.dataset.tab; closeSheet(); return; }
+    const pill = t.closest('[data-pill]'); if (pill) { document.querySelectorAll('[data-pill]').forEach((p) => p.classList.toggle('on', p === pill)); return; }
+    const day = t.closest('.ctl [data-day]'); if (day) { document.querySelectorAll('.ctl [data-day]').forEach((b) => b.classList.toggle('on', b === day)); quiet = day.dataset.day === '0'; n = quiet ? 1 : +day.dataset.day; reset(); return; }
+    if (t.closest('#ctr')) { tpanel.hidden = !tpanel.hidden; if (!tpanel.hidden) renderTop(); return; }
+    if (!tpanel.hidden && !t.closest('#tpanel')) tpanel.hidden = true;
   });
-  document.querySelectorAll('.ctl button[data-n]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button[data-n]').forEach((x) => x.classList.toggle('on', x === b)); n = +b.dataset.n; closeSheet(); build(); }));
-  document.querySelectorAll('.ctl button[data-auto]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.ctl button[data-auto]').forEach((x) => x.classList.toggle('on', x === b)); auto = b.dataset.auto === '1'; kick(); sync(); }));
-  window.__today = { state: () => ({ n, cur, read: [...read], auto, sheet: sw.classList.contains('on'), pass, pi, hist: hist.map((h) => h.action), sent }), mark, undo, openSheet, step };
-  build();
+  $('close').addEventListener('click', closeSheet); $('dim').addEventListener('click', closeSheet); $('done').addEventListener('click', closeSheet);
+  $('keep').addEventListener('click', () => mark('keep')); $('read').addEventListener('click', () => mark('read')); undoBtn.addEventListener('click', undo);
+  $('reset').addEventListener('click', () => reset());
+  document.addEventListener('keydown', (e) => { if (!sw.classList.contains('on')) return; if (e.key === 'ArrowRight') mark('read'); if (e.key === 'ArrowLeft') mark('keep'); if (e.key === 'Escape') closeSheet(); });
+  function reset() { read = new Set(); dismissed = false; tasks = []; sent = {}; chatAdds = []; timeShown = false; sw.classList.remove('on'); tpanel.hidden = true; renderAll(); }
+  window.__today = { state: () => ({ n, quiet, tab, read: [...read], tasks: tasks.map((t) => [t.label, t.state]), pass, pi, hist: hist.map((h) => h.action), sheet: sw.classList.contains('on') }), mark, undo, openSheet, finish: () => tasks.forEach((t) => t.state === 'run' && finish(t)) };
+  renderAll();
 })();
 </script>
 </body>
