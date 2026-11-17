@@ -82,6 +82,14 @@
   .task .ti .bd { position: absolute; left: 22px; top: 20px; width: 16px; height: 16px; border-radius: 50%; background: #fff; color: var(--m3); }
   .task .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .task .st { display: flex; align-items: center; gap: 4px; color: var(--n5); min-width: 0; }
+  /* Alva's "On it" line while its task runs, on the monorepo's Generate sweep (feed-app GeneratingCard): a 200 band that
+     lifts the copy 70% of the way to its surface at its centre (n5 → about 15% ink), its centre running from -100 to
+     width + 300 (the band's edge from -200 to width + 200), on cubic-bezier(.4, 0, .2, 1), straight into the next; 2.4s per pass
+     (the app's 1.6s reads too quick on n5 copy, which shows the band far more than its gray bars do) */
+  @property --band { syntax: '<length-percentage>'; initial-value: -100px; inherits: false; }
+  .shim { background-image: linear-gradient(90deg, rgba(0,0,0,.5) calc(var(--band) - 100px), rgba(0,0,0,.15) var(--band), rgba(0,0,0,.5) calc(var(--band) + 100px));
+    -webkit-background-clip: text; background-clip: text; color: transparent; animation: shim 2.4s cubic-bezier(.4,0,.2,1) infinite; }
+  @keyframes shim { from { --band: -100px; } to { --band: calc(100% + 300px); } }
   /* the running step's mark is the library's Lottie loader (logo-loading-light, the four squares), at 12 */
   .task .st .ld { width: 12px; height: 12px; flex: none; display: block; }
   .task .st .ld svg { display: block; }
@@ -238,7 +246,7 @@
   .tpanel::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 .5px var(--l2), 0 2px 16px rgba(0,0,0,.08); pointer-events: none; }
   .btns { flex: none; display: flex; gap: 12px; }
   /* E3 · while Alva is running a task the panel is backlit: a soft m1 glow (an angular m1 gradient, 90% → 25% → 5% → 35%,
-     blurred 12, at 55%) drifts round behind it, one lap per 4s; the copy stays still and the step's Lottie loader plays */
+     blurred 12, at 55%) drifts round behind it, one lap per 4s; the step's Lottie loader plays */
   @property --glow { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
   .tpanel.run::before { content: ''; position: absolute; inset: 2px; z-index: -2; border-radius: 12px; pointer-events: none;
     background: conic-gradient(from var(--glow), rgba(73,163,166,.9), rgba(73,163,166,.25) .25turn, rgba(73,163,166,.05) .5turn, rgba(73,163,166,.35) .75turn, rgba(73,163,166,.9));
@@ -256,6 +264,8 @@
   .ctr.arriving .lbl2 { opacity: 0; transform: translateX(-6px); }
   @keyframes ctrIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   .enter { animation: ctrIn .3s ease .12s both; }
+  /* the "On it" line fades in and keeps its sweep */
+  .shim.enter { animation: ctrIn .3s ease .12s both, shim 2.4s cubic-bezier(.4,0,.2,1) infinite; }
   .btn-m { height: 40px; width: 100%; padding: 9px 20px; border-radius: 6px; background: var(--m1); color: #fff; font: 500 14px/22px Delight, FZ, sans-serif; letter-spacing: .14px; display: flex; align-items: center; justify-content: center; }
   .btn-m.sec { background: #fff; color: var(--n9); box-shadow: inset 0 0 0 .5px var(--l3); }
   /* Button M 40 states (Alva library): Primary hover = m1 + br1, click = m1 + br2; Secondary hover = l9 outline, click = l3.
@@ -453,7 +463,7 @@
     const bk = d.tk ? `<div class="bk"><div class="tks"><div class="trk">${d.tk.map(([l, sym, dir]) => `<span class="chip">${img(l, '')}<span class="r12">${sym}</span><span class="dial ${dir > 0 ? 'up' : 'down'}">${icon('up', 8)}</span></span>`).join('')}</div></div>${d.ret ? `<span class="ret ${d.ret[1] > 0 ? 'up' : 'down'}">${spark()}<span class="r14">${d.ret[0]}</span></span>` : ''}</div>` : '';
     const run = s && tasks.some((t) => t.card === d.h && t.state === 'run');
     const ax = d.alva ? `<div class="ax"><span class="acap">${portrait(run)}<span class="r14 m">Alva</span></span><p class="r14">${esc(d.alva[0])}</p>
-      ${s ? `<p class="r12 n5">On it. Keep swiping, I will finish this.</p>` : `<div class="acts">${d.alva[1].map((t) => `<button class="bs" data-reply="${esc(t)}">${icon('chat', 14)}<span>${esc(t)}</span></button>`).join('')}</div>`}</div>` : '';
+      ${s ? `<p class="r12 ${run ? 'shim' : 'n5'}">On it. Keep swiping, I will finish this.</p>` : `<div class="acts">${d.alva[1].map((t) => `<button class="bs" data-reply="${esc(t)}">${icon('chat', 14)}<span>${esc(t)}</span></button>`).join('')}</div>`}</div>` : '';
     return `<i class="wash${d.wash ? ' ' + d.wash : ''}"></i>${thHTML(d, true)}${d.meta ? `<span class="meta r12">${esc(d.meta)}</span>` : ''}${bk}
       <div class="md"><p class="h2">${esc(d.h)}</p><div class="bl">${d.b.map((t) => `<div class="li"><i class="d"></i><p class="r14">${rich(t)}</p></div>`).join('')}</div></div>${ax}
       <i class="veil k"></i><i class="veil rd"></i><span class="stamp k">${icon('hide', 48)}Keep unread</span><span class="stamp rd">${icon('checkC', 48)}Mark as read</span>`;
@@ -580,8 +590,9 @@
     g.animate([{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.92)' }], { duration: 240, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).finished.then(() => g.remove());
     const mk = (cls, inner = '') => { const d = document.createElement('div'); d.className = cls; d.innerHTML = inner; scr.appendChild(d); return d; };
     const dot = mk('flyd', `<img src="${A}alva-symbol-wg.svg" alt="">`), trail = [mk('flyt'), mk('flyt'), mk('flyt')];
-    const D = 720, R = 8, t0 = performance.now();
-    const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    // 1.1s along the curve on an ease-in-out quad, so the middle of the flight stays calm (peak speed less than half of before)
+    const D = 1100, R = 8, t0 = performance.now();
+    const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
     const at = (t) => { const u = 1 - t; return [u * u * sx + 2 * u * t * cx + t * t * ex, u * u * sy + 2 * u * t * cy + t * t * ey]; };
     let fired = false;
     const frame = (now) => {
