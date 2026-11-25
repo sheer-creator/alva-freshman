@@ -35,6 +35,19 @@
 
   const PROTOTYPES = [
     {
+      title: 'iPhone Duo 适配',
+      subtitle: 'Every Thesis page on iPhone Duo: outer and inner screens, Book, Split View and Picture in Picture, each at four turns.',
+      edited: '2026-11-25',
+      slug: 'iphone-duo',
+      href: 'iphone-duo/index.html',
+      page: true,   // its own full page (device, screen tabs, page list): the row opens it instead of mounting it in the phone
+      meta: 'iPhone Duo · 13 pages · 6 screens × 4 turns',
+      figma: {
+        label: 'Thesis MVP · Duo 适配总表',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=17123-135811',
+      },
+    },
+    {
       title: 'onboarding-signal',
       subtitle: 'Log in, explore theses and signals, choose people, bookmark, and continue to For You.',
       edited: '2026-10-28',
@@ -227,7 +240,7 @@
   items.forEach(p => {
     const row = document.createElement('a');
     row.className = 'proto-item';
-    row.href = `#/${p.slug}`;
+    row.href = p.page ? p.href : `#/${p.slug}`;
     row.setAttribute('aria-current', 'false');
 
     const meta = [formatEdited(p.edited)];
@@ -819,8 +832,12 @@
     /* Desktop shows both halves at once — resolve "the list" to the
        newest prototype so the stage is never blank. replaceState, not
        a new entry: the user did not navigate here. */
-    if (!slug && wide.matches && items.length) {
-      slug = items[0].slug;
+    /* A full-page entry is opened, not mounted. */
+    if (slug && bySlug.get(slug).page) { location.replace(bySlug.get(slug).href); return; }
+
+    const first = items.find(p => !p.page);
+    if (!slug && wide.matches && first) {
+      slug = first.slug;
       history.replaceState(null, '', `#/${slug}`);
     }
 
