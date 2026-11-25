@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="demo-index" content="hidden">
+<meta name="demo-switcher" content="off">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Alva · iPhone Duo</title>
+<meta name="description" content="Alva on iPhone Duo — For You, Thesis, Ask Alva, Alva, Leaderboard, Search and Profile across every Duo screen state.">
+<meta name="theme-color" content="#f7f7f7">
+<link rel="icon" href="assets/img/logo-portrait2.svg" type="image/svg+xml">
+<script>(function(){var t='light';try{t=localStorage.getItem('alva.duo.theme')==='dark'?'dark':'light';}catch(e){}document.documentElement.dataset.theme=t;})();</script>
+<link rel="stylesheet" href="shell.css?v=19">
+</head>
+<body>
+
+<!-- Same gallery layout as m-baby: the list on the left (here: the Duo
+     scenarios from the Figma table), the device on the stage, one toolbar. -->
+<div class="shell" id="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-scroll">
+      <header class="sb-head">
+        <button class="brand" id="brandToggle" aria-controls="sidebar" aria-label="Expand the list" disabled>
+          <img src="assets/img/wordmark-symbol.svg" class="wm-symbol" alt="">
+          <img src="assets/img/wordmark-text.svg" class="wm-text" alt="Alva">
+        </button>
+        <h1>Mobile prototypes</h1>
+        <button class="sb-collapse" id="collapseToggle" aria-expanded="true" aria-controls="sidebar" aria-label="Collapse the list">«</button>
+      </header>
+      <!-- Two levels, like a navigation stack: the gallery's own list, and
+           (inside its "iPhone Duo 适配" row) the Duo pages. -->
+      <div class="sb-panels" id="sbPanels">
+        <section class="sb-panel sb-l1" aria-label="Mobile prototypes">
+          <div class="sb-search">
+            <input id="galSearch" type="search" placeholder="Search prototypes" aria-label="Search prototypes" autocomplete="off" spellcheck="false">
+          </div>
+          <nav class="proto-list" id="galList" aria-label="Prototypes"></nav>
+          <p class="sb-empty" id="galEmpty" hidden></p>
+          <p class="sb-foot" id="galFoot"></p>
+        </section>
+        <section class="sb-panel sb-l2" aria-label="iPhone Duo 适配">
+          <button class="sb-back" id="sbBack" type="button"><span class="sb-back-ico" aria-hidden="true">‹</span><span>Mobile prototypes</span></button>
+          <div class="sb-l2-head"><span class="pi-title">iPhone Duo 适配</span><span class="pi-sub">Figma · Duo 适配总表 — choose a page; the screen tabs under the device switch the state.</span></div>
+          <div class="sb-search">
+            <input id="protoSearch" type="search" placeholder="Search Duo pages" aria-label="Search Duo pages" autocomplete="off" spellcheck="false">
+          </div>
+          <nav class="proto-list" id="protoList" aria-label="Duo pages"></nav>
+          <p class="sb-empty" id="protoEmpty" hidden></p>
+          <p class="sb-foot" id="sbFoot"></p>
+        </section>
+      </div>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="stage-fit" id="stageFit">
+      <div class="phone" id="phone">
+        <!-- the half that swings on the hinge while the device opens or closes; its back is the outer display -->
+        <div class="duo-flap" id="duoFlap" aria-hidden="true"><div class="flap-back"><div class="flap-screen"></div><span class="flap-cam"></span></div></div>
+        <div class="phone-screen" id="phoneScreen">
+          <iframe id="appFrame" title="Alva on iPhone Duo" src="app.html?v=32"></iframe>
+        </div>
+        <div class="duo-chrome" id="duoChrome" aria-hidden="true">
+          <div class="duo-other"></div>
+          <div class="duo-split-divider"></div>
+          <div class="duo-hinge"><span class="duo-crease"></span></div>
+          <div class="duo-pip">
+            <div class="duo-pip-video"><img src="assets/img/pip-video.png" alt=""></div>
+            <div class="duo-pip-controls">
+              <span class="duo-pip-pause"></span>
+              <span class="duo-pip-time">05:14 / 55:08</span>
+              <span class="duo-pip-track"><span></span></span>
+              <span class="duo-pip-size"></span>
+              <span class="duo-pip-close"></span>
+            </div>
+          </div>
+          <div class="duo-ui">
+            <div class="duo-status-v"><span class="duo-time">9:41</span><span class="duo-ring"></span></div>
+            <div class="duo-status-h"><span class="duo-time">9:41</span><span class="duo-ring"></span></div>
+          </div>
+          <div class="duo-fold-shade"></div>
+          <span class="duo-camera"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- screen states: always one click away, right under the device -->
+    <div class="state-tabs" id="stateTabs" role="tablist" aria-label="Screen state"></div>
+
+    <div class="toolbar">
+      <a class="tb-cell tb-lead" id="figmaPill" href="#" target="_blank" rel="noopener">
+        <span id="figmaPillText">Figma</span><span class="tb-ico">↗</span>
+      </a>
+      <button class="tb-cell tb-theme" id="themePill" type="button">
+        <span class="tb-theme-icon" aria-hidden="true"></span>
+        <span class="tb-label"><span class="tb-sizer" aria-hidden="true">Light mode</span><span id="themeLabel">Dark mode</span></span>
+      </button>
+      <!-- the gallery's device menu: this demo is for one device, so it shows iPhone Duo and cannot be changed -->
+      <div class="tb-select" id="deviceGroup">
+        <button class="tb-cell tb-trigger" id="deviceTrigger" type="button" disabled aria-disabled="true"
+                aria-haspopup="listbox" aria-expanded="false" aria-label="Phone size: iPhone Duo (fixed in this demo)">
+          <span class="tb-label"><span class="tb-sizer" id="deviceSizer" aria-hidden="true">iPhone Duo · 951 × 669</span><span id="deviceLabel">iPhone Duo</span></span><span class="tb-caret" aria-hidden="true">▾</span>
+        </button>
+      </div>
+      <button class="tb-cell tb-primary" id="restartPill" type="button">Restart</button>
+    </div>
+  </main>
+</div>
+
+<script src="gallery.js?v=1"></script>
+<script src="shell.js?v=24"></script>
+<script src="press-feedback.js?v=1"></script>
+</body>
+</html>
