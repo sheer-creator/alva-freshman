@@ -1301,8 +1301,8 @@
      Tap toggles the controls and the status bar; swipe sideways for the post's other images;
      double-tap / pinch zooms; swipe down (or Close) puts the image back where it came from.
      Turning, folding or Split View keeps it open and re-fits. */
-  const V = { el: null, i: 0, srcs: [], thumbs: [], tid: null, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
-  const GAP = 16, CAP = 44;
+  const V = { el: null, i: 0, srcs: [], syms: [], thumbs: [], tid: null, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
+  const GAP = 16, CAP = 56;
   function vGeo() {
     const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight, r = L.rail;
     const c0 = r && r.left ? 84 : 0, c1 = r && !r.left ? r.x : W;
@@ -1318,11 +1318,11 @@
     const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
     const { W, H, r } = G;
     if (G.book) return box(0, 455.5, 24, H - 34);
-    if (!r) return box(0, W, 84, H - 34 - CAP);            // horizontal bars: below the top bar, full width
+    if (!r) return box(0, W, 84, H - 32 - CAP);            // horizontal bars: below the top bar, full width
     /* A: full width, in the band between the column's top controls (status, Close) and its bottom one (Share) */
-    const a = box(0, W, r.top + 48 + 12, H - r.bottom - 48 - 12);
+    const a = box(0, W, r.top + 48 + 12, Math.min(H - r.bottom - 48 - 12, H - 32 - CAP));
     /* B: the column's width kept clear on both sides, so the image stays centred */
-    const b = box(84, W - 84, 24, H - 34 - CAP);
+    const b = box(84, W - 84, 24, H - 32 - CAP);
     return a.w * a.h >= b.w * b.h ? a : b;
   }
   function vPost() {
@@ -1353,7 +1353,8 @@
     const cap = V.el.querySelector('.v-cap'), info = V.el.querySelector('.v-info');
     cap.hidden = G.book; info.hidden = !G.book;
     const inset = G.r ? 84 : 0;
-    Object.assign(cap.style, { left: inset + 'px', width: (G.W - 2 * inset) + 'px', top: (G.H - 34 - CAP) + 'px' });
+    Object.assign(cap.style, { left: inset + 'px', width: (G.W - 2 * inset) + 'px', top: (G.H - 24 - CAP) + 'px' });
+    cap.classList.toggle('narrow', G.W - 2 * inset < 360);
     if (G.book) Object.assign(info.style, { left: G.info.x + 'px', width: G.info.w + 'px' });
     vTrack(anim);
     vZoomApply(false);
@@ -1364,10 +1365,11 @@
     const to = `translateX(${-V.i * (G.ia.w + GAP) + dx}px)`;
     if (anim) { const from = getComputedStyle(tr).transform; tr.style.transform = to; M.play(tr, [{ transform: from === 'none' ? 'none' : from }, { transform: to }], Object.assign({}, M.spring(0.4, 1), { fill: 'none' })); }
     else tr.style.transform = to;
-    const n = V.srcs.length, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
-    V.el.querySelector('.v-cap').innerHTML = `${n > 1 ? `<b>${V.i + 1} / ${n}</b>` : ''}${who ? `<span>${esc(who)}${t.date ? ' · ' + esc(t.date) : ''}</span>` : ''}`;
+    V.el.querySelectorAll('.v-sw[data-step="-1"]').forEach(b => b.disabled = V.i === 0);
+    V.el.querySelectorAll('.v-sw[data-step="1"]').forEach(b => b.disabled = V.i === V.srcs.length - 1);
+    V.el.querySelectorAll('.v-ent').forEach(b => { const sym = V.syms[V.i]; b.dataset.sym = sym || ''; b.innerHTML = vEnt(sym); b.hidden = !sym; });
     V.el.querySelectorAll('.v-thumbs button').forEach((b, k) => b.classList.toggle('on', k === V.i));
-    const cnt = V.el.querySelector('.v-info .v-n'); if (cnt) cnt.textContent = n > 1 ? `${V.i + 1} / ${n}` : '';
+    const n = V.srcs.length, cnt = V.el.querySelector(".v-info .v-n"); if (cnt) cnt.textContent = n > 1 ? `${V.i + 1} / ${n}` : '';
   }
   const vImg = () => V.el.querySelectorAll('.v-slide img')[V.i];
   function vZoomApply(anim) {
@@ -1390,16 +1392,23 @@
     const f = vFit(img, vGeo()), s = box.w / f.w;
     return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`;
   }
+  /* the chart's ticker — the mobile fullscreen chart's entity row (‹ GOOGL · View live chart ›);
+     on mobile a chart opens its ticker, so the viewer keeps that way in */
+  const vEnt = sym => sym ? `${D.logo[sym] ? `<img src="${D.logo[sym]}" alt="">` : '<i></i>'}<b>${esc(sym)}</b><span>View live chart</span>${I('arrow-right-l2', 'ic-12')}` : '';
+  const vRow = () => V.srcs.length > 1
+    ? `<button class="v-sw" data-step="-1" aria-label="Previous chart">${I('arrow-left-l1', 'ic-16')}</button><button class="v-ent"></button><button class="v-sw" data-step="1" aria-label="Next chart">${I('arrow-right-l1', 'ic-16')}</button>`
+    : `<button class="v-ent"></button>`;
   function vInfoHTML() {
     const t = V.tid && D.theses[V.tid];
     const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
-    return `${head}<div class="v-n"></div><div class="v-thumbs">${V.srcs.map((s, k) => `<button data-go="${k}"><img src="${s}" alt=""></button>`).join('')}</div>`;
+    return `${head}<div class="v-n"></div><div class="v-row">${vRow()}</div><div class="v-thumbs">${V.srcs.map((s, k) => `<button data-go="${k}"><img src="${s}" alt=""></button>`).join('')}</div>`;
   }
   function openViewer(chartImg) {
     if (V.el || V.busy) return;
     const track = chartImg.closest('.media-track') || chartImg.closest('.chart').parentElement;
     const imgs = [...track.querySelectorAll('.chart img')];
     V.srcs = imgs.map(im => im.getAttribute('src')); V.thumbs = imgs; V.i = imgs.indexOf(chartImg);
+    V.syms = imgs.map(im => (im.getAttribute('alt') || '').replace(/ chart$/, '') || null);
     const host = chartImg.closest('[data-act="open"][data-id]'), pane = chartImg.closest('section.pane[data-key]');
     V.tid = host ? host.dataset.id : (pane && /^detail:/.test(pane.dataset.key) ? pane.dataset.key.split(':')[1] : null);
     V.zoom = 1; V.px = V.py = 0; V.chrome = true;
@@ -1408,7 +1417,7 @@
     el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.srcs.map(s => `<div class="v-slide"><img src="${s}" alt="" draggable="false"></div>`).join('')}</div></div>
       <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button><button class="v-g" data-v="share" aria-label="Share">${I('share-l')}</button></div>
       <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button><button class="v-g" data-v="share" aria-label="Share">${I('share-l')}</button></header>
-      <div class="v-cap"></div><aside class="v-info">${vInfoHTML()}</aside>`;
+      <div class="v-cap">${vRow()}</div><aside class="v-info">${vInfoHTML()}</aside>`;
     document.body.appendChild(el);
     vLayout(false);
     const img = vImg(), sp = M.spring(0.42, 0.88);
@@ -1446,12 +1455,14 @@
     const pts = new Map();
     el.addEventListener('click', e => {
       const go = e.target.closest('[data-go]'); if (go) { e.stopPropagation(); vGo(+go.dataset.go); return; }
+      const st = e.target.closest('[data-step]'); if (st) { e.stopPropagation(); vGo(V.i + +st.dataset.step); return; }
+      const en = e.target.closest('.v-ent'); if (en) { e.stopPropagation(); toast(`${en.dataset.sym} ticker page is not part of this demo`); render(); return; }
       const b = e.target.closest('[data-v]'); if (!b) return;
       e.stopPropagation();
       if (b.dataset.v === 'close') closeViewer(); else { toast('Share sheet'); render(); }
     });
     el.addEventListener('pointerdown', e => {
-      if (e.target.closest('.v-g, .v-info') || V.busy) return;
+      if (e.target.closest('.v-g, .v-info, .v-cap button') || V.busy) return;
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
       el.setPointerCapture(e.pointerId);
       if (pts.size === 2) { const [p, q] = [...pts.values()]; g = { pinch: true, d0: Math.hypot(p.x - q.x, p.y - q.y), z0: V.zoom }; return; }
