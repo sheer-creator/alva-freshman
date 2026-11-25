@@ -1466,7 +1466,7 @@
   function vInfoHTML() {
     const t = V.tid && D.theses[V.tid];
     const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
-    return `${head}<div class="v-n"></div><div class="v-thumbs">${V.srcs.map((s, k) => `<button data-go="${k}"><img src="${s}" alt=""></button>`).join('')}</div>`;
+    return `${head}<div class="v-n"></div>${V.srcs.length > 1 ? `<div class="v-thumbs">${V.srcs.map((s, k) => `<button data-go="${k}"><img src="${s}" alt=""></button>`).join('')}</div>` : ''}`;
   }
   function openViewer(chartImg) {
     if (V.el || V.busy) return;
