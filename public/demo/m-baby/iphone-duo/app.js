@@ -124,7 +124,18 @@
       <div class="kl-tools">${KL_PERIODS.map(p => `<button class="${(v.period || '3M') === p ? 'on' : ''}" data-act="klPeriod" data-id="${p}">${p}</button>`).join('')}<span class="grow"></span>
       <button class="icon-btn" data-act="klType" aria-label="${v.line ? 'Line chart. Switch to candlesticks' : 'Candlesticks. Switch to line chart'}">${I(v.line ? 'usage-l' : 'live-l')}</button>
       <button class="icon-btn" data-act="toast" data-id="Indicators are not part of this demo">${I('explain-l')}</button></div>`;
-    return { head, body: `<div class="kl-plot" data-sym="${esc(v.id)}" data-period="${v.period || '3M'}" data-line="${v.line ? 1 : ''}"></div>` };
+    const plot = `<div class="kl-plot" data-sym="${esc(v.id)}" data-period="${v.period || '3M'}" data-line="${v.line ? 1 : ''}"></div>`;
+    /* Tabletop (Book held upright, the hinge across the screen): like the video apps (Netflix,
+       Prime Video, MLB) the chart takes the upright half and the controls the half lying flat —
+       nothing crosses the fold. The top half is the bar + the chart (455.5); the flat half holds
+       the periods, the chart type and the price under the crosshair, large enough to read at a glance. */
+    if (stateId() === 'book-portrait') {
+      const tools = head.slice(head.indexOf('<div class="kl-tools">'));
+      const bar = head.slice(0, head.indexOf('<div class="kl-tools">'));
+      const cells = ['Open', 'High', 'Low', 'Close', 'Change', 'Volume'].map(k => `<div><span>${k}</span><b data-k="${k}">–</b></div>`).join('');
+      return { head: bar, body: `<div class="kl-table">${plot}<div class="kl-fold" aria-hidden="true"></div><div class="kl-deck">${tools}<div class="kl-stats">${cells}</div><p class="kl-hint">Drag on the chart to read any candle</p></div></div>` };
+    }
+    return { head, body: plot };
   }
   /* seeded candles that end on the ticker's price */
   function klData(sym, period) {
@@ -160,8 +171,12 @@
     labels.forEach((t, k) => { g += `<text x="${16 + (W - padR - 32) * (k + 0.5) / labels.length}" y="${H - 10}" text-anchor="middle" class="kl-ax">${t}</text>`; });
     el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${g}${body}<line class="kl-x" x1="0" x2="0" y1="${top}" y2="${vy}" visible="false"/><circle class="kl-dot" r="3.5" cx="-9" cy="-9"/></svg><div class="kl-ohlc"></div>`;
     const ohlc = el.querySelector('.kl-ohlc'), xl = el.querySelector('.kl-x'), dot = el.querySelector('.kl-dot');
-    const show = i => { const d = data[i], c = d.c >= d.o ? 'up' : 'down', pct = (d.c / data[Math.max(0, i - 1)].c - 1) * 100;
+    let show = i => { const d = data[i], c = d.c >= d.o ? 'up' : 'down', pct = (d.c / data[Math.max(0, i - 1)].c - 1) * 100;
       ohlc.innerHTML = `<span>O <b>${d.o.toFixed(2)}</b></span><span>H <b>${d.h.toFixed(2)}</b></span><span>L <b>${d.l.toFixed(2)}</b></span><span>C <b class="${c}">${d.c.toFixed(2)}</b></span><span class="${c}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</span>`; };
+    const stats = el.parentNode.querySelector('.kl-stats');
+    if (stats) { const base = show; show = i => { base(i); const d = data[i], c = d.c >= d.o ? 'up' : 'down', pct = (d.c / data[Math.max(0, i - 1)].c - 1) * 100,
+      val = { Open: d.o.toFixed(2), High: d.h.toFixed(2), Low: d.l.toFixed(2), Close: d.c.toFixed(2), Change: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%', Volume: (d.v * 24).toFixed(1) + 'M' };
+      stats.querySelectorAll('b').forEach(b => { b.textContent = val[b.dataset.k]; b.className = b.dataset.k === 'Close' || b.dataset.k === 'Change' ? c : ''; }); }; }
     show(n - 1);
     el.onpointermove = e => { const r = el.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.floor((e.clientX - r.left) / step))); xl.setAttribute('x1', x(i)); xl.setAttribute('x2', x(i)); xl.style.opacity = 1; dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(data[i].c)); dot.style.opacity = 1; show(i); };
     el.onpointerleave = () => { xl.style.opacity = 0; dot.style.opacity = 0; show(n - 1); };
@@ -468,19 +483,12 @@
   function plan() {
     const P = planBase();
     P.OX = P.L.rail && P.L.rail.left ? 84 : 0;
-    /* A rail that cannot hold everything (PiP: 473 tall, status on top): Back leaves the rail and goes
-       back to the page's own header, where iOS keeps it (navigation bar). Create and the tabs stay —
-       the rail keeps its primary action above its destinations (Material rail), and the tab group
-       is never squeezed or scrolled. */
+    /* A rail that cannot hold everything (PiP: 473 tall, status on top) compresses the way the
+       system's own bars do (HIG, iPhone Duo › compression): Back and Create keep their places and
+       the tab group minimises to one button showing the current tab; tapping it opens the group
+       upward, choosing a tab closes it. Nothing leaves the column. */
     const r = P.L.rail;
-    if (P.railBack && r && !r.left) {
-      const need = r.top + 62 + 48 + 14 + 212 + r.bottom;
-      if (need > innerHeight) {
-        P.railBack = false;
-        const host = [...P.panes].reverse().find(p => p.view.v !== 'chat');
-        if (host) host.leftBack = true;
-      }
-    }
+    if (P.railBack && r && !r.left && !r.flip) P.tabsMin = r.top + 62 + 48 + 14 + 212 + r.bottom > innerHeight;
     if (P.OX) P.panes.forEach(p => { p.x += P.OX; });
     return P;
   }
@@ -881,7 +889,11 @@
     if (P.railBack) { out += `<button class="rail-btn glass-rail" style="left:${r.x + RX}px;top:${y}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`; y += 62; }
     out += `<button class="rail-btn rail-create" style="left:${r.x + RX}px;top:${y}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
     const ti = TABS.findIndex(([id]) => id === S.tab);
-    out += `<nav class="rail-tabs glass-rail" style="left:${r.x + RX}px;bottom:${r.bottom}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
+    if (P.tabsMin && !S.tabsOpen) {
+      const cur = TABS[ti];
+      return out + `<button class="rail-btn glass-rail rail-tabmin" style="left:${r.x + RX}px;bottom:${r.bottom}px" data-act="tabsOpen" aria-label="${cur[2]} — show all tabs">${I(tabIcon(cur[1], true), 'ic-30')}</button>`;
+    }
+    out += `<nav class="rail-tabs${P.tabsMin ? ' rail-tabs-pop' : ''} glass-rail" style="left:${r.x + RX}px;bottom:${r.bottom}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
     return out;
   }
   function tabbar() {
@@ -1107,7 +1119,8 @@
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
       case 'foldChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
       case 'expandChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
-      case 'tab': if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
+      case 'tabsOpen': S.tabsOpen = true; break;
+      case 'tab': if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
       case 'feedTab': S.feedTab = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'topic': S.topic = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'period': S.period = id; S.stacks.foryou = [{ v: 'feed' }]; break;
@@ -1364,7 +1377,7 @@
      Tap an image in a list or a detail and it grows from where it sits into a black, full-window
      viewer (Apple: an immersive view may span the full width, its content stays inset).
      · Controls follow the system bar placement (HIG, Designing for iPhone Duo › Vertical controls):
-       where Alva has a vertical bar, Close sits at the top of that column and Share at the bottom;
+       where Alva has a vertical bar, Close sits at the top of that column and Share right under it;
        text never goes in the column, so the page count is a caption under the image. Where Alva
        has horizontal bars (inner display upright), Close / Share sit in a top bar.
      · The image fits the content area (the window minus the control column), never under the
@@ -1392,8 +1405,8 @@
     const { W, H, r } = G;
     if (G.book) return box(0, 455.5, 24, H - 34);
     if (!r) return box(0, W, 84, H - 32 - CAP);            // horizontal bars: below the top bar, full width
-    /* A: full width, in the band between the column's top controls (status, Close) and its bottom one (Share) */
-    const a = box(0, W, r.top + 48 + 12, Math.min(H - r.bottom - 48 - 12, H - 32 - CAP));
+    /* A: full width, below the column's controls (status, Close, Share) */
+    const a = box(0, W, r.top + 62 + 48 + 12, H - 32 - CAP);
     /* B: the column's width kept clear on both sides, so the image stays centred */
     const b = box(84, W - 84, 24, H - 32 - CAP);
     return a.w * a.h >= b.w * b.h ? a : b;
@@ -1418,7 +1431,7 @@
       col.hidden = false; bar.hidden = true;
       const bx = (G.r.left ? 0 : G.r.x) + (G.r.left ? 24 : 12);
       Object.assign(col.querySelector('[data-v="close"]').style, { left: bx + 'px', top: G.r.top + 'px' });
-      Object.assign(col.querySelector('[data-v="share"]').style, { left: bx + 'px', top: (G.H - G.r.bottom - 48) + 'px' });
+      Object.assign(col.querySelector('[data-v="share"]').style, { left: bx + 'px', top: (G.r.top + 62) + 'px' });   // under Close, 14 apart, like the rail's Back → Create (Lightroom keeps Share under Back)
     } else {
       col.hidden = true; bar.hidden = false;
       Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });

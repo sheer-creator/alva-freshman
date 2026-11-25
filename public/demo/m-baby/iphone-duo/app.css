@@ -667,3 +667,23 @@ section.pane:has(.kl-plot) .kl-plot { flex: 1; }
 .kl-x { stroke: var(--n5, #888); stroke-dasharray: 3 3; opacity: 0; } .kl-dot { fill: var(--n9, #111); opacity: 0; }
 .kl-ohlc { position: absolute; left: 20px; top: 10px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; line-height: 18px; color: var(--n5); font-variant-numeric: tabular-nums; pointer-events: none; }
 .kl-ohlc b { color: var(--n9); font-weight: 500; }
+
+/* K-line · tabletop (Book upright): chart on the upright half, controls on the flat half */
+.kl-table { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.kl-table .kl-plot { flex: none !important; height: 371.5px; min-height: 0; }
+.kl-table .kl-plot .kl-ohlc { display: none; }
+.kl-fold { flex: none; height: 40px; background: var(--l03, rgba(0,0,0,.03)); box-shadow: inset 0 var(--hw, .5px) 0 var(--l12), inset 0 calc(-1 * var(--hw, .5px)) 0 var(--l12); }
+.kl-deck { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 16px 20px 34px; }
+.kl-deck .kl-tools { padding: 0; gap: 8px; }
+.kl-deck .kl-tools > button:not(.icon-btn) { height: 40px; padding: 0 16px; border-radius: 20px; font-size: 15px; }
+.kl-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 12px; padding: 16px; border-radius: 16px; background: var(--l03, rgba(0,0,0,.03)); font-variant-numeric: tabular-nums; }
+.kl-stats div { display: flex; flex-direction: column; gap: 2px; }
+.kl-stats span { font-size: 12px; line-height: 18px; color: var(--n5); }
+.kl-stats b { font-size: 20px; line-height: 28px; font-weight: 500; color: var(--n9); }
+.kl-stats b.up { color: #2e9e6b; } .kl-stats b.down { color: #e0524b; }
+.kl-hint { font-size: 12px; line-height: 18px; color: var(--n5); text-align: center; margin-top: auto; }
+
+/* rail compressed (PiP): the tab group minimised to the current tab; opens upward */
+.rail-tabmin .ic { color: var(--n9); }
+.rail-tabs-pop { box-shadow: 0 8px 24px rgba(0,0,0,.12); animation: tabs-pop .32s cubic-bezier(.2,.9,.3,1.15) both; transform-origin: 50% 100%; }
+@keyframes tabs-pop { from { transform: scaleY(.23); opacity: .6; } to { transform: none; opacity: 1; } }
