@@ -1334,17 +1334,19 @@
   function vGeo() {
     const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight, r = L.rail;
     const c0 = r && r.left ? 84 : 0, c1 = r && !r.left ? r.x : W;
-    const book = L.mode === 'book';
-    /* slides span the whole window (or the image's half when folded), so the image is centred on
-       the screen rather than pushed to one side of the control column */
-    const ia = book ? { x: 0, w: 455.5 } : { x: 0, w: W };
-    const bottomH = V.own ? 48 + 14 + 48 : 48;
-    /* content area = the window minus the system regions (rail 84, the fold); on a half-folded book
-       the image's page. Layout margins: 20 on the open side, 16 next to the rail; top 24 (control row
-       y24–72, centre line y48); bottom 34 is the home indicator. Name and scrubber are centred on it. */
-    const ca = { x0: c0, x1: book ? 455.5 : c1, mL: r && r.left ? 16 : 20, mR: r && !r.left ? 16 : 20 };
+    const book = L.mode === 'book', tab = stateId() === 'book-portrait';
+    /* Half-folded, the viewer splits along the fold like Apple's arrangement views: the image on one
+       page, the post (author, text) and a grid of its media on the other — nothing on the fold.
+       · book (fold upright): image on the right page, next to the rail; post + grid on the left page.
+       · book held upright (tabletop, fold across): image on the upright top half; post + grid below.
+       Everywhere else: the image over the whole window, the scrubber at the bottom. */
+    let ia, ca, info = null;
+    if (book) { ia = { x: 495.5, w: W - 495.5 }; ca = { x0: 495.5, x1: c1, y1: H, mL: 20, mR: 16 }; info = { x: 0, y: 0, w: 455.5, h: H, pb: 34 }; }
+    else if (tab) { ia = { x: 0, w: W }; ca = { x0: 0, x1: W, y1: 455.5, mL: 20, mR: 20 }; info = { x: 0, y: 495.5, w: W, h: H - 495.5, pb: 84 }; }
+    else { ia = { x: 0, w: W }; ca = { x0: c0, x1: c1, y1: H, mL: r && r.left ? 16 : 20, mR: r && !r.left ? 16 : 20 }; }
     ca.cx = (ca.x0 + ca.x1) / 2;
-    return { L, W, H, r, c0, c1, book, ia, ca, info: book ? { x: 495.5, w: c1 - 495.5 } : null, padR: L.corner ? 140 : 0, strip: V.items.length > 1, bottomH };
+    const bottomH = V.own ? 48 + 14 + 48 : 48;
+    return { L, W, H, r, c0, c1, book, tab, ia, ca, info, padR: L.corner ? 140 : 0, strip: V.items.length > 1 && !info, bottomH };
   }
   function vFit(img, G) {
     const ar = +img.dataset.ar || (img.naturalWidth || 720) / (img.naturalHeight || 400);
@@ -1352,7 +1354,8 @@
     const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
     const { W, H, ca } = G;
     /* tapped: full screen — the whole window, over the rail (the image's page when folded) */
-    if (V.full) return G.book ? box(0, 455.5, 0, H) : box(0, W, 0, H);
+    if (V.full) return G.info ? box(G.ia.x, G.ia.x + G.ia.w, 0, ca.y1) : box(0, W, 0, H);
+    if (G.info) return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, ca.y1 - (G.tab ? 12 : 34));
     /* default: inside the content area's margins, so nothing touches an edge and reads as more to
        swipe; between the name row (84) and the scrubber (or the home indicator) */
     return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, G.strip ? G.H - 66 - 12 : H - 34);
@@ -1384,7 +1387,7 @@
       const at = (v, y) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: bx + 'px', top: y + 'px' }); };
       at('close', G.r.top);
       /* Download as close to the bottom corner as it gets; Delete (own posts) above it */
-      at('download', yb); if (V.own) at('delete', yb - 62);
+      at('download', yb); if (V.own) at('more', yb - 62);
       const x0 = G.ca.x0 + G.ca.mL, x1 = G.ca.x1 - G.ca.mR;
       Object.assign(head.style, { left: x0 + 'px', width: (x1 - x0) + 'px', top: '24px' });
     } else {
@@ -1393,13 +1396,13 @@
       Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });
       const dx = G.W - 20 - 48;
       const at = (v, x) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: x + 'px', top: yb + 'px' }); };
-      at('download', dx); if (V.own) at('delete', dx - 60);
+      at('download', dx); if (V.own) at('more', dx - 60);
       const side = Math.max(20 + 48 + 12, 20 + G.padR);
       Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' });
     }
     const info = V.el.querySelector('.v-info');
-    info.hidden = !G.book;
-    if (G.book) Object.assign(info.style, { left: G.info.x + 'px', width: G.info.w + 'px' });
+    info.hidden = !G.info;
+    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
     vTrack(anim);
     vZoomApply(false);
     vPost();
@@ -1430,6 +1433,7 @@
     if (anim) { const from = getComputedStyle(tr).transform; tr.style.transform = to; M.play(tr, [{ transform: from === 'none' ? 'none' : from }, { transform: to }], Object.assign({}, M.spring(0.4, 1), { fill: 'none' })); }
     else tr.style.transform = to;
     vHead(); vStrip();
+    V.el.querySelectorAll('.v-grid button').forEach((b, k) => b.classList.toggle('on', k === V.i));
   }
   const vImg = () => V.el.querySelectorAll('.v-slide img')[V.i];
   function vZoomApply(anim) {
@@ -1461,7 +1465,8 @@
   function vInfoHTML() {
     const t = V.tid && D.theses[V.tid];
     const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
-    return head;
+    const grid = V.items.length > 1 ? `<div class="v-grid">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false">${m.video ? `<span class="pic-dur">${I('play-f', 'ic-12')}${esc(m.dur || '')}</span>` : ''}</button>`).join('')}</div>` : '';
+    return head + grid;
   }
   function openViewer(chartImg) {
     if (V.el || V.busy) return;
@@ -1476,13 +1481,14 @@
     V.zoom = 1; V.px = V.py = 0; V.chrome = true; V.full = false;
     const tr = chartImg.closest('.pic').getBoundingClientRect();
     const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
-    const acts = `<button class="v-g" data-v="download" aria-label="Download">${I('download-l')}</button>${V.own ? `<button class="v-g" data-v="delete" aria-label="Delete">${I('delete-l')}</button>` : ''}`;
+    const acts = `<button class="v-g" data-v="download" aria-label="Download">${I('download-l')}</button>${V.own ? `<button class="v-g" data-v="more" aria-label="More">${I('more-l1')}</button>` : ''}`;
     el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.items.map(m => `<div class="v-slide"><img src="${m.src}" alt="" draggable="false"${m.w && m.h ? ` data-ar="${m.w / m.h}"` : ''}>${m.video ? `<button class="v-play v-g" data-v="play" aria-label="Play">${I('play-f')}</button><span class="v-dur">${esc(m.dur || '')}</span>` : ''}</div>`).join('')}</div></div>
       <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button>${acts}</div>
       <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button></header>
       <div class="v-head"></div>
       <div class="v-strip">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false"></button>`).join('')}</div>
-      <aside class="v-info">${vInfoHTML()}</aside>`;
+      <aside class="v-info">${vInfoHTML()}</aside><div class="v-menu" hidden><button data-v="del">${I('delete-l')}<span>Delete</span></button></div>
+      <div class="v-scrim" hidden></div><div class="v-alert" role="alertdialog" hidden></div>`;
     document.body.appendChild(el);
     vLayout(false);
     const img = vImg(), sp = M.spring(0.42, 0.88);
@@ -1519,15 +1525,20 @@
     let g = null, lastTap = 0, tapTimer = null;
     const pts = new Map();
     el.addEventListener('click', e => {
-      if (e.target.closest('[data-go]')) { e.stopPropagation(); return; }
+      const go = e.target.closest('[data-go]'); if (go) { e.stopPropagation(); if (go.closest('.v-grid')) vGo(+go.dataset.go); return; }
       const b = e.target.closest('[data-v]'); if (!b) return;
       e.stopPropagation();
       const v = b.dataset.v;
       if (v === 'close') closeViewer();
-      else { toast(v === 'download' ? (V.items[V.i].video ? 'Video saved to Photos' : 'Saved to Photos') : v === 'delete' ? 'Deleting is not part of this demo' : 'Playback is not part of this demo'); render(); }
+      else if (v === 'more') vMenu(!vMenu.on);
+      else if (v === 'del') { vMenu(false); vConfirm(true); }
+      else if (v === 'cancel') vConfirm(false);
+      else if (v === 'confirm') vDelete();
+      else { vMenu(false); toast(v === 'download' ? (V.items[V.i].video ? 'Video saved to Photos' : 'Saved to Photos') : 'Playback is not part of this demo'); render(); }
     });
     el.addEventListener('pointerdown', e => {
-      if (e.target.closest('.v-g, .v-info') || V.busy) return;
+      if (!e.target.closest('.v-menu, [data-v="more"]')) vMenu(false);
+      if (e.target.closest('.v-g, .v-info, .v-menu, .v-alert, .v-scrim') || V.busy) return;
       if (e.target.closest('.v-strip')) { vScrub(e); return; }
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
       el.setPointerCapture(e.pointerId);
@@ -1580,6 +1591,33 @@
     el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
     el.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); V.zoom = Math.max(1, Math.min(4, V.zoom * Math.exp(-e.deltaY / 200))); if (V.zoom === 1) V.px = V.py = 0; vClampPan(); vZoomApply(false); }, { passive: false });
   }
+  /* ··· (own posts): a menu with Delete; Delete asks again before it removes the item */
+  function vMenu(on) {
+    vMenu.on = on; if (!V.el) return;
+    const m = V.el.querySelector('.v-menu'), b = V.el.querySelector('.v-col [data-v="more"]'); m.hidden = !on; if (!on || !b) return;
+    const G = vGeo(), bx = parseFloat(b.style.left), by = parseFloat(b.style.top), mw = 180, mh = 52;
+    Object.assign(m.style, G.r ? { left: (G.r.left ? bx + 56 : bx - 8 - mw) + 'px', top: (by + 48 - mh) + 'px' } : { left: (bx + 48 - mw) + 'px', top: (by - 8 - mh) + 'px' });
+    M.play(m, [{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: 'cubic-bezier(.32,.72,0,1)' });
+  }
+  function vConfirm(on) {
+    const a = V.el.querySelector('.v-alert'), sc = V.el.querySelector('.v-scrim'), G = vGeo();
+    a.hidden = sc.hidden = !on; if (!on) return;
+    const vid = V.items[V.i] && V.items[V.i].video;
+    a.innerHTML = `<b>Delete this ${vid ? 'video' : 'image'}?</b><p>It will be removed from this thesis for everyone. This can't be undone.</p><div><button data-v="cancel">Cancel</button><button data-v="confirm" class="danger">Delete</button></div>`;
+    Object.assign(a.style, { left: (G.ca.cx - 135) + 'px', top: (G.H / 2) + 'px' });
+    M.play(a, [{ opacity: 0, transform: 'translateY(-50%) scale(1.08)' }, { opacity: 1, transform: 'translateY(-50%)' }], { duration: 220, easing: 'cubic-bezier(.32,.72,0,1)' });
+  }
+  function vDelete() {
+    vConfirm(false);
+    const k = V.i; V.items.splice(k, 1); V.srcs.splice(k, 1); V.thumbs.splice(k, 1);
+    toast('Deleted');
+    if (!V.items.length) { V.el.remove(); V.el = null; vPost(); render(); return; }
+    V.el.querySelectorAll('.v-slide')[k].remove();
+    V.el.querySelector('.v-strip').innerHTML = V.items.map((m, j) => `<button data-go="${j}" aria-label="${m.video ? 'Video' : 'Image'} ${j + 1}"><img src="${m.src}" alt="" draggable="false"></button>`).join('');
+    V.el.querySelector('.v-info').innerHTML = vInfoHTML();
+    V.i = Math.min(k, V.items.length - 1); V.zoom = 1; V.px = V.py = 0;
+    vLayout(true); render();
+  }
   /* drag along the scrubber to move through the items, one per sliver */
   function vScrub(e) {
     const st = V.el.querySelector('.v-strip'), vert = st.classList.contains('vert'), i0 = V.i;
@@ -1611,7 +1649,7 @@
   }, true);
   window.addEventListener('keydown', e => {
     if (!V.el) return;
-    if (e.key === 'Escape') closeViewer();
+    if (e.key === 'Escape') { const a = V.el.querySelector('.v-alert'); if (!a.hidden) vConfirm(false); else if (vMenu.on) vMenu(false); else closeViewer(); }
     else if (e.key === 'ArrowRight') vGo(V.i + 1);
     else if (e.key === 'ArrowLeft') vGo(V.i - 1);
   });

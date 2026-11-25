@@ -85,7 +85,7 @@ window.DUO_DATA = (function () {
     maya1: { author: 'maya', date: '1h ago', ret: '+12.4%', since: '2 Oct', chartPts: [[0, 0.8], [0.3, 0.7], [0.55, 0.5], [0.8, 0.35], [1, 0.05]],
       tickers: [['MSFT', 'down']], body: [AZURE], refs: '[1]', charts: ['MSFT'], saves: 32 , media: [{ src: img('m-hubble.jpg'), w: 1000, h: 872 }] },
     me1: { author: 'me', date: '1h ago', private: true, newUpdate: true, ret: '+12.4%', since: '2 Oct', chartPts: [[0, 0.8], [0.3, 0.7], [0.55, 0.5], [0.8, 0.35], [1, 0.05]],
-      tickers: [['MSFT', null], ['AMZN', null], ['MSFT', null]], body: [AZURE], refs: '[1]', charts: ['MSFT'], saves: 0 , media: [{ src: img('reference-chart-spy.png'), w: 720, h: 400, title: 'SPY since March' }] },
+      tickers: [['MSFT', null], ['AMZN', null], ['MSFT', null]], body: [AZURE], refs: '[1]', charts: ['MSFT'], saves: 0 , media: [{ src: img('reference-chart-spy.png'), w: 720, h: 400, title: 'SPY since March' }, { src: img('m-earnings.png'), w: 1600, h: 900, title: 'Q3 results vs consensus' }] },
   };
   /* All updates (Figma 16511:126971 · Thesis Detail / All updates timeline). The
      table uses this one sample history for every thesis it opens. */
