@@ -43,6 +43,7 @@
       if (!t.refs) t.refs = '[1]';
       if (!t.charts || !t.charts.length) t.charts = t.tickers.map(x => x[0]).filter(s => D.chart[s]);
       if (!t.body || !t.body.length) t.body = [t.title];
+      if (!t.media) t.media = [];
     });
   })();
   const app = document.getElementById('app');
@@ -100,6 +101,73 @@
     : `<button class="btn-p" data-act="follow" data-id="${pid}">Follow</button>`;
   const charts = (t, gap) => t.charts.length ? `<div class="media"><div class="media-track" style="gap:${gap}px">${t.charts.map(c => `<div class="chart"><img src="${D.chart[c]}" alt="${c} chart" loading="lazy"></div>`).join('')}</div></div>` : '';
 
+  /* attached images (not charts): their own row, height 135, each at its own aspect; they open the image viewer */
+  const pics = (t, gap) => t.media && t.media.length ? `<div class="media pics"><div class="media-track" style="gap:${gap}px">${t.media.map((m, k) => `<div class="pic" style="width:${Math.round(135 * m.w / m.h)}px"><img src="${m.src}" alt="Image ${k + 1}" loading="lazy"></div>`).join('')}</div></div>` : '';
+
+  /* ── fullscreen K-line (Company-entity F2 4773:34925): a page of its own, not the image viewer ──
+     Top bar: ticker identity + price, and «collapse fullscreen» on the right (= back). Toolbar:
+     periods, candles / line, indicators. The chart runs edge to edge; buttons and scales stay inset
+     16. On Duo it takes the whole content area (both columns) — the rail stays, with Back. */
+  const KL = {
+    GOOGL: { name: 'Alphabet', ex: 'NASDAQ', px: 342.0, chg: -1.24 }, AMZN: { name: 'Amazon.com', ex: 'NASDAQ', px: 260.28, chg: 0.86 },
+    MSFT: { name: 'Microsoft', ex: 'NASDAQ', px: 496.37, chg: 1.12 }, NVDA: { name: 'NVIDIA', ex: 'NASDAQ', px: 182.4, chg: -0.74 },
+    SPY: { name: 'SPDR S&P 500 ETF', ex: 'NYSE Arca', px: 703.24, chg: 0.42 },
+  };
+  const KL_PERIODS = ['1D', '5D', '1M', '3M', '6M', '1Y'];
+  function klineView(v, ctx) {
+    const k = KL[v.id] || { name: v.id, ex: '', px: 100, chg: 0 }, up = k.chg >= 0;
+    const logo = D.logo[v.id] ? `<img class="tk-logo" src="${D.logo[v.id]}" alt="">` : '<span class="tk-logo"></span>';
+    const back = ctx.back ? `<button class="back-app" data-act="back" aria-label="Back">${I('arrow-left-l1')}</button>` : '';
+    const head = `<header class="kl-bar ${ctx.back ? 'with-back' : ''}">${back}<div class="kl-id">${logo}<div><b>${esc(k.name)}</b><span>${esc(v.id)}${k.ex ? ' · ' + esc(k.ex) : ''}</span></div></div>
+      <div class="kl-px"><b>${k.px.toFixed(2)}</b><span class="${up ? 'up' : 'down'}">${up ? '+' : ''}${k.chg.toFixed(2)}%</span></div>
+      <button class="icon-btn" data-act="back" aria-label="Exit fullscreen">${I('foldd-l')}</button></header>
+      <div class="kl-tools">${KL_PERIODS.map(p => `<button class="${(v.period || '3M') === p ? 'on' : ''}" data-act="klPeriod" data-id="${p}">${p}</button>`).join('')}<span class="grow"></span>
+      <button class="icon-btn" data-act="klType" aria-label="${v.line ? 'Line chart. Switch to candlesticks' : 'Candlesticks. Switch to line chart'}">${I(v.line ? 'usage-l' : 'live-l')}</button>
+      <button class="icon-btn" data-act="toast" data-id="Indicators are not part of this demo">${I('explain-l')}</button></div>`;
+    return { head, body: `<div class="kl-plot" data-sym="${esc(v.id)}" data-period="${v.period || '3M'}" data-line="${v.line ? 1 : ''}"></div>` };
+  }
+  /* seeded candles that end on the ticker's price */
+  function klData(sym, period) {
+    const n = { '1D': 78, '5D': 90, '1M': 22, '3M': 64, '6M': 126, '1Y': 250 }[period] || 64;
+    let seed = [...(sym + period)].reduce((a, c) => a * 31 + c.charCodeAt(0) >>> 0, 7);
+    const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    const end = (KL[sym] || { px: 100 }).px, vol = { '1D': 0.004, '5D': 0.006 }[period] || 0.016;
+    const raw = []; let c = 1;
+    for (let i = 0; i < n; i++) { const o = c; c = o * (1 + (rnd() - 0.48) * vol * 2); const hi = Math.max(o, c) * (1 + rnd() * vol * 0.6), lo = Math.min(o, c) * (1 - rnd() * vol * 0.6); raw.push({ o, c, hi, lo, v: 0.4 + rnd() }); }
+    const f = end / raw[n - 1].c;
+    return raw.map(d => ({ o: d.o * f, c: d.c * f, h: d.hi * f, l: d.lo * f, v: d.v }));
+  }
+  function drawKline(el) {
+    const W = el.clientWidth, H = el.clientHeight; if (!W || !H) return;
+    const sym = el.dataset.sym, data = klData(sym, el.dataset.period), line = !!el.dataset.line;
+    const padL = 16, padR = 64, top = 40, volH = Math.min(64, H * 0.14), bot = 28, ch = H - top - volH - bot - 8;
+    const hi = Math.max(...data.map(d => d.h)), lo = Math.min(...data.map(d => d.l)), rng = hi - lo || 1;
+    const y = p => top + (hi - p) / rng * ch, n = data.length, step = (W - padR) / n, bw = Math.max(1, step * 0.62);
+    const x = i => i * step + step / 2;
+    const css = getComputedStyle(document.documentElement), upC = '#2e9e6b', dnC = '#e0524b';
+    let g = '';
+    for (let k = 0; k <= 4; k++) { const p = lo + rng * k / 4, yy = y(p); g += `<line x1="0" x2="${W - padR + 4}" y1="${yy}" y2="${yy}" class="kl-grid"/><text x="${W - 16}" y="${yy + 4}" text-anchor="end" class="kl-ax">${p.toFixed(2)}</text>`; }
+    let body = '';
+    if (line) {
+      const pts = data.map((d, i) => `${x(i).toFixed(1)},${y(d.c).toFixed(1)}`).join(' ');
+      body = `<polyline points="${pts}" fill="none" stroke="var(--m3, #49a3a6)" stroke-width="1.6"/>`;
+    } else data.forEach((d, i) => { const c = d.c >= d.o ? upC : dnC; body += `<line x1="${x(i)}" x2="${x(i)}" y1="${y(d.h)}" y2="${y(d.l)}" stroke="${c}"/><rect x="${x(i) - bw / 2}" y="${Math.min(y(d.o), y(d.c))}" width="${bw}" height="${Math.max(1, Math.abs(y(d.o) - y(d.c)))}" fill="${c}"/>`; });
+    const vmax = Math.max(...data.map(d => d.v)), vy = top + ch + 8 + volH;
+    data.forEach((d, i) => { body += `<rect x="${x(i) - bw / 2}" y="${vy - d.v / vmax * volH}" width="${bw}" height="${d.v / vmax * volH}" fill="${d.c >= d.o ? upC : dnC}" opacity=".28"/>`; });
+    const last = data[n - 1], ly = y(last.c);
+    body += `<line x1="0" x2="${W - padR}" y1="${ly}" y2="${ly}" stroke="${last.c >= last.o ? upC : dnC}" stroke-dasharray="3 3"/><rect x="${W - padR + 6}" y="${ly - 10}" width="${padR - 16}" height="20" rx="3" fill="${last.c >= last.o ? upC : dnC}"/><text x="${W - 16}" y="${ly + 4}" text-anchor="end" class="kl-ax" fill="#fff" style="fill:#fff">${last.c.toFixed(2)}</text>`;
+    const labels = { '1D': ['10:00', '12:00', '14:00', '16:00'], '5D': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] }[el.dataset.period] || ['Sep', 'Oct', 'Nov'];
+    labels.forEach((t, k) => { g += `<text x="${16 + (W - padR - 32) * (k + 0.5) / labels.length}" y="${H - 10}" text-anchor="middle" class="kl-ax">${t}</text>`; });
+    el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${g}${body}<line class="kl-x" x1="0" x2="0" y1="${top}" y2="${vy}" visible="false"/><circle class="kl-dot" r="3.5" cx="-9" cy="-9"/></svg><div class="kl-ohlc"></div>`;
+    const ohlc = el.querySelector('.kl-ohlc'), xl = el.querySelector('.kl-x'), dot = el.querySelector('.kl-dot');
+    const show = i => { const d = data[i], c = d.c >= d.o ? 'up' : 'down', pct = (d.c / data[Math.max(0, i - 1)].c - 1) * 100;
+      ohlc.innerHTML = `<span>O <b>${d.o.toFixed(2)}</b></span><span>H <b>${d.h.toFixed(2)}</b></span><span>L <b>${d.l.toFixed(2)}</b></span><span>C <b class="${c}">${d.c.toFixed(2)}</b></span><span class="${c}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</span>`; };
+    show(n - 1);
+    el.onpointermove = e => { const r = el.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.floor((e.clientX - r.left) / step))); xl.setAttribute('x1', x(i)); xl.setAttribute('x2', x(i)); xl.style.opacity = 1; dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(data[i].c)); dot.style.opacity = 1; show(i); };
+    el.onpointerleave = () => { xl.style.opacity = 0; dot.style.opacity = 0; show(n - 1); };
+  }
+  function openKline(sym, tid) { push({ v: 'kline', id: sym, tid }); render(); }
+
   /* Feed Card / Thesis */
   function card(id, ctx) {
     const t = D.theses[id], p = D.people[t.author];
@@ -116,7 +184,7 @@
         ${t.title ? `<p class="t-m14">${esc(t.title)}</p>` : ''}
         <p class="body ${ctx.clamp ? 'clamp' : ''}">${t.title ? esc(t.body[0]) : bodyText}</p>
       </div>
-      ${charts(t, 8)}
+      ${charts(t, 8)}${pics(t, 8)}
       ${ctx.compact ? '' : `<div class="acts"><button class="ask" data-act="ask" data-id="${id}">${I('chat-ai-l', 'ic-16')}Ask Alva</button>
         <button class="${S.saved[id] ? 'on' : ''}" data-act="save" data-id="${id}">${I(S.saved[id] ? 'bookmark-f' : 'bookmark-l', 'ic-16')}${saves(id)}</button></div>`}
     </article>`;
@@ -171,7 +239,7 @@
     const paras = t.body.map((x, i) => `<p>${esc(x)}${i === t.body.length - 1 && t.refs ? ` ${t.refs}` : ''}</p>`).join('');
     const upd = `<div class="upd"><div class="rail-l">${t.history ? `<img src="assets/icons/dot-green.svg" width="14" height="14" alt="">` : ''}${t.history ? '<span class="line"></span>' : ''}</div>
       <div class="upd-c"><div class="upd-time">${t.date}<span class="latest">Latest</span>${t.private ? `<span class="chip-private" style="color:var(--n5)">${I('locked-l', 'ic-12')}Private</span>` : ''}</div>
-      <div class="upd-tks">${dtks}</div><div class="upd-body">${paras}</div>${charts(t, 12)}</div></div>`;
+      <div class="upd-tks">${dtks}</div><div class="upd-body">${paras}</div>${charts(t, 12)}${pics(t, 12)}</div></div>`;
     const hist = t.history ? `<div class="hist"><div class="rail-l"><span class="line"></span><img src="assets/icons/dot.svg" width="14" height="14" alt=""></div>
       <button class="view-all" data-act="updates" data-id="${v.id}">View all updates${I('arrow-right-l2', 'ic-12')}</button></div>` : '<div class="no-hist"></div>';
     const tabs = `<div class="d-tabs"><button data-act="toast" data-id="Overview is not part of this demo">Overview</button><button class="on">${I('live-l', 'ic-16')}Signals</button><button data-act="toast" data-id="Related thesis is not part of this demo">Related thesis</button></div>`;
@@ -382,6 +450,7 @@
       case 'profile': return profileView(v, ctx);
       case 'me': return meView(v, ctx);
       case 'updates': return updatesView(v, ctx);
+      case 'kline': return klineView(v, ctx);
       case 'settings': return settingsView(v, ctx);
       case 'account': return accountView(v, ctx);
       case 'general': return generalView(v, ctx);
@@ -449,6 +518,7 @@
       ] };
     }
     const book = L.mode === 'book';
+    if (t.v === 'kline' && !book) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'main' }], railBack: !!L.rail, inlineBack: !L.rail };
     if (t.v === 'chat' && t.full) { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }], railBack: true }; }
     let left, right;
     if (st.length === 1) {
@@ -535,6 +605,7 @@
     app.innerHTML = html;
 
     app.querySelectorAll('[data-sk]').forEach(el => { if (scrolls.has(el.dataset.sk)) el.scrollTop = scrolls.get(el.dataset.sk); });
+    app.querySelectorAll('.kl-plot').forEach(drawKline);
     app.querySelectorAll('.chat-body').forEach(el => { el.scrollTop = el.scrollHeight; });
     app.querySelectorAll('form.chatbox').forEach(f => { if (drafts[f.dataset.chat]) { f.q.value = drafts[f.dataset.chat]; growBox(f.q); } });
     if (chatFocus) { const f = app.querySelector(`form.chatbox[data-chat="${chatFocus}"]`); if (f) f.q.focus({ preventScroll: true }); }
@@ -1019,6 +1090,8 @@
         else push({ v: 'detail', id });
         break;
     case 'updates': st.push({ v: 'updates', id }); break;
+      case 'klPeriod': { const t = st[st.length - 1]; if (t.v === 'kline') t.period = id; break; }
+      case 'klType': { const t = st[st.length - 1]; if (t.v === 'kline') t.line = !t.line; break; }
       case 'ask': {
         /* asked from the detail that is only showing because it is first in the list: it becomes a real
            step, so Ask opens beside it and the pair moves along together */
@@ -1301,8 +1374,8 @@
      Tap toggles the controls and the status bar; swipe sideways for the post's other images;
      double-tap / pinch zooms; swipe down (or Close) puts the image back where it came from.
      Turning, folding or Split View keeps it open and re-fits. */
-  const V = { el: null, i: 0, srcs: [], syms: [], thumbs: [], tid: null, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
-  const GAP = 16, CAP = 56;
+  const V = { el: null, i: 0, srcs: [], thumbs: [], tid: null, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
+  const GAP = 16, CAP = 44;
   function vGeo() {
     const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight, r = L.rail;
     const c0 = r && r.left ? 84 : 0, c1 = r && !r.left ? r.x : W;
@@ -1348,13 +1421,12 @@
       Object.assign(col.querySelector('[data-v="share"]').style, { left: bx + 'px', top: (G.H - G.r.bottom - 48) + 'px' });
     } else {
       col.hidden = true; bar.hidden = false;
-      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (16 + G.padR) + 'px' });
+      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });
     }
     const cap = V.el.querySelector('.v-cap'), info = V.el.querySelector('.v-info');
     cap.hidden = G.book; info.hidden = !G.book;
     const inset = G.r ? 84 : 0;
     Object.assign(cap.style, { left: inset + 'px', width: (G.W - 2 * inset) + 'px', top: (G.H - 24 - CAP) + 'px' });
-    cap.classList.toggle('narrow', G.W - 2 * inset < 360);
     if (G.book) Object.assign(info.style, { left: G.info.x + 'px', width: G.info.w + 'px' });
     vTrack(anim);
     vZoomApply(false);
@@ -1365,9 +1437,8 @@
     const to = `translateX(${-V.i * (G.ia.w + GAP) + dx}px)`;
     if (anim) { const from = getComputedStyle(tr).transform; tr.style.transform = to; M.play(tr, [{ transform: from === 'none' ? 'none' : from }, { transform: to }], Object.assign({}, M.spring(0.4, 1), { fill: 'none' })); }
     else tr.style.transform = to;
-    V.el.querySelectorAll('.v-sw[data-step="-1"]').forEach(b => b.disabled = V.i === 0);
-    V.el.querySelectorAll('.v-sw[data-step="1"]').forEach(b => b.disabled = V.i === V.srcs.length - 1);
-    V.el.querySelectorAll('.v-ent').forEach(b => { const sym = V.syms[V.i]; b.dataset.sym = sym || ''; b.innerHTML = vEnt(sym); b.hidden = !sym; });
+    { const n = V.srcs.length, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
+      V.el.querySelector('.v-cap').innerHTML = `${n > 1 ? `<b>${V.i + 1} / ${n}</b>` : ''}${who ? `<span>${esc(who)}${t.date ? ' · ' + esc(t.date) : ''}</span>` : ''}`; }
     V.el.querySelectorAll('.v-thumbs button').forEach((b, k) => b.classList.toggle('on', k === V.i));
     const n = V.srcs.length, cnt = V.el.querySelector(".v-info .v-n"); if (cnt) cnt.textContent = n > 1 ? `${V.i + 1} / ${n}` : '';
   }
@@ -1381,9 +1452,9 @@
   function vChrome(on) { V.chrome = on; V.el.classList.toggle('bare', !on); vPost(); }
   function vThumb() {
     const src = V.srcs[V.i];
-    const pick = V.thumbs[V.i] && V.thumbs[V.i].isConnected ? V.thumbs[V.i] : [...app.querySelectorAll('.chart img')].find(im => im.getAttribute('src') === src);
+    const pick = V.thumbs[V.i] && V.thumbs[V.i].isConnected ? V.thumbs[V.i] : [...app.querySelectorAll('.pic img')].find(im => im.getAttribute('src') === src);
     if (!pick) return null;
-    const r = pick.closest('.chart').getBoundingClientRect();
+    const r = pick.closest('.pic').getBoundingClientRect();
     const pane = pick.closest('.scroll, .pane'); const pr = pane ? pane.getBoundingClientRect() : r;
     if (r.bottom < pr.top + 8 || r.top > pr.bottom - 8 || r.right < pr.left + 8 || r.left > pr.right - 8) return null;
     return { x: r.left, y: r.top, w: r.width, h: r.height, el: pick };
@@ -1392,37 +1463,30 @@
     const f = vFit(img, vGeo()), s = box.w / f.w;
     return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`;
   }
-  /* the chart's ticker — the mobile fullscreen chart's entity row (‹ GOOGL · View live chart ›);
-     on mobile a chart opens its ticker, so the viewer keeps that way in */
-  const vEnt = sym => sym ? `${D.logo[sym] ? `<img src="${D.logo[sym]}" alt="">` : '<i></i>'}<b>${esc(sym)}</b><span>View live chart</span>${I('arrow-right-l2', 'ic-12')}` : '';
-  const vRow = () => V.srcs.length > 1
-    ? `<button class="v-sw" data-step="-1" aria-label="Previous chart">${I('arrow-left-l1', 'ic-16')}</button><button class="v-ent"></button><button class="v-sw" data-step="1" aria-label="Next chart">${I('arrow-right-l1', 'ic-16')}</button>`
-    : `<button class="v-ent"></button>`;
   function vInfoHTML() {
     const t = V.tid && D.theses[V.tid];
     const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
-    return `${head}<div class="v-n"></div><div class="v-row">${vRow()}</div><div class="v-thumbs">${V.srcs.map((s, k) => `<button data-go="${k}"><img src="${s}" alt=""></button>`).join('')}</div>`;
+    return `${head}<div class="v-n"></div><div class="v-thumbs">${V.srcs.map((s, k) => `<button data-go="${k}"><img src="${s}" alt=""></button>`).join('')}</div>`;
   }
   function openViewer(chartImg) {
     if (V.el || V.busy) return;
-    const track = chartImg.closest('.media-track') || chartImg.closest('.chart').parentElement;
-    const imgs = [...track.querySelectorAll('.chart img')];
+    const track = chartImg.closest('.media-track') || chartImg.closest('.pic').parentElement;
+    const imgs = [...track.querySelectorAll('.pic img')];
     V.srcs = imgs.map(im => im.getAttribute('src')); V.thumbs = imgs; V.i = imgs.indexOf(chartImg);
-    V.syms = imgs.map(im => (im.getAttribute('alt') || '').replace(/ chart$/, '') || null);
     const host = chartImg.closest('[data-act="open"][data-id]'), pane = chartImg.closest('section.pane[data-key]');
     V.tid = host ? host.dataset.id : (pane && /^detail:/.test(pane.dataset.key) ? pane.dataset.key.split(':')[1] : null);
     V.zoom = 1; V.px = V.py = 0; V.chrome = true;
-    const tr = chartImg.closest('.chart').getBoundingClientRect();
+    const tr = chartImg.closest('.pic').getBoundingClientRect();
     const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
     el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.srcs.map(s => `<div class="v-slide"><img src="${s}" alt="" draggable="false"></div>`).join('')}</div></div>
       <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button><button class="v-g" data-v="share" aria-label="Share">${I('share-l')}</button></div>
       <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button><button class="v-g" data-v="share" aria-label="Share">${I('share-l')}</button></header>
-      <div class="v-cap">${vRow()}</div><aside class="v-info">${vInfoHTML()}</aside>`;
+      <div class="v-cap"></div><aside class="v-info">${vInfoHTML()}</aside>`;
     document.body.appendChild(el);
     vLayout(false);
     const img = vImg(), sp = M.spring(0.42, 0.88);
     const from = { x: tr.left, y: tr.top, w: tr.width, h: tr.height };
-    const chart = chartImg.closest('.chart'); chart.style.visibility = 'hidden';
+    const chart = chartImg.closest('.pic'); chart.style.visibility = 'hidden';
     M.play(img, [{ transform: vTf(img, from), borderRadius: 8 / (from.w / vFit(img, vGeo()).w) + 'px' }, { transform: 'none', borderRadius: '0px' }], Object.assign({}, sp, { fill: 'none' }));
     M.play(el.querySelector('.v-bg'), [{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'none' });
     el.querySelectorAll('.v-col, .v-bar, .v-cap, .v-info').forEach(n => M.play(n, [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 120, easing: 'ease-out', fill: 'backwards' }));
@@ -1440,12 +1504,12 @@
     M.play(el.querySelector('.v-info'), [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
     let a;
     if (th) {
-      th.el.closest('.chart').style.visibility = 'hidden';
+      th.el.closest('.pic').style.visibility = 'hidden';
       a = M.play(img, [{ transform: cur, borderRadius: '0px' }, { transform: vTf(img, th), borderRadius: 8 / (th.w / vFit(img, vGeo()).w) + 'px' }], Object.assign({}, sp, { fill: 'forwards' }));
     } else a = M.play(img, [{ transform: cur, opacity: 1 }, { transform: cur + ' scale(0.9)', opacity: 0 }], { duration: 240, easing: 'ease-in', fill: 'forwards' });
     M.play(bg, [{ opacity: bgO }, { opacity: 0 }], { duration: Math.min(300, sp.duration), easing: 'ease-out', fill: 'forwards' });
     (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => {
-      if (th && th.el.closest('.chart')) th.el.closest('.chart').style.visibility = '';
+      if (th && th.el.closest('.pic')) th.el.closest('.pic').style.visibility = '';
       el.remove(); V.el = null; V.busy = false; vPost();
     });
   }
@@ -1455,14 +1519,12 @@
     const pts = new Map();
     el.addEventListener('click', e => {
       const go = e.target.closest('[data-go]'); if (go) { e.stopPropagation(); vGo(+go.dataset.go); return; }
-      const st = e.target.closest('[data-step]'); if (st) { e.stopPropagation(); vGo(V.i + +st.dataset.step); return; }
-      const en = e.target.closest('.v-ent'); if (en) { e.stopPropagation(); toast(`${en.dataset.sym} ticker page is not part of this demo`); render(); return; }
       const b = e.target.closest('[data-v]'); if (!b) return;
       e.stopPropagation();
       if (b.dataset.v === 'close') closeViewer(); else { toast('Share sheet'); render(); }
     });
     el.addEventListener('pointerdown', e => {
-      if (e.target.closest('.v-g, .v-info, .v-cap button') || V.busy) return;
+      if (e.target.closest('.v-g, .v-info') || V.busy) return;
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
       el.setPointerCapture(e.pointerId);
       if (pts.size === 2) { const [p, q] = [...pts.values()]; g = { pinch: true, d0: Math.hypot(p.x - q.x, p.y - q.y), z0: V.zoom }; return; }
@@ -1527,10 +1589,17 @@
     vZoomApply(true);
   }
   app.addEventListener('click', e => {
-    const im = e.target.closest('.chart');
-    if (!im || !im.querySelector('img') || (swipe && swipe.on)) return;
+    if (swipe && swipe.on) return;
+    const pic = e.target.closest('.pic');
+    if (pic && pic.querySelector('img')) { e.stopPropagation(); e.preventDefault(); openViewer(pic.querySelector('img')); return; }
+    const ch = e.target.closest('.media .chart, .au-charts .chart');
+    const img = ch && ch.querySelector('img');
+    if (!img) return;
     e.stopPropagation(); e.preventDefault();
-    openViewer(im.querySelector('img'));
+    const sym = (img.getAttribute('alt') || '').replace(/ chart$/, '');
+    const host = ch.closest('[data-act="open"][data-id]'), pane = ch.closest('section.pane[data-key]');
+    const tid = host ? host.dataset.id : (pane && /^detail:/.test(pane.dataset.key) ? pane.dataset.key.split(':')[1] : null);
+    openKline(sym, tid);
   }, true);
   window.addEventListener('keydown', e => {
     if (!V.el) return;
