@@ -297,7 +297,7 @@
   }
   document.getElementById('restartPill').addEventListener('click', () => {
     appReady = false;
-    frame.src = 'app.html?v=39&restart=' + Date.now();
+    frame.src = 'app.html?v=40&restart=' + Date.now();
     const p = bySlug.get(current);
     if (p) queue.push({ type: 'duo:goto', go: p.go });
   });

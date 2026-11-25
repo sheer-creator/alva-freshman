@@ -656,9 +656,9 @@ span.exch { background: var(--br07); }
 .pic.is-video .pic-dur { position: absolute; left: 8px; bottom: 8px; display: flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; background: rgba(0,0,0,.56); color: #fff; font-size: 12px; line-height: 18px; font-variant-numeric: tabular-nums; z-index: 1; }
 .pic.is-video .pic-dur .ic { color: #fff; }
 /* viewer · head, scrubber, video */
-.v-head { position: absolute; display: flex; flex-direction: column; justify-content: center; min-height: 48px; color: #fff; pointer-events: none; transition: opacity .2s ease; }
-.v-head b { font-size: 16px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.v-head span { font-size: 12px; line-height: 18px; color: rgba(255,255,255,.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-head { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 48px; color: #fff; pointer-events: none; transition: opacity .2s ease; }
+.v-head b { max-width: 100%; font-size: 16px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-head span { max-width: 100%; font-size: 12px; line-height: 18px; color: rgba(255,255,255,.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .v-strip { position: absolute; overflow: hidden; touch-action: none; transition: opacity .2s ease; }
 .v-strip.vert { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
 .v-strip.horiz { -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent); }

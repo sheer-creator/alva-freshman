@@ -1317,14 +1317,14 @@
      controls, grouped the way the system groups a vertical bar (HIG, Designing for iPhone Duo):
      · top group: Close.
      · bottom group: Download, and Delete under it on your own posts (trash last, as iOS does).
-     · between the two groups: the post's media as a scrubber, like the strip under a photo in
-       Photos — the current item at its own shape, the others as narrow slivers; tap or drag it to
-       move through them. Upright inner display (horizontal bars): Close · name · Download / Delete
-       in a top bar and the scrubber along the bottom, exactly as in Photos.
-     · a name, when the item has one, and who posted it sit at the top of the content area
-       (left 20, centre line y48) — text never goes in the column.
-     · the image is centred on the screen, clear of the column on both sides; a single item with
-       no scrubber may use the full width below Close.
+     · the post's media as a scrubber, like the strip under a photo in Photos — the current item at
+       its own shape, the others as narrow slivers — along the bottom of the content area, centred,
+       just above the home indicator; tap or drag it sideways, the same direction the image swipes.
+     · a name, when the item has one, and who posted it: centred at the top of the content area
+       (centre line y48). Content area = the window minus the rail and the fold; margins 20 on the
+       open side, 16 next to the rail, top 24, bottom 34 (home indicator).
+     · the image fills the content area's width between the name row and the scrubber.
+     · upright inner display (horizontal bars): Close · name · Download / Delete in a top bar.
      · half-folded like a book: the image on the left page, the post's author and text on the
        right one, nothing on the fold.
      Tap toggles the controls and the status bar; swipe sideways; double-tap / pinch zooms; swipe
@@ -1339,22 +1339,21 @@
        the screen rather than pushed to one side of the control column */
     const ia = book ? { x: 0, w: 455.5 } : { x: 0, w: W };
     const bottomH = V.own ? 48 + 14 + 48 : 48;
-    const col = r ? { x: (r.left ? 0 : r.x) + (r.left ? 24 : 12), y0: r.top + 48 + 14, y1: H - r.bottom - bottomH - 14 } : null;
-    return { L, W, H, r, c0, c1, book, ia, info: book ? { x: 495.5, w: c1 - 495.5 } : null, padR: L.corner ? 140 : 0, strip: V.items.length > 1, bottomH, col };
+    /* content area = the window minus the system regions (rail 84, the fold); on a half-folded book
+       the image's page. Layout margins: 20 on the open side, 16 next to the rail; top 24 (control row
+       y24–72, centre line y48); bottom 34 is the home indicator. Name and scrubber are centred on it. */
+    const ca = { x0: c0, x1: book ? 455.5 : c1, mL: r && r.left ? 16 : 20, mR: r && !r.left ? 16 : 20 };
+    ca.cx = (ca.x0 + ca.x1) / 2;
+    return { L, W, H, r, c0, c1, book, ia, ca, info: book ? { x: 495.5, w: c1 - 495.5 } : null, padR: L.corner ? 140 : 0, strip: V.items.length > 1, bottomH };
   }
   function vFit(img, G) {
     const ar = +img.dataset.ar || (img.naturalWidth || 720) / (img.naturalHeight || 400);
     const fit = (aw, ah) => { let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; } return { w, h }; };
     const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
-    const { W, H, r } = G;
-    if (G.book) return box(0, 455.5, 84, H - 24);
-    if (!r) return box(0, W, 84, H - 34 - (G.strip ? 36 + 20 : 12));   // horizontal bars: below the top bar, above the scrubber
-    /* B: the column's width kept clear on both sides, so the image stays centred on the screen */
-    const b = box(84, W - 84, 84, H - 24);
-    if (G.strip) return b;
-    /* A: one item, no scrubber — full width, between Close and the bottom group */
-    const a = box(0, W, Math.max(84, r.top + 48 + 12), H - r.bottom - G.bottomH - 12);
-    return a.w * a.h >= b.w * b.h ? a : b;
+    const { H, ca } = G;
+    /* the image fills the content area's width (immersive: no side margins) between the name row
+       (ends at 84) and the scrubber (or the home indicator) */
+    return box(ca.x0, ca.x1, 84, H - 34 - (G.strip ? 36 + 12 : 0));
   }
   function vPost() {
     if (parent === window) return;
@@ -1380,13 +1379,16 @@
       const at = (v, y) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: bx + 'px', top: y + 'px' }); };
       at('close', G.r.top);
       if (V.own) { at('download', yb - 62); at('delete', yb); } else at('download', yb);
-      const hx = G.c0 + 20, hw = (G.book ? 455.5 : G.c1 - G.c0) - 20 - 16;
-      Object.assign(head.style, { left: hx + 'px', width: hw + 'px', top: '24px' });
+      /* name: centred on the content area, inside its margins */
+      const x0 = G.ca.x0 + G.ca.mL, x1 = G.ca.x1 - G.ca.mR;
+      Object.assign(head.style, { left: x0 + 'px', width: (x1 - x0) + 'px', top: '24px' });
     } else {
       col.hidden = true; bar.hidden = false;
       Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });
-      const acts = V.own ? 48 + 12 + 48 : 48;
-      Object.assign(head.style, { left: '80px', width: (G.W - 80 - 20 - G.padR - acts - 12) + 'px', top: '24px' });
+      /* a top bar: centred on the bar as wide as the controls on both sides allow, else between them */
+      const acts = V.own ? 48 + 12 + 48 : 48, l = 20 + 48 + 12, r = 20 + G.padR + acts + 12, side = Math.max(l, r);
+      const wide = G.W - 2 * side >= 200;
+      Object.assign(head.style, wide ? { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' } : { left: l + 'px', width: (G.W - l - r) + 'px', top: '24px' });
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.book;
@@ -1399,27 +1401,15 @@
   function vStrip() {
     const st = V.el && V.el.querySelector('.v-strip'); if (!st) return;
     const G = vGeo(); st.hidden = !G.strip; if (!G.strip) return;
-    const vert = !!G.r, GAPS = 2, PAD = 6;
-    const sizes = V.items.map((m, k) => {
-      const ar = (m.w || 16) / (m.h || 9);
-      if (vert) return k === V.i ? [48, Math.max(32, Math.min(72, 48 / ar))] : [36, 24];
-      return k === V.i ? [Math.max(28, Math.min(64, 36 * ar)), 36] : [24, 36];
-    });
+    const GAPS = 2, PAD = 6;
+    const sizes = V.items.map((m, k) => k === V.i ? Math.max(28, Math.min(64, 36 * (m.w || 16) / (m.h || 9))) : 24);
     let pos = 0; const start = [];
-    sizes.forEach((sz, k) => { if (k === V.i && k) pos += PAD; start.push(pos); pos += (vert ? sz[1] : sz[0]) + (k === V.i ? PAD : GAPS); });
-    const cur = start[V.i] + (vert ? sizes[V.i][1] : sizes[V.i][0]) / 2;
-    if (vert) {
-      const band = G.col, mid = (band.y0 + band.y1) / 2;
-      Object.assign(st.style, { left: (band.x) + 'px', top: band.y0 + 'px', width: '48px', height: (band.y1 - band.y0) + 'px' });
-      st.className = 'v-strip vert';
-      st.querySelectorAll('button').forEach((b, k) => Object.assign(b.style, { width: sizes[k][0] + 'px', height: sizes[k][1] + 'px', left: (48 - sizes[k][0]) / 2 + 'px', top: (mid - band.y0 - cur + start[k]) + 'px' }));
-    } else {
-      const w = G.c1 - G.c0, y = G.H - 34 - 36;
-      Object.assign(st.style, { left: G.c0 + 'px', top: y + 'px', width: w + 'px', height: '36px' });
-      st.className = 'v-strip horiz';
-      st.querySelectorAll('button').forEach((b, k) => Object.assign(b.style, { width: sizes[k][0] + 'px', height: '36px', top: '0px', left: (w / 2 - cur + start[k]) + 'px' }));
-    }
-    st.querySelectorAll('button').forEach((b, k) => b.classList.toggle('on', k === V.i));
+    sizes.forEach((w, k) => { if (k === V.i && k) pos += PAD; start.push(pos); pos += w + (k === V.i ? PAD : GAPS); });
+    const cur = start[V.i] + sizes[V.i] / 2;
+    const x0 = G.ca.x0 + G.ca.mL, w = G.ca.x1 - G.ca.mR - x0;
+    Object.assign(st.style, { left: x0 + 'px', top: (G.H - 34 - 36) + 'px', width: w + 'px', height: '36px' });
+    st.className = 'v-strip horiz';
+    st.querySelectorAll('button').forEach((b, k) => { Object.assign(b.style, { width: sizes[k] + 'px', height: '36px', top: '0px', left: (G.ca.cx - x0 - cur + start[k]) + 'px' }); b.classList.toggle('on', k === V.i); });
   }
   function vHead() {
     const m = V.items[V.i] || {}, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
