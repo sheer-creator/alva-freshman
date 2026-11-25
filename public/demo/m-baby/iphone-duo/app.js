@@ -1288,57 +1288,86 @@
   window.__applyHead = applyHead;
 
   /* ── image viewer ──
-     Tap an image in a list or a detail: it grows from where it sits into a black viewer.
-     The viewer covers the whole Alva window (rail included) — not one column — because
-     the images are charts and want the width. On a half-folded Book it stays in the half
-     the image came from: nothing crosses the hinge. Its controls sit inside the content
-     area (W), never under the camera, the status or the rail column, and the image fits
-     that area below the 84 bar. Tap toggles the controls (and the status bar); swipe down
-     or ✕ puts the image back where it came from; swipe sideways for the post's other
-     images; double-tap zooms. Turning or folding the device keeps it open and re-fits. */
-  const V = { el: null, i: 0, srcs: [], thumbs: [], side: null, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
-  const GAP = 16;
-  function vRegion() {
-    const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight;
-    let x0 = 0, x1 = W;
-    if (L.mode === 'book') { if (V.side === 'l') x1 = 455.5; else x0 = 495.5; }
-    let c0 = x0, c1 = x1;
-    if (L.rail) { if (L.rail.left) c0 = Math.max(c0, 84); else c1 = Math.min(c1, L.rail.x); }
-    return { x0, x1, H, c0: c0 - x0, c1: c1 - x0, padR: L.corner ? 140 : 0 };
+     Tap an image in a list or a detail and it grows from where it sits into a black, full-window
+     viewer (Apple: an immersive view may span the full width, its content stays inset).
+     · Controls follow the system bar placement (HIG, Designing for iPhone Duo › Vertical controls):
+       where Alva has a vertical bar, Close sits at the top of that column and Share at the bottom;
+       text never goes in the column, so the page count is a caption under the image. Where Alva
+       has horizontal bars (inner display upright), Close / Share sit in a top bar.
+     · The image fits the content area (the window minus the control column), never under the
+       camera or the status bar.
+     · Half-folded like a book it is Apple's overlay arrangement: the image moves to one side and
+       its info (author, text, the post's other images) to the other — nothing sits on the fold.
+     Tap toggles the controls and the status bar; swipe sideways for the post's other images;
+     double-tap / pinch zooms; swipe down (or Close) puts the image back where it came from.
+     Turning, folding or Split View keeps it open and re-fits. */
+  const V = { el: null, i: 0, srcs: [], thumbs: [], tid: null, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
+  const GAP = 16, CAP = 44;
+  function vGeo() {
+    const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight, r = L.rail;
+    const c0 = r && r.left ? 84 : 0, c1 = r && !r.left ? r.x : W;
+    const book = L.mode === 'book';
+    /* slides span the whole window (or the image's half when folded), so the image is centred on
+       the screen rather than pushed to one side of the control column */
+    const ia = book ? { x: 0, w: 455.5 } : { x: 0, w: W };
+    return { L, W, H, r, c0, c1, book, ia, info: book ? { x: 495.5, w: c1 - 495.5 } : null, padR: L.corner ? 140 : 0 };
   }
-  function vFit(img, R) {
-    const aw = R.c1 - R.c0, ah = R.H - 84 - 34;
+  function vFit(img, G) {
     const ar = (img.naturalWidth || 720) / (img.naturalHeight || 400);
-    let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; }
-    return { x: R.c0 + (aw - w) / 2, y: 84 + (ah - h) / 2, w, h };
+    const fit = (aw, ah) => { let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; } return { w, h }; };
+    const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
+    const { W, H, r } = G;
+    if (G.book) return box(0, 455.5, 24, H - 34);
+    if (!r) return box(0, W, 84, H - 34 - CAP);            // horizontal bars: below the top bar, full width
+    /* A: full width, in the band between the column's top controls (status, Close) and its bottom one (Share) */
+    const a = box(0, W, r.top + 48 + 12, H - r.bottom - 48 - 12);
+    /* B: the column's width kept clear on both sides, so the image stays centred */
+    const b = box(84, W - 84, 24, H - 34 - CAP);
+    return a.w * a.h >= b.w * b.h ? a : b;
   }
   function vPost() {
     if (parent === window) return;
-    const R = V.el ? vRegion() : null;
-    parent.postMessage({ type: 'duo:viewer', on: !!V.el, chrome: V.chrome, rect: R ? [R.x0, 0, R.x1, R.H] : null }, '*');
+    parent.postMessage({ type: 'duo:viewer', on: !!V.el, chrome: V.chrome, rect: V.el ? [0, 0, innerWidth, innerHeight] : null }, '*');
   }
   function vLayout(anim) {
     if (!V.el) return;
-    const R = vRegion(), cw = R.c1 - R.c0;
-    Object.assign(V.el.style, { left: R.x0 + 'px', width: (R.x1 - R.x0) + 'px', height: R.H + 'px' });
-    const bar = V.el.querySelector('.v-bar');
-    Object.assign(bar.style, { left: R.c0 + 'px', width: cw + 'px', paddingRight: (10 + R.padR) + 'px' });
-    Object.assign(V.el.querySelector('.v-clip').style, { left: R.c0 + 'px', width: cw + 'px' });
+    const G = vGeo(), a = G.ia;
+    Object.assign(V.el.style, { width: G.W + 'px', height: G.H + 'px' });
+    Object.assign(V.el.querySelector('.v-clip').style, { left: a.x + 'px', width: a.w + 'px' });
     V.el.querySelectorAll('.v-slide').forEach((sl, k) => {
-      const img = sl.firstChild, f = vFit(img, R);
-      Object.assign(sl.style, { left: (k * (cw + GAP)) + 'px', width: cw + 'px' });
-      Object.assign(img.style, { left: (f.x - R.c0) + 'px', top: f.y + 'px', width: f.w + 'px', height: f.h + 'px' });
+      const img = sl.firstChild, f = vFit(img, G);
+      Object.assign(sl.style, { left: (k * (a.w + GAP)) + 'px', width: a.w + 'px' });
+      Object.assign(img.style, { left: (f.x - a.x) + 'px', top: f.y + 'px', width: f.w + 'px', height: f.h + 'px' });
     });
+    /* controls: the vertical column where Alva has one, else a top bar */
+    const col = V.el.querySelector('.v-col'), bar = V.el.querySelector('.v-bar');
+    if (G.r) {
+      col.hidden = false; bar.hidden = true;
+      const bx = (G.r.left ? 0 : G.r.x) + (G.r.left ? 24 : 12);
+      Object.assign(col.querySelector('[data-v="close"]').style, { left: bx + 'px', top: G.r.top + 'px' });
+      Object.assign(col.querySelector('[data-v="share"]').style, { left: bx + 'px', top: (G.H - G.r.bottom - 48) + 'px' });
+    } else {
+      col.hidden = true; bar.hidden = false;
+      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (16 + G.padR) + 'px' });
+    }
+    const cap = V.el.querySelector('.v-cap'), info = V.el.querySelector('.v-info');
+    cap.hidden = G.book; info.hidden = !G.book;
+    const inset = G.r ? 84 : 0;
+    Object.assign(cap.style, { left: inset + 'px', width: (G.W - 2 * inset) + 'px', top: (G.H - 34 - CAP) + 'px' });
+    if (G.book) Object.assign(info.style, { left: G.info.x + 'px', width: G.info.w + 'px' });
     vTrack(anim);
     vZoomApply(false);
     vPost();
   }
   function vTrack(anim, dx = 0) {
-    const R = vRegion(), cw = R.c1 - R.c0, tr = V.el.querySelector('.v-track');
-    const to = `translateX(${-V.i * (cw + GAP) + dx}px)`;
+    const G = vGeo(), tr = V.el.querySelector('.v-track');
+    const to = `translateX(${-V.i * (G.ia.w + GAP) + dx}px)`;
     if (anim) { const from = getComputedStyle(tr).transform; tr.style.transform = to; M.play(tr, [{ transform: from === 'none' ? 'none' : from }, { transform: to }], Object.assign({}, M.spring(0.4, 1), { fill: 'none' })); }
     else tr.style.transform = to;
-    V.el.querySelector('.v-count').textContent = V.srcs.length > 1 ? `${V.i + 1} / ${V.srcs.length}` : '';
+    const n = V.srcs.length, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
+    V.el.querySelector('.v-cap').innerHTML = `${n > 1 ? `<b>${V.i + 1} / ${n}</b>` : ''}${who ? `<span>${esc(who)}${t.date ? ' · ' + esc(t.date) : ''}</span>` : ''}`;
+    V.el.querySelectorAll('.v-thumbs button').forEach((b, k) => b.classList.toggle('on', k === V.i));
+    const cnt = V.el.querySelector('.v-info .v-n'); if (cnt) cnt.textContent = n > 1 ? `${V.i + 1} / ${n}` : '';
   }
   const vImg = () => V.el.querySelectorAll('.v-slide img')[V.i];
   function vZoomApply(anim) {
@@ -1347,68 +1376,63 @@
     if (anim) { const from = img.style.transform || 'none'; img.style.transform = t; M.play(img, [{ transform: from }, { transform: t }], Object.assign({}, M.spring(0.35, 1), { fill: 'none' })); }
     else img.style.transform = t;
   }
-  function vChrome(on) {
-    V.chrome = on;
-    V.el.classList.toggle('bare', !on);
-    vPost();
-  }
+  function vChrome(on) { V.chrome = on; V.el.classList.toggle('bare', !on); vPost(); }
   function vThumb() {
-    /* where the current image sits now (the page may have scrolled or reflowed) */
     const src = V.srcs[V.i];
-    const R = vRegion();
-    const cand = [...app.querySelectorAll('.chart img')].filter(im => im.getAttribute('src') === src);
-    const pick = V.thumbs[V.i] && V.thumbs[V.i].isConnected ? V.thumbs[V.i] : cand[0];
+    const pick = V.thumbs[V.i] && V.thumbs[V.i].isConnected ? V.thumbs[V.i] : [...app.querySelectorAll('.chart img')].find(im => im.getAttribute('src') === src);
     if (!pick) return null;
     const r = pick.closest('.chart').getBoundingClientRect();
     const pane = pick.closest('.scroll, .pane'); const pr = pane ? pane.getBoundingClientRect() : r;
     if (r.bottom < pr.top + 8 || r.top > pr.bottom - 8 || r.right < pr.left + 8 || r.left > pr.right - 8) return null;
-    return { x: r.left - R.x0, y: r.top, w: r.width, h: r.height, el: pick };
+    return { x: r.left, y: r.top, w: r.width, h: r.height, el: pick };
   }
-  function vFromTo(img, a, b) {
-    /* FLIP: a and b are boxes in the viewer's coordinates; the img sits at its fit box */
-    const R = vRegion(), f = vFit(img, R);
-    const tf = box => { const s = box.w / f.w; return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`; };
-    return [tf(a), tf(b)];
+  function vTf(img, box) {
+    const f = vFit(img, vGeo()), s = box.w / f.w;
+    return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`;
+  }
+  function vInfoHTML() {
+    const t = V.tid && D.theses[V.tid];
+    const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
+    return `${head}<div class="v-n"></div><div class="v-thumbs">${V.srcs.map((s, k) => `<button data-go="${k}"><img src="${s}" alt=""></button>`).join('')}</div>`;
   }
   function openViewer(chartImg) {
     if (V.el || V.busy) return;
     const track = chartImg.closest('.media-track') || chartImg.closest('.chart').parentElement;
     const imgs = [...track.querySelectorAll('.chart img')];
     V.srcs = imgs.map(im => im.getAttribute('src')); V.thumbs = imgs; V.i = imgs.indexOf(chartImg);
+    const host = chartImg.closest('[data-act="open"][data-id]'), pane = chartImg.closest('section.pane[data-key]');
+    V.tid = host ? host.dataset.id : (pane && /^detail:/.test(pane.dataset.key) ? pane.dataset.key.split(':')[1] : null);
     V.zoom = 1; V.px = V.py = 0; V.chrome = true;
-    const L = LAYOUTS[stateId()];
-    const tr = chartImg.getBoundingClientRect();
-    V.side = L.mode === 'book' ? (tr.left + tr.width / 2 < 475.5 ? 'l' : 'r') : null;
+    const tr = chartImg.closest('.chart').getBoundingClientRect();
     const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
     el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.srcs.map(s => `<div class="v-slide"><img src="${s}" alt="" draggable="false"></div>`).join('')}</div></div>
-      <header class="v-bar"><button class="v-btn" data-v="close" aria-label="Close">${I('close-l1')}</button><span class="v-count"></span><button class="v-btn" data-v="share" aria-label="Share">${I('share-l')}</button></header>`;
+      <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button><button class="v-g" data-v="share" aria-label="Share">${I('share-l')}</button></div>
+      <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button><button class="v-g" data-v="share" aria-label="Share">${I('share-l')}</button></header>
+      <div class="v-cap"></div><aside class="v-info">${vInfoHTML()}</aside>`;
     document.body.appendChild(el);
     vLayout(false);
-    const img = vImg(), R = vRegion(), f = vFit(img, R);
-    const from = { x: tr.left - R.x0, y: tr.top, w: tr.width, h: tr.height };
-    const sp = M.spring(0.42, 0.88);
-    const [a] = vFromTo(img, from, f);
-    chartImg.closest('.chart').style.visibility = 'hidden';
-    M.play(img, [{ transform: a, borderRadius: 8 / (from.w / f.w) + 'px' }, { transform: 'none', borderRadius: '0px' }], Object.assign({}, sp, { fill: 'none' }));
+    const img = vImg(), sp = M.spring(0.42, 0.88);
+    const from = { x: tr.left, y: tr.top, w: tr.width, h: tr.height };
+    const chart = chartImg.closest('.chart'); chart.style.visibility = 'hidden';
+    M.play(img, [{ transform: vTf(img, from), borderRadius: 8 / (from.w / vFit(img, vGeo()).w) + 'px' }, { transform: 'none', borderRadius: '0px' }], Object.assign({}, sp, { fill: 'none' }));
     M.play(el.querySelector('.v-bg'), [{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'none' });
-    M.play(el.querySelector('.v-bar'), [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 120, easing: 'ease-out', fill: 'backwards' });
-    setTimeout(() => { chartImg.closest('.chart') && (chartImg.closest('.chart').style.visibility = ''); }, sp.duration);
+    el.querySelectorAll('.v-col, .v-bar, .v-cap, .v-info').forEach(n => M.play(n, [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 120, easing: 'ease-out', fill: 'backwards' }));
+    setTimeout(() => { chart.style.visibility = ''; }, sp.duration);
     vBind(el);
   }
   function closeViewer(fromT) {
     if (!V.el || V.busy) return;
     V.busy = true;
-    const el = V.el, img = vImg(), R = vRegion(), f = vFit(img, R);
-    const th = vThumb();
+    const el = V.el, img = vImg(), th = vThumb();
     const cur = fromT || img.style.transform || 'none';
     const bg = el.querySelector('.v-bg'), bgO = getComputedStyle(bg).opacity;
-    el.classList.add('closing'); vChrome(false);
+    vChrome(false);
     const sp = M.spring(0.38, 1);
+    M.play(el.querySelector('.v-info'), [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
     let a;
     if (th) {
-      const [to] = vFromTo(img, th, f);
       th.el.closest('.chart').style.visibility = 'hidden';
-      a = M.play(img, [{ transform: cur, borderRadius: '0px' }, { transform: to, borderRadius: 8 / (th.w / f.w) + 'px' }], Object.assign({}, sp, { fill: 'forwards' }));
+      a = M.play(img, [{ transform: cur, borderRadius: '0px' }, { transform: vTf(img, th), borderRadius: 8 / (th.w / vFit(img, vGeo()).w) + 'px' }], Object.assign({}, sp, { fill: 'forwards' }));
     } else a = M.play(img, [{ transform: cur, opacity: 1 }, { transform: cur + ' scale(0.9)', opacity: 0 }], { duration: 240, easing: 'ease-in', fill: 'forwards' });
     M.play(bg, [{ opacity: bgO }, { opacity: 0 }], { duration: Math.min(300, sp.duration), easing: 'ease-out', fill: 'forwards' });
     (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => {
@@ -1421,13 +1445,13 @@
     let g = null, lastTap = 0, tapTimer = null;
     const pts = new Map();
     el.addEventListener('click', e => {
+      const go = e.target.closest('[data-go]'); if (go) { e.stopPropagation(); vGo(+go.dataset.go); return; }
       const b = e.target.closest('[data-v]'); if (!b) return;
       e.stopPropagation();
-      if (b.dataset.v === 'close') closeViewer();
-      else toastV('Share sheet');
+      if (b.dataset.v === 'close') closeViewer(); else { toast('Share sheet'); render(); }
     });
     el.addEventListener('pointerdown', e => {
-      if (e.target.closest('.v-bar') || V.busy) return;
+      if (e.target.closest('.v-g, .v-info') || V.busy) return;
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
       el.setPointerCapture(e.pointerId);
       if (pts.size === 2) { const [p, q] = [...pts.values()]; g = { pinch: true, d0: Math.hypot(p.x - q.x, p.y - q.y), z0: V.zoom }; return; }
@@ -1461,12 +1485,11 @@
         if (now - lastTap < 280) { clearTimeout(tapTimer); lastTap = 0; vDoubleTap(e); }
         else { lastTap = now; tapTimer = setTimeout(() => vChrome(!V.chrome), 280); }
       } else if (g.axis === 'x') {
-        const R = vRegion(), cw = R.c1 - R.c0, v = dx / dt;
-        let n = V.i; if (dx < -cw * 0.22 || v < -0.45) n++; else if (dx > cw * 0.22 || v > 0.45) n--;
+        const w = vGeo().ia.w, v = dx / dt;
+        let n = V.i; if (dx < -w * 0.22 || v < -0.45) n++; else if (dx > w * 0.22 || v > 0.45) n--;
         vGo(n);
       } else if (g.axis === 'down') {
-        const v = dy / dt;
-        if (dy > 90 || v > 0.6) closeViewer(vImg().style.transform);
+        if (dy > 90 || dy / dt > 0.6) closeViewer(vImg().style.transform);
         else {
           const img = vImg(), from = img.style.transform; img.style.transform = 'none';
           M.play(img, [{ transform: from }, { transform: 'none' }], Object.assign({}, M.spring(0.35, 0.86), { fill: 'none' }));
@@ -1481,21 +1504,17 @@
     el.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); V.zoom = Math.max(1, Math.min(4, V.zoom * Math.exp(-e.deltaY / 200))); if (V.zoom === 1) V.px = V.py = 0; vClampPan(); vZoomApply(false); }, { passive: false });
   }
   function vClampPan() {
-    const img = vImg(), R = vRegion(); if (!img) return;
-    const w = img.offsetWidth * V.zoom, h = img.offsetHeight * V.zoom, cw = R.c1 - R.c0, ch = R.H;
-    const mx = Math.max(0, (w - cw) / 2), my = Math.max(0, (h - ch) / 2);
+    const img = vImg(), G = vGeo(); if (!img) return;
+    const w = img.offsetWidth * V.zoom, h = img.offsetHeight * V.zoom;
+    const mx = Math.max(0, (w - G.ia.w) / 2), my = Math.max(0, (h - G.H) / 2);
     V.px = Math.max(-mx, Math.min(mx, V.px)); V.py = Math.max(-my, Math.min(my, V.py));
   }
   function vDoubleTap(e) {
     const img = vImg(); if (!img) return;
     if (V.zoom > 1) { V.zoom = 1; V.px = V.py = 0; }
-    else {
-      const r = img.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      V.zoom = 2.5; V.px = (cx - e.clientX) * 1.5; V.py = (cy - e.clientY) * 1.5; vClampPan();
-    }
+    else { const r = img.getBoundingClientRect(); V.zoom = 2.5; V.px = (r.left + r.width / 2 - e.clientX) * 1.5; V.py = (r.top + r.height / 2 - e.clientY) * 1.5; vClampPan(); }
     vZoomApply(true);
   }
-  function toastV(m) { toast(m); render(); }
   app.addEventListener('click', e => {
     const im = e.target.closest('.chart');
     if (!im || !im.querySelector('img') || (swipe && swipe.on)) return;
