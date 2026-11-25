@@ -1375,22 +1375,27 @@
     });
     /* controls: the vertical column where Alva has one, else a top bar */
     const col = V.el.querySelector('.v-col'), bar = V.el.querySelector('.v-bar'), head = V.el.querySelector('.v-head');
+    const yb = G.H - (G.r ? G.r.bottom : 24) - 48;   // bottom row: the rail's bottom inset, else 24 — centre line H − 48
+    col.hidden = false;
+    const cl = col.querySelector('[data-v="close"]');
     if (G.r) {
-      col.hidden = false; bar.hidden = true;
-      const bx = (G.r.left ? 0 : G.r.x) + (G.r.left ? 24 : 12), yb = G.H - G.r.bottom - 48;
+      bar.hidden = true; cl.hidden = false;
+      const bx = (G.r.left ? 0 : G.r.x) + (G.r.left ? 24 : 12);
       const at = (v, y) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: bx + 'px', top: y + 'px' }); };
       at('close', G.r.top);
-      if (V.own) { at('download', yb - 62); at('delete', yb); } else at('download', yb);
-      /* name: centred on the content area, inside its margins */
+      /* Download as close to the bottom corner as it gets; Delete (own posts) above it */
+      at('download', yb); if (V.own) at('delete', yb - 62);
       const x0 = G.ca.x0 + G.ca.mL, x1 = G.ca.x1 - G.ca.mR;
       Object.assign(head.style, { left: x0 + 'px', width: (x1 - x0) + 'px', top: '24px' });
     } else {
-      col.hidden = true; bar.hidden = false;
+      /* horizontal bars: Close in the top bar; Download in the bottom-right corner, Delete to its left */
+      bar.hidden = false; cl.hidden = true;
       Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });
-      /* a top bar: centred on the bar as wide as the controls on both sides allow, else between them */
-      const acts = V.own ? 48 + 12 + 48 : 48, l = 20 + 48 + 12, r = 20 + G.padR + acts + 12, side = Math.max(l, r);
-      const wide = G.W - 2 * side >= 200;
-      Object.assign(head.style, wide ? { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' } : { left: l + 'px', width: (G.W - l - r) + 'px', top: '24px' });
+      const dx = G.W - 20 - 48;
+      const at = (v, x) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: x + 'px', top: yb + 'px' }); };
+      at('download', dx); if (V.own) at('delete', dx - 60);
+      const side = Math.max(20 + 48 + 12, 20 + G.padR);
+      Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' });
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.book;
@@ -1408,15 +1413,16 @@
     let pos = 0; const start = [];
     sizes.forEach((w, k) => { if (k === V.i && k) pos += PAD; start.push(pos); pos += w + (k === V.i ? PAD : GAPS); });
     const cur = start[V.i] + sizes[V.i] / 2;
-    const x0 = G.ca.x0 + G.ca.mL, w = G.ca.x1 - G.ca.mR - x0;
-    Object.assign(st.style, { left: x0 + 'px', top: (G.H - 48 - 18) + 'px', width: w + 'px', height: '36px' });   // centre line H − 48, level with the rail's bottom button
+    const keep = G.r ? 0 : (V.own ? 108 : 48) + 12;   // bar layouts: Download / Delete sit in the bottom-right corner
+    const x0 = G.ca.x0 + G.ca.mL + keep, w = G.ca.x1 - G.ca.mR - keep - x0;
+    Object.assign(st.style, { left: x0 + 'px', top: (G.H - 48 - 20) + 'px', width: w + 'px', height: '40px' });   // centre line H − 48, level with the bottom button; 2 spare above / below for the outline
     st.className = 'v-strip horiz';
-    st.querySelectorAll('button').forEach((b, k) => { Object.assign(b.style, { width: sizes[k] + 'px', height: '36px', top: '0px', left: (G.ca.cx - x0 - cur + start[k]) + 'px' }); b.classList.toggle('on', k === V.i); });
+    st.querySelectorAll('button').forEach((b, k) => { Object.assign(b.style, { width: sizes[k] + 'px', height: '36px', top: '2px', left: (G.ca.cx - x0 - cur + start[k]) + 'px' }); b.classList.toggle('on', k === V.i); });
   }
   function vHead() {
     const m = V.items[V.i] || {}, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
     const meta = who ? `${esc(who)}${t.date ? ' · ' + esc(t.date) : ''}` : '';
-    V.el.querySelector('.v-head').innerHTML = `${m.title ? `<b>${esc(m.title)}</b>` : ''}${meta ? `<span>${meta}</span>` : ''}`;
+    V.el.querySelector('.v-head').innerHTML = m.title ? `<b>${esc(m.title)}</b>` : '';   // media have a name or nothing — no subtitle
   }
   function vTrack(anim, dx = 0) {
     const G = vGeo(), tr = V.el.querySelector('.v-track');
@@ -1435,7 +1441,7 @@
   function vChrome(on) { V.chrome = on; V.el.classList.toggle('bare', !on); vPost(); }
   /* tap: full screen (controls and status hidden) ⇄ back to the framed view, the image moving between the two fits */
   function vFull(on) {
-    V.full = on; vChrome(!on);
+    V.full = on; vChrome(!on); V.el.classList.toggle('full', on);
     V.el.classList.add('v-fit-anim'); vLayout(false);
     clearTimeout(vFull.t); vFull.t = setTimeout(() => V.el && V.el.classList.remove('v-fit-anim'), 420);
   }
@@ -1473,7 +1479,7 @@
     const acts = `<button class="v-g" data-v="download" aria-label="Download">${I('download-l')}</button>${V.own ? `<button class="v-g" data-v="delete" aria-label="Delete">${I('delete-l')}</button>` : ''}`;
     el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.items.map(m => `<div class="v-slide"><img src="${m.src}" alt="" draggable="false"${m.w && m.h ? ` data-ar="${m.w / m.h}"` : ''}>${m.video ? `<button class="v-play v-g" data-v="play" aria-label="Play">${I('play-f')}</button><span class="v-dur">${esc(m.dur || '')}</span>` : ''}</div>`).join('')}</div></div>
       <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button>${acts}</div>
-      <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button><span class="grow"></span>${acts}</header>
+      <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button></header>
       <div class="v-head"></div>
       <div class="v-strip">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false"></button>`).join('')}</div>
       <aside class="v-info">${vInfoHTML()}</aside>`;
@@ -1482,7 +1488,7 @@
     const img = vImg(), sp = M.spring(0.42, 0.88);
     const from = { x: tr.left, y: tr.top, w: tr.width, h: tr.height };
     const chart = chartImg.closest('.pic'); chart.style.visibility = 'hidden';
-    M.play(img, [{ transform: vTf(img, from), borderRadius: 8 / (from.w / vFit(img, vGeo()).w) + 'px' }, { transform: 'none', borderRadius: '0px' }], Object.assign({}, sp, { fill: 'none' }));
+    M.play(img, [{ transform: vTf(img, from), borderRadius: 8 / (from.w / vFit(img, vGeo()).w) + 'px' }, { transform: 'none', borderRadius: '8px' }], Object.assign({}, sp, { fill: 'none' }));
     M.play(el.querySelector('.v-bg'), [{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'none' });
     el.querySelectorAll('.v-col, .v-bar, .v-head, .v-strip, .v-info').forEach(n => M.play(n, [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 120, easing: 'ease-out', fill: 'backwards' }));
     setTimeout(() => { chart.style.visibility = ''; }, sp.duration);
@@ -1500,7 +1506,7 @@
     let a;
     if (th) {
       th.el.closest('.pic').style.visibility = 'hidden';
-      a = M.play(img, [{ transform: cur, borderRadius: '0px' }, { transform: vTf(img, th), borderRadius: 8 / (th.w / vFit(img, vGeo()).w) + 'px' }], Object.assign({}, sp, { fill: 'forwards' }));
+      a = M.play(img, [{ transform: cur, borderRadius: V.full ? '0px' : '8px' }, { transform: vTf(img, th), borderRadius: 8 / (th.w / vFit(img, vGeo()).w) + 'px' }], Object.assign({}, sp, { fill: 'forwards' }));
     } else a = M.play(img, [{ transform: cur, opacity: 1 }, { transform: cur + ' scale(0.9)', opacity: 0 }], { duration: 240, easing: 'ease-in', fill: 'forwards' });
     M.play(bg, [{ opacity: bgO }, { opacity: 0 }], { duration: Math.min(300, sp.duration), easing: 'ease-out', fill: 'forwards' });
     (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => {
