@@ -1329,7 +1329,7 @@
        right one, nothing on the fold.
      Tap toggles the controls and the status bar; swipe sideways; double-tap / pinch zooms; swipe
      down (or Close) puts it back where it came from. Turning, folding or Split View re-fits. */
-  const V = { el: null, i: 0, srcs: [], items: [], thumbs: [], tid: null, own: false, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
+  const V = { el: null, i: 0, srcs: [], items: [], thumbs: [], tid: null, own: false, chrome: true, full: false, zoom: 1, px: 0, py: 0, busy: false };
   const GAP = 16;
   function vGeo() {
     const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight, r = L.rail;
@@ -1350,10 +1350,12 @@
     const ar = +img.dataset.ar || (img.naturalWidth || 720) / (img.naturalHeight || 400);
     const fit = (aw, ah) => { let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; } return { w, h }; };
     const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
-    const { H, ca } = G;
-    /* the image fills the content area's width (immersive: no side margins) between the name row
-       (ends at 84) and the scrubber (or the home indicator) */
-    return box(ca.x0, ca.x1, 84, H - 34 - (G.strip ? 36 + 12 : 0));
+    const { W, H, ca } = G;
+    /* tapped: full screen — the whole window, over the rail (the image's page when folded) */
+    if (V.full) return G.book ? box(0, 455.5, 0, H) : box(0, W, 0, H);
+    /* default: inside the content area's margins, so nothing touches an edge and reads as more to
+       swipe; between the name row (84) and the scrubber (or the home indicator) */
+    return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, G.strip ? G.H - 66 - 12 : H - 34);
   }
   function vPost() {
     if (parent === window) return;
@@ -1407,7 +1409,7 @@
     sizes.forEach((w, k) => { if (k === V.i && k) pos += PAD; start.push(pos); pos += w + (k === V.i ? PAD : GAPS); });
     const cur = start[V.i] + sizes[V.i] / 2;
     const x0 = G.ca.x0 + G.ca.mL, w = G.ca.x1 - G.ca.mR - x0;
-    Object.assign(st.style, { left: x0 + 'px', top: (G.H - 34 - 36) + 'px', width: w + 'px', height: '36px' });
+    Object.assign(st.style, { left: x0 + 'px', top: (G.H - 48 - 18) + 'px', width: w + 'px', height: '36px' });   // centre line H − 48, level with the rail's bottom button
     st.className = 'v-strip horiz';
     st.querySelectorAll('button').forEach((b, k) => { Object.assign(b.style, { width: sizes[k] + 'px', height: '36px', top: '0px', left: (G.ca.cx - x0 - cur + start[k]) + 'px' }); b.classList.toggle('on', k === V.i); });
   }
@@ -1431,6 +1433,12 @@
     else img.style.transform = t;
   }
   function vChrome(on) { V.chrome = on; V.el.classList.toggle('bare', !on); vPost(); }
+  /* tap: full screen (controls and status hidden) ⇄ back to the framed view, the image moving between the two fits */
+  function vFull(on) {
+    V.full = on; vChrome(!on);
+    V.el.classList.add('v-fit-anim'); vLayout(false);
+    clearTimeout(vFull.t); vFull.t = setTimeout(() => V.el && V.el.classList.remove('v-fit-anim'), 420);
+  }
   function vThumb() {
     const src = V.srcs[V.i];
     const pick = V.thumbs[V.i] && V.thumbs[V.i].isConnected ? V.thumbs[V.i] : [...app.querySelectorAll('.pic img')].find(im => im.getAttribute('src') === src);
@@ -1459,7 +1467,7 @@
     const tm = V.tid && D.theses[V.tid] && D.theses[V.tid].media;
     V.items = tm && tm.length === imgs.length ? tm : imgs.map(im => ({ src: im.getAttribute('src'), w: im.naturalWidth, h: im.naturalHeight }));
     V.own = !!(V.tid && D.theses[V.tid] && D.theses[V.tid].author === 'me');
-    V.zoom = 1; V.px = V.py = 0; V.chrome = true;
+    V.zoom = 1; V.px = V.py = 0; V.chrome = true; V.full = false;
     const tr = chartImg.closest('.pic').getBoundingClientRect();
     const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
     const acts = `<button class="v-g" data-v="download" aria-label="Download">${I('download-l')}</button>${V.own ? `<button class="v-g" data-v="delete" aria-label="Delete">${I('delete-l')}</button>` : ''}`;
@@ -1546,7 +1554,7 @@
       if (!g.axis) {
         const now = performance.now();
         if (now - lastTap < 280) { clearTimeout(tapTimer); lastTap = 0; vDoubleTap(e); }
-        else { lastTap = now; tapTimer = setTimeout(() => vChrome(!V.chrome), 280); }
+        else { lastTap = now; tapTimer = setTimeout(() => vFull(!V.full), 280); }
       } else if (g.axis === 'x') {
         const w = vGeo().ia.w, v = dx / dt;
         let n = V.i; if (dx < -w * 0.22 || v < -0.45) n++; else if (dx > w * 0.22 || v > 0.45) n--;
@@ -1558,7 +1566,7 @@
           M.play(img, [{ transform: from }, { transform: 'none' }], Object.assign({}, M.spring(0.35, 0.86), { fill: 'none' }));
           const bg = el.querySelector('.v-bg'), o = bg.style.opacity; bg.style.opacity = '';
           M.play(bg, [{ opacity: o }, { opacity: 1 }], { duration: 200, fill: 'none' });
-          vChrome(true);
+          vChrome(!V.full);
         }
       }
       g = null;
