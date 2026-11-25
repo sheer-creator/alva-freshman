@@ -1094,3 +1094,8 @@ html[data-capture] .duo-flap { display: none !important; }
   :root { --sq: 1.75; --sq-shape: superellipse(1.96); }
   .flap-back, .flap-screen { corner-shape: superellipse(1.96); }
 }
+
+/* image viewer in the app: the status over it turns white, and hides with the viewer's controls */
+.duo-status-v, .duo-status-h { transition: opacity .2s ease; }
+:root[data-viewer='white'] .duo-status-v, :root[data-viewer='white'] .duo-status-h { filter: brightness(0) invert(1) !important; }
+:root[data-viewer='hide'] .duo-status-v, :root[data-viewer='hide'] .duo-status-h { opacity: 0; }

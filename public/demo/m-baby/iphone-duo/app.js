@@ -1286,5 +1286,229 @@
     if (next !== headHidden) { headHidden = next; applyHead(); }
   }, true);
   window.__applyHead = applyHead;
+
+  /* ── image viewer ──
+     Tap an image in a list or a detail: it grows from where it sits into a black viewer.
+     The viewer covers the whole Alva window (rail included) — not one column — because
+     the images are charts and want the width. On a half-folded Book it stays in the half
+     the image came from: nothing crosses the hinge. Its controls sit inside the content
+     area (W), never under the camera, the status or the rail column, and the image fits
+     that area below the 84 bar. Tap toggles the controls (and the status bar); swipe down
+     or ✕ puts the image back where it came from; swipe sideways for the post's other
+     images; double-tap zooms. Turning or folding the device keeps it open and re-fits. */
+  const V = { el: null, i: 0, srcs: [], thumbs: [], side: null, chrome: true, zoom: 1, px: 0, py: 0, busy: false };
+  const GAP = 16;
+  function vRegion() {
+    const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight;
+    let x0 = 0, x1 = W;
+    if (L.mode === 'book') { if (V.side === 'l') x1 = 455.5; else x0 = 495.5; }
+    let c0 = x0, c1 = x1;
+    if (L.rail) { if (L.rail.left) c0 = Math.max(c0, 84); else c1 = Math.min(c1, L.rail.x); }
+    return { x0, x1, H, c0: c0 - x0, c1: c1 - x0, padR: L.corner ? 140 : 0 };
+  }
+  function vFit(img, R) {
+    const aw = R.c1 - R.c0, ah = R.H - 84 - 34;
+    const ar = (img.naturalWidth || 720) / (img.naturalHeight || 400);
+    let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; }
+    return { x: R.c0 + (aw - w) / 2, y: 84 + (ah - h) / 2, w, h };
+  }
+  function vPost() {
+    if (parent === window) return;
+    const R = V.el ? vRegion() : null;
+    parent.postMessage({ type: 'duo:viewer', on: !!V.el, chrome: V.chrome, rect: R ? [R.x0, 0, R.x1, R.H] : null }, '*');
+  }
+  function vLayout(anim) {
+    if (!V.el) return;
+    const R = vRegion(), cw = R.c1 - R.c0;
+    Object.assign(V.el.style, { left: R.x0 + 'px', width: (R.x1 - R.x0) + 'px', height: R.H + 'px' });
+    const bar = V.el.querySelector('.v-bar');
+    Object.assign(bar.style, { left: R.c0 + 'px', width: cw + 'px', paddingRight: (10 + R.padR) + 'px' });
+    Object.assign(V.el.querySelector('.v-clip').style, { left: R.c0 + 'px', width: cw + 'px' });
+    V.el.querySelectorAll('.v-slide').forEach((sl, k) => {
+      const img = sl.firstChild, f = vFit(img, R);
+      Object.assign(sl.style, { left: (k * (cw + GAP)) + 'px', width: cw + 'px' });
+      Object.assign(img.style, { left: (f.x - R.c0) + 'px', top: f.y + 'px', width: f.w + 'px', height: f.h + 'px' });
+    });
+    vTrack(anim);
+    vZoomApply(false);
+    vPost();
+  }
+  function vTrack(anim, dx = 0) {
+    const R = vRegion(), cw = R.c1 - R.c0, tr = V.el.querySelector('.v-track');
+    const to = `translateX(${-V.i * (cw + GAP) + dx}px)`;
+    if (anim) { const from = getComputedStyle(tr).transform; tr.style.transform = to; M.play(tr, [{ transform: from === 'none' ? 'none' : from }, { transform: to }], Object.assign({}, M.spring(0.4, 1), { fill: 'none' })); }
+    else tr.style.transform = to;
+    V.el.querySelector('.v-count').textContent = V.srcs.length > 1 ? `${V.i + 1} / ${V.srcs.length}` : '';
+  }
+  const vImg = () => V.el.querySelectorAll('.v-slide img')[V.i];
+  function vZoomApply(anim) {
+    const img = vImg(); if (!img) return;
+    const t = V.zoom === 1 ? 'none' : `translate(${V.px}px, ${V.py}px) scale(${V.zoom})`;
+    if (anim) { const from = img.style.transform || 'none'; img.style.transform = t; M.play(img, [{ transform: from }, { transform: t }], Object.assign({}, M.spring(0.35, 1), { fill: 'none' })); }
+    else img.style.transform = t;
+  }
+  function vChrome(on) {
+    V.chrome = on;
+    V.el.classList.toggle('bare', !on);
+    vPost();
+  }
+  function vThumb() {
+    /* where the current image sits now (the page may have scrolled or reflowed) */
+    const src = V.srcs[V.i];
+    const R = vRegion();
+    const cand = [...app.querySelectorAll('.chart img')].filter(im => im.getAttribute('src') === src);
+    const pick = V.thumbs[V.i] && V.thumbs[V.i].isConnected ? V.thumbs[V.i] : cand[0];
+    if (!pick) return null;
+    const r = pick.closest('.chart').getBoundingClientRect();
+    const pane = pick.closest('.scroll, .pane'); const pr = pane ? pane.getBoundingClientRect() : r;
+    if (r.bottom < pr.top + 8 || r.top > pr.bottom - 8 || r.right < pr.left + 8 || r.left > pr.right - 8) return null;
+    return { x: r.left - R.x0, y: r.top, w: r.width, h: r.height, el: pick };
+  }
+  function vFromTo(img, a, b) {
+    /* FLIP: a and b are boxes in the viewer's coordinates; the img sits at its fit box */
+    const R = vRegion(), f = vFit(img, R);
+    const tf = box => { const s = box.w / f.w; return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`; };
+    return [tf(a), tf(b)];
+  }
+  function openViewer(chartImg) {
+    if (V.el || V.busy) return;
+    const track = chartImg.closest('.media-track') || chartImg.closest('.chart').parentElement;
+    const imgs = [...track.querySelectorAll('.chart img')];
+    V.srcs = imgs.map(im => im.getAttribute('src')); V.thumbs = imgs; V.i = imgs.indexOf(chartImg);
+    V.zoom = 1; V.px = V.py = 0; V.chrome = true;
+    const L = LAYOUTS[stateId()];
+    const tr = chartImg.getBoundingClientRect();
+    V.side = L.mode === 'book' ? (tr.left + tr.width / 2 < 475.5 ? 'l' : 'r') : null;
+    const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
+    el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.srcs.map(s => `<div class="v-slide"><img src="${s}" alt="" draggable="false"></div>`).join('')}</div></div>
+      <header class="v-bar"><button class="v-btn" data-v="close" aria-label="Close">${I('close-l1')}</button><span class="v-count"></span><button class="v-btn" data-v="share" aria-label="Share">${I('share-l')}</button></header>`;
+    document.body.appendChild(el);
+    vLayout(false);
+    const img = vImg(), R = vRegion(), f = vFit(img, R);
+    const from = { x: tr.left - R.x0, y: tr.top, w: tr.width, h: tr.height };
+    const sp = M.spring(0.42, 0.88);
+    const [a] = vFromTo(img, from, f);
+    chartImg.closest('.chart').style.visibility = 'hidden';
+    M.play(img, [{ transform: a, borderRadius: 8 / (from.w / f.w) + 'px' }, { transform: 'none', borderRadius: '0px' }], Object.assign({}, sp, { fill: 'none' }));
+    M.play(el.querySelector('.v-bg'), [{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'none' });
+    M.play(el.querySelector('.v-bar'), [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 120, easing: 'ease-out', fill: 'backwards' });
+    setTimeout(() => { chartImg.closest('.chart') && (chartImg.closest('.chart').style.visibility = ''); }, sp.duration);
+    vBind(el);
+  }
+  function closeViewer(fromT) {
+    if (!V.el || V.busy) return;
+    V.busy = true;
+    const el = V.el, img = vImg(), R = vRegion(), f = vFit(img, R);
+    const th = vThumb();
+    const cur = fromT || img.style.transform || 'none';
+    const bg = el.querySelector('.v-bg'), bgO = getComputedStyle(bg).opacity;
+    el.classList.add('closing'); vChrome(false);
+    const sp = M.spring(0.38, 1);
+    let a;
+    if (th) {
+      const [to] = vFromTo(img, th, f);
+      th.el.closest('.chart').style.visibility = 'hidden';
+      a = M.play(img, [{ transform: cur, borderRadius: '0px' }, { transform: to, borderRadius: 8 / (th.w / f.w) + 'px' }], Object.assign({}, sp, { fill: 'forwards' }));
+    } else a = M.play(img, [{ transform: cur, opacity: 1 }, { transform: cur + ' scale(0.9)', opacity: 0 }], { duration: 240, easing: 'ease-in', fill: 'forwards' });
+    M.play(bg, [{ opacity: bgO }, { opacity: 0 }], { duration: Math.min(300, sp.duration), easing: 'ease-out', fill: 'forwards' });
+    (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => {
+      if (th && th.el.closest('.chart')) th.el.closest('.chart').style.visibility = '';
+      el.remove(); V.el = null; V.busy = false; vPost();
+    });
+  }
+  function vGo(n) { V.i = Math.max(0, Math.min(V.srcs.length - 1, n)); V.zoom = 1; V.px = V.py = 0; V.el.querySelectorAll('.v-slide img').forEach(im => im.style.transform = 'none'); vTrack(true); }
+  function vBind(el) {
+    let g = null, lastTap = 0, tapTimer = null;
+    const pts = new Map();
+    el.addEventListener('click', e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      e.stopPropagation();
+      if (b.dataset.v === 'close') closeViewer();
+      else toastV('Share sheet');
+    });
+    el.addEventListener('pointerdown', e => {
+      if (e.target.closest('.v-bar') || V.busy) return;
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      el.setPointerCapture(e.pointerId);
+      if (pts.size === 2) { const [p, q] = [...pts.values()]; g = { pinch: true, d0: Math.hypot(p.x - q.x, p.y - q.y), z0: V.zoom }; return; }
+      g = { x0: e.clientX, y0: e.clientY, t0: performance.now(), axis: null, px0: V.px, py0: V.py };
+    });
+    el.addEventListener('pointermove', e => {
+      if (!g || !pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (g.pinch && pts.size === 2) { const [p, q] = [...pts.values()]; V.zoom = Math.max(1, Math.min(4, g.z0 * Math.hypot(p.x - q.x, p.y - q.y) / g.d0)); vZoomApply(false); return; }
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+      if (!g.axis) {
+        if (Math.hypot(dx, dy) < 8) return;
+        g.axis = V.zoom > 1 ? 'pan' : (Math.abs(dx) > Math.abs(dy) ? 'x' : (dy > 0 ? 'down' : 'none'));
+        if (g.axis === 'down') vChrome(false);
+      }
+      if (g.axis === 'pan') { V.px = g.px0 + dx; V.py = g.py0 + dy; vClampPan(); vZoomApply(false); }
+      else if (g.axis === 'x') { const edge = (V.i === 0 && dx > 0) || (V.i === V.srcs.length - 1 && dx < 0); vTrack(false, edge ? dx / 3 : dx); }
+      else if (g.axis === 'down') {
+        const k = Math.max(0, dy);
+        vImg().style.transform = `translate(${dx}px, ${k}px) scale(${1 - Math.min(k, 400) / 1400})`;
+        el.querySelector('.v-bg').style.opacity = String(Math.max(0.15, 1 - k / 360));
+      }
+    });
+    const up = e => {
+      if (!g || !pts.has(e.pointerId)) return;
+      pts.delete(e.pointerId);
+      if (g.pinch) { if (pts.size === 0) { if (V.zoom < 1.05) { V.zoom = 1; V.px = V.py = 0; } vClampPan(); vZoomApply(true); g = null; } return; }
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0, dt = performance.now() - g.t0;
+      if (!g.axis) {
+        const now = performance.now();
+        if (now - lastTap < 280) { clearTimeout(tapTimer); lastTap = 0; vDoubleTap(e); }
+        else { lastTap = now; tapTimer = setTimeout(() => vChrome(!V.chrome), 280); }
+      } else if (g.axis === 'x') {
+        const R = vRegion(), cw = R.c1 - R.c0, v = dx / dt;
+        let n = V.i; if (dx < -cw * 0.22 || v < -0.45) n++; else if (dx > cw * 0.22 || v > 0.45) n--;
+        vGo(n);
+      } else if (g.axis === 'down') {
+        const v = dy / dt;
+        if (dy > 90 || v > 0.6) closeViewer(vImg().style.transform);
+        else {
+          const img = vImg(), from = img.style.transform; img.style.transform = 'none';
+          M.play(img, [{ transform: from }, { transform: 'none' }], Object.assign({}, M.spring(0.35, 0.86), { fill: 'none' }));
+          const bg = el.querySelector('.v-bg'), o = bg.style.opacity; bg.style.opacity = '';
+          M.play(bg, [{ opacity: o }, { opacity: 1 }], { duration: 200, fill: 'none' });
+          vChrome(true);
+        }
+      }
+      g = null;
+    };
+    el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+    el.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); V.zoom = Math.max(1, Math.min(4, V.zoom * Math.exp(-e.deltaY / 200))); if (V.zoom === 1) V.px = V.py = 0; vClampPan(); vZoomApply(false); }, { passive: false });
+  }
+  function vClampPan() {
+    const img = vImg(), R = vRegion(); if (!img) return;
+    const w = img.offsetWidth * V.zoom, h = img.offsetHeight * V.zoom, cw = R.c1 - R.c0, ch = R.H;
+    const mx = Math.max(0, (w - cw) / 2), my = Math.max(0, (h - ch) / 2);
+    V.px = Math.max(-mx, Math.min(mx, V.px)); V.py = Math.max(-my, Math.min(my, V.py));
+  }
+  function vDoubleTap(e) {
+    const img = vImg(); if (!img) return;
+    if (V.zoom > 1) { V.zoom = 1; V.px = V.py = 0; }
+    else {
+      const r = img.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      V.zoom = 2.5; V.px = (cx - e.clientX) * 1.5; V.py = (cy - e.clientY) * 1.5; vClampPan();
+    }
+    vZoomApply(true);
+  }
+  function toastV(m) { toast(m); render(); }
+  app.addEventListener('click', e => {
+    const im = e.target.closest('.chart');
+    if (!im || !im.querySelector('img') || (swipe && swipe.on)) return;
+    e.stopPropagation(); e.preventDefault();
+    openViewer(im.querySelector('img'));
+  }, true);
+  window.addEventListener('keydown', e => {
+    if (!V.el) return;
+    if (e.key === 'Escape') closeViewer();
+    else if (e.key === 'ArrowRight') vGo(V.i + 1);
+    else if (e.key === 'ArrowLeft') vGo(V.i - 1);
+  });
+  window.addEventListener('resize', () => vLayout(false));
+  new MutationObserver(() => requestAnimationFrame(() => vLayout(false))).observe(root, { attributes: true, attributeFilter: ['data-duo'] });
   if (parent !== window) parent.postMessage({ type: 'duo:ready' }, '*');
 })();

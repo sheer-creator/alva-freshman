@@ -281,10 +281,23 @@
     }
     if (e.data?.type === 'duo:key') onKey({ key: e.data.key, target: null });
     if (e.data?.type === 'duo:page') follow(e.data.slug);
+    if (e.data?.type === 'duo:viewer') viewerStatus(e.data);
   });
+  /* The image viewer is black. The status bar belongs to the screen, so it only changes where it
+     sits over Alva's viewer: white while the viewer's controls show, hidden with them (iOS Photos).
+     Over the other app (Split) or outside the viewer's half (Book) it stays as it is. */
+  function viewerStatus(d) {
+    const s = byId.get(state);
+    if (!d.on || !d.rect || !s.statusAt || s.status === 'none') { delete root.dataset.viewer; return; }
+    const [sw, sh] = s.status === 'corner' ? [104, 48] : [48, 86];
+    const [x, y] = s.statusAt, ax = s.app[0], ay = s.app[1];
+    const [x0, y0, x1, y1] = [d.rect[0] + ax, d.rect[1] + ay, d.rect[2] + ax, d.rect[3] + ay];
+    const over = x < x1 && x + sw > x0 && y < y1 && y + sh > y0;
+    if (over) root.dataset.viewer = d.chrome ? 'white' : 'hide'; else delete root.dataset.viewer;
+  }
   document.getElementById('restartPill').addEventListener('click', () => {
     appReady = false;
-    frame.src = 'app.html?v=32&restart=' + Date.now();
+    frame.src = 'app.html?v=33&restart=' + Date.now();
     const p = bySlug.get(current);
     if (p) queue.push({ type: 'duo:goto', go: p.go });
   });

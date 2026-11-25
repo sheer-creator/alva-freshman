@@ -593,3 +593,17 @@ span.exch { background: var(--br07); }
 @supports (corner-shape: superellipse(2)) {
   .rail-tabs, .tab-lens, .tabbar, .g-ask, .g-save, .d-actions .glass, .glass-hl { corner-shape: superellipse(1.5); }
 }
+
+/* ── image viewer (see app.js: openViewer) ── */
+.viewer { position: fixed; top: 0; z-index: 100; overflow: hidden; touch-action: none; color: #fff; user-select: none; -webkit-user-select: none; }
+.v-bg { position: absolute; inset: 0; background: #000; }
+.v-clip { position: absolute; top: 0; bottom: 0; overflow: hidden; }
+.v-track { position: absolute; inset: 0; will-change: transform; }
+.v-slide { position: absolute; top: 0; bottom: 0; }
+.v-slide img { position: absolute; transform-origin: 50% 50%; background: #fff; -webkit-user-drag: none; cursor: zoom-in; }
+:root[data-theme='dark'] .v-slide img { filter: invert(0.92) hue-rotate(180deg); }
+.v-bar { position: absolute; top: 20px; height: 56px; display: flex; align-items: center; justify-content: space-between; padding-left: 10px; transition: opacity .2s ease; }
+.viewer.bare .v-bar { opacity: 0; pointer-events: none; }
+.v-btn { width: 40px; height: 56px; display: grid; place-items: center; color: #fff; }
+.v-count { position: absolute; left: 50%; transform: translateX(-50%); font-size: 16px; line-height: 24px; font-weight: 500; color: #fff; font-variant-numeric: tabular-nums; pointer-events: none; }
+.chart { cursor: zoom-in; }
