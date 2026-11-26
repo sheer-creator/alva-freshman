@@ -615,7 +615,10 @@
     const old = {};
     app.querySelectorAll(':scope > section.pane[data-pos], :scope > .nav-clip > section.pane[data-pos].nav-new').forEach(el => { old[el.dataset.pos] = el; el._x = el.offsetLeft; el._w = el.offsetWidth; el._scroll = [...el.querySelectorAll('.scroll, .chat-body')].map(x => x.scrollTop); });
     const oldLayers = {};
-    const oldBack = app.querySelector('.rail-btn[data-act="back"]'), hadBack = !!oldBack;
+    /* rail controls before the change: each one that stays glides to its new place, the ones that go fade out, new ones grow in */
+    const oldRail = new Map();
+    app.querySelectorAll(':scope > .rail-btn, :scope > .rail-tabs').forEach(el => oldRail.set(railKey(el), { el, x: el.offsetLeft, y: el.offsetTop }));
+    const railLayout = root.dataset.layout;
     ['.sheet', '.scrim', '.bsheet', '.pop', '.tabbar', '.fab'].forEach(sel => { const el = app.querySelector(':scope > ' + sel); if (el) oldLayers[sel] = el; });
     const oldLens = lensPos();
     /* list rows in the left column, to animate a selection that changes their size */
@@ -724,14 +727,24 @@
     }
     /* tab bar comes back with the page it belongs to */
     if (!skipNav && S.tab === lastTab && !oldLayers['.tabbar'] && depth < lastDepth) ['.tabbar', '.fab'].forEach(sel => { const el = app.querySelector(':scope > ' + sel); if (el) M.play(el, [{ translate: (sel === '.tabbar' ? -120 : -0.3 * P.CW) + 'px 0', opacity: 0 }, { translate: '0 0', opacity: 1 }], Object.assign({}, M.NAV, { fill: 'none' })); });
-    /* Liquid Glass back button morphs in / out on the rail; Create makes room */
-    const hasBack = !!app.querySelector('.rail-btn[data-act="back"]');
-    if (!skipNav && hasBack !== hadBack && L.rail) {
-      const sp = M.spring(0.42, 0.7);
-      const cr = app.querySelector('.rail-create');
-      if (cr) M.play(cr, [{ translate: `0 ${hasBack ? -62 : 62}px` }, { translate: '0 0' }], Object.assign({}, sp, { fill: 'none' }));
-      if (hasBack) M.play(app.querySelector('.rail-btn[data-act="back"]'), [{ scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1 }], Object.assign({}, sp, { fill: 'none' }));
-      else if (oldBack) { app.appendChild(oldBack); M.play(oldBack, [{ scale: 1, opacity: 1 }, { scale: 0.4, opacity: 0 }], { duration: 220, easing: 'ease-in' }).finished.then(() => oldBack.remove()); }
+    /* rail: one motion for everything on it (11-26) — Create no longer jumps when Back comes or goes, since they
+       sit in different groups; what moves glides, what leaves fades and shrinks, what arrives grows in */
+    if (L.rail && railLayout === lastLayout && !root.dataset.duoAnim) {
+      const sp = M.spring(0.42, 0.8), seen = new Set();
+      app.querySelectorAll(':scope > .rail-btn, :scope > .rail-tabs').forEach(el => {
+        const k = railKey(el), o = oldRail.get(k);
+        seen.add(k);
+        if (o) {
+          const dx = o.x - el.offsetLeft, dy = o.y - el.offsetTop;
+          if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) M.play(el, [{ translate: `${dx}px ${dy}px` }, { translate: '0 0' }], Object.assign({}, sp, { fill: 'none' }));
+        } else M.play(el, [{ scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1 }], Object.assign({}, sp, { fill: 'backwards' }));
+      });
+      oldRail.forEach((o, k) => {
+        if (seen.has(k)) return;
+        const g = o.el; g.style.pointerEvents = 'none'; app.appendChild(g);
+        const a = M.play(g, [{ scale: 1, opacity: 1 }, { scale: 0.5, opacity: 0 }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
+        (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => g.remove());
+      });
     }
     lastKeys = keys; lastDepth = depth; lastTab = S.tab; lastIdx = idxs; skipNav = false; lastLayout = root.dataset.layout;
     if (parent !== window) parent.postMessage({ type: 'duo:page', slug: pageSlug() }, '*');
@@ -740,6 +753,7 @@
     kbSync();
   }
   let lastIdx = {}, skipNav = false, lastLayout = null;
+  const railKey = el => el.classList.contains('rail-tabs') ? 'tabs' : el.classList.contains('rail-tabmin') ? 'tabmin' : el.classList.contains('rail-create') ? 'create' : el.getAttribute('aria-label') === 'Back' ? 'back' : (el.dataset.act || '') + ':' + (el.dataset.id || '') + ':' + (el.getAttribute('aria-label') || '');
   /* the conversation's box (drawer, tile or full page) before Expand / Collapse, so the same surface can grow or shrink into place */
   function chatBox() {
     const el = app.querySelector(':scope > .sheet') || [...app.querySelectorAll(':scope > section.pane')].find(p => p.querySelector(':scope > .chat'));
