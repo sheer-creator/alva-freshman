@@ -227,7 +227,7 @@
     if (lead) {
       left = ctx.chatMode === 'overlay' && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');
       right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
-    } else if (!fromThesis && !ctx.listBeside) left = btn('toast" data-id="Chat history is not part of this demo', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
+    } else if (!fromThesis && !ctx.listBeside) left = btn('chatList', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
     if (page && ctx.railTask) left = right = '<span class="side"></span>';
     const head = `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
@@ -252,10 +252,11 @@
     { id: 'hbm', name: 'HBM pricing', time: '3d ago', text: 'Which price series should I follow, spot or contract?' },
   ];
   function chatsView(v, ctx) {
-    const row = c => `<button class="ch-row${c.id === 'tab' ? ' on' : ''}" data-act="${c.id === 'tab' ? 'noop' : 'toast'}" data-id="${c.id === 'tab' ? '' : 'Channels are not part of this demo'}">
+    const row = c => `<button class="ch-row${c.id === 'tab' ? ' on' : ''}" data-act="${c.id === 'tab' ? 'chatListClose' : 'toast'}" data-id="${c.id === 'tab' ? '' : 'Channels are not part of this demo'}">
       <span class="ch-av">${c.alva ? '<img src="assets/icons/logo-portrait.svg" alt="">' : '<img src="assets/icons/logo-channel.svg" alt="">'}${c.badge ? `<i class="ch-badge">${c.badge}</i>` : ''}</span>
       <span class="ch-main"><span class="ch-line"><b class="${c.alva ? 'm' : ''}">${esc(c.name)}</b><em>${c.time}</em></span><span class="ch-prev">${esc(c.text)}</span></span></button>`;
-    return { chat: `<div class="chats"><div class="ch-list">${row(CHANNELS[0])}<p class="ch-sec">Channels</p>${CHANNELS.slice(1).map(row).join('')}
+    const head = `<header class="ch-head"><p>Chats</p></header>`;   // 84 like every column: keeps the first row out of the rounded corner
+    return { chat: `<div class="chats">${head}<div class="ch-list">${row(CHANNELS[0])}<p class="ch-sec">Channels</p>${CHANNELS.slice(1).map(row).join('')}
       <button class="ch-new" data-act="toast" data-id="New channel is not part of this demo">${I('chat-new-l', 'ic-18')}New channel</button></div>
       <div class="ch-search"><span>Search conversations</span></div></div>` };
   }
@@ -586,6 +587,13 @@
     }
     if (L.rail) html += rail(P);
     if (L.tabbar && depth === 1) html += tabbar();
+    /* Chat list as an overlay where it is not beside the conversation (window narrower than 382 + 400, upright
+       Book excluded): like Mail on iPad in portrait, it slides over from the leading edge above a dimmed page;
+       tap the dimmed part to close. */
+    if (S.chatList && !P.panes.some(q => q.view.v === 'chats')) {
+      const w = Math.min(382, P.CW - 56);
+      html += `<div class="scrim" data-act="chatListClose"></div><section class="pane sheet-l" style="left:${P.OX}px;width:${w}px;top:0">${chatsView({}, { w }).chat}</section>`;
+    }
     if (S.pop) html += popover(P);
     if (S.toast) html += `<div class="toast" style="left:${P.OX + P.CW / 2}px">${esc(S.toast)}</div>`;
 
@@ -1115,11 +1123,13 @@
         if (fromList(el)) { st.length = 1; st.push({ v: 'profile', id }); } else push({ v: 'profile', id });
         break;
       case 'back': doBack(); break;
+      case 'chatList': S.chatList = true; break;
+      case 'chatListClose': S.chatList = false; break;
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
       case 'foldChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
       case 'expandChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
       case 'tabsOpen': S.tabsOpen = true; break;
-      case 'tab': if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
+      case 'tab': S.chatList = false; if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
       case 'feedTab': S.feedTab = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'topic': S.topic = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'period': S.period = id; S.stacks.foryou = [{ v: 'feed' }]; break;
