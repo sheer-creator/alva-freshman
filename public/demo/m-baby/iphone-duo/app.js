@@ -792,6 +792,10 @@
         (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => g.remove());
       });
     }
+    /* 11-26: anything that moves — a page sliding aside or back, two columns travelling together, a drawer spreading or
+       drawing back — passes UNDER the rail rather than being cut off by it: while it moves the rail goes see-through
+       (its controls stay on top), then comes back once everything has settled */
+    railThru();
     lastKeys = keys; lastDepth = depth; lastTab = S.tab; lastIdx = idxs; skipNav = false; lastLayout = root.dataset.layout;
     if (parent !== window) parent.postMessage({ type: 'duo:page', slug: pageSlug() }, '*');
     if (window.__applyHead) window.__applyHead();
@@ -799,6 +803,16 @@
     kbSync();
   }
   let lastIdx = {}, skipNav = false, lastLayout = null, lastPush = 0;
+  function railThru() {
+    if (!app.querySelector(':scope > .rail')) return;
+    const moving = [...app.children].filter(el => !/\brail/.test(el.className)).flatMap(el => el.getAnimations ? el.getAnimations({ subtree: true }) : [])
+      .filter(a => a.playState === 'running' || a.playState === 'pending');
+    if (!moving.length) return;
+    app.classList.add('rail-thru');
+    const tok = railThru.tok = (railThru.tok || 0) + 1;
+    Promise.all(moving.map(a => a.finished.catch(() => {}))).then(() => { if (railThru.tok === tok) app.classList.remove('rail-thru'); });
+    setTimeout(() => { if (railThru.tok === tok) app.classList.remove('rail-thru'); }, 900);   // never stays on
+  }
   const railKey = el => el.classList.contains('rail-tabs') ? 'tabs' : el.classList.contains('rail-tabmin') ? 'tabmin' : el.classList.contains('rail-create') ? 'create' : el.getAttribute('aria-label') === 'Back' ? 'back' : (el.dataset.act || '') + ':' + (el.dataset.id || '') + ':' + (el.getAttribute('aria-label') || '');
   /* the conversation's box (drawer, tile or full page) before Expand / Collapse, so the same surface can grow or shrink into place */
   function chatBox() {

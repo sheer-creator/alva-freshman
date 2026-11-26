@@ -812,8 +812,10 @@ span.exch { background: var(--br07); }
 .app.alva-push > .alva-bar { border-radius: 40px 0 0 0; background: transparent; }
 .app.alva-push > .tabbar, .app.alva-push > .fab { z-index: 2; }
 /* 11-26: the moved page passes under the rail (not clipped at its edge): the rail goes see-through and its controls stay on top */
-.app.alva-push > .rail { background: transparent; }
-.app.alva-push > .rail-btn, .app.alva-push > .rail-tabs, .app.alva-push > .rail-line { z-index: 10; }
+.app.alva-push > .rail, .app.rail-thru > .rail { background: transparent; }
+.app.alva-push > .rail-btn, .app.alva-push > .rail-tabs, .app.alva-push > .rail-line,
+.app.rail-thru > .rail-btn, .app.rail-thru > .rail-tabs, .app.rail-thru > .rail-tabmin { z-index: 10; }
+.app.rail-thru > section.pane[data-pos="main"] { z-index: 1; }
 .push-veil { position: absolute; top: 0; bottom: 0; z-index: 9; border-radius: 40px; background: rgba(255, 255, 255, 0.7); cursor: pointer; }
 :root[data-theme='dark'] .push-veil { background: rgba(0, 0, 0, 0.5); }
 /* drawers in front of a scrim have rounded leading corners (11-26) */
