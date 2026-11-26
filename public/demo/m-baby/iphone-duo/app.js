@@ -638,8 +638,27 @@
     const listMove = S.listAnim ? (() => { const l = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chats')), c = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chat')), d = app.querySelector(':scope > .alva-div');
       return { l, lw: l ? l.offsetWidth : 0, d, c: c && { x: c.offsetLeft, w: c.offsetWidth } }; })() : null;
     S.listAnim = false;
+    const oldUnder = app.querySelector(':scope > .ch-under'), pushWas = lastPush;
     app.innerHTML = html;
     app.classList.toggle('alva-push', !!push); app.style.setProperty('--push', push + 'px');
+    /* 11-26: the conversation page moving aside for the chat list (or coming back) slides — page, bar, Tab Bar and ＋ together */
+    if (push !== pushWas && P.alvaRoot && root.dataset.layout === lastLayout) {
+      const E = { duration: 420, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'none' };
+      const tx = v => `translateX(${v}px)`, clip = v => `inset(-40px ${v}px -40px -40px)`;
+      app.querySelectorAll(':scope > section.pane[data-pos="main"], :scope > .alva-bar, :scope > .tabbar, :scope > .fab').forEach(el => {
+        const f = { transform: [tx(pushWas), tx(push)] };
+        if (!el.classList.contains('tabbar') && !el.classList.contains('fab')) f.clipPath = [clip(pushWas), clip(push)];
+        if (el.matches('section.pane')) { f.borderRadius = [pushWas ? '40px' : '0px', push ? '40px' : '0px']; f.boxShadow = [pushWas ? '0 0 25px rgba(0,0,0,.12)' : '0 0 25px rgba(0,0,0,0)', push ? '0 0 25px rgba(0,0,0,.12)' : '0 0 25px rgba(0,0,0,0)']; }
+        M.play(el, f, E);
+      });
+      const veil = app.querySelector(':scope > .push-veil');
+      if (veil) M.play(veil, { opacity: [0, 1], transform: [tx(0), tx(push)], clipPath: [clip(0), clip(push)] }, E);
+      if (!push && oldUnder) {   // closing: the list stays underneath until the page has covered it
+        oldUnder.style.pointerEvents = 'none'; app.insertBefore(oldUnder, app.firstChild);
+        setTimeout(() => oldUnder.remove(), 430);
+      }
+    }
+    lastPush = push;
     /* Expand / Collapse: the drawer itself spreads to the full page (or the page draws back into the drawer) — one surface, no exit and re-entry */
     if (S.morph) {
       const m = S.morph; S.morph = null;
@@ -780,7 +799,7 @@
     snapText();
     kbSync();
   }
-  let lastIdx = {}, skipNav = false, lastLayout = null;
+  let lastIdx = {}, skipNav = false, lastLayout = null, lastPush = 0;
   const railKey = el => el.classList.contains('rail-tabs') ? 'tabs' : el.classList.contains('rail-tabmin') ? 'tabmin' : el.classList.contains('rail-create') ? 'create' : el.getAttribute('aria-label') === 'Back' ? 'back' : (el.dataset.act || '') + ':' + (el.dataset.id || '') + ':' + (el.getAttribute('aria-label') || '');
   /* the conversation's box (drawer, tile or full page) before Expand / Collapse, so the same surface can grow or shrink into place */
   function chatBox() {

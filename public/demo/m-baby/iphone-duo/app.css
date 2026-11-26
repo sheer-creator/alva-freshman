@@ -806,7 +806,7 @@ span.exch { background: var(--br07); }
 .ch-head { flex: none; height: 84px; display: flex; align-items: center; gap: 12px; padding: 12px 20px 0; }   /* 11-26: ≡ stays at the window's top left while the list is open */
 .ch-head .side { width: 48px; height: 48px; border-radius: 96px; display: grid; place-items: center; color: var(--n9); flex: none; }
 .ch-head .ch-title { font-size: 24px; line-height: 32px; font-weight: 500; color: var(--n9); }
-.app.alva-push > section.pane[data-pos="main"], .app.alva-push > .alva-bar, .app.alva-push > .tabbar, .app.alva-push > .fab, .app.alva-push > .push-veil { transform: translateX(var(--push)); transition: transform .42s cubic-bezier(.32,.72,0,1); }
+.app.alva-push > section.pane[data-pos="main"], .app.alva-push > .alva-bar, .app.alva-push > .tabbar, .app.alva-push > .fab, .app.alva-push > .push-veil { transform: translateX(var(--push)); }   /* the slide is played in app.js (render), so it runs both ways */
 .app.alva-push > section.pane[data-pos="main"] { border-radius: 40px; box-shadow: 0 0 25px rgba(0, 0, 0, 0.12); z-index: 1; }
 .app.alva-push > section.pane[data-pos="main"] .chat { padding-top: 84px; }   /* the page now runs from the top, under its bar */
 .app.alva-push > .alva-bar { border-radius: 40px 0 0 0; background: transparent; }
