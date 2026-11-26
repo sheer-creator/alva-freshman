@@ -227,7 +227,7 @@
     if (lead) {
       left = ctx.chatMode === 'overlay' && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');
       right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
-    } else if (!fromThesis) left = btn('toast" data-id="Chat history is not part of this demo', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
+    } else if (!fromThesis && !ctx.listBeside) left = btn('toast" data-id="Chat history is not part of this demo', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
     if (page && ctx.railTask) left = right = '<span class="side"></span>';
     const head = `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
@@ -241,6 +241,23 @@
     }
     const box = `<div class="chatbox-f"><form class="chatbox" data-chat="${v.id}">${quote}<div class="in-row"><button type="button" class="sq" data-act="toast" data-id="Attachments">${I('add-l2', 'ic-16')}</button><textarea name="q" rows="1" autocomplete="off" placeholder="Ask Alva, hold to talk"></textarea><button type="button" class="sq voice" data-act="toast" data-id="Hold to talk">${I('voice-wave-l', 'ic-16')}</button><button type="submit" class="send" aria-label="Send">${I('arrow-up-l1', 'ic-16')}</button></div></form></div>`;
     return { chat: `<div class="chat">${head}<div class="chat-body">${msgs}</div>${box}</div>` };
+  }
+
+  /* Chat list (Figma A2 17318:27790): Alva on top, then the user's channels; New channel; search at the bottom.
+     11-26: on the inner screen the Alva tab shows it beside the conversation (book: one half each). */
+  const CHANNELS = [
+    { id: 'tab', name: 'Alva', time: '12m ago', text: 'Today is ready. Five updates across your theses.', alva: true },
+    { id: 'nvda', name: 'NVDA demand', time: '1h ago', text: 'A watchpoint you set was hit. I drafted an update to your thesis.', badge: 2 },
+    { id: 'ipo', name: 'Anthropic IPO', time: '1d ago', text: 'You: How much of the IPO is already in AMZN’s mark?' },
+    { id: 'hbm', name: 'HBM pricing', time: '3d ago', text: 'Which price series should I follow, spot or contract?' },
+  ];
+  function chatsView(v, ctx) {
+    const row = c => `<button class="ch-row${c.id === 'tab' ? ' on' : ''}" data-act="${c.id === 'tab' ? 'noop' : 'toast'}" data-id="${c.id === 'tab' ? '' : 'Channels are not part of this demo'}">
+      <span class="ch-av">${c.alva ? '<img src="assets/icons/logo-portrait.svg" alt="">' : '<img src="assets/icons/logo-channel.svg" alt="">'}${c.badge ? `<i class="ch-badge">${c.badge}</i>` : ''}</span>
+      <span class="ch-main"><span class="ch-line"><b class="${c.alva ? 'm' : ''}">${esc(c.name)}</b><em>${c.time}</em></span><span class="ch-prev">${esc(c.text)}</span></span></button>`;
+    return { chat: `<div class="chats"><div class="ch-list">${row(CHANNELS[0])}<p class="ch-sec">Channels</p>${CHANNELS.slice(1).map(row).join('')}
+      <button class="ch-new" data-act="toast" data-id="New channel is not part of this demo">${I('chat-new-l', 'ic-18')}New channel</button></div>
+      <div class="ch-search"><span>Search conversations</span></div></div>` };
   }
 
   /* All updates (Figma 16511:126971): header · version return · timeline */
@@ -408,6 +425,7 @@
       case 'feed': return feedView(v, ctx);
       case 'detail': return detailView(v, ctx);
       case 'chat': return chatView(v, ctx);
+      case 'chats': return chatsView(v, ctx);
       case 'search': return searchView(v, ctx);
       case 'profile': return profileView(v, ctx);
       case 'me': return meView(v, ctx);
@@ -498,7 +516,8 @@
     if (t.v === 'chat' && t.full) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
     let left, right;
     if (st.length === 1) {
-      if (t.v === 'feed') { left = t; right = autoFirst() || emptyOf(t); }
+      if (t.v === 'chat') { left = { v: 'chats' }; right = t; }   // Alva tab: the chat list beside the conversation
+      else if (t.v === 'feed') { left = t; right = autoFirst() || emptyOf(t); }
       else if (book) { left = t; right = emptyOf(t); }
       else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
       else { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }] }; }
@@ -510,7 +529,7 @@
     const listSel = left === st[0] && LIST_ROOTS.includes(left.v) && st[1] ? st[1].id : null;
     let lw, rx, rw;
     if (book) { lw = 455.5; rx = 495.5; rw = CW - 495.5; }
-    else if (right.v === 'chat') { lw = 485; rx = 485; rw = CW - 485; }
+    else if (right.v === 'chat' && left.v !== 'chats') { lw = 485; rx = 485; rw = CW - 485; }
     else if (right.v === 'profile') { lw = 382; rx = 382.5; rw = CW - 383; }   // Figma: the profile column is 484, the last 0.5 belongs to the divider
     else { lw = 382; rx = 382; rw = CW - 382; }
     return { L, CW, railBack: t.v === 'updates' || (left === st[0] && st.length > 2), panes: [
@@ -523,7 +542,7 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
