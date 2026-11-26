@@ -530,7 +530,10 @@
     P.panes.forEach(pn => { const o = paneHTML(pn, P, depth); keys[pn.pos] = o.key; html += o.html; });
     if (P.sheet) {
       const out = renderView(P.sheet.view, { w: 382, chatMode: 'overlay' });
-      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet" style="left:${P.OX + P.CW - 382}px;width:382px;top:0;--box-b:24px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
+      /* The drawer is modal: the scrim covers the page and the rail; where the rail is on the right the
+         drawer runs on over it to the screen edge, so only the chat and its Close are left to use. */
+      const ext = L.rail && !L.rail.left ? innerWidth - (P.OX + P.CW) : 0;
+      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet${ext ? ' has-ext' : ''}" style="left:${P.OX + P.CW - 382}px;width:382px;top:0;--box-b:24px;--ext:${ext}px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
       keys.sheet = keyOf(P.sheet.view);
     }
     if (L.rail) html += rail(P);
@@ -598,7 +601,7 @@
       el.style.animation = 'none';
       el.style.pointerEvents = 'none';
       let a;
-      if (sel === '.sheet') a = M.play(el, [{ transform: 'none' }, { transform: 'translateX(100%)' }], M.SHEET_OUT);
+      if (sel === '.sheet') a = M.play(el, [{ transform: 'none' }, { transform: `translateX(calc(100% + ${el.style.getPropertyValue('--ext') || '0px'}))` }], M.SHEET_OUT);
       else if (sel === '.bsheet') a = M.play(el, [{ transform: 'none' }, { transform: 'translateY(100%)' }], M.SHEET_OUT);
       else if (sel === '.pop') a = M.play(el, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.92)' }], { duration: 200, easing: 'ease-out' });
       else if (sel === '.tabbar' || sel === '.fab') a = M.play(el, [{ translate: '0 0', opacity: 1 }, { translate: (sel === '.tabbar' ? -0.3 * 400 : -0.3 * P.CW) + 'px 0', opacity: 0 }], M.NAV);
