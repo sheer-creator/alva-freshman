@@ -219,14 +219,16 @@
     const log = S.chats[v.id] || (S.chats[v.id] = [{ who: 'a', text: D.greeting.join('\n') }]);
     let left = '<span class="side"></span>', right = '<span class="side"></span>';
     /* no chat-history button on the Alva page (review 2026-11-25; the Duo Figma frames still show one) */
-    if (fromThesis && ctx.chatMode !== 'page') left = `<button class="side" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;
+    if (fromThesis && ctx.chatMode === 'tile') left = `<button class="side glass-rail" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;   // the drawer has no Close: tap the dimmed page, or expand first
     if (fromThesis && v.full) {
-      left = `<button class="side" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;
-      right = `<button class="side" data-act="foldChat" aria-label="Restore page and conversation">${I('foldd-l')}</button>`;
-    } else if (fromThesis && ctx.chatMode !== 'page') right = `<button class="side" data-act="expandChat" aria-label="Expand conversation">${I('unfold-l')}</button>`;
-    if (!fromThesis) left = `<button class="side" data-act="toast" data-id="Chat history is not part of this demo" aria-label="Chat history">${I('menu-l')}</button>`;
+      left = `<button class="side glass-rail" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;
+      right = `<button class="side glass-rail" data-act="foldChat" aria-label="Restore page and conversation">${I('foldd-l')}</button>`;
+    } else if (fromThesis && ctx.chatMode !== 'page') right = `<button class="side glass-rail" data-act="expandChat" aria-label="Expand conversation">${I('unfold-l')}</button>`;
+    if (!fromThesis) left = `<button class="side glass-rail" data-act="toast" data-id="Chat history is not part of this demo" aria-label="Chat history">${I('menu-l')}</button>`;
     if (ctx.railTask) left = right = '<span class="side"></span>';
-    const head = `<header class="chat-h ${v.full ? 'full' : ''}">${left}<div class="mid"><div class="capsule"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
+    const drawer = fromThesis && ctx.chatMode === 'overlay' && !v.full;   // 11-26: the drawer's Alva sits on the left
+    if (drawer) { left = ''; if (ctx.railTask) right = ''; }
+    const head = `<header class="chat-h ${v.full ? 'full' : ''}${drawer ? ' drawer' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
       ? `<div class="bub-a"><div class="${m.typing && i === log.length - 1 ? 'typing' : ''}">${esc(m.shown != null ? m.shown : m.text)}</div></div>`
       : `<div class="bub-u">${esc(m.text)}</div>`).join('');
@@ -436,8 +438,8 @@
   function railCtl(P) {
     const r = P.L.rail; if (!r) return null;
     const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
-    if (chatTask(P)) return { kind: 'task', items: P.panes[0].view.full ? [BTN.fold] : [] };
-    if (P.sheet) return { kind: 'sheet', items: [BTN.close, BTN.expand] };
+    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.close, BTN.fold] : [] };
+    if (P.sheet) return { kind: 'sheet', items: [BTN.expand] };   // 11-26: the drawer has no Close — Alva and Expand only
     const last = P.panes[P.panes.length - 1];
     if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.close, BTN.expand] };
     const root = P.panes.find(p => p.view.v === 'chat' && p.view.id === 'tab');
@@ -475,7 +477,7 @@
     }
     if (L.mode === 'single') {
       if (t.v === 'chat' && t.id !== 'tab' && !t.full && L.alva === 'overlay' && below)
-        return { L, CW, panes: [{ view: below, x: 0, w: CW, pos: 'main' }], sheet: { view: t, w: 382 }, railBack: !!L.rail, inlineBack: !L.rail && st.length > 2 };
+        return { L, CW, panes: [{ view: below, x: 0, w: CW, pos: 'main' }], sheet: { view: t, w: L.tabbar ? 485 : 440 }, railBack: !!L.rail, inlineBack: !L.rail && st.length > 2 };
       return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'main', chatMode: 'page' }], railBack: st.length > 1 && !!L.rail, inlineBack: st.length > 1 && !L.rail };
     }
     if (L.mode === 'book-v') {
@@ -555,11 +557,11 @@
     const keys = {};
     P.panes.forEach(pn => { const o = paneHTML(pn, P, depth); keys[pn.pos] = o.key; html += o.html; });
     if (P.sheet) {
-      const out = renderView(P.sheet.view, { w: 382, chatMode: 'overlay', railTask: !!L.rail });
+      const SW = P.sheet.w, out = renderView(P.sheet.view, { w: SW, chatMode: 'overlay', railTask: !!L.rail });
       /* The drawer is modal: the scrim covers the page and the rail; where the rail is on the right the
          drawer runs on over it to the screen edge, so only the chat and its Close are left to use. */
       const ext = L.rail && !L.rail.left ? innerWidth - (P.OX + P.CW) : 0;
-      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet${ext ? ' has-ext' : ''}" style="left:${P.OX + P.CW - 382}px;width:382px;top:0;--box-b:24px;--ext:${ext}px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
+      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet${ext ? ' has-ext' : ''}" style="left:${P.OX + P.CW - SW}px;width:${SW}px;top:0;--box-b:24px;--ext:${ext}px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
       keys.sheet = keyOf(P.sheet.view);
     }
     if (L.rail) html += rail(P);
@@ -854,8 +856,9 @@
     const c = railCtl(P);
     const ctlBtns = (items, top, z) => items.map(([act, ic, label, id], k) => `<button class="rail-btn glass-rail" style="left:${x}px;top:${top + k * 62}px;${z}" data-act="${act}"${id ? ` data-id="${id}"` : ''} aria-label="${label}">${I(ic)}</button>`).join('');
     if (c && c.kind === 'task') {
-      out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="closeChat" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;   // back to the thesis
-      return out + ctlBtns(c.items, r.top + 62, '');
+      if (c.full) return out + ctlBtns(c.items, r.top, '');   // expanded: Close and Collapse
+      out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="closeChat" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;   // its own page: back to the thesis
+      return out;
     }
     if (c && c.kind === 'sheet') {   // the drawer's own controls, above the scrim
       return `<div class="rail" style="left:${r.x}px;z-index:7"></div>` + ctlBtns(c.items, r.top, 'z-index:7');
