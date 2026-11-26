@@ -615,7 +615,10 @@
     const old = {};
     app.querySelectorAll(':scope > section.pane[data-pos], :scope > .nav-clip > section.pane[data-pos].nav-new').forEach(el => { old[el.dataset.pos] = el; el._x = el.offsetLeft; el._w = el.offsetWidth; el._scroll = [...el.querySelectorAll('.scroll, .chat-body')].map(x => x.scrollTop); });
     const oldLayers = {};
-    const oldBack = app.querySelector('.rail-btn[data-act="back"]'), hadBack = !!oldBack;
+    /* rail controls before the change: each one that stays glides to its new place, the ones that go fade out, new ones grow in */
+    const oldRail = new Map();
+    app.querySelectorAll(':scope > .rail-btn, :scope > .rail-tabs').forEach(el => oldRail.set(railKey(el), { el, x: el.offsetLeft, y: el.offsetTop }));
+    const railLayout = root.dataset.layout;
     ['.sheet', '.scrim', '.bsheet', '.pop', '.tabbar', '.fab'].forEach(sel => { const el = app.querySelector(':scope > ' + sel); if (el) oldLayers[sel] = el; });
     const oldLens = lensPos();
     /* list rows in the left column, to animate a selection that changes their size */
@@ -625,6 +628,21 @@
     const oldLeftKey = lastKeys.left, oldLayout = lastLayout;
     app.innerHTML = html;
     app.classList.toggle('alva-push', !!push); app.style.setProperty('--push', push + 'px');
+    /* Expand / Collapse: the drawer itself spreads to the full page (or the page draws back into the drawer) — one surface, no exit and re-entry */
+    if (S.morph) {
+      const m = S.morph; S.morph = null;
+      const el = app.querySelector(':scope > .sheet') || [...app.querySelectorAll(':scope > section.pane')].find(p => p.querySelector(':scope > .chat'));
+      if (el) {
+        el.style.animation = 'none';
+        const to = { left: el.offsetLeft + 'px', width: el.offsetWidth + 'px', borderRadius: getComputedStyle(el).borderRadius };
+        el.style.zIndex = 8;
+        M.play(el, [{ left: m.left + 'px', width: m.width + 'px', borderRadius: m.radius }, to], { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' }).finished.then(() => el.style.removeProperty('z-index')).catch(() => {});
+        const sc = app.querySelector(':scope > .scrim');
+        if (sc) sc.style.animation = 'fadeIn 0.46s cubic-bezier(.32,.72,0,1) both';
+        if (m.under && !sc) { m.under.removeAttribute('data-pos'); m.under.style.pointerEvents = 'none'; app.insertBefore(m.under, app.firstChild); setTimeout(() => m.under.remove(), 480); }
+        if (sc) {} else if (m.scrim) { m.scrim.style.animation = 'none'; m.scrim.style.pointerEvents = 'none'; app.insertBefore(m.scrim, el); M.play(m.scrim, [{ opacity: 1 }, { opacity: 0 }], { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' }).finished.then(() => m.scrim.remove()).catch(() => m.scrim.remove()); }
+      }
+    }
     layoutAllPics();
 
     app.querySelectorAll('[data-sk]').forEach(el => { if (scrolls.has(el.dataset.sk)) el.scrollTop = scrolls.get(el.dataset.sk); });
@@ -709,14 +727,24 @@
     }
     /* tab bar comes back with the page it belongs to */
     if (!skipNav && S.tab === lastTab && !oldLayers['.tabbar'] && depth < lastDepth) ['.tabbar', '.fab'].forEach(sel => { const el = app.querySelector(':scope > ' + sel); if (el) M.play(el, [{ translate: (sel === '.tabbar' ? -120 : -0.3 * P.CW) + 'px 0', opacity: 0 }, { translate: '0 0', opacity: 1 }], Object.assign({}, M.NAV, { fill: 'none' })); });
-    /* Liquid Glass back button morphs in / out on the rail; Create makes room */
-    const hasBack = !!app.querySelector('.rail-btn[data-act="back"]');
-    if (!skipNav && hasBack !== hadBack && L.rail) {
-      const sp = M.spring(0.42, 0.7);
-      const cr = app.querySelector('.rail-create');
-      if (cr) M.play(cr, [{ translate: `0 ${hasBack ? -62 : 62}px` }, { translate: '0 0' }], Object.assign({}, sp, { fill: 'none' }));
-      if (hasBack) M.play(app.querySelector('.rail-btn[data-act="back"]'), [{ scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1 }], Object.assign({}, sp, { fill: 'none' }));
-      else if (oldBack) { app.appendChild(oldBack); M.play(oldBack, [{ scale: 1, opacity: 1 }, { scale: 0.4, opacity: 0 }], { duration: 220, easing: 'ease-in' }).finished.then(() => oldBack.remove()); }
+    /* rail: one motion for everything on it (11-26) — Create no longer jumps when Back comes or goes, since they
+       sit in different groups; what moves glides, what leaves fades and shrinks, what arrives grows in */
+    if (L.rail && railLayout === lastLayout && !root.dataset.duoAnim) {
+      const sp = M.spring(0.42, 0.8), seen = new Set();
+      app.querySelectorAll(':scope > .rail-btn, :scope > .rail-tabs').forEach(el => {
+        const k = railKey(el), o = oldRail.get(k);
+        seen.add(k);
+        if (o) {
+          const dx = o.x - el.offsetLeft, dy = o.y - el.offsetTop;
+          if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) M.play(el, [{ translate: `${dx}px ${dy}px` }, { translate: '0 0' }], Object.assign({}, sp, { fill: 'none' }));
+        } else M.play(el, [{ scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1 }], Object.assign({}, sp, { fill: 'backwards' }));
+      });
+      oldRail.forEach((o, k) => {
+        if (seen.has(k)) return;
+        const g = o.el; g.style.pointerEvents = 'none'; app.appendChild(g);
+        const a = M.play(g, [{ scale: 1, opacity: 1 }, { scale: 0.5, opacity: 0 }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
+        (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => g.remove());
+      });
     }
     lastKeys = keys; lastDepth = depth; lastTab = S.tab; lastIdx = idxs; skipNav = false; lastLayout = root.dataset.layout;
     if (parent !== window) parent.postMessage({ type: 'duo:page', slug: pageSlug() }, '*');
@@ -725,6 +753,15 @@
     kbSync();
   }
   let lastIdx = {}, skipNav = false, lastLayout = null;
+  const railKey = el => el.classList.contains('rail-tabs') ? 'tabs' : el.classList.contains('rail-tabmin') ? 'tabmin' : el.classList.contains('rail-create') ? 'create' : el.getAttribute('aria-label') === 'Back' ? 'back' : (el.dataset.act || '') + ':' + (el.dataset.id || '') + ':' + (el.getAttribute('aria-label') || '');
+  /* the conversation's box (drawer, tile or full page) before Expand / Collapse, so the same surface can grow or shrink into place */
+  function chatBox() {
+    const el = app.querySelector(':scope > .sheet') || [...app.querySelectorAll(':scope > section.pane')].find(p => p.querySelector(':scope > .chat'));
+    if (!el) return null;
+    const scrim = app.querySelector(':scope > .scrim');
+    const under = el.classList.contains('sheet') ? app.querySelector(':scope > section.pane[data-pos="main"]') : null;   // the page under the drawer stays put while the drawer grows over it
+    return { left: el.offsetLeft, width: el.offsetWidth, radius: getComputedStyle(el).borderRadius, scrim, under };
+  }
   function shiftColumns(fwd, old) {
     const opt = { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' };
     const nl = app.querySelector(':scope > section.pane[data-pos="left"]'), nr = app.querySelector(':scope > section.pane[data-pos="right"]');
@@ -1075,7 +1112,7 @@
     }
     if (['period', 'dismissPeople', 'unrecent', 'clearRecent'].includes(act)) return { kind: 'flip', pos, before: rowsOf(pane) };
     if (act === 'tab' && id !== S.tab) return { kind: 'fade' };
-    if (act === 'expandChat' || act === 'foldChat') return { kind: 'morph', before: layoutSnapshot() };
+    /* expandChat / foldChat: the conversation's own surface grows or shrinks in render() (S.morph) */
     if (act === 'save' || act === 'follow') return { kind: 'pop', sel: `[data-act="${act}"][data-id="${id}"]` };
     return null;
   }
@@ -1141,8 +1178,8 @@
       case 'chatList': { const Pn = plan(); if (Pn.canBeside) S.listWide = S.listWide === false; else S.chatList = !S.chatList; break; }
       case 'chatListClose': S.chatList = false; break;
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
-      case 'foldChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
-      case 'expandChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
+      case 'foldChat': S.morph = chatBox(); skipNav = true; st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
+      case 'expandChat': S.morph = chatBox(); skipNav = true; st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
       case 'tabsOpen': S.tabsOpen = true; break;
       case 'tab': S.chatList = false; if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
       case 'feedTab': S.feedTab = id; S.stacks.foryou = [{ v: 'feed' }]; break;
