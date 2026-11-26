@@ -224,6 +224,8 @@
       left = `<button class="side" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;
       right = `<button class="side" data-act="foldChat" aria-label="Restore page and conversation">${I('foldd-l')}</button>`;
     } else if (fromThesis && ctx.chatMode !== 'page') right = `<button class="side" data-act="expandChat" aria-label="Expand conversation">${I('unfold-l')}</button>`;
+    if (!fromThesis) left = `<button class="side" data-act="toast" data-id="Chat history is not part of this demo" aria-label="Chat history">${I('menu-l')}</button>`;
+    if (ctx.railTask) left = right = '<span class="side"></span>';
     const head = `<header class="chat-h ${v.full ? 'full' : ''}">${left}<div class="mid"><div class="capsule"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
       ? `<div class="bub-a"><div class="${m.typing && i === log.length - 1 ? 'typing' : ''}">${esc(m.shown != null ? m.shown : m.text)}</div></div>`
@@ -421,6 +423,27 @@
     return ids.length ? { v: 'detail', id: ids[0], auto: true } : null;
   }
   const emptyOf = v => { const e = EMPTY[v.v] || EMPTY.chat; return { v: 'empty', t: e[0], s: e[1] }; };
+  /* A conversation opened from a thesis that takes the whole content (a page on narrow windows, or
+     expanded) is a task page: the rail drops the destinations and Create and carries the chat's own
+     controls — Back on top, Collapse under it when expanded; the content keeps only the Alva capsule
+     on top and the chat box at the bottom. */
+  function chatTask(P) { return !!(P.L.rail && P.panes.length === 1 && P.panes[0].view.v === 'chat' && P.panes[0].view.id !== 'tab' && !P.sheet); }
+  /* 11-26: the chat's own header buttons move into the rail wherever the chat sits against it.
+     task — a full-content chat from a thesis: Back (+ Collapse when expanded), no tabs or Create.
+     sheet — the drawer is modal: the rail shows only Close and Expand, above the scrim.
+     tile — Ask beside a thesis, next to a right-hand rail: Close and Expand on top, tabs and Create stay.
+     root — the Alva tab page: Chat history on top, tabs and Create stay. */
+  function railCtl(P) {
+    const r = P.L.rail; if (!r) return null;
+    const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
+    if (chatTask(P)) return { kind: 'task', items: P.panes[0].view.full ? [BTN.fold] : [] };
+    if (P.sheet) return { kind: 'sheet', items: [BTN.close, BTN.expand] };
+    const last = P.panes[P.panes.length - 1];
+    if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.close, BTN.expand] };
+    const root = P.panes.find(p => p.view.v === 'chat' && p.view.id === 'tab');
+    if (root && !P.railBack) return { kind: 'root', pos: root.pos, items: [BTN.hist] };
+    return null;
+  }
   function plan() {
     const P = planBase();
     P.OX = P.L.rail && P.L.rail.left ? 84 : 0;
@@ -429,7 +452,10 @@
        the tab group minimises to one button showing the current tab; tapping it opens the group
        upward, choosing a tab closes it. Nothing leaves the column. */
     const r = P.L.rail;
-    if (P.railBack && r && !r.left && !r.flip) P.tabsMin = r.top + 62 + 48 + 14 + 212 + r.bottom > innerHeight;
+    if (r && !r.left && !r.flip) {
+      const c = railCtl(P), n = (P.railBack ? 1 : 0) + (c && c.kind !== 'sheet' && c.kind !== 'task' ? c.items.length : 0);
+      if (n) P.tabsMin = r.top + n * 62 + 48 + 14 + 212 + r.bottom > innerHeight;
+    }
     if (P.OX) P.panes.forEach(p => { p.x += P.OX; });
     return P;
   }
@@ -494,7 +520,7 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
@@ -529,8 +555,11 @@
     const keys = {};
     P.panes.forEach(pn => { const o = paneHTML(pn, P, depth); keys[pn.pos] = o.key; html += o.html; });
     if (P.sheet) {
-      const out = renderView(P.sheet.view, { w: 382, chatMode: 'overlay' });
-      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet" style="left:${P.OX + P.CW - 382}px;width:382px;top:0;--box-b:24px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
+      const out = renderView(P.sheet.view, { w: 382, chatMode: 'overlay', railTask: !!L.rail });
+      /* The drawer is modal: the scrim covers the page and the rail; where the rail is on the right the
+         drawer runs on over it to the screen edge, so only the chat and its Close are left to use. */
+      const ext = L.rail && !L.rail.left ? innerWidth - (P.OX + P.CW) : 0;
+      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet${ext ? ' has-ext' : ''}" style="left:${P.OX + P.CW - 382}px;width:382px;top:0;--box-b:24px;--ext:${ext}px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
       keys.sheet = keyOf(P.sheet.view);
     }
     if (L.rail) html += rail(P);
@@ -598,7 +627,7 @@
       el.style.animation = 'none';
       el.style.pointerEvents = 'none';
       let a;
-      if (sel === '.sheet') a = M.play(el, [{ transform: 'none' }, { transform: 'translateX(100%)' }], M.SHEET_OUT);
+      if (sel === '.sheet') a = M.play(el, [{ transform: 'none' }, { transform: `translateX(calc(100% + ${el.style.getPropertyValue('--ext') || '0px'}))` }], M.SHEET_OUT);
       else if (sel === '.bsheet') a = M.play(el, [{ transform: 'none' }, { transform: 'translateY(100%)' }], M.SHEET_OUT);
       else if (sel === '.pop') a = M.play(el, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.92)' }], { duration: 200, easing: 'ease-out' });
       else if (sel === '.tabbar' || sel === '.fab') a = M.play(el, [{ translate: '0 0', opacity: 1 }, { translate: (sel === '.tabbar' ? -0.3 * 400 : -0.3 * P.CW) + 'px 0', opacity: 0 }], M.NAV);
@@ -822,6 +851,16 @@
     const RX = r.left ? 24 : 12;   // controls sit 12 from the screen edge, centred under the camera
     const x = r.x + RX;
     let out = `<div class="rail" style="left:${r.x}px"></div>`;
+    const c = railCtl(P);
+    const ctlBtns = (items, top, z) => items.map(([act, ic, label, id], k) => `<button class="rail-btn glass-rail" style="left:${x}px;top:${top + k * 62}px;${z}" data-act="${act}"${id ? ` data-id="${id}"` : ''} aria-label="${label}">${I(ic)}</button>`).join('');
+    if (c && c.kind === 'task') {
+      out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="closeChat" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;   // back to the thesis
+      return out + ctlBtns(c.items, r.top + 62, '');
+    }
+    if (c && c.kind === 'sheet') {   // the drawer's own controls, above the scrim
+      return `<div class="rail" style="left:${r.x}px;z-index:7"></div>` + ctlBtns(c.items, r.top, 'z-index:7');
+    }
+    if (c) out += ctlBtns(c.items, r.top + (P.railBack ? 62 : 0), '');
     if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
     out += `<button class="rail-btn rail-create" style="left:${x}px;bottom:${r.bottom}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
     const ti = TABS.findIndex(([id]) => id === S.tab), above = r.bottom + 48 + 14;

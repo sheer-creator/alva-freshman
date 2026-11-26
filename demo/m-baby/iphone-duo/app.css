@@ -731,3 +731,10 @@ span.exch { background: var(--br07); }
   .tabbar { width: calc(100vw - 40px); --item: calc((100vw - 48px) / 4); }
   .fab { bottom: 95px; }
 }
+
+/* Ask drawer: no shadow (the scrim separates it); it covers the rail column on the right */
+.sheet { box-shadow: none !important; }
+.sheet { clip-path: none !important; }
+.sheet.has-ext { box-shadow: var(--ext) 0 0 0 var(--b0) !important; }   /* the drawer's own colour, carried over the rail column */
+.sheet.has-ext { animation-name: sheetInExt; }
+@keyframes sheetInExt { from { transform: translateX(calc(100% + var(--ext, 0px))); } }
