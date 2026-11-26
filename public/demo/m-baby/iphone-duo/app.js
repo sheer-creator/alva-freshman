@@ -220,13 +220,13 @@
     let left = '<span class="side"></span>', right = '<span class="side"></span>';
     const btn = (act, ic, label) => `<button class="side glass-rail" data-act="${act}" aria-label="${label}">${I(ic)}</button>`;
     /* 11-26: a conversation from a thesis keeps Close beside Alva, both on the left (the drawer has no
-       Close: tap the dimmed page). Expand / Collapse sit on the right, or in the rail where the chat is
-       against it. The Alva tab page keeps Chat history; the rail takes it there. */
+       Close: tap the dimmed page). Expand / Collapse always sit on Alva's row, at the right (never in the rail);
+       beside a thesis with a rail, the rail's Back closes Ask. The Alva tab page keeps Chat history; the rail takes it there. */
     const page = ctx.chatMode === 'page' && !v.full;   // its own page on narrow windows: Back is in the rail
     const lead = fromThesis && !page;
     if (lead) {
-      left = ctx.chatMode === 'overlay' && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');
-      right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
+      left = (ctx.chatMode === 'overlay' || ctx.askTile) && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');   // beside a thesis with a rail, the rail's Back closes it
+      right = v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
     } else if (!fromThesis && !ctx.listBeside) left = btn('chatList', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
     if (page && ctx.railTask) left = right = '<span class="side"></span>';
     const head = ctx.noHead ? '' : `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
@@ -458,10 +458,10 @@
   function railCtl(P) {
     const r = P.L.rail; if (!r) return null;
     const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
-    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.fold] : [] };   // Close stays beside Alva
+    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: [] };   // 11-26: Close beside Alva, Collapse on Alva's row at the right
     if (P.sheet) return null;   // 11-26: the drawer is modal — the scrim covers the rail too; Expand sits at the drawer's top right
     const last = P.panes[P.panes.length - 1];
-    if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.expand]   /* Close stays beside Alva */ };
+    /* 11-26: Ask beside a thesis — the rail keeps Back (closes Ask); Expand sits at the chat's top right */
     return null;
   }
   function plan() {
@@ -536,8 +536,10 @@
     else if (right.v === 'chat' && left.v !== 'chats') { lw = 485; rx = 485; rw = CW - 485; }
     else if (right.v === 'profile') { lw = 382; rx = 382.5; rw = CW - 383; }   // Figma: the profile column is 484, the last 0.5 belongs to the divider
     else { lw = 382; rx = 382; rw = CW - 382; }
-    return { L, CW, railBack: t.v === 'updates' || (left === st[0] && st.length > 2), panes: [
-      { view: left, x: 0, w: lw, pos: 'left', leftBack: leftIdx > 0, askOpen: right.v === 'chat', sel: listSel },
+    /* 11-26: Ask beside a thesis with a rail — the rail's Back closes Ask; the thesis column drops its own back */
+    const askTile = !!L.rail && right.v === 'chat' && right.id !== 'tab';
+    return { L, CW, askTile, railBack: askTile || t.v === 'updates' || (left === st[0] && st.length > 2), panes: [
+      { view: left, x: 0, w: lw, pos: 'left', leftBack: !askTile && leftIdx > 0, askOpen: right.v === 'chat', sel: listSel },
       { view: right, x: rx, w: rw, pos: 'right', chatMode: 'tile' },
     ] };
   }
@@ -546,7 +548,7 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, askTile: !!P.askTile, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
@@ -944,7 +946,7 @@
       return `<div class="rail" style="left:${r.x}px;z-index:7"></div>` + ctlBtns(c.items, r.top, 'z-index:7');
     }
     if (c) out += ctlBtns(c.items, r.top + (P.railBack ? 62 : 0), '');
-    if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
+    if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="${P.askTile ? 'closeChat' : 'back'}" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
     out += `<button class="rail-btn rail-create" style="left:${x}px;bottom:${r.bottom}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
     const ti = TABS.findIndex(([id]) => id === S.tab), above = r.bottom + 48 + 14;
     if (P.tabsMin && !S.tabsOpen) {
