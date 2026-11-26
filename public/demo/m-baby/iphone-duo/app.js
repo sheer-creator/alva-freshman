@@ -494,11 +494,13 @@
       ] };
     }
     const book = L.mode === 'book';
-    if (t.v === 'chat' && t.full) { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }], railBack: true }; }
+    /* 11-26: a conversation filling the content keeps its header at the page's top left; only the messages and the box stay in the 600 column */
+    if (t.v === 'chat' && t.full) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
     let left, right;
     if (st.length === 1) {
       if (t.v === 'feed') { left = t; right = autoFirst() || emptyOf(t); }
       else if (book) { left = t; right = emptyOf(t); }
+      else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
       else { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }] }; }
     } else if (t.v === 'chat') { left = below; right = t; }        // Ask Alva sits beside the thesis it asks about
     else if (LIST_ROOTS.includes(st[0].v)) { left = st[0]; right = t; }   // the list stays; only the right column moves on
@@ -530,7 +532,7 @@
       : (L.rail && L.rail.left && pn.x === P.OX && pn.view.v !== 'chat') ? 'edge-l' : '';
     const vars = `${padR && (L.mode === 'book-v' ? pn.pos === 'left' : pn.pos !== 'left') ? `--pad-r:${padR};` : ''}${L.tabbar && depth === 1 ? '--box-b:100px;' : ''}${L.mode === 'book-v' && L.tabbar && depth === 1 && pn.pos === 'right' ? '--bar-b:100px;' : ''}`;
     const style = `left:${pn.x}px;width:${pn.w}px;${pn.h != null ? `top:${pn.y}px;bottom:auto;height:${pn.h}px;` : ''}${vars}`;
-    const cls = `pane ${edge}`;
+    const cls = `pane ${edge}${pn.narrow && pn.w > 600 ? ' narrow' : ''}`;
     const dp = `data-pos="${pn.pos}" data-key="${esc(k)}"`;
     const html = (out.chat || out.empty)
       ? `<section class="${cls}" ${dp} style="${style}">${out.chat || out.empty}</section>`
