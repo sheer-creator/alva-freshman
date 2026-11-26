@@ -218,17 +218,18 @@
     const fromThesis = v.id !== 'tab';
     const log = S.chats[v.id] || (S.chats[v.id] = [{ who: 'a', text: D.greeting.join('\n') }]);
     let left = '<span class="side"></span>', right = '<span class="side"></span>';
-    /* no chat-history button on the Alva page (review 2026-11-25; the Duo Figma frames still show one) */
-    if (fromThesis && ctx.chatMode === 'tile') left = `<button class="side glass-rail" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;   // the drawer has no Close: tap the dimmed page, or expand first
-    if (fromThesis && v.full) {
-      left = `<button class="side glass-rail" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;
-      right = `<button class="side glass-rail" data-act="foldChat" aria-label="Restore page and conversation">${I('foldd-l')}</button>`;
-    } else if (fromThesis && ctx.chatMode !== 'page') right = `<button class="side glass-rail" data-act="expandChat" aria-label="Expand conversation">${I('unfold-l')}</button>`;
-    if (!fromThesis) left = `<button class="side glass-rail" data-act="toast" data-id="Chat history is not part of this demo" aria-label="Chat history">${I('menu-l')}</button>`;
-    if (ctx.railTask) left = right = '<span class="side"></span>';
-    const drawer = fromThesis && ctx.chatMode === 'overlay' && !v.full;   // 11-26: the drawer's Alva sits on the left
-    if (drawer) { left = ''; if (ctx.railTask) right = ''; }
-    const head = `<header class="chat-h ${v.full ? 'full' : ''}${drawer ? ' drawer' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
+    const btn = (act, ic, label) => `<button class="side glass-rail" data-act="${act}" aria-label="${label}">${I(ic)}</button>`;
+    /* 11-26: a conversation from a thesis keeps Close beside Alva, both on the left (the drawer has no
+       Close: tap the dimmed page). Expand / Collapse sit on the right, or in the rail where the chat is
+       against it. The Alva tab page keeps Chat history; the rail takes it there. */
+    const page = ctx.chatMode === 'page' && !v.full;   // its own page on narrow windows: Back is in the rail
+    const lead = fromThesis && !page;
+    if (lead) {
+      left = ctx.chatMode === 'overlay' && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');
+      right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
+    } else if (!fromThesis) left = ctx.railTask ? '<span class="side"></span>' : btn('toast" data-id="Chat history is not part of this demo', 'menu-l', 'Chat history');
+    if (page && ctx.railTask) left = right = '<span class="side"></span>';
+    const head = `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
       ? `<div class="bub-a"><div class="${m.typing && i === log.length - 1 ? 'typing' : ''}">${esc(m.shown != null ? m.shown : m.text)}</div></div>`
       : `<div class="bub-u">${esc(m.text)}</div>`).join('');
@@ -438,10 +439,10 @@
   function railCtl(P) {
     const r = P.L.rail; if (!r) return null;
     const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
-    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.close, BTN.fold] : [] };
+    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.fold] : [] };   // Close stays beside Alva
     if (P.sheet) return { kind: 'sheet', items: [BTN.expand] };   // 11-26: the drawer has no Close — Alva and Expand only
     const last = P.panes[P.panes.length - 1];
-    if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.close, BTN.expand] };
+    if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.expand]   /* Close stays beside Alva */ };
     const root = P.panes.find(p => p.view.v === 'chat' && p.view.id === 'tab');
     if (root && !P.railBack) return { kind: 'root', pos: root.pos, items: [BTN.hist] };
     return null;
