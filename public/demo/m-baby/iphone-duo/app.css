@@ -602,13 +602,13 @@ span.exch { background: var(--br07); }
 #kb .ic-k { width: 24px; height: 24px; color: var(--kb-ink); }
 #kb .k-home { position: absolute; left: 50%; bottom: 8px; width: 140px; height: 5px; margin-left: -70px; border-radius: 3px; background: var(--kb-ink); }
 #kb .k-cands { position: absolute; left: 0; top: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 44px 0 18px; font-size: 18px; color: var(--kb-ink); }
-#kb .k-cands em { position: absolute; right: 12px; top: 50%; margin-top: -12px; }
+#kb .k-cands em { position: absolute; right: 12px; top: 50%; margin-top: -12px; transform: rotate(180deg); }
 #kb .k-crease { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.06); }
 /* iPad-style keyboards: lighter keys, larger radius, no letter pop-up */
-#kb.kb-pad .k, #kb.kb-split .k { border-radius: 8px; font-size: 24px; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18); }
+#kb.kb-pad .k, #kb.kb-split .k { border-radius: 10px; font-size: 24px; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18); }
 #kb.kb-pad .k.fn, #kb.kb-split .k.fn { background: var(--kb-key); font-size: 14px; }
 #kb.kb-pad .k.space small { position: absolute; right: 8px; bottom: 4px; font-size: 10px; color: #8a8a8e; }
-#kb.kb-pad { --kb-bg: #e1e2e7; border-radius: 0 0 var(--kb-r, 0) var(--kb-r, 0); }
+#kb.kb-pad, #kb.kb-split { --kb-bg: #e1e2e7; border-radius: 26px 26px 0 0; box-shadow: 0 -0.5px 0 rgba(0, 0, 0, 0.08); }   /* the inner-screen panel has rounded top corners (27.2 capture) */
 #kb.kb-phoneLand .k { font-size: 20px; }
 #kb .kb-pop { position: absolute; width: 54px; height: 62px; margin: -66px 0 0 -27px; border-radius: 10px; background: var(--kb-key); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); display: grid; place-items: center; font-style: normal; font-size: 32px; color: var(--kb-ink); pointer-events: none; }
 :root[data-theme='dark'] #kb { --kb-bg: #2b2b2d; --kb-key: #6b6b6e; --kb-fn: #47474a; --kb-ink: #fff; --kb-sh: rgba(0, 0, 0, 0.6); }
