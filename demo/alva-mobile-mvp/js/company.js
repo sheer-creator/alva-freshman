@@ -2,10 +2,10 @@
  * Mirrors the production markets/[ticker] information architecture while
  * keeping the Freshman demo deterministic and entirely client-side.
  */
-import { ENTITIES, ITEMS, SOURCES, itemSources } from './data.js?v=local-mwx9yg';
-import { entityAv, srcAvatar, streamCard } from './cards.js?v=local-mwx9yg';
-import { renderMarkdown } from './markdown.js?v=local-mwx9yg';
-import { store, I } from './state.js?v=local-mwx9yg';
+import { ENTITIES, ITEMS, SOURCES, itemSources } from './data.js?v=local-mwxdmh';
+import { entityAv, srcAvatar, streamCard } from './cards.js?v=local-mwxdmh';
+import { renderMarkdown } from './markdown.js?v=local-mwxdmh';
+import { store, I } from './state.js?v=local-mwxdmh';
 
 export const COMPANY_TABS = [
   ['overview', 'Overview'],

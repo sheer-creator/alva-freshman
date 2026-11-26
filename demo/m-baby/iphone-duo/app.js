@@ -220,13 +220,15 @@
     let left = '<span class="side"></span>', right = '<span class="side"></span>';
     const btn = (act, ic, label) => `<button class="side glass-rail" data-act="${act}" aria-label="${label}">${I(ic)}</button>`;
     /* 11-26: a conversation from a thesis keeps Close beside Alva, both on the left (the drawer has no
-       Close: tap the dimmed page). Expand / Collapse sit on the right, or in the rail where the chat is
-       against it. The Alva tab page keeps Chat history; the rail takes it there. */
+       Close: tap the dimmed page). Expand / Collapse always sit on Alva's row, at the right (never in the rail);
+       beside a thesis with a rail, the rail's Back closes Ask. The Alva tab page keeps Chat history; the rail takes it there. */
     const page = ctx.chatMode === 'page' && !v.full;   // its own page on narrow windows: Back is in the rail
     const lead = fromThesis && !page;
     if (lead) {
-      left = ctx.chatMode === 'overlay' && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');
-      right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
+      left = (ctx.chatMode === 'overlay' || ctx.askTile) && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');   // beside a thesis with a rail, the rail's Back closes it
+      right = v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation')
+        : ctx.noExpand ? `<button class="side glass-rail is-off" disabled aria-disabled="true" aria-label="Expand conversation (not available on a half-folded screen)">${I('unfold-l')}</button>`
+        : btn('expandChat', 'unfold-l', 'Expand conversation');
     } else if (!fromThesis && !ctx.listBeside) left = btn('chatList', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
     if (page && ctx.railTask) left = right = '<span class="side"></span>';
     const head = ctx.noHead ? '' : `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
@@ -255,7 +257,10 @@
     const row = c => `<button class="ch-row${c.id === 'tab' ? ' on' : ''}" data-act="${c.id === 'tab' ? 'chatListClose' : 'toast'}" data-id="${c.id === 'tab' ? '' : 'Channels are not part of this demo'}">
       <span class="ch-av">${c.alva ? '<img src="assets/icons/logo-portrait.svg" alt="">' : '<img src="assets/icons/logo-channel.svg" alt="">'}${c.badge ? `<i class="ch-badge">${c.badge}</i>` : ''}</span>
       <span class="ch-main"><span class="ch-line"><b class="${c.alva ? 'm' : ''}">${esc(c.name)}</b><em>${c.time}</em></span><span class="ch-prev">${esc(c.text)}</span></span></button>`;
-    const head = '';   // 11-26: the window's Alva bar (≡ + Alva) sits above the list, so the list starts at 84
+    /* 11-26: beside the conversation the window's Alva bar (≡ + Alva) sits above the list, so the list starts at 84.
+       When the conversation has moved aside (narrow windows), its ≡ goes with it — so the list keeps a ≡ of its own
+       in the same place, at the window's top left: tap ≡ to open, tap ≡ in the same spot to close. */
+    const head = ctx.under ? `<header class="ch-head"><button class="side glass-rail on" data-act="chatListClose" aria-label="Hide chats" aria-pressed="true">${I('menu-l')}</button><span class="ch-title">Chats</span></header>` : '';
     return { chat: `<div class="chats">${head}<div class="ch-list">${row(CHANNELS[0])}<p class="ch-sec">Channels</p>${CHANNELS.slice(1).map(row).join('')}
       <button class="ch-new" data-act="toast" data-id="New channel is not part of this demo">${I('chat-new-l', 'ic-18')}New channel</button></div>
       <div class="ch-search"><span>Search conversations</span></div></div>` };
@@ -452,16 +457,16 @@
   function chatTask(P) { return !!(P.L.rail && P.panes.length === 1 && P.panes[0].view.v === 'chat' && P.panes[0].view.id !== 'tab' && !P.sheet); }
   /* 11-26: the chat's own header buttons move into the rail wherever the chat sits against it.
      task — a full-content chat from a thesis: Back (+ Collapse when expanded), no tabs or Create.
-     sheet — the drawer is modal: the rail shows only Close and Expand, above the scrim.
+     (the drawer is modal: the scrim covers the rail as well, and Expand stays at the drawer's top right)
      tile — Ask beside a thesis, next to a right-hand rail: Close and Expand on top, tabs and Create stay.
      (the Alva tab page keeps Chat history at its top left, beside Alva) */
   function railCtl(P) {
     const r = P.L.rail; if (!r) return null;
     const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
-    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.fold] : [] };   // Close stays beside Alva
-    if (P.sheet) return { kind: 'sheet', items: [BTN.expand] };   // 11-26: the drawer has no Close — Alva and Expand only
+    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: [] };   // 11-26: Close beside Alva, Collapse on Alva's row at the right
+    if (P.sheet) return null;   // 11-26: the drawer is modal — the scrim covers the rail too; Expand sits at the drawer's top right
     const last = P.panes[P.panes.length - 1];
-    if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.expand]   /* Close stays beside Alva */ };
+    /* 11-26: Ask beside a thesis — the rail keeps Back (closes Ask); Expand sits at the chat's top right */
     return null;
   }
   function plan() {
@@ -515,7 +520,9 @@
     }
     const book = L.mode === 'book';
     /* 11-26: a conversation filling the content keeps its header at the page's top left; only the messages and the box stay in the 600 column */
-    if (t.v === 'chat' && t.full) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
+    /* 11-26: half-folded Book never shows a full-screen conversation — a conversation from a thesis is always
+       thesis | Alva, one half each (nothing crosses the crease); Expand is there but disabled */
+    if (t.v === 'chat' && t.full && !book) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
     let left, right;
     if (st.length === 1) {
       if (t.v === 'chat' && S.listWide !== false) { left = { v: 'chats' }; right = t; }   // Alva tab: the chat list beside the conversation (open by default, ≡ closes it)
@@ -525,7 +532,7 @@
       else if (book) { left = t; right = emptyOf(t); }
       else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
       else { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }] }; }
-    } else if (t.v === 'chat') { left = below; right = t; }        // Ask Alva sits beside the thesis it asks about
+    } else if (t.v === 'chat') { left = below; right = book && t.full ? Object.assign({}, t, { full: false }) : t; }        // Ask Alva sits beside the thesis it asks about
     else if (LIST_ROOTS.includes(st[0].v)) { left = st[0]; right = t; }   // the list stays; only the right column moves on
     else if (t.v === 'updates' && st.length >= 3) { left = st[st.length - 3]; right = t; }
     else { left = below; right = t; }
@@ -536,9 +543,11 @@
     else if (right.v === 'chat' && left.v !== 'chats') { lw = 485; rx = 485; rw = CW - 485; }
     else if (right.v === 'profile') { lw = 382; rx = 382.5; rw = CW - 383; }   // Figma: the profile column is 484, the last 0.5 belongs to the divider
     else { lw = 382; rx = 382; rw = CW - 382; }
-    return { L, CW, railBack: t.v === 'updates' || (left === st[0] && st.length > 2), panes: [
-      { view: left, x: 0, w: lw, pos: 'left', leftBack: leftIdx > 0, askOpen: right.v === 'chat', sel: listSel },
-      { view: right, x: rx, w: rw, pos: 'right', chatMode: 'tile' },
+    /* 11-26: Ask beside a thesis with a rail — the rail's Back closes Ask; the thesis column drops its own back */
+    const askTile = !!L.rail && right.v === 'chat' && right.id !== 'tab';
+    return { L, CW, askTile, railBack: askTile || t.v === 'updates' || (left === st[0] && st.length > 2), panes: [
+      { view: left, x: 0, w: lw, pos: 'left', leftBack: !askTile && leftIdx > 0, askOpen: right.v === 'chat', sel: listSel },
+      { view: right, x: rx, w: rw, pos: 'right', chatMode: 'tile', noExpand: book && right.v === 'chat' },
     ] };
   }
 
@@ -546,12 +555,12 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, askTile: !!P.askTile, noExpand: !!pn.noExpand, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
     const lastCol = pn === P.panes[P.panes.length - 1];
-    const edge = ((pn.pos === 'left' && P.panes.length > 1 && L.mode !== 'book') || (L.rail && !L.rail.left && lastCol && pn.view.v !== 'chat' && pn.x + pn.w === L.rail.x)) ? 'edge-r'
+    const edge = ((pn.pos === 'left' && P.panes.length > 1 && L.mode !== 'book' && pn.view.v !== 'chats' /* the Alva tab draws its own full-height divider */) || (L.rail && !L.rail.left && lastCol && pn.view.v !== 'chat' && pn.x + pn.w === L.rail.x)) ? 'edge-r'
       : (L.rail && L.rail.left && pn.x === P.OX && pn.view.v !== 'chat') ? 'edge-l' : '';
     const vars = `${padR && (L.mode === 'book-v' ? pn.pos === 'left' : pn.pos !== 'left') ? `--pad-r:${padR};` : ''}${L.tabbar && depth === 1 ? '--box-b:100px;' : ''}${L.mode === 'book-v' && L.tabbar && depth === 1 && pn.pos === 'right' ? '--bar-b:100px;' : ''}`;
     const under = P.alvaRoot && !P.push && (pn.view.v === 'chats' || pn.view.v === 'chat' || pn.view.v === 'empty');   // below the window's Alva bar
@@ -582,7 +591,7 @@
     const keys = {};
     P.panes.forEach(pn => { const o = paneHTML(pn, P, depth); keys[pn.pos] = o.key; html += o.html; });
     if (P.sheet) {
-      const SW = P.sheet.w, out = renderView(P.sheet.view, { w: SW, chatMode: 'overlay', railTask: !!L.rail });
+      const SW = P.sheet.w, out = renderView(P.sheet.view, { w: SW, chatMode: 'overlay', railTask: false });
       /* The drawer is modal: the scrim covers the page and the rail; where the rail is on the right the
          drawer runs on over it to the screen edge, so only the chat and its Close are left to use. */
       const ext = L.rail && !L.rail.left ? innerWidth - (P.OX + P.CW) : 0;
@@ -603,10 +612,13 @@
         /* like the phone (Figma A2): the conversation page moves aside — bar, chat and Tab Bar together, rounded 40,
            under a white veil — and the list lies underneath it on the left; tap the veil to go back */
         push = P.push;
-        html = `<section class="pane ch-under" style="left:${P.OX}px;width:${push}px;top:0">${chatsView({}, { w: push }).chat}</section>` + html;
+        html = `<section class="pane ch-under" style="left:${P.OX}px;width:${push}px;top:0">${chatsView({}, { w: push, under: true }).chat}</section>` + html;
         veil = `<div class="push-veil" data-act="chatListClose" style="left:${P.OX}px;width:${P.CW}px"></div>`;
       }
-      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>` + veil;
+      /* 11-26: list | chat — the divider runs the full height, through the window bar */
+      const lp = P.panes.find(q => q.view.v === 'chats');
+      const div = lp && L.mode !== 'book' ? `<i class="alva-div" style="left:${P.OX + lp.x + lp.w}px"></i>` : '';
+      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>` + div + veil;
     }
     if (S.pop) html += popover(P);
     if (S.toast) html += `<div class="toast" style="left:${P.OX + P.CW / 2}px">${esc(S.toast)}</div>`;
@@ -626,8 +638,30 @@
     const oldLeft = app.querySelector(':scope > section.pane[data-pos="left"]');
     if (oldLeft) oldLeft.querySelectorAll('.scroll [data-act="open"][data-id], .scroll [data-act="profile"][data-id].row-item').forEach(el => oldRows.set(el.dataset.act + ':' + el.dataset.id, { el, h: el.offsetHeight }));
     const oldLeftKey = lastKeys.left, oldLayout = lastLayout;
+    /* the Alva tab's list opening / closing beside the conversation */
+    const listMove = S.listAnim ? (() => { const l = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chats')), c = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chat')), d = app.querySelector(':scope > .alva-div');
+      return { l, lw: l ? l.offsetWidth : 0, d, c: c && { x: c.offsetLeft, w: c.offsetWidth } }; })() : null;
+    S.listAnim = false;
+    const oldUnder = app.querySelector(':scope > .ch-under'), pushWas = lastPush;
     app.innerHTML = html;
     app.classList.toggle('alva-push', !!push); app.style.setProperty('--push', push + 'px');
+    /* 11-26: the conversation page moving aside for the chat list (or coming back) slides — page, bar, Tab Bar and ＋ together */
+    if (push !== pushWas && P.alvaRoot && root.dataset.layout === lastLayout) {
+      const E = { duration: 420, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'none' };
+      const tx = v => `translateX(${v}px)`;
+      app.querySelectorAll(':scope > section.pane[data-pos="main"], :scope > .alva-bar, :scope > .tabbar, :scope > .fab').forEach(el => {
+        const f = { transform: [tx(pushWas), tx(push)] };
+        if (el.matches('section.pane')) { f.borderRadius = [pushWas ? '40px' : '0px', push ? '40px' : '0px']; f.boxShadow = [pushWas ? '0 0 25px rgba(0,0,0,.12)' : '0 0 25px rgba(0,0,0,0)', push ? '0 0 25px rgba(0,0,0,.12)' : '0 0 25px rgba(0,0,0,0)']; }
+        M.play(el, f, E);
+      });
+      const veil = app.querySelector(':scope > .push-veil');
+      if (veil) M.play(veil, { opacity: [0, 1], transform: [tx(0), tx(push)] }, E);
+      if (!push && oldUnder) {   // closing: the list stays underneath until the page has covered it
+        oldUnder.style.pointerEvents = 'none'; app.insertBefore(oldUnder, app.firstChild);
+        setTimeout(() => oldUnder.remove(), 430);
+      }
+    }
+    lastPush = push;
     /* Expand / Collapse: the drawer itself spreads to the full page (or the page draws back into the drawer) — one surface, no exit and re-entry */
     if (S.morph) {
       const m = S.morph; S.morph = null;
@@ -641,6 +675,22 @@
         if (sc) sc.style.animation = 'fadeIn 0.46s cubic-bezier(.32,.72,0,1) both';
         if (m.under && !sc) { m.under.removeAttribute('data-pos'); m.under.style.pointerEvents = 'none'; app.insertBefore(m.under, app.firstChild); setTimeout(() => m.under.remove(), 480); }
         if (sc) {} else if (m.scrim) { m.scrim.style.animation = 'none'; m.scrim.style.pointerEvents = 'none'; app.insertBefore(m.scrim, el); M.play(m.scrim, [{ opacity: 1 }, { opacity: 0 }], { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' }).finished.then(() => m.scrim.remove()).catch(() => m.scrim.remove()); }
+      }
+    }
+    if (listMove) {
+      const E = { duration: 420, easing: 'cubic-bezier(.32,.72,0,1)' };
+      const l = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chats'));
+      const c = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chat'));
+      const d = app.querySelector(':scope > .alva-div');
+      if (c && listMove.c) M.play(c, [{ left: listMove.c.x + 'px', width: listMove.c.w + 'px' }, { left: c.offsetLeft + 'px', width: c.offsetWidth + 'px' }], E);
+      if (l) {   // opening: the list slides in from the leading edge, the divider with it
+        M.play(l, [{ transform: `translateX(-${l.offsetWidth}px)` }, { transform: 'none' }], E);
+        if (d) M.play(d, [{ transform: `translateX(-${l.offsetWidth}px)` }, { transform: 'none' }], E);
+      } else if (listMove.l) {   // closing: the old list (and its divider) slide out, then go
+        const o = listMove.l, od = listMove.d, w = listMove.lw;
+        o.removeAttribute('data-pos'); o.style.pointerEvents = 'none'; o.style.zIndex = 2; app.insertBefore(o, app.querySelector(':scope > .alva-bar'));
+        M.play(o, [{ transform: 'none' }, { transform: `translateX(-${w}px)` }], E).finished.then(() => o.remove()).catch(() => o.remove());
+        if (od) { app.appendChild(od); M.play(od, [{ transform: 'none' }, { transform: `translateX(-${w}px)` }], E).finished.then(() => od.remove()).catch(() => od.remove()); }
       }
     }
     layoutAllPics();
@@ -746,13 +796,27 @@
         (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => g.remove());
       });
     }
+    /* 11-26: anything that moves — a page sliding aside or back, two columns travelling together, a drawer spreading or
+       drawing back — passes UNDER the rail rather than being cut off by it: while it moves the rail goes see-through
+       (its controls stay on top), then comes back once everything has settled */
+    railThru();
     lastKeys = keys; lastDepth = depth; lastTab = S.tab; lastIdx = idxs; skipNav = false; lastLayout = root.dataset.layout;
     if (parent !== window) parent.postMessage({ type: 'duo:page', slug: pageSlug() }, '*');
     if (window.__applyHead) window.__applyHead();
     snapText();
     kbSync();
   }
-  let lastIdx = {}, skipNav = false, lastLayout = null;
+  let lastIdx = {}, skipNav = false, lastLayout = null, lastPush = 0;
+  function railThru() {
+    if (!app.querySelector(':scope > .rail')) return;
+    const moving = [...app.children].filter(el => !/\brail/.test(el.className)).flatMap(el => el.getAnimations ? el.getAnimations({ subtree: true }) : [])
+      .filter(a => a.playState === 'running' || a.playState === 'pending');
+    if (!moving.length) return;
+    app.classList.add('rail-thru');
+    const tok = railThru.tok = (railThru.tok || 0) + 1;
+    Promise.all(moving.map(a => a.finished.catch(() => {}))).then(() => { if (railThru.tok === tok) app.classList.remove('rail-thru'); });
+    setTimeout(() => { if (railThru.tok === tok) app.classList.remove('rail-thru'); }, 900);   // never stays on
+  }
   const railKey = el => el.classList.contains('rail-tabs') ? 'tabs' : el.classList.contains('rail-tabmin') ? 'tabmin' : el.classList.contains('rail-create') ? 'create' : el.getAttribute('aria-label') === 'Back' ? 'back' : (el.dataset.act || '') + ':' + (el.dataset.id || '') + ':' + (el.getAttribute('aria-label') || '');
   /* the conversation's box (drawer, tile or full page) before Expand / Collapse, so the same surface can grow or shrink into place */
   function chatBox() {
@@ -944,7 +1008,7 @@
       return `<div class="rail" style="left:${r.x}px;z-index:7"></div>` + ctlBtns(c.items, r.top, 'z-index:7');
     }
     if (c) out += ctlBtns(c.items, r.top + (P.railBack ? 62 : 0), '');
-    if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
+    if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="${P.askTile ? 'closeChat' : 'back'}" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
     out += `<button class="rail-btn rail-create" style="left:${x}px;bottom:${r.bottom}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
     const ti = TABS.findIndex(([id]) => id === S.tab), above = r.bottom + 48 + 14;
     if (P.tabsMin && !S.tabsOpen) {
@@ -1175,7 +1239,7 @@
         if (fromList(el)) { st.length = 1; st.push({ v: 'profile', id }); } else push({ v: 'profile', id });
         break;
       case 'back': doBack(); break;
-      case 'chatList': { const Pn = plan(); if (Pn.canBeside) S.listWide = S.listWide === false; else S.chatList = !S.chatList; break; }
+      case 'chatList': { const Pn = plan(); if (Pn.canBeside) { S.listWide = S.listWide === false; S.listAnim = true; skipNav = true; } else S.chatList = !S.chatList; break; }
       case 'chatListClose': S.chatList = false; break;
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
       case 'foldChat': S.morph = chatBox(); skipNav = true; st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
@@ -1255,31 +1319,106 @@
   /* ── iOS keyboard (Figma: System / iOS Keyboard; Duo keyboard 27.2 capture) ──
      It rises with the system keyboard curve, the window's content inset grows
      by its height and the input bar rides 8 above it. */
+  /* 11-26: the keyboard is drawn, not a stretched picture — each screen gets its own system keyboard,
+     laid out for its width and height:
+       phone      outer portrait — iPhone keyboard: 4 rows, emoji and dictation under them, home indicator
+       phoneLand  outer landscape — iPhone landscape: short rows, keys capped in width and centred
+       pad        inner upright (and upright Book / PiP, Split upright) — the Duo inner keyboard: candidate
+                  bar, 4 rows, 123 · globe · emoji · space · dictation · return (from the 27.2 capture)
+       split      Book half-folded — the keyboard splits at the crease, one half under each half of the screen
+     Split View on the long edge: the window is 469.5, so the phone layout fits it. */
   const KB = {
-    'outer-portrait': { img: 'kb-outer.png', h: 344, gap: 8, map: 'outer' },
-    'outer-landscape': { img: 'kb-outer.png', h: 206, gap: 8, map: 'outer' },
-    'inner-portrait': { img: 'kb-inner.png', h: 351, gap: 10, map: 'inner' },
-    'inner-landscape': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'book': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'split': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'pip': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'book-portrait': { img: 'kb-inner.png', h: 351, gap: 10, map: 'inner' },
-    'split-portrait': { img: 'kb-inner.png', h: 220, gap: 10, map: 'inner' },
-    'split-l': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'split-l-portrait': { img: 'kb-inner.png', h: 220, gap: 10, map: 'inner' },
-    'pip-portrait': { img: 'kb-inner.png', h: 351, gap: 10, map: 'inner' },
+    'outer-portrait': { k: 'phone', h: 344, gap: 8 },
+    'outer-portrait-m': { k: 'phone', h: 344, gap: 8 },
+    'outer-landscape': { k: 'phoneLand', h: 206, gap: 8 },
+    'outer-landscape-m': { k: 'phoneLand', h: 206, gap: 8 },
+    'inner-portrait': { k: 'pad', h: 352, gap: 10 },
+    'book-portrait': { k: 'pad', h: 352, gap: 10 },
+    'pip-portrait': { k: 'pad', h: 352, gap: 10 },
+    'inner-landscape': { k: 'pad', h: 300, gap: 10 },
+    'pip': { k: 'pad', h: 300, gap: 10 },
+    'book': { k: 'split', h: 300, gap: 10 },
+    'split': { k: 'phone', h: 300, gap: 8 },
+    'split-l': { k: 'phone', h: 300, gap: 8 },
+    'split-portrait': { k: 'pad', h: 230, gap: 10 },
+    'split-l-portrait': { k: 'pad', h: 230, gap: 10 },
   };
-  const kbEl = document.getElementById('kb'), kbImg = kbEl.querySelector('img');
-  let kbOn = false, kbAnim = null;
+  const kbEl = document.getElementById('kb');
+  let kbOn = false, kbAnim = null, kbBuilt = '';
+  const CANDS = ['你', '在', '这', '不', '是', '一', '好', '他', '那', '有', '我', '们', '的'];
+  function kbHTML(kind, W, H) {
+    const key = (x, y, w, h, k, label, fn, cls = '') => `<b class="k${fn ? ' fn' : ''}${cls ? ' ' + cls : ''}" data-k="${k}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px">${label}</b>`;
+    const ICON = { shift: I('kb-shift', 'ic-k'), del: I('kb-del', 'ic-k'), globe: I('kb-globe', 'ic-k'), emoji: I('kb-emoji', 'ic-k'), mic: I('kb-mic', 'ic-k'), ret: I('kb-return', 'ic-k') };
+    let out = '';
+    /* one block of keys: rows of letters, with the given edge keys */
+    function block(x0, bw, top, rowsH, opt) {
+      const { side, gap, kwMax = 999, r1, r2, r3, shift, del, bottom } = opt;
+      const kw = Math.min(kwMax, (bw - 2 * side - (opt.cols - 1) * gap) / opt.cols);
+      const pitch = rowsH / 4, kh = pitch - opt.vgap;
+      const used = opt.cols * kw + (opt.cols - 1) * gap, L = x0 + (bw - used) / 2, R = L + used;
+      const row = (letters, y, start) => letters.split('').map((c, i) => key(start + i * (kw + gap), y, kw, kh, c, c)).join('');
+      const y = i => top + i * pitch + opt.vgap / 2;
+      out += row(r1, y(0), opt.r1Start === 'right' ? R - r1.length * (kw + gap) + gap : L);
+      const r2w = r2.length * kw + (r2.length - 1) * gap;
+      out += row(r2, y(1), opt.r2Align === 'left' ? L + kw * 0.5 : opt.r2Align === 'right' ? R - r2w : x0 + (bw - r2w) / 2);
+      const r3w = r3.length * kw + (r3.length - 1) * gap;
+      const r3x = opt.r3Align === 'left' ? L : opt.r3Align === 'right' ? R - r3w : x0 + (bw - r3w) / 2;
+      out += row(r3, y(2), r3x);
+      const g3 = opt.r3Align ? gap : gap * 2;
+      if (shift) out += key(L, y(2), r3x - L - g3, kh, 'shift', ICON.shift, true);
+      if (del) { const dx = r3x + r3w + g3; out += key(dx, y(2), opt.r3Align ? Math.min(R - dx, kw * 1.6) : R - dx, kh, 'del', ICON.del, true); }
+      /* bottom row: [k, label, width in keys | 'fill', fn] */
+      const fixed = bottom.filter(b => b[2] !== 'fill').reduce((a, b) => a + b[2] * kw, 0) + (bottom.length - 1) * gap;
+      const fill = used - fixed;
+      let bx = L;
+      bottom.forEach(([k, label, w, fn]) => { const ww = w === 'fill' ? fill : w * kw; out += key(bx, y(3), ww, kh, k, label, fn, k === ' ' ? 'space' : ''); bx += ww + gap; });
+      return { kw, kh, L, R };
+    }
+    if (kind === 'phone') {
+      const top = 8, rowsH = Math.min(4 * 58, H - 112);
+      block(0, W, top, rowsH, { cols: 10, side: 3, gap: 6, vgap: 12, r1: 'qwertyuiop', r2: 'asdfghjkl', r3: 'zxcvbnm', shift: true, del: true,
+        bottom: [['123', '123', 2.45, true], [' ', 'space', 'fill'], ['ret', 'return', 2.45, true]] });
+      const by = top + rowsH + 14;
+      out += `<b class="k-bare" data-k="emoji" style="left:18px;top:${by}px">${ICON.emoji}</b><b class="k-bare" data-k="mic" style="right:18px;top:${by}px">${ICON.mic}</b><i class="k-home"></i>`;
+    } else if (kind === 'phoneLand') {
+      /* keys stay inside the safe area: the rail's column (camera at its foot) is left clear */
+      const rl = (LAYOUTS[stateId()] || {}).rail, x0 = rl && rl.left ? 84 : 0, top = 4, rowsH = H - 4 - 26;
+      block(x0, W - 84, top, rowsH, { cols: 10, side: 20, gap: 6, vgap: 7, kwMax: 56, r1: 'qwertyuiop', r2: 'asdfghjkl', r3: 'zxcvbnm', shift: true, del: true,
+        bottom: [['123', '123', 1.3, true], ['emoji', ICON.emoji, 1, true], [' ', 'space', 'fill'], ['mic', ICON.mic, 1, true], ['ret', 'return', 2, true]] });
+      out += `<i class="k-home" style="left:${x0 + (W - 84) / 2}px"></i>`;
+    } else if (kind === 'pad') {
+      const cb = H >= 300 ? 46 : 36, bp = Math.round(H * (H >= 300 ? 0.2 : 0.06)), rowsH = H - cb - bp;
+      out += `<div class="k-cands" style="height:${cb}px">${CANDS.slice(0, Math.max(5, Math.floor((W - 60) / 64))).map(c => `<span>${c}</span>`).join('')}<em>${I('arrow-down-l2', 'ic-k')}</em></div>`;
+      block(0, W, cb, rowsH, { cols: 10, side: 18, gap: 10, vgap: rowsH / 4 * 0.27, r1: 'qwertyuiop', r2: 'asdfghjkl', r3: 'zxcvbnm', shift: true, del: true,
+        bottom: [['123', '123', 1, true], ['globe', ICON.globe, 1, true], ['emoji', ICON.emoji, 1, true], [' ', '<small>拼</small>', 'fill'], ['mic', ICON.mic, 1, true], ['ret', ICON.ret, 1.47, true]] });
+    } else if (kind === 'split') {
+      /* Book: one half under each half of the screen, nothing on the crease (455.5–495.5) */
+      const half = 455.5, cb = 40, rowsH = H - cb - 30, o = { side: 18, gap: 8, vgap: rowsH / 4 * 0.25, kwMax: 64, shift: true, del: true };
+      out += `<div class="k-cands" style="height:${cb}px;width:${half}px">${CANDS.slice(0, 6).map(c => `<span>${c}</span>`).join('')}</div>`;
+      out += `<div class="k-cands" style="height:${cb}px;left:${W - half}px;width:${half}px">${CANDS.slice(6, 12).map(c => `<span>${c}</span>`).join('')}<em>${I('arrow-down-l2', 'ic-k')}</em></div>`;
+      block(0, half, cb, rowsH, { ...o, del: false, cols: 6, r1: 'qwert', r2: 'asdfg', r3: 'zxcvb', r1Start: 'right', r2Align: 'right', r3Align: 'right',
+        bottom: [['123', '123', 1.2, true], ['globe', ICON.globe, 1, true], ['emoji', ICON.emoji, 1, true], [' ', '', 'fill']] });
+      block(W - half, half, cb, rowsH, { ...o, shift: false, cols: 6, r1: 'yuiop', r2: 'hjkl', r3: 'nm', r2Align: 'left', r3Align: 'left',
+        bottom: [[' ', '', 'fill'], ['mic', ICON.mic, 1, true], ['ret', ICON.ret, 1.6, true]] });
+      out += `<i class="k-crease" style="left:${half}px;width:${W - 2 * half}px"></i>`;
+    }
+    return out;
+  }
   const typing = () => { const a = document.activeElement; return a && app.contains(a) && (a.id === 'q' || (a.form && a.form.classList.contains('chatbox'))) ? a : null; };
+  function kbBuild(k) {
+    const sig = k.k + innerWidth + 'x' + k.h;
+    if (sig === kbBuilt) return;
+    kbBuilt = sig;
+    kbEl.className = 'kb-' + k.k;
+    kbEl.innerHTML = kbHTML(k.k, innerWidth, k.h);
+  }
   function kbSync() {
     const want = !!typing();
     const k = KB[stateId()] || KB['outer-portrait'];
     root.style.setProperty('--kb-gap', k.gap + 'px');
+    if (want) kbBuild(k);
     if (want === kbOn) { if (want) { kbEl.style.height = k.h + 'px'; root.style.setProperty('--kb', k.h + 'px'); } return; }
     kbOn = want;
-    kbImg.src = 'assets/img/' + k.img;
-    kbEl.dataset.map = k.map;
     kbEl.style.height = k.h + 'px';
     kbEl.style.display = 'block';
     root.classList.toggle('kb-on', want);
@@ -1296,32 +1435,26 @@
     const t = typing();
     if (t && !e.target.closest('input, textarea, form.chatbox, .s-input')) t.blur();
   }, true);
-  const ROWS_OUT = { y: [34, 97, 160, 227], r1: [23, 46.4], r2: [47, 46.5], r3: [93, 46.6], shift: 28, del: 437, space: [119, 347], ret: [357, 461], w: 466, h: 344 };
-  const ROWS_IN = { y: [76, 136, 196, 256], r1: [46, 64.2], r2: [77, 64.4], r3: [142, 64.2], shift: 55, del: 614, space: [199, 500], ret: [570, 650], w: 669, h: 352, top: 46 };
   kbEl.addEventListener('pointerdown', e => {
     const t = typing(); if (!t) return;
-    const r = kbEl.getBoundingClientRect(), m = kbEl.dataset.map === 'inner' ? ROWS_IN : ROWS_OUT;
-    const x = (e.clientX - r.left) * m.w / r.width, y = (e.clientY - r.top) * m.h / r.height;
-    const row = m.y.reduce((b, cy, i) => Math.abs(cy - y) < Math.abs(m.y[b] - y) ? i : b, 0);
-    if (m.top && y < m.top) return;
-    let key = null;
-    const pick = (letters, [x0, step]) => { const i = Math.round((x - x0) / step); return i >= 0 && i < letters.length && Math.abs(x - (x0 + i * step)) < step * 0.55 ? letters[i] : null; };
-    if (row === 0) key = pick('qwertyuiop', m.r1);
-    else if (row === 1) key = pick('asdfghjkl', m.r2);
-    else if (row === 2) key = Math.abs(x - m.del) < 30 ? 'del' : pick('zxcvbnm', m.r3);
-    else key = x >= m.space[0] && x <= m.space[1] ? ' ' : x >= m.ret[0] && x <= m.ret[1] ? 'ret' : null;
-    if (!key) return;
+    const kEl = e.target.closest('[data-k]'); if (!kEl) return;
+    const key = kEl.dataset.k;
+    kEl.classList.add('down'); setTimeout(() => kEl.classList.remove('down'), 140);
     if (key === 'ret') { if (t.form && t.form.classList.contains('chatbox')) t.form.requestSubmit(); else t.blur(); return; }
+    if (key.length > 1 && key !== 'del') return;   // 123, globe, emoji, mic, shift: not part of the demo
     const v = t.value, a = t.selectionStart ?? v.length, b = t.selectionEnd ?? v.length;
     if (key === 'del') { const s0 = a === b ? Math.max(0, a - 1) : a; t.value = v.slice(0, s0) + v.slice(b); t.setSelectionRange(s0, s0); }
     else { t.value = v.slice(0, a) + key + v.slice(b); t.setSelectionRange(a + 1, a + 1); }
     t.dispatchEvent(new Event('input', { bubbles: true }));
-    /* key preview, as the system keyboard shows it */
-    const pv = document.createElement('i');
-    pv.className = 'kb-hit';
-    pv.style.left = (e.clientX - r.left) + 'px'; pv.style.top = (e.clientY - r.top) + 'px';
-    kbEl.appendChild(pv);
-    M.play(pv, [{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: 'ease-out' }).finished.then(() => pv.remove());
+    /* the phone keyboards pop the letter up above the key, as iOS does */
+    if (key.length === 1 && key !== ' ' && /^kb-phone/.test(kbEl.className)) {
+      const r = kEl.getBoundingClientRect(), kr = kbEl.getBoundingClientRect();
+      const pv = document.createElement('i');
+      pv.className = 'kb-pop'; pv.textContent = key;
+      pv.style.left = (r.left - kr.left + r.width / 2) + 'px'; pv.style.top = (r.top - kr.top) + 'px';
+      kbEl.appendChild(pv);
+      M.play(pv, [{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0 }], { duration: 260, easing: 'ease-out' }).finished.then(() => pv.remove());
+    }
   });
 
   function replyFor(id) {

@@ -590,10 +590,30 @@ span.exch { background: var(--br07); }
 .app .pane, .app .scrim { bottom: var(--kb, 0px); }
 .kb-on .pane { --box-b: var(--kb-gap, 8px) !important; }
 #kb { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; overflow: hidden; touch-action: none; }
-#kb img { display: block; width: 100%; height: 100%; object-fit: fill; user-select: none; -webkit-user-drag: none; }
-.kb-hit { position: absolute; width: 44px; height: 54px; margin: -27px 0 0 -22px; border-radius: 8px; background: rgba(0, 0, 0, 0.16); pointer-events: none; }
+/* 11-26: the system keyboard, drawn per screen (see app.js · KB) */
+#kb { --kb-bg: #d5d7dd; --kb-key: #fff; --kb-fn: #acb1ba; --kb-ink: #000; --kb-sh: rgba(0, 0, 0, 0.3); background: var(--kb-bg); font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; user-select: none; -webkit-user-select: none; }
+#kb .k, #kb .k-bare { position: absolute; display: grid; place-items: center; color: var(--kb-ink); font-weight: 400; cursor: pointer; }
+#kb .k { background: var(--kb-key); border-radius: 6px; box-shadow: 0 1px 0 var(--kb-sh); font-size: 23px; line-height: 1; }
+#kb .k.fn { background: var(--kb-fn); font-size: 16px; }
+#kb .k.space { font-size: 16px; }
+#kb .k.down { background: var(--kb-fn); }
+#kb .k.fn.down { background: var(--kb-key); }
+#kb .k-bare { width: 44px; height: 44px; }
+#kb .ic-k { width: 24px; height: 24px; color: var(--kb-ink); }
+#kb .k-home { position: absolute; left: 50%; bottom: 8px; width: 140px; height: 5px; margin-left: -70px; border-radius: 3px; background: var(--kb-ink); }
+#kb .k-cands { position: absolute; left: 0; top: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 44px 0 18px; font-size: 18px; color: var(--kb-ink); }
+#kb .k-cands em { position: absolute; right: 12px; top: 50%; margin-top: -12px; transform: rotate(180deg); }
+#kb .k-crease { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.06); }
+/* iPad-style keyboards: lighter keys, larger radius, no letter pop-up */
+#kb.kb-pad .k, #kb.kb-split .k { border-radius: 10px; font-size: 24px; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18); }
+#kb.kb-pad .k.fn, #kb.kb-split .k.fn { background: var(--kb-key); font-size: 14px; }
+#kb.kb-pad .k.space small { position: absolute; right: 8px; bottom: 4px; font-size: 10px; color: #8a8a8e; }
+#kb.kb-pad, #kb.kb-split { --kb-bg: #e1e2e7; border-radius: 26px 26px 0 0; box-shadow: 0 -0.5px 0 rgba(0, 0, 0, 0.08); }   /* the inner-screen panel has rounded top corners (27.2 capture) */
+#kb.kb-phoneLand .k { font-size: 20px; }
+#kb .kb-pop { position: absolute; width: 54px; height: 62px; margin: -66px 0 0 -27px; border-radius: 10px; background: var(--kb-key); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); display: grid; place-items: center; font-style: normal; font-size: 32px; color: var(--kb-ink); pointer-events: none; }
+:root[data-theme='dark'] #kb { --kb-bg: #2b2b2d; --kb-key: #6b6b6e; --kb-fn: #47474a; --kb-ink: #fff; --kb-sh: rgba(0, 0, 0, 0.6); }
+:root[data-theme='dark'] #kb.kb-pad, :root[data-theme='dark'] #kb.kb-split { --kb-bg: #2b2b2d; }
 :root[data-layout='inner-portrait'] .chat-h.full { padding-right: 144px; }
-:root[data-theme='dark'] #kb img { filter: invert(0.9) hue-rotate(180deg) brightness(1.1); }
 .rail-line { position: absolute; top: 0; bottom: 0; width: var(--hw, 0.5px); background: var(--l12); z-index: 2; pointer-events: none; }
 .d-title { margin: 4px var(--pr, 16px) 12px 20px; font-size: 18px; line-height: 26px; font-weight: 500; color: var(--n9); }
 
@@ -760,7 +780,7 @@ span.exch { background: var(--br07); }
 .ch-av { position: relative; flex: none; width: 36px; height: 36px; border-radius: 50%; background: #2a2a38; display: grid; place-items: center; }
 .ch-av img { width: 23px; height: 23px; }
 .ch-row:first-child .ch-av img { width: 19px; height: 19px; }
-.ch-badge { position: absolute; left: 24px; top: 20px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 12px; background: var(--m1); box-shadow: 0 0 0 1.5px #fff; color: #fff; font: 500 10px/16px inherit; font-style: normal; text-align: center; }
+.ch-badge { position: absolute; left: 24px; top: 20px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 12px; background: var(--m1); box-shadow: 0 0 0 1.5px #fff; color: #fff; font-size: 10px; line-height: 16px; font-weight: 500; font-style: normal; box-sizing: border-box; font-variant-numeric: tabular-nums; text-align: center; }
 .ch-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ch-line { display: flex; gap: 8px; align-items: baseline; }
 .ch-line b { flex: 1; min-width: 0; font-size: 16px; line-height: 26px; font-weight: 400; color: var(--n9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -782,19 +802,29 @@ span.exch { background: var(--br07); }
 
 /* Alva tab on narrow windows: the conversation page moves aside, the list lies underneath (as on the phone) */
 .ch-under { z-index: 0; }
-.ch-under .ch-list { padding-top: 72px; }   /* rows start under the top control line, clear of the 55 corner */
-.app.alva-push > section.pane[data-pos="main"], .app.alva-push > .alva-bar, .app.alva-push > .tabbar, .app.alva-push > .fab, .app.alva-push > .push-veil { transform: translateX(var(--push)); transition: transform .42s cubic-bezier(.32,.72,0,1); }
+.ch-under .ch-list { padding-top: 0; }
+.ch-head { flex: none; height: 84px; display: flex; align-items: center; gap: 12px; padding: 12px 20px 0; }   /* 11-26: ≡ stays at the window's top left while the list is open */
+.ch-head .side { width: 48px; height: 48px; border-radius: 96px; display: grid; place-items: center; color: var(--n9); flex: none; }
+.ch-head .ch-title { font-size: 24px; line-height: 32px; font-weight: 500; color: var(--n9); }
+.app.alva-push > section.pane[data-pos="main"], .app.alva-push > .alva-bar, .app.alva-push > .tabbar, .app.alva-push > .fab, .app.alva-push > .push-veil { transform: translateX(var(--push)); }   /* the slide is played in app.js (render), so it runs both ways */
 .app.alva-push > section.pane[data-pos="main"] { border-radius: 40px; box-shadow: 0 0 25px rgba(0, 0, 0, 0.12); z-index: 1; }
 .app.alva-push > section.pane[data-pos="main"] .chat { padding-top: 84px; }   /* the page now runs from the top, under its bar */
 .app.alva-push > .alva-bar { border-radius: 40px 0 0 0; background: transparent; }
 .app.alva-push > .tabbar, .app.alva-push > .fab { z-index: 2; }
-/* the moved page goes under the rail: clip what passes the content edge */
-.app.alva-push > section.pane[data-pos="main"], .app.alva-push > .alva-bar, .app.alva-push > .push-veil { clip-path: inset(-40px var(--push) -40px -40px); }
+/* 11-26: the moved page passes under the rail (not clipped at its edge): the rail goes see-through and its controls stay on top */
+.app.alva-push > .rail, .app.rail-thru > .rail { background: transparent; }
+.app.alva-push > .rail-btn, .app.alva-push > .rail-tabs, .app.alva-push > .rail-line,
+.app.rail-thru > .rail-btn, .app.rail-thru > .rail-tabs, .app.rail-thru > .rail-tabmin { z-index: 10; }
+.app.rail-thru > section.pane[data-pos="main"] { z-index: 1; }
 .push-veil { position: absolute; top: 0; bottom: 0; z-index: 9; border-radius: 40px; background: rgba(255, 255, 255, 0.7); cursor: pointer; }
 :root[data-theme='dark'] .push-veil { background: rgba(0, 0, 0, 0.5); }
 /* drawers in front of a scrim have rounded leading corners (11-26) */
 .sheet { border-radius: 40px 0 0 40px; overflow: hidden; }
 
 /* Alva tab: the window's top bar — ≡ and Alva at the top left, above one column or list | chat (11-26) */
+.alva-div { position: absolute; top: 0; bottom: 0; width: var(--hw, 0.5px); margin-left: calc(-1 * var(--hw, 0.5px)); background: var(--l12); z-index: 8; pointer-events: none; }   /* list | chat divider, full height (11-26) */
 .alva-bar { position: absolute; top: 0; height: 84px; z-index: 7; display: flex; align-items: center; gap: 12px; padding: 12px 20px 0; background: var(--b0); }
 .alva-bar .side { width: 48px; height: 48px; border-radius: 96px; display: grid; place-items: center; color: var(--n9); flex: none; }
+
+/* 11-26: Expand on a half-folded Book — shown, not available */
+.chat-h button.side.is-off { opacity: 0.35; cursor: default; pointer-events: none; }
