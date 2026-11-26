@@ -1257,31 +1257,106 @@
   /* ── iOS keyboard (Figma: System / iOS Keyboard; Duo keyboard 27.2 capture) ──
      It rises with the system keyboard curve, the window's content inset grows
      by its height and the input bar rides 8 above it. */
+  /* 11-26: the keyboard is drawn, not a stretched picture — each screen gets its own system keyboard,
+     laid out for its width and height:
+       phone      outer portrait — iPhone keyboard: 4 rows, emoji and dictation under them, home indicator
+       phoneLand  outer landscape — iPhone landscape: short rows, keys capped in width and centred
+       pad        inner upright (and upright Book / PiP, Split upright) — the Duo inner keyboard: candidate
+                  bar, 4 rows, 123 · globe · emoji · space · dictation · return (from the 27.2 capture)
+       split      Book half-folded — the keyboard splits at the crease, one half under each half of the screen
+     Split View on the long edge: the window is 469.5, so the phone layout fits it. */
   const KB = {
-    'outer-portrait': { img: 'kb-outer.png', h: 344, gap: 8, map: 'outer' },
-    'outer-landscape': { img: 'kb-outer.png', h: 206, gap: 8, map: 'outer' },
-    'inner-portrait': { img: 'kb-inner.png', h: 351, gap: 10, map: 'inner' },
-    'inner-landscape': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'book': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'split': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'pip': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'book-portrait': { img: 'kb-inner.png', h: 351, gap: 10, map: 'inner' },
-    'split-portrait': { img: 'kb-inner.png', h: 220, gap: 10, map: 'inner' },
-    'split-l': { img: 'kb-inner.png', h: 300, gap: 10, map: 'inner' },
-    'split-l-portrait': { img: 'kb-inner.png', h: 220, gap: 10, map: 'inner' },
-    'pip-portrait': { img: 'kb-inner.png', h: 351, gap: 10, map: 'inner' },
+    'outer-portrait': { k: 'phone', h: 344, gap: 8 },
+    'outer-portrait-m': { k: 'phone', h: 344, gap: 8 },
+    'outer-landscape': { k: 'phoneLand', h: 206, gap: 8 },
+    'outer-landscape-m': { k: 'phoneLand', h: 206, gap: 8 },
+    'inner-portrait': { k: 'pad', h: 352, gap: 10 },
+    'book-portrait': { k: 'pad', h: 352, gap: 10 },
+    'pip-portrait': { k: 'pad', h: 352, gap: 10 },
+    'inner-landscape': { k: 'pad', h: 300, gap: 10 },
+    'pip': { k: 'pad', h: 300, gap: 10 },
+    'book': { k: 'split', h: 300, gap: 10 },
+    'split': { k: 'phone', h: 300, gap: 8 },
+    'split-l': { k: 'phone', h: 300, gap: 8 },
+    'split-portrait': { k: 'pad', h: 230, gap: 10 },
+    'split-l-portrait': { k: 'pad', h: 230, gap: 10 },
   };
-  const kbEl = document.getElementById('kb'), kbImg = kbEl.querySelector('img');
-  let kbOn = false, kbAnim = null;
+  const kbEl = document.getElementById('kb');
+  let kbOn = false, kbAnim = null, kbBuilt = '';
+  const CANDS = ['你', '在', '这', '不', '是', '一', '好', '他', '那', '有', '我', '们', '的'];
+  function kbHTML(kind, W, H) {
+    const key = (x, y, w, h, k, label, fn, cls = '') => `<b class="k${fn ? ' fn' : ''}${cls ? ' ' + cls : ''}" data-k="${k}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px">${label}</b>`;
+    const ICON = { shift: I('kb-shift', 'ic-k'), del: I('kb-del', 'ic-k'), globe: I('kb-globe', 'ic-k'), emoji: I('kb-emoji', 'ic-k'), mic: I('kb-mic', 'ic-k'), ret: I('kb-return', 'ic-k') };
+    let out = '';
+    /* one block of keys: rows of letters, with the given edge keys */
+    function block(x0, bw, top, rowsH, opt) {
+      const { side, gap, kwMax = 999, r1, r2, r3, shift, del, bottom } = opt;
+      const kw = Math.min(kwMax, (bw - 2 * side - (opt.cols - 1) * gap) / opt.cols);
+      const pitch = rowsH / 4, kh = pitch - opt.vgap;
+      const used = opt.cols * kw + (opt.cols - 1) * gap, L = x0 + (bw - used) / 2, R = L + used;
+      const row = (letters, y, start) => letters.split('').map((c, i) => key(start + i * (kw + gap), y, kw, kh, c, c)).join('');
+      const y = i => top + i * pitch + opt.vgap / 2;
+      out += row(r1, y(0), opt.r1Start === 'right' ? R - r1.length * (kw + gap) + gap : L);
+      const r2w = r2.length * kw + (r2.length - 1) * gap;
+      out += row(r2, y(1), opt.r2Align === 'left' ? L + kw * 0.5 : opt.r2Align === 'right' ? R - r2w : x0 + (bw - r2w) / 2);
+      const r3w = r3.length * kw + (r3.length - 1) * gap;
+      const r3x = opt.r3Align === 'left' ? L : opt.r3Align === 'right' ? R - r3w : x0 + (bw - r3w) / 2;
+      out += row(r3, y(2), r3x);
+      const g3 = opt.r3Align ? gap : gap * 2;
+      if (shift) out += key(L, y(2), r3x - L - g3, kh, 'shift', ICON.shift, true);
+      if (del) { const dx = r3x + r3w + g3; out += key(dx, y(2), opt.r3Align ? Math.min(R - dx, kw * 1.6) : R - dx, kh, 'del', ICON.del, true); }
+      /* bottom row: [k, label, width in keys | 'fill', fn] */
+      const fixed = bottom.filter(b => b[2] !== 'fill').reduce((a, b) => a + b[2] * kw, 0) + (bottom.length - 1) * gap;
+      const fill = used - fixed;
+      let bx = L;
+      bottom.forEach(([k, label, w, fn]) => { const ww = w === 'fill' ? fill : w * kw; out += key(bx, y(3), ww, kh, k, label, fn, k === ' ' ? 'space' : ''); bx += ww + gap; });
+      return { kw, kh, L, R };
+    }
+    if (kind === 'phone') {
+      const top = 8, rowsH = Math.min(4 * 58, H - 112);
+      block(0, W, top, rowsH, { cols: 10, side: 3, gap: 6, vgap: 12, r1: 'qwertyuiop', r2: 'asdfghjkl', r3: 'zxcvbnm', shift: true, del: true,
+        bottom: [['123', '123', 2.45, true], [' ', 'space', 'fill'], ['ret', 'return', 2.45, true]] });
+      const by = top + rowsH + 14;
+      out += `<b class="k-bare" data-k="emoji" style="left:18px;top:${by}px">${ICON.emoji}</b><b class="k-bare" data-k="mic" style="right:18px;top:${by}px">${ICON.mic}</b><i class="k-home"></i>`;
+    } else if (kind === 'phoneLand') {
+      /* keys stay inside the safe area: the rail's column (camera at its foot) is left clear */
+      const rl = (LAYOUTS[stateId()] || {}).rail, x0 = rl && rl.left ? 84 : 0, top = 4, rowsH = H - 4 - 26;
+      block(x0, W - 84, top, rowsH, { cols: 10, side: 20, gap: 6, vgap: 7, kwMax: 56, r1: 'qwertyuiop', r2: 'asdfghjkl', r3: 'zxcvbnm', shift: true, del: true,
+        bottom: [['123', '123', 1.3, true], ['emoji', ICON.emoji, 1, true], [' ', 'space', 'fill'], ['mic', ICON.mic, 1, true], ['ret', 'return', 2, true]] });
+      out += `<i class="k-home" style="left:${x0 + (W - 84) / 2}px"></i>`;
+    } else if (kind === 'pad') {
+      const cb = H >= 300 ? 46 : 36, bp = Math.round(H * (H >= 300 ? 0.2 : 0.06)), rowsH = H - cb - bp;
+      out += `<div class="k-cands" style="height:${cb}px">${CANDS.slice(0, Math.max(5, Math.floor((W - 60) / 64))).map(c => `<span>${c}</span>`).join('')}<em>${I('arrow-down-l2', 'ic-k')}</em></div>`;
+      block(0, W, cb, rowsH, { cols: 10, side: 18, gap: 10, vgap: rowsH / 4 * 0.27, r1: 'qwertyuiop', r2: 'asdfghjkl', r3: 'zxcvbnm', shift: true, del: true,
+        bottom: [['123', '123', 1, true], ['globe', ICON.globe, 1, true], ['emoji', ICON.emoji, 1, true], [' ', '<small>拼</small>', 'fill'], ['mic', ICON.mic, 1, true], ['ret', ICON.ret, 1.47, true]] });
+    } else if (kind === 'split') {
+      /* Book: one half under each half of the screen, nothing on the crease (455.5–495.5) */
+      const half = 455.5, cb = 40, rowsH = H - cb - 30, o = { side: 18, gap: 8, vgap: rowsH / 4 * 0.25, kwMax: 64, shift: true, del: true };
+      out += `<div class="k-cands" style="height:${cb}px;width:${half}px">${CANDS.slice(0, 6).map(c => `<span>${c}</span>`).join('')}</div>`;
+      out += `<div class="k-cands" style="height:${cb}px;left:${W - half}px;width:${half}px">${CANDS.slice(6, 12).map(c => `<span>${c}</span>`).join('')}<em>${I('arrow-down-l2', 'ic-k')}</em></div>`;
+      block(0, half, cb, rowsH, { ...o, del: false, cols: 6, r1: 'qwert', r2: 'asdfg', r3: 'zxcvb', r1Start: 'right', r2Align: 'right', r3Align: 'right',
+        bottom: [['123', '123', 1.2, true], ['globe', ICON.globe, 1, true], ['emoji', ICON.emoji, 1, true], [' ', '', 'fill']] });
+      block(W - half, half, cb, rowsH, { ...o, shift: false, cols: 6, r1: 'yuiop', r2: 'hjkl', r3: 'nm', r2Align: 'left', r3Align: 'left',
+        bottom: [[' ', '', 'fill'], ['mic', ICON.mic, 1, true], ['ret', ICON.ret, 1.6, true]] });
+      out += `<i class="k-crease" style="left:${half}px;width:${W - 2 * half}px"></i>`;
+    }
+    return out;
+  }
   const typing = () => { const a = document.activeElement; return a && app.contains(a) && (a.id === 'q' || (a.form && a.form.classList.contains('chatbox'))) ? a : null; };
+  function kbBuild(k) {
+    const sig = k.k + innerWidth + 'x' + k.h;
+    if (sig === kbBuilt) return;
+    kbBuilt = sig;
+    kbEl.className = 'kb-' + k.k;
+    kbEl.innerHTML = kbHTML(k.k, innerWidth, k.h);
+  }
   function kbSync() {
     const want = !!typing();
     const k = KB[stateId()] || KB['outer-portrait'];
     root.style.setProperty('--kb-gap', k.gap + 'px');
+    if (want) kbBuild(k);
     if (want === kbOn) { if (want) { kbEl.style.height = k.h + 'px'; root.style.setProperty('--kb', k.h + 'px'); } return; }
     kbOn = want;
-    kbImg.src = 'assets/img/' + k.img;
-    kbEl.dataset.map = k.map;
     kbEl.style.height = k.h + 'px';
     kbEl.style.display = 'block';
     root.classList.toggle('kb-on', want);
@@ -1298,32 +1373,26 @@
     const t = typing();
     if (t && !e.target.closest('input, textarea, form.chatbox, .s-input')) t.blur();
   }, true);
-  const ROWS_OUT = { y: [34, 97, 160, 227], r1: [23, 46.4], r2: [47, 46.5], r3: [93, 46.6], shift: 28, del: 437, space: [119, 347], ret: [357, 461], w: 466, h: 344 };
-  const ROWS_IN = { y: [76, 136, 196, 256], r1: [46, 64.2], r2: [77, 64.4], r3: [142, 64.2], shift: 55, del: 614, space: [199, 500], ret: [570, 650], w: 669, h: 352, top: 46 };
   kbEl.addEventListener('pointerdown', e => {
     const t = typing(); if (!t) return;
-    const r = kbEl.getBoundingClientRect(), m = kbEl.dataset.map === 'inner' ? ROWS_IN : ROWS_OUT;
-    const x = (e.clientX - r.left) * m.w / r.width, y = (e.clientY - r.top) * m.h / r.height;
-    const row = m.y.reduce((b, cy, i) => Math.abs(cy - y) < Math.abs(m.y[b] - y) ? i : b, 0);
-    if (m.top && y < m.top) return;
-    let key = null;
-    const pick = (letters, [x0, step]) => { const i = Math.round((x - x0) / step); return i >= 0 && i < letters.length && Math.abs(x - (x0 + i * step)) < step * 0.55 ? letters[i] : null; };
-    if (row === 0) key = pick('qwertyuiop', m.r1);
-    else if (row === 1) key = pick('asdfghjkl', m.r2);
-    else if (row === 2) key = Math.abs(x - m.del) < 30 ? 'del' : pick('zxcvbnm', m.r3);
-    else key = x >= m.space[0] && x <= m.space[1] ? ' ' : x >= m.ret[0] && x <= m.ret[1] ? 'ret' : null;
-    if (!key) return;
+    const kEl = e.target.closest('[data-k]'); if (!kEl) return;
+    const key = kEl.dataset.k;
+    kEl.classList.add('down'); setTimeout(() => kEl.classList.remove('down'), 140);
     if (key === 'ret') { if (t.form && t.form.classList.contains('chatbox')) t.form.requestSubmit(); else t.blur(); return; }
+    if (key.length > 1 && key !== 'del') return;   // 123, globe, emoji, mic, shift: not part of the demo
     const v = t.value, a = t.selectionStart ?? v.length, b = t.selectionEnd ?? v.length;
     if (key === 'del') { const s0 = a === b ? Math.max(0, a - 1) : a; t.value = v.slice(0, s0) + v.slice(b); t.setSelectionRange(s0, s0); }
     else { t.value = v.slice(0, a) + key + v.slice(b); t.setSelectionRange(a + 1, a + 1); }
     t.dispatchEvent(new Event('input', { bubbles: true }));
-    /* key preview, as the system keyboard shows it */
-    const pv = document.createElement('i');
-    pv.className = 'kb-hit';
-    pv.style.left = (e.clientX - r.left) + 'px'; pv.style.top = (e.clientY - r.top) + 'px';
-    kbEl.appendChild(pv);
-    M.play(pv, [{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: 'ease-out' }).finished.then(() => pv.remove());
+    /* the phone keyboards pop the letter up above the key, as iOS does */
+    if (key.length === 1 && key !== ' ' && /^kb-phone/.test(kbEl.className)) {
+      const r = kEl.getBoundingClientRect(), kr = kbEl.getBoundingClientRect();
+      const pv = document.createElement('i');
+      pv.className = 'kb-pop'; pv.textContent = key;
+      pv.style.left = (r.left - kr.left + r.width / 2) + 'px'; pv.style.top = (r.top - kr.top) + 'px';
+      kbEl.appendChild(pv);
+      M.play(pv, [{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0 }], { duration: 260, easing: 'ease-out' }).finished.then(() => pv.remove());
+    }
   });
 
   function replyFor(id) {
