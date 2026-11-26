@@ -834,7 +834,10 @@
   }
   function tabbar() {
     const ti = TABS.findIndex(([id]) => id === S.tab);
-    return `<nav class="tabbar glass"><span class="tab-lens" data-tab="${S.tab}" style="left:${4 + ti * (94 + 2 / 3)}px"></span>${TABS.map(([id, n, l]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}">${I(tabIcon(n, S.tab === id), 'ic')}<span>${l}</span></button>`).join('')}</nav>
+    /* Width decides the arrangement (CSS media queries on the window, see app.css · Tab Bar):
+       < 378 tabs fill the row, ＋ floats above at the right · 378–587 tabs and ＋ share one row ·
+       588–679 tabs centred, ＋ at the right · ≥ 680 the same, with icon and label side by side. */
+    return `<nav class="tabbar glass" style="--ti:${ti}"><span class="tab-lens" data-tab="${S.tab}"></span>${TABS.map(([id, n, l]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}">${I(tabIcon(n, S.tab === id), 'ic')}<span>${l}</span></button>`).join('')}</nav>
       <button class="fab" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
   }
   const RULES = [
