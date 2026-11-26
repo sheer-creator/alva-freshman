@@ -593,3 +593,118 @@ span.exch { background: var(--br07); }
 @supports (corner-shape: superellipse(2)) {
   .rail-tabs, .tab-lens, .tabbar, .g-ask, .g-save, .d-actions .glass, .glass-hl { corner-shape: superellipse(1.5); }
 }
+
+/* ── image viewer (see app.js: openViewer) ── */
+.viewer { position: fixed; left: 0; top: 0; z-index: 100; overflow: hidden; touch-action: none; color: #fff; user-select: none; -webkit-user-select: none; }
+.v-bg { position: absolute; inset: 0; background: #000; }
+.v-clip { position: absolute; top: 0; bottom: 0; overflow: hidden; }
+.v-track { position: absolute; inset: 0; will-change: transform; }
+.v-slide { position: absolute; top: 0; bottom: 0; }
+.v-slide img { position: absolute; transform-origin: 50% 50%; background: #fff; -webkit-user-drag: none; cursor: zoom-in; }
+/* dark Liquid Glass controls (the system glass, on black) */
+.v-g { position: absolute; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  background: rgba(255, 255, 255, 0.14); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.35), inset 0 0 0 var(--hw, 0.5px) rgba(255, 255, 255, 0.18); }
+.v-col, .v-bar, .v-cap { position: absolute; transition: opacity .2s ease; }
+.v-col { inset: 0; pointer-events: none; } .v-col .v-g { pointer-events: auto; }
+.v-bar { top: 24px; height: 48px; display: flex; justify-content: space-between; padding-left: 20px; }
+.v-bar .v-g { position: relative; }
+.v-cap { height: 56px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.v-cap b { font-weight: 500; font-variant-numeric: tabular-nums; } .v-cap span { color: rgba(255, 255, 255, 0.6); }
+.viewer.bare .v-col, .viewer.bare .v-bar, .viewer.bare .v-cap { opacity: 0; pointer-events: none; }
+.viewer.bare .v-col .v-g { pointer-events: none; }
+/* half-folded: the info side of the overlay arrangement */
+.v-info { position: absolute; top: 0; bottom: 0; padding: 24px 20px 34px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.v-who { display: flex; align-items: center; gap: 12px; } .v-who > div { display: flex; flex-direction: column; min-width: 0; }
+.v-who b { font-size: 16px; line-height: 24px; font-weight: 500; } .v-who span { font-size: 12px; line-height: 18px; color: rgba(255, 255, 255, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-txt { font-size: 14px; line-height: 22px; color: rgba(255, 255, 255, 0.86); display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.v-n { margin-top: auto; font-size: 14px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.v-thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.v-thumbs button { width: 96px; height: 54px; border-radius: 6px; overflow: hidden; opacity: 0.5; box-shadow: 0 0 0 0 #fff; transition: opacity .2s, box-shadow .2s; }
+.v-thumbs button.on { opacity: 1; box-shadow: 0 0 0 2px #fff; }
+.v-thumbs img { width: 100%; height: 100%; object-fit: cover; background: #fff; }
+.chart { cursor: zoom-in; }
+.viewer [hidden] { display: none !important; }
+
+/* the chart's ticker row (mobile fullscreen chart: ‹ entity ›) */
+.v-sw { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: rgba(255,255,255,.14); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 0 0 var(--hw, .5px) rgba(255,255,255,.18); }
+.v-sw:disabled { opacity: .3; }
+.v-ent { height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px 0 8px; border-radius: 20px; color: #fff; background: rgba(255,255,255,.14); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 0 0 var(--hw, .5px) rgba(255,255,255,.18); font-size: 14px; line-height: 20px; }
+.v-ent img, .v-ent > i { width: 24px; height: 24px; border-radius: 50%; background: #fff; }
+.v-ent b { font-weight: 500; } .v-ent span { color: rgba(255,255,255,.6); }
+.v-row { display: flex; align-items: center; gap: 8px; }
+.v-ent { white-space: nowrap; }
+.v-cap.narrow .v-ent span { display: none; }
+
+/* ── attached images (open the image viewer) ── */
+.pic { position: relative; flex: none; height: 135px; border-radius: 8px; overflow: hidden; background: var(--br03, #f4f4f4); cursor: zoom-in; }
+.pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pic::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 var(--hw, 0.5px) var(--l2); pointer-events: none; }
+.media.pics { margin-top: 8px; }
+.media .chart { cursor: pointer; }
+
+/* ── fullscreen K-line page (F2) ── */
+
+
+/* rail compressed (PiP): the tab group minimised to the current tab; opens upward */
+.rail-tabmin .ic { color: var(--n9); }
+.rail-tabs-pop { box-shadow: 0 8px 24px rgba(0,0,0,.12); animation: tabs-pop .32s cubic-bezier(.2,.9,.3,1.15) both; transform-origin: 50% 100%; }
+@keyframes tabs-pop { from { transform: scaleY(.23); opacity: .6; } to { transform: none; opacity: 1; } }
+/* attached media row (Figma 16713:126101): gap 8; 1–2 items fit W, 3+ scroll to the pane edge */
+.media.pics .media-track { gap: 8px !important; }
+.media.pics.fit .media-track { overflow: hidden; }
+.pic.is-video .pic-dur { position: absolute; left: 8px; bottom: 8px; display: flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; background: rgba(0,0,0,.56); color: #fff; font-size: 12px; line-height: 18px; font-variant-numeric: tabular-nums; z-index: 1; }
+.pic.is-video .pic-dur .ic { color: #fff; }
+/* viewer · head, scrubber, video */
+.v-head { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 48px; color: #fff; pointer-events: none; transition: opacity .2s ease; }
+.v-head b { max-width: 100%; font-size: 16px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-head span { max-width: 100%; font-size: 12px; line-height: 18px; color: rgba(255,255,255,.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-strip { position: absolute; overflow: hidden; touch-action: none; transition: opacity .2s ease; }
+.v-strip.vert { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
+.v-strip.horiz { -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent); }
+.v-strip button { position: absolute; padding: 0; border-radius: 4px; overflow: hidden; opacity: .55; transition: top .32s cubic-bezier(.32,.72,0,1), left .32s cubic-bezier(.32,.72,0,1), width .32s cubic-bezier(.32,.72,0,1), height .32s cubic-bezier(.32,.72,0,1), opacity .2s; }
+.v-strip button.on { opacity: 1; box-shadow: 0 0 0 1.5px #fff; }
+.v-strip img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.viewer .v-bar .grow { flex: 1; }
+.viewer .v-bar { gap: 12px; }
+.v-play { position: absolute; width: 64px !important; height: 64px !important; border-radius: 32px; background: rgba(0,0,0,.42) !important; -webkit-backdrop-filter: blur(16px) !important; backdrop-filter: blur(16px) !important; }
+.v-play .ic { width: 28px; height: 28px; }
+.v-dur { position: absolute; transform: translate(-100%, -100%); padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 12px; line-height: 18px; font-variant-numeric: tabular-nums; }
+.viewer.bare .v-head, .viewer.bare .v-strip { opacity: 0; pointer-events: none; }
+
+.viewer.v-fit-anim .v-slide img { transition: left .38s cubic-bezier(.32,.72,0,1), top .38s cubic-bezier(.32,.72,0,1), width .38s cubic-bezier(.32,.72,0,1), height .38s cubic-bezier(.32,.72,0,1), border-radius .38s cubic-bezier(.32,.72,0,1); }
+.viewer.v-fit-anim .v-play, .viewer.v-fit-anim .v-dur { transition: left .38s cubic-bezier(.32,.72,0,1), top .38s cubic-bezier(.32,.72,0,1); }
+
+/* the framed image has small corners; full screen has none */
+.viewer .v-slide img { border-radius: 8px; transition: border-radius .38s cubic-bezier(.32,.72,0,1); }
+.viewer.full .v-slide img { border-radius: 0; }
+.viewer .v-col [hidden] { display: none !important; }
+
+/* viewer ··· menu and delete confirmation (dark, over the image) */
+.v-menu { position: absolute; width: 180px; padding: 4px; border-radius: 16px; background: rgba(40,40,44,.86); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,.4), inset 0 0 0 .5px rgba(255,255,255,.12); transform-origin: 100% 100%; z-index: 3; }
+.v-menu button { width: 100%; height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 12px; border-radius: 12px; color: #ff5a50; font-size: 15px; line-height: 20px; }
+.v-menu button:hover { background: rgba(255,255,255,.08); }
+.v-menu .ic { color: #ff5a50; }
+.v-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 4; }
+.v-alert { position: absolute; width: 270px; transform: translateY(-50%); padding: 20px 16px 12px; border-radius: 20px; background: rgba(44,44,48,.94); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: #fff; text-align: center; z-index: 5; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+.v-alert b { display: block; font-size: 16px; line-height: 24px; font-weight: 500; }
+.v-alert p { margin: 4px 0 16px; font-size: 13px; line-height: 18px; color: rgba(255,255,255,.6); }
+.v-alert div { display: flex; gap: 8px; }
+.v-alert button { flex: 1; height: 44px; border-radius: 22px; background: rgba(255,255,255,.1); color: #fff; font-size: 15px; font-weight: 500; }
+.v-alert button.danger { background: #e0524b; }
+.viewer [hidden].v-menu, .viewer [hidden].v-alert, .viewer [hidden].v-scrim { display: none !important; }
+
+/* half-folded: the post's media as a grid on the other page */
+.v-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; margin-top: 8px; overflow: auto; scrollbar-width: none; }
+.v-grid button { position: relative; aspect-ratio: 1; padding: 0; border-radius: 8px; overflow: hidden; opacity: .6; transition: opacity .2s, box-shadow .2s; }
+.v-grid button.on { opacity: 1; box-shadow: 0 0 0 2px #fff; }
+.v-grid img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.v-grid .pic-dur { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 11px; }
+.v-grid .pic-dur .ic { color: #fff; }
+.v-info .v-grid { flex: none; padding: 2px; }
+
+/* Duo: the selected destination's icon (and Tab Bar label) is brand green */
+.rail-tabs button.on .ic, .rail-tabmin .ic, .tabbar button.on .ic, .tabbar button.on span { color: var(--m1) !important; }
+/* rail glyphs at 24 in 48 controls (back chevron's optical weight; about half the control, as iOS does) */
+.rail-tabs .ic-30, .rail-create .ic-30, .rail-tabmin .ic-30 { width: 24px; height: 24px; }
+.fab .ic-30 { width: 28px; height: 28px; }

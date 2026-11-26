@@ -43,6 +43,7 @@
       if (!t.refs) t.refs = '[1]';
       if (!t.charts || !t.charts.length) t.charts = t.tickers.map(x => x[0]).filter(s => D.chart[s]);
       if (!t.body || !t.body.length) t.body = [t.title];
+      if (!t.media) t.media = [];
     });
   })();
   const app = document.getElementById('app');
@@ -100,6 +101,30 @@
     : `<button class="btn-p" data-act="follow" data-id="${pid}">Follow</button>`;
   const charts = (t, gap) => t.charts.length ? `<div class="media"><div class="media-track" style="gap:${gap}px">${t.charts.map(c => `<div class="chart"><img src="${D.chart[c]}" alt="${c} chart" loading="lazy"></div>`).join('')}</div></div>` : '';
 
+  /* attached images and videos (not charts) — Figma 16713:126101「图片 / 视频排版规则 · App（参照 X）」.
+     No grids: one row. W = from the text's left edge to 9 from the pane's right edge.
+     · 1 item: as wide as W, at most 1.25W tall (a 4:5 box); taller than 4:5 keeps 1.25W and narrows, left-aligned. Never cropped.
+     · 2 items: same height, side by side, filling W with an 8 gap; height = (W − 8) ÷ (r1 + r2), at most 1.25W;
+       each at most 0.8W wide (wider ones are cropped). Both landscape (wider than 1:1) → the scrolling row below.
+     · 3 or more: a row that scrolls right to the pane edge; its height comes from the first two only —
+       height = 0.6W ÷ mean(r1, r2), held within 0.68W…1.25W; each item at that height and its own ratio, at most 0.8W wide.
+     Videos follow the same rules (a play badge and the duration in the corner). Layout is measured after render. */
+  const pics = (t, gap) => t.media && t.media.length ? `<div class="media pics"><div class="media-track">${t.media.map((m, k) => `<div class="pic${m.video ? ' is-video' : ''}" data-w="${m.w}" data-h="${m.h}"><img src="${m.src}" alt="${m.video ? 'Video' : 'Image'} ${k + 1}" loading="lazy">${m.video ? `<span class="pic-dur">${I('play-f', 'ic-12')}${esc(m.dur || '')}</span>` : ''}</div>`).join('')}</div></div>` : '';
+  function layoutPics(el) {
+    const tr = el.querySelector('.media-track'), ps = [...tr.children]; if (!ps.length) return;
+    const W = tr.clientWidth - parseFloat(getComputedStyle(tr).paddingLeft) - 9; if (W <= 0) return;
+    const r = ps.map(p => (+p.dataset.w || 4) / (+p.dataset.h || 3));
+    let h, ws, scroll = false;
+    if (ps.length === 1) { h = Math.min(W / r[0], 1.25 * W); ws = [h * r[0]]; }
+    else if (ps.length === 2 && !(r[0] > 1 && r[1] > 1)) { h = Math.min((W - 8) / (r[0] + r[1]), 1.25 * W); ws = r.map(x => Math.min(h * x, 0.8 * W)); }
+    else { scroll = true; h = Math.max(0.68 * W, Math.min(1.25 * W, 0.6 * W / ((r[0] + r[1]) / 2))); ws = r.map(x => Math.min(h * x, 0.8 * W)); }
+    el.classList.toggle('fit', !scroll);
+    el.style.height = Math.round(h) + 'px';
+    ps.forEach((p, k) => { p.style.width = Math.round(ws[k]) + 'px'; p.style.height = Math.round(h) + 'px'; });
+  }
+  const layoutAllPics = () => app.querySelectorAll('.media.pics').forEach(layoutPics);
+
+
   /* Feed Card / Thesis */
   function card(id, ctx) {
     const t = D.theses[id], p = D.people[t.author];
@@ -116,7 +141,7 @@
         ${t.title ? `<p class="t-m14">${esc(t.title)}</p>` : ''}
         <p class="body ${ctx.clamp ? 'clamp' : ''}">${t.title ? esc(t.body[0]) : bodyText}</p>
       </div>
-      ${charts(t, 8)}
+      ${charts(t, 8)}${pics(t, 8)}
       ${ctx.compact ? '' : `<div class="acts"><button class="ask" data-act="ask" data-id="${id}">${I('chat-ai-l', 'ic-16')}Ask Alva</button>
         <button class="${S.saved[id] ? 'on' : ''}" data-act="save" data-id="${id}">${I(S.saved[id] ? 'bookmark-f' : 'bookmark-l', 'ic-16')}${saves(id)}</button></div>`}
     </article>`;
@@ -171,7 +196,7 @@
     const paras = t.body.map((x, i) => `<p>${esc(x)}${i === t.body.length - 1 && t.refs ? ` ${t.refs}` : ''}</p>`).join('');
     const upd = `<div class="upd"><div class="rail-l">${t.history ? `<img src="assets/icons/dot-green.svg" width="14" height="14" alt="">` : ''}${t.history ? '<span class="line"></span>' : ''}</div>
       <div class="upd-c"><div class="upd-time">${t.date}<span class="latest">Latest</span>${t.private ? `<span class="chip-private" style="color:var(--n5)">${I('locked-l', 'ic-12')}Private</span>` : ''}</div>
-      <div class="upd-tks">${dtks}</div><div class="upd-body">${paras}</div>${charts(t, 12)}</div></div>`;
+      <div class="upd-tks">${dtks}</div><div class="upd-body">${paras}</div>${charts(t, 12)}${pics(t, 12)}</div></div>`;
     const hist = t.history ? `<div class="hist"><div class="rail-l"><span class="line"></span><img src="assets/icons/dot.svg" width="14" height="14" alt=""></div>
       <button class="view-all" data-act="updates" data-id="${v.id}">View all updates${I('arrow-right-l2', 'ic-12')}</button></div>` : '<div class="no-hist"></div>';
     const tabs = `<div class="d-tabs"><button data-act="toast" data-id="Overview is not part of this demo">Overview</button><button class="on">${I('live-l', 'ic-16')}Signals</button><button data-act="toast" data-id="Related thesis is not part of this demo">Related thesis</button></div>`;
@@ -399,19 +424,12 @@
   function plan() {
     const P = planBase();
     P.OX = P.L.rail && P.L.rail.left ? 84 : 0;
-    /* A rail that cannot hold everything (PiP: 473 tall, status on top): Back leaves the rail and goes
-       back to the page's own header, where iOS keeps it (navigation bar). Create and the tabs stay —
-       the rail keeps its primary action above its destinations (Material rail), and the tab group
-       is never squeezed or scrolled. */
+    /* A rail that cannot hold everything (PiP: 473 tall, status on top) compresses the way the
+       system's own bars do (HIG, iPhone Duo › compression): Back and Create keep their places and
+       the tab group minimises to one button showing the current tab; tapping it opens the group
+       upward, choosing a tab closes it. Nothing leaves the column. */
     const r = P.L.rail;
-    if (P.railBack && r && !r.left) {
-      const need = r.top + 62 + 48 + 14 + 212 + r.bottom;
-      if (need > innerHeight) {
-        P.railBack = false;
-        const host = [...P.panes].reverse().find(p => p.view.v !== 'chat');
-        if (host) host.leftBack = true;
-      }
-    }
+    if (P.railBack && r && !r.left && !r.flip) P.tabsMin = r.top + 62 + 48 + 14 + 212 + r.bottom > innerHeight;
     if (P.OX) P.panes.forEach(p => { p.x += P.OX; });
     return P;
   }
@@ -533,6 +551,7 @@
     if (oldLeft) oldLeft.querySelectorAll('.scroll [data-act="open"][data-id], .scroll [data-act="profile"][data-id].row-item').forEach(el => oldRows.set(el.dataset.act + ':' + el.dataset.id, { el, h: el.offsetHeight }));
     const oldLeftKey = lastKeys.left, oldLayout = lastLayout;
     app.innerHTML = html;
+    layoutAllPics();
 
     app.querySelectorAll('[data-sk]').forEach(el => { if (scrolls.has(el.dataset.sk)) el.scrollTop = scrolls.get(el.dataset.sk); });
     app.querySelectorAll('.chat-body').forEach(el => { el.scrollTop = el.scrollHeight; });
@@ -796,21 +815,21 @@
   const TABS = [['foryou', 'for-you', 'For You'], ['alva', 'chat-ai', 'Alva'], ['search', 'search', 'Search'], ['me', 'me', 'Me']];
   const tabIcon = (n, on) => n === 'search' ? (on ? 'search-f1' : 'search-l1') : n === 'chat-ai' ? (on ? 'chat-ai-f' : 'chat-ai-l') : n + (on ? '-f' : '-l');
   function rail(P) {
+    /* The rail, top to bottom: (camera) → status → Back … the tab group → Create.
+       Only Back sits up top; the destinations and Create share the bottom group, Create last,
+       like the Tab Bar's ＋ beside the tabs. The selected tab's icon is brand green (m1). */
     const r = P.L.rail;
     const RX = r.left ? 24 : 12;   // controls sit 12 from the screen edge, centred under the camera
-    let y = r.top, out = `<div class="rail" style="left:${r.x}px"></div>`;
-    if (r.flip) {
-      let b = r.bottom;
-      out += `<button class="rail-btn rail-create" style="left:${r.x + RX}px;bottom:${b}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
-      if (P.railBack) { b += 62; out += `<button class="rail-btn glass-rail" style="left:${r.x + RX}px;bottom:${b}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`; }
-      const ti = TABS.findIndex(([id]) => id === S.tab);
-      out += `<nav class="rail-tabs glass-rail" style="left:${r.x + RX}px;top:${r.top}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
-      return out;
+    const x = r.x + RX;
+    let out = `<div class="rail" style="left:${r.x}px"></div>`;
+    if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
+    out += `<button class="rail-btn rail-create" style="left:${x}px;bottom:${r.bottom}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
+    const ti = TABS.findIndex(([id]) => id === S.tab), above = r.bottom + 48 + 14;
+    if (P.tabsMin && !S.tabsOpen) {
+      const cur = TABS[ti];
+      return out + `<button class="rail-btn glass-rail rail-tabmin" style="left:${x}px;bottom:${above}px" data-act="tabsOpen" aria-label="${cur[2]} — show all tabs">${I(tabIcon(cur[1], true), 'ic-30')}</button>`;
     }
-    if (P.railBack) { out += `<button class="rail-btn glass-rail" style="left:${r.x + RX}px;top:${y}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`; y += 62; }
-    out += `<button class="rail-btn rail-create" style="left:${r.x + RX}px;top:${y}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
-    const ti = TABS.findIndex(([id]) => id === S.tab);
-    out += `<nav class="rail-tabs glass-rail" style="left:${r.x + RX}px;bottom:${r.bottom}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
+    out += `<nav class="rail-tabs${P.tabsMin ? ' rail-tabs-pop' : ''} glass-rail" style="left:${x}px;bottom:${above}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
     return out;
   }
   function tabbar() {
@@ -1034,7 +1053,8 @@
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
       case 'foldChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
       case 'expandChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
-      case 'tab': if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
+      case 'tabsOpen': S.tabsOpen = true; break;
+      case 'tab': if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
       case 'feedTab': S.feedTab = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'topic': S.topic = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'period': S.period = id; S.stacks.foryou = [{ v: 'feed' }]; break;
@@ -1286,5 +1306,350 @@
     if (next !== headHidden) { headHidden = next; applyHead(); }
   }, true);
   window.__applyHead = applyHead;
+
+  /* ── media viewer (images and videos) ──
+     Tap an image or a video in a list or a detail and it grows from where it sits into a black,
+     full-window viewer that covers the app's rail too: no tabs, no Create — only the viewer's own
+     controls, grouped the way the system groups a vertical bar (HIG, Designing for iPhone Duo):
+     · top group: Close.
+     · bottom group: Download, and Delete under it on your own posts (trash last, as iOS does).
+     · the post's media as a scrubber, like the strip under a photo in Photos — the current item at
+       its own shape, the others as narrow slivers — along the bottom of the content area, centred,
+       just above the home indicator; tap or drag it sideways, the same direction the image swipes.
+     · a name, when the item has one, and who posted it: centred at the top of the content area
+       (centre line y48). Content area = the window minus the rail and the fold; margins 20 on the
+       open side, 16 next to the rail, top 24, bottom 34 (home indicator).
+     · the image fills the content area's width between the name row and the scrubber.
+     · upright inner display (horizontal bars): Close · name · Download / Delete in a top bar.
+     · half-folded like a book: the image on the left page, the post's author and text on the
+       right one, nothing on the fold.
+     Tap toggles the controls and the status bar; swipe sideways; double-tap / pinch zooms; swipe
+     down (or Close) puts it back where it came from. Turning, folding or Split View re-fits. */
+  const V = { el: null, i: 0, srcs: [], items: [], thumbs: [], tid: null, own: false, chrome: true, full: false, zoom: 1, px: 0, py: 0, busy: false };
+  const GAP = 16;
+  function vGeo() {
+    const L = LAYOUTS[stateId()], W = innerWidth, H = innerHeight, r = L.rail;
+    const c0 = r && r.left ? 84 : 0, c1 = r && !r.left ? r.x : W;
+    const book = L.mode === 'book', tab = stateId() === 'book-portrait';
+    /* Half-folded, the viewer splits along the fold like Apple's arrangement views: the image on one
+       page, the post (author, text) and a grid of its media on the other — nothing on the fold.
+       · book (fold upright): image on the right page, next to the rail; post + grid on the left page.
+       · book held upright (tabletop, fold across): image on the upright top half; post + grid below.
+       Everywhere else: the image over the whole window, the scrubber at the bottom. */
+    let ia, ca, info = null;
+    if (book) { ia = { x: 495.5, w: W - 495.5 }; ca = { x0: 495.5, x1: c1, y1: H, mL: 20, mR: 16 }; info = { x: 0, y: 0, w: 455.5, h: H, pb: 34 }; }
+    else if (tab) { ia = { x: 0, w: W }; ca = { x0: 0, x1: W, y1: 455.5, mL: 20, mR: 20 }; info = { x: 0, y: 495.5, w: W, h: H - 495.5, pb: 84 }; }
+    else { ia = { x: 0, w: W }; ca = { x0: c0, x1: c1, y1: H, mL: r && r.left ? 16 : 20, mR: r && !r.left ? 16 : 20 }; }
+    ca.cx = (ca.x0 + ca.x1) / 2;
+    const bottomH = V.own ? 48 + 14 + 48 : 48;
+    return { L, W, H, r, c0, c1, book, tab, ia, ca, info, padR: L.corner ? 140 : 0, strip: V.items.length > 1 && !info, bottomH };
+  }
+  function vFit(img, G) {
+    const ar = +img.dataset.ar || (img.naturalWidth || 720) / (img.naturalHeight || 400);
+    const fit = (aw, ah) => { let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; } return { w, h }; };
+    const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
+    const { W, H, ca } = G;
+    /* tapped: full screen — the whole window, over the rail (the image's page when folded) */
+    if (V.full) return G.info ? box(G.ia.x, G.ia.x + G.ia.w, 0, ca.y1) : box(0, W, 0, H);
+    if (G.info) return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, ca.y1 - (G.tab ? 12 : 34));
+    /* default: inside the content area's margins, so nothing touches an edge and reads as more to
+       swipe; between the name row (84) and the scrubber (or the home indicator) */
+    return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, G.strip ? G.H - 66 - 12 : H - 34);
+  }
+  function vPost() {
+    if (parent === window) return;
+    parent.postMessage({ type: 'duo:viewer', on: !!V.el, chrome: V.chrome, rect: V.el ? [0, 0, innerWidth, innerHeight] : null }, '*');
+  }
+  function vLayout(anim) {
+    if (!V.el) return;
+    const G = vGeo(), a = G.ia;
+    Object.assign(V.el.style, { width: G.W + 'px', height: G.H + 'px' });
+    Object.assign(V.el.querySelector('.v-clip').style, { left: a.x + 'px', width: a.w + 'px' });
+    V.el.querySelectorAll('.v-slide').forEach((sl, k) => {
+      const img = sl.querySelector('img'), f = vFit(img, G);
+      Object.assign(sl.style, { left: (k * (a.w + GAP)) + 'px', width: a.w + 'px' });
+      Object.assign(img.style, { left: (f.x - a.x) + 'px', top: f.y + 'px', width: f.w + 'px', height: f.h + 'px' });
+      const pl = sl.querySelector('.v-play'); if (pl) Object.assign(pl.style, { left: (f.x - a.x + f.w / 2 - 32) + 'px', top: (f.y + f.h / 2 - 32) + 'px' });
+      const du = sl.querySelector('.v-dur'); if (du) Object.assign(du.style, { left: (f.x - a.x + f.w - 12) + 'px', top: (f.y + f.h - 12) + 'px' });
+    });
+    /* controls: the vertical column where Alva has one, else a top bar */
+    const col = V.el.querySelector('.v-col'), bar = V.el.querySelector('.v-bar'), head = V.el.querySelector('.v-head');
+    const yb = G.H - (G.r ? G.r.bottom : 24) - 48;   // bottom row: the rail's bottom inset, else 24 — centre line H − 48
+    col.hidden = false;
+    const cl = col.querySelector('[data-v="close"]');
+    if (G.r) {
+      bar.hidden = true; cl.hidden = false;
+      const bx = (G.r.left ? 0 : G.r.x) + (G.r.left ? 24 : 12);
+      const at = (v, y) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: bx + 'px', top: y + 'px' }); };
+      at('close', G.r.top);
+      /* Download as close to the bottom corner as it gets; Delete (own posts) above it */
+      at('download', yb); if (V.own) at('more', yb - 62);
+      const x0 = G.ca.x0 + G.ca.mL, x1 = G.ca.x1 - G.ca.mR;
+      Object.assign(head.style, { left: x0 + 'px', width: (x1 - x0) + 'px', top: '24px' });
+    } else {
+      /* horizontal bars: Close in the top bar; Download in the bottom-right corner, Delete to its left */
+      bar.hidden = false; cl.hidden = true;
+      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });
+      const dx = G.W - 20 - 48;
+      const at = (v, x) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: x + 'px', top: yb + 'px' }); };
+      at('download', dx); if (V.own) at('more', dx - 60);
+      const side = Math.max(20 + 48 + 12, 20 + G.padR);
+      Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' });
+    }
+    const info = V.el.querySelector('.v-info');
+    info.hidden = !G.info;
+    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
+    vTrack(anim);
+    vZoomApply(false);
+    vPost();
+  }
+  /* the scrubber: slivers for the others, the current item at its own shape (Photos) */
+  function vStrip() {
+    const st = V.el && V.el.querySelector('.v-strip'); if (!st) return;
+    const G = vGeo(); st.hidden = !G.strip; if (!G.strip) return;
+    const GAPS = 2, PAD = 6;
+    const sizes = V.items.map((m, k) => k === V.i ? Math.max(28, Math.min(64, 36 * (m.w || 16) / (m.h || 9))) : 24);
+    let pos = 0; const start = [];
+    sizes.forEach((w, k) => { if (k === V.i && k) pos += PAD; start.push(pos); pos += w + (k === V.i ? PAD : GAPS); });
+    const cur = start[V.i] + sizes[V.i] / 2;
+    const keep = G.r ? 0 : (V.own ? 108 : 48) + 12;   // bar layouts: Download / Delete sit in the bottom-right corner
+    const x0 = G.ca.x0 + G.ca.mL + keep, w = G.ca.x1 - G.ca.mR - keep - x0;
+    Object.assign(st.style, { left: x0 + 'px', top: (G.H - 48 - 20) + 'px', width: w + 'px', height: '40px' });   // centre line H − 48, level with the bottom button; 2 spare above / below for the outline
+    st.className = 'v-strip horiz';
+    st.querySelectorAll('button').forEach((b, k) => { Object.assign(b.style, { width: sizes[k] + 'px', height: '36px', top: '2px', left: (G.ca.cx - x0 - cur + start[k]) + 'px' }); b.classList.toggle('on', k === V.i); });
+  }
+  function vHead() {
+    const m = V.items[V.i] || {}, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
+    const meta = who ? `${esc(who)}${t.date ? ' · ' + esc(t.date) : ''}` : '';
+    V.el.querySelector('.v-head').innerHTML = m.title ? `<b>${esc(m.title)}</b>` : '';   // media have a name or nothing — no subtitle
+  }
+  function vTrack(anim, dx = 0) {
+    const G = vGeo(), tr = V.el.querySelector('.v-track');
+    const to = `translateX(${-V.i * (G.ia.w + GAP) + dx}px)`;
+    if (anim) { const from = getComputedStyle(tr).transform; tr.style.transform = to; M.play(tr, [{ transform: from === 'none' ? 'none' : from }, { transform: to }], Object.assign({}, M.spring(0.4, 1), { fill: 'none' })); }
+    else tr.style.transform = to;
+    vHead(); vStrip();
+    V.el.querySelectorAll('.v-grid button').forEach((b, k) => b.classList.toggle('on', k === V.i));
+  }
+  const vImg = () => V.el.querySelectorAll('.v-slide img')[V.i];
+  function vZoomApply(anim) {
+    const img = vImg(); if (!img) return;
+    const t = V.zoom === 1 ? 'none' : `translate(${V.px}px, ${V.py}px) scale(${V.zoom})`;
+    if (anim) { const from = img.style.transform || 'none'; img.style.transform = t; M.play(img, [{ transform: from }, { transform: t }], Object.assign({}, M.spring(0.35, 1), { fill: 'none' })); }
+    else img.style.transform = t;
+  }
+  function vChrome(on) { V.chrome = on; V.el.classList.toggle('bare', !on); vPost(); }
+  /* tap: full screen (controls and status hidden) ⇄ back to the framed view, the image moving between the two fits */
+  function vFull(on) {
+    V.full = on; vChrome(!on); V.el.classList.toggle('full', on);
+    V.el.classList.add('v-fit-anim'); vLayout(false);
+    clearTimeout(vFull.t); vFull.t = setTimeout(() => V.el && V.el.classList.remove('v-fit-anim'), 420);
+  }
+  function vThumb() {
+    const src = V.srcs[V.i];
+    const pick = V.thumbs[V.i] && V.thumbs[V.i].isConnected ? V.thumbs[V.i] : [...app.querySelectorAll('.pic img')].find(im => im.getAttribute('src') === src);
+    if (!pick) return null;
+    const r = pick.closest('.pic').getBoundingClientRect();
+    const pane = pick.closest('.scroll, .pane'); const pr = pane ? pane.getBoundingClientRect() : r;
+    if (r.bottom < pr.top + 8 || r.top > pr.bottom - 8 || r.right < pr.left + 8 || r.left > pr.right - 8) return null;
+    return { x: r.left, y: r.top, w: r.width, h: r.height, el: pick };
+  }
+  function vTf(img, box) {
+    const f = vFit(img, vGeo()), s = box.w / f.w;
+    return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`;
+  }
+  function vInfoHTML() {
+    const t = V.tid && D.theses[V.tid];
+    const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
+    const grid = V.items.length > 1 ? `<div class="v-grid">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false">${m.video ? `<span class="pic-dur">${I('play-f', 'ic-12')}${esc(m.dur || '')}</span>` : ''}</button>`).join('')}</div>` : '';
+    return head + grid;
+  }
+  function openViewer(chartImg) {
+    if (V.el || V.busy) return;
+    const track = chartImg.closest('.media-track') || chartImg.closest('.pic').parentElement;
+    const imgs = [...track.querySelectorAll('.pic img')];
+    V.srcs = imgs.map(im => im.getAttribute('src')); V.thumbs = imgs; V.i = imgs.indexOf(chartImg);
+    const host = chartImg.closest('[data-act="open"][data-id]'), pane = chartImg.closest('section.pane[data-key]');
+    V.tid = host ? host.dataset.id : (pane && /^detail:/.test(pane.dataset.key) ? pane.dataset.key.split(':')[1] : null);
+    const tm = V.tid && D.theses[V.tid] && D.theses[V.tid].media;
+    V.items = tm && tm.length === imgs.length ? tm : imgs.map(im => ({ src: im.getAttribute('src'), w: im.naturalWidth, h: im.naturalHeight }));
+    V.own = !!(V.tid && D.theses[V.tid] && D.theses[V.tid].author === 'me');
+    V.zoom = 1; V.px = V.py = 0; V.chrome = true; V.full = false;
+    const tr = chartImg.closest('.pic').getBoundingClientRect();
+    const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
+    const acts = `<button class="v-g" data-v="download" aria-label="Download">${I('download-l')}</button>${V.own ? `<button class="v-g" data-v="more" aria-label="More">${I('more-l1')}</button>` : ''}`;
+    el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.items.map(m => `<div class="v-slide"><img src="${m.src}" alt="" draggable="false"${m.w && m.h ? ` data-ar="${m.w / m.h}"` : ''}>${m.video ? `<button class="v-play v-g" data-v="play" aria-label="Play">${I('play-f')}</button><span class="v-dur">${esc(m.dur || '')}</span>` : ''}</div>`).join('')}</div></div>
+      <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button>${acts}</div>
+      <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button></header>
+      <div class="v-head"></div>
+      <div class="v-strip">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false"></button>`).join('')}</div>
+      <aside class="v-info">${vInfoHTML()}</aside><div class="v-menu" hidden><button data-v="del">${I('delete-l')}<span>Delete</span></button></div>
+      <div class="v-scrim" hidden></div><div class="v-alert" role="alertdialog" hidden></div>`;
+    document.body.appendChild(el);
+    vLayout(false);
+    const img = vImg(), sp = M.spring(0.42, 0.88);
+    const from = { x: tr.left, y: tr.top, w: tr.width, h: tr.height };
+    const chart = chartImg.closest('.pic'); chart.style.visibility = 'hidden';
+    M.play(img, [{ transform: vTf(img, from), borderRadius: 8 / (from.w / vFit(img, vGeo()).w) + 'px' }, { transform: 'none', borderRadius: '8px' }], Object.assign({}, sp, { fill: 'none' }));
+    M.play(el.querySelector('.v-bg'), [{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'none' });
+    el.querySelectorAll('.v-col, .v-bar, .v-head, .v-strip, .v-info').forEach(n => M.play(n, [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 120, easing: 'ease-out', fill: 'backwards' }));
+    setTimeout(() => { chart.style.visibility = ''; }, sp.duration);
+    vBind(el);
+  }
+  function closeViewer(fromT) {
+    if (!V.el || V.busy) return;
+    V.busy = true;
+    const el = V.el, img = vImg(), th = vThumb();
+    const cur = fromT || img.style.transform || 'none';
+    const bg = el.querySelector('.v-bg'), bgO = getComputedStyle(bg).opacity;
+    vChrome(false);
+    const sp = M.spring(0.38, 1);
+    M.play(el.querySelector('.v-info'), [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
+    let a;
+    if (th) {
+      th.el.closest('.pic').style.visibility = 'hidden';
+      a = M.play(img, [{ transform: cur, borderRadius: V.full ? '0px' : '8px' }, { transform: vTf(img, th), borderRadius: 8 / (th.w / vFit(img, vGeo()).w) + 'px' }], Object.assign({}, sp, { fill: 'forwards' }));
+    } else a = M.play(img, [{ transform: cur, opacity: 1 }, { transform: cur + ' scale(0.9)', opacity: 0 }], { duration: 240, easing: 'ease-in', fill: 'forwards' });
+    M.play(bg, [{ opacity: bgO }, { opacity: 0 }], { duration: Math.min(300, sp.duration), easing: 'ease-out', fill: 'forwards' });
+    (a ? a.finished : Promise.resolve()).catch(() => {}).then(() => {
+      if (th && th.el.closest('.pic')) th.el.closest('.pic').style.visibility = '';
+      el.remove(); V.el = null; V.busy = false; vPost();
+    });
+  }
+  function vGo(n) { V.i = Math.max(0, Math.min(V.srcs.length - 1, n)); V.zoom = 1; V.px = V.py = 0; V.el.querySelectorAll('.v-slide img').forEach(im => im.style.transform = 'none'); vTrack(true); }
+  function vBind(el) {
+    let g = null, lastTap = 0, tapTimer = null;
+    const pts = new Map();
+    el.addEventListener('click', e => {
+      const go = e.target.closest('[data-go]'); if (go) { e.stopPropagation(); if (go.closest('.v-grid')) vGo(+go.dataset.go); return; }
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      e.stopPropagation();
+      const v = b.dataset.v;
+      if (v === 'close') closeViewer();
+      else if (v === 'more') vMenu(!vMenu.on);
+      else if (v === 'del') { vMenu(false); vConfirm(true); }
+      else if (v === 'cancel') vConfirm(false);
+      else if (v === 'confirm') vDelete();
+      else { vMenu(false); toast(v === 'download' ? (V.items[V.i].video ? 'Video saved to Photos' : 'Saved to Photos') : 'Playback is not part of this demo'); render(); }
+    });
+    el.addEventListener('pointerdown', e => {
+      if (!e.target.closest('.v-menu, [data-v="more"]')) vMenu(false);
+      if (e.target.closest('.v-g, .v-info, .v-menu, .v-alert, .v-scrim') || V.busy) return;
+      if (e.target.closest('.v-strip')) { vScrub(e); return; }
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      el.setPointerCapture(e.pointerId);
+      if (pts.size === 2) { const [p, q] = [...pts.values()]; g = { pinch: true, d0: Math.hypot(p.x - q.x, p.y - q.y), z0: V.zoom }; return; }
+      g = { x0: e.clientX, y0: e.clientY, t0: performance.now(), axis: null, px0: V.px, py0: V.py };
+    });
+    el.addEventListener('pointermove', e => {
+      if (!g || !pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (g.pinch && pts.size === 2) { const [p, q] = [...pts.values()]; V.zoom = Math.max(1, Math.min(4, g.z0 * Math.hypot(p.x - q.x, p.y - q.y) / g.d0)); vZoomApply(false); return; }
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+      if (!g.axis) {
+        if (Math.hypot(dx, dy) < 8) return;
+        g.axis = V.zoom > 1 ? 'pan' : (Math.abs(dx) > Math.abs(dy) ? 'x' : (dy > 0 ? 'down' : 'none'));
+        if (g.axis === 'down') vChrome(false);
+      }
+      if (g.axis === 'pan') { V.px = g.px0 + dx; V.py = g.py0 + dy; vClampPan(); vZoomApply(false); }
+      else if (g.axis === 'x') { const edge = (V.i === 0 && dx > 0) || (V.i === V.srcs.length - 1 && dx < 0); vTrack(false, edge ? dx / 3 : dx); }
+      else if (g.axis === 'down') {
+        const k = Math.max(0, dy);
+        vImg().style.transform = `translate(${dx}px, ${k}px) scale(${1 - Math.min(k, 400) / 1400})`;
+        el.querySelector('.v-bg').style.opacity = String(Math.max(0.15, 1 - k / 360));
+      }
+    });
+    const up = e => {
+      if (!g || !pts.has(e.pointerId)) return;
+      pts.delete(e.pointerId);
+      if (g.pinch) { if (pts.size === 0) { if (V.zoom < 1.05) { V.zoom = 1; V.px = V.py = 0; } vClampPan(); vZoomApply(true); g = null; } return; }
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0, dt = performance.now() - g.t0;
+      if (!g.axis) {
+        const now = performance.now();
+        if (now - lastTap < 280) { clearTimeout(tapTimer); lastTap = 0; vDoubleTap(e); }
+        else { lastTap = now; tapTimer = setTimeout(() => vFull(!V.full), 280); }
+      } else if (g.axis === 'x') {
+        const w = vGeo().ia.w, v = dx / dt;
+        let n = V.i; if (dx < -w * 0.22 || v < -0.45) n++; else if (dx > w * 0.22 || v > 0.45) n--;
+        vGo(n);
+      } else if (g.axis === 'down') {
+        if (dy > 90 || dy / dt > 0.6) closeViewer(vImg().style.transform);
+        else {
+          const img = vImg(), from = img.style.transform; img.style.transform = 'none';
+          M.play(img, [{ transform: from }, { transform: 'none' }], Object.assign({}, M.spring(0.35, 0.86), { fill: 'none' }));
+          const bg = el.querySelector('.v-bg'), o = bg.style.opacity; bg.style.opacity = '';
+          M.play(bg, [{ opacity: o }, { opacity: 1 }], { duration: 200, fill: 'none' });
+          vChrome(!V.full);
+        }
+      }
+      g = null;
+    };
+    el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+    el.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); V.zoom = Math.max(1, Math.min(4, V.zoom * Math.exp(-e.deltaY / 200))); if (V.zoom === 1) V.px = V.py = 0; vClampPan(); vZoomApply(false); }, { passive: false });
+  }
+  /* ··· (own posts): a menu with Delete; Delete asks again before it removes the item */
+  function vMenu(on) {
+    vMenu.on = on; if (!V.el) return;
+    const m = V.el.querySelector('.v-menu'), b = V.el.querySelector('.v-col [data-v="more"]'); m.hidden = !on; if (!on || !b) return;
+    const G = vGeo(), bx = parseFloat(b.style.left), by = parseFloat(b.style.top), mw = 180, mh = 52;
+    Object.assign(m.style, G.r ? { left: (G.r.left ? bx + 56 : bx - 8 - mw) + 'px', top: (by + 48 - mh) + 'px' } : { left: (bx + 48 - mw) + 'px', top: (by - 8 - mh) + 'px' });
+    M.play(m, [{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: 'cubic-bezier(.32,.72,0,1)' });
+  }
+  function vConfirm(on) {
+    const a = V.el.querySelector('.v-alert'), sc = V.el.querySelector('.v-scrim'), G = vGeo();
+    a.hidden = sc.hidden = !on; if (!on) return;
+    const vid = V.items[V.i] && V.items[V.i].video;
+    a.innerHTML = `<b>Delete this ${vid ? 'video' : 'image'}?</b><p>It will be removed from this thesis for everyone. This can't be undone.</p><div><button data-v="cancel">Cancel</button><button data-v="confirm" class="danger">Delete</button></div>`;
+    Object.assign(a.style, { left: (G.ca.cx - 135) + 'px', top: (G.H / 2) + 'px' });
+    M.play(a, [{ opacity: 0, transform: 'translateY(-50%) scale(1.08)' }, { opacity: 1, transform: 'translateY(-50%)' }], { duration: 220, easing: 'cubic-bezier(.32,.72,0,1)' });
+  }
+  function vDelete() {
+    vConfirm(false);
+    const k = V.i; V.items.splice(k, 1); V.srcs.splice(k, 1); V.thumbs.splice(k, 1);
+    toast('Deleted');
+    if (!V.items.length) { V.el.remove(); V.el = null; vPost(); render(); return; }
+    V.el.querySelectorAll('.v-slide')[k].remove();
+    V.el.querySelector('.v-strip').innerHTML = V.items.map((m, j) => `<button data-go="${j}" aria-label="${m.video ? 'Video' : 'Image'} ${j + 1}"><img src="${m.src}" alt="" draggable="false"></button>`).join('');
+    V.el.querySelector('.v-info').innerHTML = vInfoHTML();
+    V.i = Math.min(k, V.items.length - 1); V.zoom = 1; V.px = V.py = 0;
+    vLayout(true); render();
+  }
+  /* drag along the scrubber to move through the items, one per sliver */
+  function vScrub(e) {
+    const st = V.el.querySelector('.v-strip'), vert = st.classList.contains('vert'), i0 = V.i;
+    const p0 = vert ? e.clientY : e.clientX; let moved = false;
+    st.setPointerCapture(e.pointerId);
+    const mv = ev => { const d = (vert ? ev.clientY : ev.clientX) - p0; if (Math.abs(d) > 4) moved = true;
+      const n = Math.max(0, Math.min(V.items.length - 1, i0 + Math.round(d / 26))); if (n !== V.i) vGo(n); };
+    const end = ev => { st.removeEventListener('pointermove', mv); st.removeEventListener('pointerup', end); st.removeEventListener('pointercancel', end);
+      if (!moved) { const b = document.elementFromPoint(ev.clientX, ev.clientY); const go = b && b.closest('[data-go]'); if (go) vGo(+go.dataset.go); } };
+    st.addEventListener('pointermove', mv); st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end);
+    e.stopPropagation();
+  }
+  function vClampPan() {
+    const img = vImg(), G = vGeo(); if (!img) return;
+    const w = img.offsetWidth * V.zoom, h = img.offsetHeight * V.zoom;
+    const mx = Math.max(0, (w - G.ia.w) / 2), my = Math.max(0, (h - G.H) / 2);
+    V.px = Math.max(-mx, Math.min(mx, V.px)); V.py = Math.max(-my, Math.min(my, V.py));
+  }
+  function vDoubleTap(e) {
+    const img = vImg(); if (!img) return;
+    if (V.zoom > 1) { V.zoom = 1; V.px = V.py = 0; }
+    else { const r = img.getBoundingClientRect(); V.zoom = 2.5; V.px = (r.left + r.width / 2 - e.clientX) * 1.5; V.py = (r.top + r.height / 2 - e.clientY) * 1.5; vClampPan(); }
+    vZoomApply(true);
+  }
+  app.addEventListener('click', e => {
+    if (swipe && swipe.on) return;
+    const pic = e.target.closest('.pic');
+    if (pic && pic.querySelector('img')) { e.stopPropagation(); e.preventDefault(); openViewer(pic.querySelector('img')); return; }
+  }, true);
+  window.addEventListener('keydown', e => {
+    if (!V.el) return;
+    if (e.key === 'Escape') { const a = V.el.querySelector('.v-alert'); if (!a.hidden) vConfirm(false); else if (vMenu.on) vMenu(false); else closeViewer(); }
+    else if (e.key === 'ArrowRight') vGo(V.i + 1);
+    else if (e.key === 'ArrowLeft') vGo(V.i - 1);
+  });
+  window.addEventListener('resize', () => { layoutAllPics(); vLayout(false); });
+  new MutationObserver(() => requestAnimationFrame(() => { layoutAllPics(); vLayout(false); })).observe(root, { attributes: true, attributeFilter: ['data-duo'] });
   if (parent !== window) parent.postMessage({ type: 'duo:ready' }, '*');
 })();
