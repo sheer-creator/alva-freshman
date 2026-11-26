@@ -466,7 +466,7 @@
   }
   function plan() {
     const P = planBase();
-    { const st = stack(); P.alvaRoot = st.length === 1 && st[0].v === 'chat' && st[0].id === 'tab'; P.canBeside = P.L.mode === 'two' || P.L.mode === 'book'; }
+    { const st = stack(); P.alvaRoot = st.length === 1 && st[0].v === 'chat' && st[0].id === 'tab'; P.canBeside = P.L.mode === 'two' || P.L.mode === 'book'; P.push = P.alvaRoot && S.chatList && !P.canBeside ? Math.min(382, P.CW - 56) : 0; }
     P.OX = P.L.rail && P.L.rail.left ? 84 : 0;
     /* A rail that cannot hold everything (PiP: 473 tall, status on top) compresses the way the
        system's own bars do (HIG, iPhone Duo › compression): Back and Create keep their places and
@@ -554,7 +554,7 @@
     const edge = ((pn.pos === 'left' && P.panes.length > 1 && L.mode !== 'book') || (L.rail && !L.rail.left && lastCol && pn.view.v !== 'chat' && pn.x + pn.w === L.rail.x)) ? 'edge-r'
       : (L.rail && L.rail.left && pn.x === P.OX && pn.view.v !== 'chat') ? 'edge-l' : '';
     const vars = `${padR && (L.mode === 'book-v' ? pn.pos === 'left' : pn.pos !== 'left') ? `--pad-r:${padR};` : ''}${L.tabbar && depth === 1 ? '--box-b:100px;' : ''}${L.mode === 'book-v' && L.tabbar && depth === 1 && pn.pos === 'right' ? '--bar-b:100px;' : ''}`;
-    const under = P.alvaRoot && (pn.view.v === 'chats' || pn.view.v === 'chat' || pn.view.v === 'empty');   // below the window's Alva bar
+    const under = P.alvaRoot && !P.push && (pn.view.v === 'chats' || pn.view.v === 'chat' || pn.view.v === 'empty');   // below the window's Alva bar
     const style = `left:${pn.x}px;width:${pn.w}px;${pn.h != null ? `top:${pn.y}px;bottom:auto;height:${pn.h}px;` : ''}${under ? 'top:84px;' : ''}${vars}`;
     const cls = `pane ${edge}${pn.narrow && pn.w > 600 ? ' narrow' : ''}`;
     const dp = `data-pos="${pn.pos}" data-key="${esc(k)}"`;
@@ -594,15 +594,19 @@
     /* Chat list as an overlay where it is not beside the conversation (window narrower than 382 + 400, upright
        Book excluded): like Mail on iPad in portrait, it slides over from the leading edge above a dimmed page;
        tap the dimmed part to close. */
+    let push = 0, veil = '';
     if (P.alvaRoot) {
       /* 11-26: ≡ and Alva stay at the window's top left whatever sits below (one column or list | chat);
          ≡ opens and closes the list */
       const open = P.panes.some(q => q.view.v === 'chats') || (S.chatList && !P.canBeside);
       if (S.chatList && !P.canBeside) {
-        const w = Math.min(382, P.CW - 56);
-        html += `<div class="scrim" data-act="chatListClose" style="top:84px"></div><section class="pane sheet-l" style="left:${P.OX}px;width:${w}px;top:84px">${chatsView({}, { w }).chat}</section>`;
+        /* like the phone (Figma A2): the conversation page moves aside — bar, chat and Tab Bar together, rounded 40,
+           under a white veil — and the list lies underneath it on the left; tap the veil to go back */
+        push = P.push;
+        html = `<section class="pane ch-under" style="left:${P.OX}px;width:${push}px;top:0">${chatsView({}, { w: push }).chat}</section>` + html;
+        veil = `<div class="push-veil" data-act="chatListClose" style="left:${P.OX}px;width:${P.CW}px"></div>`;
       }
-      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>`;
+      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>` + veil;
     }
     if (S.pop) html += popover(P);
     if (S.toast) html += `<div class="toast" style="left:${P.OX + P.CW / 2}px">${esc(S.toast)}</div>`;
@@ -620,6 +624,7 @@
     if (oldLeft) oldLeft.querySelectorAll('.scroll [data-act="open"][data-id], .scroll [data-act="profile"][data-id].row-item').forEach(el => oldRows.set(el.dataset.act + ':' + el.dataset.id, { el, h: el.offsetHeight }));
     const oldLeftKey = lastKeys.left, oldLayout = lastLayout;
     app.innerHTML = html;
+    app.classList.toggle('alva-push', !!push); app.style.setProperty('--push', push + 'px');
     layoutAllPics();
 
     app.querySelectorAll('[data-sk]').forEach(el => { if (scrolls.has(el.dataset.sk)) el.scrollTop = scrolls.get(el.dataset.sk); });
