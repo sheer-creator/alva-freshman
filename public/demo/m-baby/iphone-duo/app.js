@@ -226,7 +226,9 @@
     const lead = fromThesis && !page;
     if (lead) {
       left = (ctx.chatMode === 'overlay' || ctx.askTile) && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');   // beside a thesis with a rail, the rail's Back closes it
-      right = v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
+      right = v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation')
+        : ctx.noExpand ? `<button class="side glass-rail is-off" disabled aria-disabled="true" aria-label="Expand conversation (not available on a half-folded screen)">${I('unfold-l')}</button>`
+        : btn('expandChat', 'unfold-l', 'Expand conversation');
     } else if (!fromThesis && !ctx.listBeside) left = btn('chatList', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
     if (page && ctx.railTask) left = right = '<span class="side"></span>';
     const head = ctx.noHead ? '' : `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
@@ -518,7 +520,9 @@
     }
     const book = L.mode === 'book';
     /* 11-26: a conversation filling the content keeps its header at the page's top left; only the messages and the box stay in the 600 column */
-    if (t.v === 'chat' && t.full) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
+    /* 11-26: half-folded Book never shows a full-screen conversation — a conversation from a thesis is always
+       thesis | Alva, one half each (nothing crosses the crease); Expand is there but disabled */
+    if (t.v === 'chat' && t.full && !book) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
     let left, right;
     if (st.length === 1) {
       if (t.v === 'chat' && S.listWide !== false) { left = { v: 'chats' }; right = t; }   // Alva tab: the chat list beside the conversation (open by default, ≡ closes it)
@@ -528,7 +532,7 @@
       else if (book) { left = t; right = emptyOf(t); }
       else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
       else { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }] }; }
-    } else if (t.v === 'chat') { left = below; right = t; }        // Ask Alva sits beside the thesis it asks about
+    } else if (t.v === 'chat') { left = below; right = book && t.full ? Object.assign({}, t, { full: false }) : t; }        // Ask Alva sits beside the thesis it asks about
     else if (LIST_ROOTS.includes(st[0].v)) { left = st[0]; right = t; }   // the list stays; only the right column moves on
     else if (t.v === 'updates' && st.length >= 3) { left = st[st.length - 3]; right = t; }
     else { left = below; right = t; }
@@ -543,7 +547,7 @@
     const askTile = !!L.rail && right.v === 'chat' && right.id !== 'tab';
     return { L, CW, askTile, railBack: askTile || t.v === 'updates' || (left === st[0] && st.length > 2), panes: [
       { view: left, x: 0, w: lw, pos: 'left', leftBack: !askTile && leftIdx > 0, askOpen: right.v === 'chat', sel: listSel },
-      { view: right, x: rx, w: rw, pos: 'right', chatMode: 'tile' },
+      { view: right, x: rx, w: rw, pos: 'right', chatMode: 'tile', noExpand: book && right.v === 'chat' },
     ] };
   }
 
@@ -551,7 +555,7 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, askTile: !!P.askTile, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, askTile: !!P.askTile, noExpand: !!pn.noExpand, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
