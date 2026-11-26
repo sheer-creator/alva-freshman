@@ -553,7 +553,7 @@
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
     const lastCol = pn === P.panes[P.panes.length - 1];
-    const edge = ((pn.pos === 'left' && P.panes.length > 1 && L.mode !== 'book') || (L.rail && !L.rail.left && lastCol && pn.view.v !== 'chat' && pn.x + pn.w === L.rail.x)) ? 'edge-r'
+    const edge = ((pn.pos === 'left' && P.panes.length > 1 && L.mode !== 'book' && pn.view.v !== 'chats' /* the Alva tab draws its own full-height divider */) || (L.rail && !L.rail.left && lastCol && pn.view.v !== 'chat' && pn.x + pn.w === L.rail.x)) ? 'edge-r'
       : (L.rail && L.rail.left && pn.x === P.OX && pn.view.v !== 'chat') ? 'edge-l' : '';
     const vars = `${padR && (L.mode === 'book-v' ? pn.pos === 'left' : pn.pos !== 'left') ? `--pad-r:${padR};` : ''}${L.tabbar && depth === 1 ? '--box-b:100px;' : ''}${L.mode === 'book-v' && L.tabbar && depth === 1 && pn.pos === 'right' ? '--bar-b:100px;' : ''}`;
     const under = P.alvaRoot && !P.push && (pn.view.v === 'chats' || pn.view.v === 'chat' || pn.view.v === 'empty');   // below the window's Alva bar
@@ -608,7 +608,10 @@
         html = `<section class="pane ch-under" style="left:${P.OX}px;width:${push}px;top:0">${chatsView({}, { w: push }).chat}</section>` + html;
         veil = `<div class="push-veil" data-act="chatListClose" style="left:${P.OX}px;width:${P.CW}px"></div>`;
       }
-      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>` + veil;
+      /* 11-26: list | chat — the divider runs the full height, through the window bar */
+      const lp = P.panes.find(q => q.view.v === 'chats');
+      const div = lp && L.mode !== 'book' ? `<i class="alva-div" style="left:${P.OX + lp.x + lp.w}px"></i>` : '';
+      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>` + div + veil;
     }
     if (S.pop) html += popover(P);
     if (S.toast) html += `<div class="toast" style="left:${P.OX + P.CW / 2}px">${esc(S.toast)}</div>`;
@@ -628,6 +631,10 @@
     const oldLeft = app.querySelector(':scope > section.pane[data-pos="left"]');
     if (oldLeft) oldLeft.querySelectorAll('.scroll [data-act="open"][data-id], .scroll [data-act="profile"][data-id].row-item').forEach(el => oldRows.set(el.dataset.act + ':' + el.dataset.id, { el, h: el.offsetHeight }));
     const oldLeftKey = lastKeys.left, oldLayout = lastLayout;
+    /* the Alva tab's list opening / closing beside the conversation */
+    const listMove = S.listAnim ? (() => { const l = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chats')), c = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chat')), d = app.querySelector(':scope > .alva-div');
+      return { l, lw: l ? l.offsetWidth : 0, d, c: c && { x: c.offsetLeft, w: c.offsetWidth } }; })() : null;
+    S.listAnim = false;
     app.innerHTML = html;
     app.classList.toggle('alva-push', !!push); app.style.setProperty('--push', push + 'px');
     /* Expand / Collapse: the drawer itself spreads to the full page (or the page draws back into the drawer) — one surface, no exit and re-entry */
@@ -643,6 +650,22 @@
         if (sc) sc.style.animation = 'fadeIn 0.46s cubic-bezier(.32,.72,0,1) both';
         if (m.under && !sc) { m.under.removeAttribute('data-pos'); m.under.style.pointerEvents = 'none'; app.insertBefore(m.under, app.firstChild); setTimeout(() => m.under.remove(), 480); }
         if (sc) {} else if (m.scrim) { m.scrim.style.animation = 'none'; m.scrim.style.pointerEvents = 'none'; app.insertBefore(m.scrim, el); M.play(m.scrim, [{ opacity: 1 }, { opacity: 0 }], { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' }).finished.then(() => m.scrim.remove()).catch(() => m.scrim.remove()); }
+      }
+    }
+    if (listMove) {
+      const E = { duration: 420, easing: 'cubic-bezier(.32,.72,0,1)' };
+      const l = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chats'));
+      const c = [...app.querySelectorAll(':scope > section.pane')].find(e => e.querySelector(':scope > .chat'));
+      const d = app.querySelector(':scope > .alva-div');
+      if (c && listMove.c) M.play(c, [{ left: listMove.c.x + 'px', width: listMove.c.w + 'px' }, { left: c.offsetLeft + 'px', width: c.offsetWidth + 'px' }], E);
+      if (l) {   // opening: the list slides in from the leading edge, the divider with it
+        M.play(l, [{ transform: `translateX(-${l.offsetWidth}px)` }, { transform: 'none' }], E);
+        if (d) M.play(d, [{ transform: `translateX(-${l.offsetWidth}px)` }, { transform: 'none' }], E);
+      } else if (listMove.l) {   // closing: the old list (and its divider) slide out, then go
+        const o = listMove.l, od = listMove.d, w = listMove.lw;
+        o.removeAttribute('data-pos'); o.style.pointerEvents = 'none'; o.style.zIndex = 2; app.insertBefore(o, app.querySelector(':scope > .alva-bar'));
+        M.play(o, [{ transform: 'none' }, { transform: `translateX(-${w}px)` }], E).finished.then(() => o.remove()).catch(() => o.remove());
+        if (od) { app.appendChild(od); M.play(od, [{ transform: 'none' }, { transform: `translateX(-${w}px)` }], E).finished.then(() => od.remove()).catch(() => od.remove()); }
       }
     }
     layoutAllPics();
@@ -1177,7 +1200,7 @@
         if (fromList(el)) { st.length = 1; st.push({ v: 'profile', id }); } else push({ v: 'profile', id });
         break;
       case 'back': doBack(); break;
-      case 'chatList': { const Pn = plan(); if (Pn.canBeside) S.listWide = S.listWide === false; else S.chatList = !S.chatList; break; }
+      case 'chatList': { const Pn = plan(); if (Pn.canBeside) { S.listWide = S.listWide === false; S.listAnim = true; skipNav = true; } else S.chatList = !S.chatList; break; }
       case 'chatListClose': S.chatList = false; break;
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
       case 'foldChat': S.morph = chatBox(); skipNav = true; st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;

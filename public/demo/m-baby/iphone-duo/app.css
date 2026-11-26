@@ -816,5 +816,6 @@ span.exch { background: var(--br07); }
 .sheet { border-radius: 40px 0 0 40px; overflow: hidden; }
 
 /* Alva tab: the window's top bar — ≡ and Alva at the top left, above one column or list | chat (11-26) */
+.alva-div { position: absolute; top: 0; bottom: 0; width: var(--hw, 0.5px); margin-left: calc(-1 * var(--hw, 0.5px)); background: var(--l12); z-index: 8; pointer-events: none; }   /* list | chat divider, full height (11-26) */
 .alva-bar { position: absolute; top: 0; height: 84px; z-index: 7; display: flex; align-items: center; gap: 12px; padding: 12px 20px 0; background: var(--b0); }
 .alva-bar .side { width: 48px; height: 48px; border-radius: 96px; display: grid; place-items: center; color: var(--n9); flex: none; }
