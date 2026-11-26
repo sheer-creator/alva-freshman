@@ -452,14 +452,14 @@
   function chatTask(P) { return !!(P.L.rail && P.panes.length === 1 && P.panes[0].view.v === 'chat' && P.panes[0].view.id !== 'tab' && !P.sheet); }
   /* 11-26: the chat's own header buttons move into the rail wherever the chat sits against it.
      task — a full-content chat from a thesis: Back (+ Collapse when expanded), no tabs or Create.
-     sheet — the drawer is modal: the rail shows only Close and Expand, above the scrim.
+     (the drawer is modal: the scrim covers the rail as well, and Expand stays at the drawer's top right)
      tile — Ask beside a thesis, next to a right-hand rail: Close and Expand on top, tabs and Create stay.
      (the Alva tab page keeps Chat history at its top left, beside Alva) */
   function railCtl(P) {
     const r = P.L.rail; if (!r) return null;
     const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
     if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.fold] : [] };   // Close stays beside Alva
-    if (P.sheet) return { kind: 'sheet', items: [BTN.expand] };   // 11-26: the drawer has no Close — Alva and Expand only
+    if (P.sheet) return null;   // 11-26: the drawer is modal — the scrim covers the rail too; Expand sits at the drawer's top right
     const last = P.panes[P.panes.length - 1];
     if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.expand]   /* Close stays beside Alva */ };
     return null;
@@ -582,7 +582,7 @@
     const keys = {};
     P.panes.forEach(pn => { const o = paneHTML(pn, P, depth); keys[pn.pos] = o.key; html += o.html; });
     if (P.sheet) {
-      const SW = P.sheet.w, out = renderView(P.sheet.view, { w: SW, chatMode: 'overlay', railTask: !!L.rail });
+      const SW = P.sheet.w, out = renderView(P.sheet.view, { w: SW, chatMode: 'overlay', railTask: false });
       /* The drawer is modal: the scrim covers the page and the rail; where the rail is on the right the
          drawer runs on over it to the screen edge, so only the chat and its Close are left to use. */
       const ext = L.rail && !L.rail.left ? innerWidth - (P.OX + P.CW) : 0;
