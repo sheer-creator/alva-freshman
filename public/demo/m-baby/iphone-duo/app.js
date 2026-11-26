@@ -625,6 +625,21 @@
     const oldLeftKey = lastKeys.left, oldLayout = lastLayout;
     app.innerHTML = html;
     app.classList.toggle('alva-push', !!push); app.style.setProperty('--push', push + 'px');
+    /* Expand / Collapse: the drawer itself spreads to the full page (or the page draws back into the drawer) — one surface, no exit and re-entry */
+    if (S.morph) {
+      const m = S.morph; S.morph = null;
+      const el = app.querySelector(':scope > .sheet') || [...app.querySelectorAll(':scope > section.pane')].find(p => p.querySelector(':scope > .chat'));
+      if (el) {
+        el.style.animation = 'none';
+        const to = { left: el.offsetLeft + 'px', width: el.offsetWidth + 'px', borderRadius: getComputedStyle(el).borderRadius };
+        el.style.zIndex = 8;
+        M.play(el, [{ left: m.left + 'px', width: m.width + 'px', borderRadius: m.radius }, to], { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' }).finished.then(() => el.style.removeProperty('z-index')).catch(() => {});
+        const sc = app.querySelector(':scope > .scrim');
+        if (sc) sc.style.animation = 'fadeIn 0.46s cubic-bezier(.32,.72,0,1) both';
+        if (m.under && !sc) { m.under.removeAttribute('data-pos'); m.under.style.pointerEvents = 'none'; app.insertBefore(m.under, app.firstChild); setTimeout(() => m.under.remove(), 480); }
+        if (sc) {} else if (m.scrim) { m.scrim.style.animation = 'none'; m.scrim.style.pointerEvents = 'none'; app.insertBefore(m.scrim, el); M.play(m.scrim, [{ opacity: 1 }, { opacity: 0 }], { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' }).finished.then(() => m.scrim.remove()).catch(() => m.scrim.remove()); }
+      }
+    }
     layoutAllPics();
 
     app.querySelectorAll('[data-sk]').forEach(el => { if (scrolls.has(el.dataset.sk)) el.scrollTop = scrolls.get(el.dataset.sk); });
@@ -725,6 +740,14 @@
     kbSync();
   }
   let lastIdx = {}, skipNav = false, lastLayout = null;
+  /* the conversation's box (drawer, tile or full page) before Expand / Collapse, so the same surface can grow or shrink into place */
+  function chatBox() {
+    const el = app.querySelector(':scope > .sheet') || [...app.querySelectorAll(':scope > section.pane')].find(p => p.querySelector(':scope > .chat'));
+    if (!el) return null;
+    const scrim = app.querySelector(':scope > .scrim');
+    const under = el.classList.contains('sheet') ? app.querySelector(':scope > section.pane[data-pos="main"]') : null;   // the page under the drawer stays put while the drawer grows over it
+    return { left: el.offsetLeft, width: el.offsetWidth, radius: getComputedStyle(el).borderRadius, scrim, under };
+  }
   function shiftColumns(fwd, old) {
     const opt = { duration: 460, easing: 'cubic-bezier(.32,.72,0,1)' };
     const nl = app.querySelector(':scope > section.pane[data-pos="left"]'), nr = app.querySelector(':scope > section.pane[data-pos="right"]');
@@ -1075,7 +1098,7 @@
     }
     if (['period', 'dismissPeople', 'unrecent', 'clearRecent'].includes(act)) return { kind: 'flip', pos, before: rowsOf(pane) };
     if (act === 'tab' && id !== S.tab) return { kind: 'fade' };
-    if (act === 'expandChat' || act === 'foldChat') return { kind: 'morph', before: layoutSnapshot() };
+    /* expandChat / foldChat: the conversation's own surface grows or shrinks in render() (S.morph) */
     if (act === 'save' || act === 'follow') return { kind: 'pop', sel: `[data-act="${act}"][data-id="${id}"]` };
     return null;
   }
@@ -1141,8 +1164,8 @@
       case 'chatList': { const Pn = plan(); if (Pn.canBeside) S.listWide = S.listWide === false; else S.chatList = !S.chatList; break; }
       case 'chatListClose': S.chatList = false; break;
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
-      case 'foldChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
-      case 'expandChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
+      case 'foldChat': S.morph = chatBox(); skipNav = true; st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
+      case 'expandChat': S.morph = chatBox(); skipNav = true; st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
       case 'tabsOpen': S.tabsOpen = true; break;
       case 'tab': S.chatList = false; if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
       case 'feedTab': S.feedTab = id; S.stacks.foryou = [{ v: 'feed' }]; break;
