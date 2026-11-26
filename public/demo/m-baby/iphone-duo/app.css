@@ -779,3 +779,7 @@ span.exch { background: var(--br07); }
 .ch-search { padding: 12px 20px 28px; }   /* box centred on the bottom line, window height − 48 */
 .sheet-l { position: absolute; z-index: 6; top: 0; bottom: 0; background: var(--b0); animation: sheetInL 0.5s cubic-bezier(.32,.72,0,1) both; }
 @keyframes sheetInL { from { transform: translateX(-100%); } to { transform: none; } }
+
+/* Alva tab: the window's top bar — ≡ and Alva at the top left, above one column or list | chat (11-26) */
+.alva-bar { position: absolute; top: 0; height: 84px; z-index: 7; display: flex; align-items: center; gap: 12px; padding: 12px 20px 0; background: var(--b0); }
+.alva-bar .side { width: 48px; height: 48px; border-radius: 96px; display: grid; place-items: center; color: var(--n9); flex: none; }

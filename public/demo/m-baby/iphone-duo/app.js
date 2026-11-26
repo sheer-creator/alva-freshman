@@ -229,7 +229,7 @@
       right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
     } else if (!fromThesis && !ctx.listBeside) left = btn('chatList', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
     if (page && ctx.railTask) left = right = '<span class="side"></span>';
-    const head = `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
+    const head = ctx.noHead ? '' : `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
       ? `<div class="bub-a"><div class="${m.typing && i === log.length - 1 ? 'typing' : ''}">${esc(m.shown != null ? m.shown : m.text)}</div></div>`
       : `<div class="bub-u">${esc(m.text)}</div>`).join('');
@@ -255,7 +255,7 @@
     const row = c => `<button class="ch-row${c.id === 'tab' ? ' on' : ''}" data-act="${c.id === 'tab' ? 'chatListClose' : 'toast'}" data-id="${c.id === 'tab' ? '' : 'Channels are not part of this demo'}">
       <span class="ch-av">${c.alva ? '<img src="assets/icons/logo-portrait.svg" alt="">' : '<img src="assets/icons/logo-channel.svg" alt="">'}${c.badge ? `<i class="ch-badge">${c.badge}</i>` : ''}</span>
       <span class="ch-main"><span class="ch-line"><b class="${c.alva ? 'm' : ''}">${esc(c.name)}</b><em>${c.time}</em></span><span class="ch-prev">${esc(c.text)}</span></span></button>`;
-    const head = `<header class="ch-head"><p>Chats</p></header>`;   // 84 like every column: keeps the first row out of the rounded corner
+    const head = '';   // 11-26: the window's Alva bar (≡ + Alva) sits above the list, so the list starts at 84
     return { chat: `<div class="chats">${head}<div class="ch-list">${row(CHANNELS[0])}<p class="ch-sec">Channels</p>${CHANNELS.slice(1).map(row).join('')}
       <button class="ch-new" data-act="toast" data-id="New channel is not part of this demo">${I('chat-new-l', 'ic-18')}New channel</button></div>
       <div class="ch-search"><span>Search conversations</span></div></div>` };
@@ -466,6 +466,7 @@
   }
   function plan() {
     const P = planBase();
+    { const st = stack(); P.alvaRoot = st.length === 1 && st[0].v === 'chat' && st[0].id === 'tab'; P.canBeside = P.L.mode === 'two' || P.L.mode === 'book'; }
     P.OX = P.L.rail && P.L.rail.left ? 84 : 0;
     /* A rail that cannot hold everything (PiP: 473 tall, status on top) compresses the way the
        system's own bars do (HIG, iPhone Duo › compression): Back and Create keep their places and
@@ -517,7 +518,9 @@
     if (t.v === 'chat' && t.full) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
     let left, right;
     if (st.length === 1) {
-      if (t.v === 'chat') { left = { v: 'chats' }; right = t; }   // Alva tab: the chat list beside the conversation
+      if (t.v === 'chat' && S.listWide !== false) { left = { v: 'chats' }; right = t; }   // Alva tab: the chat list beside the conversation (open by default, ≡ closes it)
+      else if (t.v === 'chat' && book) { left = t; right = emptyOf(t); }
+      else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
       else if (t.v === 'feed') { left = t; right = autoFirst() || emptyOf(t); }
       else if (book) { left = t; right = emptyOf(t); }
       else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
@@ -543,7 +546,7 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
@@ -551,7 +554,8 @@
     const edge = ((pn.pos === 'left' && P.panes.length > 1 && L.mode !== 'book') || (L.rail && !L.rail.left && lastCol && pn.view.v !== 'chat' && pn.x + pn.w === L.rail.x)) ? 'edge-r'
       : (L.rail && L.rail.left && pn.x === P.OX && pn.view.v !== 'chat') ? 'edge-l' : '';
     const vars = `${padR && (L.mode === 'book-v' ? pn.pos === 'left' : pn.pos !== 'left') ? `--pad-r:${padR};` : ''}${L.tabbar && depth === 1 ? '--box-b:100px;' : ''}${L.mode === 'book-v' && L.tabbar && depth === 1 && pn.pos === 'right' ? '--bar-b:100px;' : ''}`;
-    const style = `left:${pn.x}px;width:${pn.w}px;${pn.h != null ? `top:${pn.y}px;bottom:auto;height:${pn.h}px;` : ''}${vars}`;
+    const under = P.alvaRoot && (pn.view.v === 'chats' || pn.view.v === 'chat' || pn.view.v === 'empty');   // below the window's Alva bar
+    const style = `left:${pn.x}px;width:${pn.w}px;${pn.h != null ? `top:${pn.y}px;bottom:auto;height:${pn.h}px;` : ''}${under ? 'top:84px;' : ''}${vars}`;
     const cls = `pane ${edge}${pn.narrow && pn.w > 600 ? ' narrow' : ''}`;
     const dp = `data-pos="${pn.pos}" data-key="${esc(k)}"`;
     const html = (out.chat || out.empty)
@@ -590,9 +594,15 @@
     /* Chat list as an overlay where it is not beside the conversation (window narrower than 382 + 400, upright
        Book excluded): like Mail on iPad in portrait, it slides over from the leading edge above a dimmed page;
        tap the dimmed part to close. */
-    if (S.chatList && !P.panes.some(q => q.view.v === 'chats')) {
-      const w = Math.min(382, P.CW - 56);
-      html += `<div class="scrim" data-act="chatListClose"></div><section class="pane sheet-l" style="left:${P.OX}px;width:${w}px;top:0">${chatsView({}, { w }).chat}</section>`;
+    if (P.alvaRoot) {
+      /* 11-26: ≡ and Alva stay at the window's top left whatever sits below (one column or list | chat);
+         ≡ opens and closes the list */
+      const open = P.panes.some(q => q.view.v === 'chats') || (S.chatList && !P.canBeside);
+      if (S.chatList && !P.canBeside) {
+        const w = Math.min(382, P.CW - 56);
+        html += `<div class="scrim" data-act="chatListClose" style="top:84px"></div><section class="pane sheet-l" style="left:${P.OX}px;width:${w}px;top:84px">${chatsView({}, { w }).chat}</section>`;
+      }
+      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>`;
     }
     if (S.pop) html += popover(P);
     if (S.toast) html += `<div class="toast" style="left:${P.OX + P.CW / 2}px">${esc(S.toast)}</div>`;
@@ -1123,7 +1133,7 @@
         if (fromList(el)) { st.length = 1; st.push({ v: 'profile', id }); } else push({ v: 'profile', id });
         break;
       case 'back': doBack(); break;
-      case 'chatList': S.chatList = true; break;
+      case 'chatList': { const Pn = plan(); if (Pn.canBeside) S.listWide = S.listWide === false; else S.chatList = !S.chatList; break; }
       case 'chatListClose': S.chatList = false; break;
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
       case 'foldChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
