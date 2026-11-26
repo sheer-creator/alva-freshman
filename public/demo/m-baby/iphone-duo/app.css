@@ -331,12 +331,12 @@ span.tk-logo { background: var(--br07); }
 .chat-h { flex: none; display: flex; align-items: center; height: 84px; padding: 12px var(--pad-r, 20px) 0 20px; background: linear-gradient(var(--b0), transparent); }
 .chat-h .side { width: 48px; height: 48px; display: grid; place-items: center; flex: none; color: var(--n9); }
 .chat-h .side.glass-rail { border-radius: 96px; }
-.chat-h span.side { visibility: hidden; }
-.chat-h.lead .mid { justify-content: flex-start; padding-left: 0; }
-.chat-h.lead > .side + .mid { padding-left: 12px; }
+.chat-h span.side { display: none; }
+/* 11-26: Alva sits on the left in every Ask header, after Close / Chat history when there is one */
+.chat-h > button.side + .mid { padding-left: 12px; }
 :root[data-theme='dark'] .capsule.glass-rail { background: #26282c; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3), 0 0 0 var(--hw, 0.5px) rgba(255, 255, 255, 0.12); }
 .capsule.glass-rail { background: linear-gradient(to top, #fff 0, #fdfdfd 4px, rgba(250, 250, 250, 0.6) 9px, rgba(248, 248, 248, 0) 16px), linear-gradient(to bottom, #f5f5f5 0, #f0f0f0 7px, #f1f1f1 12px, #f5f5f5 22px, #f7f7f7 30px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.02), 0 0 0 var(--hw, 0.5px) #e8e8e8, -1.25px 0 0 -0.75px #d0d0d0, 1.25px 0 0 -0.75px #d0d0d0; }
-.chat-h .mid { flex: 1; display: flex; justify-content: center; padding: 14px 16px; }
+.chat-h .mid { flex: 1; display: flex; justify-content: flex-start; padding: 14px 16px 14px 0; }
 .capsule { display: flex; align-items: center; gap: 8px; padding: 8px 16px 8px 8px; border-radius: 960px; background: var(--b0); box-shadow: inset 0 0 0 var(--hw, 0.5px) var(--l2), 0 2px 16px rgba(0, 0, 0, 0.08); font-size: 16px; line-height: 26px; font-weight: 500; }
 .capsule img { width: 32px; height: 32px; }
 .menu-sq { width: 38px; height: 38px; border-radius: 6px; display: grid; place-items: center; box-shadow: inset 0 0 0 var(--hw, 0.5px) var(--l2); color: var(--n5); }

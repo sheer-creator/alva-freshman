@@ -227,7 +227,7 @@
     if (lead) {
       left = ctx.chatMode === 'overlay' && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');
       right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
-    } else if (!fromThesis) left = ctx.railTask ? '<span class="side"></span>' : btn('toast" data-id="Chat history is not part of this demo', 'menu-l', 'Chat history');
+    } else if (!fromThesis) left = btn('toast" data-id="Chat history is not part of this demo', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
     if (page && ctx.railTask) left = right = '<span class="side"></span>';
     const head = `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
@@ -435,7 +435,7 @@
      task — a full-content chat from a thesis: Back (+ Collapse when expanded), no tabs or Create.
      sheet — the drawer is modal: the rail shows only Close and Expand, above the scrim.
      tile — Ask beside a thesis, next to a right-hand rail: Close and Expand on top, tabs and Create stay.
-     root — the Alva tab page: Chat history on top, tabs and Create stay. */
+     (the Alva tab page keeps Chat history at its top left, beside Alva) */
   function railCtl(P) {
     const r = P.L.rail; if (!r) return null;
     const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
@@ -443,8 +443,6 @@
     if (P.sheet) return { kind: 'sheet', items: [BTN.expand] };   // 11-26: the drawer has no Close — Alva and Expand only
     const last = P.panes[P.panes.length - 1];
     if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.expand]   /* Close stays beside Alva */ };
-    const root = P.panes.find(p => p.view.v === 'chat' && p.view.id === 'tab');
-    if (root && !P.railBack) return { kind: 'root', pos: root.pos, items: [BTN.hist] };
     return null;
   }
   function plan() {
