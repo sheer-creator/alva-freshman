@@ -644,15 +644,14 @@
     /* 11-26: the conversation page moving aside for the chat list (or coming back) slides — page, bar, Tab Bar and ＋ together */
     if (push !== pushWas && P.alvaRoot && root.dataset.layout === lastLayout) {
       const E = { duration: 420, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'none' };
-      const tx = v => `translateX(${v}px)`, clip = v => `inset(-40px ${v}px -40px -40px)`;
+      const tx = v => `translateX(${v}px)`;
       app.querySelectorAll(':scope > section.pane[data-pos="main"], :scope > .alva-bar, :scope > .tabbar, :scope > .fab').forEach(el => {
         const f = { transform: [tx(pushWas), tx(push)] };
-        if (!el.classList.contains('tabbar') && !el.classList.contains('fab')) f.clipPath = [clip(pushWas), clip(push)];
         if (el.matches('section.pane')) { f.borderRadius = [pushWas ? '40px' : '0px', push ? '40px' : '0px']; f.boxShadow = [pushWas ? '0 0 25px rgba(0,0,0,.12)' : '0 0 25px rgba(0,0,0,0)', push ? '0 0 25px rgba(0,0,0,.12)' : '0 0 25px rgba(0,0,0,0)']; }
         M.play(el, f, E);
       });
       const veil = app.querySelector(':scope > .push-veil');
-      if (veil) M.play(veil, { opacity: [0, 1], transform: [tx(0), tx(push)], clipPath: [clip(0), clip(push)] }, E);
+      if (veil) M.play(veil, { opacity: [0, 1], transform: [tx(0), tx(push)] }, E);
       if (!push && oldUnder) {   // closing: the list stays underneath until the page has covered it
         oldUnder.style.pointerEvents = 'none'; app.insertBefore(oldUnder, app.firstChild);
         setTimeout(() => oldUnder.remove(), 430);
