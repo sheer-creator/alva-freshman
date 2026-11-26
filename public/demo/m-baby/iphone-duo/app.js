@@ -224,6 +224,7 @@
       left = `<button class="side" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;
       right = `<button class="side" data-act="foldChat" aria-label="Restore page and conversation">${I('foldd-l')}</button>`;
     } else if (fromThesis && ctx.chatMode !== 'page') right = `<button class="side" data-act="expandChat" aria-label="Expand conversation">${I('unfold-l')}</button>`;
+    if (ctx.railTask) left = right = '<span class="side"></span>';
     const head = `<header class="chat-h ${v.full ? 'full' : ''}">${left}<div class="mid"><div class="capsule"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
       ? `<div class="bub-a"><div class="${m.typing && i === log.length - 1 ? 'typing' : ''}">${esc(m.shown != null ? m.shown : m.text)}</div></div>`
@@ -421,6 +422,11 @@
     return ids.length ? { v: 'detail', id: ids[0], auto: true } : null;
   }
   const emptyOf = v => { const e = EMPTY[v.v] || EMPTY.chat; return { v: 'empty', t: e[0], s: e[1] }; };
+  /* A conversation opened from a thesis that takes the whole content (a page on narrow windows, or
+     expanded) is a task page: the rail drops the destinations and Create and carries the chat's own
+     controls — Back on top, Collapse under it when expanded; the content keeps only the Alva capsule
+     on top and the chat box at the bottom. */
+  function chatTask(P) { return !!(P.L.rail && P.panes.length === 1 && P.panes[0].view.v === 'chat' && P.panes[0].view.id !== 'tab' && !P.sheet); }
   function plan() {
     const P = planBase();
     P.OX = P.L.rail && P.L.rail.left ? 84 : 0;
@@ -494,7 +500,7 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, railTask: chatTask(P) };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
@@ -825,6 +831,12 @@
     const RX = r.left ? 24 : 12;   // controls sit 12 from the screen edge, centred under the camera
     const x = r.x + RX;
     let out = `<div class="rail" style="left:${r.x}px"></div>`;
+    if (chatTask(P)) {
+      const v = P.panes[0].view;
+      out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="closeChat" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;   // back to the thesis
+      if (v.full) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top + 62}px" data-act="foldChat" aria-label="Restore page and conversation">${I('foldd-l')}</button>`;
+      return out;
+    }
     if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
     out += `<button class="rail-btn rail-create" style="left:${x}px;bottom:${r.bottom}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
     const ti = TABS.findIndex(([id]) => id === S.tab), above = r.bottom + 48 + 14;
