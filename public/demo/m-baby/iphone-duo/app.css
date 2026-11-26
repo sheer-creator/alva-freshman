@@ -708,3 +708,26 @@ span.exch { background: var(--br07); }
 /* rail glyphs at 24 in 48 controls (back chevron's optical weight; about half the control, as iOS does) */
 .rail-tabs .ic-30, .rail-create .ic-30, .rail-tabmin .ic-30 { width: 24px; height: 24px; }
 .fab .ic-30 { width: 28px; height: 28px; }
+
+/* ── Tab Bar · arrangement by window width (Duo / phone; Apple template: tabs 400, ＋ 62, row 62, bottom 21)
+   A  < 378    tabs span the row (left / right 20); ＋ floats above it at the right (12 above the bar)
+   B  378–587  one row: tabs from the left margin to 12 before ＋; ＋ at the right (20)
+   C  588–679  tabs at their natural 400, centred on the window; ＋ at the right
+   D  ≥ 680    as C, each tab icon + label side by side (120 each, group 488)
+   Breakpoints: B needs 20 + 264 (4 × 64 + 8, the narrowest tabs) + 12 + 62 + 20 = 378;
+   C needs the centred 400 to clear ＋: 400 + 2 × (62 + 12 + 20) = 588; D: 488 + 188 = 676 → 680. */
+.tabbar { --item: 98px; left: 50%; transform: translateX(-50%); width: 400px; height: 62px; padding: 4px; }
+.tabbar button { width: var(--item) !important; margin-right: 0 !important; }
+.tabbar .tab-lens { left: calc(4px + var(--ti, 0) * var(--item)); width: var(--item); transition: left .42s cubic-bezier(.32,.72,0,1); }
+.fab { right: 20px; bottom: 21px; width: 62px; height: 62px; }
+@media (min-width: 680px) {
+  .tabbar { --item: 120px; width: 488px; }
+  .tabbar button { flex-direction: row; justify-content: center; align-items: center; padding-top: 0; gap: 6px; font-size: 12px; line-height: 16px; }
+}
+@media (max-width: 587px) {
+  .tabbar { left: 20px; transform: none; width: calc(100vw - 114px); --item: calc((100vw - 122px) / 4); }
+}
+@media (max-width: 377px) {
+  .tabbar { width: calc(100vw - 40px); --item: calc((100vw - 48px) / 4); }
+  .fab { bottom: 95px; }
+}
