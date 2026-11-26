@@ -218,17 +218,18 @@
     const fromThesis = v.id !== 'tab';
     const log = S.chats[v.id] || (S.chats[v.id] = [{ who: 'a', text: D.greeting.join('\n') }]);
     let left = '<span class="side"></span>', right = '<span class="side"></span>';
-    /* no chat-history button on the Alva page (review 2026-11-25; the Duo Figma frames still show one) */
-    if (fromThesis && ctx.chatMode === 'tile') left = `<button class="side glass-rail" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;   // the drawer has no Close: tap the dimmed page, or expand first
-    if (fromThesis && v.full) {
-      left = `<button class="side glass-rail" data-act="closeChat" aria-label="Close Ask Alva">${I('close-l1')}</button>`;
-      right = `<button class="side glass-rail" data-act="foldChat" aria-label="Restore page and conversation">${I('foldd-l')}</button>`;
-    } else if (fromThesis && ctx.chatMode !== 'page') right = `<button class="side glass-rail" data-act="expandChat" aria-label="Expand conversation">${I('unfold-l')}</button>`;
-    if (!fromThesis) left = `<button class="side glass-rail" data-act="toast" data-id="Chat history is not part of this demo" aria-label="Chat history">${I('menu-l')}</button>`;
-    if (ctx.railTask) left = right = '<span class="side"></span>';
-    const drawer = fromThesis && ctx.chatMode === 'overlay' && !v.full;   // 11-26: the drawer's Alva sits on the left
-    if (drawer) { left = ''; if (ctx.railTask) right = ''; }
-    const head = `<header class="chat-h ${v.full ? 'full' : ''}${drawer ? ' drawer' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
+    const btn = (act, ic, label) => `<button class="side glass-rail" data-act="${act}" aria-label="${label}">${I(ic)}</button>`;
+    /* 11-26: a conversation from a thesis keeps Close beside Alva, both on the left (the drawer has no
+       Close: tap the dimmed page). Expand / Collapse sit on the right, or in the rail where the chat is
+       against it. The Alva tab page keeps Chat history; the rail takes it there. */
+    const page = ctx.chatMode === 'page' && !v.full;   // its own page on narrow windows: Back is in the rail
+    const lead = fromThesis && !page;
+    if (lead) {
+      left = ctx.chatMode === 'overlay' && !v.full ? '' : btn('closeChat', 'close-l1', 'Close Ask Alva');
+      right = ctx.railTask ? '' : v.full ? btn('foldChat', 'foldd-l', 'Restore page and conversation') : btn('expandChat', 'unfold-l', 'Expand conversation');
+    } else if (!fromThesis && !ctx.listBeside) left = btn('chatList', 'menu-l', 'Chat history');   // 11-26: top left, beside Alva, also next to a rail
+    if (page && ctx.railTask) left = right = '<span class="side"></span>';
+    const head = ctx.noHead ? '' : `<header class="chat-h ${v.full ? 'full' : ''}${lead ? ' lead' : ''}">${left}<div class="mid"><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></div>${right}</header>`;
     const msgs = `<div class="t-div">11:48 PM</div>` + log.map((m, i) => m.who === 'a'
       ? `<div class="bub-a"><div class="${m.typing && i === log.length - 1 ? 'typing' : ''}">${esc(m.shown != null ? m.shown : m.text)}</div></div>`
       : `<div class="bub-u">${esc(m.text)}</div>`).join('');
@@ -240,6 +241,24 @@
     }
     const box = `<div class="chatbox-f"><form class="chatbox" data-chat="${v.id}">${quote}<div class="in-row"><button type="button" class="sq" data-act="toast" data-id="Attachments">${I('add-l2', 'ic-16')}</button><textarea name="q" rows="1" autocomplete="off" placeholder="Ask Alva, hold to talk"></textarea><button type="button" class="sq voice" data-act="toast" data-id="Hold to talk">${I('voice-wave-l', 'ic-16')}</button><button type="submit" class="send" aria-label="Send">${I('arrow-up-l1', 'ic-16')}</button></div></form></div>`;
     return { chat: `<div class="chat">${head}<div class="chat-body">${msgs}</div>${box}</div>` };
+  }
+
+  /* Chat list (Figma A2 17318:27790): Alva on top, then the user's channels; New channel; search at the bottom.
+     11-26: on the inner screen the Alva tab shows it beside the conversation (book: one half each). */
+  const CHANNELS = [
+    { id: 'tab', name: 'Alva', time: '12m ago', text: 'Today is ready. Five updates across your theses.', alva: true },
+    { id: 'nvda', name: 'NVDA demand', time: '1h ago', text: 'A watchpoint you set was hit. I drafted an update to your thesis.', badge: 2 },
+    { id: 'ipo', name: 'Anthropic IPO', time: '1d ago', text: 'You: How much of the IPO is already in AMZN’s mark?' },
+    { id: 'hbm', name: 'HBM pricing', time: '3d ago', text: 'Which price series should I follow, spot or contract?' },
+  ];
+  function chatsView(v, ctx) {
+    const row = c => `<button class="ch-row${c.id === 'tab' ? ' on' : ''}" data-act="${c.id === 'tab' ? 'chatListClose' : 'toast'}" data-id="${c.id === 'tab' ? '' : 'Channels are not part of this demo'}">
+      <span class="ch-av">${c.alva ? '<img src="assets/icons/logo-portrait.svg" alt="">' : '<img src="assets/icons/logo-channel.svg" alt="">'}${c.badge ? `<i class="ch-badge">${c.badge}</i>` : ''}</span>
+      <span class="ch-main"><span class="ch-line"><b class="${c.alva ? 'm' : ''}">${esc(c.name)}</b><em>${c.time}</em></span><span class="ch-prev">${esc(c.text)}</span></span></button>`;
+    const head = '';   // 11-26: the window's Alva bar (≡ + Alva) sits above the list, so the list starts at 84
+    return { chat: `<div class="chats">${head}<div class="ch-list">${row(CHANNELS[0])}<p class="ch-sec">Channels</p>${CHANNELS.slice(1).map(row).join('')}
+      <button class="ch-new" data-act="toast" data-id="New channel is not part of this demo">${I('chat-new-l', 'ic-18')}New channel</button></div>
+      <div class="ch-search"><span>Search conversations</span></div></div>` };
   }
 
   /* All updates (Figma 16511:126971): header · version return · timeline */
@@ -407,6 +426,7 @@
       case 'feed': return feedView(v, ctx);
       case 'detail': return detailView(v, ctx);
       case 'chat': return chatView(v, ctx);
+      case 'chats': return chatsView(v, ctx);
       case 'search': return searchView(v, ctx);
       case 'profile': return profileView(v, ctx);
       case 'me': return meView(v, ctx);
@@ -434,20 +454,19 @@
      task — a full-content chat from a thesis: Back (+ Collapse when expanded), no tabs or Create.
      sheet — the drawer is modal: the rail shows only Close and Expand, above the scrim.
      tile — Ask beside a thesis, next to a right-hand rail: Close and Expand on top, tabs and Create stay.
-     root — the Alva tab page: Chat history on top, tabs and Create stay. */
+     (the Alva tab page keeps Chat history at its top left, beside Alva) */
   function railCtl(P) {
     const r = P.L.rail; if (!r) return null;
     const BTN = { close: ['closeChat', 'close-l1', 'Close Ask Alva'], expand: ['expandChat', 'unfold-l', 'Expand conversation'], fold: ['foldChat', 'foldd-l', 'Restore page and conversation'], hist: ['toast', 'menu-l', 'Chat history', 'Chat history is not part of this demo'] };
-    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.close, BTN.fold] : [] };
+    if (chatTask(P)) return { kind: 'task', full: !!P.panes[0].view.full, items: P.panes[0].view.full ? [BTN.fold] : [] };   // Close stays beside Alva
     if (P.sheet) return { kind: 'sheet', items: [BTN.expand] };   // 11-26: the drawer has no Close — Alva and Expand only
     const last = P.panes[P.panes.length - 1];
-    if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.close, BTN.expand] };
-    const root = P.panes.find(p => p.view.v === 'chat' && p.view.id === 'tab');
-    if (root && !P.railBack) return { kind: 'root', pos: root.pos, items: [BTN.hist] };
+    if (P.panes.length > 1 && !r.left && last.view.v === 'chat' && last.view.id !== 'tab') return { kind: 'tile', pos: last.pos, items: [BTN.expand]   /* Close stays beside Alva */ };
     return null;
   }
   function plan() {
     const P = planBase();
+    { const st = stack(); P.alvaRoot = st.length === 1 && st[0].v === 'chat' && st[0].id === 'tab'; P.canBeside = P.L.mode === 'two' || P.L.mode === 'book'; }
     P.OX = P.L.rail && P.L.rail.left ? 84 : 0;
     /* A rail that cannot hold everything (PiP: 473 tall, status on top) compresses the way the
        system's own bars do (HIG, iPhone Duo › compression): Back and Create keep their places and
@@ -495,11 +514,16 @@
       ] };
     }
     const book = L.mode === 'book';
-    if (t.v === 'chat' && t.full) { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }], railBack: true }; }
+    /* 11-26: a conversation filling the content keeps its header at the page's top left; only the messages and the box stay in the 600 column */
+    if (t.v === 'chat' && t.full) return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }], railBack: true };
     let left, right;
     if (st.length === 1) {
-      if (t.v === 'feed') { left = t; right = autoFirst() || emptyOf(t); }
+      if (t.v === 'chat' && S.listWide !== false) { left = { v: 'chats' }; right = t; }   // Alva tab: the chat list beside the conversation (open by default, ≡ closes it)
+      else if (t.v === 'chat' && book) { left = t; right = emptyOf(t); }
+      else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
+      else if (t.v === 'feed') { left = t; right = autoFirst() || emptyOf(t); }
       else if (book) { left = t; right = emptyOf(t); }
+      else if (t.v === 'chat') return { L, CW, panes: [{ view: t, x: 0, w: CW, pos: 'center', chatMode: 'page', narrow: true }] };
       else { const w = Math.min(600, CW); return { L, CW, panes: [{ view: t, x: (CW - w) / 2, w, pos: 'center', chatMode: 'page' }] }; }
     } else if (t.v === 'chat') { left = below; right = t; }        // Ask Alva sits beside the thesis it asks about
     else if (LIST_ROOTS.includes(st[0].v)) { left = st[0]; right = t; }   // the list stays; only the right column moves on
@@ -509,7 +533,7 @@
     const listSel = left === st[0] && LIST_ROOTS.includes(left.v) && st[1] ? st[1].id : null;
     let lw, rx, rw;
     if (book) { lw = 455.5; rx = 495.5; rw = CW - 495.5; }
-    else if (right.v === 'chat') { lw = 485; rx = 485; rw = CW - 485; }
+    else if (right.v === 'chat' && left.v !== 'chats') { lw = 485; rx = 485; rw = CW - 485; }
     else if (right.v === 'profile') { lw = 382; rx = 382.5; rw = CW - 383; }   // Figma: the profile column is 484, the last 0.5 belongs to the divider
     else { lw = 382; rx = 382; rw = CW - 382; }
     return { L, CW, railBack: t.v === 'updates' || (left === st[0] && st.length > 2), panes: [
@@ -522,7 +546,7 @@
     const L = P.L, padR = L.corner ? '140px' : null;
     const selected = pn.sel || (pn.pos === 'left' && P.panes[1] ? P.panes[1].view.id : null);
     const ctx = { w: pn.w, pos: pn.pos, selected, clamp: pn.pos === 'left', chatMode: pn.chatMode, askOpen: pn.askOpen, flushPlot: !!L.corner,
-      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
+      back: (P.inlineBack && pn.pos === 'main') || pn.leftBack, noHead: !!P.alvaRoot, listBeside: P.panes.some(q => q.view.v === 'chats'), railTask: chatTask(P) || (() => { const c = railCtl(P); return !!c && c.pos === pn.pos; })() };
     const out = renderView(pn.view, ctx);
     const k = keyOf(pn.view);
     /* right stroke of a content column: between list and detail, and (Figma: content | rail is the content's own right stroke) next to the rail, except a chat column */
@@ -530,8 +554,9 @@
     const edge = ((pn.pos === 'left' && P.panes.length > 1 && L.mode !== 'book') || (L.rail && !L.rail.left && lastCol && pn.view.v !== 'chat' && pn.x + pn.w === L.rail.x)) ? 'edge-r'
       : (L.rail && L.rail.left && pn.x === P.OX && pn.view.v !== 'chat') ? 'edge-l' : '';
     const vars = `${padR && (L.mode === 'book-v' ? pn.pos === 'left' : pn.pos !== 'left') ? `--pad-r:${padR};` : ''}${L.tabbar && depth === 1 ? '--box-b:100px;' : ''}${L.mode === 'book-v' && L.tabbar && depth === 1 && pn.pos === 'right' ? '--bar-b:100px;' : ''}`;
-    const style = `left:${pn.x}px;width:${pn.w}px;${pn.h != null ? `top:${pn.y}px;bottom:auto;height:${pn.h}px;` : ''}${vars}`;
-    const cls = `pane ${edge}`;
+    const under = P.alvaRoot && (pn.view.v === 'chats' || pn.view.v === 'chat' || pn.view.v === 'empty');   // below the window's Alva bar
+    const style = `left:${pn.x}px;width:${pn.w}px;${pn.h != null ? `top:${pn.y}px;bottom:auto;height:${pn.h}px;` : ''}${under ? 'top:84px;' : ''}${vars}`;
+    const cls = `pane ${edge}${pn.narrow && pn.w > 600 ? ' narrow' : ''}`;
     const dp = `data-pos="${pn.pos}" data-key="${esc(k)}"`;
     const html = (out.chat || out.empty)
       ? `<section class="${cls}" ${dp} style="${style}">${out.chat || out.empty}</section>`
@@ -566,6 +591,19 @@
     }
     if (L.rail) html += rail(P);
     if (L.tabbar && depth === 1) html += tabbar();
+    /* Chat list as an overlay where it is not beside the conversation (window narrower than 382 + 400, upright
+       Book excluded): like Mail on iPad in portrait, it slides over from the leading edge above a dimmed page;
+       tap the dimmed part to close. */
+    if (P.alvaRoot) {
+      /* 11-26: ≡ and Alva stay at the window's top left whatever sits below (one column or list | chat);
+         ≡ opens and closes the list */
+      const open = P.panes.some(q => q.view.v === 'chats') || (S.chatList && !P.canBeside);
+      if (S.chatList && !P.canBeside) {
+        const w = Math.min(382, P.CW - 56);
+        html += `<div class="scrim" data-act="chatListClose" style="top:84px"></div><section class="pane sheet-l" style="left:${P.OX}px;width:${w}px;top:84px">${chatsView({}, { w }).chat}</section>`;
+      }
+      html += `<header class="alva-bar${L.corner ? ' corner' : ''}" style="left:${P.OX}px;width:${P.CW}px"><button class="side glass-rail${open ? ' on' : ''}" data-act="chatList" aria-label="${open ? 'Hide chats' : 'Show chats'}" aria-pressed="${open}">${I('menu-l')}</button><div class="capsule glass-rail"><img src="assets/icons/logo-portrait.svg" alt="">Alva</div></header>`;
+    }
     if (S.pop) html += popover(P);
     if (S.toast) html += `<div class="toast" style="left:${P.OX + P.CW / 2}px">${esc(S.toast)}</div>`;
 
@@ -1095,11 +1133,13 @@
         if (fromList(el)) { st.length = 1; st.push({ v: 'profile', id }); } else push({ v: 'profile', id });
         break;
       case 'back': doBack(); break;
+      case 'chatList': { const Pn = plan(); if (Pn.canBeside) S.listWide = S.listWide === false; else S.chatList = !S.chatList; break; }
+      case 'chatListClose': S.chatList = false; break;
       case 'closeChat': if (st[st.length - 1].v === 'chat') st.pop(); break;
       case 'foldChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: false }); break;
       case 'expandChat': st[st.length - 1] = Object.assign({}, st[st.length - 1], { full: true }); break;
       case 'tabsOpen': S.tabsOpen = true; break;
-      case 'tab': if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
+      case 'tab': S.chatList = false; if (S.tabsOpen && S.tab === id) { S.tabsOpen = false; break; } S.tabsOpen = false; if (S.tab === id) S.stacks[id] = S.stacks[id].slice(0, 1); S.tab = id; break;
       case 'feedTab': S.feedTab = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'topic': S.topic = id; S.stacks.foryou = [{ v: 'feed' }]; break;
       case 'period': S.period = id; S.stacks.foryou = [{ v: 'feed' }]; break;
