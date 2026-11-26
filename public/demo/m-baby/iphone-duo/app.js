@@ -255,7 +255,10 @@
     const row = c => `<button class="ch-row${c.id === 'tab' ? ' on' : ''}" data-act="${c.id === 'tab' ? 'chatListClose' : 'toast'}" data-id="${c.id === 'tab' ? '' : 'Channels are not part of this demo'}">
       <span class="ch-av">${c.alva ? '<img src="assets/icons/logo-portrait.svg" alt="">' : '<img src="assets/icons/logo-channel.svg" alt="">'}${c.badge ? `<i class="ch-badge">${c.badge}</i>` : ''}</span>
       <span class="ch-main"><span class="ch-line"><b class="${c.alva ? 'm' : ''}">${esc(c.name)}</b><em>${c.time}</em></span><span class="ch-prev">${esc(c.text)}</span></span></button>`;
-    const head = '';   // 11-26: the window's Alva bar (≡ + Alva) sits above the list, so the list starts at 84
+    /* 11-26: beside the conversation the window's Alva bar (≡ + Alva) sits above the list, so the list starts at 84.
+       When the conversation has moved aside (narrow windows), its ≡ goes with it — so the list keeps a ≡ of its own
+       in the same place, at the window's top left: tap ≡ to open, tap ≡ in the same spot to close. */
+    const head = ctx.under ? `<header class="ch-head"><button class="side glass-rail on" data-act="chatListClose" aria-label="Hide chats" aria-pressed="true">${I('menu-l')}</button><span class="ch-title">Chats</span></header>` : '';
     return { chat: `<div class="chats">${head}<div class="ch-list">${row(CHANNELS[0])}<p class="ch-sec">Channels</p>${CHANNELS.slice(1).map(row).join('')}
       <button class="ch-new" data-act="toast" data-id="New channel is not part of this demo">${I('chat-new-l', 'ic-18')}New channel</button></div>
       <div class="ch-search"><span>Search conversations</span></div></div>` };
@@ -605,7 +608,7 @@
         /* like the phone (Figma A2): the conversation page moves aside — bar, chat and Tab Bar together, rounded 40,
            under a white veil — and the list lies underneath it on the left; tap the veil to go back */
         push = P.push;
-        html = `<section class="pane ch-under" style="left:${P.OX}px;width:${push}px;top:0">${chatsView({}, { w: push }).chat}</section>` + html;
+        html = `<section class="pane ch-under" style="left:${P.OX}px;width:${push}px;top:0">${chatsView({}, { w: push, under: true }).chat}</section>` + html;
         veil = `<div class="push-veil" data-act="chatListClose" style="left:${P.OX}px;width:${P.CW}px"></div>`;
       }
       /* 11-26: list | chat — the divider runs the full height, through the window bar */
