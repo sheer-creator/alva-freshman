@@ -702,3 +702,9 @@ span.exch { background: var(--br07); }
 .v-grid .pic-dur { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 11px; }
 .v-grid .pic-dur .ic { color: #fff; }
 .v-info .v-grid { flex: none; padding: 2px; }
+
+/* Duo: the selected destination's icon (and Tab Bar label) is brand green */
+.rail-tabs button.on .ic, .rail-tabmin .ic, .tabbar button.on .ic, .tabbar button.on span { color: var(--m1) !important; }
+/* rail glyphs at 24 in 48 controls (back chevron's optical weight; about half the control, as iOS does) */
+.rail-tabs .ic-30, .rail-create .ic-30, .rail-tabmin .ic-30 { width: 24px; height: 24px; }
+.fab .ic-30 { width: 28px; height: 28px; }

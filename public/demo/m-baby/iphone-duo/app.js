@@ -815,25 +815,21 @@
   const TABS = [['foryou', 'for-you', 'For You'], ['alva', 'chat-ai', 'Alva'], ['search', 'search', 'Search'], ['me', 'me', 'Me']];
   const tabIcon = (n, on) => n === 'search' ? (on ? 'search-f1' : 'search-l1') : n === 'chat-ai' ? (on ? 'chat-ai-f' : 'chat-ai-l') : n + (on ? '-f' : '-l');
   function rail(P) {
+    /* The rail, top to bottom: (camera) → status → Back … the tab group → Create.
+       Only Back sits up top; the destinations and Create share the bottom group, Create last,
+       like the Tab Bar's ＋ beside the tabs. The selected tab's icon is brand green (m1). */
     const r = P.L.rail;
     const RX = r.left ? 24 : 12;   // controls sit 12 from the screen edge, centred under the camera
-    let y = r.top, out = `<div class="rail" style="left:${r.x}px"></div>`;
-    if (r.flip) {
-      let b = r.bottom;
-      out += `<button class="rail-btn rail-create" style="left:${r.x + RX}px;bottom:${b}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
-      if (P.railBack) { b += 62; out += `<button class="rail-btn glass-rail" style="left:${r.x + RX}px;bottom:${b}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`; }
-      const ti = TABS.findIndex(([id]) => id === S.tab);
-      out += `<nav class="rail-tabs glass-rail" style="left:${r.x + RX}px;top:${r.top}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
-      return out;
-    }
-    if (P.railBack) { out += `<button class="rail-btn glass-rail" style="left:${r.x + RX}px;top:${y}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`; y += 62; }
-    out += `<button class="rail-btn rail-create" style="left:${r.x + RX}px;top:${y}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
-    const ti = TABS.findIndex(([id]) => id === S.tab);
+    const x = r.x + RX;
+    let out = `<div class="rail" style="left:${r.x}px"></div>`;
+    if (P.railBack) out += `<button class="rail-btn glass-rail" style="left:${x}px;top:${r.top}px" data-act="back" aria-label="Back"><img src="assets/icons/chevron-back48.svg" width="48" height="48" alt=""></button>`;
+    out += `<button class="rail-btn rail-create" style="left:${x}px;bottom:${r.bottom}px" data-act="toast" data-id="Create a thesis is not part of this demo" aria-label="Create">${I('add-l2', 'ic-30')}</button>`;
+    const ti = TABS.findIndex(([id]) => id === S.tab), above = r.bottom + 48 + 14;
     if (P.tabsMin && !S.tabsOpen) {
       const cur = TABS[ti];
-      return out + `<button class="rail-btn glass-rail rail-tabmin" style="left:${r.x + RX}px;bottom:${r.bottom}px" data-act="tabsOpen" aria-label="${cur[2]} — show all tabs">${I(tabIcon(cur[1], true), 'ic-30')}</button>`;
+      return out + `<button class="rail-btn glass-rail rail-tabmin" style="left:${x}px;bottom:${above}px" data-act="tabsOpen" aria-label="${cur[2]} — show all tabs">${I(tabIcon(cur[1], true), 'ic-30')}</button>`;
     }
-    out += `<nav class="rail-tabs${P.tabsMin ? ' rail-tabs-pop' : ''} glass-rail" style="left:${r.x + RX}px;bottom:${r.bottom}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
+    out += `<nav class="rail-tabs${P.tabsMin ? ' rail-tabs-pop' : ''} glass-rail" style="left:${x}px;bottom:${above}px"><span class="tab-lens" data-tab="${S.tab}" style="top:${2 + ti * 50}px"></span>${TABS.map(([id, n]) => `<button class="${S.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}" aria-label="${id}">${I(tabIcon(n, S.tab === id), 'ic-30')}</button>`).join('')}</nav>`;
     return out;
   }
   function tabbar() {
