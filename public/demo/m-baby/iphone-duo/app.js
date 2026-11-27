@@ -1631,7 +1631,10 @@
     });
     /* controls: the vertical column where Alva has one, else a top bar */
     const col = V.el.querySelector('.v-col'), bar = V.el.querySelector('.v-bar'), head = V.el.querySelector('.v-head');
-    const yb = G.H - (G.r ? G.r.bottom : 24) - 48;   // bottom row: the rail's bottom inset, else 24 — centre line H − 48
+    /* 11-27: held upright like a book (tabletop), the top half is only for looking; every control moves to the
+       lower half, in one row along its top (centre line fold + 48): ✕ · name · ··· / Download, the grid below */
+    const tabRow = G.tab ? 495.5 + 24 : null;
+    const yb = G.tab ? tabRow : G.H - (G.r ? G.r.bottom : 24) - 48;   // bottom row: the rail's bottom inset, else 24 — centre line H − 48
     col.hidden = false;
     const cl = col.querySelector('[data-v="close"]');
     if (G.r) {
@@ -1646,12 +1649,12 @@
     } else {
       /* horizontal bars: Close in the top bar; Download in the bottom-right corner, Delete to its left */
       bar.hidden = false; cl.hidden = true;
-      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });
+      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + (G.tab ? 0 : G.padR)) + 'px', top: (G.tab ? tabRow : 24) + 'px' });
       const dx = G.W - 20 - 48;
       const at = (v, x) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: x + 'px', top: yb + 'px' }); };
       at('download', dx); if (V.own) at('more', dx - 60);
-      const side = Math.max(20 + 48 + 12, 20 + G.padR);
-      Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' });
+      const side = G.tab ? 20 + 48 + 12 + 60 : Math.max(20 + 48 + 12, 20 + G.padR);
+      Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: (G.tab ? tabRow : 24) + 'px' });
     }
     /* 11-27: scroll edge effect (HIG · Scroll views, iOS 26 soft style) — a variable blur that fades into the image
        wherever controls sit over it: along the top (status bar, name, ✕), along the bottom (scrubber, Download / ···),
@@ -1660,13 +1663,13 @@
       const top = V.el.querySelector('.e-top'), bot = V.el.querySelector('.e-bot'), rl = V.el.querySelector('.e-rail');
       const x0 = a.x, w = a.w, y1 = G.info ? G.ca.y1 : G.H;
       Object.assign(top.style, { left: x0 + 'px', width: w + 'px', top: '0px', height: '84px' });
-      bot.hidden = !!G.info && !G.tab; Object.assign(bot.style, { left: x0 + 'px', width: w + 'px', top: (y1 - 96) + 'px', height: '96px' });
+      bot.hidden = !!G.info;   // folded: no controls over the image's bottom edge Object.assign(bot.style, { left: x0 + 'px', width: w + 'px', top: (y1 - 96) + 'px', height: '96px' });
       rl.hidden = !G.r;
       if (G.r) { const rx = G.r.left ? 0 : G.r.x; Object.assign(rl.style, { left: rx + 'px', width: '84px', top: '0px', height: G.H + 'px' }); rl.classList.toggle('left', !!G.r.left); }
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.info;
-    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingTop: (G.tab ? 24 : 84) + 'px', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
+    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingTop: (G.tab ? 24 + 48 + 16 : 84) + 'px', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
     vTrack(anim);
     vZoomApply(false);
     vPost();
