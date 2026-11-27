@@ -770,9 +770,14 @@ span.exch { background: var(--br07); }
 /* Ask drawer: no shadow (the scrim separates it); it covers the rail column on the right */
 .sheet { box-shadow: none !important; }
 .sheet { clip-path: none !important; }
-.sheet.has-ext { box-shadow: var(--ext) 0 0 0 var(--b0) !important; }   /* the drawer's own colour, carried over the rail column */
+.sheet.has-ext { box-shadow: none !important; }
+/* 11-27: where the drawer runs on over the rail (rail on the right), the drawer's surface includes the rail column:
+   messages and the input stay in the 440, and the drawer's top-right corner — Expand — sits in the rail's control
+   column (x +12 from the rail's edge, centre line y48), level with Alva */
+.sheet.has-ext .chat-body, .sheet.has-ext .chatbox-f { margin-right: var(--ext); }
+.sheet.has-ext .chat-h { padding-right: calc(var(--ext) - 60px); }
 .sheet.has-ext { animation-name: sheetInExt; }
-@keyframes sheetInExt { from { transform: translateX(calc(100% + var(--ext, 0px))); } }
+@keyframes sheetInExt { from { transform: translateX(100%); } }
 
 /* Chat list (Figma A2 17318:27790) — the Alva tab's left column on the inner screen (11-26) */
 .chats { display: flex; flex-direction: column; height: 100%; }
