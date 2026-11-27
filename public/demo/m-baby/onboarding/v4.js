@@ -28,6 +28,8 @@ const STD = 'cubic-bezier(.4,0,.2,1)';
 const A = path => new URL(path, import.meta.url).href;
 const EASE = 'cubic-bezier(.22,1,.36,1)';
 const EASE_IO = 'cubic-bezier(.65,0,.35,1)';
+const SOFT = EASE_IO;                         // = easeInOut (INOUT3), the stage 1 list scroll: one feel for the whole Landing
+const SOFT_OUT = 'cubic-bezier(.33,1,.68,1)';  // its settling half (ease-out cubic), for things arriving
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const easeOut = t => 1 - Math.pow(1 - t, 4);
 const easeInOut = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;   // INOUT3
@@ -107,15 +109,17 @@ function stageSignal(s, avatar) {
 }
 const alvaMark = () => `<span class="v4-stance-alva"><img src="${IMG.alva}" alt="Alva"></span>`;
 
-function copySwap(holder, title, text) {
+function copySwap(holder, title, text, dir = 1) {
   const old = holder.querySelector('.v4-copy-text:not(.is-out)');
   if (old && old.querySelector('h1').textContent === title) return;
   const next = node('div', 'v4-copy-text', `<h1>${esc(title)}</h1><p>${esc(text)}</p>`);
   holder.append(next);
   if (!old) return;
+  // Step change: the new copy slides in from the right (from the left when going back);
+  // the old copy slides out the other way.
   old.classList.add('is-out');
-  old.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: STD, fill: 'forwards' }).finished.catch(() => {}).finally(() => old.remove());
-  next.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: 80, easing: EASE, fill: 'backwards' });
+  old.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-48 * dir}px)` }], { duration: 260, easing: STD, fill: 'forwards' }).finished.catch(() => {}).finally(() => old.remove());
+  next.animate([{ opacity: 0, transform: `translateX(${64 * dir}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 60, easing: EASE, fill: 'backwards' });
 }
 
 function tween(duration, ease, step, alive = () => true) {
@@ -138,15 +142,31 @@ const LANDING = [
   { title: 'Alva helps you trade the thesis.', text: 'It builds positions from your thesis, suggests rebalances as things change, and tracks the simulated return.' },
   { title: 'Find thesis that make money.', text: 'The Leaderboard ranks theses by simulated return, so you can find great ideas and the people behind them.' },
 ];
-const SEGMENT = 5000;   // autoplay: each segment ~5s, then the next; after the third, back to the first
+const SEGMENTS = [5000, 7400, 6200];   // autoplay: ~5s a segment (the first carries the list scroll), then the next; after the third, back to the first
 const BOARD = [
   { name: 'Mickie', avatar: IMG.mickie, title: 'Nvidia Could Be Cisco 2000: Great Business, Poor Stock', tickers: [['NVDA', 'down']], ret: '+17.8%' },
   { name: 'harryz', title: 'Semis face near-term multiple compression despite strong demand', tickers: [['SMH', 'down']], ret: '+11.9%' },
   { name: 'rosy_a', title: 'TSLA: bearish in the short term', tickers: [['TSLA', 'down']], ret: '+11.7%' },
   { name: 'Mickie', avatar: IMG.mickie, title: 'NVDA Demand Cracks First at the Neoclouds', tickers: [['NVDA', 'down'], ['CRWV', 'down']], ret: '+11.0%' },
-];
+  { name: 'kevin_w', title: 'AMD rerates as MI400 ramps', tickers: [['AMD', 'up']], ret: '+9.8%' },
+  { name: 'ttrader', title: 'Memory upcycle runs through 2026', tickers: [['MU', 'up']], ret: '+9.1%' },
+  { name: 'harryz', title: 'META capex pays back through ads', tickers: [['META', 'up']], ret: '+8.6%' },
+  { name: 'rosy_a', title: 'Apple’s AI cycle is slower than priced', tickers: [['AAPL', 'down']], ret: '+7.9%' },
+  { name: 'kevin_w', title: 'NAND pricing turns for SanDisk', tickers: [['SNDK', 'up']], ret: '+7.2%' },
+  { name: 'ttrader', title: 'Search moat holds through AI', tickers: [['GOOGL', 'up']], ret: '+6.5%' },
+  { name: 'Mickie', avatar: IMG.mickie, title: 'TSMC pricing power holds into N2', tickers: [['TSM', 'up']], ret: '+6.1%' },
+  { name: 'harryz', title: 'Azure growth re-accelerates', tickers: [['MSFT', 'up']], ret: '+5.8%' },
+  { name: 'rosy_a', title: 'AWS margins expand on custom silicon', tickers: [['AMZN', 'up']], ret: '+5.4%' },
+  { name: 'kevin_w', title: 'Nasdaq leadership narrows further', tickers: [['QQQ', 'down']], ret: '+5.0%' },
+  { name: 'ttrader', title: 'Robotaxi optionality is underpriced', tickers: [['TSLA', 'up']], ret: '+4.7%' },
+  { name: 'Mickie', avatar: IMG.mickie, title: 'HBM supply stays tight through 2026', tickers: [['MU', 'up']], ret: '+4.3%' },
+  { name: 'harryz', title: 'Ad market holds up better than feared', tickers: [['META', 'up']], ret: '+3.9%' },
+  { name: 'rosy_a', title: 'Edge AI lifts the iPhone cycle', tickers: [['AAPL', 'up']], ret: '+3.6%' },
+  { name: 'kevin_w', title: 'Datacenter GPUs stay supply-bound', tickers: [['NVDA', 'up']], ret: '+3.2%' },
+  { name: 'ttrader', title: 'AMD takes share in server CPUs', tickers: [['AMD', 'up']], ret: '+2.9%' },
+];  // sample rows for the demo
 const CARD_TOP = 131;   // stage cards start here (Figma: x 24, y 131, w 345)
-const G1_TOP = -210;    // G1 · the docked column (card scrolled up, Signals at y 195)
+const SIGNALS_Y = 195;  // the thesis page scrolled down: Signals title at y 195
 const LIST_SCALE = .88;  // G3a · the list the card folds back into
 
 function renderLanding(api) {
@@ -154,23 +174,34 @@ function renderLanding(api) {
   const root = node('section', 'page v4-full v4-landing');
   root.setAttribute('aria-label', 'What Alva does');
   const signals = api.data.signals.slice(0, 3);
-  const returnLine = (() => {
-    // Thesis return / Version chart (313 × 40 inside the card's 16 inset): six
-    // segments, earlier updates hollow, latest filled, Now dot at the end.
-    const xs = [0, 16.98, 31.83, 48.81, 63.93, 80.9, 100], ys = [34.6, 31.2, 31.9, 21.2, 24.2, 15.8, 7.5];
-    const W = 313, pts = xs.map((x, i) => [x / 100 * W, ys[i]]);
-    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1]}`).join('');
-    const dots = pts.slice(1).map((p, i) => i === pts.length - 2 ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1]}" r="3" class="v4-dot-now"/>` : `<circle cx="${p[0].toFixed(1)}" cy="${p[1]}" r="2.5" class="${i === pts.length - 3 ? 'v4-dot-latest' : 'v4-dot-earlier'}"/>`).join('');
-    return `<svg class="v4-vchart" viewBox="0 0 ${W} 40" width="${W}" height="40" aria-hidden="true"><defs><linearGradient id="v4vc" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="v4-vchart-area" d="${d}L${W} 40L0 40Z" fill="url(#v4vc)"/><path class="v4-vchart-line" d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" pathLength="1"/>${dots}</svg>`;
-  })();
+  // Thesis return / Version chart (313 × 40 inside the card's 16 inset): six segments, earlier
+  // updates hollow, latest filled, Now dot at the end. retSvg(p) draws the series as it was
+  // after p segments of time (0 < p ≤ 6): only the points so far, always spread across the full
+  // width and fitted to the full height, the newest one moving in as the Now dot.
+  const RX = [0, 16.98, 31.83, 48.81, 63.93, 80.9, 100], RY = [34.6, 31.2, 31.9, 21.2, 24.2, 15.8, 7.5], RW = 313;
+  const RV = RY.map(y => RY[0] - y), TOP = Math.min(...RY), BOT = Math.max(...RY), SEG = RX.length - 1;
+  const retValue = p => { const i = Math.min(SEG - 1, Math.floor(p)), f = p - i; return RV[i] + (RV[i + 1] - RV[i]) * f; };
+  function retSvg(p) {
+    p = Math.max(.02, Math.min(SEG, p));
+    const n = Math.floor(p + 1e-6), head = p - n > 1e-6;
+    const xsF = RX.map(x => x / 100);              // the real spacing, re-normalised to what is shown
+    const span = n >= SEG ? 1 : xsF[n] + (xsF[Math.min(SEG, n + 1)] - xsF[n]) * (p - n);
+    const pts = [];
+    for (let i = 0; i <= n; i++) pts.push([xsF[i], RV[i]]);
+    if (head) pts.push([span, retValue(p)]);
+    const lo = Math.min(...pts.map(q => q[1])), hi = Math.max(...pts.map(q => q[1])), range = hi - lo || 1;
+    const P = pts.map(([x, v]) => [x / span * RW, hi === lo ? BOT : BOT - (v - lo) / range * (BOT - TOP)]);
+    const d = P.map((q, i) => `${i ? 'L' : 'M'}${q[0].toFixed(1)} ${q[1].toFixed(2)}`).join('');
+    const last = P.length - 1;
+    const dots = P.slice(1).map((q, j) => { const i = j + 1;
+      return i === last ? `<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(2)}" r="3" class="v4-dot-now"/>`
+        : `<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(2)}" r="2.5" class="${i === last - 1 ? 'v4-dot-latest' : 'v4-dot-earlier'}"/>`; }).join('');
+    return `<defs><linearGradient id="v4vc" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="v4-vchart-area" d="${d}L${RW} 40L0 40Z" fill="url(#v4vc)"/><path class="v4-vchart-line" d="${d}" fill="none" stroke="currentColor" stroke-width="1.5"/>${dots}`;
+  }
+  const returnLine = `<svg class="v4-vchart" viewBox="0 0 ${RW} 40" width="${RW}" height="40" aria-hidden="true">${retSvg(SEG)}</svg>`;
   const sigAvatars = signals.map(s => api.asset(s.avatar));
   root.innerHTML = `
     <div class="v4-stage" aria-hidden="true">
-      <div class="v4-layer v4-g1"><div class="v4-col">
-        ${feedCard({ ...P.gavin, cls: 'v4-stage-card v4-g1-card' })}
-        <h2 class="v4-signals-title">Signals</h2>
-        ${signals.map((s, i) => stageSignal(s, sigAvatars[i])).join('')}
-      </div></div>
       <div class="v4-layer v4-g2"><div class="v4-col">
         <article class="v4-stage-card v4-dcard">
           <div class="v4-dc-author"><div class="v4-id">${P.gavin.avatar}<div class="v4-id-copy"><strong>Gavin Baker</strong><span>Managing Partner &amp; CIO, Atreides</span></div><time>Jul 13</time></div></div>
@@ -180,14 +211,19 @@ function renderLanding(api) {
               <p class="v4-body">Cheaper models would increase the return on AI spending and drive more token demand, redistributing margin dollars toward AI infrastructure providers. [1]</p>
               <div class="v4-chart"><img src="${IMG.chartGoogl}" alt=""></div></div></div>
         </article>
+        <h2 class="v4-signals-title">Signals</h2>
+        ${signals.map((s, i) => stageSignal(s, sigAvatars[i])).join('')}
       </div></div>
       <div class="v4-layer v4-g3a"><div class="v4-col">
+        ${[P.sam, P.satya, P.gavin, P.sam, P.satya, P.gavin, P.sam, P.satya, P.gavin, P.sam, P.satya, P.gavin, P.sam, P.gavin].map(x => feedCard({ ...x, cls: 'v4-stage-card is-above' })).join('')}
         ${feedCard({ ...P.sam, cls: 'v4-stage-card is-above' })}
         ${feedCard({ ...P.satya, cls: 'v4-stage-card is-above' })}
         ${feedCard({ ...P.gavin, cls: 'v4-stage-card is-focus' })}
         ${feedCard({ ...P.sam, cls: 'v4-stage-card is-below' })}
       </div></div>
       <div class="v4-layer v4-board"><div class="v4-col">
+        <div class="v4-board-head"><span class="v4-trophy"><img src="${ICON.rank}" alt=""></span>
+          <div class="v4-board-title"><h2>Leaderboard</h2></div></div>
         <div class="v4-board-rows">${BOARD.map((row, i) => `<div class="v4-stage-card v4-board-row"><b class="v4-rank">${i + 1}</b><div class="v4-board-main"><div class="v4-board-who">${row.avatar ? `<img src="${row.avatar}" alt="">` : '<i class="v4-chip-blank is-avatar"></i>'}<span>${esc(row.name)}</span></div><strong>${esc(row.title)}</strong><div class="v4-board-chips">${row.tickers.map(t => chip(t[0], t[1])).join('')}</div></div><b class="v4-board-ret">${row.ret}</b></div>`).join('')}</div>
       </div></div>
       <div class="v4-stage-blur"></div>
@@ -198,87 +234,132 @@ function renderLanding(api) {
       <div class="v4-prog" role="tablist" aria-label="Steps">${LANDING.map((_, i) => `<button type="button" role="tab" aria-label="Step ${i + 1} of 3" data-seg="${i}"><i><b></b></i></button>`).join('')}</div></div>
     <footer class="v4-land-dock"><button class="setup-next v4-next" type="button">Get started</button></footer>`;
   const stage = root.querySelector('.v4-stage');
-  const g1 = root.querySelector('.v4-g1'), g2 = root.querySelector('.v4-g2'), g3a = root.querySelector('.v4-g3a'), board = root.querySelector('.v4-board');
-  const g1col = g1.querySelector('.v4-col'), g1card = g1.querySelector('.v4-g1-card'), sigs = [...g1.querySelectorAll('.v4-ssig'), g1.querySelector('.v4-signals-title')];
-  const g3col = g3a.querySelector('.v4-col');
+  const g2 = root.querySelector('.v4-g2'), g3a = root.querySelector('.v4-g3a'), board = root.querySelector('.v4-board');
+  const g2col = g2.querySelector('.v4-col'), dcard = g2.querySelector('.v4-dcard'), sigs = [g2.querySelector('.v4-signals-title'), ...g2.querySelectorAll('.v4-ssig')];
+  const g3col = g3a.querySelector('.v4-col'), focus = g3a.querySelector('.is-focus');
+  const num = root.querySelector('.v4-ret-num');
+  const chartAt = p => { root.querySelector('.v4-vchart').innerHTML = retSvg(p); };
+  const restoreChart = () => chartAt(SEG);
   const holder = root.querySelector('.v4-copy-holder'), next = root.querySelector('.v4-next');
   const bars = [...root.querySelectorAll('.v4-prog b')];
   let pageIndex = 0, token = 0, alive = true, timer = 0, copyIndex = 0;
   copySwap(holder, LANDING[0].title, LANDING[0].text);
   const setY = (col, y) => { col.style.transform = `translateY(${y}px)`; };
+  const listAt = y => { g3col.style.transform = `translateY(${y}px) scale(${LIST_SCALE})`; };
+  const listRest = () => CARD_TOP - focus.offsetTop * LIST_SCALE;          // the focus card sits at y 131
+  const sigY = () => SIGNALS_Y - CARD_TOP - sigs[0].offsetTop;            // detail scrolled down: Signals title at y 195
   const valid = t => alive && t === token;
   const running = () => stage.getAnimations({ subtree: true });
+  const show1 = layer => [g2, g3a, board].forEach(l => { l.hidden = l !== layer; l.style.opacity = ''; l.style.filter = ''; l.style.transform = ''; });
 
-  // Final state of each page, without motion: also what an interrupted page snaps to.
+  // End state of each segment, without motion: what an interrupted or skipped segment snaps to.
   function settle(index) {
     running().forEach(a => a.cancel());
-    g1.hidden = index !== 0; g2.hidden = index !== 1; g3a.hidden = true; board.hidden = index !== 2;
-    [g1, g2, g3a, board].forEach(l => { l.style.opacity = ''; l.style.filter = ''; l.style.transform = ''; });
-    g1card.style.opacity = ''; sigs.forEach(s => { s.style.opacity = ''; });
-    root.querySelector('.v4-ret-num').textContent = '+12.4%';
-    setY(g1col, G1_TOP);
+    sigs.forEach(s => { s.style.opacity = ''; });
+    num.textContent = '+12.4%';
+    restoreChart();
+    if (index === 0) { show1(g3a); listAt(listRest()); }
+    else if (index === 1) { show1(g2); setY(g2col, sigY()); }
+    else show1(board);
   }
 
-  async function playG1(t) {
-    g1.hidden = false; g2.hidden = true; g3a.hidden = true; board.hidden = true;
-    setY(g1col, CARD_TOP);
-    if (api.reduced()) return settle(0);
+  // 1 · The thesis list scrolls by slowly.
+  async function playP1(t) {
+    show1(g3a);
+    const to = listRest();
+    const above = [...g3a.querySelectorAll('.is-above')].slice(-2)[0];
+    const from = CARD_TOP - above.offsetTop * LIST_SCALE;               // starts two cards above the focus card
+    listAt(from);
+    if (api.reduced()) return listAt(to);
+    await tween(4200, easeInOut, k => listAt(from + (to - from) * k), () => valid(t));
+  }
+
+  // 2 · One card opens into its thesis page: the return is the moment (count-up, line draws),
+  // then the page moves down to the signals Alva found for it.
+  async function playP2(t) {
+    if (api.reduced()) return settle(1);
+    g2.hidden = false; setY(g2col, 0);
     sigs.forEach(s => { s.style.opacity = '0'; });
-    // The card rises from below, grows to size and docks.
-    await g1card.animate([{ opacity: 0, transform: 'translateY(360px) scale(.88)' }, { opacity: 1, offset: .35 }, { opacity: 1, transform: 'none' }],
-      { duration: 760, easing: EASE, fill: 'backwards' }).finished.catch(() => {});
-    if (!valid(t)) return;
-    await sleep(260); if (!valid(t)) return;
-    // The stage scrolls on; the signals come in one after another under it.
-    const scroll = tween(1100, easeInOut, k => setY(g1col, CARD_TOP + (G1_TOP - CARD_TOP) * k), () => valid(t));
-    [sigs.at(-1), ...sigs.slice(0, -1)].forEach((s, i) => {
-      s.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 80 + i * 60 + 360, easing: EASE, fill: 'backwards' });
+    num.textContent = '+0.0%'; chartAt(0);               // the return starts from its first moments
+    // The list card opens into the thesis page in one motion (the reverse of stage 3's fold):
+    // .88 → 1 from the card's own top, the card's content cross-fading into the page, while
+    // the neighbours move away above and below. Same soft in-out as the stage 1 list scroll.
+    const OPEN = { duration: 900, easing: SOFT };
+    g2.style.transformOrigin = `50% ${CARD_TOP}px`;
+    g2.animate([{ opacity: 0, transform: `scale(${LIST_SCALE})` }, { opacity: 0, offset: .15 }, { opacity: 1, offset: .7 }, { opacity: 1, transform: 'none' }], { ...OPEN, fill: 'backwards' });
+    focus.animate([{ opacity: 1, transform: 'none' }, { opacity: 1, offset: .15 }, { opacity: 0, offset: .7 }, { opacity: 0, transform: `scale(${1 / LIST_SCALE})` }], { ...OPEN, fill: 'forwards' });
+    g3a.querySelectorAll('.is-above').forEach(c => c.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-64px)' }], { ...OPEN, fill: 'forwards' }));
+    g3a.querySelectorAll('.is-below').forEach(c => c.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(160px)' }], { ...OPEN, fill: 'forwards' }));
+    await sleep(OPEN.duration); if (!valid(t)) return;
+    g2.style.transformOrigin = '';
+    g3a.hidden = true; g3a.getAnimations({ subtree: true }).forEach(a => a.cancel());
+    // The return over time: points arrive one after another, the series always spread across the
+    // width and fitted to the height; the number follows the newest point (no scaling of it).
+    const FINAL = 12.4, toPct = v => v / RV[SEG] * FINAL;
+    await tween(2200, easeInOut, k => {
+      const p = SEG * k;
+      chartAt(p);
+      const v = toPct(retValue(Math.max(.0001, p)));
+      num.textContent = `${v < 0 ? '−' : '+'}${Math.abs(v).toFixed(1)}%`;
+    }, () => valid(t));
+    if (!valid(t)) { chartAt(SEG); return; }
+    num.textContent = '+12.4%';
+    await sleep(800); if (!valid(t)) return;
+    const to = sigY();
+    const scroll = tween(1400, easeInOut, k => setY(g2col, to * k), () => valid(t));
+    sigs.forEach((s, i) => {
+      s.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 420 + i * 90, easing: SOFT_OUT, fill: 'backwards' });
       s.style.opacity = '';
     });
     await scroll;
   }
 
-  async function playG2(t) {
-    if (api.reduced()) return settle(1);
-    // Back up to the top of the thesis: the card opens into its detail page to show the return.
-    const scroll = tween(640, easeInOut, k => setY(g1col, G1_TOP + (CARD_TOP - G1_TOP) * k), () => valid(t));
-    g2.hidden = false;
-    g1.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, delay: 400, easing: STD, fill: 'forwards' });
-    g2.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, delay: 400, easing: STD, fill: 'backwards' });
-    await scroll; await sleep(40);
-    if (!valid(t)) return;
-    g1.hidden = true;
-    const card = g2.querySelector('.v4-dcard');
-    card.querySelector('.v4-vchart-line').animate([{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 600, easing: STD });
-    card.querySelector('.v4-vchart-area').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, delay: 200, easing: 'ease-out', fill: 'backwards' });
-    card.querySelectorAll('.v4-vchart circle').forEach((c, i) => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, delay: 90 + i * 90, fill: 'backwards' }));
-    const num = root.querySelector('.v4-ret-num');
-    await tween(600, easeOut, k => { num.textContent = `+${(12.4 * k).toFixed(1)}%`; }, () => valid(t));
-  }
-
-  async function playG3(t) {
+  // 3 · Fold back into the list, rest, then run up into the Leaderboard.
+  async function playP3(t) {
     if (api.reduced()) return settle(2);
-    // G3a · the detail page folds back into a list card, 1 → .88 (220ms STD); neighbours follow, 12 apart.
+    // a · One motion: the page moves back up while it shrinks into its list card (1 → .88),
+    //     its content cross-fading into the card; the neighbours close back in.
     g3a.hidden = false;
-    const focus = g3a.querySelector('.is-focus');
-    const restY = CARD_TOP - focus.offsetTop * LIST_SCALE;
-    g3col.style.transform = `translateY(${restY}px) scale(${LIST_SCALE})`;
-    g2.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `scale(${LIST_SCALE})` }], { duration: 220, easing: STD, fill: 'forwards' });
-    focus.animate([{ transform: `scale(${1 / LIST_SCALE})` }, { transform: 'none' }], { duration: 220, easing: STD });
-    g3a.querySelectorAll('.is-above, .is-below').forEach(c => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: STD, fill: 'backwards' }));
-    await sleep(380); if (!valid(t)) return;
-    g2.hidden = true;
-    // G3b · the whole column runs up to the top (420ms INOUT3) with a layer blur 0 → 8 → 0.
-    const topY = 0, fromY = restY;
-    g3a.animate([{ filter: 'blur(0)' }, { filter: 'blur(8px)', offset: .5 }, { filter: 'blur(0)' }], { duration: 420, easing: 'linear' });
-    await tween(420, easeInOut, k => { g3col.style.transform = `translateY(${fromY + (topY - fromY) * k}px) scale(${LIST_SCALE})`; }, () => valid(t));
-    if (!valid(t)) return;
-    // G3 · at the top it cross-fades into the Leaderboard (200ms).
+    const restY = listRest(), from = sigY();
+    listAt(restY);
+    const FOLD = { duration: 900, easing: SOFT };
+    g2.style.transformOrigin = `50% ${CARD_TOP}px`;
+    const scrollBack = tween(FOLD.duration, easeInOut, k => setY(g2col, from * (1 - k)), () => valid(t));
+    g2.animate([{ opacity: 1, transform: 'none' }, { opacity: 1, offset: .3 }, { opacity: 0, offset: .85 }, { opacity: 0, transform: `scale(${LIST_SCALE})` }], { ...FOLD, fill: 'forwards' });
+    focus.animate([{ opacity: 0, transform: `scale(${1 / LIST_SCALE})` }, { opacity: 0, offset: .3 }, { opacity: 1, offset: .85 }, { opacity: 1, transform: 'none' }], { ...FOLD, fill: 'backwards' });
+    g3a.querySelectorAll('.is-above').forEach(c => c.animate([{ opacity: 0, transform: 'translateY(-64px)' }, { opacity: 0, offset: .2 }, { opacity: 1, transform: 'none' }], { ...FOLD, fill: 'backwards' }));
+    g3a.querySelectorAll('.is-below').forEach(c => c.animate([{ opacity: 0, transform: 'translateY(160px)' }, { opacity: 0, offset: .2 }, { opacity: 1, transform: 'none' }], { ...FOLD, fill: 'backwards' }));
+    await scrollBack; if (!valid(t)) return;
+    g2.hidden = true; g2.style.transformOrigin = '';
+    // b · A beat on the list.
+    await sleep(500); if (!valid(t)) return;
+    // c · One scroll for both lists: it eases into speed and blurs, runs fast, and while it runs
+    //     the list cross-fades into the Leaderboard travelling at exactly the same speed (so
+    //     nothing jumps); ranks pass from large to small, the blur clears, and it eases to a
+    //     stop on #1 and the title — the same soft stop as the stage 1 scroll.
     board.hidden = false;
-    board.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: STD, fill: 'backwards' });
-    await g3a.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: STD, fill: 'forwards' }).finished.catch(() => {});
+    const RUN = 2400, TRAVEL = 4400;                    // ms; px both lists travel (scrolling up the page)
+    const A = .22, B = .5;                              // speed-up ends / slow-down starts
+    const vmax = 1 / (A / 3 + (B - A) + (1 - B) / 3);
+    const travel = u => {
+      if (u < A) { const x = u / A; return vmax * A * x ** 3 / 3; }
+      if (u < B) return vmax * (A / 3 + (u - A));
+      const x = (u - B) / (1 - B);
+      return vmax * (A / 3 + (B - A) + (1 - B) * (1 - (1 - x) ** 3) / 3);
+    };
+    const ramp = (u, a, b) => Math.min(1, Math.max(0, (u - a) / (b - a)));
+    const smooth = x => x * x * (3 - 2 * x);
+    await tween(RUN, u => u, u => {
+      const d = TRAVEL * travel(u);
+      listAt(restY + d);
+      board.style.transform = `translateY(${d - TRAVEL}px)`;
+      const blur = 8 * smooth(Math.min(ramp(u, .04, .3), 1 - ramp(u, .48, .74)));
+      const mix = smooth(ramp(u, .34, .47));             // cross-fade at full speed, inside the blur
+      g3a.style.filter = board.style.filter = `blur(${blur.toFixed(2)}px)`;
+      g3a.style.opacity = String(1 - mix); board.style.opacity = String(mix);
+    }, () => valid(t));
     if (!valid(t)) return;
-    g3a.hidden = true;
+    show1(board);
   }
 
   // Progress: played + current segment main/m1, the rest m1 16%. The current one fills left → right over the segment.
@@ -286,22 +367,28 @@ function renderLanding(api) {
     bars.forEach((b, i) => {
       b.getAnimations().forEach(a => a.cancel());
       b.style.transform = i < index ? 'none' : 'scaleX(0)';
-      if (i === index) b.animate([{ transform: 'scaleX(0)' }, { transform: 'none' }], { duration: SEGMENT, easing: 'linear', fill: 'forwards' });
+      if (i === index) b.animate([{ transform: 'scaleX(0)' }, { transform: 'none' }], { duration: SEGMENTS[index], easing: 'linear', fill: 'forwards' });
     });
   }
   // Autoplay. Jumping (swipe, tap a line) starts the target segment's motion from its beginning.
   async function show(index) {
     const t = ++token;
     clearTimeout(timer);
+    const looped = index === 0 && pageIndex === LANDING.length - 1;
     settle(index === 0 ? 0 : index - 1);
+    // Back to the start after the Leaderboard: the stage fades up again instead of cutting.
+    if (looped && !api.reduced()) stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 360, easing: STD });
     pageIndex = index;
     progress(index);
-    if (copyIndex !== index) { copyIndex = index; copySwap(holder, LANDING[index].title, LANDING[index].text); }
-    timer = setTimeout(() => { if (valid(t)) show((index + 1) % LANDING.length); }, SEGMENT);
-    await [playG1, playG2, playG3][index](t);
+    if (copyIndex !== index) {
+      const dir = index === (copyIndex + 1) % LANDING.length ? 1 : index > copyIndex ? 1 : -1;
+      copyIndex = index; copySwap(holder, LANDING[index].title, LANDING[index].text, dir);
+    }
+    timer = setTimeout(() => { if (valid(t)) show((index + 1) % LANDING.length); }, SEGMENTS[index]);
+    await [playP1, playP2, playP3][index](t);
   }
   // Get started is the way in (log in); there is no Next or Skip.
-  next.addEventListener('click', () => api.go('login'));
+  // For now the demo only shows the Landing motion: Get started does nothing.
   root.querySelectorAll('[data-seg]').forEach(b => b.addEventListener('click', () => show(Number(b.dataset.seg))));
   // Swipe left / right → next / previous segment.
   let down = null;
@@ -313,11 +400,15 @@ function renderLanding(api) {
     show(dx < 0 ? (pageIndex + 1) % LANDING.length : Math.max(0, pageIndex - 1));
   });
   root.addEventListener('pointercancel', () => { down = null; });
-  root.start = () => { show(0); };
+  // The opening list scroll waits for the start-up splash to begin its reveal, so it is seen from the top.
+  root.start = () => {
+    const splash = () => { const el = document.getElementById('startupSplash'); return el && !el.classList.contains('is-revealing') ? el : null; };
+    if (!splash()) { show(0); return; }
+    const wait = setInterval(() => { if (!alive) clearInterval(wait); else if (!splash()) { clearInterval(wait); show(0); } }, 50);
+  };
   root.cleanup = () => { alive = false; token++; clearTimeout(timer); };
-  g1.hidden = false; g2.hidden = true; g3a.hidden = true; board.hidden = true;
-  setY(g1col, CARD_TOP); g1card.style.opacity = '0'; sigs.forEach(s => { s.style.opacity = '0'; });
-  queueMicrotask(() => { g1card.style.opacity = ''; });
+  // Before start: the thesis list at the top, where the opening scroll begins.
+  show1(g3a); listAt(CARD_TOP);
   if (api.reduced()) queueMicrotask(() => settle(0));
   return root;
 }

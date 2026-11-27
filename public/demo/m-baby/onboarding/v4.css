@@ -101,7 +101,7 @@ html[data-theme='dark']{--v4-g02:rgba(255,255,255,.06);--v4-br7:rgba(255,255,255
 .v4-board-title{display:flex;flex-direction:column;gap:4px}
 .v4-board-title h2{margin:0;font-size:24px;line-height:34px;font-weight:500;color:var(--n9)}
 .v4-board-title p{margin:0;font-size:14px;line-height:22px;color:var(--n7)}
-.v4-board-rows{display:flex;flex-direction:column;gap:12px}
+.v4-board-rows{display:flex;flex-direction:column;gap:12px;margin-top:20px}
 .v4-board-row{position:relative;display:flex;gap:16px;padding:16px}
 .v4-rank{flex:none;width:12px;font-size:16px;line-height:26px;font-weight:500;color:var(--n9)}
 .v4-board-main{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding-right:72px}
@@ -115,7 +115,7 @@ html[data-theme='dark']{--v4-g02:rgba(255,255,255,.06);--v4-br7:rgba(255,255,255
 .v4-skip{color:var(--n9)}
 .v4-land-copy{position:absolute;left:0;right:0;bottom:calc(80px + var(--home-h));height:130px;display:flex;flex-direction:column;gap:8px;padding:16px 16px 0;background:var(--bg-container);box-sizing:border-box}
 .v4-step{font-size:12px;line-height:20px;color:var(--n5)}
-.v4-copy-holder{position:relative}
+.v4-copy-holder{position:relative;overflow:hidden;margin:0 -16px;padding:0 16px}
 .v4-copy-text h1{margin:0;font-size:24px;line-height:34px;font-weight:500;color:var(--n9);white-space:nowrap}
 .v4-copy-text p{margin:8px 0 0;font-size:14px;line-height:22px;color:var(--n7)}
 .v4-copy-text.is-out{position:absolute;inset:0 0 auto}
@@ -349,7 +349,8 @@ html[data-theme='dark'] .v4-skel i{background-image:linear-gradient(90deg,transp
 .v4-landing .v4-stage{bottom:calc(80px + 130px + var(--home-h))}
 .v4-landing .v4-land-copy{bottom:calc(80px + var(--home-h));height:130px;justify-content:flex-end;gap:20px;padding:0 16px}
 .v4-land-dock{position:absolute;left:0;right:0;bottom:var(--home-h);height:80px;padding:16px;box-sizing:border-box;background:var(--bg-container)}
-.v4-land-fade{position:absolute;left:0;right:0;top:0;height:calc(var(--status-h) + 81px);z-index:4;pointer-events:none;background:linear-gradient(#fff,rgba(255,255,255,.9) 60%,rgba(255,255,255,0))}
+.v4-land-fade{position:absolute;left:0;right:0;top:0;height:calc(var(--status-h) + 81px);z-index:4;pointer-events:none;background:linear-gradient(var(--bg-container),color-mix(in srgb,var(--bg-container) 90%,transparent) 60%,color-mix(in srgb,var(--bg-container) 0%,transparent))}
+html[data-theme="dark"] .v4-land-logo{filter:invert(1) hue-rotate(180deg)}
 .v4-land-logo{position:absolute;z-index:5;left:16px;top:calc(var(--status-h) + 16px);width:95.2px;height:24px}
 .v4-prog{display:flex;gap:6px;height:3px;margin:0}
 .v4-prog button{flex:1;position:relative;height:3px;padding:0;border:0;background:none;cursor:pointer}
@@ -431,3 +432,5 @@ html[data-theme='dark'] .v4-skel i{background-image:linear-gradient(90deg,transp
 .setup-page .v4-follow-chip{box-sizing:border-box;height:38px}
 .v4-follow-page .v4-x-summary{padding:11.5px 15.5px;min-height:0}
 .v4-x-summary>.v4-x-row:first-child{height:42px}.v4-x-summary>.v4-x-row:last-child{height:20px}
+/* Landing · the stage also fades out above the title (bg-container 0 → 100%), like the top */
+.v4-landing .v4-stage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:120px;z-index:4;pointer-events:none;background:linear-gradient(color-mix(in srgb,var(--bg-container) 0%,transparent),color-mix(in srgb,var(--bg-container) 90%,transparent) 60%,var(--bg-container))}
