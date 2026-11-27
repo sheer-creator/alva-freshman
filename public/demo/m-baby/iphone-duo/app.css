@@ -699,7 +699,7 @@ span.exch { background: var(--br07); }
 .v-strip img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .viewer .v-bar .grow { flex: 1; }
 .viewer .v-bar { gap: 12px; }
-.v-play { position: absolute; width: 64px !important; height: 64px !important; border-radius: 32px; background: rgba(0,0,0,.42) !important; -webkit-backdrop-filter: blur(16px) !important; backdrop-filter: blur(16px) !important; }
+.v-play { position: absolute; width: 64px !important; height: 64px !important; border-radius: 32px; background: rgba(0,0,0,.34) !important; -webkit-backdrop-filter: blur(16px) !important; backdrop-filter: blur(16px) !important; }
 .v-play .ic { width: 28px; height: 28px; }
 .v-dur { position: absolute; transform: translate(-100%, -100%); padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 12px; line-height: 18px; font-variant-numeric: tabular-nums; }
 .viewer.bare .v-head, .viewer.bare .v-strip { opacity: 0; pointer-events: none; }
@@ -835,3 +835,12 @@ span.exch { background: var(--br07); }
 
 /* 11-26: Expand on a half-folded Book — shown, not available */
 .chat-h button.side.is-off { opacity: 0.35; cursor: default; pointer-events: none; }
+
+/* 11-27: viewer scroll edge effect — soft style (variable blur + fade) under the controls that sit over the image */
+.v-edge { position: absolute; pointer-events: none; transition: opacity .2s ease; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+.v-edge[hidden] { display: none; }
+.v-edge.e-top { background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to bottom, #000 20%, transparent); mask-image: linear-gradient(to bottom, #000 20%, transparent); }
+.v-edge.e-bot { background: linear-gradient(to top, rgba(0,0,0,.5), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to top, #000 20%, transparent); mask-image: linear-gradient(to top, #000 20%, transparent); }
+.v-edge.e-rail { background: linear-gradient(to left, rgba(0,0,0,.34), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to left, #000 25%, transparent); mask-image: linear-gradient(to left, #000 25%, transparent); }
+.v-edge.e-rail.left { background: linear-gradient(to right, rgba(0,0,0,.34), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to right, #000 25%, transparent); mask-image: linear-gradient(to right, #000 25%, transparent); }
+.viewer.bare .v-edge { opacity: 0; }

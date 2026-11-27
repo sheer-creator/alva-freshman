@@ -1653,6 +1653,17 @@
       const side = Math.max(20 + 48 + 12, 20 + G.padR);
       Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' });
     }
+    /* 11-27: scroll edge effect (HIG · Scroll views, iOS 26 soft style) — a variable blur that fades into the image
+       wherever controls sit over it: along the top (status bar, name, ✕), along the bottom (scrubber, Download / ···),
+       and down the rail's column where there is one. It goes with the controls when a tap hides them. */
+    {
+      const top = V.el.querySelector('.e-top'), bot = V.el.querySelector('.e-bot'), rl = V.el.querySelector('.e-rail');
+      const x0 = a.x, w = a.w, y1 = G.info ? G.ca.y1 : G.H;
+      Object.assign(top.style, { left: x0 + 'px', width: w + 'px', top: '0px', height: '84px' });
+      bot.hidden = !!G.info && !G.tab; Object.assign(bot.style, { left: x0 + 'px', width: w + 'px', top: (y1 - 96) + 'px', height: '96px' });
+      rl.hidden = !G.r;
+      if (G.r) { const rx = G.r.left ? 0 : G.r.x; Object.assign(rl.style, { left: rx + 'px', width: '84px', top: '0px', height: G.H + 'px' }); rl.classList.toggle('left', !!G.r.left); }
+    }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.info;
     if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
@@ -1737,6 +1748,7 @@
     const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
     const acts = `<button class="v-g" data-v="download" aria-label="Download">${I('download-l')}</button>${V.own ? `<button class="v-g" data-v="more" aria-label="More">${I('more-l1')}</button>` : ''}`;
     el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.items.map(m => `<div class="v-slide"><img src="${m.src}" alt="" draggable="false"${m.w && m.h ? ` data-ar="${m.w / m.h}"` : ''}>${m.video ? `<button class="v-play v-g" data-v="play" aria-label="Play">${I('play-f')}</button><span class="v-dur">${esc(m.dur || '')}</span>` : ''}</div>`).join('')}</div></div>
+      <i class="v-edge e-top"></i><i class="v-edge e-bot"></i><i class="v-edge e-rail"></i>
       <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button>${acts}</div>
       <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button></header>
       <div class="v-head"></div>
