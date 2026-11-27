@@ -1598,7 +1598,7 @@
        Everywhere else: the image over the whole window, the scrubber at the bottom. */
     let ia, ca, info = null;
     if (book) { ia = { x: 495.5, w: W - 495.5 }; ca = { x0: 495.5, x1: c1, y1: H, mL: 20, mR: 16 }; info = { x: 0, y: 0, w: 455.5, h: H, pb: 34 }; }
-    else if (tab) { ia = { x: 0, w: W }; ca = { x0: 0, x1: W, y1: 455.5, mL: 20, mR: 20 }; info = { x: 0, y: 495.5, w: W, h: H - 495.5, pb: 84 }; }
+    else if (tab) { ia = { x: 0, w: W }; ca = { x0: 0, x1: W, y1: 455.5, mL: 20, mR: 20 }; info = { x: 0, y: 495.5, w: W, h: H - 495.5, pb: 24 + 48 + 16 }; }
     else { ia = { x: 0, w: W }; ca = { x0: c0, x1: c1, y1: H, mL: r && r.left ? 16 : 20, mR: r && !r.left ? 16 : 20 }; }
     ca.cx = (ca.x0 + ca.x1) / 2;
     const bottomH = V.own ? 48 + 14 + 48 : 48;
@@ -1633,7 +1633,7 @@
     const col = V.el.querySelector('.v-col'), bar = V.el.querySelector('.v-bar'), head = V.el.querySelector('.v-head');
     /* 11-27: held upright like a book (tabletop), the top half is only for looking; every control moves to the
        lower half, in one row along its top (centre line fold + 48): ✕ · name · ··· / Download, the grid below */
-    const tabRow = G.tab ? 495.5 + 24 : null;
+    const tabRow = G.tab ? G.H - 24 - 48 : null;   // the lower half's bottom row (centre H − 48), nothing near the fold
     const yb = G.tab ? tabRow : G.H - (G.r ? G.r.bottom : 24) - 48;   // bottom row: the rail's bottom inset, else 24 — centre line H − 48
     col.hidden = false;
     const cl = col.querySelector('[data-v="close"]');
@@ -1670,7 +1670,7 @@
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.info;
-    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingTop: (G.tab ? 24 + 48 + 16 : 84) + 'px', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
+    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingTop: (G.tab ? 24 : 84) + 'px', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
     vTrack(anim);
     vZoomApply(false);
     vPost();
