@@ -1104,3 +1104,11 @@ html[data-capture] .duo-flap { display: none !important; }
    pass under it, so it is drawn as a soft crease rather than a solid band. */
 :root[data-duo-state='book-portrait'] .duo-hinge { display: block; left: 0; top: 455.5px; width: 100%; height: 40px; background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.07) 50%, rgba(0,0,0,0)); pointer-events: none; }
 :root[data-theme='dark'][data-duo-state='book-portrait'] .duo-hinge { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,.08) 50%, rgba(255,255,255,0)); }
+
+/* 11-27: over Alva's image viewer the status bar gets a small blurred capsule of its own — only behind the
+   status items, the way the system backs it over content (no full-width band) — and goes with the controls */
+.duo-status-blur { position: absolute; display: none; pointer-events: none; background: rgba(0, 0, 0, 0.32);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); }
+:root[data-viewer='white'] .duo-status-blur { display: block; }
+:root:not([data-duo-status='corner'])[data-viewer='white'] .duo-status-blur { left: var(--status-x); top: var(--status-y); width: 48px; height: 86px; border-radius: 24px; }   /* same size as the status bar, radius 24 */
+:root[data-duo-status='corner'][data-viewer='white'] .duo-status-blur { left: var(--status-x, 541px); top: var(--status-y, 24px); width: 104px; height: 48px; border-radius: 24px; }

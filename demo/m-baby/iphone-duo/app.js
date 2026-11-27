@@ -156,7 +156,7 @@
 
   /* ── views ── */
   function titleTabs(lb) {
-    return `<div class="title-tabs"><button class="${lb ? '' : 'on'}" data-act="feedTab" data-id="foryou">For You</button><button class="${lb ? 'on' : ''}" data-act="feedTab" data-id="leaderboard">Leaderboard</button></div>`;
+    return `<div class="title-tabs"><button class="${lb ? '' : 'on'}" data-act="feedTab" data-id="foryou">For You</button><button class="${lb ? 'on' : ''}" data-act="feedTab" data-id="leaderboard">Leaderboard</button><button class="tt-inbox" data-act="toast" data-id="Inbox" aria-label="Inbox">${I('notification-l')}</button></div>`;   // 11-27: the bell, as on mobile
   }
   const feedIds = () => D.feed.filter(id => id === 'people' ? !S.peopleDismissed && S.topic === 'All' : S.topic === 'All' || (D.theses[id].topics || []).includes(S.topic));
   const lbIds = () => { const ids = D.leaderboard.slice(); if (S.period === '1D') ids.reverse(); if (S.period === '30D') ids.push(ids.shift()); return ids; };
@@ -595,7 +595,7 @@
       /* The drawer is modal: the scrim covers the page and the rail; where the rail is on the right the
          drawer runs on over it to the screen edge, so only the chat and its Close are left to use. */
       const ext = L.rail && !L.rail.left ? innerWidth - (P.OX + P.CW) : 0;
-      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet${ext ? ' has-ext' : ''}" style="left:${P.OX + P.CW - SW}px;width:${SW}px;top:0;--box-b:24px;--ext:${ext}px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
+      html += `<div class="scrim" data-act="closeChat"></div><section class="pane sheet${ext ? ' has-ext' : ''}" style="left:${P.OX + P.CW - SW}px;width:${SW + ext}px;top:0;--box-b:24px;--ext:${ext}px;${L.corner ? '--pad-r:140px;' : ''}${lastKeys.sheet ? 'animation:none;' : ''}">${out.chat}</section>`;
       keys.sheet = keyOf(P.sheet.view);
     }
     if (L.rail) html += rail(P);
@@ -740,7 +740,7 @@
       el.style.animation = 'none';
       el.style.pointerEvents = 'none';
       let a;
-      if (sel === '.sheet') a = M.play(el, [{ transform: 'none' }, { transform: `translateX(calc(100% + ${el.style.getPropertyValue('--ext') || '0px'}))` }], M.SHEET_OUT);
+      if (sel === '.sheet') a = M.play(el, [{ transform: 'none' }, { transform: `translateX(100%)` }], M.SHEET_OUT);
       else if (sel === '.bsheet') a = M.play(el, [{ transform: 'none' }, { transform: 'translateY(100%)' }], M.SHEET_OUT);
       else if (sel === '.pop') a = M.play(el, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.92)' }], { duration: 200, easing: 'ease-out' });
       else if (sel === '.tabbar' || sel === '.fab') a = M.play(el, [{ translate: '0 0', opacity: 1 }, { translate: (sel === '.tabbar' ? -0.3 * 400 : -0.3 * P.CW) + 'px 0', opacity: 0 }], M.NAV);
@@ -1598,7 +1598,7 @@
        Everywhere else: the image over the whole window, the scrubber at the bottom. */
     let ia, ca, info = null;
     if (book) { ia = { x: 495.5, w: W - 495.5 }; ca = { x0: 495.5, x1: c1, y1: H, mL: 20, mR: 16 }; info = { x: 0, y: 0, w: 455.5, h: H, pb: 34 }; }
-    else if (tab) { ia = { x: 0, w: W }; ca = { x0: 0, x1: W, y1: 455.5, mL: 20, mR: 20 }; info = { x: 0, y: 495.5, w: W, h: H - 495.5, pb: 84 }; }
+    else if (tab) { ia = { x: 0, w: W }; ca = { x0: 0, x1: W, y1: 455.5, mL: 20, mR: 20 }; info = { x: 0, y: 495.5, w: W, h: H - 495.5, pb: 24 + 48 + 16 }; }
     else { ia = { x: 0, w: W }; ca = { x0: c0, x1: c1, y1: H, mL: r && r.left ? 16 : 20, mR: r && !r.left ? 16 : 20 }; }
     ca.cx = (ca.x0 + ca.x1) / 2;
     const bottomH = V.own ? 48 + 14 + 48 : 48;
@@ -1609,12 +1609,9 @@
     const fit = (aw, ah) => { let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; } return { w, h }; };
     const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
     const { W, H, ca } = G;
-    /* tapped: full screen — the whole window, over the rail (the image's page when folded) */
-    if (V.full) return G.info ? box(G.ia.x, G.ia.x + G.ia.w, 0, ca.y1) : box(0, W, 0, H);
-    if (G.info) return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, ca.y1 - (G.tab ? 12 : 34));
-    /* default: inside the content area's margins, so nothing touches an edge and reads as more to
-       swipe; between the name row (84) and the scrubber (or the home indicator) */
-    return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, G.strip ? G.H - 66 - 12 : H - 34);
+    /* 11-27: the image fits the whole window from the start (its page when folded), as in Photos — no
+       margins, no corners; the controls float over it and one tap hides them all with the status bar */
+    return G.info ? box(G.ia.x, G.ia.x + G.ia.w, 0, ca.y1) : box(0, W, 0, H);
   }
   function vPost() {
     if (parent === window) return;
@@ -1634,7 +1631,10 @@
     });
     /* controls: the vertical column where Alva has one, else a top bar */
     const col = V.el.querySelector('.v-col'), bar = V.el.querySelector('.v-bar'), head = V.el.querySelector('.v-head');
-    const yb = G.H - (G.r ? G.r.bottom : 24) - 48;   // bottom row: the rail's bottom inset, else 24 — centre line H − 48
+    /* 11-27: held upright like a book (tabletop), the top half is only for looking; every control moves to the
+       lower half, in one row along its top (centre line fold + 48): ✕ · name · ··· / Download, the grid below */
+    const tabRow = G.tab ? G.H - 24 - 48 : null;   // the lower half's bottom row (centre H − 48), nothing near the fold
+    const yb = G.tab ? tabRow : G.H - (G.r ? G.r.bottom : 24) - 48;   // bottom row: the rail's bottom inset, else 24 — centre line H − 48
     col.hidden = false;
     const cl = col.querySelector('[data-v="close"]');
     if (G.r) {
@@ -1649,16 +1649,38 @@
     } else {
       /* horizontal bars: Close in the top bar; Download in the bottom-right corner, Delete to its left */
       bar.hidden = false; cl.hidden = true;
-      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + G.padR) + 'px' });
+      Object.assign(bar.style, { left: G.c0 + 'px', width: (G.c1 - G.c0) + 'px', paddingRight: (20 + (G.tab ? 0 : G.padR)) + 'px', top: (G.tab ? tabRow : 24) + 'px' });
       const dx = G.W - 20 - 48;
       const at = (v, x) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: x + 'px', top: yb + 'px' }); };
       at('download', dx); if (V.own) at('more', dx - 60);
-      const side = Math.max(20 + 48 + 12, 20 + G.padR);
+      /* 11-27: tabletop — the name sits at the top of the upper half (centre y48), the controls stay in the bottom row */
+      const side = G.tab ? 140 : Math.max(20 + 48 + 12, 20 + G.padR);
       Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' });
+    }
+    /* 11-27: scroll edge effect (HIG · Scroll views, iOS 26 soft style) — a variable blur that fades into the image
+       wherever controls sit over it: along the top (status bar, name, ✕), along the bottom (scrubber, Download / ···),
+       and down the rail's column where there is one. It goes with the controls when a tap hides them. */
+    {
+      const top = V.el.querySelector('.e-top'), bot = V.el.querySelector('.e-bot'), rl = V.el.querySelector('.e-rail');
+      const x0 = a.x, w = a.w, y1 = G.info ? G.ca.y1 : G.H;
+      /* 11-27 (from a real Duo capture): no band along the top or down the rail — the status bar gets its own small
+         blurred capsule (drawn by the screen, shell.css .duo-status-blur) and the buttons are glass already */
+      top.hidden = true; rl.hidden = true;
+      bot.hidden = !!G.info;   // folded: no controls over the image's bottom edge Object.assign(bot.style, { left: x0 + 'px', width: w + 'px', top: (y1 - 96) + 'px', height: '96px' });
+      if (false && G.r) { const rx = G.r.left ? 0 : G.r.x; Object.assign(rl.style, { left: rx + 'px', width: '84px', top: '0px', height: G.H + 'px' }); rl.classList.toggle('left', !!G.r.left); }
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.info;
-    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
+    /* 11-27: the grid runs to the screen's edge and is cut there (no padded frame); 2 px inside so the selected
+       outline is never clipped. Tabletop: two rows that scroll sideways, between the fold and the bottom row.
+       Book: three columns that scroll down to the screen's bottom edge. */
+    info.classList.toggle('tab', !!G.tab);
+    if (G.info) {
+      if (G.tab) { const gh = 2 + 148 + 8 + 148 + 2, y0 = G.info.y, y1 = tabRow, gy = Math.round(y0 + (y1 - y0 - gh) / 2);
+        Object.assign(info.style, { left: '0px', top: gy + 'px', width: G.W + 'px', height: gh + 'px', bottom: 'auto', paddingTop: '0px', paddingBottom: '0px' }); }
+      else Object.assign(info.style, { left: G.info.x + 'px', top: '0px', width: G.info.w + 'px', height: G.H + 'px', bottom: 'auto', paddingTop: '82px', paddingBottom: '0px' });
+      info.style.setProperty('--cols', 3);
+    }
     vTrack(anim);
     vZoomApply(false);
     vPost();
@@ -1681,7 +1703,8 @@
   function vHead() {
     const m = V.items[V.i] || {}, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
     const meta = who ? `${esc(who)}${t.date ? ' · ' + esc(t.date) : ''}` : '';
-    V.el.querySelector('.v-head').innerHTML = m.title ? `<b>${esc(m.title)}</b>` : '';   // media have a name or nothing — no subtitle
+    /* 11-27: two sources — an image in someone else's thesis has no name and no ···; your own file shows its name (and ··· → Delete) */
+    V.el.querySelector('.v-head').innerHTML = V.own && m.title ? `<b>${esc(m.title)}</b>` : '';
   }
   function vTrack(anim, dx = 0) {
     const G = vGeo(), tr = V.el.querySelector('.v-track');
@@ -1719,10 +1742,9 @@
     return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`;
   }
   function vInfoHTML() {
-    const t = V.tid && D.theses[V.tid];
-    const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
-    const grid = V.items.length > 1 ? `<div class="v-grid">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false">${m.video ? `<span class="pic-dur">${I('play-f', 'ic-12')}${esc(m.dur || '')}</span>` : ''}</button>`).join('')}</div>` : '';
-    return head + grid;
+    /* 11-27: the other page is only the grid of this post's media — no author, no text */
+    const grid = V.items.length ? `<div class="v-grid">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false">${m.video ? `<span class="pic-dur">${I('play-f', 'ic-12')}${esc(m.dur || '')}</span>` : ''}</button>`).join('')}</div>` : '';
+    return grid;
   }
   function openViewer(chartImg) {
     if (V.el || V.busy) return;
@@ -1739,6 +1761,7 @@
     const el = document.createElement('div'); el.className = 'viewer'; V.el = el;
     const acts = `<button class="v-g" data-v="download" aria-label="Download">${I('download-l')}</button>${V.own ? `<button class="v-g" data-v="more" aria-label="More">${I('more-l1')}</button>` : ''}`;
     el.innerHTML = `<div class="v-bg"></div><div class="v-clip"><div class="v-track">${V.items.map(m => `<div class="v-slide"><img src="${m.src}" alt="" draggable="false"${m.w && m.h ? ` data-ar="${m.w / m.h}"` : ''}>${m.video ? `<button class="v-play v-g" data-v="play" aria-label="Play">${I('play-f')}</button><span class="v-dur">${esc(m.dur || '')}</span>` : ''}</div>`).join('')}</div></div>
+      <i class="v-edge e-top"></i><i class="v-edge e-bot"></i><i class="v-edge e-rail"></i>
       <div class="v-col"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button>${acts}</div>
       <header class="v-bar"><button class="v-g" data-v="close" aria-label="Close">${I('close-l1')}</button></header>
       <div class="v-head"></div>

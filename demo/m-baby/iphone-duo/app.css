@@ -167,7 +167,9 @@ span.tk-logo { background: var(--br07); }
 :root[data-theme='dark'] .tab-lens { mix-blend-mode: normal; }
 
 /* ── top bars (Duo 84, centre line y48) ── */
-.title-tabs { flex: none; display: flex; gap: 16px; padding: 31px var(--pr, 16px) 19px 20px; white-space: nowrap; }
+.title-tabs { flex: none; display: flex; align-items: center; gap: 16px; padding: 31px var(--pad-r, var(--pr, 16px)) 19px 20px; white-space: nowrap; }
+/* 11-27: the inbox bell at the title's right, as on mobile — the icon's right edge on the content edge (−16, Tab Bar −20, left of the status bar) */
+.title-tabs .tt-inbox { margin-left: auto; margin-right: -10px; width: 40px; height: 34px; display: grid; place-items: center; color: var(--n9); flex: none; }
 .title-tabs button { font-size: 24px; line-height: 34px; font-weight: 500; color: var(--n5); }
 .title-tabs button.on { color: var(--n9); }
 .title-bar { flex: none; display: flex; align-items: center; padding: 31px var(--pad-r, 16px) 19px 20px; }
@@ -241,7 +243,7 @@ span.tk-logo { background: var(--br07); }
 
 /* ── leaderboard ── */
 .lb-head { flex: none; position: relative; height: 128px; box-shadow: inset 0 calc(-1 * var(--hw, var(--hw, 0.5px))) 0 var(--l12); }
-.lb-head .title-tabs { padding: 31px var(--pr, 16px) 19px 20px; }
+.lb-head .title-tabs { padding: 31px var(--pad-r, var(--pr, 16px)) 19px 20px; }
 .lb-pills { display: flex; gap: 8px; padding: 0 var(--pr, 16px) 0 20px; }
 .rules { position: absolute; right: var(--pr, 16px); top: 88px; display: flex; align-items: center; gap: 4px; height: 20px; color: var(--n5); font-size: 12px; line-height: 20px; }
 .lb-row { position: relative; display: flex; gap: 12px; padding: 16px var(--pr, 16px) 16px 20px; box-shadow: inset 0 calc(-1 * var(--hw, var(--hw, 0.5px))) 0 var(--l12); cursor: pointer; transition: background 0.2s; }
@@ -632,8 +634,9 @@ span.exch { background: var(--br07); }
 .v-slide img { position: absolute; transform-origin: 50% 50%; background: #fff; -webkit-user-drag: none; cursor: zoom-in; }
 /* dark Liquid Glass controls (the system glass, on black) */
 .v-g { position: absolute; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #fff;
-  background: rgba(255, 255, 255, 0.14); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
-  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.35), inset 0 0 0 var(--hw, 0.5px) rgba(255, 255, 255, 0.18); }
+  /* 11-27: the image now runs under the buttons, so the glass is dark enough to read over a white chart too */
+  background: rgba(30, 30, 30, 0.55); -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.3), inset 0 0 0 var(--hw, 0.5px) rgba(255, 255, 255, 0.16), 0 2px 10px rgba(0, 0, 0, 0.18); }
 .v-col, .v-bar, .v-cap { position: absolute; transition: opacity .2s ease; }
 .v-col { inset: 0; pointer-events: none; } .v-col .v-g { pointer-events: auto; }
 .v-bar { top: 24px; height: 48px; display: flex; justify-content: space-between; padding-left: 20px; }
@@ -686,7 +689,7 @@ span.exch { background: var(--br07); }
 .pic.is-video .pic-dur .ic { color: #fff; }
 /* viewer · head, scrubber, video */
 .v-head { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 48px; color: #fff; pointer-events: none; transition: opacity .2s ease; }
-.v-head b { max-width: 100%; font-size: 16px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v-head b { text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55); max-width: 100%; font-size: 16px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .v-head span { max-width: 100%; font-size: 12px; line-height: 18px; color: rgba(255,255,255,.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .v-strip { position: absolute; overflow: hidden; touch-action: none; transition: opacity .2s ease; }
 .v-strip.vert { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
@@ -696,7 +699,7 @@ span.exch { background: var(--br07); }
 .v-strip img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .viewer .v-bar .grow { flex: 1; }
 .viewer .v-bar { gap: 12px; }
-.v-play { position: absolute; width: 64px !important; height: 64px !important; border-radius: 32px; background: rgba(0,0,0,.42) !important; -webkit-backdrop-filter: blur(16px) !important; backdrop-filter: blur(16px) !important; }
+.v-play { position: absolute; width: 64px !important; height: 64px !important; border-radius: 32px; background: rgba(0,0,0,.34) !important; -webkit-backdrop-filter: blur(16px) !important; backdrop-filter: blur(16px) !important; }
 .v-play .ic { width: 28px; height: 28px; }
 .v-dur { position: absolute; transform: translate(-100%, -100%); padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 12px; line-height: 18px; font-variant-numeric: tabular-nums; }
 .viewer.bare .v-head, .viewer.bare .v-strip { opacity: 0; pointer-events: none; }
@@ -704,9 +707,8 @@ span.exch { background: var(--br07); }
 .viewer.v-fit-anim .v-slide img { transition: left .38s cubic-bezier(.32,.72,0,1), top .38s cubic-bezier(.32,.72,0,1), width .38s cubic-bezier(.32,.72,0,1), height .38s cubic-bezier(.32,.72,0,1), border-radius .38s cubic-bezier(.32,.72,0,1); }
 .viewer.v-fit-anim .v-play, .viewer.v-fit-anim .v-dur { transition: left .38s cubic-bezier(.32,.72,0,1), top .38s cubic-bezier(.32,.72,0,1); }
 
-/* the framed image has small corners; full screen has none */
-.viewer .v-slide img { border-radius: 8px; transition: border-radius .38s cubic-bezier(.32,.72,0,1); }
-.viewer.full .v-slide img { border-radius: 0; }
+/* 11-27: the image fills the window from the start — no corners */
+.viewer .v-slide img { border-radius: 0; }
 .viewer .v-col [hidden] { display: none !important; }
 
 /* viewer ··· menu and delete confirmation (dark, over the image) */
@@ -715,7 +717,7 @@ span.exch { background: var(--br07); }
 .v-menu button:hover { background: rgba(255,255,255,.08); }
 .v-menu .ic { color: #ff5a50; }
 .v-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 4; }
-.v-alert { position: absolute; width: 270px; transform: translateY(-50%); padding: 20px 16px 12px; border-radius: 20px; background: rgba(44,44,48,.94); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: #fff; text-align: center; z-index: 5; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+.v-alert { position: absolute; width: 270px; transform: translateY(-50%); padding: 20px 16px 16px;   /* 11-27: buttons sit 16 from the bottom, same as from the sides */ border-radius: 20px; background: rgba(44,44,48,.94); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: #fff; text-align: center; z-index: 5; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
 .v-alert b { display: block; font-size: 16px; line-height: 24px; font-weight: 500; }
 .v-alert p { margin: 4px 0 16px; font-size: 13px; line-height: 18px; color: rgba(255,255,255,.6); }
 .v-alert div { display: flex; gap: 8px; }
@@ -724,13 +726,16 @@ span.exch { background: var(--br07); }
 .viewer [hidden].v-menu, .viewer [hidden].v-alert, .viewer [hidden].v-scrim { display: none !important; }
 
 /* half-folded: the post's media as a grid on the other page */
-.v-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; margin-top: 8px; overflow: auto; scrollbar-width: none; }
+.v-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); grid-auto-rows: max-content; align-content: start; gap: 8px; margin-top: 8px; overflow: auto; scrollbar-width: none; }
 .v-grid button { position: relative; aspect-ratio: 1; padding: 0; border-radius: 8px; overflow: hidden; opacity: .6; transition: opacity .2s, box-shadow .2s; }
 .v-grid button.on { opacity: 1; box-shadow: 0 0 0 2px #fff; }
 .v-grid img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .v-grid .pic-dur { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 11px; }
 .v-grid .pic-dur .ic { color: #fff; }
-.v-info .v-grid { flex: none; padding: 2px; }
+.v-info .v-grid { flex: 0 1 auto; min-height: 0; padding: 2px; margin-top: 0; }
+.v-info { padding-left: 0; padding-right: 0; }
+.v-info .v-grid { padding: 2px 20px 24px; }   /* 2 px keeps the selected outline whole; the screen edge cuts the list */
+.v-info.tab .v-grid { flex: 1 1 auto; height: 100%; padding: 2px 20px; grid-auto-flow: column; grid-template-columns: none; grid-template-rows: repeat(2, 148px); grid-auto-columns: 148px; overflow-x: auto; overflow-y: hidden; }   /* many files: the grid scrolls inside its page, clear of the controls */
 
 /* Duo: the selected destination's icon (and Tab Bar label) is brand green */
 .rail-tabs button.on .ic, .rail-tabmin .ic, .tabbar button.on .ic, .tabbar button.on span { color: var(--m1) !important; }
@@ -768,9 +773,14 @@ span.exch { background: var(--br07); }
 /* Ask drawer: no shadow (the scrim separates it); it covers the rail column on the right */
 .sheet { box-shadow: none !important; }
 .sheet { clip-path: none !important; }
-.sheet.has-ext { box-shadow: var(--ext) 0 0 0 var(--b0) !important; }   /* the drawer's own colour, carried over the rail column */
+.sheet.has-ext { box-shadow: none !important; }
+/* 11-27: where the drawer runs on over the rail (rail on the right), the drawer's surface includes the rail column:
+   messages and the input stay in the 440, and the drawer's top-right corner — Expand — sits in the rail's control
+   column (x +12 from the rail's edge, centre line y48), level with Alva */
+.sheet.has-ext .chat-body, .sheet.has-ext .chatbox-f { margin-right: var(--ext); }
+.sheet.has-ext .chat-h { padding-right: calc(var(--ext) - 60px); }
 .sheet.has-ext { animation-name: sheetInExt; }
-@keyframes sheetInExt { from { transform: translateX(calc(100% + var(--ext, 0px))); } }
+@keyframes sheetInExt { from { transform: translateX(100%); } }
 
 /* Chat list (Figma A2 17318:27790) — the Alva tab's left column on the inner screen (11-26) */
 .chats { display: flex; flex-direction: column; height: 100%; }
@@ -828,3 +838,12 @@ span.exch { background: var(--br07); }
 
 /* 11-26: Expand on a half-folded Book — shown, not available */
 .chat-h button.side.is-off { opacity: 0.35; cursor: default; pointer-events: none; }
+
+/* 11-27: viewer scroll edge effect — soft style (variable blur + fade) under the controls that sit over the image */
+.v-edge { position: absolute; pointer-events: none; transition: opacity .2s ease; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+.v-edge[hidden] { display: none; }
+.v-edge.e-top { background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to bottom, #000 20%, transparent); mask-image: linear-gradient(to bottom, #000 20%, transparent); }
+.v-edge.e-bot { background: linear-gradient(to top, rgba(0,0,0,.5), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to top, #000 20%, transparent); mask-image: linear-gradient(to top, #000 20%, transparent); }
+.v-edge.e-rail { background: linear-gradient(to left, rgba(0,0,0,.34), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to left, #000 25%, transparent); mask-image: linear-gradient(to left, #000 25%, transparent); }
+.v-edge.e-rail.left { background: linear-gradient(to right, rgba(0,0,0,.34), rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to right, #000 25%, transparent); mask-image: linear-gradient(to right, #000 25%, transparent); }
+.viewer.bare .v-edge { opacity: 0; }
