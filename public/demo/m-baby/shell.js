@@ -39,7 +39,7 @@
       subtitle: 'Landing teaching in three pages, invite code, write your first thesis with Alva, profile, portfolio, then For You with your thesis pinned and a six-step guide on the Thesis page.',
       edited: '2026-11-27',
       slug: 'thesis-onboarding-v4',
-      href: 'onboarding/index.html?intro=v4&v=2',
+      href: 'onboarding/index.html?intro=v4&v=3',
       resetOnRestart: true,
       meta: 'Mobile · Draft · 9 steps + 6-step guide',
       figma: {

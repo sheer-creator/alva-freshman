@@ -19,14 +19,15 @@
  */
 import { node, escapeHTML as esc } from './ui.js';
 
-export const V4_STEPS = ['landing', 'login', 'invite', 'create', 'chat', 'profile', 'portfolio', 'ready', 'home'];
+export const V4_STEPS = ['landing', 'login', 'invite', 'request', 'listed', 'declined', 'approved', 'create', 'chat', 'profile', 'notifications', 'portfolio', 'ready', 'home'];
+const STD = 'cubic-bezier(.4,0,.2,1)';
 
 const A = path => new URL(path, import.meta.url).href;
 const EASE = 'cubic-bezier(.22,1,.36,1)';
 const EASE_IO = 'cubic-bezier(.65,0,.35,1)';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const easeOut = t => 1 - Math.pow(1 - t, 4);
-const easeInOut = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeInOut = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;   // INOUT3
 
 const LOGO = {
   GOOGL: A('../assets/feed-logo-goog.svg'), AMZN: A('../assets/feed-logo-amzn.svg'), MSFT: A('../assets/feed-logo-msft-real.svg'),
@@ -47,7 +48,7 @@ const ICON = {
   bell: IC('notification-l'), down: IC('arrow-down-l2'), right: IC('arrow-right-l2'), plus: IC('add-l2'), wave: IC('voice-wave-l'),
   forYou: A('../assets/thesis/tabbar-imgForYouF.svg'), search: A('../assets/thesis/tabbar-imgSearchL1.svg'), me: A('../assets/ui-me-l.svg'),
   addTab: A('../assets/ui-add-l2.svg'), like: IC('like-l'), close: IC('close-l1'), live: IC('live-l'), rank: IC('rank-f'),
-  camera: IC('camera-l'), checkTeal: IC('check-f2-teal'), checkInk: IC('check-f2-ink'), logoPortrait: IC('logo-portrait'),
+  camera: IC('camera-l'), jensen: A('../assets/thesis/search-imgAvatarJensenHuang.png'), checkTeal: IC('check-f2-teal'), checkInk: IC('check-f2-ink'), logoPortrait: IC('logo-portrait'),
 };
 // Monochrome icons are masks so they follow the text colour (and dark mode).
 const ic = (url, size, cls = '') => `<i class="v4-ic ${cls}" style="--ic:url('${url}');--s:${size}px" aria-hidden="true"></i>`;
@@ -110,8 +111,8 @@ function copySwap(holder, title, text) {
   holder.append(next);
   if (!old) return;
   old.classList.add('is-out');
-  old.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-10px)' }], { duration: 160, easing: 'ease-in', fill: 'forwards' }).finished.catch(() => {}).finally(() => old.remove());
-  next.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 320, delay: 80, easing: EASE, fill: 'backwards' });
+  old.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: STD, fill: 'forwards' }).finished.catch(() => {}).finally(() => old.remove());
+  next.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: 80, easing: EASE, fill: 'backwards' });
 }
 
 function tween(duration, ease, step, alive = () => true) {
@@ -191,9 +192,8 @@ function renderLanding(api) {
       </div></div>
       <div class="v4-stage-blur"></div>
     </div>
-    <header class="v4-land-top"><button type="button" class="setup-skip v4-skip">Skip</button></header>
     <div class="v4-land-copy"><span class="v4-step" aria-live="polite">1 / 3</span><div class="v4-copy-holder"></div></div>
-    <footer class="setup-dock v4-land-dock"><button class="setup-next v4-next" type="button">Next</button></footer>`;
+    <footer class="v4-land-dock"><button class="setup-next v4-next" type="button">Next</button><button class="v4-text-btn v4-login" type="button">Log in</button></footer>`;
   const stage = root.querySelector('.v4-stage');
   const g1 = root.querySelector('.v4-g1'), g2 = root.querySelector('.v4-g2'), g3a = root.querySelector('.v4-g3a'), board = root.querySelector('.v4-board');
   const g1col = g1.querySelector('.v4-col'), g1card = g1.querySelector('.v4-g1-card'), sigs = [...g1.querySelectorAll('.v4-ssig'), g1.querySelector('.v4-signals-title')];
@@ -229,7 +229,7 @@ function renderLanding(api) {
     // The stage scrolls on; the signals come in one after another under it.
     const scroll = tween(1100, easeInOut, k => setY(g1col, CARD_TOP + (G1_TOP - CARD_TOP) * k), () => valid(t));
     [sigs.at(-1), ...sigs.slice(0, -1)].forEach((s, i) => {
-      s.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 320 + i * 200, easing: EASE, fill: 'backwards' });
+      s.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 80 + i * 60 + 360, easing: EASE, fill: 'backwards' });
       s.style.opacity = '';
     });
     await scroll;
@@ -238,43 +238,44 @@ function renderLanding(api) {
   async function playG2(t) {
     if (api.reduced()) return settle(1);
     // Back up to the top of the thesis: the card opens into its detail page to show the return.
-    const scroll = tween(720, easeInOut, k => setY(g1col, G1_TOP + (CARD_TOP - G1_TOP) * k), () => valid(t));
+    const scroll = tween(640, easeInOut, k => setY(g1col, G1_TOP + (CARD_TOP - G1_TOP) * k), () => valid(t));
     g2.hidden = false;
-    g1.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, delay: 360, easing: 'ease-in', fill: 'forwards' });
-    g2.animate([{ opacity: 0, transform: 'scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 420, easing: EASE, fill: 'backwards' });
-    await scroll; await sleep(140);
+    g1.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, delay: 400, easing: STD, fill: 'forwards' });
+    g2.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, delay: 400, easing: STD, fill: 'backwards' });
+    await scroll; await sleep(40);
     if (!valid(t)) return;
     g1.hidden = true;
     const card = g2.querySelector('.v4-dcard');
-    card.querySelector('.v4-vchart-line').animate([{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' });
-    card.querySelector('.v4-vchart-area').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 300, easing: 'ease-out', fill: 'backwards' });
-    card.querySelectorAll('.v4-vchart circle').forEach((c, i) => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: 140 + i * 130, fill: 'backwards' }));
+    card.querySelector('.v4-vchart-line').animate([{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 600, easing: STD });
+    card.querySelector('.v4-vchart-area').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, delay: 200, easing: 'ease-out', fill: 'backwards' });
+    card.querySelectorAll('.v4-vchart circle').forEach((c, i) => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, delay: 90 + i * 90, fill: 'backwards' }));
     const num = root.querySelector('.v4-ret-num');
-    await tween(900, easeOut, k => { num.textContent = `+${(12.4 * k).toFixed(1)}%`; }, () => valid(t));
+    await tween(600, easeOut, k => { num.textContent = `+${(12.4 * k).toFixed(1)}%`; }, () => valid(t));
   }
 
   async function playG3(t) {
     if (api.reduced()) return settle(2);
-    // G3a · the thesis folds back into a list of theses…
+    // G3a · the detail page folds back into a list card, 1 → .88 (220ms STD); neighbours follow, 12 apart.
     g3a.hidden = false;
     const focus = g3a.querySelector('.is-focus');
-    // Figma G3a: the list is the card scaled to .88, neighbours 12 apart, current card back at y 131.
-    g3col.style.transform = `translateY(${CARD_TOP - focus.offsetTop * LIST_SCALE}px) scale(${LIST_SCALE})`;
-    g2.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `scale(${LIST_SCALE})` }], { duration: 420, easing: EASE, fill: 'forwards' });
-    focus.animate([{ opacity: 0, transform: `scale(${1 / LIST_SCALE})` }, { opacity: 1, offset: .4 }, { opacity: 1, transform: 'none' }], { duration: 520, easing: EASE, fill: 'backwards' });
-    g3a.querySelectorAll('.is-above').forEach(c => c.animate([{ opacity: 0, transform: 'translateY(-40px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 80, easing: EASE, fill: 'backwards' }));
-    g3a.querySelectorAll('.is-below').forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(60px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120 + i * 60, easing: EASE, fill: 'backwards' }));
-    await sleep(820); if (!valid(t)) return;
+    const restY = CARD_TOP - focus.offsetTop * LIST_SCALE;
+    g3col.style.transform = `translateY(${restY}px) scale(${LIST_SCALE})`;
+    g2.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `scale(${LIST_SCALE})` }], { duration: 220, easing: STD, fill: 'forwards' });
+    focus.animate([{ transform: `scale(${1 / LIST_SCALE})` }, { transform: 'none' }], { duration: 220, easing: STD });
+    g3a.querySelectorAll('.is-above, .is-below').forEach(c => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: STD, fill: 'backwards' }));
+    await sleep(380); if (!valid(t)) return;
     g2.hidden = true;
-    // G3b · …that scrolls up fast and blurs, and the Leaderboard lands (G3).
-    g3a.animate([{ transform: 'none', filter: 'blur(0)' }, { transform: 'translateY(-620px)', filter: 'blur(10px)', opacity: 0 }], { duration: 560, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' });
+    // G3b · the whole column runs up to the top (420ms INOUT3) with a layer blur 0 → 8 → 0.
+    const topY = 0, fromY = restY;
+    g3a.animate([{ filter: 'blur(0)' }, { filter: 'blur(8px)', offset: .5 }, { filter: 'blur(0)' }], { duration: 420, easing: 'linear' });
+    await tween(420, easeInOut, k => { g3col.style.transform = `translateY(${fromY + (topY - fromY) * k}px) scale(${LIST_SCALE})`; }, () => valid(t));
+    if (!valid(t)) return;
+    // G3 · at the top it cross-fades into the Leaderboard (200ms).
     board.hidden = false;
-    board.animate([{ opacity: 0, transform: 'translateY(160px)', filter: 'blur(10px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 640, delay: 300, easing: EASE, fill: 'backwards' });
-    board.querySelector('.v4-trophy').animate([{ transform: 'scale(.6)' }, { transform: 'scale(1.08)', offset: .6 }, { transform: 'none' }], { duration: 520, delay: 560, easing: 'cubic-bezier(.3,0,.3,1)', fill: 'backwards' });
-    board.querySelectorAll('.v4-board-row').forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 460, delay: 520 + i * 90, easing: EASE, fill: 'backwards' }));
-    await sleep(980); if (!valid(t)) return;
+    board.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: STD, fill: 'backwards' });
+    await g3a.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: STD, fill: 'forwards' }).finished.catch(() => {});
+    if (!valid(t)) return;
     copySwap(holder, LANDING[3].title, LANDING[3].text);
-    await sleep(500); if (!valid(t)) return;
     g3a.hidden = true;
   }
 
@@ -282,13 +283,16 @@ function renderLanding(api) {
     const t = ++token;
     if (index > 0) settle(pageIndex);
     pageIndex = index;
+    setLast(index === 2);
     step.textContent = `${index + 1} / 3`;
     next.textContent = index === 2 ? 'Get started' : 'Next';
     if (index > 0) copySwap(holder, LANDING[index].title, LANDING[index].text);
     await [playG1, playG2, playG3][index](t);
   }
   next.addEventListener('click', () => { if (pageIndex === 2) api.go('login'); else show(pageIndex + 1); });
-  root.querySelector('.v4-skip').addEventListener('click', () => api.go('login'));
+  root.querySelector('.v4-login').addEventListener('click', () => api.go('login'));
+  // Page 3 drops Log in: the footer folds back to 80 and the copy and stage follow it down 44.
+  const setLast = last => root.classList.toggle('is-last', last);
   // A deliberate tap on the stage finishes the current motion at once.
   stage.addEventListener('pointerdown', () => { if (running().length) { token++; settle(pageIndex); } });
   root.start = () => { show(0); };
@@ -299,6 +303,29 @@ function renderLanding(api) {
   if (api.reduced()) queueMicrotask(() => settle(0));
   return root;
 }
+
+/* iOS/Keyboard/Light · shared by A3 and A6. onKey(char | 'del' | 'return'). */
+function mountKeyboard(kb, onKey) {
+  let mode = 'abc';
+  const draw = () => {
+    const rows = KEY_ROWS[mode];
+    const key = k => `<button type="button" class="v4-key" data-k="${esc(k)}">${esc(k)}</button>`;
+    kb.innerHTML = `<div class="v4-kb-row">${[...rows[0]].map(key).join('')}</div>
+      <div class="v4-kb-row is-mid">${[...rows[1]].map(key).join('')}</div>
+      <div class="v4-kb-row"><button type="button" class="v4-key is-fn" data-fn="shift">${mode === 'abc' ? '⇧' : '#+='}</button><span class="v4-kb-gap"></span>${[...rows[2]].map(key).join('')}<span class="v4-kb-gap"></span><button type="button" class="v4-key is-fn" data-fn="del">⌫</button></div>
+      <div class="v4-kb-row"><button type="button" class="v4-key is-fn is-wide" data-fn="mode">${mode === 'abc' ? '123' : 'ABC'}</button><button type="button" class="v4-key is-space" data-k=" ">space</button><button type="button" class="v4-key is-fn is-wide" data-fn="return">return</button></div>
+      <div class="v4-kb-extra"><span>☺</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0M12 17v4m-3 0h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>`;
+  };
+  kb.addEventListener('pointerdown', e => e.preventDefault());
+  kb.addEventListener('click', e => {
+    const key = e.target.closest('.v4-key'); if (!key) return;
+    if (key.dataset.k) onKey(key.dataset.k);
+    else if (key.dataset.fn === 'mode') { mode = mode === 'abc' ? 'num' : 'abc'; draw(); }
+    else if (key.dataset.fn === 'del' || key.dataset.fn === 'return') onKey(key.dataset.fn);
+  });
+  draw();
+}
+const touch = () => matchMedia('(pointer:coarse)').matches;
 
 /* ───────────────────────── A3 · Invite code ───────────────────────── */
 const KEY_ROWS = { abc: ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'], num: ['1234567890', '-/:;()$&@"', '.,?!\''] };
@@ -317,16 +344,6 @@ function renderInvite(api) {
     <div class="v4-keyboard" aria-hidden="true"></div>`;
   const cells = [...root.querySelectorAll('.v4-code-cell')], input = root.querySelector('.v4-code-input'), join = root.querySelector('.setup-next');
   const kb = root.querySelector('.v4-keyboard');
-  let mode = 'abc';
-  function drawKeyboard() {
-    const rows = KEY_ROWS[mode];
-    const key = k => `<button type="button" class="v4-key" data-k="${esc(k)}">${esc(k)}</button>`;
-    kb.innerHTML = `<div class="v4-kb-row">${[...rows[0]].map(key).join('')}</div>
-      <div class="v4-kb-row is-mid">${[...rows[1]].map(key).join('')}</div>
-      <div class="v4-kb-row"><button type="button" class="v4-key is-fn" data-fn="shift">${mode === 'abc' ? '⇧' : '#+='}</button><span class="v4-kb-gap"></span>${[...rows[2]].map(key).join('')}<span class="v4-kb-gap"></span><button type="button" class="v4-key is-fn" data-fn="del">⌫</button></div>
-      <div class="v4-kb-row"><button type="button" class="v4-key is-fn is-wide" data-fn="mode">${mode === 'abc' ? '123' : 'ABC'}</button><button type="button" class="v4-key is-space" data-k=" ">space</button><button type="button" class="v4-key is-fn is-wide" data-fn="return">return</button></div>
-      <div class="v4-kb-extra"><span>☺</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0M12 17v4m-3 0h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>`;
-  }
   function update() {
     const code = api.state.invite;
     cells.forEach((c, i) => { c.textContent = code[i] || ''; c.classList.toggle('is-caret', i === code.length); });
@@ -340,25 +357,23 @@ function renderInvite(api) {
     }
     update();
   }
-  kb.addEventListener('pointerdown', e => e.preventDefault());
-  kb.addEventListener('click', e => {
-    const key = e.target.closest('.v4-key'); if (!key) return;
-    if (key.dataset.k) type(key.dataset.k);
-    else if (key.dataset.fn === 'del') { api.state.invite = api.state.invite.slice(0, -1); update(); }
-    else if (key.dataset.fn === 'mode') { mode = mode === 'abc' ? 'num' : 'abc'; drawKeyboard(); }
-    else if (key.dataset.fn === 'return' && !join.disabled) join.click();
+  mountKeyboard(kb, k => {
+    if (k === 'del') { api.state.invite = api.state.invite.slice(0, -1); update(); }
+    else if (k === 'return') { if (!join.disabled) join.click(); }
+    else type(k);
   });
+  if (touch()) input.setAttribute('inputmode', 'none');
   input.addEventListener('input', () => { api.state.invite = input.value.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase(); update(); });
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !join.disabled) join.click(); });
   root.querySelector('.setup-back').addEventListener('click', () => api.go('login'));
-  root.querySelector('.v4-link').addEventListener('click', () => api.toast('Request sent. We’ll email you when a spot opens.'));
+  root.querySelector('.v4-link').addEventListener('click', () => api.go('request'));
   join.addEventListener('click', async () => {
     join.disabled = true; join.classList.add('is-busy'); join.innerHTML = '<span class="v4-spinner" aria-label="Checking"></span>';
     await sleep(api.reduced() ? 0 : 650);
     if (root.isConnected) api.go('create');
   });
-  drawKeyboard(); update();
-  root.start = () => { if (matchMedia('(pointer:fine)').matches) input.focus({ preventScroll: true }); };
+  update();
+  root.start = () => { if (!touch()) input.focus({ preventScroll: true }); };
   return root;
 }
 
@@ -553,9 +568,127 @@ function renderProfile(api) {
   root.querySelector('.v4-photo').addEventListener('click', () => api.toast('Photo comes from your X profile.'));
   root.querySelector('.v4-handle .v4-link').addEventListener('click', () => api.toast('Your handle can be changed later in Settings.'));
   root.querySelector('.setup-back').addEventListener('click', () => api.go('chat'));
-  root.querySelector('.setup-next').addEventListener('click', () => api.go('portfolio'));
+  root.querySelector('.setup-next').addEventListener('click', () => {
+    if (api.state.applicantPush === 'allowed') { api.go('portfolio'); return; }
+    const handoff = !api.reduced();
+    if (handoff) {
+      // The notifications page runs under the status bar and home indicator,
+      // so the copy carries both insets to stay exactly where it is now.
+      const slot = root.parentElement, app = slot.parentElement;
+      const top = slot.offsetTop, bottom = app.clientHeight - slot.offsetTop - slot.clientHeight;
+      const snapshot = root.cloneNode(true);
+      snapshot.removeAttribute('data-page'); snapshot.classList.remove('route-page'); snapshot.setAttribute('inert', '');
+      Object.assign(snapshot.style, { boxSizing: 'border-box', paddingTop: `${top}px`, paddingBottom: `${bottom}px`, transform: 'none', opacity: '1', zIndex: '' });
+      const base = root.getBoundingClientRect(), u = base.width / root.clientWidth || 1, box = root.querySelector('.setup-dock').getBoundingClientRect();
+      api.handoff = {
+        snapshot, scrollTop: root.querySelector('.v4-profile-body').scrollTop,
+        size: { width: root.clientWidth, height: root.clientHeight + top + bottom },
+        panel: { x: (box.left - base.left) / u, y: (box.top - base.top) / u + top, width: box.width / u, height: box.height / u },
+      };
+    }
+    api.go('notifications', { instant: handoff });
+  });
   paint();
   return root;
+}
+
+/* ───────────────────────── A6 / A7 · Request an invite ───────────────────────── */
+// The demo types this idea one letter per key (a physical keyboard types freely).
+const DEMO_IDEA = 'Hyperscaler capex keeps rising into 2027, so I stay long NVDA and TSMC until guidance flattens.';
+function renderRequest(api) {
+  api.state.idea ||= '';
+  const root = node('section', 'setup-page v4-request-page v4-full-bottom');
+  root.setAttribute('aria-label', 'Request an invite');
+  root.innerHTML = `<header class="v4-titlebar"><button type="button" class="v4-titlebar-back" aria-label="Back">${ic(ICON.back, 20)}</button><h1>Request an invite</h1></header>
+    <div class="v4-request-body">
+      <textarea class="v4-idea" placeholder="Share a market view you hold, and why." aria-label="Your idea"></textarea>
+      <div class="v4-example"><p>Example of a strong thesis</p>
+        <div class="v4-example-card"><div class="v4-example-who"><img class="v4-avatar" style="--s:24px" src="${ICON.jensen}" alt=""><strong>Jensen Huang</strong></div>
+          <p>Blackwell Ultra is shipping to all four hyperscalers two weeks ahead of schedule. Data-center revenue ran at $75.2B this quarter, up 92% YoY.</p></div></div>
+    </div>
+    <footer class="v4-request-dock"><button class="setup-next" type="button" disabled>Request</button></footer>
+    <div class="v4-keyboard" aria-hidden="true"></div>`;
+  const idea = root.querySelector('.v4-idea'), send = root.querySelector('.setup-next'), example = root.querySelector('.v4-example');
+  idea.value = api.state.idea;
+  const update = () => {
+    api.state.idea = idea.value;
+    send.disabled = idea.value.trim().length < 40;     // Request is disabled below 40 characters
+    example.hidden = idea.value.length > 0;
+  };
+  mountKeyboard(root.querySelector('.v4-keyboard'), k => {
+    if (k === 'del') idea.value = idea.value.slice(0, -1);
+    else if (k === 'return') { if (!send.disabled) send.click(); return; }
+    else idea.value = DEMO_IDEA.startsWith(idea.value) && idea.value.length < DEMO_IDEA.length ? DEMO_IDEA.slice(0, idea.value.length + 1) : idea.value + k;
+    update();
+  });
+  if (touch()) idea.setAttribute('inputmode', 'none');
+  idea.addEventListener('input', update);
+  root.querySelector('.v4-titlebar-back').addEventListener('click', () => api.go('invite'));
+  send.addEventListener('click', () => { api.state.idea = idea.value.trim(); api.go('listed'); });
+  update();
+  root.start = () => { if (!touch()) idea.focus({ preventScroll: true }); };
+  return root;
+}
+
+/* Status pages (A8 · A10 · A11): centred icon, title, line; footer actions. */
+function statusPage(api, { cls, label, top, icon, title, text, body = '', actions }) {
+  const root = node('section', `setup-page v4-status ${cls}`);
+  root.setAttribute('aria-label', label);
+  root.innerHTML = `<header class="setup-topbar v4-status-top">${top.back ? `<button type="button" class="setup-back" data-act="back" aria-label="Back">${ic(ICON.back, 20)}</button>` : ''}${top.switch ? '<button type="button" class="setup-skip v4-switch" data-act="switch">Switch account</button>' : ''}</header>
+    <div class="v4-status-body"><div class="v4-status-head">${icon}<div class="v4-status-title"><h1>${title}</h1><p>${text}</p></div>${body}</div></div>
+    <footer class="setup-dock v4-status-dock">${actions.map(a => `<button type="button" class="${a.primary ? 'setup-next' : 'v4-btn-outline'}" data-act="${a.id}">${a.label}</button>`).join('')}</footer>`;
+  root.querySelector('[data-act="back"]')?.addEventListener('click', () => api.go(top.back));
+  root.querySelector('[data-act="switch"]')?.addEventListener('click', () => api.go('login'));
+  return root;
+}
+const checkBadge = `<span class="v4-status-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8.5 16.5l5 5 10-11" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+
+function renderListed(api) {
+  const idea = api.state.idea || DEMO_IDEA;
+  const root = statusPage(api, { cls: 'v4-listed', label: 'You’re on the list', top: { back: 'request', switch: true }, icon: checkBadge,
+    title: 'You’re on the list', text: 'We review requests daily.',
+    body: `<div class="v4-your-idea"><span>Your idea</span><p>${esc(idea)}</p></div>`,
+    actions: [{ id: 'notify', label: 'Notify me when I’m in', primary: true }, { id: 'code', label: 'I have an invite code' }] });
+  let timer = 0, alive = true;
+  const notify = root.querySelector('[data-act="notify"]');
+  // Approval arrives a moment later in this preview: as a push if allowed, by email otherwise.
+  const approveSoon = () => { clearTimeout(timer); timer = setTimeout(() => { if (alive) banner(api, api.state.applicantPush === 'allowed' ? 'push' : 'mail', () => api.go('approved')); }, 2200); };
+  notify.addEventListener('click', () => {
+    if (api.state.applicantPush) { approveSoon(); return; }
+    // A9 · the iOS system prompt over A8; either answer returns here.
+    api.sheet({ title: '“Alva” Would Like to Send You Notifications', body: 'Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.', actions: [
+      { label: 'Don’t Allow', onClick() { api.state.applicantPush = 'denied'; approveSoon(); } },
+      { label: 'Allow', primary: true, onClick() { api.state.applicantPush = 'allowed'; approveSoon(); } },
+    ] });
+  });
+  root.querySelector('[data-act="code"]').addEventListener('click', () => api.go('invite'));
+  root.classList.add('is-permission-host');
+  root.cleanup = () => { alive = false; clearTimeout(timer); document.querySelector('.v4-banner')?.remove(); };
+  return root;
+}
+function renderDeclined(api) {
+  const root = statusPage(api, { cls: 'v4-declined', label: 'Not approved this time', top: { switch: true },
+    icon: '<span class="v4-status-badge is-alert" aria-hidden="true"><i></i><i></i></span>',
+    title: 'Not approved this time', text: 'We’re letting people in gradually. Add more detail to your idea and request again.',
+    actions: [{ id: 'again', label: 'Request again', primary: true }, { id: 'code', label: 'I have an invite code' }] });
+  root.querySelector('[data-act="again"]').addEventListener('click', () => { api.state.idea ||= DEMO_IDEA; api.go('request'); });
+  root.querySelector('[data-act="code"]').addEventListener('click', () => api.go('invite'));
+  return root;
+}
+function renderApproved(api) {
+  const root = statusPage(api, { cls: 'v4-approved', label: 'You’re in', top: {}, icon: checkBadge,
+    title: 'You’re in', text: 'Your request was approved. Welcome to Alva.', actions: [{ id: 'next', label: 'Next', primary: true }] });
+  root.querySelector('[data-act="next"]').addEventListener('click', () => api.go('create'));
+  return root;
+}
+// A system banner at the top of the screen (push or Mail); tapping it opens the app there.
+function banner(api, kind, onOpen) {
+  document.querySelector('.v4-banner')?.remove();
+  const b = node('button', 'v4-banner', `<img src="${A('assets/alva-app-icon.svg')}" alt=""><div><div class="v4-banner-top"><strong>${kind === 'push' ? 'Alva' : 'Mail · Alva'}</strong><span>now</span></div><p>${kind === 'push' ? 'You’re in. Your request was approved.' : 'You’re in — open Alva to get started.'}</p></div>`);
+  b.type = 'button';
+  document.querySelector('#overlays').append(b);
+  if (!api.reduced()) b.animate([{ transform: 'translateY(-120%)' }, { transform: 'none' }], { duration: 460, easing: EASE });
+  b.addEventListener('click', () => { b.remove(); onOpen(); });
 }
 
 /* ───────────────────────── F1 + D1–D4 · For You and the Thesis page guide ───────────────────────── */
@@ -764,7 +897,7 @@ function renderHome(api) {
 }
 
 export function renderV4Page(name, api) {
-  const render = { landing: renderLanding, invite: renderInvite, create: renderCreate, chat: renderChat, profile: renderProfile, home: renderHome }[name];
+  const render = { landing: renderLanding, invite: renderInvite, request: renderRequest, listed: renderListed, declined: renderDeclined, approved: renderApproved, create: renderCreate, chat: renderChat, profile: renderProfile, home: renderHome }[name];
   if (!render) throw new Error(`Unknown v4 page: ${name}`);
   return render(api);
 }

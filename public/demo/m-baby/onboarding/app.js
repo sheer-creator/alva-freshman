@@ -1,11 +1,11 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=46';
+import { renderSetupPage } from './setup.js?v=47';
 import { renderIntroPage } from './intro.js?v=13';
 import { renderGuidedIntroPage } from './intro-guided.js?v=4';
 import { renderBookmarkPage } from './cards.js?v=10';
 import { renderPickPage, renderTrackPage } from './intro-track.js?v=51';
 import { renderReadyPage } from './ready.js?v=9';
-import { renderV4Page, V4_STEPS } from './v4.js?v=2';
+import { renderV4Page, V4_STEPS } from './v4.js?v=4';
 import { node, escapeHTML } from './ui.js';
 import { transitionPages } from './transitions.js?v=12';
 import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=8';
@@ -48,7 +48,11 @@ const steps = v4 ? V4_STEPS : trackVariant ? ['login', 'people', 'pick', 'track'
   : ['login', 'intro', 'people', 'bookmark', 'notifications', 'portfolio'];
 const flow = {
   steps,
-  prev: name => { const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null; },
+  prev: name => {
+    // v4: applicants who allowed push on A9 skip the notifications step.
+    if (v4 && name === 'portfolio' && state?.applicantPush === 'allowed') return 'profile';
+    const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null;
+  },
   next: name => { const index = steps.indexOf(name); return index >= 0 && index < steps.length - 1 ? steps[index + 1] : 'feed'; },
 };
 const stateKey = trackVariant ? TRACK_ONBOARDING_STATE_KEY : guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
@@ -206,7 +210,7 @@ async function go(name, options = {}) {
   for (const child of [...app.children]) if (child !== old) child.remove();
   overlays.replaceChildren(); state.page = name; persist();
   page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api, { next: flow.next('bookmark') })
-    : V4_STEPS.includes(name) && v4 && !['login', 'portfolio', 'ready'].includes(name) ? renderV4Page(name, api)
+    : V4_STEPS.includes(name) && v4 && !['login', 'notifications', 'portfolio', 'ready'].includes(name) ? renderV4Page(name, api)
     : name === 'pick' ? renderPickPage(api) : name === 'track' ? renderTrackPage(api) : name === 'ready' ? renderReadyPage(api)
     : renderSetupPage(name, api);
   page.dataset.page = name; page.classList.add('route-page'); page.style.zIndex = '2'; app.append(page); old?.setAttribute('inert', '');
