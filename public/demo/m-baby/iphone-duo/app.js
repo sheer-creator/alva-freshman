@@ -156,7 +156,7 @@
 
   /* ── views ── */
   function titleTabs(lb) {
-    return `<div class="title-tabs"><button class="${lb ? '' : 'on'}" data-act="feedTab" data-id="foryou">For You</button><button class="${lb ? 'on' : ''}" data-act="feedTab" data-id="leaderboard">Leaderboard</button></div>`;
+    return `<div class="title-tabs"><button class="${lb ? '' : 'on'}" data-act="feedTab" data-id="foryou">For You</button><button class="${lb ? 'on' : ''}" data-act="feedTab" data-id="leaderboard">Leaderboard</button><button class="tt-inbox" data-act="toast" data-id="Inbox" aria-label="Inbox">${I('notification-l')}</button></div>`;   // 11-27: the bell, as on mobile
   }
   const feedIds = () => D.feed.filter(id => id === 'people' ? !S.peopleDismissed && S.topic === 'All' : S.topic === 'All' || (D.theses[id].topics || []).includes(S.topic));
   const lbIds = () => { const ids = D.leaderboard.slice(); if (S.period === '1D') ids.reverse(); if (S.period === '30D') ids.push(ids.shift()); return ids; };
