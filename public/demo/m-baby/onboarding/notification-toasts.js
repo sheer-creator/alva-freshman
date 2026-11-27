@@ -1,5 +1,5 @@
 import { escapeHTML } from './ui.js';
-import { mountPhoneMock } from './notification-mock.js?v=25';
+import { mountPhoneMock } from './notification-mock.js?v=26';
 
 // Approved one-sentence versions of the existing notificationPreview records.
 // These are examples, never additions to the user's bookmarked thesis IDs.
@@ -14,6 +14,7 @@ const BACK_ASSET = 'I12552:200909;3931:33522;12552:200937;4029:31573';
 export function renderNotificationToastsPage(api) {
   const root = document.createElement('section');
   root.className = 'setup-page notification-toasts-page';
+  if (api.variant === 'v4') root.classList.add('is-v4');
   root.setAttribute('aria-label', 'Get notifications');
   const knownIds = new Set([...(api.data.theses || []), ...(api.data.feed || [])].filter(thesis => thesis?.id && thesis.body).map(thesis => thesis.id));
   const v4 = api.variant === 'v4';

@@ -109,3 +109,8 @@
 /* Track: a wider handle (not square). */
 .notification-toasts-page.is-track .notification-toasts-handle{width:72px}
 .notification-toasts-page.is-track .notification-toasts-label{padding:0 76px}
+
+/* v4 · N1 / O5 (Figma 17880:200856 / 200924): description 8 under the title, phone at y 255 (46 under the heading), the 48 button centred in the 56 dock. */
+.notification-toasts-page.is-v4 .setup-heading p{margin-top:8px}
+.notification-toasts-page.is-v4 .notification-toasts-stage{margin-top:46px}
+.notification-toasts-page.is-v4 .notification-toasts-dock>.setup-next{margin:4px 0}

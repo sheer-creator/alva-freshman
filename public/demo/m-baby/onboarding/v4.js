@@ -3,9 +3,11 @@
  * follow get_design_context for each frame; icons are the frames' own SVGs
  * (assets/v4/icons, exported from the file).
  *
- * Landing teaching (one screen, three pages; Next only changes the copy while
- * the grey stage moves) → Login (shared setup page) → Invite code → C1 example
- * theses + Create with Alva → CH1–CH3 Alva chat → O1 Profile → Portfolio
+ * Landing teaching (one screen, three segments that autoplay ~5s each and loop;
+ * swipe or tap a progress line to jump; Get started = log in) → Login (shared
+ * setup page) → Invite code (or request one: A6–A11, approval opens “Turn your
+ * idea into a thesis” → chat) → C1 example theses + Create with Alva → CH1–CH3
+ * Alva chat → O1 Profile → O2 Follow → N1 Notifications (shared) → Portfolio
  * (shared setup page) → Ready (shared) → For You with the new thesis pinned and
  * a six-step guide that continues on the Thesis page.
  *
@@ -18,8 +20,9 @@
  * are simulated.
  */
 import { node, escapeHTML as esc } from './ui.js';
+import { PEOPLE } from './setup.js?v=48';
 
-export const V4_STEPS = ['landing', 'login', 'invite', 'request', 'listed', 'declined', 'approved', 'create', 'chat', 'profile', 'notifications', 'portfolio', 'ready', 'home'];
+export const V4_STEPS = ['landing', 'login', 'invite', 'request', 'listed', 'declined', 'approved', 'create', 'chat', 'profile', 'follow', 'notifications', 'portfolio', 'ready', 'home'];
 const STD = 'cubic-bezier(.4,0,.2,1)';
 
 const A = path => new URL(path, import.meta.url).href;
@@ -129,14 +132,13 @@ function tween(duration, ease, step, alive = () => true) {
 }
 
 /* ───────────────────────── Landing · G1–G3 ───────────────────────── */
+// One title + line per segment (G3a / G3b / G3 share the third).
 const LANDING = [
-  { title: 'Write a thesis. Alva tracks it.', text: 'Every day Alva reads the news, filings and posts behind it, and tells you what supports or challenges it.' },
-  { title: 'Alva trades it for you.', text: 'It builds a position from your thesis, adjusts it as you update, and shows you the return.' },
-  // G3a / G3b carry this copy while the stage moves to the Leaderboard…
-  { title: 'See whose calls are working.', text: 'The Leaderboard shows which theses are making money and the people behind them.' },
-  // …and G3 settles on this one.
-  { title: 'Learn from the top theses.', text: 'The Leaderboard ranks theses by return. See what’s working for others.' },
+  { title: 'Write a thesis. Alva tracks it.', text: 'Every day Alva reads news, filings, podcasts, X and more, and tells you what supports or challenges it.' },
+  { title: 'Alva helps you trade the thesis.', text: 'It builds positions from your thesis, suggests rebalances as things change, and tracks the simulated return.' },
+  { title: 'Find thesis that make money.', text: 'The Leaderboard ranks theses by simulated return, so you can find great ideas and the people behind them.' },
 ];
+const SEGMENT = 5000;   // autoplay: each segment ~5s, then the next; after the third, back to the first
 const BOARD = [
   { name: 'Mickie', avatar: IMG.mickie, title: 'Nvidia Could Be Cisco 2000: Great Business, Poor Stock', tickers: [['NVDA', 'down']], ret: '+17.8%' },
   { name: 'harryz', title: 'Semis face near-term multiple compression despite strong demand', tickers: [['SMH', 'down']], ret: '+11.9%' },
@@ -186,20 +188,22 @@ function renderLanding(api) {
         ${feedCard({ ...P.sam, cls: 'v4-stage-card is-below' })}
       </div></div>
       <div class="v4-layer v4-board"><div class="v4-col">
-        <div class="v4-board-head"><span class="v4-trophy"><img src="${ICON.rank}" alt=""></span>
-          <div class="v4-board-title"><h2>See whose calls are working.</h2><p>The Leaderboard shows which theses are making money and the people behind them.</p></div></div>
         <div class="v4-board-rows">${BOARD.map((row, i) => `<div class="v4-stage-card v4-board-row"><b class="v4-rank">${i + 1}</b><div class="v4-board-main"><div class="v4-board-who">${row.avatar ? `<img src="${row.avatar}" alt="">` : '<i class="v4-chip-blank is-avatar"></i>'}<span>${esc(row.name)}</span></div><strong>${esc(row.title)}</strong><div class="v4-board-chips">${row.tickers.map(t => chip(t[0], t[1])).join('')}</div></div><b class="v4-board-ret">${row.ret}</b></div>`).join('')}</div>
       </div></div>
       <div class="v4-stage-blur"></div>
     </div>
-    <div class="v4-land-copy"><span class="v4-step" aria-live="polite">1 / 3</span><div class="v4-copy-holder"></div></div>
-    <footer class="v4-land-dock"><button class="setup-next v4-next" type="button">Next</button><button class="v4-text-btn v4-login" type="button">Log in</button></footer>`;
+    <div class="v4-land-fade" aria-hidden="true"></div>
+    <img class="v4-land-logo" src="${A('assets/v4/logo-wordmark.svg')}" alt="Alva">
+    <div class="v4-land-copy"><div class="v4-copy-holder" aria-live="polite"></div>
+      <div class="v4-prog" role="tablist" aria-label="Steps">${LANDING.map((_, i) => `<button type="button" role="tab" aria-label="Step ${i + 1} of 3" data-seg="${i}"><i><b></b></i></button>`).join('')}</div></div>
+    <footer class="v4-land-dock"><button class="setup-next v4-next" type="button">Get started</button></footer>`;
   const stage = root.querySelector('.v4-stage');
   const g1 = root.querySelector('.v4-g1'), g2 = root.querySelector('.v4-g2'), g3a = root.querySelector('.v4-g3a'), board = root.querySelector('.v4-board');
   const g1col = g1.querySelector('.v4-col'), g1card = g1.querySelector('.v4-g1-card'), sigs = [...g1.querySelectorAll('.v4-ssig'), g1.querySelector('.v4-signals-title')];
   const g3col = g3a.querySelector('.v4-col');
-  const holder = root.querySelector('.v4-copy-holder'), step = root.querySelector('.v4-step'), next = root.querySelector('.v4-next');
-  let pageIndex = 0, token = 0, alive = true;
+  const holder = root.querySelector('.v4-copy-holder'), next = root.querySelector('.v4-next');
+  const bars = [...root.querySelectorAll('.v4-prog b')];
+  let pageIndex = 0, token = 0, alive = true, timer = 0, copyIndex = 0;
   copySwap(holder, LANDING[0].title, LANDING[0].text);
   const setY = (col, y) => { col.style.transform = `translateY(${y}px)`; };
   const valid = t => alive && t === token;
@@ -213,7 +217,6 @@ function renderLanding(api) {
     g1card.style.opacity = ''; sigs.forEach(s => { s.style.opacity = ''; });
     root.querySelector('.v4-ret-num').textContent = '+12.4%';
     setY(g1col, G1_TOP);
-    if (index === 2) { step.textContent = '3 / 3'; copySwap(holder, LANDING[3].title, LANDING[3].text); }
   }
 
   async function playG1(t) {
@@ -275,28 +278,43 @@ function renderLanding(api) {
     board.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: STD, fill: 'backwards' });
     await g3a.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: STD, fill: 'forwards' }).finished.catch(() => {});
     if (!valid(t)) return;
-    copySwap(holder, LANDING[3].title, LANDING[3].text);
     g3a.hidden = true;
   }
 
+  // Progress: played + current segment main/m1, the rest m1 16%. The current one fills left → right over the segment.
+  function progress(index) {
+    bars.forEach((b, i) => {
+      b.getAnimations().forEach(a => a.cancel());
+      b.style.transform = i < index ? 'none' : 'scaleX(0)';
+      if (i === index) b.animate([{ transform: 'scaleX(0)' }, { transform: 'none' }], { duration: SEGMENT, easing: 'linear', fill: 'forwards' });
+    });
+  }
+  // Autoplay. Jumping (swipe, tap a line) starts the target segment's motion from its beginning.
   async function show(index) {
     const t = ++token;
-    if (index > 0) settle(pageIndex);
+    clearTimeout(timer);
+    settle(index === 0 ? 0 : index - 1);
     pageIndex = index;
-    setLast(index === 2);
-    step.textContent = `${index + 1} / 3`;
-    next.textContent = index === 2 ? 'Get started' : 'Next';
-    if (index > 0) copySwap(holder, LANDING[index].title, LANDING[index].text);
+    progress(index);
+    if (copyIndex !== index) { copyIndex = index; copySwap(holder, LANDING[index].title, LANDING[index].text); }
+    timer = setTimeout(() => { if (valid(t)) show((index + 1) % LANDING.length); }, SEGMENT);
     await [playG1, playG2, playG3][index](t);
   }
-  next.addEventListener('click', () => { if (pageIndex === 2) api.go('login'); else show(pageIndex + 1); });
-  root.querySelector('.v4-login').addEventListener('click', () => api.go('login'));
-  // Page 3 drops Log in: the footer folds back to 80 and the copy and stage follow it down 44.
-  const setLast = last => root.classList.toggle('is-last', last);
-  // A deliberate tap on the stage finishes the current motion at once.
-  stage.addEventListener('pointerdown', () => { if (running().length) { token++; settle(pageIndex); } });
+  // Get started is the way in (log in); there is no Next or Skip.
+  next.addEventListener('click', () => api.go('login'));
+  root.querySelectorAll('[data-seg]').forEach(b => b.addEventListener('click', () => show(Number(b.dataset.seg))));
+  // Swipe left / right → next / previous segment.
+  let down = null;
+  root.addEventListener('pointerdown', e => { if (!e.target.closest('button')) down = { x: e.clientX, y: e.clientY }; });
+  root.addEventListener('pointerup', e => {
+    if (!down) return;
+    const dx = e.clientX - down.x, dy = e.clientY - down.y; down = null;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    show(dx < 0 ? (pageIndex + 1) % LANDING.length : Math.max(0, pageIndex - 1));
+  });
+  root.addEventListener('pointercancel', () => { down = null; });
   root.start = () => { show(0); };
-  root.cleanup = () => { alive = false; token++; };
+  root.cleanup = () => { alive = false; token++; clearTimeout(timer); };
   g1.hidden = false; g2.hidden = true; g3a.hidden = true; board.hidden = true;
   setY(g1col, CARD_TOP); g1card.style.opacity = '0'; sigs.forEach(s => { s.style.opacity = '0'; });
   queueMicrotask(() => { g1card.style.opacity = ''; });
@@ -543,7 +561,8 @@ function renderProfile(api) {
   api.state.watch ||= new Set(['NVDA', 'SNDK']);
   const root = node('section', 'setup-page v4-profile');
   root.setAttribute('aria-label', 'Set up your profile.');
-  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-back" aria-label="Back">${ic(ICON.back, 20)}</button></header>
+  // O1 · no Back (the chat is behind it); Switch account top right, as on C1.
+  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-skip v4-switch">Switch account</button></header>
     <div class="v4-profile-body">
       <div class="v4-title-block"><h1>Set up your profile.</h1><p>From your X profile. This is how others see you.</p></div>
       <div class="v4-identity">
@@ -567,33 +586,89 @@ function renderProfile(api) {
   root.querySelector('.is-more').addEventListener('click', () => api.toast('Search all tickers in the full app.'));
   root.querySelector('.v4-photo').addEventListener('click', () => api.toast('Photo comes from your X profile.'));
   root.querySelector('.v4-handle .v4-link').addEventListener('click', () => api.toast('Your handle can be changed later in Settings.'));
-  root.querySelector('.setup-back').addEventListener('click', () => api.go('chat'));
-  root.querySelector('.setup-next').addEventListener('click', () => {
-    if (api.state.applicantPush === 'allowed') { api.go('portfolio'); return; }
-    const handoff = !api.reduced();
-    if (handoff) {
-      // The notifications page runs under the status bar and home indicator,
-      // so the copy carries both insets to stay exactly where it is now.
-      const slot = root.parentElement, app = slot.parentElement;
-      const top = slot.offsetTop, bottom = app.clientHeight - slot.offsetTop - slot.clientHeight;
-      const snapshot = root.cloneNode(true);
-      snapshot.removeAttribute('data-page'); snapshot.classList.remove('route-page'); snapshot.setAttribute('inert', '');
-      Object.assign(snapshot.style, { boxSizing: 'border-box', paddingTop: `${top}px`, paddingBottom: `${bottom}px`, transform: 'none', opacity: '1', zIndex: '' });
-      const base = root.getBoundingClientRect(), u = base.width / root.clientWidth || 1, box = root.querySelector('.setup-dock').getBoundingClientRect();
-      api.handoff = {
-        snapshot, scrollTop: root.querySelector('.v4-profile-body').scrollTop,
-        size: { width: root.clientWidth, height: root.clientHeight + top + bottom },
-        panel: { x: (box.left - base.left) / u, y: (box.top - base.top) / u + top, width: box.width / u, height: box.height / u },
-      };
-    }
-    api.go('notifications', { instant: handoff });
-  });
+  root.querySelector('.v4-switch').addEventListener('click', () => api.go('login'));
+  root.querySelector('.setup-next').addEventListener('click', () => api.go('follow'));
   paint();
   return root;
 }
 
 /* ───────────────────────── A6 / A7 · Request an invite ───────────────────────── */
 // The demo types this idea one letter per key (a physical keyboard types freely).
+/* The notifications page opens from the page before it as a live copy inside
+ * the phone (notification-mock.js). It runs under the status bar and home
+ * indicator, so the copy carries both insets to stay exactly where it is now. */
+function toNotifications(api, root, dockSel, viewportSel) {
+  if (api.state.applicantPush === 'allowed') { api.go('portfolio'); return; }   // A9 already allowed: no notifications step
+  const handoff = !api.reduced();
+  if (handoff) {
+    const slot = root.parentElement, app = slot.parentElement;
+    const top = slot.offsetTop, bottom = app.clientHeight - slot.offsetTop - slot.clientHeight;
+    const snapshot = root.cloneNode(true);
+    snapshot.removeAttribute('data-page'); snapshot.classList.remove('route-page'); snapshot.setAttribute('inert', '');
+    Object.assign(snapshot.style, { boxSizing: 'border-box', paddingTop: `${top}px`, paddingBottom: `${bottom}px`, transform: 'none', opacity: '1', zIndex: '' });
+    const base = root.getBoundingClientRect(), u = base.width / root.clientWidth || 1, box = root.querySelector(dockSel).getBoundingClientRect();
+    api.handoff = {
+      snapshot, scrollTop: root.querySelector(viewportSel).scrollTop,
+      size: { width: root.clientWidth, height: root.clientHeight + top + bottom },
+      panel: { x: (box.left - base.left) / u, y: (box.top - base.top) / u + top, width: box.width / u, height: box.height / u },
+    };
+  }
+  api.go('notifications', { instant: handoff });
+}
+
+/* O2 / O2b · Follow (the existing Follow page). X login: the top card is the
+ * connected X import summary; other logins get the Import from X card. Rows
+ * carry a reason; the inviter and X follows come pre-checked. */
+const FOLLOW_REASONS = { gavin: 'Invited you to Alva', satya: 'Popular with investors in AI infra', sam: 'Trending on Alva this week', maya: 'Top return on semis this quarter', warren: 'Most followed on Alva' };
+function renderFollow(api) {
+  api.state.following ||= new Set();
+  if (!api.state.followSeeded) { api.state.followSeeded = true; ['gavin', 'satya'].forEach(k => api.state.following.add(k)); }   // inviter + X follow, pre-checked
+  if (api.state.provider === undefined || api.state.provider === 'x') api.state.xImported = true;
+  const root = node('section', 'setup-page setup-people v4-follow-page');
+  root.setAttribute('aria-label', 'Follow people you trust.');
+  const av = p => `<img class="setup-avatar" src="${esc(api.asset(p.avatar))}" alt="">`;
+  const xLogo = `<img class="setup-import-icon" src="${esc(api.asset('I12552:200915;9170:48523'))}" alt="">`;
+  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-back" aria-label="Back">${ic(ICON.back, 20)}</button><button type="button" class="setup-skip" data-act="skip">Skip</button></header>
+    <div class="setup-people-scroll">
+      <div class="setup-people-header">
+        <div class="v4-title-block"><h1>Follow people you trust.</h1><p>Get their next thesis and its latest signals as soon as they share it.</p></div>
+        <div class="v4-import-slot"></div>
+      </div>
+      <div class="setup-or-divider"><span></span><span>or</span><span></span></div>
+      <div class="setup-people-list">${PEOPLE.map(p => `<div class="setup-person" data-person="${p.id}">${av(p)}
+        <div class="setup-person-copy"><strong>${esc(p.name)}</strong><span>${esc(FOLLOW_REASONS[p.id] || p.role)}</span></div>
+        <button class="setup-follow" type="button" data-follow="${p.id}">Follow</button></div>`).join('')}</div>
+    </div>
+    <footer class="setup-dock setup-people-dock"><p class="setup-selection-count" aria-live="polite"></p><button class="setup-next" type="button">Next</button></footer>`;
+  const slot = root.querySelector('.v4-import-slot');
+  const paintImport = () => {
+    slot.innerHTML = api.state.xImported
+      ? `<div class="setup-import v4-x-summary"><div class="v4-x-row">${xLogo}<div class="setup-import-copy"><strong>Import from X</strong><span>Bring in people you already follow</span></div><b class="v4-x-state">Connected</b></div>
+          <i class="v4-x-rule"></i><div class="v4-x-row"><div class="v4-x-avatars">${PEOPLE.slice(0, 6).map(p => av(p)).join('')}<span>+6</span></div><p>12 people found</p></div></div>`
+      : `<div class="setup-import">${xLogo}<div class="setup-import-copy"><strong>Import from X</strong><span>Bring in people you already follow</span></div><button class="setup-import-button" type="button">Connect</button></div>`;
+    slot.querySelector('.setup-import-button')?.addEventListener('click', () => api.sheet({ title: 'Import from X', body: 'Bring in people you already follow. This preview simulates importing your connections.', actions: [
+      { label: 'Cancel', onClick() {} },
+      { label: 'Connect', primary: true, onClick() { api.state.xImported = true; paintImport(); } },
+    ] }));
+  };
+  const paint = () => {
+    root.querySelectorAll('[data-follow]').forEach(b => {
+      const on = api.state.following.has(b.dataset.follow);
+      b.textContent = on ? 'Following' : 'Follow'; b.classList.toggle('is-selected', on); b.setAttribute('aria-pressed', String(on));
+    });
+    root.querySelector('.setup-selection-count').textContent = `${api.state.following.size} selected`;
+  };
+  root.querySelectorAll('[data-follow]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.follow; api.state.following.has(k) ? api.state.following.delete(k) : api.state.following.add(k); paint();
+  }));
+  root.querySelector('.setup-back').addEventListener('click', () => api.go('profile'));
+  const next = () => toNotifications(api, root, '.setup-people-dock', '.setup-people-scroll');
+  root.querySelector('[data-act="skip"]').addEventListener('click', next);
+  root.querySelector('.setup-next').addEventListener('click', next);
+  paintImport(); paint();
+  return root;
+}
+
 const DEMO_IDEA = 'Hyperscaler capex keeps rising into 2027, so I stay long NVDA and TSMC until guidance flattens.';
 function renderRequest(api) {
   api.state.idea ||= '';
@@ -603,16 +678,16 @@ function renderRequest(api) {
     <div class="v4-request-body">
       <textarea class="v4-idea" placeholder="Share a market view you hold, and why." aria-label="Your idea"></textarea>
       <div class="v4-example"><p>Example of a strong thesis</p>
-        <div class="v4-example-card"><div class="v4-example-who"><img class="v4-avatar" style="--s:24px" src="${ICON.jensen}" alt=""><strong>Jensen Huang</strong></div>
-          <p>Blackwell Ultra is shipping to all four hyperscalers two weeks ahead of schedule. Data-center revenue ran at $75.2B this quarter, up 92% YoY.</p></div></div>
+        <div class="v4-example-card"><p>Blackwell Ultra is shipping to all four hyperscalers two weeks ahead of schedule. Data-center revenue ran at $75.2B this quarter, up 92% YoY.</p></div></div>
     </div>
     <footer class="v4-request-dock"><button class="setup-next" type="button" disabled>Request</button></footer>
     <div class="v4-keyboard" aria-hidden="true"></div>`;
-  const idea = root.querySelector('.v4-idea'), send = root.querySelector('.setup-next'), example = root.querySelector('.v4-example');
+  const idea = root.querySelector('.v4-idea'), send = root.querySelector('.setup-next'), example = root.querySelector('.v4-example'), dock = root.querySelector('.v4-request-dock');
   idea.value = api.state.idea;
   const update = () => {
     api.state.idea = idea.value;
-    send.disabled = idea.value.trim().length < 40;     // Request is disabled below 40 characters
+    send.disabled = idea.value.trim().length < 40;     // Request needs 40 characters…
+    dock.hidden = send.disabled;                        // …and only appears then (v4 · A6 empty has no button; Back is the way out)
     example.hidden = idea.value.length > 0;
   };
   mountKeyboard(root.querySelector('.v4-keyboard'), k => {
@@ -675,10 +750,18 @@ function renderDeclined(api) {
   root.querySelector('[data-act="code"]').addEventListener('click', () => api.go('invite'));
   return root;
 }
+/* A11 · Approved = Invite-only O6 “Turn your idea into a thesis”: their idea from
+ * A7, Switch account top right, Create with Alva → CH1 (no C1 examples). */
 function renderApproved(api) {
-  const root = statusPage(api, { cls: 'v4-approved', label: 'You’re in', top: {}, icon: checkBadge,
-    title: 'You’re in', text: 'Your request was approved. Welcome to Alva.', actions: [{ id: 'next', label: 'Next', primary: true }] });
-  root.querySelector('[data-act="next"]').addEventListener('click', () => api.go('create'));
+  const idea = api.state.idea || DEMO_IDEA;
+  const root = node('section', 'setup-page v4-create v4-approved');
+  root.setAttribute('aria-label', 'Turn your idea into a thesis');
+  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-skip v4-switch">Switch account</button></header>
+    <div class="v4-create-body"><div class="v4-title-block"><h1>Turn your idea into a thesis</h1><p>Alva will track it and find signals for and against it.</p></div>
+      <div class="v4-approved-idea"><div class="v4-your-idea"><span>Your idea</span><p>${esc(idea)}</p></div></div></div>
+    <footer class="setup-dock"><button class="setup-next" type="button">Create with Alva</button></footer>`;
+  root.querySelector('.v4-switch').addEventListener('click', () => api.go('login'));
+  root.querySelector('.setup-next').addEventListener('click', () => api.go('chat'));
   return root;
 }
 // A system banner at the top of the screen (push or Mail); tapping it opens the app there.
@@ -693,7 +776,7 @@ function banner(api, kind, onOpen) {
 
 /* ───────────────────────── F1 + D1–D4 · For You and the Thesis page guide ───────────────────────── */
 const GUIDE = [
-  { title: 'Your thesis is live', text: 'It’s pinned to the top of For You. Open it to see how Alva tracks it.', action: 'Open thesis' },
+  { title: 'Your thesis is live', text: 'For You shows thesis from people you follow and ones picked for you. Open yours to see how Alva tracks it.', action: 'Open thesis' },
   { title: 'Simulated return', text: 'Starts at 0% today and moves with the tickers and direction in your thesis.', action: 'Next' },
   { title: 'Overview', text: 'Every day Alva sums up what supports and challenges your thesis. Your first one is being written now.', action: 'Next' },
   { title: 'Signals', text: 'Every filing, news story and post Alva finds for your thesis, each marked as supporting or challenging it.', action: 'Next' },
@@ -720,7 +803,7 @@ function renderHome(api) {
         <div class="v4-pill-rail"><div class="v4-pills">${PILLS.map((p, i) => `<span class="${i ? '' : 'is-on'}">${esc(p)}</span>`).join('')}</div><i class="v4-pill-fade"></i><span class="v4-pill-more">${ic(ICON.down, 12)}</span></div>
       </header>
       <div class="v4-feed-scroll">
-        ${feedCard({ name: mine.author, role: 'Your thesis', time: 'Just now', avatar: meAvatar(32), tickers: [[mine.ticker, null]], ret: { seed: 5, label: '+0.0%', flat: true }, body: esc(shortBody), bookmarks: 0, cls: 'is-feed v4-pinned' })}
+        ${feedCard({ name: mine.author, role: 'Your thesis', time: 'Just now', avatar: meAvatar(32), tickers: [[mine.ticker, null]], ret: { seed: 5, label: '+0.0%' }, body: esc(shortBody), bookmarks: 0, cls: 'is-feed v4-pinned' })}
         ${feedCard({ ...P.gavin, body: 'Baker argues that cheaper models are already lowering the cost of AI use. If cheaper models take share from frontier labs with high inference margins, customers could get more intelligence for each dollar and increase their token usage. Under that scenario, part of the profit pool could move from model providers to AI infrastructure. He sees low delivery cost per…', more: true, cls: 'is-feed' })}
         ${feedCard({ ...P.satya, cls: 'is-feed' })}
         ${feedCard({ ...P.sam, cls: 'is-feed' })}
@@ -897,7 +980,7 @@ function renderHome(api) {
 }
 
 export function renderV4Page(name, api) {
-  const render = { landing: renderLanding, invite: renderInvite, request: renderRequest, listed: renderListed, declined: renderDeclined, approved: renderApproved, create: renderCreate, chat: renderChat, profile: renderProfile, home: renderHome }[name];
+  const render = { landing: renderLanding, invite: renderInvite, request: renderRequest, listed: renderListed, declined: renderDeclined, approved: renderApproved, create: renderCreate, chat: renderChat, profile: renderProfile, follow: renderFollow, home: renderHome }[name];
   if (!render) throw new Error(`Unknown v4 page: ${name}`);
   return render(api);
 }

@@ -1,13 +1,13 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=47';
+import { renderSetupPage } from './setup.js?v=48';
 import { renderIntroPage } from './intro.js?v=13';
 import { renderGuidedIntroPage } from './intro-guided.js?v=4';
 import { renderBookmarkPage } from './cards.js?v=10';
 import { renderPickPage, renderTrackPage } from './intro-track.js?v=51';
 import { renderReadyPage } from './ready.js?v=9';
-import { renderV4Page, V4_STEPS } from './v4.js?v=4';
+import { renderV4Page, V4_STEPS } from './v4.js?v=5';
 import { node, escapeHTML } from './ui.js';
-import { transitionPages } from './transitions.js?v=12';
+import { transitionPages } from './transitions.js?v=13';
 import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=8';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
@@ -50,7 +50,7 @@ const flow = {
   steps,
   prev: name => {
     // v4: applicants who allowed push on A9 skip the notifications step.
-    if (v4 && name === 'portfolio' && state?.applicantPush === 'allowed') return 'profile';
+    if (v4 && name === 'portfolio' && state?.applicantPush === 'allowed') return 'follow';
     const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null;
   },
   next: name => { const index = steps.indexOf(name); return index >= 0 && index < steps.length - 1 ? steps[index + 1] : 'feed'; },

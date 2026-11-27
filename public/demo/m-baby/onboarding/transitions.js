@@ -42,8 +42,8 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     incoming.querySelectorAll('.marquee-lane').forEach((lane, index) => {
       play(lane, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], duration.content, index * 40);
     });
-  } else if (to === 'people') {
-    reveal('.setup-heading');
+  } else if (to === 'people' || to === 'follow') {
+    reveal('.setup-heading, .v4-follow-page .v4-title-block');
     reveal('.setup-import', { delay: 40, lift: 8 });
     reveal('.setup-or-divider', { delay: 40, time: duration.feedback });
     reveal('.setup-dock', { delay: 80, time: duration.feedback });
@@ -99,7 +99,7 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
   }
   // Rows arrive in reading order, including revisits. Animate each row once,
   // without also moving its list container or changing any selection state.
-  const rowSelector = to === 'people' ? '.setup-person' : to === 'portfolio' ? '.setup-broker' : to === 'profile' ? '.v4-identity>*, .v4-follow' : null;
+  const rowSelector = to === 'people' || to === 'follow' ? '.setup-person' : to === 'portfolio' ? '.setup-broker' : to === 'profile' ? '.v4-identity>*, .v4-follow' : null;
   if (rowSelector) incoming.querySelectorAll(rowSelector).forEach((row, index) => {
     play(row, [
       { opacity: 0, transform: 'translateY(8px)' },
