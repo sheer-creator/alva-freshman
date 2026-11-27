@@ -1609,12 +1609,9 @@
     const fit = (aw, ah) => { let w = aw, h = w / ar; if (h > ah) { h = ah; w = h * ar; } return { w, h }; };
     const box = (x0, x1, y0, y1) => { const s = fit(x1 - x0, y1 - y0); return { x: x0 + (x1 - x0 - s.w) / 2, y: y0 + (y1 - y0 - s.h) / 2, w: s.w, h: s.h }; };
     const { W, H, ca } = G;
-    /* tapped: full screen — the whole window, over the rail (the image's page when folded) */
-    if (V.full) return G.info ? box(G.ia.x, G.ia.x + G.ia.w, 0, ca.y1) : box(0, W, 0, H);
-    if (G.info) return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, ca.y1 - (G.tab ? 12 : 34));
-    /* default: inside the content area's margins, so nothing touches an edge and reads as more to
-       swipe; between the name row (84) and the scrubber (or the home indicator) */
-    return box(ca.x0 + ca.mL, ca.x1 - ca.mR, 84, G.strip ? G.H - 66 - 12 : H - 34);
+    /* 11-27: the image fits the whole window from the start (its page when folded), as in Photos — no
+       margins, no corners; the controls float over it and one tap hides them all with the status bar */
+    return G.info ? box(G.ia.x, G.ia.x + G.ia.w, 0, ca.y1) : box(0, W, 0, H);
   }
   function vPost() {
     if (parent === window) return;
@@ -1681,7 +1678,8 @@
   function vHead() {
     const m = V.items[V.i] || {}, t = V.tid && D.theses[V.tid], who = t ? D.people[t.author].name : '';
     const meta = who ? `${esc(who)}${t.date ? ' · ' + esc(t.date) : ''}` : '';
-    V.el.querySelector('.v-head').innerHTML = m.title ? `<b>${esc(m.title)}</b>` : '';   // media have a name or nothing — no subtitle
+    /* 11-27: two sources — an image in someone else's thesis has no name and no ···; your own file shows its name (and ··· → Delete) */
+    V.el.querySelector('.v-head').innerHTML = V.own && m.title ? `<b>${esc(m.title)}</b>` : '';
   }
   function vTrack(anim, dx = 0) {
     const G = vGeo(), tr = V.el.querySelector('.v-track');
