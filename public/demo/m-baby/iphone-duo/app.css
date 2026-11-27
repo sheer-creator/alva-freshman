@@ -715,7 +715,7 @@ span.exch { background: var(--br07); }
 .v-menu button:hover { background: rgba(255,255,255,.08); }
 .v-menu .ic { color: #ff5a50; }
 .v-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 4; }
-.v-alert { position: absolute; width: 270px; transform: translateY(-50%); padding: 20px 16px 12px; border-radius: 20px; background: rgba(44,44,48,.94); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: #fff; text-align: center; z-index: 5; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+.v-alert { position: absolute; width: 270px; transform: translateY(-50%); padding: 20px 16px 16px;   /* 11-27: buttons sit 16 from the bottom, same as from the sides */ border-radius: 20px; background: rgba(44,44,48,.94); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: #fff; text-align: center; z-index: 5; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
 .v-alert b { display: block; font-size: 16px; line-height: 24px; font-weight: 500; }
 .v-alert p { margin: 4px 0 16px; font-size: 13px; line-height: 18px; color: rgba(255,255,255,.6); }
 .v-alert div { display: flex; gap: 8px; }
