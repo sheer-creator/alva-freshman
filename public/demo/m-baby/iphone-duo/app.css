@@ -726,13 +726,13 @@ span.exch { background: var(--br07); }
 .viewer [hidden].v-menu, .viewer [hidden].v-alert, .viewer [hidden].v-scrim { display: none !important; }
 
 /* half-folded: the post's media as a grid on the other page */
-.v-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; margin-top: 8px; overflow: auto; scrollbar-width: none; }
+.v-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); grid-auto-rows: max-content; align-content: start; gap: 8px; margin-top: 8px; overflow: auto; scrollbar-width: none; }
 .v-grid button { position: relative; aspect-ratio: 1; padding: 0; border-radius: 8px; overflow: hidden; opacity: .6; transition: opacity .2s, box-shadow .2s; }
 .v-grid button.on { opacity: 1; box-shadow: 0 0 0 2px #fff; }
 .v-grid img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .v-grid .pic-dur { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 11px; }
 .v-grid .pic-dur .ic { color: #fff; }
-.v-info .v-grid { flex: none; padding: 2px; margin-top: 0; }
+.v-info .v-grid { flex: 0 1 auto; min-height: 0; padding: 2px; margin-top: 0; }   /* many files: the grid scrolls inside its page, clear of the controls */
 
 /* Duo: the selected destination's icon (and Tab Bar label) is brand green */
 .rail-tabs button.on .ic, .rail-tabmin .ic, .tabbar button.on .ic, .tabbar button.on span { color: var(--m1) !important; }
