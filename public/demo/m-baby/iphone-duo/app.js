@@ -1666,7 +1666,7 @@
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.info;
-    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
+    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingTop: (G.tab ? 24 : 84) + 'px', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
     vTrack(anim);
     vZoomApply(false);
     vPost();
@@ -1728,10 +1728,9 @@
     return `translate(${box.x + box.w / 2 - (f.x + f.w / 2)}px, ${box.y + box.h / 2 - (f.y + f.h / 2)}px) scale(${s})`;
   }
   function vInfoHTML() {
-    const t = V.tid && D.theses[V.tid];
-    const head = t ? `<div class="v-who">${avatar(t.author, 32)}<div><b>${esc(D.people[t.author].name)}</b><span>${esc(D.people[t.author].role || '')}</span></div></div><p class="v-txt">${esc(t.title || t.body[0])}</p>` : '';
-    const grid = V.items.length > 1 ? `<div class="v-grid">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false">${m.video ? `<span class="pic-dur">${I('play-f', 'ic-12')}${esc(m.dur || '')}</span>` : ''}</button>`).join('')}</div>` : '';
-    return head + grid;
+    /* 11-27: the other page is only the grid of this post's media — no author, no text */
+    const grid = V.items.length ? `<div class="v-grid">${V.items.map((m, k) => `<button data-go="${k}" aria-label="${m.video ? 'Video' : 'Image'} ${k + 1}"><img src="${m.src}" alt="" draggable="false">${m.video ? `<span class="pic-dur">${I('play-f', 'ic-12')}${esc(m.dur || '')}</span>` : ''}</button>`).join('')}</div>` : '';
+    return grid;
   }
   function openViewer(chartImg) {
     if (V.el || V.busy) return;

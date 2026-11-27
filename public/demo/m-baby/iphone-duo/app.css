@@ -732,7 +732,7 @@ span.exch { background: var(--br07); }
 .v-grid img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .v-grid .pic-dur { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 11px; }
 .v-grid .pic-dur .ic { color: #fff; }
-.v-info .v-grid { flex: none; padding: 2px; }
+.v-info .v-grid { flex: none; padding: 2px; margin-top: 0; }
 
 /* Duo: the selected destination's icon (and Tab Bar label) is brand green */
 .rail-tabs button.on .ic, .rail-tabmin .ic, .tabbar button.on .ic, .tabbar button.on span { color: var(--m1) !important; }
