@@ -1662,10 +1662,11 @@
     {
       const top = V.el.querySelector('.e-top'), bot = V.el.querySelector('.e-bot'), rl = V.el.querySelector('.e-rail');
       const x0 = a.x, w = a.w, y1 = G.info ? G.ca.y1 : G.H;
-      Object.assign(top.style, { left: x0 + 'px', width: w + 'px', top: '0px', height: '84px' });
+      /* 11-27 (from a real Duo capture): no band along the top or down the rail — the status bar gets its own small
+         blurred capsule (drawn by the screen, shell.css .duo-status-blur) and the buttons are glass already */
+      top.hidden = true; rl.hidden = true;
       bot.hidden = !!G.info;   // folded: no controls over the image's bottom edge Object.assign(bot.style, { left: x0 + 'px', width: w + 'px', top: (y1 - 96) + 'px', height: '96px' });
-      rl.hidden = !G.r;
-      if (G.r) { const rx = G.r.left ? 0 : G.r.x; Object.assign(rl.style, { left: rx + 'px', width: '84px', top: '0px', height: G.H + 'px' }); rl.classList.toggle('left', !!G.r.left); }
+      if (false && G.r) { const rx = G.r.left ? 0 : G.r.x; Object.assign(rl.style, { left: rx + 'px', width: '84px', top: '0px', height: G.H + 'px' }); rl.classList.toggle('left', !!G.r.left); }
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.info;
