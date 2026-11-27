@@ -1110,5 +1110,5 @@ html[data-capture] .duo-flap { display: none !important; }
 .duo-status-blur { position: absolute; display: none; pointer-events: none; background: rgba(0, 0, 0, 0.32);
   -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); }
 :root[data-viewer='white'] .duo-status-blur { display: block; }
-:root:not([data-duo-status='corner'])[data-viewer='white'] .duo-status-blur { left: calc(var(--status-x) - 4px); top: calc(var(--status-y) - 6px); width: 56px; height: 98px; border-radius: 28px; }
-:root[data-duo-status='corner'][data-viewer='white'] .duo-status-blur { left: calc(var(--status-x, 541px) - 4px); top: calc(var(--status-y, 24px) - 2px); width: 112px; height: 52px; border-radius: 26px; }
+:root:not([data-duo-status='corner'])[data-viewer='white'] .duo-status-blur { left: calc(var(--status-x) - 2px); top: calc(var(--status-y) - 2px); width: 52px; height: 90px; border-radius: 26px; }   /* 2 all round */
+:root[data-duo-status='corner'][data-viewer='white'] .duo-status-blur { left: calc(var(--status-x, 541px) - 2px); top: calc(var(--status-y, 24px) - 2px); width: 108px; height: 52px; border-radius: 26px; }
