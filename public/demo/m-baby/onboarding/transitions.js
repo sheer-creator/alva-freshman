@@ -70,6 +70,26 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
     // The visible candidate may be unsaved. Do not turn it into a saved thesis or a broker.
     reveal('.setup-heading');
     reveal('.setup-dock', { delay: 80, time: duration.feedback });
+  } else if (to === 'invite') {
+    reveal('.setup-heading');
+    reveal('.v4-code', { delay: 40, lift: 8 });
+    reveal('.v4-request', { delay: 80, time: duration.feedback });
+    // The keyboard comes up from the bottom edge, as the system one would.
+    const keyboard = incoming.querySelector('.v4-keyboard');
+    if (keyboard) play(keyboard, [{ transform: 'translateY(100%)' }, { transform: 'none' }], duration.stage, 40);
+  } else if (to === 'create') {
+    relationship = 'choose-theses';
+    reveal('.setup-heading');
+    reveal('.v4-subhead', { delay: 40, time: duration.feedback });
+    reveal('.v4-carousel', { lift: 8, depth: true, time: duration.stage, delay: 40 });
+    reveal('.setup-dock', { delay: 80, time: duration.feedback });
+  } else if (to === 'chat') {
+    relationship = 'open-content';
+    reveal('.v4-alva-pill', { lift: -6, depth: true });
+    reveal('.v4-composer', { delay: 80, lift: 8, time: duration.feedback });
+  } else if (to === 'profile') {
+    reveal('.setup-heading');
+    reveal('.setup-dock', { delay: 80, time: duration.feedback });
   } else if (to === 'notifications') {
     relationship = 'confirm-tracking';
     reveal('.setup-heading');
@@ -79,7 +99,7 @@ export function transitionPages({ outgoing, incoming, from, to, backward = false
   }
   // Rows arrive in reading order, including revisits. Animate each row once,
   // without also moving its list container or changing any selection state.
-  const rowSelector = to === 'people' ? '.setup-person' : to === 'portfolio' ? '.setup-broker' : null;
+  const rowSelector = to === 'people' ? '.setup-person' : to === 'portfolio' ? '.setup-broker' : to === 'profile' ? '.v4-identity>*, .v4-follow' : null;
   if (rowSelector) incoming.querySelectorAll(rowSelector).forEach((row, index) => {
     play(row, [
       { opacity: 0, transform: 'translateY(8px)' },

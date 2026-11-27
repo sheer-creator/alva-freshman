@@ -35,6 +35,19 @@
 
   const PROTOTYPES = [
     {
+      title: 'Onboarding v4 · Create your first thesis',
+      subtitle: 'Landing teaching in three pages, invite code, write your first thesis with Alva, profile, portfolio, then For You with your thesis pinned and a six-step guide on the Thesis page.',
+      edited: '2026-11-27',
+      slug: 'thesis-onboarding-v4',
+      href: 'onboarding/index.html?intro=v4&v=1',
+      resetOnRestart: true,
+      meta: 'Mobile · Draft · 9 steps + 6-step guide',
+      figma: {
+        label: 'Thesis MVP · Onboarding v4',
+        url: 'https://www.figma.com/design/EHag6olZJxmlkf1hbAzSi7/Thesis-MVP?node-id=17617-186252',
+      },
+    },
+    {
       title: 'iPhone Duo 适配',
       subtitle: 'Every Thesis page on iPhone Duo: outer and inner screens, Book, Split View and Picture in Picture, each at four turns.',
       edited: '2026-11-25',

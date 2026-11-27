@@ -42,3 +42,20 @@ demo's three signals with placeholder analyses marked in the copy.
 The onboarding extension is kept in `onboarding/` and `thesis-demo-state.js`.
 Its state and resource checks run with
 `node --test scripts/tests/thesis-onboarding-state.test.mjs` from the Freshman root.
+
+`#/thesis-onboarding-v4` (`onboarding/index.html?intro=v4`) is the draft
+Onboarding v4 (Figma: Thesis MVP › section 17617:186252): Landing teaching on
+one screen (three pages; Next only swaps the copy while the grey stage moves:
+the thesis card docks and its signals arrive, the stage scrolls back to the
+return, then the card folds into a list that scrolls away into the
+Leaderboard) → Login → Invite code (simulated keyboard; any six characters
+pass) → Create your first thesis (example carousel) → Alva chat that drafts and
+publishes the thesis → Profile → Portfolio → Ready → For You with the new
+thesis pinned and a six-step coach mark that continues on the Thesis page
+(return, Overview, Signals, Update, Back). It reuses the shared splash,
+login/portfolio pages, page transitions and the Ready iris, which here opens
+onto the in-document For You instead of handing off to thesis-motion. The
+Thesis page keeps Figma's B5 sample content (Traderstewie / AMD). Its code is
+in `onboarding/v4.js` and `onboarding/v4.css`. `?intro=v4&guide=3#home` jumps
+to a guide step for QA; `#landing`, `#invite`, `#create`, `#chat`, `#profile`
+open a step directly.
