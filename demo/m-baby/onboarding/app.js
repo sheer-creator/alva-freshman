@@ -1,12 +1,13 @@
 import { animate } from './vendor/motion.js';
-import { renderSetupPage } from './setup.js?v=46';
+import { renderSetupPage } from './setup.js?v=48';
 import { renderIntroPage } from './intro.js?v=13';
 import { renderGuidedIntroPage } from './intro-guided.js?v=4';
 import { renderBookmarkPage } from './cards.js?v=10';
 import { renderPickPage, renderTrackPage } from './intro-track.js?v=51';
-import { renderReadyPage } from './ready.js?v=7';
+import { renderReadyPage } from './ready.js?v=9';
+import { renderV4Page, V4_STEPS } from './v4.js?v=7';
 import { node, escapeHTML } from './ui.js';
-import { transitionPages } from './transitions.js?v=11';
+import { transitionPages } from './transitions.js?v=13';
 import { ONBOARDING_STATE_KEY, GUIDED_ONBOARDING_STATE_KEY, TRACK_ONBOARDING_STATE_KEY, createFreshOnboardingState, clearLegacyOnboardingState, readOnboardingState, persistOnboardingState, resetOnboardingState, createOnboardingHandoff, completeOnboarding } from '../thesis-demo-state.js?v=8';
 
 // Custom-property URLs consumed by the parent stylesheet need an absolute base.
@@ -36,14 +37,22 @@ if (parent !== window) parent.postMessage({ type: 'alva:prototype-ready' }, loca
 const search = new URLSearchParams(location.search);
 const guided = search.get('intro') === 'guided';
 const trackVariant = search.get('intro') === 'track';
+// v4 (Figma Thesis MVP 17617:186252): Landing teaching → login → invite code →
+// create the first thesis with Alva → profile → portfolio → ready → For You
+// with the pinned thesis and the six-step Thesis page guide.
+const v4 = search.get('intro') === 'v4';
 // Track variant: log in, follow people, bookmark theses from the people you
 // follow, then the last bookmarked card stays and Alva analyzes it in place;
 // notifications, then portfolio, close the flow.
-const steps = trackVariant ? ['login', 'people', 'pick', 'track', 'notifications', 'portfolio', 'ready']
+const steps = v4 ? V4_STEPS : trackVariant ? ['login', 'people', 'pick', 'track', 'notifications', 'portfolio', 'ready']
   : ['login', 'intro', 'people', 'bookmark', 'notifications', 'portfolio'];
 const flow = {
   steps,
-  prev: name => { const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null; },
+  prev: name => {
+    // v4: applicants who allowed push on A9 skip the notifications step.
+    if (v4 && name === 'portfolio' && state?.applicantPush === 'allowed') return 'follow';
+    const index = steps.indexOf(name); return index > 0 ? steps[index - 1] : null;
+  },
   next: name => { const index = steps.indexOf(name); return index >= 0 && index < steps.length - 1 ? steps[index + 1] : 'feed'; },
 };
 const stateKey = trackVariant ? TRACK_ONBOARDING_STATE_KEY : guided ? GUIDED_ONBOARDING_STATE_KEY : ONBOARDING_STATE_KEY;
@@ -59,11 +68,12 @@ if (trackVariant && restartToken && state.restartToken !== restartToken) {
 if (trackVariant) delete state.sharedQuestion;
 if (guided) document.title = 'onboarding-signal · Guided';
 if (trackVariant) document.title = 'onboarding-signal · Track';
+if (v4) document.title = 'Onboarding v4 · Create your first thesis';
 const app = document.querySelector('#app');
 const overlays = document.querySelector('#overlays');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const requested = location.hash.slice(1);
-const initialPage = !trackVariant ? 'login' : steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : steps[0];
+const initialPage = v4 ? (steps.includes(requested) ? requested : steps[0]) : !trackVariant ? 'login' : steps.includes(requested) ? requested : steps.includes(state.page) ? state.page : steps[0];
 const splash = document.querySelector('#startupSplash');
 // Original and Guided retain their Splash on every entry. Track keeps its
 // existing resume policy and only reveals Splash at the start of its order.
@@ -86,7 +96,7 @@ const persist = () => { if (trackVariant) persistOnboardingState(state, stateKey
 // Track: the deck draws from the full thesis pool (theses + feed), so it
 // always has at least eight cards; followed people's theses come first.
 if (trackVariant) for (const item of data.feed || []) if (!data.theses.some(thesis => thesis.id === item.id)) data.theses.push(item);
-const api = { data, state, variant: trackVariant ? 'track' : guided ? 'guided' : 'original', flow, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
+const api = { data, state, variant: v4 ? 'v4' : trackVariant ? 'track' : guided ? 'guided' : 'original', flow, asset: id => manifest[id] || '', persist, reduced: () => reducedMotion.matches, go, toast, sheet };
 
 function toast(message) {
   persist();
@@ -191,21 +201,32 @@ async function go(name, options = {}) {
   if (name === 'ready' && page && !api.reduced()) { api.handoff = { snapshot: page.cloneNode(true) }; options = { ...options, instant: true }; }
   const token = ++routeGeneration, previous = state.page;
   routeTransition?.cancel(); routeTransition = null;
-  page?.cleanup?.(); const old = page;
+  // v4: Ready opens its success circle onto For You inside this document
+  // (the other variants hand off to the gallery's thesis-motion instead).
+  const irisOut = v4 && previous === 'ready' && !api.reduced() ? window.__alvaReadyIrisOut : null;
+  const readyPage = irisOut ? page : null;
+  if (!irisOut) page?.cleanup?.();
+  const old = page;
   for (const child of [...app.children]) if (child !== old) child.remove();
   overlays.replaceChildren(); state.page = name; persist();
   page = name === 'intro' ? renderIntro(api) : name === 'bookmark' ? renderBookmarkPage(api, { next: flow.next('bookmark') })
+    : V4_STEPS.includes(name) && v4 && !['login', 'notifications', 'portfolio', 'ready'].includes(name) ? renderV4Page(name, api)
     : name === 'pick' ? renderPickPage(api) : name === 'track' ? renderTrackPage(api) : name === 'ready' ? renderReadyPage(api)
     : renderSetupPage(name, api);
   page.dataset.page = name; page.classList.add('route-page'); page.style.zIndex = '2'; app.append(page); old?.setAttribute('inert', '');
   const url = new URL(location.href); url.hash = name; history.replaceState(null, '', url);
-  if (old && !api.reduced() && !options.instant) {
+  if (irisOut && old) {
+    page.style.zIndex = '1'; old.style.zIndex = '3';
+    page.start?.(); page.started = true;
+    await irisOut();
+    readyPage.cleanup?.();
+  } else if (old && !api.reduced() && !options.instant) {
     routeTransition = transitionPages({ outgoing: old, incoming: page, from: previous, to: name, backward: steps.indexOf(name) < steps.indexOf(previous) });
     await routeTransition.finished;
   }
   if (token !== routeGeneration) return;
   routeTransition = null;
-  old?.remove(); page.style.transform = 'none'; page.start?.();
+  old?.remove(); page.style.transform = 'none'; if (!page.started) page.start?.();
 }
 
 reducedMotion.addEventListener('change', () => {

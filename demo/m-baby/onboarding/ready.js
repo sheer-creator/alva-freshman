@@ -13,7 +13,7 @@ const easeInOut = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 export function renderReadyPage(api) {
   const handoff = api.handoff; api.handoff = null;
-  const root = node('section', 'page ready-page');
+  const root = node('section', `page ready-page${api.variant === 'v4' ? ' is-v4' : ''}`);
   root.setAttribute('aria-label', 'You’re all set');
   root.innerHTML = `<div class="ready-under" aria-hidden="true"></div>
     <div class="ready-iris" aria-hidden="true"></div>
@@ -22,7 +22,7 @@ export function renderReadyPage(api) {
       <div class="ready-badge" aria-hidden="true"><i class="ready-ring"></i><i class="ready-ring"></i>
         <svg class="ready-check" viewBox="0 0 56 56"><circle cx="28" cy="28" r="28"/><path d="M17 28.5l7.5 7.5L39.5 21"/></svg></div>
       <h1>You’re all set.</h1>
-      <p>Getting your feed ready…</p>
+      <p>${api.variant === 'v4' ? 'Alva is tracking your thesis.' : 'Getting your feed ready…'}</p>
     </div>`;
   const under = root.querySelector('.ready-under'), iris = root.querySelector('.ready-iris');
   const animate = !api.reduced();
@@ -122,7 +122,7 @@ export function renderReadyPage(api) {
       root.classList.remove('is-closing');
     } else root.closest('.onboarding-app')?.classList.add('is-ready-dark');
     reveal();
-    timer = setTimeout(() => { if (alive) api.go('feed'); }, HOLD_MS + (animate ? 400 : 1000));
+    timer = setTimeout(() => { if (alive) api.go(api.variant === 'v4' ? 'home' : 'feed'); }, HOLD_MS + (animate ? 400 : 1000));
   };
   // Called when For You is ready behind this document: the circle opens onto it.
   window.__alvaReadyIrisOut = async () => {

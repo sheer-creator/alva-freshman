@@ -8,7 +8,7 @@
 import { node, escapeHTML } from './ui.js';
 import { renderThesisContent } from './cards.js?v=10';
 import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=13';
-import { PEOPLE } from './setup.js?v=46';
+import { PEOPLE } from './setup.js?v=47';
 import { trackedSignals } from './intro-track.js?v=51';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 

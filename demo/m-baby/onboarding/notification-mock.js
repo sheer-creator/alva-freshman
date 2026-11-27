@@ -47,7 +47,7 @@ export function mountPhoneMock(root, api) {
     const page = handoff.snapshot;
     page.style.width = `${handoff.size.width}px`; page.style.height = `${handoff.size.height}px`;
     app.append(page);
-    const sourcePanel = page.querySelector('.track-panel');
+    const sourcePanel = page.querySelector('.track-panel, .v4-follow-page > .setup-dock');
     if (sourcePanel) {
       panel = sourcePanel.cloneNode(true); panel.classList.add('phone-mock-panel');
       Object.assign(panel.style, { left: `${handoff.panel.x}px`, top: `${handoff.panel.y}px`, width: `${handoff.panel.width}px`, height: `${handoff.panel.height}px` });
@@ -118,7 +118,7 @@ export function mountPhoneMock(root, api) {
     laid = true;
     measure();
     if (animate) {
-      const viewport = handoff.snapshot.querySelector('.track-viewport');
+      const viewport = handoff.snapshot.querySelector('.track-viewport, .setup-people-scroll');
       if (viewport) viewport.scrollTop = handoff.scrollTop;
       app.style.height = `${Math.max(handoff.size.height, Math.ceil(geo.screenH * geo.full))}px`;
       app.style.transform = `scale(${1 / geo.full})`;

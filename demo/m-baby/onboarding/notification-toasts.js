@@ -1,5 +1,5 @@
 import { escapeHTML } from './ui.js';
-import { mountPhoneMock } from './notification-mock.js?v=24';
+import { mountPhoneMock } from './notification-mock.js?v=26';
 
 // Approved one-sentence versions of the existing notificationPreview records.
 // These are examples, never additions to the user's bookmarked thesis IDs.
@@ -14,13 +14,18 @@ const BACK_ASSET = 'I12552:200909;3931:33522;12552:200937;4029:31573';
 export function renderNotificationToastsPage(api) {
   const root = document.createElement('section');
   root.className = 'setup-page notification-toasts-page';
+  if (api.variant === 'v4') root.classList.add('is-v4');
   root.setAttribute('aria-label', 'Get notifications');
   const knownIds = new Set([...(api.data.theses || []), ...(api.data.feed || [])].filter(thesis => thesis?.id && thesis.body).map(thesis => thesis.id));
+  const v4 = api.variant === 'v4';
   const selectedIds = [...(api.state.bookmarked || [])].filter(id => knownIds.has(id));
-  const hasSelection = selectedIds.length > 0;
+  // v4: the user wrote their own thesis instead of bookmarking (Figma N1 · v4 copy).
+  const hasSelection = v4 || selectedIds.length > 0;
+  // O5: applicants who denied push on A9 cannot be asked again.
+  const settingsOnly = v4 && api.state.applicantPush === 'denied';
   api.state.notificationThesisIds = selectedIds;
   api.persist?.();
-  const description = hasSelection
+  const description = v4 ? 'Alva is now tracking signals for your thesis. Get notifications so you don’t miss new opportunities.' : hasSelection
     ? 'Alva is now tracking signals for the theses you bookmarked. Get notifications so you don’t miss new opportunities.'
     : 'Bookmark theses to start tracking signals.';
   // Track variant: the blurred stack previews system notifications for the thesis
@@ -34,7 +39,7 @@ export function renderNotificationToastsPage(api) {
     '12608:109265': 'SemiAnalysis: TPUv8i has entered software bring-up, and work on the public software stack has begun.',
     '12608:109341': 'Wedbush’s Matt Bryson sees an opening for Marvell and TSMC.',
   };
-  const toasts = api.variant === 'track'
+  const toasts = api.variant === 'track' || v4
     ? trackOrder.map(id => TOASTS.find(toast => toast.sourceId === id)).filter(Boolean).map(toast => ({ ...toast, text: TRACK_TEXT[toast.sourceId] || toast.text }))
     : TOASTS;
   // iOS-style notification: the app icon sits large on the left (Figma Mobile 1051:31165).
@@ -58,7 +63,7 @@ export function renderNotificationToastsPage(api) {
         </article>`).join('')}
       </div>` : ''}
     </div>
-    <footer class="notification-toasts-dock">${hasSelection ? `
+    <footer class="notification-toasts-dock">${settingsOnly ? '<button type="button" class="setup-next" data-action="settings">Turn on in Settings</button>' : hasSelection ? `
       <div class="notification-toasts-track">
         <span class="notification-toasts-label" aria-hidden="true">Slide to get notifications</span>
         <button type="button" class="notification-toasts-handle" aria-label="Slide to get notifications"><img src="${escapeHTML(arrow)}" alt="" draggable="false"></button>
@@ -80,11 +85,16 @@ export function renderNotificationToastsPage(api) {
     api.persist?.();
     api.go(api.flow ? api.flow.next('notifications') : 'feed');
   });
+  on('[data-action="settings"]', () => {
+    api.toast('Opens Settings › Alva › Notifications.');
+    api.state.notifications = 'settings'; api.persist?.();
+    setTimeout(() => { if (!disposed) api.go(api.flow.next('notifications')); }, 900);
+  });
   on('[data-action="bookmark"]', () => api.go(api.variant === 'track' ? 'pick' : 'bookmark'));
-  const cleanupGesture = hasSelection ? bindNotificationToasts({ root,
+  const cleanupGesture = hasSelection && !settingsOnly ? bindNotificationToasts({ root,
     handle: root.querySelector('.notification-toasts-handle'),
     track: root.querySelector('.notification-toasts-track'), api }) : () => {};
-  const phone = api.variant === 'track' && hasSelection ? mountPhoneMock(root, api) : null;
+  const phone = (api.variant === 'track' || v4) && hasSelection ? mountPhoneMock(root, api) : null;
   if (phone) root.start = phone.start;
   root.cleanup = () => {
     if (disposed) return;

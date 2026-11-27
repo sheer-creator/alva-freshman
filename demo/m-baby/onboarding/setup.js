@@ -3,7 +3,7 @@
  */
 import { signalCard } from './intro.js?v=13';
 import { bindNotificationReveal } from './notification-reveal.js?v=2';
-import { renderNotificationToastsPage } from './notification-toasts.js?v=25';
+import { renderNotificationToastsPage } from './notification-toasts.js?v=28';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
 
 const ASSETS = {
@@ -69,10 +69,11 @@ function renderLogin(api) {
           ${image(api, ASSETS.logo, 'setup-login-logo', 'Alva')}
           <div><h1>Log in to Alva</h1><p>Login to build, remix, and trade.</p></div>
         </div>
-        <button class="setup-login-option" type="button" data-provider="Google">${image(api, ASSETS.google)}<span>Sign in with Google</span></button>
-        <button class="setup-login-option" type="button" data-provider="Apple">${image(api, ASSETS.apple)}<span>Sign in with Apple</span></button>
+        ${api.variant === 'v4' ? `<button class="setup-login-option" type="button" data-provider="x">${image(api, ASSETS.x)}<span>Sign in with X</span></button>
+        <button class="setup-login-option" type="button" data-provider="Google">${image(api, ASSETS.google)}<span>Sign in with Google</span></button>` : `<button class="setup-login-option" type="button" data-provider="Google">${image(api, ASSETS.google)}<span>Sign in with Google</span></button>
+        <button class="setup-login-option" type="button" data-provider="Apple">${image(api, ASSETS.apple)}<span>Sign in with Apple</span></button>`}
         <div class="setup-login-social">
-          ${['discord', 'x', 'telegram'].map(key => `<button class="setup-login-option" type="button" data-provider="${key}" aria-label="Sign in with ${key === 'x' ? 'X' : key[0].toUpperCase() + key.slice(1)}">${image(api, ASSETS[key])}</button>`).join('')}
+          ${(api.variant === 'v4' ? ['discord', 'apple', 'telegram'] : ['discord', 'x', 'telegram']).map(key => `<button class="setup-login-option" type="button" data-provider="${key}" aria-label="Sign in with ${key === 'x' ? 'X' : key[0].toUpperCase() + key.slice(1)}" data-provider-icon="${key}">${image(api, ASSETS[key])}</button>`).join('')}
         </div>
         <div class="setup-login-divider"><span></span><span>or</span><span></span></div>
         <button class="setup-login-option setup-email" type="button" data-provider="Email">Login with Email</button>
@@ -311,7 +312,7 @@ function renderNotifications(api) {
 }
 
 export function renderSetupPage(name, api) {
-  if (name === 'notifications' && (api.variant === 'guided' || api.variant === 'track')) return renderNotificationToastsPage(api);
+  if (name === 'notifications' && ['guided', 'track', 'v4'].includes(api.variant)) return renderNotificationToastsPage(api);
   const renderer = {login: renderLogin, people: renderPeople, portfolio: renderPortfolio, notifications: renderNotifications}[name];
   if (!renderer) throw new Error(`Unknown setup page: ${name}`);
   return renderer(api);

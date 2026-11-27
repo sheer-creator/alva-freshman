@@ -3,7 +3,7 @@ import { renderThesisContent } from './cards.js?v=10';
 import { renderSwipePage } from './swipe-deck.js?v=11';
 import { analyzingCard, ANALYSIS_TASKS, signalCard } from './intro.js?v=13';
 import { SOURCE_AUTHORS } from '../thesis-demo-state.js?v=8';
-import { PEOPLE } from './setup.js?v=46';
+import { PEOPLE } from './setup.js?v=47';
 
 // Track variant: after following people, the user bookmarks theses from them
 // on the existing deck; the last bookmarked card then stays on screen while Alva
