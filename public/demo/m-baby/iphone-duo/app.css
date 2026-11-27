@@ -732,7 +732,10 @@ span.exch { background: var(--br07); }
 .v-grid img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .v-grid .pic-dur { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(0,0,0,.56); color: #fff; font-size: 11px; }
 .v-grid .pic-dur .ic { color: #fff; }
-.v-info .v-grid { flex: 0 1 auto; min-height: 0; padding: 2px; margin-top: 0; }   /* many files: the grid scrolls inside its page, clear of the controls */
+.v-info .v-grid { flex: 0 1 auto; min-height: 0; padding: 2px; margin-top: 0; }
+.v-info { padding-left: 0; padding-right: 0; }
+.v-info .v-grid { padding: 2px 20px 24px; }   /* 2 px keeps the selected outline whole; the screen edge cuts the list */
+.v-info.tab .v-grid { flex: 1 1 auto; height: 100%; padding: 2px 20px; grid-auto-flow: column; grid-template-columns: none; grid-template-rows: repeat(2, 148px); grid-auto-columns: 148px; overflow-x: auto; overflow-y: hidden; }   /* many files: the grid scrolls inside its page, clear of the controls */
 
 /* Duo: the selected destination's icon (and Tab Bar label) is brand green */
 .rail-tabs button.on .ic, .rail-tabmin .ic, .tabbar button.on .ic, .tabbar button.on span { color: var(--m1) !important; }

@@ -1653,8 +1653,9 @@
       const dx = G.W - 20 - 48;
       const at = (v, x) => { const n = col.querySelector(`[data-v="${v}"]`); if (n) Object.assign(n.style, { left: x + 'px', top: yb + 'px' }); };
       at('download', dx); if (V.own) at('more', dx - 60);
-      const side = G.tab ? 20 + 48 + 12 + 60 : Math.max(20 + 48 + 12, 20 + G.padR);
-      Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: (G.tab ? tabRow : 24) + 'px' });
+      /* 11-27: tabletop — the name sits at the top of the upper half (centre y48), the controls stay in the bottom row */
+      const side = G.tab ? 140 : Math.max(20 + 48 + 12, 20 + G.padR);
+      Object.assign(head.style, { left: side + 'px', width: (G.W - 2 * side) + 'px', top: '24px' });
     }
     /* 11-27: scroll edge effect (HIG · Scroll views, iOS 26 soft style) — a variable blur that fades into the image
        wherever controls sit over it: along the top (status bar, name, ✕), along the bottom (scrubber, Download / ···),
@@ -1670,7 +1671,16 @@
     }
     const info = V.el.querySelector('.v-info');
     info.hidden = !G.info;
-    if (G.info) { Object.assign(info.style, { left: G.info.x + 'px', top: G.info.y + 'px', width: G.info.w + 'px', height: G.info.h + 'px', bottom: 'auto', paddingTop: (G.tab ? 24 : 84) + 'px', paddingBottom: G.info.pb + 'px' }); info.style.setProperty('--cols', G.tab ? 5 : 3); }
+    /* 11-27: the grid runs to the screen's edge and is cut there (no padded frame); 2 px inside so the selected
+       outline is never clipped. Tabletop: two rows that scroll sideways, between the fold and the bottom row.
+       Book: three columns that scroll down to the screen's bottom edge. */
+    info.classList.toggle('tab', !!G.tab);
+    if (G.info) {
+      if (G.tab) { const gh = 2 + 148 + 8 + 148 + 2, y0 = G.info.y, y1 = tabRow, gy = Math.round(y0 + (y1 - y0 - gh) / 2);
+        Object.assign(info.style, { left: '0px', top: gy + 'px', width: G.W + 'px', height: gh + 'px', bottom: 'auto', paddingTop: '0px', paddingBottom: '0px' }); }
+      else Object.assign(info.style, { left: G.info.x + 'px', top: '0px', width: G.info.w + 'px', height: G.H + 'px', bottom: 'auto', paddingTop: '82px', paddingBottom: '0px' });
+      info.style.setProperty('--cols', 3);
+    }
     vTrack(anim);
     vZoomApply(false);
     vPost();
