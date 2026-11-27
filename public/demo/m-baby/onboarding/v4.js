@@ -1,5 +1,7 @@
 /* Onboarding v4 · create your first thesis
- * Figma: Thesis MVP · section 17617:186252 (draft, 2026-11-27).
+ * Figma: Thesis MVP · section 17617:186252 (draft, 2026-11-27). Layout values
+ * follow get_design_context for each frame; icons are the frames' own SVGs
+ * (assets/v4/icons, exported from the file).
  *
  * Landing teaching (one screen, three pages; Next only changes the copy while
  * the grey stage moves) → Login (shared setup page) → Invite code → C1 example
@@ -16,7 +18,6 @@
  * are simulated.
  */
 import { node, escapeHTML as esc } from './ui.js';
-import { signalCard } from './intro.js?v=13';
 
 export const V4_STEPS = ['landing', 'login', 'invite', 'create', 'chat', 'profile', 'portfolio', 'ready', 'home'];
 
@@ -29,73 +30,82 @@ const easeInOut = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 const LOGO = {
   GOOGL: A('../assets/feed-logo-goog.svg'), AMZN: A('../assets/feed-logo-amzn.svg'), MSFT: A('../assets/feed-logo-msft-real.svg'),
-  NVDA: A('../assets/feed-logo-nvda-real.png'), TSLA: A('../assets/onboarding-tsla.svg'), QQQ: A('../assets/onboarding-qqq.svg'),
-  META: A('../assets/feed-logo-meta.svg'), MU: A('../assets/filter-logo-mu.png'), AAPL: A('assets/v4/logo-aapl.png'),
-  SNDK: A('assets/v4/logo-sndk.png'), AMD: A('../assets/feed-logo-amd.svg'),
+  NVDA: A('../assets/feed-logo-nvda-real.png'), TSM: A('../assets/feed-logo-tsm.png'), TSLA: A('../assets/onboarding-tsla.svg'),
+  QQQ: A('../assets/onboarding-qqq.svg'), META: A('../assets/feed-logo-meta.svg'), MU: A('../assets/filter-logo-mu.png'),
+  AAPL: A('assets/v4/logo-aapl.png'), SNDK: A('assets/v4/logo-sndk.png'), AMD: A('../assets/feed-logo-amd.svg'),
 };
 const IMG = {
   chartGoogl: A('../assets/feed-real-googl.png'), chartMsft: A('../assets/feed-real-msft.png'), chartAmzn: A('../assets/feed-real-amzn.png'),
-  chartNvda: A('../assets/feed-real-nvda.png'),
-  alva: A('assets/alva-source-12646-154584.svg'), alvaApp: A('assets/alva-app-icon.svg'),
+  alva: A('assets/alva-source-12646-154584.svg'),
   stewie: A('../assets/feed-source-gavin-baker.png'), matt: A('../assets/social-matt-bryson.png'), semi: A('../assets/social-semianalysis.png'),
   jamie: A('assets/v4/avatar-jamie.png'), mickie: A('assets/v4/avatar-mickie.png'),
 };
+const IC = name => A(`assets/v4/icons/${name}.svg`);
 const ICON = {
-  back: A('../assets/onboarding-arrow-left-l1.svg'), chat: A('../assets/ui-chat-ai-l.svg'), bookmark: A('../assets/thesis/first-card-imgBookmarkL.svg'),
-  share: A('../assets/social-share.svg'), suggest: A('../assets/social-chat.svg'), add: A('../assets/thesis/detail/add.svg'),
-  more: A('../assets/thesis/detail/more.svg'), up: A('../assets/ui-arrow-up-l1.svg'), check: A('../assets/ui-check-f2.svg'),
-  bell: A('../assets/onboarding-notification-l.svg'), down: A('../assets/ui-arrow-down-l2.svg'), right: A('../assets/ui-arrow-right-l2.svg'),
-  forYou: A('../assets/ui-for-you-f.svg'), search: A('../assets/onboarding-search-l.svg'), me: A('../assets/ui-me-l.svg'),
-  plus: A('../assets/ui-add-l2.svg'), mic: A('../assets/ui-microphone-l.svg'),
+  back: IC('arrow-left-l1'), chatAi: A('../assets/ui-chat-ai-l.svg'), bookmark: IC('bookmark-l'), share: IC('share-l'),
+  chatL1: IC('chat-l1'), addL1: IC('add-l1'), more: IC('more-l1'), up: A('../assets/ui-arrow-up-l1.svg'),
+  bell: IC('notification-l'), down: IC('arrow-down-l2'), right: IC('arrow-right-l2'), plus: IC('add-l2'), wave: IC('voice-wave-l'),
+  forYou: A('../assets/thesis/tabbar-imgForYouF.svg'), search: A('../assets/thesis/tabbar-imgSearchL1.svg'), me: A('../assets/ui-me-l.svg'),
+  addTab: A('../assets/ui-add-l2.svg'), like: IC('like-l'), close: IC('close-l1'), live: IC('live-l'), rank: IC('rank-f'),
+  camera: IC('camera-l'), checkTeal: IC('check-f2-teal'), checkInk: IC('check-f2-ink'), logoPortrait: IC('logo-portrait'),
 };
-const icon = (url, cls = '') => `<i class="v4-ic ${cls}" style="--ic:url('${url}')" aria-hidden="true"></i>`;
-const dial = dir => `<i class="v4-dial ${dir === 'down' ? 'is-down' : ''}">${icon(ICON.up)}</i>`;
+// Monochrome icons are masks so they follow the text colour (and dark mode).
+const ic = (url, size, cls = '') => `<i class="v4-ic ${cls}" style="--ic:url('${url}');--s:${size}px" aria-hidden="true"></i>`;
+const dial = dir => `<i class="v4-dial ${dir === 'down' ? 'is-down' : ''}">${ic(ICON.up, 8)}</i>`;
 const chip = (symbol, dir = 'up', cls = '') => `<span class="v4-chip ${cls}">${LOGO[symbol] ? `<img src="${LOGO[symbol]}" alt="">` : `<i class="v4-chip-blank"></i>`}<span>${esc(symbol)}</span>${dir ? dial(dir) : ''}</span>`;
 
-// A line from a seed; area under it, optional dots, all in one SVG.
-function spark(seed, { w = 72, h = 18, rise = .55, dots = 0, area = true, flat = false } = {}) {
-  const n = 28, pts = [];
-  let v = .5, r = seed;
-  for (let i = 0; i < n; i++) {
-    r = (r * 9301 + 49297) % 233280;
-    const noise = (r / 233280 - .5) * .12;
-    v = flat ? .5 : Math.min(.95, Math.max(.05, .78 - rise * (i / (n - 1)) + noise));
-    pts.push([i / (n - 1) * w, (flat ? .5 : v) * h]);
-  }
-  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
-  const id = `g${seed}${w}`;
-  const marks = dots ? pts.filter((_, i) => i && i % Math.floor(n / dots) === 0).map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" class="v4-spark-dot"/>`).join('') : '';
-  const end = pts.at(-1);
-  return `<svg class="v4-spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="none" aria-hidden="true">
-    <defs><linearGradient id="${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
-    ${area && !flat ? `<path d="${d} L${w} ${h} L0 ${h}Z" fill="url(#${id})" class="v4-spark-area"/>` : ''}
-    <path d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" class="v4-spark-line" pathLength="1"/>
-    ${marks}${dots || flat ? `<circle cx="${end[0].toFixed(1)}" cy="${end[1].toFixed(1)}" r="3" class="v4-spark-end"/>` : ''}
-  </svg>`;
+// Thesis return / Mini chart: 72×16, line 1, gradient 22%→0 (flat = not traded yet).
+function mini(seed, flat = false) {
+  if (flat) return `<svg class="v4-mini" viewBox="0 0 72 16" width="72" height="16" aria-hidden="true"><path d="M0 8.5H69" stroke="currentColor" stroke-width="1"/><circle cx="69.5" cy="8.5" r="2.5" fill="currentColor"/></svg>`;
+  const pts = []; let r = seed;
+  for (let i = 0; i < 24; i++) { r = (r * 9301 + 49297) % 233280; pts.push([i / 23 * 72, Math.max(1, Math.min(15, 13 - 10 * (i / 23) + (r / 233280 - .5) * 4))]); }
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('');
+  return `<svg class="v4-mini" viewBox="0 0 72 16" width="72" height="16" aria-hidden="true"><defs><linearGradient id="mg${seed}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="${d}L72 16L0 16Z" fill="url(#mg${seed})"/><path d="${d}" fill="none" stroke="currentColor" stroke-width="1"/></svg>`;
+}
+
+const avatarImg = (src, size = 32) => `<img class="v4-avatar" style="--s:${size}px" src="${src}" alt="">`;
+const meAvatar = (size = 32) => `<i class="v4-avatar v4-me" style="--s:${size}px" aria-hidden="true"></i>`;
+const actions = count => `<div class="v4-actions"><span>${ic(ICON.chatAi, 16)}Ask Alva</span><span>${ic(ICON.bookmark, 16)}${count}</span></div>`;
+
+/* Feed Card / Thesis (Content: padding 16 16 12, gap 12; Source post gap 8). */
+function feedCard({ name, role, time, avatar, tickers = [], ret, body, charts = [], bookmarks = 0, more = false, cls = '' }) {
+  return `<article class="v4-fc ${cls}">
+    <div class="v4-fc-post">
+      <div class="v4-id">${avatar}<div class="v4-id-copy"><strong>${esc(name)}</strong><span>${esc(role)}</span></div><time>${esc(time)}</time></div>
+      ${tickers.length || ret ? `<div class="v4-basket"><div class="v4-tickers"><div class="v4-ticker-track">${tickers.map(t => chip(t[0], t[1])).join('')}</div><i class="v4-fade" aria-hidden="true"></i></div>${ret ? `<div class="v4-ret ${ret.flat ? 'is-flat' : ''}">${mini(ret.seed, ret.flat)}<span>${ret.label}</span></div>` : ''}</div>` : ''}
+      <p class="v4-body">${body}${more ? ' <b class="v4-more">Show more</b>' : ''}</p>
+    </div>
+    ${charts.length ? `<div class="v4-media"><div class="v4-media-track">${charts.map(c => `<img src="${c}" alt="">`).join('')}</div></div>` : ''}
+    ${actions(bookmarks)}
+  </article>`;
 }
 
 function people(api) {
   const [gavin, satya, sam] = api.data.theses;
+  const one = t => ({ name: t.author, role: t.role, time: t.timestamp, avatar: avatarImg(api.asset(t.avatar)), body: esc(t.body) });
   return {
-    gavin: { ...gavin, avatarUrl: api.asset(gavin.avatar) },
-    satya: { ...satya, avatarUrl: api.asset(satya.avatar) },
-    sam: { ...sam, avatarUrl: api.asset(sam.avatar) },
+    gavin: { ...one(gavin), tickers: [['GOOGL', 'down'], ['AMZN', 'up'], ['MSFT', 'up'], ['NVDA', 'up'], ['TSM', 'up']], ret: { seed: 7, label: '+12.4%' }, body: `${esc(gavin.body)} <b class="v4-cite">[1]</b>`, charts: gavin.charts.map(id => api.asset(id)), bookmarks: 68 },
+    satya: { ...one(satya), tickers: [['MSFT', 'down']], ret: { seed: 3, label: '+12.4%' }, body: `${esc(satya.body)} <b class="v4-cite">[1]</b>`, charts: [api.asset(satya.charts[0])], bookmarks: 32 },
+    sam: { ...one(sam), body: `${esc(sam.body)} <b class="v4-cite">[1]</b>`, bookmarks: 63 },
   };
 }
 
-// Feed card (Feed Card / Thesis), used on C1, in the G3a list and in For You.
-function thesisCard(p, { tickers = [], ret, body, charts = [], bookmarks = 0, cls = '', role, time, avatar, more = false } = {}) {
-  return `<article class="v4-tcard ${cls}">
-    <div class="v4-author">${avatar || `<img class="v4-avatar" src="${p.avatarUrl}" alt="">`}<div class="v4-author-copy"><strong>${esc(p.author)}</strong><span>${esc(role ?? p.role)}</span></div><time>${esc(time ?? p.timestamp)}</time></div>
-    ${tickers.length || ret ? `<div class="v4-trow"><div class="v4-chips">${tickers.map(t => chip(t[0], t[1])).join('')}</div>${ret ? `<span class="v4-ret">${spark(ret.seed, { w: 72, h: 18, rise: ret.flat ? 0 : .55, flat: ret.flat })}<b>${ret.label}</b></span>` : ''}</div>` : ''}
-    <p class="v4-body">${body ?? esc(p.body)}${more ? '<span class="v4-more">Show more</span>' : ''}</p>
-    ${charts.length ? `<div class="v4-charts">${charts.map(c => `<img src="${c}" alt="">`).join('')}</div>` : ''}
-    <div class="v4-actions"><span>${icon(ICON.chat)}Ask Alva</span><span>${icon(ICON.bookmark)}${bookmarks}</span></div>
+// Signal / For You (onboarding stage): white card, quote block + Alva paragraph.
+function stageSignal(s, avatar) {
+  const tag = { Supports: 'is-supports', Mixed: 'is-mixed', Challenges: 'is-challenges' }[s.stance] || 'is-mixed';
+  return `<article class="v4-ssig">
+    <div class="v4-ssig-quote">
+      <div class="v4-ssig-id">${avatarImg(avatar)}<div class="v4-ssig-copy"><strong>${esc(s.source)}</strong><span>${esc(s.role)}</span></div><time>${esc(s.time)}</time></div>
+      <p>${esc(s.summary)} ${esc(new URL(s.url).hostname.replace(/^www\./, ''))} <span class="v4-arrow">↗︎</span></p>
+    </div>
+    <p class="v4-alva-para"><span class="v4-stance">${alvaMark()}<em class="${tag}">${esc(s.stance)}</em></span>${esc(s.analysis)}</p>
   </article>`;
 }
+const alvaMark = () => `<span class="v4-stance-alva"><img src="${IMG.alva}" alt="Alva"></span>`;
 
 function copySwap(holder, title, text) {
   const old = holder.querySelector('.v4-copy-text:not(.is-out)');
+  if (old && old.querySelector('h1').textContent === title) return;
   const next = node('div', 'v4-copy-text', `<h1>${esc(title)}</h1><p>${esc(text)}</p>`);
   holder.append(next);
   if (!old) return;
@@ -121,94 +131,105 @@ function tween(duration, ease, step, alive = () => true) {
 const LANDING = [
   { title: 'Write a thesis. Alva tracks it.', text: 'Every day Alva reads the news, filings and posts behind it, and tells you what supports or challenges it.' },
   { title: 'Alva trades it for you.', text: 'It builds a position from your thesis, adjusts it as you update, and shows you the return.' },
+  // G3a / G3b carry this copy while the stage moves to the Leaderboard…
+  { title: 'See whose calls are working.', text: 'The Leaderboard shows which theses are making money and the people behind them.' },
+  // …and G3 settles on this one.
   { title: 'Learn from the top theses.', text: 'The Leaderboard ranks theses by return. See what’s working for others.' },
 ];
 const BOARD = [
-  { name: 'Mickie', avatar: IMG.mickie, title: 'Nvidia Could Be Cisco 2000: Great Business, Poor Stock', ticker: 'NVDA', dir: 'down', ret: '+17.8%' },
-  { name: 'harryz', title: 'Semis face near-term multiple compression despite strong demand', ticker: 'SMH', dir: 'down', ret: '+11.9%' },
-  { name: 'Gavin Baker', avatarKey: 'gavin', title: 'Cheaper models redistribute AI margin toward infrastructure', ticker: 'GOOGL', dir: 'up', ret: '+12.4%' },
-  { name: 'Satya Nadella', avatarKey: 'satya', title: 'Azure capacity keeps compounding through 2027', ticker: 'MSFT', dir: 'up', ret: '+9.6%' },
+  { name: 'Mickie', avatar: IMG.mickie, title: 'Nvidia Could Be Cisco 2000: Great Business, Poor Stock', tickers: [['NVDA', 'down']], ret: '+17.8%' },
+  { name: 'harryz', title: 'Semis face near-term multiple compression despite strong demand', tickers: [['SMH', 'down']], ret: '+11.9%' },
+  { name: 'rosy_a', title: 'TSLA: bearish in the short term', tickers: [['TSLA', 'down']], ret: '+11.7%' },
+  { name: 'Mickie', avatar: IMG.mickie, title: 'NVDA Demand Cracks First at the Neoclouds', tickers: [['NVDA', 'down'], ['CRWV', 'down']], ret: '+11.0%' },
 ];
+const CARD_TOP = 131;   // stage cards start here (Figma: x 24, y 131, w 345)
+const G1_TOP = -210;    // G1 · the docked column (card scrolled up, Signals at y 195)
+const LIST_SCALE = .88;  // G3a · the list the card folds back into
 
 function renderLanding(api) {
   const P = people(api);
   const root = node('section', 'page v4-full v4-landing');
   root.setAttribute('aria-label', 'What Alva does');
   const signals = api.data.signals.slice(0, 3);
+  const returnLine = (() => {
+    // Thesis return / Version chart (313 × 40 inside the card's 16 inset): six
+    // segments, earlier updates hollow, latest filled, Now dot at the end.
+    const xs = [0, 16.98, 31.83, 48.81, 63.93, 80.9, 100], ys = [34.6, 31.2, 31.9, 21.2, 24.2, 15.8, 7.5];
+    const W = 313, pts = xs.map((x, i) => [x / 100 * W, ys[i]]);
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1]}`).join('');
+    const dots = pts.slice(1).map((p, i) => i === pts.length - 2 ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1]}" r="3" class="v4-dot-now"/>` : `<circle cx="${p[0].toFixed(1)}" cy="${p[1]}" r="2.5" class="${i === pts.length - 3 ? 'v4-dot-latest' : 'v4-dot-earlier'}"/>`).join('');
+    return `<svg class="v4-vchart" viewBox="0 0 ${W} 40" width="${W}" height="40" aria-hidden="true"><defs><linearGradient id="v4vc" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="v4-vchart-area" d="${d}L${W} 40L0 40Z" fill="url(#v4vc)"/><path class="v4-vchart-line" d="${d}" fill="none" stroke="currentColor" stroke-width="1.5" pathLength="1"/>${dots}</svg>`;
+  })();
+  const sigAvatars = signals.map(s => api.asset(s.avatar));
   root.innerHTML = `
     <div class="v4-stage" aria-hidden="true">
-      <div class="v4-layer v4-detail"><div class="v4-col">
-        <article class="v4-dcard">
-          <div class="v4-author"><img class="v4-avatar" src="${P.gavin.avatarUrl}" alt=""><div class="v4-author-copy"><strong>Gavin Baker</strong><span>Managing Partner &amp; CIO, Atreides</span></div><time>Jul 13</time></div>
-          <div class="v4-return"><b class="v4-return-num">+12.4%</b>${spark(7, { w: 313, h: 40, rise: .5, dots: 6 })}<div class="v4-return-axis"><span>24 Sep</span><span>Now</span></div></div>
-          <div class="v4-timeline">
-            <div class="v4-meta"><span>13 Sep, 08:12</span><span class="v4-latest">Latest</span></div>
-            <span class="v4-chip is-outlined"><img src="${LOGO.GOOGL}" alt=""><span>GOOGL</span>${dial('up')}</span>
-            <p class="v4-dbody">Cheaper models would increase the return on AI spending and drive more token demand, redistributing margin dollars toward AI infrastructure providers. [1]</p>
-            <div class="v4-charts"><img src="${IMG.chartGoogl}" alt=""><img src="${IMG.chartAmzn}" alt=""></div>
-          </div>
-          <div class="v4-actions"><span>${icon(ICON.chat)}Ask Alva</span><span>${icon(ICON.bookmark)}68</span></div>
-        </article>
+      <div class="v4-layer v4-g1"><div class="v4-col">
+        ${feedCard({ ...P.gavin, cls: 'v4-stage-card v4-g1-card' })}
         <h2 class="v4-signals-title">Signals</h2>
-        <div class="v4-signal-list"></div>
+        ${signals.map((s, i) => stageSignal(s, sigAvatars[i])).join('')}
       </div></div>
-      <div class="v4-layer v4-list"><div class="v4-col">
-        ${thesisCard(P.satya, { tickers: [['MSFT', 'up']], ret: { seed: 3, label: '+12.4%' }, charts: [IMG.chartMsft], bookmarks: 32, cls: 'v4-list-card is-above' })}
-        ${thesisCard(P.gavin, { tickers: [['GOOGL', 'down'], ['AMZN', 'up']], ret: { seed: 7, label: '+12.4%' }, body: `${esc(P.gavin.body)} <a>[1]</a>`, charts: [IMG.chartGoogl, IMG.chartAmzn], bookmarks: 68, cls: 'v4-list-card is-focus' })}
-        ${thesisCard(P.sam, { bookmarks: 41, cls: 'v4-list-card is-below' })}
-        ${thesisCard(P.satya, { tickers: [['MSFT', 'up']], ret: { seed: 11, label: '+8.1%' }, charts: [IMG.chartMsft], bookmarks: 32, cls: 'v4-list-card is-below' })}
+      <div class="v4-layer v4-g2"><div class="v4-col">
+        <article class="v4-stage-card v4-dcard">
+          <div class="v4-dc-author"><div class="v4-id">${P.gavin.avatar}<div class="v4-id-copy"><strong>Gavin Baker</strong><span>Managing Partner &amp; CIO, Atreides</span></div><time>Jul 13</time></div></div>
+          <div class="v4-ret-top"><b class="v4-ret-num">+12.4%</b><div class="v4-ret-chart">${returnLine}</div><div class="v4-axis"><span>24 Sep</span><span>Now</span></div></div>
+          <div class="v4-upd"><div class="v4-rail"><i class="v4-rail-dot"></i><i class="v4-rail-line"></i></div>
+            <div class="v4-upd-c"><div class="v4-time"><span>13 Sep, 08:12</span><span class="v4-latest">Latest</span></div>${chip('GOOGL', 'up')}
+              <p class="v4-body">Cheaper models would increase the return on AI spending and drive more token demand, redistributing margin dollars toward AI infrastructure providers. [1]</p>
+              <div class="v4-chart"><img src="${IMG.chartGoogl}" alt=""></div></div></div>
+        </article>
+      </div></div>
+      <div class="v4-layer v4-g3a"><div class="v4-col">
+        ${feedCard({ ...P.sam, cls: 'v4-stage-card is-above' })}
+        ${feedCard({ ...P.satya, cls: 'v4-stage-card is-above' })}
+        ${feedCard({ ...P.gavin, cls: 'v4-stage-card is-focus' })}
+        ${feedCard({ ...P.sam, cls: 'v4-stage-card is-below' })}
       </div></div>
       <div class="v4-layer v4-board"><div class="v4-col">
-        <div class="v4-board-head"><span class="v4-trophy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.35A5 5 0 0 1 13 14.9V17h3v3H8v-3h3v-2.1A5 5 0 0 1 8.35 12H8a4 4 0 0 1-4-4V5h3V3Zm0 4H6v1a2 2 0 0 0 1 1.73V7Zm10 0v2.73A2 2 0 0 0 18 8V7h-1Z"/></svg></span>
-          <h2>See whose calls are working.</h2><p>The Leaderboard shows which theses are making money and the people behind them.</p></div>
-        ${BOARD.map((row, i) => `<div class="v4-board-row"><b class="v4-rank">${i + 1}</b><div class="v4-board-main"><div class="v4-board-who">${row.avatar || row.avatarKey ? `<img src="${row.avatar || P[row.avatarKey].avatarUrl}" alt="">` : '<i class="v4-chip-blank is-avatar"></i>'}<span>${esc(row.name)}</span></div><strong>${esc(row.title)}</strong>${chip(row.ticker, row.dir)}</div><b class="v4-board-ret">${row.ret}</b></div>`).join('')}
+        <div class="v4-board-head"><span class="v4-trophy"><img src="${ICON.rank}" alt=""></span>
+          <div class="v4-board-title"><h2>See whose calls are working.</h2><p>The Leaderboard shows which theses are making money and the people behind them.</p></div></div>
+        <div class="v4-board-rows">${BOARD.map((row, i) => `<div class="v4-stage-card v4-board-row"><b class="v4-rank">${i + 1}</b><div class="v4-board-main"><div class="v4-board-who">${row.avatar ? `<img src="${row.avatar}" alt="">` : '<i class="v4-chip-blank is-avatar"></i>'}<span>${esc(row.name)}</span></div><strong>${esc(row.title)}</strong><div class="v4-board-chips">${row.tickers.map(t => chip(t[0], t[1])).join('')}</div></div><b class="v4-board-ret">${row.ret}</b></div>`).join('')}</div>
       </div></div>
+      <div class="v4-stage-blur"></div>
     </div>
     <header class="v4-land-top"><button type="button" class="setup-skip v4-skip">Skip</button></header>
     <div class="v4-land-copy"><span class="v4-step" aria-live="polite">1 / 3</span><div class="v4-copy-holder"></div></div>
-    <footer class="page-footer"><button class="btn btn-primary v4-next" type="button">Next</button></footer>`;
-  const list = root.querySelector('.v4-signal-list');
-  signals.forEach(s => list.append(signalCard(s, api)));
+    <footer class="setup-dock v4-land-dock"><button class="setup-next v4-next" type="button">Next</button></footer>`;
   const stage = root.querySelector('.v4-stage');
-  const detail = root.querySelector('.v4-detail'), listLayer = root.querySelector('.v4-list'), board = root.querySelector('.v4-board');
-  const col = detail.querySelector('.v4-col'), card = detail.querySelector('.v4-dcard');
+  const g1 = root.querySelector('.v4-g1'), g2 = root.querySelector('.v4-g2'), g3a = root.querySelector('.v4-g3a'), board = root.querySelector('.v4-board');
+  const g1col = g1.querySelector('.v4-col'), g1card = g1.querySelector('.v4-g1-card'), sigs = [...g1.querySelectorAll('.v4-ssig'), g1.querySelector('.v4-signals-title')];
+  const g3col = g3a.querySelector('.v4-col');
   const holder = root.querySelector('.v4-copy-holder'), step = root.querySelector('.v4-step'), next = root.querySelector('.v4-next');
-  let pageIndex = 0, token = 0, alive = true, colY = 0;
+  let pageIndex = 0, token = 0, alive = true;
   copySwap(holder, LANDING[0].title, LANDING[0].text);
-
-  const setCol = y => { colY = y; col.style.transform = `translateY(${-y}px)`; };
-  const signalsY = () => Math.max(0, root.querySelector('.v4-signals-title').offsetTop - 115);
-  const running = () => stage.getAnimations({ subtree: true });
+  const setY = (col, y) => { col.style.transform = `translateY(${y}px)`; };
   const valid = t => alive && t === token;
+  const running = () => stage.getAnimations({ subtree: true });
 
   // Final state of each page, without motion: also what an interrupted page snaps to.
   function settle(index) {
     running().forEach(a => a.cancel());
-    detail.hidden = index === 2; listLayer.hidden = true; board.hidden = index !== 2;
-    [detail, listLayer, board].forEach(l => { l.style.opacity = ''; l.style.filter = ''; l.style.transform = ''; });
-    card.style.opacity = '';
-    list.querySelectorAll('.signal-card').forEach(s => { s.style.opacity = ''; });
-    root.querySelector('.v4-return-num').textContent = '+12.4%';
-    if (index === 0) setCol(signalsY());
-    if (index === 1) setCol(0);
+    g1.hidden = index !== 0; g2.hidden = index !== 1; g3a.hidden = true; board.hidden = index !== 2;
+    [g1, g2, g3a, board].forEach(l => { l.style.opacity = ''; l.style.filter = ''; l.style.transform = ''; });
+    g1card.style.opacity = ''; sigs.forEach(s => { s.style.opacity = ''; });
+    root.querySelector('.v4-ret-num').textContent = '+12.4%';
+    setY(g1col, G1_TOP);
+    if (index === 2) { step.textContent = '3 / 3'; copySwap(holder, LANDING[3].title, LANDING[3].text); }
   }
 
   async function playG1(t) {
-    detail.hidden = false; board.hidden = true; listLayer.hidden = true;
-    setCol(0);
-    const cards = [...list.querySelectorAll('.signal-card')];
-    cards.forEach(s => { s.style.opacity = '0'; });
+    g1.hidden = false; g2.hidden = true; g3a.hidden = true; board.hidden = true;
+    setY(g1col, CARD_TOP);
     if (api.reduced()) return settle(0);
+    sigs.forEach(s => { s.style.opacity = '0'; });
     // The card rises from below, grows to size and docks.
-    await card.animate([{ opacity: 0, transform: 'translateY(360px) scale(.88)' }, { opacity: 1, offset: .35 }, { opacity: 1, transform: 'none' }],
+    await g1card.animate([{ opacity: 0, transform: 'translateY(360px) scale(.88)' }, { opacity: 1, offset: .35 }, { opacity: 1, transform: 'none' }],
       { duration: 760, easing: EASE, fill: 'backwards' }).finished.catch(() => {});
     if (!valid(t)) return;
     await sleep(260); if (!valid(t)) return;
     // The stage scrolls on; the signals come in one after another under it.
-    const to = signalsY(), from = colY;
-    const scroll = tween(1100, easeInOut, k => setCol(from + (to - from) * k), () => valid(t));
-    cards.forEach((s, i) => {
-      s.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 380 + i * 220, easing: EASE, fill: 'backwards' });
+    const scroll = tween(1100, easeInOut, k => setY(g1col, CARD_TOP + (G1_TOP - CARD_TOP) * k), () => valid(t));
+    [sigs.at(-1), ...sigs.slice(0, -1)].forEach((s, i) => {
+      s.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 320 + i * 200, easing: EASE, fill: 'backwards' });
       s.style.opacity = '';
     });
     await scroll;
@@ -216,38 +237,45 @@ function renderLanding(api) {
 
   async function playG2(t) {
     if (api.reduced()) return settle(1);
-    // Back up to the top of the thesis to show its return.
-    const from = colY;
-    await tween(820, easeInOut, k => setCol(from * (1 - k)), () => valid(t));
+    // Back up to the top of the thesis: the card opens into its detail page to show the return.
+    const scroll = tween(720, easeInOut, k => setY(g1col, G1_TOP + (CARD_TOP - G1_TOP) * k), () => valid(t));
+    g2.hidden = false;
+    g1.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, delay: 360, easing: 'ease-in', fill: 'forwards' });
+    g2.animate([{ opacity: 0, transform: 'scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 420, easing: EASE, fill: 'backwards' });
+    await scroll; await sleep(140);
     if (!valid(t)) return;
-    const line = card.querySelector('.v4-return .v4-spark-line'), area = card.querySelector('.v4-return .v4-spark-area');
-    line.animate([{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' });
-    area?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 300, easing: 'ease-out', fill: 'backwards' });
-    card.querySelectorAll('.v4-return circle').forEach((c, i) => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: 140 + i * 120, fill: 'backwards' }));
-    const num = root.querySelector('.v4-return-num');
+    g1.hidden = true;
+    const card = g2.querySelector('.v4-dcard');
+    card.querySelector('.v4-vchart-line').animate([{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' });
+    card.querySelector('.v4-vchart-area').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 300, easing: 'ease-out', fill: 'backwards' });
+    card.querySelectorAll('.v4-vchart circle').forEach((c, i) => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: 140 + i * 130, fill: 'backwards' }));
+    const num = root.querySelector('.v4-ret-num');
     await tween(900, easeOut, k => { num.textContent = `+${(12.4 * k).toFixed(1)}%`; }, () => valid(t));
   }
 
   async function playG3(t) {
     if (api.reduced()) return settle(2);
     // G3a · the thesis folds back into a list of theses…
-    listLayer.hidden = false;
-    const focus = listLayer.querySelector('.is-focus');
-    const lift = (detail.querySelector('.v4-dcard').getBoundingClientRect().top - focus.getBoundingClientRect().top);
-    detail.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: 360, easing: EASE, fill: 'forwards' });
-    focus.animate([{ opacity: 0, transform: `translateY(${lift}px) scale(1.04)` }, { opacity: 1, transform: 'none' }], { duration: 520, easing: EASE, fill: 'backwards' });
-    listLayer.querySelectorAll('.is-above').forEach(c => c.animate([{ opacity: 0, transform: 'translateY(-40px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 80, easing: EASE, fill: 'backwards' }));
-    listLayer.querySelectorAll('.is-below').forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(60px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120 + i * 60, easing: EASE, fill: 'backwards' }));
+    g3a.hidden = false;
+    const focus = g3a.querySelector('.is-focus');
+    // Figma G3a: the list is the card scaled to .88, neighbours 12 apart, current card back at y 131.
+    g3col.style.transform = `translateY(${CARD_TOP - focus.offsetTop * LIST_SCALE}px) scale(${LIST_SCALE})`;
+    g2.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `scale(${LIST_SCALE})` }], { duration: 420, easing: EASE, fill: 'forwards' });
+    focus.animate([{ opacity: 0, transform: `scale(${1 / LIST_SCALE})` }, { opacity: 1, offset: .4 }, { opacity: 1, transform: 'none' }], { duration: 520, easing: EASE, fill: 'backwards' });
+    g3a.querySelectorAll('.is-above').forEach(c => c.animate([{ opacity: 0, transform: 'translateY(-40px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 80, easing: EASE, fill: 'backwards' }));
+    g3a.querySelectorAll('.is-below').forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(60px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120 + i * 60, easing: EASE, fill: 'backwards' }));
     await sleep(820); if (!valid(t)) return;
-    detail.hidden = true;
-    // G3b · …that scrolls up fast and blurs, and the Leaderboard lands.
-    listLayer.animate([{ transform: 'none', filter: 'blur(0)' }, { transform: 'translateY(-620px)', filter: 'blur(10px)', opacity: 0 }], { duration: 560, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' });
+    g2.hidden = true;
+    // G3b · …that scrolls up fast and blurs, and the Leaderboard lands (G3).
+    g3a.animate([{ transform: 'none', filter: 'blur(0)' }, { transform: 'translateY(-620px)', filter: 'blur(10px)', opacity: 0 }], { duration: 560, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' });
     board.hidden = false;
     board.animate([{ opacity: 0, transform: 'translateY(160px)', filter: 'blur(10px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 640, delay: 300, easing: EASE, fill: 'backwards' });
     board.querySelector('.v4-trophy').animate([{ transform: 'scale(.6)' }, { transform: 'scale(1.08)', offset: .6 }, { transform: 'none' }], { duration: 520, delay: 560, easing: 'cubic-bezier(.3,0,.3,1)', fill: 'backwards' });
     board.querySelectorAll('.v4-board-row').forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 460, delay: 520 + i * 90, easing: EASE, fill: 'backwards' }));
-    await sleep(1400); if (!valid(t)) return;
-    listLayer.hidden = true;
+    await sleep(980); if (!valid(t)) return;
+    copySwap(holder, LANDING[3].title, LANDING[3].text);
+    await sleep(500); if (!valid(t)) return;
+    g3a.hidden = true;
   }
 
   async function show(index) {
@@ -265,9 +293,9 @@ function renderLanding(api) {
   stage.addEventListener('pointerdown', () => { if (running().length) { token++; settle(pageIndex); } });
   root.start = () => { show(0); };
   root.cleanup = () => { alive = false; token++; };
-  // Before start() the card waits below the stage, so the first frame matches the entrance.
-  card.style.opacity = '0';
-  queueMicrotask(() => { card.style.opacity = ''; });
+  g1.hidden = false; g2.hidden = true; g3a.hidden = true; board.hidden = true;
+  setY(g1col, CARD_TOP); g1card.style.opacity = '0'; sigs.forEach(s => { s.style.opacity = '0'; });
+  queueMicrotask(() => { g1card.style.opacity = ''; });
   if (api.reduced()) queueMicrotask(() => settle(0));
   return root;
 }
@@ -278,9 +306,9 @@ function renderInvite(api) {
   const root = node('section', 'setup-page v4-invite v4-full-bottom');
   root.setAttribute('aria-label', 'Alva is invite-only.');
   api.state.invite ||= '';
-  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-back" aria-label="Back"><img src="${ICON.back}" alt=""></button></header>
+  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-back" aria-label="Back">${ic(ICON.back, 20)}</button></header>
     <div class="v4-invite-body">
-      <div class="setup-heading"><h1>Alva is invite-only.</h1><p>A community of investors who track their theses in public. Enter the code a member gave you.</p></div>
+      <div class="v4-title-block"><h1>Alva is invite-only.</h1><p>A community of investors who track their theses in public. Enter the code a member gave you.</p></div>
       <label class="v4-code" aria-label="Invite code">${Array.from({ length: 6 }, (_, i) => `<span class="v4-code-cell" data-i="${i}"></span>`).join('')}
         <input class="v4-code-input" inputmode="text" autocomplete="one-time-code" autocapitalize="characters" maxlength="6" spellcheck="false" aria-label="Invite code"></label>
       <p class="v4-request">No invite code? <button type="button" class="v4-link">Request one</button></p>
@@ -292,11 +320,12 @@ function renderInvite(api) {
   let mode = 'abc';
   function drawKeyboard() {
     const rows = KEY_ROWS[mode];
-    kb.innerHTML = `<div class="v4-kb-row">${[...rows[0]].map(k => `<button type="button" class="v4-key" data-k="${esc(k)}">${esc(k)}</button>`).join('')}</div>
-      <div class="v4-kb-row is-mid">${[...rows[1]].map(k => `<button type="button" class="v4-key" data-k="${esc(k)}">${esc(k)}</button>`).join('')}</div>
-      <div class="v4-kb-row"><button type="button" class="v4-key is-fn" data-fn="shift">${mode === 'abc' ? '⇧' : '#+='}</button>${[...rows[2]].map(k => `<button type="button" class="v4-key" data-k="${esc(k)}">${esc(k)}</button>`).join('')}<button type="button" class="v4-key is-fn" data-fn="del">⌫</button></div>
+    const key = k => `<button type="button" class="v4-key" data-k="${esc(k)}">${esc(k)}</button>`;
+    kb.innerHTML = `<div class="v4-kb-row">${[...rows[0]].map(key).join('')}</div>
+      <div class="v4-kb-row is-mid">${[...rows[1]].map(key).join('')}</div>
+      <div class="v4-kb-row"><button type="button" class="v4-key is-fn" data-fn="shift">${mode === 'abc' ? '⇧' : '#+='}</button><span class="v4-kb-gap"></span>${[...rows[2]].map(key).join('')}<span class="v4-kb-gap"></span><button type="button" class="v4-key is-fn" data-fn="del">⌫</button></div>
       <div class="v4-kb-row"><button type="button" class="v4-key is-fn is-wide" data-fn="mode">${mode === 'abc' ? '123' : 'ABC'}</button><button type="button" class="v4-key is-space" data-k=" ">space</button><button type="button" class="v4-key is-fn is-wide" data-fn="return">return</button></div>
-      <div class="v4-kb-extra"><span>☺</span>${icon(ICON.mic)}</div>`;
+      <div class="v4-kb-extra"><span>☺</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0M12 17v4m-3 0h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>`;
   }
   function update() {
     const code = api.state.invite;
@@ -307,8 +336,7 @@ function renderInvite(api) {
   function type(ch) {
     if (/^[a-z0-9]$/i.test(ch) && api.state.invite.length < 6) {
       api.state.invite += ch.toUpperCase();
-      const cell = cells[api.state.invite.length - 1];
-      cell.animate([{ transform: 'scale(.92)' }, { transform: 'none' }], { duration: 160, easing: EASE });
+      cells[api.state.invite.length - 1].animate([{ transform: 'scale(.92)' }, { transform: 'none' }], { duration: 160, easing: EASE });
     }
     update();
   }
@@ -325,7 +353,7 @@ function renderInvite(api) {
   root.querySelector('.setup-back').addEventListener('click', () => api.go('login'));
   root.querySelector('.v4-link').addEventListener('click', () => api.toast('Request sent. We’ll email you when a spot opens.'));
   join.addEventListener('click', async () => {
-    join.disabled = true; join.innerHTML = '<span class="v4-spinner" aria-label="Checking"></span>';
+    join.disabled = true; join.classList.add('is-busy'); join.innerHTML = '<span class="v4-spinner" aria-label="Checking"></span>';
     await sleep(api.reduced() ? 0 : 650);
     if (root.isConnected) api.go('create');
   });
@@ -341,14 +369,14 @@ function renderCreate(api) {
   root.setAttribute('aria-label', 'Create your first thesis');
   root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-skip v4-switch">Switch account</button></header>
     <div class="v4-create-body">
-      <div class="setup-heading"><h1>Create your first thesis</h1><p>Write your view once. Alva tracks it every day and shows how the call performs.</p></div>
-      <h2 class="v4-subhead">Theses people are tracking</h2>
-      <div class="v4-carousel" tabindex="0" aria-label="Example theses">
-        ${thesisCard(P.gavin, { tickers: [['GOOGL', 'down'], ['AMZN', 'up']], ret: { seed: 7, label: '+12.4%' }, body: `${esc(P.gavin.body)} <a>[1]</a>`, charts: [IMG.chartGoogl, IMG.chartAmzn], bookmarks: 68, cls: 'v4-slide' })}
-        ${thesisCard(P.satya, { tickers: [['MSFT', 'down']], ret: { seed: 3, label: '+12.4%' }, body: `${esc(P.satya.body)} <a>[1]</a>`, charts: [IMG.chartMsft], bookmarks: 32, cls: 'v4-slide' })}
-        ${thesisCard(P.sam, { bookmarks: 41, cls: 'v4-slide' })}
+      <div class="v4-title-block"><h1>Create your first thesis</h1><p>Write your view once. Alva tracks it every day and shows how the call performs.</p></div>
+      <div class="v4-examples">
+        <h2 class="v4-subhead">Theses people are tracking</h2>
+        <div class="v4-carousel" tabindex="0" aria-label="Example theses">
+          ${feedCard({ ...P.gavin, cls: 'v4-slide' })}${feedCard({ ...P.satya, cls: 'v4-slide' })}${feedCard({ ...P.sam, cls: 'v4-slide' })}
+        </div>
+        <div class="v4-dots" aria-hidden="true"><i></i><i class="is-on"></i><i></i></div>
       </div>
-      <div class="v4-dots" aria-hidden="true"><i></i><i></i><i></i></div>
     </div>
     <footer class="setup-dock"><button class="setup-next v4-create-alva" type="button">Create with Alva</button></footer>`;
   const carousel = root.querySelector('.v4-carousel'), dots = [...root.querySelectorAll('.v4-dots i')];
@@ -359,9 +387,9 @@ function renderCreate(api) {
     slides.forEach((s, i) => { const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid); if (d < dist) { dist = d; best = i; } });
     return best;
   };
-  const paint = () => { const i = current(); dots.forEach((d, k) => d.classList.toggle('is-on', k === i)); slides.forEach((s, k) => s.classList.toggle('is-current', k === i)); };
+  const paint = () => { const i = current(); dots.forEach((d, k) => d.classList.toggle('is-on', k === i)); };
   carousel.addEventListener('scroll', () => requestAnimationFrame(paint), { passive: true });
-  const center = (i, behavior = 'auto') => carousel.scrollTo({ left: slides[i].offsetLeft - (carousel.clientWidth - slides[i].offsetWidth) / 2, behavior });
+  const center = i => { carousel.scrollLeft = slides[i].offsetLeft - (carousel.clientWidth - slides[i].offsetWidth) / 2; };
   root.querySelector('.v4-switch').addEventListener('click', () => api.go('login'));
   root.querySelector('.v4-create-alva').addEventListener('click', () => api.go('chat'));
   requestAnimationFrame(() => { center(1); paint(); });
@@ -371,22 +399,22 @@ function renderCreate(api) {
 /* ───────────────────────── CH1–CH3 · Alva chat ───────────────────────── */
 const OPTIONS_START = ['Start from one of the examples', 'I’m bearish on TSLA', 'Something about gold'];
 const DRAFTS = {
-  [OPTIONS_START[0]]: { said: 'NVDA keeps beating estimates as hyperscaler capex rises into 2027.', body: 'NVDA keeps beating estimates as hyperscaler capex rises into 2027. Demand is still ahead of supply, the product cycle is getting faster, and software lock-in keeps pricing power intact.', ticker: 'NVDA', side: 'long' },
+  [OPTIONS_START[0]]: { said: 'NVDA keeps beating estimates as hyperscaler capex rises into 2027.', body: 'NVDA keeps beating estimates as hyperscaler capex rises into 2027. Demand is still ahead of supply, the product cycle is getting faster, and CUDA keeps switching costs high.', ticker: 'NVDA', side: 'long' },
   [OPTIONS_START[1]]: { said: 'I’m bearish on TSLA', body: 'TSLA’s auto margins keep shrinking as price cuts outrun volume growth, and robotaxi revenue is still years away from offsetting it.', ticker: 'TSLA', side: 'short' },
   [OPTIONS_START[2]]: { said: 'Something about gold', body: 'Gold keeps climbing as central banks keep buying and real rates ease; dips are being bought faster than in past cycles.', ticker: 'GLD', side: 'long' },
 };
 function renderChat(api) {
-  const root = node('section', 'setup-page v4-chat');
+  const root = node('section', 'setup-page v4-chat v4-full');
   root.setAttribute('aria-label', 'Create a thesis with Alva');
-  root.innerHTML = `<header class="v4-chat-head"><button type="button" class="setup-back" aria-label="Back"><img src="${ICON.back}" alt=""></button>
-      <span class="v4-alva-pill"><img src="${IMG.alvaApp}" alt=""><b>Alva</b></span></header>
+  root.innerHTML = `<header class="v4-chat-head"><button type="button" class="v4-chat-back" aria-label="Back">${ic(ICON.back, 20)}</button>
+      <span class="v4-alva-pill"><img src="${ICON.logoPortrait}" alt=""><b>Alva</b></span></header>
     <div class="v4-chat-scroll"><div class="v4-chat-log" aria-live="polite"><p class="v4-chat-time">11:48 PM</p></div></div>
     <footer class="v4-chat-bottom">
-      <form class="v4-composer"><span class="v4-composer-plus">${icon(ICON.plus)}</span><input type="text" placeholder="Ask Alva, hold to talk" aria-label="Message Alva" enterkeyhint="send"><span class="v4-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></form>
-      <button class="setup-next v4-to-profile" type="button" hidden>Set up profile</button>
+      <form class="v4-composer"><span class="v4-cbtn">${ic(ICON.plus, 16)}</span><input type="text" placeholder="Ask Alva, hold to talk" aria-label="Message Alva" enterkeyhint="send"><span class="v4-cbtn">${ic(ICON.wave, 16)}</span></form>
+      <div class="setup-dock v4-chat-dock" hidden><button class="setup-next v4-to-profile" type="button">Set up profile</button></div>
     </footer>`;
   const scroller = root.querySelector('.v4-chat-scroll'), log = root.querySelector('.v4-chat-log');
-  const form = root.querySelector('.v4-composer'), field = form.querySelector('input'), toProfile = root.querySelector('.v4-to-profile');
+  const form = root.querySelector('.v4-composer'), field = form.querySelector('input'), dock = root.querySelector('.v4-chat-dock');
   let alive = true, busy = false, draft = null;
   const name = 'Hugo';
   const toBottom = () => {
@@ -395,37 +423,38 @@ function renderChat(api) {
     tween(420, easeOut, k => { scroller.scrollTop = from + (to - from) * k; }, () => alive);
   };
   const enter = el => { if (!api.reduced()) el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 360, easing: EASE, fill: 'backwards' }); };
-  async function alva(html, { options, onPick, cls = '' } = {}) {
-    const typing = node('div', 'v4-bubble is-alva is-typing', '<i></i><i></i><i></i>');
+  // Chat/Agent Bubble: Fill for wrapped text or options (right inset 28), Hug for one short line.
+  async function alva(html, { options, onPick, dashed = false, fill = true } = {}) {
+    const typing = node('div', 'v4-agent is-hug', '<div class="v4-bubble is-typing"><i></i><i></i><i></i></div>');
     log.append(typing); enter(typing); toBottom();
     await sleep(api.reduced() ? 0 : 750);
     if (!alive) return;
-    const bubble = node('div', `v4-bubble is-alva ${cls}`, html);
-    typing.replaceWith(bubble);
+    const row = node('div', `v4-agent ${fill ? '' : 'is-hug'}`, `<div class="v4-bubble ${options ? 'has-options' : ''}">${html}</div>`);
+    typing.replaceWith(row);
     if (options) {
       const group = node('div', 'v4-options');
       options.forEach((label, i) => {
-        const b = node('button', 'v4-option', `<span>${esc(label)}</span>`); b.type = 'button';
+        const b = node('button', `v4-option ${dashed ? 'is-dashed' : ''}`, `<span>${esc(label)}</span>`); b.type = 'button';
         b.addEventListener('click', () => { if (busy || group.dataset.done) return; group.dataset.done = '1'; mark(group, b); onPick(label); });
         group.append(b);
         if (!api.reduced()) b.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, delay: 120 + i * 70, easing: EASE, fill: 'backwards' });
       });
-      bubble.append(group);
+      row.querySelector('.v4-bubble').append(group);
     }
     toBottom();
-    return bubble;
+    return row;
   }
   function mark(group, chosen) {
     group.querySelectorAll('.v4-option').forEach(o => { o.disabled = true; o.classList.toggle('is-chosen', o === chosen); });
-    chosen.insertAdjacentHTML('beforeend', `<i class="v4-option-check" aria-hidden="true"></i>`);
+    chosen.insertAdjacentHTML('beforeend', `<img class="v4-option-check" src="${ICON.checkInk}" alt="">`);
   }
   function user(text) {
-    const b = node('div', 'v4-bubble is-user', esc(text));
+    const b = node('div', 'v4-user', `<div class="v4-bubble is-user">${esc(text)}</div>`);
     log.append(b); enter(b); toBottom();
   }
   function draftCard(d, label = 'Draft') {
-    const card = node('article', 'v4-draft', `<div class="v4-draft-who"><i class="v4-me-avatar" aria-hidden="true"></i><div><strong>${name}</strong><span class="v4-draft-label">${label}</span></div></div>
-      <p>${esc(d.body)}</p>${chip(d.ticker, null, 'is-quiet')}`);
+    const card = node('div', 'v4-draft-row', `<article class="v4-draft"><div class="v4-draft-who">${meAvatar(36)}<div><strong>${name}</strong><span class="v4-draft-label">${label}</span></div></div>
+      <p>${esc(d.body)}</p><span class="v4-draft-chip">${LOGO[d.ticker] ? `<img src="${LOGO[d.ticker]}" alt="">` : '<i class="v4-chip-blank"></i>'}${esc(d.ticker)}</span></article>`);
     log.append(card);
     if (!api.reduced()) card.animate([{ opacity: 0, transform: 'translateY(20px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: EASE, fill: 'backwards' });
     toBottom();
@@ -433,41 +462,40 @@ function renderChat(api) {
   }
   async function propose(d) {
     busy = true;
-    await alva(`Here’s a draft. I’ll track it on $${esc(d.ticker)}, ${d.side}.`);
+    await alva(`<p>Here’s a draft. I’ll track it on $${esc(d.ticker)}, ${d.side}.</p>`, { fill: false });
     if (!alive) return;
     await sleep(api.reduced() ? 0 : 200);
     d.card = draftCard(d);
     await sleep(api.reduced() ? 0 : 500);
-    await alva('<p>Want me to publish it, or change anything?</p>', { cls: 'has-options', options: ['Publish', 'Change something'], onPick: label => label === 'Publish' ? publish(d) : change(d) });
+    await alva('<p>Want me to publish it, or change anything?</p>', { options: ['Publish', 'Change something'], onPick: label => label === 'Publish' ? publish(d) : change(d) });
     busy = false;
   }
   async function publish(d) {
     busy = true; user('Publish');
     d.card.querySelector('.v4-draft-label').textContent = 'Your thesis';
     api.state.myThesis = { body: d.body, ticker: d.ticker, side: d.side, author: name };
-    await alva('Published. I’m already reading sources for it, and its simulated return starts today. Next, set up your profile so people know who’s behind the call.');
+    await alva('<p>Published. I’m already reading sources for it, and its simulated return starts today. Next, set up your profile so people know who’s behind the call.</p>');
     if (!alive) return;
     // CH3: the composer folds away and the next step takes its place.
     if (!api.reduced()) await form.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(12px)' }], { duration: 180, easing: 'ease-in', fill: 'forwards' }).finished.catch(() => {});
-    form.hidden = true; toProfile.hidden = false;
-    if (!api.reduced()) toProfile.animate([{ opacity: 0, transform: 'translateY(12px)' }], { duration: 320, easing: EASE, fill: 'backwards' });
+    form.hidden = true; dock.hidden = false; root.classList.add('is-published');
+    if (!api.reduced()) dock.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: EASE, fill: 'backwards' });
     toBottom();
   }
   async function change(d) {
     busy = true; user('Change something');
-    await alva('<p>Sure. What should change?</p>', { cls: 'has-options', options: ['Make it shorter', d.side === 'long' ? 'Make it a short' : 'Make it a long'], onPick: label => {
+    await alva('<p>Sure. What should change?</p>', { options: ['Make it shorter', d.side === 'long' ? 'Make it a short' : 'Make it a long'], onPick: label => {
       user(label);
       const next = { ...d };
-      if (label === 'Make it shorter') next.body = d.body.split(/(?<=\.)\s|;\s|,\s(?=and)/)[0].replace(/[;,]$/, '') + (/\.$/.test(d.body.split(/(?<=\.)\s/)[0]) ? '' : '.');
+      if (label === 'Make it shorter') next.body = d.body.split(/(?<=\.)\s/)[0];
       else next.side = d.side === 'long' ? 'short' : 'long';
       propose(next);
     } });
     busy = false;
   }
   function start(label, typed = false) {
-    const preset = DRAFTS[label];
-    let d = preset;
-    if (typed || !preset) {
+    let d = DRAFTS[label];
+    if (typed || !d) {
       const known = Object.keys(LOGO).find(sym => new RegExp(`\\$?\\b${sym}\\b`, 'i').test(label));
       d = { said: label, body: label.replace(/\s*$/, /[.!?]$/.test(label) ? '' : '.'), ticker: known || 'NVDA', side: /bear|short|fall|drop|down/i.test(label) ? 'short' : 'long' };
     }
@@ -480,15 +508,15 @@ function renderChat(api) {
     const text = field.value.trim(); if (!text || busy) return;
     field.value = '';
     if (draft) { user(text); api.toast('This preview only drafts your first message.'); return; }
-    log.querySelector('.v4-options')?.setAttribute('data-done', '1');
-    log.querySelectorAll('.v4-options .v4-option').forEach(o => { o.disabled = true; });
+    const group = log.querySelector('.v4-options');
+    if (group) { group.dataset.done = '1'; group.querySelectorAll('.v4-option').forEach(o => { o.disabled = true; }); }
     start(text, true);
   });
-  root.querySelector('.setup-back').addEventListener('click', () => api.go('create'));
-  toProfile.addEventListener('click', () => api.go('profile'));
+  root.querySelector('.v4-chat-back').addEventListener('click', () => api.go('create'));
+  root.querySelector('.v4-to-profile').addEventListener('click', () => api.go('profile'));
   root.start = async () => {
     await sleep(api.reduced() ? 0 : 200);
-    await alva('<p>Let’s write your first thesis. Tell me what you’re watching: a ticker, a theme, or your view in one sentence. I’ll draft it and find the data behind it.</p>', { cls: 'has-options is-starter', options: OPTIONS_START, onPick: label => start(label) });
+    await alva('<p>Let’s write your first thesis. Tell me what you’re watching: a ticker, a theme, or your view in one sentence. I’ll draft it and find the data behind it.</p>', { options: OPTIONS_START, dashed: true, onPick: label => start(label) });
   };
   root.cleanup = () => { alive = false; };
   return root;
@@ -500,17 +528,16 @@ function renderProfile(api) {
   api.state.watch ||= new Set(['NVDA', 'SNDK']);
   const root = node('section', 'setup-page v4-profile');
   root.setAttribute('aria-label', 'Set up your profile.');
-  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-back" aria-label="Back"><img src="${ICON.back}" alt=""></button></header>
+  root.innerHTML = `<header class="setup-topbar"><button type="button" class="setup-back" aria-label="Back">${ic(ICON.back, 20)}</button></header>
     <div class="v4-profile-body">
-      <div class="setup-heading"><h1>Set up your profile.</h1><p>From your X profile. This is how others see you.</p></div>
+      <div class="v4-title-block"><h1>Set up your profile.</h1><p>From your X profile. This is how others see you.</p></div>
       <div class="v4-identity">
-        <button type="button" class="v4-photo" aria-label="Change photo"><img src="${IMG.jamie}" alt=""><span class="v4-photo-edit"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 2 3.5 3H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H8.5l-.7-1H4.2Zm1.8 2.2a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6Z"/></svg></span></button>
-        <label class="v4-field"><span>Name</span><input value="Jamie Lin" autocomplete="name"></label>
-        <p class="v4-handle">@jamielin_ · <button type="button" class="v4-link">Edit</button></p>
-        <label class="v4-field"><span>Bio (optional)</span><input value="Semis &amp; AI infra. Long-only, 3–5y horizon." placeholder="What do you invest in?"></label>
+        <button type="button" class="v4-photo" aria-label="Change photo"><img src="${IMG.jamie}" alt=""><span class="v4-photo-edit">${ic(ICON.camera, 12)}</span></button>
+        <div class="v4-field"><label for="v4Name">Name</label><input id="v4Name" value="Jamie Lin" autocomplete="name"><p class="v4-handle">@jamielin_ · <button type="button" class="v4-link">Edit</button></p></div>
+        <div class="v4-field"><label for="v4Bio">Bio (optional)</label><input id="v4Bio" value="Semis &amp; AI infra. Long-only, 3–5y horizon." placeholder="What do you invest in?"></div>
       </div>
-      <div class="v4-follow"><h2>What do you follow? (optional)</h2><p>Added to your watchlist</p>
-        <div class="v4-follow-chips">${FOLLOW.map(s => `<button type="button" class="v4-follow-chip" data-sym="${s}"><img src="${LOGO[s]}" alt=""><span>${s}</span></button>`).join('')}<button type="button" class="v4-follow-chip is-more"><span>More</span>${icon(ICON.right)}</button></div>
+      <div class="v4-follow"><div class="v4-follow-head"><h2>What do you follow? (optional)</h2><p>Added to your watchlist</p></div>
+        <div class="v4-follow-chips">${FOLLOW.map(s => `<button type="button" class="v4-follow-chip" data-sym="${s}"><img src="${LOGO[s]}" alt=""><span>${s}</span><img class="v4-follow-check" src="${ICON.checkTeal}" alt=""></button>`).join('')}<button type="button" class="v4-follow-chip is-more"><span>More</span>${ic(ICON.right, 12)}</button></div>
       </div>
     </div>
     <footer class="setup-dock"><button class="setup-next" type="button">Continue</button></footer>`;
@@ -542,67 +569,69 @@ const GUIDE = [
 ];
 const DETAIL_SIGNALS = [
   { avatar: IMG.semi, name: 'SemiAnalysis', role: 'Semiconductor & AI research', time: '12 Aug, 07:00', quote: 'SemiAnalysis reports TPUv8i is in internal software bring-up, with work beginning on the public software stack.', link: 'x.com', stance: 'Mixed', analysis: 'TPU commercialization could support the infrastructure thesis; adoption and returns remain unproven.' },
-  { avatar: IMG.matt, name: 'Matt Bryson', role: 'Managing Director, Equity Research · Wedbush', time: '12 Aug, 03:00', quote: 'Matt Bryson, Wedbush analyst, sees an opportunity for Marvell and TSMC as Microsoft prepares Maia 300.', link: 'tradingview.com', stance: 'Mixed', analysis: 'Custom accelerators may lower compute costs; an unveiling is not evidence of deployment or returns.' },
+  { avatar: IMG.matt, name: 'Matt Bryson', role: 'Managing Director, Equity Research · Wedbush', time: '12 Aug, 03:00', quote: 'Matt Bryson, Wedbush analyst, sees an opportunity for Marvell and TSMC as Microsoft prepares Maia 300.', link: 'tradingview.com', stance: '', analysis: 'Custom accelerators may lower compute costs; an unveiling is not evidence of deployment or returns.' },
   { avatar: LOGO.AMD, name: 'Market data', role: 'Price & volume', time: '12 Aug, 10:40', quote: 'AMD closed above its July pullback high on volume 1.6× its 50-day average.', link: 'nasdaq.com', stance: 'Supports', analysis: 'Heavier volume on the breakout supports the view that more buyers are joining the advance.' },
 ];
-const thumb = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 7v6.5M5 7l2.4-4.6a1.2 1.2 0 0 1 2.2.9L9 6.5h3.3a1.3 1.3 0 0 1 1.3 1.5l-.8 4.4a1.3 1.3 0 0 1-1.3 1.1H5m0-6.5H3v6.5h2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>';
-const cross = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>';
+const PILLS = ['All', 'Chips', 'Memory', 'Hyperscaler', 'Neocloud', 'Enterprise AI', 'Agent Infra', 'Consumer AI', 'Space', 'Interconnect', 'Power', 'Crypto'];
 
 function renderHome(api) {
   const P = people(api);
-  const mine = api.state.myThesis || { body: DRAFTS[OPTIONS_START[0]].body.split('. ')[0] + '.', ticker: 'NVDA', author: 'Hugo' };
+  const mine = api.state.myThesis || { body: DRAFTS[OPTIONS_START[0]].said, ticker: 'NVDA', author: 'Hugo' };
   const shortBody = mine.body.split(/(?<=\.)\s/)[0];
   const root = node('section', 'page v4-full v4-home');
   root.setAttribute('aria-label', 'For You');
-  const pills = ['All', 'Chips', 'Memory', 'Hyperscaler', 'Neocloud', 'Power'];
   root.innerHTML = `
     <div class="v4-feed">
-      <header class="v4-feed-head"><h1>For You</h1><button type="button" class="v4-bell" aria-label="Notifications">${icon(ICON.bell)}</button></header>
-      <nav class="v4-pills">${pills.map((p, i) => `<span class="${i ? '' : 'is-on'}">${p}</span>`).join('')}<i class="v4-pills-more">${icon(ICON.down)}</i></nav>
+      <header class="v4-feed-head">
+        <div class="v4-feed-title"><h1>For You</h1><button type="button" class="v4-bell" aria-label="Notifications">${ic(ICON.bell, 20)}</button></div>
+        <div class="v4-pill-rail"><div class="v4-pills">${PILLS.map((p, i) => `<span class="${i ? '' : 'is-on'}">${esc(p)}</span>`).join('')}</div><i class="v4-pill-fade"></i><span class="v4-pill-more">${ic(ICON.down, 12)}</span></div>
+      </header>
       <div class="v4-feed-scroll">
-        <div class="v4-pinned">${thesisCard({ author: mine.author }, { avatar: '<i class="v4-me-avatar v4-avatar"></i>', role: 'Your thesis', time: 'Just now', tickers: [[mine.ticker, null]], ret: { seed: 5, label: '+0.0%', flat: true }, body: esc(shortBody), bookmarks: 0, cls: 'is-flat' })}</div>
-        ${thesisCard(P.gavin, { tickers: [['GOOGL', 'down'], ['AMZN', 'up']], ret: { seed: 7, label: '+12.4%' }, body: 'Baker argues that cheaper models are already lowering the cost of AI use. If cheaper models take share from frontier labs with high inference margins, customers could get more intelligence for each dollar and increase their token usage. Under that scenario, part of the profit pool could move from model providers to AI infrastructure. He sees low delivery cost per…', more: true, charts: [IMG.chartGoogl, IMG.chartAmzn], bookmarks: 68, cls: 'is-flat' })}
-        ${thesisCard(P.satya, { tickers: [['MSFT', 'up']], ret: { seed: 3, label: '+12.4%' }, charts: [IMG.chartMsft], bookmarks: 32, cls: 'is-flat' })}
-        ${thesisCard(P.sam, { bookmarks: 41, cls: 'is-flat' })}
+        ${feedCard({ name: mine.author, role: 'Your thesis', time: 'Just now', avatar: meAvatar(32), tickers: [[mine.ticker, null]], ret: { seed: 5, label: '+0.0%', flat: true }, body: esc(shortBody), bookmarks: 0, cls: 'is-feed v4-pinned' })}
+        ${feedCard({ ...P.gavin, body: 'Baker argues that cheaper models are already lowering the cost of AI use. If cheaper models take share from frontier labs with high inference margins, customers could get more intelligence for each dollar and increase their token usage. Under that scenario, part of the profit pool could move from model providers to AI infrastructure. He sees low delivery cost per…', more: true, cls: 'is-feed' })}
+        ${feedCard({ ...P.satya, cls: 'is-feed' })}
+        ${feedCard({ ...P.sam, cls: 'is-feed' })}
       </div>
-      <nav class="v4-tabbar" aria-label="Tabs"><div class="v4-tabs"><span class="is-on">${icon(ICON.forYou)}For You</span><span>${icon(ICON.chat)}Alva</span><span>${icon(ICON.search)}Search</span><span>${icon(ICON.me)}Me</span></div>
-        <button type="button" class="v4-fab" aria-label="Create">${icon(ICON.plus)}</button></nav>
+      <nav class="v4-tabbar" aria-label="Tabs"><div class="v4-tabs"><span class="is-on">${ic(ICON.forYou, 24)}For You</span><span>${ic(ICON.chatAi, 24)}Alva</span><span>${ic(ICON.search, 24)}Search</span><span>${ic(ICON.me, 24)}Me</span></div>
+        <button type="button" class="v4-fab" aria-label="Create">${ic(ICON.addTab, 28)}</button></nav>
     </div>
-    <div class="v4-detail-page gen-demo" hidden>
-      <header class="gen-topbar"><button class="gen-icon-btn v4-detail-back" type="button" aria-label="Back"><i class="gen-icon" style="--icon:url('${ICON.back}')"></i></button>
-        <div class="gen-identity"><img class="gen-avatar-32" src="${IMG.stewie}" alt=""><div class="gen-identity-copy"><strong>Traderstewie</strong><span>Trader · Trade setup</span></div></div>
-        <button class="gen-update v4-update" type="button"><i class="gen-icon" style="--icon:url('${ICON.add}')"></i>Update</button>
-        <button class="gen-icon-btn" type="button" aria-label="More"><i class="gen-icon" style="--icon:url('${ICON.more}')"></i></button></header>
-      <main class="gen-scroll v4-detail-scroll">
-        <section class="v4-sim"><b>+0.0%</b>${spark(1, { w: 361, h: 24, flat: true })}<div class="v4-return-axis"><span>Today</span><span>Now</span></div></section>
-        <section class="gen-update-block">
-          <div class="gen-meta"><span>Just now</span><span class="gen-chip-latest">Latest</span></div>
-          <div class="gen-ticker"><img src="${LOGO.GOOGL}" alt=""><span>GOOGL</span><i class="gen-dial"><i class="gen-icon" style="--icon:url('${ICON.up}')"></i></i></div>
-          <p class="gen-body">AMD is approaching its summer high as more buyers join the advance.<br>The stock has broken higher after its last pullback stopped above the previous low. Rising trading volume makes the recovery more convincing. [1]</p>
-          <div class="gen-chart"><img src="${IMG.chartGoogl}" alt="Alphabet · GOOGL chart"></div>
+    <div class="v4-detail-page" hidden>
+      <header class="v4-dtop"><button class="v4-dtop-back" type="button" aria-label="Back">${ic(ICON.back, 20)}</button>
+        <div class="v4-dtop-id"><img class="v4-avatar" style="--s:32px" src="${IMG.stewie}" alt=""><div><strong>Traderstewie</strong><span>Trader · Trade setup</span></div></div>
+        <button class="v4-update" type="button"><img src="${ICON.addL1}" alt="">Update</button>
+        <button class="v4-dtop-more" type="button" aria-label="More">${ic(ICON.more, 20)}</button></header>
+      <main class="v4-detail-scroll">
+        <section class="v4-sim"><b>+0.0%</b><div class="v4-sim-chart"><i class="v4-sim-line"></i><i class="v4-sim-now"></i></div><div class="v4-axis"><span>Today</span><span>Now</span></div></section>
+        <section class="v4-dupd">
+          <div class="v4-time"><span>Just now</span><span class="v4-latest">Latest</span></div>
+          ${chip('GOOGL', 'up')}
+          <div class="v4-dbody"><p>AMD is approaching its summer high as more buyers join the advance.</p><p>The stock has broken higher after its last pullback stopped above the previous low. Rising trading volume makes the recovery more convincing. [1]</p></div>
+          <div class="v4-chart"><img src="${IMG.chartGoogl}" alt="Alphabet · GOOGL chart"></div>
         </section>
-        <nav class="gen-tabs v4-dtabs"><button type="button" class="is-active" data-tab="overview">Overview</button><button type="button" data-tab="signals"><svg class="v4-radio" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M5.2 5.2a4 4 0 0 0 0 5.6M10.8 5.2a4 4 0 0 1 0 5.6M3.4 3.4a6.5 6.5 0 0 0 0 9.2M12.6 3.4a6.5 6.5 0 0 1 0 9.2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>Signals</button></nav>
+        <nav class="v4-dtabs"><div class="v4-dtabs-row"><button type="button" class="is-active" data-tab="overview"><img src="${ICON.live}" alt="">Overview</button><button type="button" data-tab="signals"><img src="${ICON.live}" alt="">Signals</button></div></nav>
         <section class="v4-panel" data-panel="overview">
           <article class="v4-overview"><div class="v4-overview-head"><img src="${IMG.alva}" alt=""><strong>Writing your first overview…</strong></div>
             <p>Alva is reading the sources behind your thesis to sum up what supports and challenges it.</p>
-            <div class="gen-skeleton v4-ov-skel"><i class="gen-bone" style="width:72px;height:20px;border-radius:6px"></i><i class="gen-bone" style="width:100%;height:12px"></i><i class="gen-bone" style="width:76%;height:12px"></i><i class="gen-bone" style="width:72px;height:20px;border-radius:6px;margin-top:8px"></i><i class="gen-bone" style="width:62%;height:12px"></i></div>
+            <div class="v4-skel"><i style="width:72px;height:20px"></i><i style="width:296px"></i><i style="width:243px"></i></div>
+            <div class="v4-skel"><i style="width:72px;height:20px"></i><i style="width:201px"></i></div>
           </article>
         </section>
         <section class="v4-panel v4-dsignals" data-panel="signals" hidden>
-          ${DETAIL_SIGNALS.map(s => `<article class="v4-dsignal"><div class="v4-dsignal-card"><div class="v4-author"><img class="v4-avatar" src="${s.avatar}" alt=""><div class="v4-author-copy"><strong>${esc(s.name)}</strong><span>${esc(s.role)}</span></div><time>${esc(s.time)}</time></div><p>${esc(s.quote)} <a>${esc(s.link)}</a></p></div>
-            <p class="v4-dsignal-analysis"><span class="gen-stance"><span class="gen-stance-alva"><img src="${IMG.alva}" alt=""></span><em class="gen-stance-tag ${s.stance === 'Supports' ? 'is-supports' : ''}">${s.stance}</em></span> ${esc(s.analysis)}</p>
-            <div class="v4-feedback">${thumb}${cross}</div></article>`).join('')}
+          ${DETAIL_SIGNALS.map(s => `<article class="v4-dsig"><div class="v4-dsig-quote"><div class="v4-dsig-id">${avatarImg(s.avatar)}<div class="v4-dsig-copy"><strong>${esc(s.name)}</strong><span>${esc(s.role)}</span></div><time>${esc(s.time)}</time></div><p>${esc(s.quote)} <a>${esc(s.link)}</a></p></div>
+            <p class="v4-alva-para is-detail"><span class="v4-stance ${s.stance ? '' : 'is-none'}">${alvaMark()}${s.stance ? `<em class="${s.stance === 'Supports' ? 'is-supports' : 'is-mixed'}">${s.stance}</em>` : ''}</span>${esc(s.analysis)}</p>
+            <div class="v4-feedback">${ic(ICON.like, 16)}${ic(ICON.close, 16)}</div></article>`).join('')}
         </section>
       </main>
-      <div class="gen-suggest"><button type="button"><i class="gen-icon" style="--icon:url('${ICON.suggest}')"></i>Summarize signals</button><button type="button"><i class="gen-icon" style="--icon:url('${ICON.suggest}')"></i>What changed today?</button><button type="button"><i class="gen-icon" style="--icon:url('${ICON.suggest}')"></i>Bull vs bear</button></div>
-      <footer class="gen-cta"><span class="gen-cta-ask"><i class="gen-icon" style="--icon:url('${ICON.chat}')"></i>Ask Alva</span><span class="gen-cta-actions"><span><i class="gen-icon" style="--icon:url('${ICON.bookmark}')"></i>68</span><i class="gen-icon" style="--icon:url('${ICON.share}')"></i></span></footer>
+      <div class="v4-suggest"><button type="button">${ic(ICON.chatL1, 14)}Summarize signals</button><button type="button">${ic(ICON.chatL1, 14)}What changed today?</button><button type="button">${ic(ICON.chatL1, 14)}Bull vs bear</button></div>
+      <footer class="v4-cta"><span class="v4-cta-ask">${ic(ICON.chatAi, 20)}Ask Alva</span><span class="v4-cta-right"><span class="v4-cta-save">${ic(ICON.bookmark, 20)}68</span><span class="v4-cta-share">${ic(ICON.share, 20)}</span></span></footer>
     </div>`;
-  const feed = root.querySelector('.v4-feed'), detail = root.querySelector('.v4-detail-page'), pinned = root.querySelector('.v4-pinned .v4-tcard');
+  const feed = root.querySelector('.v4-feed'), detail = root.querySelector('.v4-detail-page'), pinned = root.querySelector('.v4-pinned');
   const scroll = root.querySelector('.v4-detail-scroll'), tabs = root.querySelector('.v4-dtabs');
   const overlays = document.querySelector('#overlays');
   let alive = true, guideStep = -1, coach = null, opening = null;
+  const appEl = () => document.querySelector('.onboarding-app');
   const unit = () => root.getBoundingClientRect().width / root.offsetWidth || 1;
-  const rel = el => { const b = document.querySelector('.onboarding-app').getBoundingClientRect(), r = el.getBoundingClientRect(), u = unit(); return { x: (r.left - b.left) / u, y: (r.top - b.top) / u, w: r.width / u, h: r.height / u }; };
+  const rel = el => { const b = appEl().getBoundingClientRect(), r = el.getBoundingClientRect(), u = unit(); return { x: (r.left - b.left) / u, y: (r.top - b.top) / u, w: r.width / u, h: r.height / u }; };
 
   function selectTab(name) {
     tabs.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('is-active', b.dataset.tab === name));
@@ -615,7 +644,8 @@ function renderHome(api) {
     if (api.reduced() || Math.abs(to - from) < 2) { scroll.scrollTop = to; return Promise.resolve(); }
     return tween(ms, easeInOut, k => { scroll.scrollTop = from + (to - from) * k; }, () => alive);
   }
-  const tabsTop = () => root.querySelector('.v4-sim').offsetHeight + root.querySelector('.gen-update-block').offsetHeight;
+  const tabsTop = () => tabs.offsetTop - 12;   // the tabs stick 12 under the top bar (Figma y 143)
+  const tabRow = () => rel(tabs.querySelector('.v4-dtabs-row'));
 
   // The Thesis page grows out of the card, keeping its rounded corners until
   // it is full size, then squares them (thesis-motion's page expansion).
@@ -627,15 +657,15 @@ function renderHome(api) {
     const app = rel(root), c = rel(pinned);
     const inset = `inset(${c.y - app.y}px 0px ${app.y + app.h - (c.y + c.h)}px 0px round 12px)`;
     opening = detail.animate([{ clipPath: inset }, { clipPath: 'inset(0px 0px 0px 0px round 12px)', offset: .88 }, { clipPath: 'inset(0px 0px 0px 0px round 0px)' }], { duration: 520, easing: EASE_IO });
-    detail.querySelector('.gen-topbar').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 160, fill: 'backwards' });
+    detail.querySelector('.v4-dtop').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 160, fill: 'backwards' });
     feed.animate([{ transform: 'none' }, { transform: 'scale(.97)' }], { duration: 520, easing: EASE_IO });
     await opening.finished.catch(() => {});
   }
   async function closeDetail() {
     if (detail.hidden) return;
     if (!api.reduced()) {
-      const app = rel(root), c = rel(pinned);
       await scrollTo(0, 280);
+      const app = rel(root), c = rel(pinned);
       const inset = `inset(${c.y - app.y}px 0px ${app.y + app.h - (c.y + c.h)}px 0px round 12px)`;
       feed.animate([{ transform: 'scale(.97)' }, { transform: 'none' }], { duration: 460, easing: EASE_IO });
       await detail.animate([{ clipPath: 'inset(0px 0px 0px 0px round 0px)' }, { clipPath: 'inset(0px 0px 0px 0px round 12px)', offset: .1 }, { clipPath: inset, opacity: 1, offset: .9 }, { clipPath: inset, opacity: 0 }], { duration: 460, easing: EASE_IO }).finished.catch(() => {});
@@ -643,12 +673,13 @@ function renderHome(api) {
     detail.hidden = true; feed.inert = false;
   }
 
-  /* Coach mark: dimmed screen with a square-cornered hole and one bubble whose
-   * triangle points at the hole (Figma: white, padding 16, width 300, Shadow L,
-   * tip 16×9, 8 from the hole). The hole moves between steps. */
+  /* Coach mark (Figma Coach mark · 强制引导): black 24% with a square hole the
+   * size of the target; one bubble (white, padding 16, width 300, Shadow L)
+   * whose triangle (16 × 9) points at the hole from 8 away. The hole moves
+   * between steps. */
   function ensureCoach() {
     if (coach?.isConnected) return coach;
-    coach = node('div', 'v4-coach', `<div class="v4-coach-hole"></div><div class="v4-coach-tip"><svg class="v4-coach-arrow" viewBox="0 0 16 9" aria-hidden="true"><path d="M0 9 8 0l8 9Z"/></svg><div class="v4-coach-box" role="dialog" aria-modal="true" aria-labelledby="v4CoachTitle"><h2 id="v4CoachTitle"></h2><p></p><div class="v4-coach-foot"><span></span><button type="button" class="v4-coach-btn"></button></div></div></div>`);
+    coach = node('div', 'v4-coach', `<div class="v4-coach-hole"></div><div class="v4-coach-tip"><svg class="v4-coach-arrow" viewBox="0 0 16 10" aria-hidden="true"><path d="M0 10 8 0l8 10Z"/></svg><div class="v4-coach-box" role="dialog" aria-modal="true" aria-labelledby="v4CoachTitle"><div class="v4-coach-text"><h2 id="v4CoachTitle"></h2><p></p></div><div class="v4-coach-foot"><span></span><button type="button" class="v4-coach-btn"></button></div></div></div>`);
     overlays.append(coach);
     coach.querySelector('.v4-coach-btn').addEventListener('click', () => advance());
     coach.querySelector('.v4-coach-hole').addEventListener('click', () => advance());
@@ -657,7 +688,7 @@ function renderHome(api) {
   }
   function place(rect, i, align = 'center') {
     const c = ensureCoach(), hole = c.querySelector('.v4-coach-hole'), tip = c.querySelector('.v4-coach-tip'), arrow = c.querySelector('.v4-coach-arrow');
-    const W = document.querySelector('.onboarding-app').offsetWidth, BW = Math.min(300, W - 32);
+    const W = appEl().offsetWidth, BW = Math.min(300, W - 32);
     const first = !hole.style.width;
     hole.classList.toggle('is-moving', !first && !api.reduced());
     Object.assign(hole.style, { left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` });
@@ -669,7 +700,7 @@ function renderHome(api) {
     let left = align === 'left' ? 16 : align === 'right' ? W - 17 - BW : cx - BW / 2;
     left = Math.max(16, Math.min(W - 16 - BW, left));
     tip.style.width = `${BW}px`; tip.style.left = `${left}px`; tip.style.top = `${rect.y + rect.h + 8}px`;
-    arrow.style.left = `${Math.max(16, Math.min(BW - 32, cx - left - 8))}px`;
+    arrow.style.left = `${Math.max(12, Math.min(BW - 28, cx - left - 8))}px`;
     tip.getAnimations().forEach(a => a.cancel());
     if (!api.reduced()) tip.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, delay: first ? 120 : 200, easing: EASE, fill: 'backwards' });
     c.querySelector('.v4-coach-btn').focus({ preventScroll: true, focusVisible: false });
@@ -681,7 +712,7 @@ function renderHome(api) {
     if (api.reduced()) c.remove(); else c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.then(() => c.remove(), () => c.remove());
   }
   const union = (a, b) => { const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y); return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y }; };
-  const full = r => { const W = document.querySelector('.onboarding-app').offsetWidth; return { x: 0, y: r.y, w: W, h: r.h }; };
+  const full = r => ({ x: 0, y: r.y, w: appEl().offsetWidth, h: r.h });
 
   async function showStep(i) {
     guideStep = i;
@@ -690,11 +721,12 @@ function renderHome(api) {
     if (i === 2) {
       // The page scrolls itself until the tabs stick under the top bar.
       selectTab('overview'); await scrollTo(tabsTop());
-      place(full(union(rel(tabs), rel(root.querySelector('.v4-overview')))), 2); return;
+      const r = union(tabRow(), rel(root.querySelector('.v4-overview'))); r.h += 16;
+      place(full(r), 2); return;
     }
     if (i === 3) {
       selectTab('signals'); scroll.scrollTop = Math.min(scroll.scrollTop, tabsTop()); await scrollTo(tabsTop());
-      place(full(union(rel(tabs), rel(root.querySelector('.v4-dsignal'))) ), 3); return;
+      place(full(union(tabRow(), rel(root.querySelector('.v4-dsig')))), 3); return;
     }
     if (i === 4) {
       await scrollTo(0); selectTab('overview');
@@ -702,7 +734,7 @@ function renderHome(api) {
       place({ x: b.x - 6, y: b.y - 6, w: b.w + 12, h: b.h + 12 }, 4, 'right'); return;
     }
     if (i === 5) {
-      const b = rel(root.querySelector('.v4-detail-back'));
+      const b = rel(root.querySelector('.v4-dtop-back .v4-ic'));
       const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
       place({ x: cx - 22, y: cy - 22, w: 44, h: 44 }, 5, 'left');
     }
@@ -717,7 +749,7 @@ function renderHome(api) {
     return showStep(i + 1);
   }
   pinned.addEventListener('click', () => { if (guideStep < 0) openDetail(); });
-  root.querySelector('.v4-detail-back').addEventListener('click', () => { if (guideStep < 0) closeDetail(); });
+  root.querySelector('.v4-dtop-back').addEventListener('click', () => { if (guideStep < 0) closeDetail(); });
   root.querySelector('.v4-update').addEventListener('click', () => { if (guideStep < 0) api.toast('Updates are posted from the full app.'); });
 
   root.start = async () => {

@@ -13,7 +13,7 @@ const easeInOut = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 export function renderReadyPage(api) {
   const handoff = api.handoff; api.handoff = null;
-  const root = node('section', 'page ready-page');
+  const root = node('section', `page ready-page${api.variant === 'v4' ? ' is-v4' : ''}`);
   root.setAttribute('aria-label', 'You’re all set');
   root.innerHTML = `<div class="ready-under" aria-hidden="true"></div>
     <div class="ready-iris" aria-hidden="true"></div>
